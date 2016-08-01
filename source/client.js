@@ -1,11 +1,15 @@
 import cookie from 'cookie_js'
 
+const SESSION_KEY = "_baas_session";
+
 export default class MongoClient {
   constructor(db, appUrl) {
     this.db = db;
     this.appUrl = appUrl; // serverUrl 
     this.mongoSvcUrl = `${this.appUrl}/svc/mdb1`
     this.authUrl = `${this.appUrl}/auth`
+
+    this.checkRedirectResponse();
   }
 
   getBaseArgs(action, collection){
@@ -66,8 +70,40 @@ export default class MongoClient {
     this.execute(body, callback)
   }
 
+  /*
+    Auth Methods
+  */
+
+  checkRedirectResponse(){
+    var query = window.location.search.substring(1);
+    var vars = query.split('&');
+    var found = false;
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+        if (decodeURIComponent(pair[0]) == "_baas_error") {
+          this.lastError = decodeURIComponent(pair[1])
+          window.history.replaceState(null, "", this.baseUrl());
+          console.log(`MongoClient: error from '${this.appUrl}': ${this.lastError}`);
+          found = true;
+          break;
+        }
+        if (decodeURIComponent(pair[0]) == "_baas_session") {
+          localStorage.setItem(SESSION_KEY, decodeURIComponent(pair[1]));
+          found = true;
+          break;
+        }
+        if (decodeURIComponent(pair[0]) == "_baas_link") {
+          found = true;
+          break;
+        }
+    }
+    if (found) {
+      window.history.replaceState(null, "", this.baseUrl());
+    }
+  }
+
   authWithOAuth(providerName){
-    window.location.replace(`${this.authUrl}/oauth2/${providerName}?redirect=${encodeURI(window.location)}`);
+    window.location.replace(`${this.authUrl}/oauth2/${providerName}?redirect=${encodeURI(this.baseUrl())}`);
   }
 
   logout() {
@@ -78,42 +114,34 @@ export default class MongoClient {
         'Authorization': `Bearer ${this._session()}`
       }
     }).done((data) => {
-      localStorage.removeItem("session");
+      localStorage.removeItem(SESSION_KEY);
       location.reload();
     }).fail((data) => {
       // This is probably the wrong thing to do since it could have
       // failed for other reasons.
-      localStorage.removeItem("session");
+      localStorage.removeItem(SESSION_KEY);
       location.reload();
     });
   }
 
   _session(){
-    return localStorage.getItem("session");
+    return localStorage.getItem(SESSION_KEY);
   }
 
-  recoverAuth(){
+  auth(){
+    return this._session();
+  }
 
-    if (this._session() !== null) {
-      return this._session();
+  baseUrl(){
+    return [location.protocol, '//', location.host, location.pathname].join('');
+  }
+
+  linkWithOAuth(providerName){
+    if (this._session() === null) {
+      throw "Must auth before execute"
     }
 
-    var query = window.location.search.substring(1);
-    var vars = query.split('&');
-    var session = null;
-    for (var i = 0; i < vars.length; i++) {
-        var pair = vars[i].split('=');
-        if (decodeURIComponent(pair[0]) == "session") {
-            session = decodeURIComponent(pair[1]);
-            window.history.replaceState(null, "", window.location.href.split('?')[0]);
-        }
-    }
-
-    if (session !== null) {
-      localStorage.setItem("session", session);
-    }
-
-    return this._session()
+    window.location.replace(`${this.authUrl}/oauth2/${providerName}?redirect=${encodeURI(this.baseUrl())}&link=${this._session()}`);
   }
 }
 

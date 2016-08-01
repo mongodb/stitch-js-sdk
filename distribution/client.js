@@ -14,6 +14,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var SESSION_KEY = "_baas_session";
+
 var MongoClient = function () {
   function MongoClient(db, appUrl) {
     _classCallCheck(this, MongoClient);
@@ -22,7 +24,8 @@ var MongoClient = function () {
     this.appUrl = appUrl; // serverUrl 
     this.mongoSvcUrl = this.appUrl + "/svc/mdb1";
     this.authUrl = this.appUrl + "/auth";
-    console.log("got", this.mongoSvcUrl, this.authUrl);
+
+    this.checkRedirectResponse();
   }
 
   _createClass(MongoClient, [{
@@ -97,10 +100,44 @@ var MongoClient = function () {
       body.arguments["multi"] = multi;
       this.execute(body, callback);
     }
+
+    /*
+      Auth Methods
+    */
+
+  }, {
+    key: "checkRedirectResponse",
+    value: function checkRedirectResponse() {
+      var query = window.location.search.substring(1);
+      var vars = query.split('&');
+      var found = false;
+      for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+        if (decodeURIComponent(pair[0]) == "_baas_error") {
+          this.lastError = decodeURIComponent(pair[1]);
+          window.history.replaceState(null, "", this.baseUrl());
+          console.log("MongoClient: error from '" + this.appUrl + "': " + this.lastError);
+          found = true;
+          break;
+        }
+        if (decodeURIComponent(pair[0]) == "_baas_session") {
+          localStorage.setItem(SESSION_KEY, decodeURIComponent(pair[1]));
+          found = true;
+          break;
+        }
+        if (decodeURIComponent(pair[0]) == "_baas_link") {
+          found = true;
+          break;
+        }
+      }
+      if (found) {
+        window.history.replaceState(null, "", this.baseUrl());
+      }
+    }
   }, {
     key: "authWithOAuth",
     value: function authWithOAuth(providerName) {
-      window.location.replace(this.authUrl + "/oauth2/" + providerName + "?redirect=" + encodeURI(window.location));
+      window.location.replace(this.authUrl + "/oauth2/" + providerName + "?redirect=" + encodeURI(this.baseUrl()));
     }
   }, {
     key: "logout",
@@ -112,44 +149,38 @@ var MongoClient = function () {
           'Authorization': "Bearer " + this._session()
         }
       }).done(function (data) {
-        localStorage.removeItem("session");
+        localStorage.removeItem(SESSION_KEY);
         location.reload();
       }).fail(function (data) {
         // This is probably the wrong thing to do since it could have
         // failed for other reasons.
-        localStorage.removeItem("session");
+        localStorage.removeItem(SESSION_KEY);
         location.reload();
       });
     }
   }, {
     key: "_session",
     value: function _session() {
-      return localStorage.getItem("session");
+      return localStorage.getItem(SESSION_KEY);
     }
   }, {
-    key: "recoverAuth",
-    value: function recoverAuth() {
-
-      if (this._session() !== null) {
-        return this._session();
-      }
-
-      var query = window.location.search.substring(1);
-      var vars = query.split('&');
-      var session = null;
-      for (var i = 0; i < vars.length; i++) {
-        var pair = vars[i].split('=');
-        if (decodeURIComponent(pair[0]) == "session") {
-          session = decodeURIComponent(pair[1]);
-          window.history.replaceState(null, "", window.location.href.split('?')[0]);
-        }
-      }
-
-      if (session !== null) {
-        localStorage.setItem("session", session);
-      }
-
+    key: "auth",
+    value: function auth() {
       return this._session();
+    }
+  }, {
+    key: "baseUrl",
+    value: function baseUrl() {
+      return [location.protocol, '//', location.host, location.pathname].join('');
+    }
+  }, {
+    key: "linkWithOAuth",
+    value: function linkWithOAuth(providerName) {
+      if (this._session() === null) {
+        throw "Must auth before execute";
+      }
+
+      window.location.replace(this.authUrl + "/oauth2/" + providerName + "?redirect=" + encodeURI(this.baseUrl()) + "&link=" + this._session());
     }
   }]);
 
