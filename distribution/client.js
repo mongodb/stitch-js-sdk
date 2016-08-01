@@ -14,7 +14,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var SESSION_KEY = "_baas_session";
+var USER_AUTH_KEY = "_baas_ua";
 
 var MongoClient = function () {
   function MongoClient(db, appUrl) {
@@ -42,7 +42,7 @@ var MongoClient = function () {
   }, {
     key: "execute",
     value: function execute(body, callback) {
-      if (this._session() === null) {
+      if (this.auth() === null) {
         throw "Must auth before execute";
       }
 
@@ -53,7 +53,7 @@ var MongoClient = function () {
         data: JSON.stringify(body),
         dataType: 'json',
         headers: {
-          'Authorization': "Bearer " + this._session()
+          'Authorization': "Bearer " + this.auth()['token']
         }
       }).done(function (data) {
         return callback(data);
@@ -120,8 +120,8 @@ var MongoClient = function () {
           found = true;
           break;
         }
-        if (decodeURIComponent(pair[0]) == "_baas_session") {
-          localStorage.setItem(SESSION_KEY, decodeURIComponent(pair[1]));
+        if (decodeURIComponent(pair[0]) == "_baas_ua") {
+          localStorage.setItem(USER_AUTH_KEY, decodeURIComponent(pair[1]));
           found = true;
           break;
         }
@@ -146,27 +146,25 @@ var MongoClient = function () {
         type: 'DELETE',
         url: this.authUrl + "/logout",
         headers: {
-          'Authorization': "Bearer " + this._session()
+          'Authorization': "Bearer " + this.auth()['token']
         }
       }).done(function (data) {
-        localStorage.removeItem(SESSION_KEY);
+        localStorage.removeItem(USER_AUTH_KEY);
         location.reload();
       }).fail(function (data) {
         // This is probably the wrong thing to do since it could have
         // failed for other reasons.
-        localStorage.removeItem(SESSION_KEY);
+        localStorage.removeItem(USER_AUTH_KEY);
         location.reload();
       });
     }
   }, {
-    key: "_session",
-    value: function _session() {
-      return localStorage.getItem(SESSION_KEY);
-    }
-  }, {
     key: "auth",
     value: function auth() {
-      return this._session();
+      if (localStorage.getItem(USER_AUTH_KEY) === null) {
+        return null;
+      }
+      return JSON.parse(atob(localStorage.getItem(USER_AUTH_KEY)));
     }
   }, {
     key: "baseUrl",
@@ -176,11 +174,11 @@ var MongoClient = function () {
   }, {
     key: "linkWithOAuth",
     value: function linkWithOAuth(providerName) {
-      if (this._session() === null) {
+      if (this.auth() === null) {
         throw "Must auth before execute";
       }
 
-      window.location.replace(this.authUrl + "/oauth2/" + providerName + "?redirect=" + encodeURI(this.baseUrl()) + "&link=" + this._session());
+      window.location.replace(this.authUrl + "/oauth2/" + providerName + "?redirect=" + encodeURI(this.baseUrl()) + "&link=" + this.auth()['token']);
     }
   }]);
 

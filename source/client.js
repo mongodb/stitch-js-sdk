@@ -1,6 +1,6 @@
 import cookie from 'cookie_js'
 
-const SESSION_KEY = "_baas_session";
+const USER_AUTH_KEY = "_baas_ua";
 
 export default class MongoClient {
   constructor(db, appUrl) {
@@ -22,7 +22,7 @@ export default class MongoClient {
     }
   }
   execute(body, callback){
-    if (this._session() === null) {
+    if (this.auth() === null) {
       throw "Must auth before execute"
     }
 
@@ -33,7 +33,7 @@ export default class MongoClient {
       data: JSON.stringify(body),
       dataType: 'json',
       headers: {
-        'Authorization': `Bearer ${this._session()}`
+        'Authorization': `Bearer ${this.auth()['token']}`
       }
     }).done((data) => callback(data))
   }
@@ -87,8 +87,8 @@ export default class MongoClient {
           found = true;
           break;
         }
-        if (decodeURIComponent(pair[0]) == "_baas_session") {
-          localStorage.setItem(SESSION_KEY, decodeURIComponent(pair[1]));
+        if (decodeURIComponent(pair[0]) == "_baas_ua") {
+          localStorage.setItem(USER_AUTH_KEY, decodeURIComponent(pair[1]));
           found = true;
           break;
         }
@@ -111,25 +111,24 @@ export default class MongoClient {
       type: 'DELETE',
       url: this.authUrl + "/logout",
       headers: {
-        'Authorization': `Bearer ${this._session()}`
+        'Authorization': `Bearer ${this.auth()['token']}`
       }
     }).done((data) => {
-      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(USER_AUTH_KEY);
       location.reload();
     }).fail((data) => {
       // This is probably the wrong thing to do since it could have
       // failed for other reasons.
-      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(USER_AUTH_KEY);
       location.reload();
     });
   }
 
-  _session(){
-    return localStorage.getItem(SESSION_KEY);
-  }
-
   auth(){
-    return this._session();
+    if (localStorage.getItem(USER_AUTH_KEY) === null) {
+      return null;
+    }
+    return JSON.parse(atob(localStorage.getItem(USER_AUTH_KEY)));
   }
 
   baseUrl(){
@@ -137,11 +136,11 @@ export default class MongoClient {
   }
 
   linkWithOAuth(providerName){
-    if (this._session() === null) {
+    if (this.auth() === null) {
       throw "Must auth before execute"
     }
 
-    window.location.replace(`${this.authUrl}/oauth2/${providerName}?redirect=${encodeURI(this.baseUrl())}&link=${this._session()}`);
+    window.location.replace(`${this.authUrl}/oauth2/${providerName}?redirect=${encodeURI(this.baseUrl())}&link=${this.auth()['token']}`);
   }
 }
 
