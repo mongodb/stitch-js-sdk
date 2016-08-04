@@ -131,10 +131,18 @@ export default class MongoClient {
     return JSON.parse(atob(localStorage.getItem(USER_AUTH_KEY)));
   }
 
+  authedId(){
+    var a = this.auth();
+    if (a == null) {
+      return null;
+    }
+    return a['user']['_id'];
+  }
+  
   baseUrl(){
     return [location.protocol, '//', location.host, location.pathname].join('');
   }
-
+  
   linkWithOAuth(providerName){
     if (this.auth() === null) {
       throw "Must auth before execute"

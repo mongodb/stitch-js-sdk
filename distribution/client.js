@@ -167,6 +167,15 @@ var MongoClient = function () {
       return JSON.parse(atob(localStorage.getItem(USER_AUTH_KEY)));
     }
   }, {
+    key: "authedId",
+    value: function authedId() {
+      var a = this.auth();
+      if (a == null) {
+        return null;
+      }
+      return a['user']['_id'];
+    }
+  }, {
     key: "baseUrl",
     value: function baseUrl() {
       return [location.protocol, '//', location.host, location.pathname].join('');
