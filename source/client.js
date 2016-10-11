@@ -4,8 +4,7 @@ const USER_AUTH_KEY = "_baas_ua";
 
 export class BaasClient {
   constructor(appUrl) {
-    this.appUrl = appUrl; // serverUrl 
-    //this.mongoSvcUrl = `${this.appUrl}/svc/mdb1`
+    this.appUrl = appUrl;
     this.authUrl = `${this.appUrl}/auth`
     this.checkRedirectResponse();
   }
@@ -58,8 +57,11 @@ export class BaasClient {
     return [location.protocol, '//', location.host, location.pathname].join('');
   }
 
-
   checkRedirectResponse(){
+    if (typeof window === 'undefined') {
+      return
+    }
+
     var query = window.location.search.substring(1);
     var vars = query.split('&');
     var found = false;
@@ -104,61 +106,78 @@ export class BaasClient {
       }
     }).done((data) => callback(data))
   }
+}
 
+class DB {
+  constructor(client, service, name){
+    this.client = client;
+    this.service = service;
+    this.name = name;
+  }
+
+  getCollection(name){
+    return new Collection(this, name)
+  }
+}
+
+class Collection {
+  constructor(db, name){
+    this.db = db;
+    this.name = name;
+  }
+
+  getBaseArgs() {
+    return {
+      "database": this.db.name,
+      "collection": this.name,
+    }
+  }
+
+  // delete is a keyword in js, so this is called "remove" instead.
+  remove(query, singleDoc, callback){
+    let args = this.getBaseArgs()
+    args.query = query;
+    if(singleDoc){
+      args["singleDoc"] = true;
+    }
+    this.db.client.executeAction(this.db.service, "delete", args, callback)
+  }
+
+  find(query, project, callback){
+    let args = this.getBaseArgs()
+    args.query = query;
+    args.project = project;
+    this.db.client.executeAction(this.db.service, "find", args, callback)
+  }
+
+  insert(documents, callback){
+    let args = this.getBaseArgs()
+    args.documents = documents;
+    this.db.client.executeAction(this.db.service, "insert", args, callback)
+  }
+
+  update(query, update, upsert, multi, callback){
+    let args = this.getBaseArgs()
+    args.query = query;
+    args.update = update;
+    args.upsert = upsert;
+    args.multi = multi;
+    this.db.client.executeAction(this.db.service, "update", args, callback)
+  }
 
 }
 
 export class MongoClient {
 
-  constructor(baasClient, svcName) {
+  constructor(baasClient, serviceName) {
     this.baasClient = baasClient;
-    this.svcName = svcName;
+    this.service = serviceName;
   }
 
-  find(db, collection, query, project, callback){
-    let args = {
-      "database": db,
-      "collection": collection,
-      "query": query,
-      "project": project,
-    }
-    this.baasClient.executeAction(this.svcName, "find", args, callback)
+  getDb(name){
+    return new DB(this.baasClient, this.service, name)
   }
 
-  // delete is a keyword in js, so this is called "remove" instead.
-  remove(db, collection, query, singleDoc, callback){
-    let args = {
-      "database": db,
-      "collection": collection,
-      "query": query,
-    }
-    if(singleDoc){
-      args["singleDoc"] = true;
-    }
-    this.baasClient.executeAction(this.svcName, "delete", args, callback)
-  }
-
-  insert(db, collection, documents, callback){
-    let args = {
-      "database": db,
-      "collection": collection,
-      "documents": documents,
-    }
-    this.baasClient.executeAction(this.svcName, "insert", args, callback)
-  }
-
-  update(db, collection, query, update, upsert, multi, callback){
-    let args = {
-      "database": db,
-      "collection": collection,
-      "query" : query,
-      "update" : update,
-      "upsert" : upsert,
-      "multi" : multi,
-    }
-    this.baasClient.executeAction(this.svcName, "update", args, callback)
-  }
-  
 }
 
 

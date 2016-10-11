@@ -84,6 +84,10 @@ var BaasClient = exports.BaasClient = function () {
   }, {
     key: "checkRedirectResponse",
     value: function checkRedirectResponse() {
+      if (typeof window === 'undefined') {
+        return;
+      }
+
       var query = window.location.search.substring(1);
       var vars = query.split('&');
       var found = false;
@@ -117,7 +121,6 @@ var BaasClient = exports.BaasClient = function () {
         throw "Must auth before execute";
       }
       var payload = { action: action, arguments: args };
-      console.log("payload is", payload);
 
       $.ajax({
         type: 'POST',
@@ -137,68 +140,99 @@ var BaasClient = exports.BaasClient = function () {
   return BaasClient;
 }();
 
-var MongoClient = function () {
-  function MongoClient(baasClient, svcName) {
-    _classCallCheck(this, MongoClient);
+var DB = function () {
+  function DB(client, service, name) {
+    _classCallCheck(this, DB);
 
-    this.baasClient = baasClient;
-    this.svcName = svcName;
+    this.client = client;
+    this.service = service;
+    this.name = name;
   }
 
-  _createClass(MongoClient, [{
-    key: "find",
-    value: function find(db, collection, query, project, callback) {
-      console.log("baas client is", this.baasClient);
-      var args = {
-        "database": db,
-        "collection": collection,
-        "query": query,
-        "project": project
+  _createClass(DB, [{
+    key: "getCollection",
+    value: function getCollection(name) {
+      return new Collection(this, name);
+    }
+  }]);
+
+  return DB;
+}();
+
+var Collection = function () {
+  function Collection(db, name) {
+    _classCallCheck(this, Collection);
+
+    this.db = db;
+    this.name = name;
+  }
+
+  _createClass(Collection, [{
+    key: "getBaseArgs",
+    value: function getBaseArgs() {
+      console.log(this.db); //, this.db.name)
+      return {
+        "database": this.db.name,
+        "collection": this.name
       };
-      this.baasClient.executeAction(this.svcName, "find", args, callback);
     }
 
     // delete is a keyword in js, so this is called "remove" instead.
 
   }, {
     key: "remove",
-    value: function remove(db, collection, query, singleDoc, callback) {
-      var args = {
-        "database": db,
-        "collection": collection,
-        "query": query
-      };
+    value: function remove(query, singleDoc, callback) {
+      var args = this.getBaseArgs();
+      args.query = query;
       if (singleDoc) {
         args["singleDoc"] = true;
       }
-      this.baasClient.executeAction(this.svcName, "delete", args, callback);
+      this.db.client.executeAction(this.db.service, "delete", args, callback);
+    }
+  }, {
+    key: "find",
+    value: function find(query, project, callback) {
+      var args = this.getBaseArgs();
+      args.query = query;
+      args.project = project;
+      this.db.client.executeAction(this.db.service, "find", args, callback);
     }
   }, {
     key: "insert",
-    value: function insert(db, collection, documents, callback) {
-      var args = {
-        "database": db,
-        "collection": collection,
-        "documents": documents
-      };
-      this.baasClient.executeAction(this.svcName, "insert", args, callback);
+    value: function insert(documents, callback) {
+      var args = this.getBaseArgs();
+      args.documents = documents;
+      this.db.client.executeAction(this.db.service, "insert", args, callback);
     }
   }, {
     key: "update",
-    value: function update(db, collection, query, _update, upsert, multi, callback) {
-      var args = {
-        "database": db,
-        "collection": collection,
-        "query": query,
-        "update": _update,
-        "upsert": upsert,
-        "multi": multi
-      };
-      this.baasClient.executeAction(this.svcName, "update", args, callback);
+    value: function update(query, _update, upsert, multi, callback) {
+      var args = this.getBaseArgs();
+      args.query = query;
+      args.update = _update;
+      args.upsert = upsert;
+      args.multi = multi;
+      this.db.client.executeAction(this.db.service, "update", args, callback);
+    }
+  }]);
+
+  return Collection;
+}();
+
+var MongoClient = exports.MongoClient = function () {
+  function MongoClient(baasClient, serviceName) {
+    _classCallCheck(this, MongoClient);
+
+    this.baasClient = baasClient;
+    this.service = serviceName;
+  }
+
+  _createClass(MongoClient, [{
+    key: "getDb",
+    value: function getDb(name) {
+      return new DB(this.baasClient, this.service, name);
     }
   }]);
 
   return MongoClient;
 }();
-
-exports.MongoClient = MongoClient;
