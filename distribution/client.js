@@ -21,8 +21,7 @@ var BaasClient = exports.BaasClient = function () {
   function BaasClient(appUrl) {
     _classCallCheck(this, BaasClient);
 
-    this.appUrl = appUrl; // serverUrl 
-    //this.mongoSvcUrl = `${this.appUrl}/svc/mdb1`
+    this.appUrl = appUrl;
     this.authUrl = this.appUrl + "/auth";
     this.checkRedirectResponse();
   }
@@ -115,6 +114,26 @@ var BaasClient = exports.BaasClient = function () {
       }
     }
   }, {
+    key: "executePipeline",
+    value: function executePipeline(stages, callback) {
+      if (this.auth() === null) {
+        throw "Must auth before execute";
+      }
+
+      $.ajax({
+        type: 'POST',
+        contentType: "application/json",
+        url: this.appUrl + "/pipeline",
+        data: JSON.stringify(stages),
+        dataType: 'json',
+        headers: {
+          'Authorization': "Bearer " + this.auth()['token']
+        }
+      }).done(function (data) {
+        return callback(data);
+      });
+    }
+  }, {
     key: "executeAction",
     value: function executeAction(service, action, args, callback) {
       if (this.auth() === null) {
@@ -170,7 +189,6 @@ var Collection = function () {
   _createClass(Collection, [{
     key: "getBaseArgs",
     value: function getBaseArgs() {
-      console.log(this.db); //, this.db.name)
       return {
         "database": this.db.name,
         "collection": this.name

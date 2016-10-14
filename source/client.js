@@ -89,6 +89,23 @@ export class BaasClient {
     }
   }
 
+  executePipeline(stages, callback){
+    if (this.auth() === null) {
+      throw "Must auth before execute"
+    }
+
+    $.ajax({
+      type: 'POST',
+      contentType: "application/json",
+      url: `${this.appUrl}/pipeline`,
+      data: JSON.stringify(stages),
+      dataType: 'json',
+      headers: {
+        'Authorization': `Bearer ${this.auth()['token']}`
+      }
+    }).done((data) => callback(data))
+  }
+
   executeAction(service, action, args, callback){
     if (this.auth() === null) {
       throw "Must auth before execute"
