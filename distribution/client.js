@@ -115,12 +115,12 @@ var BaasClient = exports.BaasClient = function () {
     }
   }, {
     key: "executePipeline",
-    value: function executePipeline(stages, callback) {
+    value: function executePipeline(stages) {
       if (this.auth() === null) {
         throw "Must auth before execute";
       }
 
-      $.ajax({
+      return $.ajax({
         type: 'POST',
         contentType: "application/json",
         url: this.appUrl + "/pipeline",
@@ -129,19 +129,17 @@ var BaasClient = exports.BaasClient = function () {
         headers: {
           'Authorization': "Bearer " + this.auth()['token']
         }
-      }).done(function (data) {
-        return callback(data);
       });
     }
   }, {
     key: "executeAction",
-    value: function executeAction(service, action, args, callback) {
+    value: function executeAction(service, action, args) {
       if (this.auth() === null) {
         throw "Must auth before execute";
       }
       var payload = { action: action, arguments: args };
 
-      $.ajax({
+      return $.ajax({
         type: 'POST',
         contentType: "application/json",
         url: this.appUrl + "/svc/" + service,
@@ -150,8 +148,6 @@ var BaasClient = exports.BaasClient = function () {
         headers: {
           'Authorization': "Bearer " + this.auth()['token']
         }
-      }).done(function (data) {
-        return callback(data);
       });
     }
   }]);
@@ -199,38 +195,38 @@ var Collection = function () {
 
   }, {
     key: "remove",
-    value: function remove(query, singleDoc, callback) {
+    value: function remove(query, singleDoc) {
       var args = this.getBaseArgs();
       args.query = query;
       if (singleDoc) {
         args["singleDoc"] = true;
       }
-      this.db.client.executeAction(this.db.service, "delete", args, callback);
+      return this.db.client.executeAction(this.db.service, "delete", args);
     }
   }, {
     key: "find",
-    value: function find(query, project, callback) {
+    value: function find(query, project) {
       var args = this.getBaseArgs();
       args.query = query;
       args.project = project;
-      this.db.client.executeAction(this.db.service, "find", args, callback);
+      return this.db.client.executeAction(this.db.service, "find", args);
     }
   }, {
     key: "insert",
-    value: function insert(documents, callback) {
+    value: function insert(documents) {
       var args = this.getBaseArgs();
       args.documents = documents;
-      this.db.client.executeAction(this.db.service, "insert", args, callback);
+      return this.db.client.executeAction(this.db.service, "insert", args);
     }
   }, {
     key: "update",
-    value: function update(query, _update, upsert, multi, callback) {
+    value: function update(query, _update, upsert, multi) {
       var args = this.getBaseArgs();
       args.query = query;
       args.update = _update;
       args.upsert = upsert;
       args.multi = multi;
-      this.db.client.executeAction(this.db.service, "update", args, callback);
+      return this.db.client.executeAction(this.db.service, "update", args);
     }
   }]);
 
