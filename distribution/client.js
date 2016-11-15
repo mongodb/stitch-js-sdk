@@ -242,17 +242,17 @@ var Collection = function () {
   }, {
     key: "updateOne",
     value: function updateOne(query, update) {
-      return this.db.client.executePipeline(makeUpdateStage(query, update, false, false));
+      return this.db.client.executePipeline([this.makeUpdateStage(query, update, false, false)]);
     }
   }, {
     key: "updateMany",
     value: function updateMany(query, update, upsert, multi) {
-      return this.db.client.executePipeline(makeUpdateStage(query, update, false, true));
+      return this.db.client.executePipeline([this.makeUpdateStage(query, update, false, true)]);
     }
   }, {
     key: "upsert",
     value: function upsert(query, update) {
-      return this.db.client.executePipeline(makeUpdateStage(query, update, true, false));
+      return this.db.client.executePipeline([this.makeUpdateStage(query, update, true, false)]);
     }
   }]);
 
