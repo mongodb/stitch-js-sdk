@@ -210,15 +210,14 @@ var Collection = function () {
   }, {
     key: "insert",
     value: function insert(documents) {
-      var args = this.getBaseArgs();
-      args.documents = documents;
       return this.db.client.executePipeline([{ "action": "literal",
         "args": {
           "items": documents
         }
       }, {
         "service": this.db.service,
-        "action": "insert"
+        "action": "insert",
+        "args": this.getBaseArgs()
       }]);
     }
   }, {

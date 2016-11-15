@@ -174,8 +174,6 @@ class Collection {
   }
 
   insert(documents){
-    let args = this.getBaseArgs()
-    args.documents = documents;
     return this.db.client.executePipeline([
       {"action":"literal",
        "args":{
@@ -185,6 +183,7 @@ class Collection {
       {
         "service":this.db.service,
         "action":"insert", 
+        "args": this.getBaseArgs(),
       }
     ])
   }
