@@ -106,23 +106,6 @@ export class BaasClient {
     })
   }
 
-  executeAction(service, action, args){
-    if (this.auth() === null) {
-      throw "Must auth before execute"
-    }
-    let payload = { action: action, arguments:args }
-
-    return $.ajax({
-      type: 'POST',
-      contentType: "application/json",
-      url: `${this.appUrl}/svc/${service}`,
-      data: JSON.stringify(payload),
-      dataType: 'json',
-      headers: {
-        'Authorization': `Bearer ${this.auth()['token']}`
-      }
-    })
-  }
 }
 
 class DB {
@@ -150,36 +133,90 @@ class Collection {
     }
   }
 
-  // delete is a keyword in js, so this is called "remove" instead.
-  remove(query, singleDoc){
+  deleteOne(query){
     let args = this.getBaseArgs()
     args.query = query;
-    if(singleDoc){
-      args["singleDoc"] = true;
-    }
-    return this.db.client.executeAction(this.db.service, "delete", args)
+    args.singleDoc = true
+    return this.db.client.executePipeline([
+      {
+        "service":this.db.service,
+        "action":"delete", 
+        "args":args
+      }
+    ])
   }
+
+  deleteMany(query){
+    let args = this.getBaseArgs()
+    args.query = query;
+    args.singleDoc = false
+    return this.db.client.executePipeline([
+      {
+        "service":this.db.service,
+        "action":"delete", 
+        "args":args
+      }
+    ])
+  }
+
 
   find(query, project){
     let args = this.getBaseArgs()
     args.query = query;
     args.project = project;
-    return this.db.client.executeAction(this.db.service, "find", args)
+    return this.db.client.executePipeline([
+      {
+        "service":this.db.service,
+        "action":"find", 
+        "args":args
+      }
+    ])
   }
 
   insert(documents){
     let args = this.getBaseArgs()
     args.documents = documents;
-    return this.db.client.executeAction(this.db.service, "insert", args)
+    return this.db.client.executePipeline([
+      {"action":"literal",
+       "args":{
+          "items":documents,
+       }
+      },
+      {
+        "service":this.db.service,
+        "action":"insert", 
+      }
+    ])
   }
 
-  update(query, update, upsert, multi){
+  makeUpdateStage(query, update, upsert, multi){
     let args = this.getBaseArgs()
     args.query = query;
     args.update = update;
-    args.upsert = upsert;
-    args.multi = multi;
-    return this.db.client.executeAction(this.db.service, "update", args)
+    if(upsert){
+      args.upsert = true;
+    }
+    if(multi){
+      args.multi = true;
+    }
+
+    return {
+      "service":this.db.service,
+      "action":"update", 
+      "args":args
+    }
+  }
+
+  updateOne(query, update){
+    return this.db.client.executePipeline( makeUpdateStage(query, update, false, false))
+  }
+
+  updateMany(query, update, upsert, multi){
+    return this.db.client.executePipeline( makeUpdateStage(query, update, false, true))
+  }
+
+  upsert(query, update){
+    return this.db.client.executePipeline( makeUpdateStage(query, update, true, false))
   }
 
 }

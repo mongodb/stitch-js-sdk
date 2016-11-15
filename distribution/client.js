@@ -131,25 +131,6 @@ var BaasClient = exports.BaasClient = function () {
         }
       });
     }
-  }, {
-    key: "executeAction",
-    value: function executeAction(service, action, args) {
-      if (this.auth() === null) {
-        throw "Must auth before execute";
-      }
-      var payload = { action: action, arguments: args };
-
-      return $.ajax({
-        type: 'POST',
-        contentType: "application/json",
-        url: this.appUrl + "/svc/" + service,
-        data: JSON.stringify(payload),
-        dataType: 'json',
-        headers: {
-          'Authorization': "Bearer " + this.auth()['token']
-        }
-      });
-    }
   }]);
 
   return BaasClient;
@@ -190,18 +171,29 @@ var Collection = function () {
         "collection": this.name
       };
     }
-
-    // delete is a keyword in js, so this is called "remove" instead.
-
   }, {
-    key: "remove",
-    value: function remove(query, singleDoc) {
+    key: "deleteOne",
+    value: function deleteOne(query) {
       var args = this.getBaseArgs();
       args.query = query;
-      if (singleDoc) {
-        args["singleDoc"] = true;
-      }
-      return this.db.client.executeAction(this.db.service, "delete", args);
+      args.singleDoc = true;
+      return this.db.client.executePipeline([{
+        "service": this.db.service,
+        "action": "delete",
+        "args": args
+      }]);
+    }
+  }, {
+    key: "deleteMany",
+    value: function deleteMany(query) {
+      var args = this.getBaseArgs();
+      args.query = query;
+      args.singleDoc = false;
+      return this.db.client.executePipeline([{
+        "service": this.db.service,
+        "action": "delete",
+        "args": args
+      }]);
     }
   }, {
     key: "find",
@@ -209,24 +201,59 @@ var Collection = function () {
       var args = this.getBaseArgs();
       args.query = query;
       args.project = project;
-      return this.db.client.executeAction(this.db.service, "find", args);
+      return this.db.client.executePipeline([{
+        "service": this.db.service,
+        "action": "find",
+        "args": args
+      }]);
     }
   }, {
     key: "insert",
     value: function insert(documents) {
       var args = this.getBaseArgs();
       args.documents = documents;
-      return this.db.client.executeAction(this.db.service, "insert", args);
+      return this.db.client.executePipeline([{ "action": "literal",
+        "args": {
+          "items": documents
+        }
+      }, {
+        "service": this.db.service,
+        "action": "insert"
+      }]);
     }
   }, {
-    key: "update",
-    value: function update(query, _update, upsert, multi) {
+    key: "makeUpdateStage",
+    value: function makeUpdateStage(query, update, upsert, multi) {
       var args = this.getBaseArgs();
       args.query = query;
-      args.update = _update;
-      args.upsert = upsert;
-      args.multi = multi;
-      return this.db.client.executeAction(this.db.service, "update", args);
+      args.update = update;
+      if (upsert) {
+        args.upsert = true;
+      }
+      if (multi) {
+        args.multi = true;
+      }
+
+      return {
+        "service": this.db.service,
+        "action": "update",
+        "args": args
+      };
+    }
+  }, {
+    key: "updateOne",
+    value: function updateOne(query, update) {
+      return this.db.client.executePipeline(makeUpdateStage(query, update, false, false));
+    }
+  }, {
+    key: "updateMany",
+    value: function updateMany(query, update, upsert, multi) {
+      return this.db.client.executePipeline(makeUpdateStage(query, update, false, true));
+    }
+  }, {
+    key: "upsert",
+    value: function upsert(query, update) {
+      return this.db.client.executePipeline(makeUpdateStage(query, update, true, false));
     }
   }]);
 
