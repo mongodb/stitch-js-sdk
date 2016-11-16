@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.MongoClient = exports.BaasClient = undefined;
+exports.Admin = exports.MongoClient = exports.BaasClient = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -275,4 +275,198 @@ var MongoClient = exports.MongoClient = function () {
   }]);
 
   return MongoClient;
+}();
+
+var Admin = exports.Admin = function () {
+  function Admin(baseUrl) {
+    _classCallCheck(this, Admin);
+
+    this._baseUrl = baseUrl;
+  }
+
+  _createClass(Admin, [{
+    key: "localAuth",
+    value: function localAuth(username, password) {
+      return this._post("/auth/local/userpass", { username: username, password: password });
+    }
+  }, {
+    key: "_ajaxArgs",
+    value: function _ajaxArgs(method, url, data) {
+      return {
+        type: method,
+        contentType: "application/json",
+        dataType: "json",
+        xhrFields: { withCredentials: true },
+        url: "" + this._baseUrl + url,
+        data: JSON.stringify(data),
+        crossDomain: true
+      };
+    }
+  }, {
+    key: "_do",
+    value: function _do(method, url, data) {
+      return $.ajax(this._ajaxArgs(method, url, data));
+    }
+  }, {
+    key: "_get",
+    value: function _get(url) {
+      return this._do("GET", url);
+    }
+  }, {
+    key: "_delete",
+    value: function _delete(url) {
+      return this._do("DELETE", url);
+    }
+  }, {
+    key: "_post",
+    value: function _post(url, data) {
+      return this._do("POST", url, data);
+    }
+
+    /* Examples of how to access admin API with this client:
+     *
+     * List all apps
+     *    a.apps().list()   
+     *
+     * Fetch app under name "planner"
+     *    a.apps().app("planner").get()   
+     *
+     * List services under the app "planner"
+     *    a.apps().app("planner").services().list()
+     *
+     * Delete a rule by ID
+     *    a.apps().app("planner").services().service("mdb1").rules().rule("580e6d055b199c221fcb821d").remove()
+     *
+     */
+
+  }, {
+    key: "apps",
+    value: function apps() {
+      var _this = this;
+
+      var root = this;
+      return {
+        list: function list() {
+          return root._get("/apps");
+        },
+        create: function create(data) {
+          return root._post("/apps", data);
+        },
+        app: function app(_app) {
+          return {
+            get: function get() {
+              return root._get("/apps/" + _app);
+            },
+            remove: function remove() {
+              return root._delete("/apps/" + _app);
+            },
+
+            variables: function variables() {
+              return {
+                list: function list() {
+                  return _this._get("/apps/" + _app + "/vars");
+                },
+                create: function create(data) {
+                  return _this._post("/apps/" + _app + "/vars", data);
+                },
+                variable: function variable(varName) {
+                  return {
+                    get: function get() {
+                      return _this._get("/apps/" + _app + "/vars/" + varName);
+                    },
+                    remove: function remove() {
+                      return _this._delete("/apps/" + _app + "/vars/" + varName);
+                    },
+                    update: function update(data) {
+                      return _this._post("/apps/" + _app + "/vars/" + varName, data);
+                    }
+                  };
+                }
+              };
+            },
+
+            services: function services() {
+              return {
+                list: function list() {
+                  return _this._get("/apps/" + _app + "/services");
+                },
+                create: function create(data) {
+                  return _this._post("/apps/" + _app + "/services", data);
+                },
+                service: function service(svc) {
+                  return {
+                    get: function get() {
+                      return _this._get("/apps/" + _app + "/services/" + svc);
+                    },
+                    update: function update(data) {
+                      return _this._post("/apps/" + _app + "/services/" + svc, data);
+                    },
+                    remove: function remove() {
+                      return _this._delete("/apps/" + _app + "/services/" + svc);
+                    },
+                    getConfig: function getConfig() {
+                      return _this._get("/apps/" + _app + "/services/" + svc + "/config");
+                    },
+                    setConfig: function setConfig(data) {
+                      return _this._post("/apps/" + _app + "/services/" + svc + "/config", data);
+                    },
+
+                    rules: function rules() {
+                      return {
+                        list: function list() {
+                          return _this._get("/apps/" + _app + "/services/" + svc + "/rules");
+                        },
+                        create: function create(data) {
+                          return _this._post("/apps/" + _app + "/services/" + svc + "/rules");
+                        },
+                        rule: function rule(ruleId) {
+                          return {
+                            get: function get() {
+                              return _this._get("/apps/" + _app + "/services/" + svc + "/rules/" + ruleId);
+                            },
+                            update: function update(data) {
+                              return _this._post("/apps/" + _app + "/services/" + svc + "/rules/" + ruleId, data);
+                            },
+                            remove: function remove() {
+                              return _this._delete("/apps/" + _app + "/services/" + svc + "/rules/" + ruleId);
+                            }
+                          };
+                        }
+                      };
+                    },
+
+                    triggers: function triggers() {
+                      return {
+                        list: function list() {
+                          return _this._get("/apps/" + _app + "/services/" + svc + "/triggers");
+                        },
+                        create: function create(data) {
+                          return _this._post("/apps/" + _app + "/services/" + svc + "/triggers");
+                        },
+                        trigger: function trigger(triggerId) {
+                          return {
+                            get: function get() {
+                              return _this._get("/apps/" + _app + "/services/" + svc + "/triggers/" + triggerId);
+                            },
+                            update: function update(data) {
+                              return _this._post("/apps/" + _app + "/services/" + svc + "/triggers/" + triggerId, data);
+                            },
+                            remove: function remove() {
+                              return _this._delete("/apps/" + _app + "/services/" + svc + "/triggers/" + triggerId);
+                            }
+                          };
+                        }
+                      };
+                    }
+                  };
+                }
+              };
+            }
+          };
+        }
+      };
+    }
+  }]);
+
+  return Admin;
 }();

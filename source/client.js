@@ -233,4 +233,111 @@ export class MongoClient {
 
 }
 
+export class Admin {
 
+  constructor(baseUrl){
+    this._baseUrl = baseUrl
+  }
+
+  localAuth(username, password){
+    return this._post("/auth/local/userpass", {username, password})
+  }
+
+  _ajaxArgs(method, url, data){
+    return {
+      type: method,
+      contentType: "application/json",
+      dataType: "json",
+      xhrFields: { withCredentials: true },
+      url: `${this._baseUrl}${url}`,
+      data: JSON.stringify(data),
+      crossDomain: true,
+    }
+  }
+
+  _do(method, url, data){
+    return $.ajax(this._ajaxArgs(method, url, data))
+  }
+
+  _get(url){
+    return this._do("GET", url)
+  }
+
+  _delete(url){
+    return this._do("DELETE", url)
+  }
+
+  _post(url, data){
+    return this._do("POST", url, data)
+  }
+
+  /* Examples of how to access admin API with this client:
+   *
+   * List all apps
+   *    a.apps().list()   
+   *
+   * Fetch app under name "planner"
+   *    a.apps().app("planner").get()   
+   *
+   * List services under the app "planner"
+   *    a.apps().app("planner").services().list()
+   *
+   * Delete a rule by ID
+   *    a.apps().app("planner").services().service("mdb1").rules().rule("580e6d055b199c221fcb821d").remove()
+   *
+   */
+  apps() {
+    let root = this;
+    return {
+      list: ()=> root._get(`/apps`),
+      create: (data) => root._post(`/apps`, data),
+      app: (app) => ({
+        get: ()=> root._get(`/apps/${app}`),
+        remove: () => root._delete(`/apps/${app}`),
+
+        variables: () => ({
+          list: ()=> this._get(`/apps/${app}/vars`),
+          create: (data) => this._post(`/apps/${app}/vars`, data),
+          variable: (varName)=>({
+            get: () => this._get(`/apps/${app}/vars/${varName}`),
+            remove: () => this._delete(`/apps/${app}/vars/${varName}`),
+            update: (data) => this._post(`/apps/${app}/vars/${varName}`, data)
+          })
+        }),
+
+        services: () => ({
+          list: ()=> this._get(`/apps/${app}/services`),
+          create: (data) => this._post(`/apps/${app}/services`, data),
+          service: (svc) => ({
+            get: () => this._get(`/apps/${app}/services/${svc}`),
+            update: (data) => this._post(`/apps/${app}/services/${svc}`, data),
+            remove: () => this._delete(`/apps/${app}/services/${svc}`),
+            getConfig: ()=> this._get(`/apps/${app}/services/${svc}/config`),
+            setConfig: (data)=> this._post(`/apps/${app}/services/${svc}/config`, data),
+
+            rules: () => ({
+              list: ()=> this._get(`/apps/${app}/services/${svc}/rules`),   
+              create: (data)=> this._post(`/apps/${app}/services/${svc}/rules`),   
+              rule: (ruleId) => ({
+                get: ()=> this._get(`/apps/${app}/services/${svc}/rules/${ruleId}`),    
+                update: (data)=> this._post(`/apps/${app}/services/${svc}/rules/${ruleId}`, data),    
+                remove: ()=> this._delete(`/apps/${app}/services/${svc}/rules/${ruleId}`),
+              })
+            }), 
+
+            triggers: () => ({
+              list: ()=> this._get(`/apps/${app}/services/${svc}/triggers`),   
+              create: (data)=> this._post(`/apps/${app}/services/${svc}/triggers`),   
+              trigger: (triggerId) => ({
+                get: ()=> this._get(`/apps/${app}/services/${svc}/triggers/${triggerId}`),    
+                update: (data)=> this._post(`/apps/${app}/services/${svc}/triggers/${triggerId}`, data),    
+                remove: ()=> this._delete(`/apps/${app}/services/${svc}/triggers/${triggerId}`),    
+              })
+            })
+          }),
+        }),
+      }),
+    }
+  }
+
+}
