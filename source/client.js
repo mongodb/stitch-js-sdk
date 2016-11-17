@@ -312,7 +312,6 @@ export class Admin {
             get: () => this._get(`/apps/${app}/services/${svc}`),
             update: (data) => this._post(`/apps/${app}/services/${svc}`, data),
             remove: () => this._delete(`/apps/${app}/services/${svc}`),
-            getConfig: ()=> this._get(`/apps/${app}/services/${svc}/config`),
             setConfig: (data)=> this._post(`/apps/${app}/services/${svc}/config`, data),
 
             rules: () => ({
