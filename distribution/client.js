@@ -290,6 +290,11 @@ var Admin = exports.Admin = function () {
       return this._post("/auth/local/userpass", { username: username, password: password });
     }
   }, {
+    key: "logout",
+    value: function logout() {
+      return this._get("/logout");
+    }
+  }, {
     key: "_ajaxArgs",
     value: function _ajaxArgs(method, url, data) {
       return {

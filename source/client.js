@@ -243,6 +243,10 @@ export class Admin {
     return this._post("/auth/local/userpass", {username, password})
   }
 
+  logout(){
+    return this._get("/logout")
+  }
+
   _ajaxArgs(method, url, data){
     return {
       type: method,
