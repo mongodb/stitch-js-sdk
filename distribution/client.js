@@ -361,6 +361,29 @@ var Admin = exports.Admin = function () {
               return root._delete("/apps/" + _app);
             },
 
+            authProviders: function authProviders() {
+              return {
+                create: function create(data) {
+                  return _this._post("/apps/" + _app + "/authProviders", data);
+                },
+                list: function list() {
+                  return _this._get("/apps/" + _app + "/authProviders");
+                },
+                provider: function provider(authType, authName) {
+                  return {
+                    get: function get() {
+                      return _this._get("/apps/" + _app + "/authProviders/" + authType + "/" + authName);
+                    },
+                    remove: function remove() {
+                      return _this._delete("/apps/" + _app + "/authProviders/" + authType + "/" + authName);
+                    },
+                    update: function update(data) {
+                      return _this._post("/apps/" + _app + "/authProviders/" + authType + "/" + authName, data);
+                    }
+                  };
+                }
+              };
+            },
             variables: function variables() {
               return {
                 list: function list() {
@@ -403,9 +426,6 @@ var Admin = exports.Admin = function () {
                     },
                     remove: function remove() {
                       return _this._delete("/apps/" + _app + "/services/" + svc);
-                    },
-                    getConfig: function getConfig() {
-                      return _this._get("/apps/" + _app + "/services/" + svc + "/config");
                     },
                     setConfig: function setConfig(data) {
                       return _this._post("/apps/" + _app + "/services/" + svc + "/config", data);

@@ -295,6 +295,15 @@ export class Admin {
         get: ()=> root._get(`/apps/${app}`),
         remove: () => root._delete(`/apps/${app}`),
 
+        authProviders: () => ({
+          create: (data) => this._post(`/apps/${app}/authProviders`, data),
+          list: () => this._get(`/apps/${app}/authProviders`), 
+          provider: (authType, authName) =>({
+            get: () => this._get(`/apps/${app}/authProviders/${authType}/${authName}`),
+            remove: () => this._delete(`/apps/${app}/authProviders/${authType}/${authName}`),
+            update: (data) => this._post(`/apps/${app}/authProviders/${authType}/${authName}`, data),
+          })
+        }),
         variables: () => ({
           list: ()=> this._get(`/apps/${app}/vars`),
           create: (data) => this._post(`/apps/${app}/vars`, data),
