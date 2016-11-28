@@ -3,6 +3,11 @@
 The original source is located in `source/`.
 To transpile to pure JS, run `npm run build` which places the output into `distribution/`.
 
+### TODO
+
+* Handle auth expiring (observer pattern?)
+* Handle User/app domain mismatch (same as auth expiry?)
+
 ### Usage
 
 Construct a simple app-wide client:
