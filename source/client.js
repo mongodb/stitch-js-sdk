@@ -1,6 +1,17 @@
 import cookie from 'cookie_js'
+import 'whatwg-fetch' // fetch polyfill
 
 const USER_AUTH_KEY = "_baas_ua";
+
+function checkStatus(response) {
+  if (response.status >= 200 && response.status < 300) {
+    return response
+  } else {
+    var error = new Error(response.statusText)
+    error.response = response
+    throw error
+  }
+}
 
 export class BaasClient {
   constructor(appUrl) {
@@ -21,12 +32,14 @@ export class BaasClient {
   }
 
   logout() {
-    $.ajax({
+    let myHeaders = new Headers()
+    myHeaders.append('Accept', 'application/json')
+    myHeaders.append('Content-Type', 'application/json')
+
+    fetch(this.authUrl + "/logout",
+    {
       type: 'DELETE',
-      url: this.authUrl + "/logout",
-      headers: {
-        'Authorization': `Bearer ${this.auth()['token']}`
-      }
+      headers: myHeaders,
     }).done((data) => {
       localStorage.removeItem(USER_AUTH_KEY);
       location.reload();
@@ -94,16 +107,22 @@ export class BaasClient {
       throw "Must auth before execute"
     }
 
-    return $.ajax({
-      type: 'POST',
-      contentType: "application/json",
-      url: `${this.appUrl}/pipeline`,
-      data: JSON.stringify(stages),
-      dataType: 'json',
-      headers: {
-        'Authorization': `Bearer ${this.auth()['token']}`
+    return fetch(`${this.appUrl}/pipeline`,
+      {
+        type: 'POST',
+        contentType: "application/json",
+        data: JSON.stringify(stages),
+        dataType: 'json',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${this.auth()['token']}`
+        }
+      })
+    .then(checkStatus)
+    .then(()=>{
+        return response.json();
       }
-    })
+    )
   }
 
 }
@@ -247,20 +266,26 @@ export class Admin {
     return this._get("/logout")
   }
 
-  _ajaxArgs(method, url, data){
+  _ajaxArgs(method, data){
+    let myHeaders = new Headers();
+    myHeaders.append('Accept', 'application/json')
+    myHeaders.append('Content-Type', 'application/json')
+
     return {
-      type: method,
-      contentType: "application/json",
-      dataType: "json",
-      xhrFields: { withCredentials: true },
-      url: `${this._baseUrl}${url}`,
-      data: JSON.stringify(data),
-      crossDomain: true,
+      method: method,
+      mode: 'cors',
+      headers: myHeaders,
+      credentials: 'include',
+      body: JSON.stringify(data),
     }
   }
 
   _do(method, url, data){
-    return $.ajax(this._ajaxArgs(method, url, data))
+    return fetch(`${this._baseUrl}${url}`, this._ajaxArgs(method, data))
+      .then(checkStatus)
+      .then((response)=>{
+        return response.json()
+      })
   }
 
   _get(url){
