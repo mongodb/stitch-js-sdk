@@ -38,7 +38,7 @@ export class BaasClient {
 
     fetch(this.authUrl + "/logout",
     {
-      type: 'DELETE',
+      method: 'DELETE',
       headers: myHeaders,
     }).done((data) => {
       localStorage.removeItem(USER_AUTH_KEY);
@@ -107,19 +107,18 @@ export class BaasClient {
       throw "Must auth before execute"
     }
 
+    var headers = new Headers();
+    headers.append('Accept', 'application/json')
+    headers.append('Content-Type', 'application/json')
+    headers.append('Authorization', `Bearer ${this.auth()['accessToken']}`)
     return fetch(`${this.appUrl}/pipeline`,
       {
-        type: 'POST',
-        contentType: "application/json",
-        data: JSON.stringify(stages),
-        dataType: 'json',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${this.auth()['token']}`
-        }
+        method: 'POST',
+        body: JSON.stringify(stages),
+        headers: headers
       })
     .then(checkStatus)
-    .then(()=>{
+    .then((response)=>{
         return response.json();
       }
     )

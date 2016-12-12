@@ -61,7 +61,7 @@ var BaasClient = exports.BaasClient = function () {
       myHeaders.append('Content-Type', 'application/json');
 
       fetch(this.authUrl + "/logout", {
-        type: 'DELETE',
+        method: 'DELETE',
         headers: myHeaders
       }).done(function (data) {
         localStorage.removeItem(USER_AUTH_KEY);
@@ -135,16 +135,15 @@ var BaasClient = exports.BaasClient = function () {
         throw "Must auth before execute";
       }
 
+      var headers = new Headers();
+      headers.append('Accept', 'application/json');
+      headers.append('Content-Type', 'application/json');
+      headers.append('Authorization', 'Bearer ' + this.auth()['accessToken']);
       return fetch(this.appUrl + '/pipeline', {
-        type: 'POST',
-        contentType: "application/json",
-        data: JSON.stringify(stages),
-        dataType: 'json',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer ' + this.auth()['token']
-        }
-      }).then(checkStatus).then(function () {
+        method: 'POST',
+        body: JSON.stringify(stages),
+        headers: headers
+      }).then(checkStatus).then(function (response) {
         return response.json();
       });
     }
