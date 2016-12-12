@@ -2,6 +2,7 @@ import cookie from 'cookie_js'
 import 'whatwg-fetch' // fetch polyfill
 
 const USER_AUTH_KEY = "_baas_ua";
+const REFRESH_TOKEN_KEY = "_baas_rt";
 
 function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
@@ -18,6 +19,31 @@ export class BaasClient {
     this.appUrl = appUrl;
     this.authUrl = `${this.appUrl}/auth`
     this.checkRedirectResponse();
+  }
+
+  authWithLocal(username, password, cors){
+    let headers = new Headers();
+    headers.append('Accept', 'application/json');
+    headers.append('Content-Type', 'application/json');
+
+    let init = {
+      method: "POST",
+      body: JSON.stringify({"username": username, "password": password}),
+      headers: headers
+    };
+
+    if (cors) {
+      init['cors'] = cors;
+    }
+
+    return fetch(`${this.authUrl}/local/userpass`, init)
+      .then(checkStatus)
+      .then((response)=>{
+        return response.json().then((json) => {
+          this._setAuth(json);
+          Promise.resolve();
+        })
+      })
   }
 
   authWithOAuth(providerName){
@@ -42,11 +68,13 @@ export class BaasClient {
       headers: myHeaders,
     }).done((data) => {
       localStorage.removeItem(USER_AUTH_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
       location.reload();
     }).fail((data) => {
       // This is probably the wrong thing to do since it could have
       // failed for other reasons.
       localStorage.removeItem(USER_AUTH_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
       location.reload();
     });
   }
@@ -70,6 +98,14 @@ export class BaasClient {
     return [location.protocol, '//', location.host, location.pathname].join('');
   }
 
+  _setAuth(json) {
+    let rt = json['refreshToken'];
+    delete json['refreshToken'];
+
+    localStorage.setItem(USER_AUTH_KEY, btoa(JSON.stringify(json)));
+    localStorage.setItem(REFRESH_TOKEN_KEY, rt);
+  }
+
   checkRedirectResponse(){
     if (typeof window === 'undefined') {
       return
@@ -88,7 +124,8 @@ export class BaasClient {
           break;
         }
         if (decodeURIComponent(pair[0]) == "_baas_ua") {
-          localStorage.setItem(USER_AUTH_KEY, decodeURIComponent(pair[1]));
+          let ua = JSON.parse(atob(decodeURIComponent(pair[1])));
+          _setAuth(ua);
           found = true;
           break;
         }
@@ -102,26 +139,111 @@ export class BaasClient {
     }
   }
 
-  executePipeline(stages){
+  _doAuthed(resource, method, body) {
+
     if (this.auth() === null) {
-      throw "Must auth before execute"
+      return Promise.reject(new Error("Must auth first"))
     }
 
-    var headers = new Headers();
-    headers.append('Accept', 'application/json')
-    headers.append('Content-Type', 'application/json')
+    let url = `${this.appUrl}${resource}`;
+    let headers = new Headers();
+    headers.append('Accept', 'application/json');
+    headers.append('Content-Type', 'application/json');
+    let init = {
+      method: method,
+      headers: headers
+    };
+
+    if (body) {
+      init['body'] = body;
+    }
+
     headers.append('Authorization', `Bearer ${this.auth()['accessToken']}`)
-    return fetch(`${this.appUrl}/pipeline`,
-      {
-        method: 'POST',
-        body: JSON.stringify(stages),
-        headers: headers
-      })
-    .then(checkStatus)
-    .then((response)=>{
-        return response.json();
+
+    return fetch(url, init)
+      .then((response) => {
+
+        // Okay: passthrough
+        if (response.status >= 200 && response.status < 300) {
+          return Promise.resolve(response)
+
+        // Unauthorized: parse and try to reauth
+        } else if (response.status == 401) {
+          return this._handleUnauthorized(response).then(() => {
+            // Run the request again
+            headers.set('Authorization', `Bearer ${this.auth()['accessToken']}`)
+            return fetch(url, init);
+          })
+        }
+
+        var error = new Error(response.statusText);
+        error.response = response;
+        throw error;
+      });
+  }
+
+  _handleUnauthorized(response) {
+    if (response.headers.get('Content-Type') === 'application/json') {
+      return response.json().then((json) => {
+        // Only want to try refreshing token when there's an invalid session
+        if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
+          return this._refreshToken();
+        }
+      });
+    }
+
+    // Can't handle this response
+    var error = new Error(response.statusText);
+    error.response = response;
+    throw error;
+  }
+
+  _refreshToken() {
+    let rt = localStorage.getItem(REFRESH_TOKEN_KEY);
+
+    let headers = new Headers();
+    headers.append('Accept', 'application/json');
+    headers.append('Content-Type', 'application/json');
+    headers.append('Authorization', `Bearer ${rt}`)
+    return fetch(`${this.appUrl}/auth/newAccessToken`, {
+      method: 'POST',
+      headers: headers
+    }).then((response) => {
+      if (response.status != 200) {
+        var error = new Error(response.statusText);
+        error.response = response;
+        throw error;
+
+      // Something is wrong with our refresh token
+      } else if (response.status == 401) {
+        if (response.headers.get('Content-Type') === 'application/json') {
+          return response.json().then((json) => {throw json});
+        }
+        var error = new Error(response.statusText);
+        error.response = response;
+        throw error;
       }
-    )
+
+      return response.json().then((json) => {
+        this._setAccessToken(json['accessToken']);
+        return Promise.resolve();
+      })      
+    })
+  }
+
+  _setAccessToken(token) {
+    let currAuth = JSON.parse(atob(localStorage.getItem(USER_AUTH_KEY)));
+    currAuth['accessToken'] = token;
+    localStorage.setItem(USER_AUTH_KEY, btoa(JSON.stringify(currAuth)));
+  }
+
+  executePipeline(stages){
+    return this._doAuthed('/pipeline', 'POST', JSON.stringify(stages))
+      .then(checkStatus)
+      .then((response)=>{
+          return response.json();
+        }
+      )
   }
 
 }
@@ -255,32 +377,20 @@ export class Admin {
 
   constructor(baseUrl){
     this._baseUrl = baseUrl
+    this._client = new BaasClient(this._baseUrl);
   }
 
   localAuth(username, password){
-    return this._post("/auth/local/userpass", {username, password})
+    return this._client.authWithLocal(username, password, true);
   }
 
   logout(){
-    return this._get("/logout")
+    return this._delete("/auth")
   }
 
-  _ajaxArgs(method, data){
-    let myHeaders = new Headers();
-    myHeaders.append('Accept', 'application/json')
-    myHeaders.append('Content-Type', 'application/json')
-
-    return {
-      method: method,
-      mode: 'cors',
-      headers: myHeaders,
-      credentials: 'include',
-      body: JSON.stringify(data),
-    }
-  }
-
-  _do(method, url, data){
-    return fetch(`${this._baseUrl}${url}`, this._ajaxArgs(method, data))
+  // Authed methods
+   _doAuthed(url, method, data) {
+    return this._client._doAuthed(url, method, JSON.stringify(data))
       .then(checkStatus)
       .then((response)=>{
         return response.json()
@@ -288,15 +398,15 @@ export class Admin {
   }
 
   _get(url){
-    return this._do("GET", url)
+    return this._doAuthed(url, "GET")
   }
 
   _delete(url){
-    return this._do("DELETE", url)
+    return this._doAuthed(url, "DELETE")
   }
 
   _post(url, data){
-    return this._do("POST", url, data)
+    return this._doAuthed(url, "POST", data)
   }
 
   /* Examples of how to access admin API with this client:

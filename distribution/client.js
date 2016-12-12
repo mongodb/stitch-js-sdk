@@ -20,6 +20,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 // fetch polyfill
 
 var USER_AUTH_KEY = "_baas_ua";
+var REFRESH_TOKEN_KEY = "_baas_rt";
 
 function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
@@ -41,6 +42,32 @@ var BaasClient = exports.BaasClient = function () {
   }
 
   _createClass(BaasClient, [{
+    key: 'authWithLocal',
+    value: function authWithLocal(username, password, cors) {
+      var _this = this;
+
+      var headers = new Headers();
+      headers.append('Accept', 'application/json');
+      headers.append('Content-Type', 'application/json');
+
+      var init = {
+        method: "POST",
+        body: JSON.stringify({ "username": username, "password": password }),
+        headers: headers
+      };
+
+      if (cors) {
+        init['cors'] = cors;
+      }
+
+      return fetch(this.authUrl + '/local/userpass', init).then(checkStatus).then(function (response) {
+        return response.json().then(function (json) {
+          _this._setAuth(json);
+          Promise.resolve();
+        });
+      });
+    }
+  }, {
     key: 'authWithOAuth',
     value: function authWithOAuth(providerName) {
       window.location.replace(this.authUrl + '/oauth2/' + providerName + '?redirect=' + encodeURI(this.baseUrl()));
@@ -65,11 +92,13 @@ var BaasClient = exports.BaasClient = function () {
         headers: myHeaders
       }).done(function (data) {
         localStorage.removeItem(USER_AUTH_KEY);
+        localStorage.removeItem(REFRESH_TOKEN_KEY);
         location.reload();
       }).fail(function (data) {
         // This is probably the wrong thing to do since it could have
         // failed for other reasons.
         localStorage.removeItem(USER_AUTH_KEY);
+        localStorage.removeItem(REFRESH_TOKEN_KEY);
         location.reload();
       });
     }
@@ -96,6 +125,15 @@ var BaasClient = exports.BaasClient = function () {
       return [location.protocol, '//', location.host, location.pathname].join('');
     }
   }, {
+    key: '_setAuth',
+    value: function _setAuth(json) {
+      var rt = json['refreshToken'];
+      delete json['refreshToken'];
+
+      localStorage.setItem(USER_AUTH_KEY, btoa(JSON.stringify(json)));
+      localStorage.setItem(REFRESH_TOKEN_KEY, rt);
+    }
+  }, {
     key: 'checkRedirectResponse',
     value: function checkRedirectResponse() {
       if (typeof window === 'undefined') {
@@ -115,7 +153,8 @@ var BaasClient = exports.BaasClient = function () {
           break;
         }
         if (decodeURIComponent(pair[0]) == "_baas_ua") {
-          localStorage.setItem(USER_AUTH_KEY, decodeURIComponent(pair[1]));
+          var ua = JSON.parse(atob(decodeURIComponent(pair[1])));
+          _setAuth(ua);
           found = true;
           break;
         }
@@ -129,21 +168,117 @@ var BaasClient = exports.BaasClient = function () {
       }
     }
   }, {
-    key: 'executePipeline',
-    value: function executePipeline(stages) {
+    key: '_doAuthed',
+    value: function _doAuthed(resource, method, body) {
+      var _this2 = this;
+
       if (this.auth() === null) {
-        throw "Must auth before execute";
+        return Promise.reject(new Error("Must auth first"));
       }
+
+      var url = '' + this.appUrl + resource;
+      var headers = new Headers();
+      headers.append('Accept', 'application/json');
+      headers.append('Content-Type', 'application/json');
+      var init = {
+        method: method,
+        headers: headers
+      };
+
+      if (body) {
+        init['body'] = body;
+      }
+
+      headers.append('Authorization', 'Bearer ' + this.auth()['accessToken']);
+
+      return fetch(url, init).then(function (response) {
+
+        // Okay: passthrough
+        if (response.status >= 200 && response.status < 300) {
+          return Promise.resolve(response);
+
+          // Unauthorized: parse and try to reauth
+        } else if (response.status == 401) {
+          return _this2._handleUnauthorized(response).then(function () {
+            // Run the request again
+            headers.set('Authorization', 'Bearer ' + _this2.auth()['accessToken']);
+            return fetch(url, init);
+          });
+        }
+
+        var error = new Error(response.statusText);
+        error.response = response;
+        throw error;
+      });
+    }
+  }, {
+    key: '_handleUnauthorized',
+    value: function _handleUnauthorized(response) {
+      var _this3 = this;
+
+      if (response.headers.get('Content-Type') === 'application/json') {
+        return response.json().then(function (json) {
+          // Only want to try refreshing token when there's an invalid session
+          if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
+            return _this3._refreshToken();
+          }
+        });
+      }
+
+      // Can't handle this response
+      var error = new Error(response.statusText);
+      error.response = response;
+      throw error;
+    }
+  }, {
+    key: '_refreshToken',
+    value: function _refreshToken() {
+      var _this4 = this;
+
+      var rt = localStorage.getItem(REFRESH_TOKEN_KEY);
 
       var headers = new Headers();
       headers.append('Accept', 'application/json');
       headers.append('Content-Type', 'application/json');
-      headers.append('Authorization', 'Bearer ' + this.auth()['accessToken']);
-      return fetch(this.appUrl + '/pipeline', {
+      headers.append('Authorization', 'Bearer ' + rt);
+      return fetch(this.appUrl + '/auth/newAccessToken', {
         method: 'POST',
-        body: JSON.stringify(stages),
         headers: headers
-      }).then(checkStatus).then(function (response) {
+      }).then(function (response) {
+        if (response.status != 200) {
+          var error = new Error(response.statusText);
+          error.response = response;
+          throw error;
+
+          // Something is wrong with our refresh token
+        } else if (response.status == 401) {
+          if (response.headers.get('Content-Type') === 'application/json') {
+            return response.json().then(function (json) {
+              throw json;
+            });
+          }
+          var error = new Error(response.statusText);
+          error.response = response;
+          throw error;
+        }
+
+        return response.json().then(function (json) {
+          _this4._setAccessToken(json['accessToken']);
+          return Promise.resolve();
+        });
+      });
+    }
+  }, {
+    key: '_setAccessToken',
+    value: function _setAccessToken(token) {
+      var currAuth = JSON.parse(atob(localStorage.getItem(USER_AUTH_KEY)));
+      currAuth['accessToken'] = token;
+      localStorage.setItem(USER_AUTH_KEY, btoa(JSON.stringify(currAuth)));
+    }
+  }, {
+    key: 'executePipeline',
+    value: function executePipeline(stages) {
+      return this._doAuthed('/pipeline', 'POST', JSON.stringify(stages)).then(checkStatus).then(function (response) {
         return response.json();
       });
     }
@@ -298,54 +433,43 @@ var Admin = exports.Admin = function () {
     _classCallCheck(this, Admin);
 
     this._baseUrl = baseUrl;
+    this._client = new BaasClient(this._baseUrl);
   }
 
   _createClass(Admin, [{
     key: 'localAuth',
     value: function localAuth(username, password) {
-      return this._post("/auth/local/userpass", { username: username, password: password });
+      return this._client.authWithLocal(username, password, true);
     }
   }, {
     key: 'logout',
     value: function logout() {
-      return this._get("/logout");
+      return this._delete("/auth");
     }
-  }, {
-    key: '_ajaxArgs',
-    value: function _ajaxArgs(method, data) {
-      var myHeaders = new Headers();
-      myHeaders.append('Accept', 'application/json');
-      myHeaders.append('Content-Type', 'application/json');
 
-      return {
-        method: method,
-        mode: 'cors',
-        headers: myHeaders,
-        credentials: 'include',
-        body: JSON.stringify(data)
-      };
-    }
+    // Authed methods
+
   }, {
-    key: '_do',
-    value: function _do(method, url, data) {
-      return fetch('' + this._baseUrl + url, this._ajaxArgs(method, data)).then(checkStatus).then(function (response) {
+    key: '_doAuthed',
+    value: function _doAuthed(url, method, data) {
+      return this._client._doAuthed(url, method, JSON.stringify(data)).then(checkStatus).then(function (response) {
         return response.json();
       });
     }
   }, {
     key: '_get',
     value: function _get(url) {
-      return this._do("GET", url);
+      return this._doAuthed(url, "GET");
     }
   }, {
     key: '_delete',
     value: function _delete(url) {
-      return this._do("DELETE", url);
+      return this._doAuthed(url, "DELETE");
     }
   }, {
     key: '_post',
     value: function _post(url, data) {
-      return this._do("POST", url, data);
+      return this._doAuthed(url, "POST", data);
     }
 
     /* Examples of how to access admin API with this client:
@@ -367,7 +491,7 @@ var Admin = exports.Admin = function () {
   }, {
     key: 'apps',
     value: function apps() {
-      var _this = this;
+      var _this5 = this;
 
       var root = this;
       return {
@@ -389,21 +513,21 @@ var Admin = exports.Admin = function () {
             authProviders: function authProviders() {
               return {
                 create: function create(data) {
-                  return _this._post('/apps/' + _app + '/authProviders', data);
+                  return _this5._post('/apps/' + _app + '/authProviders', data);
                 },
                 list: function list() {
-                  return _this._get('/apps/' + _app + '/authProviders');
+                  return _this5._get('/apps/' + _app + '/authProviders');
                 },
                 provider: function provider(authType, authName) {
                   return {
                     get: function get() {
-                      return _this._get('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
+                      return _this5._get('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
                     },
                     remove: function remove() {
-                      return _this._delete('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
+                      return _this5._delete('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
                     },
                     update: function update(data) {
-                      return _this._post('/apps/' + _app + '/authProviders/' + authType + '/' + authName, data);
+                      return _this5._post('/apps/' + _app + '/authProviders/' + authType + '/' + authName, data);
                     }
                   };
                 }
@@ -412,21 +536,21 @@ var Admin = exports.Admin = function () {
             variables: function variables() {
               return {
                 list: function list() {
-                  return _this._get('/apps/' + _app + '/vars');
+                  return _this5._get('/apps/' + _app + '/vars');
                 },
                 create: function create(data) {
-                  return _this._post('/apps/' + _app + '/vars', data);
+                  return _this5._post('/apps/' + _app + '/vars', data);
                 },
                 variable: function variable(varName) {
                   return {
                     get: function get() {
-                      return _this._get('/apps/' + _app + '/vars/' + varName);
+                      return _this5._get('/apps/' + _app + '/vars/' + varName);
                     },
                     remove: function remove() {
-                      return _this._delete('/apps/' + _app + '/vars/' + varName);
+                      return _this5._delete('/apps/' + _app + '/vars/' + varName);
                     },
                     update: function update(data) {
-                      return _this._post('/apps/' + _app + '/vars/' + varName, data);
+                      return _this5._post('/apps/' + _app + '/vars/' + varName, data);
                     }
                   };
                 }
@@ -436,44 +560,44 @@ var Admin = exports.Admin = function () {
             services: function services() {
               return {
                 list: function list() {
-                  return _this._get('/apps/' + _app + '/services');
+                  return _this5._get('/apps/' + _app + '/services');
                 },
                 create: function create(data) {
-                  return _this._post('/apps/' + _app + '/services', data);
+                  return _this5._post('/apps/' + _app + '/services', data);
                 },
                 service: function service(svc) {
                   return {
                     get: function get() {
-                      return _this._get('/apps/' + _app + '/services/' + svc);
+                      return _this5._get('/apps/' + _app + '/services/' + svc);
                     },
                     update: function update(data) {
-                      return _this._post('/apps/' + _app + '/services/' + svc, data);
+                      return _this5._post('/apps/' + _app + '/services/' + svc, data);
                     },
                     remove: function remove() {
-                      return _this._delete('/apps/' + _app + '/services/' + svc);
+                      return _this5._delete('/apps/' + _app + '/services/' + svc);
                     },
                     setConfig: function setConfig(data) {
-                      return _this._post('/apps/' + _app + '/services/' + svc + '/config', data);
+                      return _this5._post('/apps/' + _app + '/services/' + svc + '/config', data);
                     },
 
                     rules: function rules() {
                       return {
                         list: function list() {
-                          return _this._get('/apps/' + _app + '/services/' + svc + '/rules');
+                          return _this5._get('/apps/' + _app + '/services/' + svc + '/rules');
                         },
                         create: function create(data) {
-                          return _this._post('/apps/' + _app + '/services/' + svc + '/rules');
+                          return _this5._post('/apps/' + _app + '/services/' + svc + '/rules');
                         },
                         rule: function rule(ruleId) {
                           return {
                             get: function get() {
-                              return _this._get('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
+                              return _this5._get('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
                             },
                             update: function update(data) {
-                              return _this._post('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId, data);
+                              return _this5._post('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId, data);
                             },
                             remove: function remove() {
-                              return _this._delete('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
+                              return _this5._delete('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
                             }
                           };
                         }
@@ -483,21 +607,21 @@ var Admin = exports.Admin = function () {
                     triggers: function triggers() {
                       return {
                         list: function list() {
-                          return _this._get('/apps/' + _app + '/services/' + svc + '/triggers');
+                          return _this5._get('/apps/' + _app + '/services/' + svc + '/triggers');
                         },
                         create: function create(data) {
-                          return _this._post('/apps/' + _app + '/services/' + svc + '/triggers');
+                          return _this5._post('/apps/' + _app + '/services/' + svc + '/triggers');
                         },
                         trigger: function trigger(triggerId) {
                           return {
                             get: function get() {
-                              return _this._get('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
+                              return _this5._get('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
                             },
                             update: function update(data) {
-                              return _this._post('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId, data);
+                              return _this5._post('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId, data);
                             },
                             remove: function remove() {
-                              return _this._delete('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
+                              return _this5._delete('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
                             }
                           };
                         }
