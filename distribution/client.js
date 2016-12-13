@@ -83,6 +83,8 @@ var BaasClient = exports.BaasClient = function () {
   }, {
     key: 'logout',
     value: function logout() {
+      var _this2 = this;
+
       var myHeaders = new Headers();
       myHeaders.append('Accept', 'application/json');
       myHeaders.append('Content-Type', 'application/json');
@@ -91,16 +93,20 @@ var BaasClient = exports.BaasClient = function () {
         method: 'DELETE',
         headers: myHeaders
       }).done(function (data) {
-        localStorage.removeItem(USER_AUTH_KEY);
-        localStorage.removeItem(REFRESH_TOKEN_KEY);
+        _this2._clearAuth();
         location.reload();
       }).fail(function (data) {
         // This is probably the wrong thing to do since it could have
         // failed for other reasons.
-        localStorage.removeItem(USER_AUTH_KEY);
-        localStorage.removeItem(REFRESH_TOKEN_KEY);
+        _this2._clearAuth();
         location.reload();
       });
+    }
+  }, {
+    key: '_clearAuth',
+    value: function _clearAuth() {
+      localStorage.removeItem(USER_AUTH_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
     }
   }, {
     key: 'auth',
@@ -170,7 +176,12 @@ var BaasClient = exports.BaasClient = function () {
   }, {
     key: '_doAuthed',
     value: function _doAuthed(resource, method, body) {
-      var _this2 = this;
+      this._doAuthed(resource, method, body, true);
+    }
+  }, {
+    key: '_doAuthed',
+    value: function _doAuthed(resource, method, body, refreshOnFailure) {
+      var _this3 = this;
 
       if (this.auth() === null) {
         return Promise.reject(new Error("Must auth first"));
@@ -199,36 +210,27 @@ var BaasClient = exports.BaasClient = function () {
 
           // Unauthorized: parse and try to reauth
         } else if (response.status == 401) {
-          return _this2._handleUnauthorized(response).then(function () {
-            // Run the request again
-            headers.set('Authorization', 'Bearer ' + _this2.auth()['accessToken']);
-            return fetch(url, init);
-          });
+          if (response.headers.get('Content-Type') === 'application/json') {
+            return response.json().then(function (json) {
+              // Only want to try refreshing token when there's an invalid session
+              if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
+                if (!refreshOnFailure) {
+                  _this3._clearAuth();
+                  throw new Error(json);
+                }
+
+                return _this3._refreshToken().then(function () {
+                  return _this3._doAuthed(resource, method, body, false);
+                });
+              }
+            });
+          }
         }
 
         var error = new Error(response.statusText);
         error.response = response;
         throw error;
       });
-    }
-  }, {
-    key: '_handleUnauthorized',
-    value: function _handleUnauthorized(response) {
-      var _this3 = this;
-
-      if (response.headers.get('Content-Type') === 'application/json') {
-        return response.json().then(function (json) {
-          // Only want to try refreshing token when there's an invalid session
-          if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
-            return _this3._refreshToken();
-          }
-        });
-      }
-
-      // Can't handle this response
-      var error = new Error(response.statusText);
-      error.response = response;
-      throw error;
     }
   }, {
     key: '_refreshToken',
@@ -254,7 +256,12 @@ var BaasClient = exports.BaasClient = function () {
         } else if (response.status == 401) {
           if (response.headers.get('Content-Type') === 'application/json') {
             return response.json().then(function (json) {
-              throw json;
+              // Only want to try refreshing token when there's an invalid session
+              if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
+                _this4._clearAuth();
+              }
+
+              throw new Error(json);
             });
           }
           var error = new Error(response.statusText);

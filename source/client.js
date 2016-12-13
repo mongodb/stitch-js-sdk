@@ -67,16 +67,19 @@ export class BaasClient {
       method: 'DELETE',
       headers: myHeaders,
     }).done((data) => {
-      localStorage.removeItem(USER_AUTH_KEY);
-      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      this._clearAuth();
       location.reload();
     }).fail((data) => {
       // This is probably the wrong thing to do since it could have
       // failed for other reasons.
-      localStorage.removeItem(USER_AUTH_KEY);
-      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      this._clearAuth();
       location.reload();
     });
+  }
+
+  _clearAuth() {
+    localStorage.removeItem(USER_AUTH_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
   }
 
   auth(){
@@ -140,6 +143,10 @@ export class BaasClient {
   }
 
   _doAuthed(resource, method, body) {
+    this._doAuthed(resource, method, body, true);
+  }
+
+  _doAuthed(resource, method, body, refreshOnFailure) {
 
     if (this.auth() === null) {
       return Promise.reject(new Error("Must auth first"))
@@ -169,33 +176,27 @@ export class BaasClient {
 
         // Unauthorized: parse and try to reauth
         } else if (response.status == 401) {
-          return this._handleUnauthorized(response).then(() => {
-            // Run the request again
-            headers.set('Authorization', `Bearer ${this.auth()['accessToken']}`)
-            return fetch(url, init);
-          })
+          if (response.headers.get('Content-Type') === 'application/json') {
+            return response.json().then((json) => {
+              // Only want to try refreshing token when there's an invalid session
+              if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
+                if (!refreshOnFailure) {
+                  this._clearAuth();
+                  throw new Error(json);
+                }
+
+                return this._refreshToken().then(() => {
+                  return this._doAuthed(resource, method, body, false);
+                });
+              }
+            });
+          }
         }
 
         var error = new Error(response.statusText);
         error.response = response;
         throw error;
       });
-  }
-
-  _handleUnauthorized(response) {
-    if (response.headers.get('Content-Type') === 'application/json') {
-      return response.json().then((json) => {
-        // Only want to try refreshing token when there's an invalid session
-        if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
-          return this._refreshToken();
-        }
-      });
-    }
-
-    // Can't handle this response
-    var error = new Error(response.statusText);
-    error.response = response;
-    throw error;
   }
 
   _refreshToken() {
@@ -217,7 +218,14 @@ export class BaasClient {
       // Something is wrong with our refresh token
       } else if (response.status == 401) {
         if (response.headers.get('Content-Type') === 'application/json') {
-          return response.json().then((json) => {throw json});
+          return response.json().then((json) => {
+            // Only want to try refreshing token when there's an invalid session
+            if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
+              this._clearAuth();
+            }
+
+            throw new Error(json);
+          });
         }
         var error = new Error(response.statusText);
         error.response = response;
