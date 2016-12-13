@@ -142,11 +142,12 @@ export class BaasClient {
     }
   }
 
-  _doAuthed(resource, method, body) {
-    this._doAuthed(resource, method, body, true);
-  }
-
   _doAuthed(resource, method, body, refreshOnFailure) {
+
+    // Only allow a refresh once
+    if (refreshOnFailure === undefined) {
+      refreshOnFailure = true;
+    }
 
     if (this.auth() === null) {
       return Promise.reject(new Error("Must auth first"))

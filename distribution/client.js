@@ -175,13 +175,13 @@ var BaasClient = exports.BaasClient = function () {
     }
   }, {
     key: '_doAuthed',
-    value: function _doAuthed(resource, method, body) {
-      this._doAuthed(resource, method, body, true);
-    }
-  }, {
-    key: '_doAuthed',
     value: function _doAuthed(resource, method, body, refreshOnFailure) {
       var _this3 = this;
+
+      // Only allow a refresh once
+      if (refreshOnFailure === undefined) {
+        refreshOnFailure = true;
+      }
 
       if (this.auth() === null) {
         return Promise.reject(new Error("Must auth first"));
