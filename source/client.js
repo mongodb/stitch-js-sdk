@@ -190,38 +190,12 @@ export class BaasClient {
   }
 
   _refreshToken() {
-    let rt = localStorage.getItem(REFRESH_TOKEN_KEY);
-
-    let headers = new Headers();
-    headers.append('Accept', 'application/json');
-    headers.append('Content-Type', 'application/json');
-    headers.append('Authorization', `Bearer ${rt}`)
-    return fetch(`${this.appUrl}/auth/newAccessToken`, {
-      method: 'POST',
-      headers: headers
-    }).then((response) => {
-      if (response.status != 200) {
-        if (response.headers.get('Content-Type') === 'application/json') {
-          return response.json().then((json) => {
-            // Only want to try refreshing token when there's an invalid session
-            if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
-              this._clearAuth();
-            }
-
-            throw new Error(json);
-          });
-        }
-
-        var error = new Error(response.statusText);
-        error.response = response;
-        throw error;
-      }
-
+    return this._doAuthed("/auth/newAccessToken", "POST", null, false, true).then((response) => {
       return response.json().then((json) => {
         this._setAccessToken(json['accessToken']);
         return Promise.resolve();
-      })      
-    })
+      }) 
+    });
   }
 
   _setAccessToken(token) {
