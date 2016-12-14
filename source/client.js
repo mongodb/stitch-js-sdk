@@ -115,7 +115,7 @@ export class BaasClient {
         }
         if (decodeURIComponent(pair[0]) == "_baas_ua") {
           let ua = JSON.parse(atob(decodeURIComponent(pair[1])));
-          _setAuth(ua);
+          this._setAuth(ua);
           found = true;
           break;
         }

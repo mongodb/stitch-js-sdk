@@ -147,7 +147,7 @@ var BaasClient = exports.BaasClient = function () {
         }
         if (decodeURIComponent(pair[0]) == "_baas_ua") {
           var ua = JSON.parse(atob(decodeURIComponent(pair[1])));
-          _setAuth(ua);
+          this._setAuth(ua);
           found = true;
           break;
         }
