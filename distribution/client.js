@@ -199,24 +199,20 @@ var BaasClient = exports.BaasClient = function () {
         // Okay: passthrough
         if (response.status >= 200 && response.status < 300) {
           return Promise.resolve(response);
-
-          // Unauthorized: parse and try to reauth
-        } else if (response.status == 401) {
-          if (response.headers.get('Content-Type') === 'application/json') {
-            return response.json().then(function (json) {
-              // Only want to try refreshing token when there's an invalid session
-              if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
-                if (!refreshOnFailure) {
-                  _this3._clearAuth();
-                  throw new Error(json);
-                }
-
-                return _this3._refreshToken().then(function () {
-                  return _this3._doAuthed(resource, method, body, false);
-                });
+        } else if (response.headers.get('Content-Type') === 'application/json') {
+          return response.json().then(function (json) {
+            // Only want to try refreshing token when there's an invalid session
+            if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
+              if (!refreshOnFailure) {
+                _this3._clearAuth();
+                throw new Error(json);
               }
-            });
-          }
+
+              return _this3._refreshToken().then(function () {
+                return _this3._doAuthed(resource, method, body, false);
+              });
+            }
+          });
         }
 
         var error = new Error(response.statusText);
@@ -240,12 +236,6 @@ var BaasClient = exports.BaasClient = function () {
         headers: headers
       }).then(function (response) {
         if (response.status != 200) {
-          var error = new Error(response.statusText);
-          error.response = response;
-          throw error;
-
-          // Something is wrong with our refresh token
-        } else if (response.status == 401) {
           if (response.headers.get('Content-Type') === 'application/json') {
             return response.json().then(function (json) {
               // Only want to try refreshing token when there's an invalid session
@@ -256,6 +246,7 @@ var BaasClient = exports.BaasClient = function () {
               throw new Error(json);
             });
           }
+
           var error = new Error(response.statusText);
           error.response = response;
           throw error;

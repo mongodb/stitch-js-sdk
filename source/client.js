@@ -167,23 +167,20 @@ export class BaasClient {
         if (response.status >= 200 && response.status < 300) {
           return Promise.resolve(response)
 
-        // Unauthorized: parse and try to reauth
-        } else if (response.status == 401) {
-          if (response.headers.get('Content-Type') === 'application/json') {
-            return response.json().then((json) => {
-              // Only want to try refreshing token when there's an invalid session
-              if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
-                if (!refreshOnFailure) {
-                  this._clearAuth();
-                  throw new Error(json);
-                }
-
-                return this._refreshToken().then(() => {
-                  return this._doAuthed(resource, method, body, false);
-                });
+        } else if (response.headers.get('Content-Type') === 'application/json') {
+          return response.json().then((json) => {
+            // Only want to try refreshing token when there's an invalid session
+            if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
+              if (!refreshOnFailure) {
+                this._clearAuth();
+                throw new Error(json);
               }
-            });
-          }
+
+              return this._refreshToken().then(() => {
+                return this._doAuthed(resource, method, body, false);
+              });
+            }
+          });
         }
 
         var error = new Error(response.statusText);
@@ -204,12 +201,6 @@ export class BaasClient {
       headers: headers
     }).then((response) => {
       if (response.status != 200) {
-        var error = new Error(response.statusText);
-        error.response = response;
-        throw error;
-
-      // Something is wrong with our refresh token
-      } else if (response.status == 401) {
         if (response.headers.get('Content-Type') === 'application/json') {
           return response.json().then((json) => {
             // Only want to try refreshing token when there's an invalid session
@@ -220,6 +211,7 @@ export class BaasClient {
             throw new Error(json);
           });
         }
+
         var error = new Error(response.statusText);
         error.response = response;
         throw error;
