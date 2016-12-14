@@ -85,21 +85,8 @@ var BaasClient = exports.BaasClient = function () {
     value: function logout() {
       var _this2 = this;
 
-      var myHeaders = new Headers();
-      myHeaders.append('Accept', 'application/json');
-      myHeaders.append('Content-Type', 'application/json');
-
-      fetch(this.authUrl + "/logout", {
-        method: 'DELETE',
-        headers: myHeaders
-      }).done(function (data) {
+      return this._doAuthed("/auth", "DELETE", null, false, true).then(function (data) {
         _this2._clearAuth();
-        location.reload();
-      }).fail(function (data) {
-        // This is probably the wrong thing to do since it could have
-        // failed for other reasons.
-        _this2._clearAuth();
-        location.reload();
       });
     }
   }, {
@@ -175,12 +162,16 @@ var BaasClient = exports.BaasClient = function () {
     }
   }, {
     key: '_doAuthed',
-    value: function _doAuthed(resource, method, body, refreshOnFailure) {
+    value: function _doAuthed(resource, method, body, refreshOnFailure, useRefreshToken) {
       var _this3 = this;
 
       // Only allow a refresh once
       if (refreshOnFailure === undefined) {
         refreshOnFailure = true;
+      }
+
+      if (useRefreshToken === undefined) {
+        useRefreshToken = false;
       }
 
       if (this.auth() === null) {
@@ -200,7 +191,8 @@ var BaasClient = exports.BaasClient = function () {
         init['body'] = body;
       }
 
-      headers.append('Authorization', 'Bearer ' + this.auth()['accessToken']);
+      var token = useRefreshToken ? localStorage.getItem(REFRESH_TOKEN_KEY) : this.auth()['accessToken'];
+      headers.append('Authorization', 'Bearer ' + token);
 
       return fetch(url, init).then(function (response) {
 
@@ -451,7 +443,7 @@ var Admin = exports.Admin = function () {
   }, {
     key: 'logout',
     value: function logout() {
-      return this._delete("/auth");
+      return this._client.logout();
     }
 
     // Authed methods

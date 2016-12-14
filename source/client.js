@@ -58,23 +58,10 @@ export class BaasClient {
   }
 
   logout() {
-    let myHeaders = new Headers()
-    myHeaders.append('Accept', 'application/json')
-    myHeaders.append('Content-Type', 'application/json')
-
-    fetch(this.authUrl + "/logout",
-    {
-      method: 'DELETE',
-      headers: myHeaders,
-    }).done((data) => {
-      this._clearAuth();
-      location.reload();
-    }).fail((data) => {
-      // This is probably the wrong thing to do since it could have
-      // failed for other reasons.
-      this._clearAuth();
-      location.reload();
-    });
+    return this._doAuthed("/auth", "DELETE", null, false, true)
+      .then((data) => {
+        this._clearAuth();
+      });
   }
 
   _clearAuth() {
@@ -142,11 +129,15 @@ export class BaasClient {
     }
   }
 
-  _doAuthed(resource, method, body, refreshOnFailure) {
+  _doAuthed(resource, method, body, refreshOnFailure, useRefreshToken) {
 
     // Only allow a refresh once
     if (refreshOnFailure === undefined) {
       refreshOnFailure = true;
+    }
+
+    if (useRefreshToken === undefined) {
+      useRefreshToken = false;
     }
 
     if (this.auth() === null) {
@@ -166,7 +157,8 @@ export class BaasClient {
       init['body'] = body;
     }
 
-    headers.append('Authorization', `Bearer ${this.auth()['accessToken']}`)
+    let token = useRefreshToken ? localStorage.getItem(REFRESH_TOKEN_KEY) : this.auth()['accessToken'];
+    headers.append('Authorization', `Bearer ${token}`)
 
     return fetch(url, init)
       .then((response) => {
@@ -394,7 +386,7 @@ export class Admin {
   }
 
   logout(){
-    return this._delete("/auth")
+    return this._client.logout();
   }
 
   // Authed methods
