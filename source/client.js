@@ -173,17 +173,23 @@ export class BaasClient {
             if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
               if (!refreshOnFailure) {
                 this._clearAuth();
-                throw new Error(json);
+                let error = new Error(json['error']);
+                error.response = response;
+                throw error;
               }
 
               return this._refreshToken().then(() => {
                 return this._doAuthed(resource, method, body, false);
               });
             }
+
+            let error = new Error(json['error']);
+            error.response = response;
+            throw error;
           });
         }
 
-        var error = new Error(response.statusText);
+        let error = new Error(response.statusText);
         error.response = response;
         throw error;
       });

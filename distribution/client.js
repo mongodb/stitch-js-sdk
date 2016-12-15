@@ -205,13 +205,19 @@ var BaasClient = exports.BaasClient = function () {
             if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
               if (!refreshOnFailure) {
                 _this3._clearAuth();
-                throw new Error(json);
+                var _error = new Error(json['error']);
+                _error.response = response;
+                throw _error;
               }
 
               return _this3._refreshToken().then(function () {
                 return _this3._doAuthed(resource, method, body, false);
               });
             }
+
+            var error = new Error(json['error']);
+            error.response = response;
+            throw error;
           });
         }
 
