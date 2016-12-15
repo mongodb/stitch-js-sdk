@@ -242,7 +242,7 @@ var BaasClient = exports.BaasClient = function () {
   }, {
     key: 'executePipeline',
     value: function executePipeline(stages) {
-      return this._doAuthed('/pipeline', 'POST', JSON.stringify(stages)).then(checkStatus).then(function (response) {
+      return this._doAuthed('/pipeline', 'POST', JSON.stringify(stages)).then(function (response) {
         return response.json();
       });
     }
@@ -416,7 +416,7 @@ var Admin = exports.Admin = function () {
   }, {
     key: '_doAuthed',
     value: function _doAuthed(url, method, data) {
-      return this._client._doAuthed(url, method, JSON.stringify(data)).then(checkStatus).then(function (response) {
+      return this._client._doAuthed(url, method, JSON.stringify(data)).then(function (response) {
         return response.json();
       });
     }

@@ -206,7 +206,6 @@ export class BaasClient {
 
   executePipeline(stages){
     return this._doAuthed('/pipeline', 'POST', JSON.stringify(stages))
-      .then(checkStatus)
       .then((response)=>{
           return response.json();
         }
@@ -358,7 +357,6 @@ export class Admin {
   // Authed methods
    _doAuthed(url, method, data) {
     return this._client._doAuthed(url, method, JSON.stringify(data))
-      .then(checkStatus)
       .then((response)=>{
         return response.json()
       })
