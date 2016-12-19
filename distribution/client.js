@@ -33,10 +33,13 @@ function checkStatus(response) {
 }
 
 var BaasClient = exports.BaasClient = function () {
-  function BaasClient(appUrl) {
+  function BaasClient(baseUrl, app) {
     _classCallCheck(this, BaasClient);
 
-    this.appUrl = appUrl;
+    this.appUrl = baseUrl;
+    if (app) {
+      this.appUrl = this.appUrl + '/v1/app/' + app;
+    }
     this.authUrl = this.appUrl + '/auth';
     this.checkRedirectResponse();
   }
@@ -403,7 +406,7 @@ var Admin = exports.Admin = function () {
     _classCallCheck(this, Admin);
 
     this._baseUrl = baseUrl;
-    this._client = new BaasClient(this._baseUrl);
+    this._client = new BaasClient(this._baseUrl + "/admin/v1");
   }
 
   _createClass(Admin, [{

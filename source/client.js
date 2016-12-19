@@ -15,8 +15,11 @@ function checkStatus(response) {
 }
 
 export class BaasClient {
-  constructor(appUrl) {
-    this.appUrl = appUrl;
+  constructor(baseUrl, app) {
+    this.appUrl = baseUrl;
+    if (app) {
+      this.appUrl = `${this.appUrl}/v1/app/${app}`
+    }
     this.authUrl = `${this.appUrl}/auth`
     this.checkRedirectResponse();
   }
@@ -349,7 +352,7 @@ export class Admin {
 
   constructor(baseUrl){
     this._baseUrl = baseUrl
-    this._client = new BaasClient(this._baseUrl);
+    this._client = new BaasClient(this._baseUrl + "/admin/v1");
   }
 
   localAuth(username, password){
@@ -361,7 +364,7 @@ export class Admin {
   }
 
   // Authed methods
-   _doAuthed(url, method, data) {
+  _doAuthed(url, method, data) {
     return this._client._doAuthed(url, method, JSON.stringify(data))
       .then((response)=>{
         return response.json()
