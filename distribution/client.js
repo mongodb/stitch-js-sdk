@@ -168,7 +168,6 @@ var BaasClient = exports.BaasClient = function () {
     value: function _doAuthed(resource, method, options) {
       var _this3 = this;
 
-      console.log("doing authed with options", options);
       if (options === undefined) {
         options = { refreshOnFailure: true, useRefreshToken: false };
       } else {
@@ -195,7 +194,6 @@ var BaasClient = exports.BaasClient = function () {
       };
 
       if (options.body) {
-        console.log("setting body to", options.body);
         init['body'] = options.body;
       }
 
