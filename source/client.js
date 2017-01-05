@@ -61,7 +61,7 @@ export class BaasClient {
   }
 
   logout() {
-    return this._doAuthed("/auth", "DELETE", null, false, true)
+    return this._doAuthed("/auth", "DELETE", {refreshOnFailure:false, useRefreshToken:true})
       .then((data) => {
         this._clearAuth();
       });
@@ -132,22 +132,24 @@ export class BaasClient {
     }
   }
 
-  _doAuthed(resource, method, body, refreshOnFailure, useRefreshToken) {
-
-    // Only allow a refresh once
-    if (refreshOnFailure === undefined) {
-      refreshOnFailure = true;
-    }
-
-    if (useRefreshToken === undefined) {
-      useRefreshToken = false;
+  _doAuthed(resource, method, options) {
+    if(options === undefined) {
+      options = {refreshOnFailure:true, useRefreshToken:false}
+    }else{
+      if(options.refreshOnFailure === undefined){
+        options.refreshOnFailure = true
+      }
+      if(options.useRefreshToken === undefined){
+        options.useRefreshToken = false
+      }
     }
 
     if (this.auth() === null) {
       return Promise.reject(new Error("Must auth first"))
     }
 
-    let url = `${this.appUrl}${resource}`;
+    let url = new URL(`${this.appUrl}${resource}`);
+
     let headers = new Headers();
     headers.append('Accept', 'application/json');
     headers.append('Content-Type', 'application/json');
@@ -156,11 +158,15 @@ export class BaasClient {
       headers: headers
     };
 
-    if (body) {
-      init['body'] = body;
+    if (options.body) {
+      init['body'] = options.body;
     }
 
-    let token = useRefreshToken ? localStorage.getItem(REFRESH_TOKEN_KEY) : this.auth()['accessToken'];
+    if (options.queryParams){
+      Object.keys(options.queryParams).forEach(key => url.searchParams.append(key, options.queryParams[key]))
+    }
+
+    let token = options.useRefreshToken ? localStorage.getItem(REFRESH_TOKEN_KEY) : this.auth()['accessToken'];
     headers.append('Authorization', `Bearer ${token}`)
 
     return fetch(url, init)
@@ -174,7 +180,7 @@ export class BaasClient {
           return response.json().then((json) => {
             // Only want to try refreshing token when there's an invalid session
             if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
-              if (!refreshOnFailure) {
+              if (!options.refreshOnFailure) {
                 this._clearAuth();
                 let error = new Error(json['error']);
                 error.response = response;
@@ -182,7 +188,8 @@ export class BaasClient {
               }
 
               return this._refreshToken().then(() => {
-                return this._doAuthed(resource, method, body, false);
+                options.refreshOnFailure = false
+                return this._doAuthed(resource, method, options);
               });
             }
 
@@ -199,7 +206,7 @@ export class BaasClient {
   }
 
   _refreshToken() {
-    return this._doAuthed("/auth/newAccessToken", "POST", null, false, true).then((response) => {
+    return this._doAuthed("/auth/newAccessToken", "POST", {refreshOnFailure:false, useRefreshToken:true}).then((response) => {
       return response.json().then((json) => {
         this._setAccessToken(json['accessToken']);
         return Promise.resolve();
@@ -214,7 +221,7 @@ export class BaasClient {
   }
 
   executePipeline(stages){
-    return this._doAuthed('/pipeline', 'POST', JSON.stringify(stages))
+    return this._doAuthed('/pipeline', 'POST', {body:JSON.stringify(stages)})
       .then((response)=>{
           return response.json();
         }
@@ -364,23 +371,23 @@ export class Admin {
   }
 
   // Authed methods
-  _doAuthed(url, method, data) {
-    return this._client._doAuthed(url, method, JSON.stringify(data))
+  _doAuthed(url, method, options) {
+    return this._client._doAuthed(url, method, options)
       .then((response)=>{
         return response.json()
       })
   }
 
-  _get(url){
-    return this._doAuthed(url, "GET")
+  _get(url, queryParams){
+    return this._doAuthed(url, "GET", {queryParams})
   }
 
   _delete(url){
     return this._doAuthed(url, "DELETE")
   }
 
-  _post(url, data){
-    return this._doAuthed(url, "POST", data)
+  _post(url, body){
+    return this._doAuthed(url, "POST", {body:JSON.stringify(body)})
   }
 
   /* Examples of how to access admin API with this client:
@@ -424,6 +431,9 @@ export class Admin {
             remove: () => this._delete(`/apps/${app}/vars/${varName}`),
             update: (data) => this._post(`/apps/${app}/vars/${varName}`, data)
           })
+        }),
+        logs: () => ({
+          get: (filter)=> this._get(`/apps/${app}/logs`, filter),
         }),
 
         services: () => ({

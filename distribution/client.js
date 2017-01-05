@@ -88,7 +88,7 @@ var BaasClient = exports.BaasClient = function () {
     value: function logout() {
       var _this2 = this;
 
-      return this._doAuthed("/auth", "DELETE", null, false, true).then(function (data) {
+      return this._doAuthed("/auth", "DELETE", { refreshOnFailure: false, useRefreshToken: true }).then(function (data) {
         _this2._clearAuth();
       });
     }
@@ -165,23 +165,27 @@ var BaasClient = exports.BaasClient = function () {
     }
   }, {
     key: '_doAuthed',
-    value: function _doAuthed(resource, method, body, refreshOnFailure, useRefreshToken) {
+    value: function _doAuthed(resource, method, options) {
       var _this3 = this;
 
-      // Only allow a refresh once
-      if (refreshOnFailure === undefined) {
-        refreshOnFailure = true;
-      }
-
-      if (useRefreshToken === undefined) {
-        useRefreshToken = false;
+      console.log("doing authed with options", options);
+      if (options === undefined) {
+        options = { refreshOnFailure: true, useRefreshToken: false };
+      } else {
+        if (options.refreshOnFailure === undefined) {
+          options.refreshOnFailure = true;
+        }
+        if (options.useRefreshToken === undefined) {
+          options.useRefreshToken = false;
+        }
       }
 
       if (this.auth() === null) {
         return Promise.reject(new Error("Must auth first"));
       }
 
-      var url = '' + this.appUrl + resource;
+      var url = new URL('' + this.appUrl + resource);
+
       var headers = new Headers();
       headers.append('Accept', 'application/json');
       headers.append('Content-Type', 'application/json');
@@ -190,11 +194,18 @@ var BaasClient = exports.BaasClient = function () {
         headers: headers
       };
 
-      if (body) {
-        init['body'] = body;
+      if (options.body) {
+        console.log("setting body to", options.body);
+        init['body'] = options.body;
       }
 
-      var token = useRefreshToken ? localStorage.getItem(REFRESH_TOKEN_KEY) : this.auth()['accessToken'];
+      if (options.queryParams) {
+        Object.keys(options.queryParams).forEach(function (key) {
+          return url.searchParams.append(key, options.queryParams[key]);
+        });
+      }
+
+      var token = options.useRefreshToken ? localStorage.getItem(REFRESH_TOKEN_KEY) : this.auth()['accessToken'];
       headers.append('Authorization', 'Bearer ' + token);
 
       return fetch(url, init).then(function (response) {
@@ -206,7 +217,7 @@ var BaasClient = exports.BaasClient = function () {
           return response.json().then(function (json) {
             // Only want to try refreshing token when there's an invalid session
             if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
-              if (!refreshOnFailure) {
+              if (!options.refreshOnFailure) {
                 _this3._clearAuth();
                 var _error = new Error(json['error']);
                 _error.response = response;
@@ -214,7 +225,8 @@ var BaasClient = exports.BaasClient = function () {
               }
 
               return _this3._refreshToken().then(function () {
-                return _this3._doAuthed(resource, method, body, false);
+                options.refreshOnFailure = false;
+                return _this3._doAuthed(resource, method, options);
               });
             }
 
@@ -234,7 +246,7 @@ var BaasClient = exports.BaasClient = function () {
     value: function _refreshToken() {
       var _this4 = this;
 
-      return this._doAuthed("/auth/newAccessToken", "POST", null, false, true).then(function (response) {
+      return this._doAuthed("/auth/newAccessToken", "POST", { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
         return response.json().then(function (json) {
           _this4._setAccessToken(json['accessToken']);
           return Promise.resolve();
@@ -251,7 +263,7 @@ var BaasClient = exports.BaasClient = function () {
   }, {
     key: 'executePipeline',
     value: function executePipeline(stages) {
-      return this._doAuthed('/pipeline', 'POST', JSON.stringify(stages)).then(function (response) {
+      return this._doAuthed('/pipeline', 'POST', { body: JSON.stringify(stages) }).then(function (response) {
         return response.json();
       });
     }
@@ -424,15 +436,15 @@ var Admin = exports.Admin = function () {
 
   }, {
     key: '_doAuthed',
-    value: function _doAuthed(url, method, data) {
-      return this._client._doAuthed(url, method, JSON.stringify(data)).then(function (response) {
+    value: function _doAuthed(url, method, options) {
+      return this._client._doAuthed(url, method, options).then(function (response) {
         return response.json();
       });
     }
   }, {
     key: '_get',
-    value: function _get(url) {
-      return this._doAuthed(url, "GET");
+    value: function _get(url, queryParams) {
+      return this._doAuthed(url, "GET", { queryParams: queryParams });
     }
   }, {
     key: '_delete',
@@ -441,8 +453,8 @@ var Admin = exports.Admin = function () {
     }
   }, {
     key: '_post',
-    value: function _post(url, data) {
-      return this._doAuthed(url, "POST", data);
+    value: function _post(url, body) {
+      return this._doAuthed(url, "POST", { body: JSON.stringify(body) });
     }
 
     /* Examples of how to access admin API with this client:
@@ -526,6 +538,13 @@ var Admin = exports.Admin = function () {
                       return _this5._post('/apps/' + _app + '/vars/' + varName, data);
                     }
                   };
+                }
+              };
+            },
+            logs: function logs() {
+              return {
+                get: function get(filter) {
+                  return _this5._get('/apps/' + _app + '/logs', filter);
                 }
               };
             },
