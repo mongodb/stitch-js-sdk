@@ -22,6 +22,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var USER_AUTH_KEY = "_baas_ua";
 var REFRESH_TOKEN_KEY = "_baas_rt";
 
+function toQueryString(obj) {
+  var parts = [];
+  for (var i in obj) {
+    if (obj.hasOwnProperty(i)) {
+      parts.push(encodeURIComponent(i) + "=" + encodeURIComponent(obj[i]));
+    }
+  }
+  return parts.join("&");
+}
+
 function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
     return response;
@@ -183,7 +193,7 @@ var BaasClient = exports.BaasClient = function () {
         return Promise.reject(new Error("Must auth first"));
       }
 
-      var url = new URL('' + this.appUrl + resource);
+      var url = '' + this.appUrl + resource;
 
       var headers = new Headers();
       headers.append('Accept', 'application/json');
@@ -198,9 +208,7 @@ var BaasClient = exports.BaasClient = function () {
       }
 
       if (options.queryParams) {
-        Object.keys(options.queryParams).forEach(function (key) {
-          return url.searchParams.append(key, options.queryParams[key]);
-        });
+        url = url + "?" + toQueryString(options.queryParams);
       }
 
       var token = options.useRefreshToken ? localStorage.getItem(REFRESH_TOKEN_KEY) : this.auth()['accessToken'];

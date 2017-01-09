@@ -4,6 +4,16 @@ import 'whatwg-fetch' // fetch polyfill
 const USER_AUTH_KEY = "_baas_ua";
 const REFRESH_TOKEN_KEY = "_baas_rt";
 
+function toQueryString(obj) {
+    var parts = [];
+    for (var i in obj) {
+        if (obj.hasOwnProperty(i)) {
+            parts.push(encodeURIComponent(i) + "=" + encodeURIComponent(obj[i]));
+        }
+    }
+    return parts.join("&");
+}
+
 function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
     return response
@@ -148,7 +158,7 @@ export class BaasClient {
       return Promise.reject(new Error("Must auth first"))
     }
 
-    let url = new URL(`${this.appUrl}${resource}`);
+    let url = `${this.appUrl}${resource}`
 
     let headers = new Headers();
     headers.append('Accept', 'application/json');
@@ -163,7 +173,7 @@ export class BaasClient {
     }
 
     if (options.queryParams){
-      Object.keys(options.queryParams).forEach(key => url.searchParams.append(key, options.queryParams[key]))
+      url = url + "?" + toQueryString(options.queryParams)
     }
 
     let token = options.useRefreshToken ? localStorage.getItem(REFRESH_TOKEN_KEY) : this.auth()['accessToken'];
