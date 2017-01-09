@@ -181,11 +181,9 @@ export class BaasClient {
 
     return fetch(url, init)
       .then((response) => {
-
         // Okay: passthrough
         if (response.status >= 200 && response.status < 300) {
           return Promise.resolve(response)
-
         } else if (response.headers.get('Content-Type') === 'application/json') {
           return response.json().then((json) => {
             // Only want to try refreshing token when there's an invalid session
