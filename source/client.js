@@ -24,6 +24,19 @@ function checkStatus(response) {
   }
 }
 
+export class BaasError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'BaasError'
+    this.message = message; 
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, this.constructor);
+    } else { 
+      this.stack = (new Error(message)).stack; 
+    }
+  }
+}
+
 export class BaasClient {
   constructor(baseUrl, app) {
     this.appUrl = baseUrl;
@@ -155,7 +168,7 @@ export class BaasClient {
     }
 
     if (this.auth() === null) {
-      return Promise.reject(new Error("Must auth first"))
+      return Promise.reject(new BaasError("Must auth first"))
     }
 
     let url = `${this.appUrl}${resource}`
@@ -190,7 +203,7 @@ export class BaasClient {
             if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
               if (!options.refreshOnFailure) {
                 this._clearAuth();
-                let error = new Error(json['error']);
+                let error = new BaasError(json['error']);
                 error.response = response;
                 throw error;
               }
@@ -201,7 +214,7 @@ export class BaasClient {
               });
             }
 
-            let error = new Error(json['error']);
+            let error = new BaasError(json['error']);
             error.response = response;
             throw error;
           });

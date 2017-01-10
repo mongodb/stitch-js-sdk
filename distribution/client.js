@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Admin = exports.MongoClient = exports.BaasClient = undefined;
+exports.Admin = exports.MongoClient = exports.BaasClient = exports.BaasError = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -16,6 +16,10 @@ require('whatwg-fetch');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 // fetch polyfill
 
@@ -42,6 +46,27 @@ function checkStatus(response) {
   }
 }
 
+var BaasError = exports.BaasError = function (_Error) {
+  _inherits(BaasError, _Error);
+
+  function BaasError(message) {
+    _classCallCheck(this, BaasError);
+
+    var _this = _possibleConstructorReturn(this, (BaasError.__proto__ || Object.getPrototypeOf(BaasError)).call(this, message));
+
+    _this.name = 'BaasError';
+    _this.message = message;
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(_this, _this.constructor);
+    } else {
+      _this.stack = new Error(message).stack;
+    }
+    return _this;
+  }
+
+  return BaasError;
+}(Error);
+
 var BaasClient = exports.BaasClient = function () {
   function BaasClient(baseUrl, app) {
     _classCallCheck(this, BaasClient);
@@ -57,7 +82,7 @@ var BaasClient = exports.BaasClient = function () {
   _createClass(BaasClient, [{
     key: 'authWithLocal',
     value: function authWithLocal(username, password, cors) {
-      var _this = this;
+      var _this2 = this;
 
       var headers = new Headers();
       headers.append('Accept', 'application/json');
@@ -75,7 +100,7 @@ var BaasClient = exports.BaasClient = function () {
 
       return fetch(this.authUrl + '/local/userpass', init).then(checkStatus).then(function (response) {
         return response.json().then(function (json) {
-          _this._setAuth(json);
+          _this2._setAuth(json);
           Promise.resolve();
         });
       });
@@ -96,10 +121,10 @@ var BaasClient = exports.BaasClient = function () {
   }, {
     key: 'logout',
     value: function logout() {
-      var _this2 = this;
+      var _this3 = this;
 
       return this._doAuthed("/auth", "DELETE", { refreshOnFailure: false, useRefreshToken: true }).then(function (data) {
-        _this2._clearAuth();
+        _this3._clearAuth();
       });
     }
   }, {
@@ -176,7 +201,7 @@ var BaasClient = exports.BaasClient = function () {
   }, {
     key: '_doAuthed',
     value: function _doAuthed(resource, method, options) {
-      var _this3 = this;
+      var _this4 = this;
 
       if (options === undefined) {
         options = { refreshOnFailure: true, useRefreshToken: false };
@@ -190,7 +215,7 @@ var BaasClient = exports.BaasClient = function () {
       }
 
       if (this.auth() === null) {
-        return Promise.reject(new Error("Must auth first"));
+        return Promise.reject(new BaasError("Must auth first"));
       }
 
       var url = '' + this.appUrl + resource;
@@ -215,7 +240,6 @@ var BaasClient = exports.BaasClient = function () {
       headers.append('Authorization', 'Bearer ' + token);
 
       return fetch(url, init).then(function (response) {
-
         // Okay: passthrough
         if (response.status >= 200 && response.status < 300) {
           return Promise.resolve(response);
@@ -224,19 +248,19 @@ var BaasClient = exports.BaasClient = function () {
             // Only want to try refreshing token when there's an invalid session
             if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
               if (!options.refreshOnFailure) {
-                _this3._clearAuth();
-                var _error = new Error(json['error']);
+                _this4._clearAuth();
+                var _error = new BaasError(json['error']);
                 _error.response = response;
                 throw _error;
               }
 
-              return _this3._refreshToken().then(function () {
+              return _this4._refreshToken().then(function () {
                 options.refreshOnFailure = false;
-                return _this3._doAuthed(resource, method, options);
+                return _this4._doAuthed(resource, method, options);
               });
             }
 
-            var error = new Error(json['error']);
+            var error = new BaasError(json['error']);
             error.response = response;
             throw error;
           });
@@ -250,11 +274,11 @@ var BaasClient = exports.BaasClient = function () {
   }, {
     key: '_refreshToken',
     value: function _refreshToken() {
-      var _this4 = this;
+      var _this5 = this;
 
       return this._doAuthed("/auth/newAccessToken", "POST", { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
         return response.json().then(function (json) {
-          _this4._setAccessToken(json['accessToken']);
+          _this5._setAccessToken(json['accessToken']);
           return Promise.resolve();
         });
       });
@@ -482,7 +506,7 @@ var Admin = exports.Admin = function () {
   }, {
     key: 'apps',
     value: function apps() {
-      var _this5 = this;
+      var _this6 = this;
 
       var root = this;
       return {
@@ -504,21 +528,21 @@ var Admin = exports.Admin = function () {
             authProviders: function authProviders() {
               return {
                 create: function create(data) {
-                  return _this5._post('/apps/' + _app + '/authProviders', data);
+                  return _this6._post('/apps/' + _app + '/authProviders', data);
                 },
                 list: function list() {
-                  return _this5._get('/apps/' + _app + '/authProviders');
+                  return _this6._get('/apps/' + _app + '/authProviders');
                 },
                 provider: function provider(authType, authName) {
                   return {
                     get: function get() {
-                      return _this5._get('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
+                      return _this6._get('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
                     },
                     remove: function remove() {
-                      return _this5._delete('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
+                      return _this6._delete('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
                     },
                     update: function update(data) {
-                      return _this5._post('/apps/' + _app + '/authProviders/' + authType + '/' + authName, data);
+                      return _this6._post('/apps/' + _app + '/authProviders/' + authType + '/' + authName, data);
                     }
                   };
                 }
@@ -527,21 +551,21 @@ var Admin = exports.Admin = function () {
             variables: function variables() {
               return {
                 list: function list() {
-                  return _this5._get('/apps/' + _app + '/vars');
+                  return _this6._get('/apps/' + _app + '/vars');
                 },
                 create: function create(data) {
-                  return _this5._post('/apps/' + _app + '/vars', data);
+                  return _this6._post('/apps/' + _app + '/vars', data);
                 },
                 variable: function variable(varName) {
                   return {
                     get: function get() {
-                      return _this5._get('/apps/' + _app + '/vars/' + varName);
+                      return _this6._get('/apps/' + _app + '/vars/' + varName);
                     },
                     remove: function remove() {
-                      return _this5._delete('/apps/' + _app + '/vars/' + varName);
+                      return _this6._delete('/apps/' + _app + '/vars/' + varName);
                     },
                     update: function update(data) {
-                      return _this5._post('/apps/' + _app + '/vars/' + varName, data);
+                      return _this6._post('/apps/' + _app + '/vars/' + varName, data);
                     }
                   };
                 }
@@ -550,7 +574,7 @@ var Admin = exports.Admin = function () {
             logs: function logs() {
               return {
                 get: function get(filter) {
-                  return _this5._get('/apps/' + _app + '/logs', filter);
+                  return _this6._get('/apps/' + _app + '/logs', filter);
                 }
               };
             },
@@ -558,44 +582,44 @@ var Admin = exports.Admin = function () {
             services: function services() {
               return {
                 list: function list() {
-                  return _this5._get('/apps/' + _app + '/services');
+                  return _this6._get('/apps/' + _app + '/services');
                 },
                 create: function create(data) {
-                  return _this5._post('/apps/' + _app + '/services', data);
+                  return _this6._post('/apps/' + _app + '/services', data);
                 },
                 service: function service(svc) {
                   return {
                     get: function get() {
-                      return _this5._get('/apps/' + _app + '/services/' + svc);
+                      return _this6._get('/apps/' + _app + '/services/' + svc);
                     },
                     update: function update(data) {
-                      return _this5._post('/apps/' + _app + '/services/' + svc, data);
+                      return _this6._post('/apps/' + _app + '/services/' + svc, data);
                     },
                     remove: function remove() {
-                      return _this5._delete('/apps/' + _app + '/services/' + svc);
+                      return _this6._delete('/apps/' + _app + '/services/' + svc);
                     },
                     setConfig: function setConfig(data) {
-                      return _this5._post('/apps/' + _app + '/services/' + svc + '/config', data);
+                      return _this6._post('/apps/' + _app + '/services/' + svc + '/config', data);
                     },
 
                     rules: function rules() {
                       return {
                         list: function list() {
-                          return _this5._get('/apps/' + _app + '/services/' + svc + '/rules');
+                          return _this6._get('/apps/' + _app + '/services/' + svc + '/rules');
                         },
                         create: function create(data) {
-                          return _this5._post('/apps/' + _app + '/services/' + svc + '/rules');
+                          return _this6._post('/apps/' + _app + '/services/' + svc + '/rules');
                         },
                         rule: function rule(ruleId) {
                           return {
                             get: function get() {
-                              return _this5._get('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
+                              return _this6._get('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
                             },
                             update: function update(data) {
-                              return _this5._post('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId, data);
+                              return _this6._post('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId, data);
                             },
                             remove: function remove() {
-                              return _this5._delete('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
+                              return _this6._delete('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
                             }
                           };
                         }
@@ -605,21 +629,21 @@ var Admin = exports.Admin = function () {
                     triggers: function triggers() {
                       return {
                         list: function list() {
-                          return _this5._get('/apps/' + _app + '/services/' + svc + '/triggers');
+                          return _this6._get('/apps/' + _app + '/services/' + svc + '/triggers');
                         },
                         create: function create(data) {
-                          return _this5._post('/apps/' + _app + '/services/' + svc + '/triggers');
+                          return _this6._post('/apps/' + _app + '/services/' + svc + '/triggers');
                         },
                         trigger: function trigger(triggerId) {
                           return {
                             get: function get() {
-                              return _this5._get('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
+                              return _this6._get('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
                             },
                             update: function update(data) {
-                              return _this5._post('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId, data);
+                              return _this6._post('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId, data);
                             },
                             remove: function remove() {
-                              return _this5._delete('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
+                              return _this6._delete('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
                             }
                           };
                         }
