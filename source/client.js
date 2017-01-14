@@ -4,6 +4,10 @@ import 'whatwg-fetch' // fetch polyfill
 const USER_AUTH_KEY = "_baas_ua";
 const REFRESH_TOKEN_KEY = "_baas_rt";
 
+export const ErrAuthProviderNotFound = "AuthProviderNotFound"
+export const ErrInvalidSession = 'InvalidSession'
+
+
 function toQueryString(obj) {
     var parts = [];
     for (var i in obj) {
@@ -25,10 +29,13 @@ function checkStatus(response) {
 }
 
 export class BaasError extends Error {
-  constructor(message) {
+  constructor(message, code) {
     super(message);
     this.name = 'BaasError'
     this.message = message; 
+    if(code !== undefined){
+      this.code = code;
+    }
     if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, this.constructor);
     } else { 
@@ -200,10 +207,10 @@ export class BaasClient {
         } else if (response.headers.get('Content-Type') === 'application/json') {
           return response.json().then((json) => {
             // Only want to try refreshing token when there's an invalid session
-            if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
+            if ('errorCode' in json && json['errorCode'] == ErrInvalidSession) {
               if (!options.refreshOnFailure) {
                 this._clearAuth();
-                let error = new BaasError(json['error']);
+                let error = new BaasError(json['error'], json['errorCode']);
                 error.response = response;
                 throw error;
               }
@@ -214,7 +221,7 @@ export class BaasClient {
               });
             }
 
-            let error = new BaasError(json['error']);
+            let error = new BaasError(json['error'], json['errorCode']);
             error.response = response;
             throw error;
           });

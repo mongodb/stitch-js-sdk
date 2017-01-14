@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Admin = exports.MongoClient = exports.BaasClient = exports.BaasError = undefined;
+exports.Admin = exports.MongoClient = exports.BaasClient = exports.BaasError = exports.ErrInvalidSession = exports.ErrAuthProviderNotFound = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -25,6 +25,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var USER_AUTH_KEY = "_baas_ua";
 var REFRESH_TOKEN_KEY = "_baas_rt";
+
+var ErrAuthProviderNotFound = exports.ErrAuthProviderNotFound = "AuthProviderNotFound";
+var ErrInvalidSession = exports.ErrInvalidSession = 'InvalidSession';
 
 function toQueryString(obj) {
   var parts = [];
@@ -49,13 +52,16 @@ function checkStatus(response) {
 var BaasError = exports.BaasError = function (_Error) {
   _inherits(BaasError, _Error);
 
-  function BaasError(message) {
+  function BaasError(message, code) {
     _classCallCheck(this, BaasError);
 
     var _this = _possibleConstructorReturn(this, (BaasError.__proto__ || Object.getPrototypeOf(BaasError)).call(this, message));
 
     _this.name = 'BaasError';
     _this.message = message;
+    if (code !== undefined) {
+      _this.code = code;
+    }
     if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(_this, _this.constructor);
     } else {
@@ -246,10 +252,10 @@ var BaasClient = exports.BaasClient = function () {
         } else if (response.headers.get('Content-Type') === 'application/json') {
           return response.json().then(function (json) {
             // Only want to try refreshing token when there's an invalid session
-            if ('errorCode' in json && json['errorCode'] == 'InvalidSession') {
+            if ('errorCode' in json && json['errorCode'] == ErrInvalidSession) {
               if (!options.refreshOnFailure) {
                 _this4._clearAuth();
-                var _error = new BaasError(json['error']);
+                var _error = new BaasError(json['error'], json['errorCode']);
                 _error.response = response;
                 throw _error;
               }
@@ -260,7 +266,7 @@ var BaasClient = exports.BaasClient = function () {
               });
             }
 
-            var error = new BaasError(json['error']);
+            var error = new BaasError(json['error'], json['errorCode']);
             error.response = response;
             throw error;
           });
