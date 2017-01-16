@@ -82,8 +82,8 @@ export class BaasClient {
 
   // The state we generate is to be used for any kind of request where we will
   // complete an authentication flow via a redirect. We store the generate in 
-  // a local storage bound to the apps origin. This ensures that any time we
-  // receive a redirect, their must be a state parameter and it must match
+  // a local storage bound to the app's origin. This ensures that any time we
+  // receive a redirect, there must be a state parameter and it must match
   // what we ourselves have generated. This state MUST only be sent to
   // a trusted BaaS endpoint in order to preserve its integrity. BaaS will
   // store it in some way on its origin (currently a cookie stored on this client)
@@ -159,8 +159,8 @@ export class BaasClient {
       return
     }
 
-    var query = window.location.search.substring(1);
-    var vars = query.split('&');
+    var fragment = window.location.hash.substring(1);
+    var vars = fragment.split('&');
     var found = false;
     var ua = null;
     var stateValidated = false;
@@ -187,9 +187,10 @@ export class BaasClient {
           let theirState = decodeURIComponent(pair[1]);
           if (ourState && ourState === theirState) {
             stateValidated = true;
-          }
-          console.log(`BaasClient: our auth request state does not match what was provided!`);
-          window.history.replaceState(null, "", this.baseUrl());          
+          } else {
+            console.log(`BaasClient: our auth request state does not match what was provided!`);
+            window.history.replaceState(null, "", this.baseUrl());   
+          }     
         }
     }
     if (found) {
