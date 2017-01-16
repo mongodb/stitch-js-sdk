@@ -3,10 +3,11 @@ import 'whatwg-fetch' // fetch polyfill
 
 const USER_AUTH_KEY = "_baas_ua";
 const REFRESH_TOKEN_KEY = "_baas_rt";
+const STATE_KEY = "_baas_state";
 
 export const ErrAuthProviderNotFound = "AuthProviderNotFound"
 export const ErrInvalidSession = 'InvalidSession'
-
+const stateLength = 64
 
 function toQueryString(obj) {
     var parts = [];
@@ -79,15 +80,39 @@ export class BaasClient {
       })
   }
 
+  // The state we generate is to be used for any kind of request where we will
+  // complete an authentication flow via a redirect. We store the generate in 
+  // a local storage bound to the apps origin. This ensures that any time we
+  // receive a redirect, their must be a state parameter and it must match
+  // what we ourselves have generated. This state MUST only be sent to
+  // a trusted BaaS endpoint in order to preserve its integrity. BaaS will
+  // store it in some way on its origin (currently a cookie stored on this client)
+  // and use that state at the end of an auth flow as a parameter in the redirect URI.
+  generateState() {
+    let alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let state = '';
+    for (var i = 0; i < stateLength; i++) {
+      let pos = Math.floor(Math.random() * alpha.length);
+      state += alpha.substring(pos, pos+1);
+    }
+    return state;
+  }
+
+  prepareRedirect() {
+    let state = this.generateState();
+    localStorage.setItem(STATE_KEY, state);
+    return `redirect=${encodeURI(this.baseUrl())}&state=${state}`
+  }
+
   authWithOAuth(providerName){
-    window.location.replace(`${this.authUrl}/oauth2/${providerName}?redirect=${encodeURI(this.baseUrl())}`);
+    window.location.replace(`${this.authUrl}/oauth2/${providerName}?${this.prepareRedirect()}`);
   }
 
   linkWithOAuth(providerName){
     if (this.auth() === null) {
       throw "Must auth before execute"
     }
-    window.location.replace(`${this.authUrl}/oauth2/${providerName}?redirect=${encodeURI(this.baseUrl())}&link=${this.auth()['token']}`);
+    window.location.replace(`${this.authUrl}/oauth2/${providerName}?${this.prepareRedirect()}&link=${this.auth()['token']}`);
   }
 
   logout() {
@@ -137,6 +162,9 @@ export class BaasClient {
     var query = window.location.search.substring(1);
     var vars = query.split('&');
     var found = false;
+    var ua = null;
+    var stateValidated = false;
+    var stateFound = false;
     for (var i = 0; i < vars.length; i++) {
         var pair = vars[i].split('=');
         if (decodeURIComponent(pair[0]) == "_baas_error") {
@@ -147,19 +175,35 @@ export class BaasClient {
           break;
         }
         if (decodeURIComponent(pair[0]) == "_baas_ua") {
-          let ua = JSON.parse(atob(decodeURIComponent(pair[1])));
-          this._setAuth(ua);
+          ua = JSON.parse(atob(decodeURIComponent(pair[1])));
           found = true;
-          break;
         }
         if (decodeURIComponent(pair[0]) == "_baas_link") {
           found = true;
-          break;
+        }
+        if (decodeURIComponent(pair[0]) == "_baas_state") {
+          stateFound = true;
+          let ourState = localStorage.getItem(STATE_KEY);
+          let theirState = decodeURIComponent(pair[1]);
+          if (ourState && ourState === theirState) {
+            stateValidated = true;
+          }
+          console.log(`BaasClient: our auth request state does not match what was provided!`);
+          window.history.replaceState(null, "", this.baseUrl());          
         }
     }
     if (found) {
+      if (ua !== null) {
+        if (stateValidated) {
+          this._setAuth(ua);
+        } else if (!stateFound) {
+          console.log(`BaasClient: our auth request state was never returned!`);
+        }
+      }
+
       window.history.replaceState(null, "", this.baseUrl());
     }
+    localStorage.removeItem(STATE_KEY);
   }
 
   _doAuthed(resource, method, options) {

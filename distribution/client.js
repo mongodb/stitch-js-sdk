@@ -25,9 +25,11 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var USER_AUTH_KEY = "_baas_ua";
 var REFRESH_TOKEN_KEY = "_baas_rt";
+var STATE_KEY = "_baas_state";
 
 var ErrAuthProviderNotFound = exports.ErrAuthProviderNotFound = "AuthProviderNotFound";
 var ErrInvalidSession = exports.ErrInvalidSession = 'InvalidSession';
+var stateLength = 64;
 
 function toQueryString(obj) {
   var parts = [];
@@ -112,9 +114,27 @@ var BaasClient = exports.BaasClient = function () {
       });
     }
   }, {
+    key: 'generateState',
+    value: function generateState() {
+      var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      var state = '';
+      for (var i = 0; i < stateLength; i++) {
+        var pos = Math.floor(Math.random() * alpha.length);
+        state += alpha.substring(pos, pos + 1);
+      }
+      return state;
+    }
+  }, {
+    key: 'prepareRedirect',
+    value: function prepareRedirect() {
+      var state = this.generateState();
+      localStorage.setItem(STATE_KEY, state);
+      return 'redirect=' + encodeURI(this.baseUrl()) + '&state=' + state;
+    }
+  }, {
     key: 'authWithOAuth',
     value: function authWithOAuth(providerName) {
-      window.location.replace(this.authUrl + '/oauth2/' + providerName + '?redirect=' + encodeURI(this.baseUrl()));
+      window.location.replace(this.authUrl + '/oauth2/' + providerName + '?' + this.prepareRedirect());
     }
   }, {
     key: 'linkWithOAuth',
@@ -122,7 +142,7 @@ var BaasClient = exports.BaasClient = function () {
       if (this.auth() === null) {
         throw "Must auth before execute";
       }
-      window.location.replace(this.authUrl + '/oauth2/' + providerName + '?redirect=' + encodeURI(this.baseUrl()) + '&link=' + this.auth()['token']);
+      window.location.replace(this.authUrl + '/oauth2/' + providerName + '?' + this.prepareRedirect() + '&link=' + this.auth()['token']);
     }
   }, {
     key: 'logout',
@@ -180,6 +200,9 @@ var BaasClient = exports.BaasClient = function () {
       var query = window.location.search.substring(1);
       var vars = query.split('&');
       var found = false;
+      var ua = null;
+      var stateValidated = false;
+      var stateFound = false;
       for (var i = 0; i < vars.length; i++) {
         var pair = vars[i].split('=');
         if (decodeURIComponent(pair[0]) == "_baas_error") {
@@ -190,19 +213,35 @@ var BaasClient = exports.BaasClient = function () {
           break;
         }
         if (decodeURIComponent(pair[0]) == "_baas_ua") {
-          var ua = JSON.parse(atob(decodeURIComponent(pair[1])));
-          this._setAuth(ua);
+          ua = JSON.parse(atob(decodeURIComponent(pair[1])));
           found = true;
-          break;
         }
         if (decodeURIComponent(pair[0]) == "_baas_link") {
           found = true;
-          break;
+        }
+        if (decodeURIComponent(pair[0]) == "_baas_state") {
+          stateFound = true;
+          var ourState = localStorage.getItem(STATE_KEY);
+          var theirState = decodeURIComponent(pair[1]);
+          if (ourState && ourState === theirState) {
+            stateValidated = true;
+          }
+          console.log('BaasClient: our auth request state does not match what was provided!');
+          window.history.replaceState(null, "", this.baseUrl());
         }
       }
       if (found) {
+        if (ua !== null) {
+          if (stateValidated) {
+            this._setAuth(ua);
+          } else if (!stateFound) {
+            console.log('BaasClient: our auth request state was never returned!');
+          }
+        }
+
         window.history.replaceState(null, "", this.baseUrl());
       }
+      localStorage.removeItem(STATE_KEY);
     }
   }, {
     key: '_doAuthed',
