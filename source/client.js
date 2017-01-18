@@ -455,12 +455,31 @@ export class Admin {
     return this._doAuthed(url, "GET", {queryParams})
   }
 
+  _put(url, queryParams){
+    return this._doAuthed(url, "GET", {queryParams})
+  }
+
   _delete(url){
     return this._doAuthed(url, "DELETE")
   }
 
   _post(url, body){
     return this._doAuthed(url, "POST", {body:JSON.stringify(body)})
+  }
+
+  profile () {
+    let root = this;
+    return {
+      keys: () => ({
+        list: () => root._get("/profile/keys"),
+        create: (key) => root._post("/profile/keys"), 
+        key: (keyId) => ({
+          get: ()=> root._get(`/profile/keys/${keyId}`),
+          enable: ()=> root._put(`/profile/keys/${keyId}/enable`),
+          disable: ()=> root._put(`/profile/keys/${keyId}/disable`),
+        })
+      })
+    }
   }
 
   /* Examples of how to access admin API with this client:

@@ -533,6 +533,11 @@ var Admin = exports.Admin = function () {
       return this._doAuthed(url, "GET", { queryParams: queryParams });
     }
   }, {
+    key: '_put',
+    value: function _put(url, queryParams) {
+      return this._doAuthed(url, "GET", { queryParams: queryParams });
+    }
+  }, {
     key: '_delete',
     value: function _delete(url) {
       return this._doAuthed(url, "DELETE");
@@ -541,6 +546,36 @@ var Admin = exports.Admin = function () {
     key: '_post',
     value: function _post(url, body) {
       return this._doAuthed(url, "POST", { body: JSON.stringify(body) });
+    }
+  }, {
+    key: 'profile',
+    value: function profile() {
+      var root = this;
+      return {
+        keys: function keys() {
+          return {
+            list: function list() {
+              return root._get("/profile/keys");
+            },
+            create: function create(key) {
+              return root._post("/profile/keys");
+            },
+            key: function key(keyId) {
+              return {
+                get: function get() {
+                  return root._get('/profile/keys/' + keyId);
+                },
+                enable: function enable() {
+                  return root._put('/profile/keys/' + keyId + '/enable');
+                },
+                disable: function disable() {
+                  return root._put('/profile/keys/' + keyId + '/disable');
+                }
+              };
+            }
+          };
+        }
+      };
     }
 
     /* Examples of how to access admin API with this client:
