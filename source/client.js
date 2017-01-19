@@ -456,7 +456,7 @@ export class Admin {
   }
 
   _put(url, queryParams){
-    return this._doAuthed(url, "GET", {queryParams})
+    return this._doAuthed(url, "PUT", {queryParams})
   }
 
   _delete(url){

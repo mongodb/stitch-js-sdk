@@ -535,7 +535,7 @@ var Admin = exports.Admin = function () {
   }, {
     key: '_put',
     value: function _put(url, queryParams) {
-      return this._doAuthed(url, "GET", { queryParams: queryParams });
+      return this._doAuthed(url, "PUT", { queryParams: queryParams });
     }
   }, {
     key: '_delete',
