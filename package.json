@@ -7,28 +7,29 @@
     "build": "babel source --presets babel-preset-es2015 --out-dir distribution",
     "test": "mocha --compilers js:babel-core/register --require babel-polyfill",
     "lint": "eslint source/ test/",
-    "lintfix": "eslint --fix source/ test/"
+    "lintfix": "eslint --fix source/ test/",
+	"cover": "istanbul cover ./node_modules/mocha/bin/_mocha -- --compilers js:babel-core/register  --require babel-polyfill --colors --reporter dot test/"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "babel-polyfill": "^6.22.0",
+    "babel-register": "^6.22.0",
     "chai": "^3.5.0",
     "cookie_js": "^1.2.0",
-    "eslint": "^3.13.1",
-    "istanbul": "^0.4.5",
-    "mocha": "^3.2.0",
-    "babel-register": "^6.18.0",
-    "mock-browser": "^0.92.12",
     "eslint": "^3.13.0",
     "eslint-config-standard": "^6.2.1",
     "eslint-plugin-promise": "^3.4.0",
     "eslint-plugin-react": "^6.9.0",
-    "eslint-plugin-standard": "^2.0.1"
-  },
-  "dependencies": {
+    "eslint-plugin-standard": "^2.0.1",
+    "fetch-mock": "^5.8.1",
+    "mocha": "^3.2.0",
+    "mock-browser": "^0.92.12",
     "babel-cli": "^6.11.4",
     "babel-plugin-transform-builtin-extend": "^1.1.0",
-    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-es2015": "^6.9.0"
+  },
+  "dependencies": {
     "whatwg-fetch": "^2.0.1"
   }
 }
