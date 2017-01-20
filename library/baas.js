@@ -71,6 +71,7 @@ var Baas =
 	var STATE_KEY = '_baas_state';
 	var BAAS_ERROR_KEY = '_baas_error';
 	var BAAS_LINK_KEY = '_baas_link';
+	var DEFAULT_BAAS_SERVER_URL = 'https://baas-dev.10gen.cc/';
 	
 	var ErrAuthProviderNotFound = exports.ErrAuthProviderNotFound = 'AuthProviderNotFound';
 	var ErrInvalidSession = exports.ErrInvalidSession = 'InvalidSession';
@@ -315,10 +316,13 @@ var Baas =
 	}();
 	
 	var BaasClient = exports.BaasClient = function () {
-	  function BaasClient(baseUrl, app) {
+	  function BaasClient(app, options) {
 	    _classCallCheck(this, BaasClient);
 	
-	    this.baseUrl = baseUrl;
+	    var baseUrl = DEFAULT_BAAS_SERVER_URL;
+	    if (options && options.baseUrl) {
+	      baseUrl = options.baseUrl;
+	    }
 	    this.appUrl = baseUrl + '/admin/v1';
 	    this.authUrl = baseUrl + '/admin/v1/auth';
 	    if (app) {
@@ -596,8 +600,7 @@ var Baas =
 	  function Admin(baseUrl) {
 	    _classCallCheck(this, Admin);
 	
-	    this._baseUrl = baseUrl;
-	    this.client = new BaasClient(this._baseUrl);
+	    this.client = new BaasClient('', { baseUrl: baseUrl });
 	  }
 	
 	  _createClass(Admin, [{

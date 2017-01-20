@@ -7,6 +7,7 @@ const REFRESH_TOKEN_KEY = '_baas_rt'
 const STATE_KEY = '_baas_state'
 const BAAS_ERROR_KEY = '_baas_error'
 const BAAS_LINK_KEY = '_baas_link'
+const DEFAULT_BAAS_SERVER_URL = 'https://baas-dev.10gen.cc/'
 
 export const ErrAuthProviderNotFound = 'AuthProviderNotFound'
 export const ErrInvalidSession = 'InvalidSession'
@@ -205,8 +206,11 @@ export class Auth {
 }
 
 export class BaasClient {
-  constructor (baseUrl, app) {
-    this.baseUrl = baseUrl
+  constructor (app, options) {
+    let baseUrl = DEFAULT_BAAS_SERVER_URL
+    if (options && options.baseUrl) {
+      baseUrl = options.baseUrl
+    }
     this.appUrl = `${baseUrl}/admin/v1`
     this.authUrl = `${baseUrl}/admin/v1/auth`
     if (app) {
@@ -450,8 +454,7 @@ export class MongoClient {
 export class Admin {
 
   constructor (baseUrl) {
-    this._baseUrl = baseUrl
-    this.client = new BaasClient(this._baseUrl)
+    this.client = new BaasClient('', {baseUrl})
   }
 
   _doAuthed (url, method, options) {
