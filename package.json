@@ -4,12 +4,26 @@
   "description": "",
   "main": "distribution/client.js",
   "scripts": {
-    "build": "babel source --presets babel-preset-es2015 --out-dir distribution"
+    "build": "babel source --presets babel-preset-es2015 --out-dir distribution",
+    "test": "mocha --compilers js:babel-core/register --require babel-polyfill",
+    "lint": "eslint source/ test/",
+    "lintfix": "eslint --fix source/ test/"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "cookie_js": "^1.2.0"
+    "chai": "^3.5.0",
+    "cookie_js": "^1.2.0",
+    "eslint": "^3.13.1",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0",
+    "babel-register": "^6.18.0",
+    "mock-browser": "^0.92.12",
+    "eslint": "^3.13.0",
+    "eslint-config-standard": "^6.2.1",
+    "eslint-plugin-promise": "^3.4.0",
+    "eslint-plugin-react": "^6.9.0",
+    "eslint-plugin-standard": "^2.0.1"
   },
   "dependencies": {
     "babel-cli": "^6.11.4",
