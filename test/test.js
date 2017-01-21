@@ -8,6 +8,7 @@ import {expect} from 'chai'
 const MockBrowser = mocks.MockBrowser
 global.Buffer = global.Buffer || require('buffer').Buffer
 
+// Polyfill base64 encoding functions, since these aren't provided by nodejs.
 if (typeof btoa === 'undefined') {
   global.btoa = function (str) {
     return new Buffer(str).toString('base64')
