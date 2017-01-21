@@ -50,8 +50,7 @@ export const parseRedirectFragment = (fragment, ourState) => {
         result.found = true
         break outerloop
       case USER_AUTH_KEY:
-        // TODO this needs to be double unescaped for some reason, not sure why.
-        result.ua = JSON.parse(window.atob(decodeURIComponent(decodeURIComponent(pairParts[1]))))
+        result.ua = JSON.parse(window.atob(decodeURIComponent(pairParts[1])))
         result.found = true
         continue
       case BAAS_LINK_KEY:
