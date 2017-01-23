@@ -706,6 +706,33 @@ var Admin = exports.Admin = function () {
               };
             },
 
+            apiKeys: function apiKeys() {
+              return {
+                list: function list() {
+                  return _this6._get('/apps/' + _app + '/keys');
+                },
+                create: function create(data) {
+                  return _this6._post('/apps/' + _app + '/keys', data);
+                },
+                apiKey: function apiKey(key) {
+                  return {
+                    get: function get() {
+                      return _this6._get('/apps/' + _app + '/keys/' + key);
+                    },
+                    remove: function remove() {
+                      return _this6._delete('/apps/' + _app + '/keys/' + key);
+                    },
+                    enable: function enable() {
+                      return _this6._put('/apps/' + _app + '/keys/' + key + '/enable');
+                    },
+                    disable: function disable() {
+                      return _this6._put('/apps/' + _app + '/keys/' + key + '/disable');
+                    }
+                  };
+                }
+              };
+            },
+
             services: function services() {
               return {
                 list: function list() {

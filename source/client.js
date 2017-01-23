@@ -540,7 +540,16 @@ export class Admin {
         logs: () => ({
           get: (filter) => this._get(`/apps/${app}/logs`, filter)
         }),
-
+        apiKeys: () => ({
+          list: () => this._get(`/apps/${app}/keys`),
+          create: (data) => this._post(`/apps/${app}/keys`, data),
+          apiKey: (key) => ({
+            get: () => this._get(`/apps/${app}/keys/${key}`),
+            remove: () => this._delete(`/apps/${app}/keys/${key}`),
+            enable: () => this._put(`/apps/${app}/keys/${key}/enable`),
+            disable: () => this._put(`/apps/${app}/keys/${key}/disable`)
+          })
+        }),
         services: () => ({
           list: () => this._get(`/apps/${app}/services`),
           create: (data) => this._post(`/apps/${app}/services`, data),
