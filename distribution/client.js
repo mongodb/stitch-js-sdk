@@ -586,6 +586,8 @@ var Admin = exports.Admin = function () {
   }, {
     key: 'profile',
     value: function profile() {
+      var _this6 = this;
+
       var root = this;
       return {
         keys: function keys() {
@@ -596,10 +598,13 @@ var Admin = exports.Admin = function () {
             create: function create(key) {
               return root._post('/profile/keys');
             },
-            key: function key(keyId) {
+            apiKey: function apiKey(keyId) {
               return {
                 get: function get() {
                   return root._get('/profile/keys/' + keyId);
+                },
+                remove: function remove() {
+                  return _this6._delete('/profile/keys/' + keyId);
                 },
                 enable: function enable() {
                   return root._put('/profile/keys/' + keyId + '/enable');
@@ -633,7 +638,7 @@ var Admin = exports.Admin = function () {
   }, {
     key: 'apps',
     value: function apps() {
-      var _this6 = this;
+      var _this7 = this;
 
       var root = this;
       return {
@@ -655,21 +660,21 @@ var Admin = exports.Admin = function () {
             authProviders: function authProviders() {
               return {
                 create: function create(data) {
-                  return _this6._post('/apps/' + _app + '/authProviders', data);
+                  return _this7._post('/apps/' + _app + '/authProviders', data);
                 },
                 list: function list() {
-                  return _this6._get('/apps/' + _app + '/authProviders');
+                  return _this7._get('/apps/' + _app + '/authProviders');
                 },
                 provider: function provider(authType, authName) {
                   return {
                     get: function get() {
-                      return _this6._get('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
+                      return _this7._get('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
                     },
                     remove: function remove() {
-                      return _this6._delete('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
+                      return _this7._delete('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
                     },
                     update: function update(data) {
-                      return _this6._post('/apps/' + _app + '/authProviders/' + authType + '/' + authName, data);
+                      return _this7._post('/apps/' + _app + '/authProviders/' + authType + '/' + authName, data);
                     }
                   };
                 }
@@ -678,21 +683,21 @@ var Admin = exports.Admin = function () {
             variables: function variables() {
               return {
                 list: function list() {
-                  return _this6._get('/apps/' + _app + '/vars');
+                  return _this7._get('/apps/' + _app + '/vars');
                 },
                 create: function create(data) {
-                  return _this6._post('/apps/' + _app + '/vars', data);
+                  return _this7._post('/apps/' + _app + '/vars', data);
                 },
                 variable: function variable(varName) {
                   return {
                     get: function get() {
-                      return _this6._get('/apps/' + _app + '/vars/' + varName);
+                      return _this7._get('/apps/' + _app + '/vars/' + varName);
                     },
                     remove: function remove() {
-                      return _this6._delete('/apps/' + _app + '/vars/' + varName);
+                      return _this7._delete('/apps/' + _app + '/vars/' + varName);
                     },
                     update: function update(data) {
-                      return _this6._post('/apps/' + _app + '/vars/' + varName, data);
+                      return _this7._post('/apps/' + _app + '/vars/' + varName, data);
                     }
                   };
                 }
@@ -701,79 +706,77 @@ var Admin = exports.Admin = function () {
             logs: function logs() {
               return {
                 get: function get(filter) {
-                  return _this6._get('/apps/' + _app + '/logs', filter);
+                  return _this7._get('/apps/' + _app + '/logs', filter);
                 }
               };
             },
-
             apiKeys: function apiKeys() {
               return {
                 list: function list() {
-                  return _this6._get('/apps/' + _app + '/keys');
+                  return _this7._get('/apps/' + _app + '/keys');
                 },
                 create: function create(data) {
-                  return _this6._post('/apps/' + _app + '/keys', data);
+                  return _this7._post('/apps/' + _app + '/keys', data);
                 },
                 apiKey: function apiKey(key) {
                   return {
                     get: function get() {
-                      return _this6._get('/apps/' + _app + '/keys/' + key);
+                      return _this7._get('/apps/' + _app + '/keys/' + key);
                     },
                     remove: function remove() {
-                      return _this6._delete('/apps/' + _app + '/keys/' + key);
+                      return _this7._delete('/apps/' + _app + '/keys/' + key);
                     },
                     enable: function enable() {
-                      return _this6._put('/apps/' + _app + '/keys/' + key + '/enable');
+                      return _this7._put('/apps/' + _app + '/keys/' + key + '/enable');
                     },
                     disable: function disable() {
-                      return _this6._put('/apps/' + _app + '/keys/' + key + '/disable');
+                      return _this7._put('/apps/' + _app + '/keys/' + key + '/disable');
                     }
                   };
                 }
               };
             },
-
             services: function services() {
               return {
                 list: function list() {
-                  return _this6._get('/apps/' + _app + '/services');
+                  return _this7._get('/apps/' + _app + '/services');
                 },
                 create: function create(data) {
-                  return _this6._post('/apps/' + _app + '/services', data);
+                  return _this7._post('/apps/' + _app + '/services', data);
                 },
                 service: function service(svc) {
                   return {
                     get: function get() {
-                      return _this6._get('/apps/' + _app + '/services/' + svc);
+                      return _this7._get('/apps/' + _app + '/services/' + svc);
                     },
                     update: function update(data) {
-                      return _this6._post('/apps/' + _app + '/services/' + svc, data);
+                      return _this7._post('/apps/' + _app + '/services/' + svc, data);
                     },
                     remove: function remove() {
-                      return _this6._delete('/apps/' + _app + '/services/' + svc);
+                      return _this7._delete('/apps/' + _app + '/services/' + svc);
                     },
                     setConfig: function setConfig(data) {
-                      return _this6._post('/apps/' + _app + '/services/' + svc + '/config', data);
+                      return _this7._post('/apps/' + _app + '/services/' + svc + '/config', data);
                     },
 
                     rules: function rules() {
                       return {
                         list: function list() {
-                          return _this6._get('/apps/' + _app + '/services/' + svc + '/rules');
+                          return _this7._get('/apps/' + _app + '/services/' + svc + '/rules');
                         },
                         create: function create(data) {
-                          return _this6._post('/apps/' + _app + '/services/' + svc + '/rules');
+                          return _this7._post('/apps/' + _app + '/services/' + svc + '/rules');
                         },
                         rule: function rule(ruleId) {
                           return {
                             get: function get() {
-                              return _this6._get('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
+                              return _this7._get('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
                             },
                             update: function update(data) {
-                              return _this6._post('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId, data);
+                              return _this7._post('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId, data);
                             },
                             remove: function remove() {
-                              return _this6._delete('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
+                              return _this7._delete('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
                             }
                           };
                         }
@@ -783,21 +786,21 @@ var Admin = exports.Admin = function () {
                     triggers: function triggers() {
                       return {
                         list: function list() {
-                          return _this6._get('/apps/' + _app + '/services/' + svc + '/triggers');
+                          return _this7._get('/apps/' + _app + '/services/' + svc + '/triggers');
                         },
                         create: function create(data) {
-                          return _this6._post('/apps/' + _app + '/services/' + svc + '/triggers');
+                          return _this7._post('/apps/' + _app + '/services/' + svc + '/triggers');
                         },
                         trigger: function trigger(triggerId) {
                           return {
                             get: function get() {
-                              return _this6._get('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
+                              return _this7._get('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
                             },
                             update: function update(data) {
-                              return _this6._post('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId, data);
+                              return _this7._post('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId, data);
                             },
                             remove: function remove() {
-                              return _this6._delete('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
+                              return _this7._delete('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
                             }
                           };
                         }

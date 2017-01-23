@@ -486,8 +486,9 @@ export class Admin {
       keys: () => ({
         list: () => root._get('/profile/keys'),
         create: (key) => root._post('/profile/keys'),
-        key: (keyId) => ({
+        apiKey: (keyId) => ({
           get: () => root._get(`/profile/keys/${keyId}`),
+          remove: () => this._delete(`/profile/keys/${keyId}`),
           enable: () => root._put(`/profile/keys/${keyId}/enable`),
           disable: () => root._put(`/profile/keys/${keyId}/disable`)
         })
