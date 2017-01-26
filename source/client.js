@@ -7,7 +7,7 @@ const REFRESH_TOKEN_KEY = '_baas_rt'
 const STATE_KEY = '_baas_state'
 const BAAS_ERROR_KEY = '_baas_error'
 const BAAS_LINK_KEY = '_baas_link'
-const DEFAULT_BAAS_SERVER_URL = 'https://baas-dev.10gen.cc/'
+const DEFAULT_BAAS_SERVER_URL = 'https://baas-dev.10gen.cc'
 
 export const ErrAuthProviderNotFound = 'AuthProviderNotFound'
 export const ErrInvalidSession = 'InvalidSession'

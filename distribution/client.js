@@ -24,7 +24,7 @@ var REFRESH_TOKEN_KEY = '_baas_rt';
 var STATE_KEY = '_baas_state';
 var BAAS_ERROR_KEY = '_baas_error';
 var BAAS_LINK_KEY = '_baas_link';
-var DEFAULT_BAAS_SERVER_URL = 'https://baas-dev.10gen.cc/';
+var DEFAULT_BAAS_SERVER_URL = 'https://baas-dev.10gen.cc';
 
 var ErrAuthProviderNotFound = exports.ErrAuthProviderNotFound = 'AuthProviderNotFound';
 var ErrInvalidSession = exports.ErrInvalidSession = 'InvalidSession';
