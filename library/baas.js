@@ -704,6 +704,21 @@ var Baas =
 	              return root._delete('/apps/' + _app);
 	            },
 	
+	            users: function users() {
+	              return {
+	                list: function list() {
+	                  return _this7._get('/apps/' + _app + '/users');
+	                },
+	                user: function user(uid) {
+	                  return {
+	                    get: function get() {
+	                      return _this7._get('/apps/' + _app + '/users/' + uid);
+	                    }
+	                  };
+	                }
+	              };
+	            },
+	
 	            authProviders: function authProviders() {
 	              return {
 	                create: function create(data) {

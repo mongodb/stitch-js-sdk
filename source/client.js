@@ -520,6 +520,13 @@ export class Admin {
         get: () => root._get(`/apps/${app}`),
         remove: () => root._delete(`/apps/${app}`),
 
+        users: () => ({
+          list: () => this._get(`/apps/${app}/users`),
+          user: (uid) => ({
+            get: () => this._get(`/apps/${app}/users/${uid}`)
+          })
+        }),
+
         authProviders: () => ({
           create: (data) => this._post(`/apps/${app}/authProviders`, data),
           list: () => this._get(`/apps/${app}/authProviders`),
