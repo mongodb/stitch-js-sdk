@@ -521,7 +521,7 @@ export class Admin {
         remove: () => root._delete(`/apps/${app}`),
 
         users: () => ({
-          list: () => this._get(`/apps/${app}/users`),
+          list: (filter) => this._get(`/apps/${app}/users`, filter),
           user: (uid) => ({
             get: () => this._get(`/apps/${app}/users/${uid}`)
           })

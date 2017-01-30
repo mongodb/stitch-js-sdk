@@ -659,8 +659,8 @@ var Admin = exports.Admin = function () {
 
             users: function users() {
               return {
-                list: function list() {
-                  return _this7._get('/apps/' + _app + '/users');
+                list: function list(filter) {
+                  return _this7._get('/apps/' + _app + '/users', filter);
                 },
                 user: function user(uid) {
                   return {
