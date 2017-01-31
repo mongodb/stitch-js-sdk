@@ -25,6 +25,7 @@ var STATE_KEY = '_baas_state';
 var BAAS_ERROR_KEY = '_baas_error';
 var BAAS_LINK_KEY = '_baas_link';
 var DEFAULT_BAAS_SERVER_URL = 'https://baas-dev.10gen.cc';
+var JSONTYPE = "application/json";
 
 var ErrAuthProviderNotFound = exports.ErrAuthProviderNotFound = 'AuthProviderNotFound';
 var ErrInvalidSession = exports.ErrInvalidSession = 'InvalidSession';
@@ -206,8 +207,8 @@ var Auth = exports.Auth = function () {
       var init = {
         method: 'POST',
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Accept': JSONTYPE,
+          'Content-Type': JSONTYPE
         },
         body: JSON.stringify({ 'username': username, 'password': password })
       };
@@ -310,6 +311,45 @@ var BaasClient = exports.BaasClient = function () {
         _this3.authManager.clear();
       });
     }
+
+    // wrapper around fetch() that matches the signature of doAuthed but does not
+    // actually use any auth. This is necessary for routes that must be
+    // accessible without logging in, like listing available auth providers.
+
+  }, {
+    key: '_do',
+    value: function _do(resource, method, options) {
+      options = options || {};
+      var url = '' + this.appUrl + resource;
+      var init = {
+        method: method,
+        headers: { 'Accept': JSONTYPE, 'Content-Type': JSONTYPE }
+      };
+      if (options.body) {
+        init['body'] = options.body;
+      }
+      if (options.queryParams) {
+        url = url + '?' + toQueryString(options.queryParams);
+      }
+
+      return fetch(url, init).then(function (response) {
+        // Okay: passthrough
+        if (response.status >= 200 && response.status < 300) {
+          return Promise.resolve(response);
+        } else if (response.headers.get('Content-Type') === JSONTYPE) {
+          return response.json().then(function (json) {
+            var error = new BaasError(json['error'], json['errorCode']);
+            error.response = response;
+            throw error;
+          });
+        }
+        var error = new Error(response.statusText);
+        error.response = response;
+        throw error;
+      }).then(function (response) {
+        return response.json();
+      });
+    }
   }, {
     key: '_doAuthed',
     value: function _doAuthed(resource, method, options) {
@@ -333,8 +373,8 @@ var BaasClient = exports.BaasClient = function () {
       var url = '' + this.appUrl + resource;
 
       var headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Accept': JSONTYPE,
+        'Content-Type': JSONTYPE
       };
       var token = options.useRefreshToken ? localStorage.getItem(REFRESH_TOKEN_KEY) : this.auth()['accessToken'];
       headers['Authorization'] = 'Bearer ' + token;
@@ -356,7 +396,7 @@ var BaasClient = exports.BaasClient = function () {
         // Okay: passthrough
         if (response.status >= 200 && response.status < 300) {
           return Promise.resolve(response);
-        } else if (response.headers.get('Content-Type') === 'application/json') {
+        } else if (response.headers.get('Content-Type') === JSONTYPE) {
           return response.json().then(function (json) {
             // Only want to try refreshing token when there's an invalid session
             if ('errorCode' in json && json['errorCode'] === ErrInvalidSession) {
@@ -701,9 +741,6 @@ var Admin = exports.Admin = function () {
                 list: function list() {
                   return _this7._get('/apps/' + _app + '/vars');
                 },
-                create: function create(data) {
-                  return _this7._post('/apps/' + _app + '/vars', data);
-                },
                 variable: function variable(varName) {
                   return {
                     get: function get() {
@@ -711,6 +748,9 @@ var Admin = exports.Admin = function () {
                     },
                     remove: function remove() {
                       return _this7._delete('/apps/' + _app + '/vars/' + varName);
+                    },
+                    create: function create(data) {
+                      return _this7._post('/apps/' + _app + '/vars/' + varName, data);
                     },
                     update: function update(data) {
                       return _this7._post('/apps/' + _app + '/vars/' + varName, data);

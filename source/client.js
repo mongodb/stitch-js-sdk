@@ -8,6 +8,7 @@ const STATE_KEY = '_baas_state'
 const BAAS_ERROR_KEY = '_baas_error'
 const BAAS_LINK_KEY = '_baas_link'
 const DEFAULT_BAAS_SERVER_URL = 'https://baas-dev.10gen.cc'
+const JSONTYPE = 'application/json'
 
 export const ErrAuthProviderNotFound = 'AuthProviderNotFound'
 export const ErrInvalidSession = 'InvalidSession'
@@ -158,8 +159,8 @@ export class Auth {
     let init = {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Accept': JSONTYPE,
+        'Content-Type': JSONTYPE
       },
       body: JSON.stringify({'username': username, 'password': password})
     }
@@ -240,6 +241,43 @@ export class BaasClient {
       })
   }
 
+  // wrapper around fetch() that matches the signature of doAuthed but does not
+  // actually use any auth. This is necessary for routes that must be
+  // accessible without logging in, like listing available auth providers.
+  _do (resource, method, options) {
+    options = options || {}
+    let url = `${this.appUrl}${resource}`
+    let init = {
+      method: method,
+      headers: { 'Accept': JSONTYPE, 'Content-Type': JSONTYPE }
+    }
+    if (options.body) {
+      init['body'] = options.body
+    }
+    if (options.queryParams) {
+      url = url + '?' + toQueryString(options.queryParams)
+    }
+
+    return fetch(url, init)
+      .then((response) => {
+        // Okay: passthrough
+        if (response.status >= 200 && response.status < 300) {
+          return Promise.resolve(response)
+        } else if (response.headers.get('Content-Type') === JSONTYPE) {
+          return response.json().then((json) => {
+            let error = new BaasError(json['error'], json['errorCode'])
+            error.response = response
+            throw error
+          })
+        }
+        let error = new Error(response.statusText)
+        error.response = response
+        throw error
+      }).then((response) => {
+        return response.json()
+      })
+  }
+
   _doAuthed (resource, method, options) {
     if (options === undefined) {
       options = {refreshOnFailure: true, useRefreshToken: false}
@@ -259,8 +297,8 @@ export class BaasClient {
     let url = `${this.appUrl}${resource}`
 
     let headers = {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Accept': JSONTYPE,
+      'Content-Type': JSONTYPE
     }
     let token = options.useRefreshToken ? localStorage.getItem(REFRESH_TOKEN_KEY) : this.auth()['accessToken']
     headers['Authorization'] = `Bearer ${token}`
@@ -283,7 +321,7 @@ export class BaasClient {
         // Okay: passthrough
         if (response.status >= 200 && response.status < 300) {
           return Promise.resolve(response)
-        } else if (response.headers.get('Content-Type') === 'application/json') {
+        } else if (response.headers.get('Content-Type') === JSONTYPE) {
           return response.json().then((json) => {
             // Only want to try refreshing token when there's an invalid session
             if ('errorCode' in json && json['errorCode'] === ErrInvalidSession) {
