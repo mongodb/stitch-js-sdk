@@ -539,7 +539,6 @@ export class Admin {
         }),
         variables: () => ({
           list: () => this._get(`/apps/${app}/vars`),
-          create: (data) => this._post(`/apps/${app}/vars`, data),
           variable: (varName) => ({
             get: () => this._get(`/apps/${app}/vars/${varName}`),
             remove: () => this._delete(`/apps/${app}/vars/${varName}`),
