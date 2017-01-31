@@ -203,6 +203,7 @@ var Baas =
 	    value: function setAccessToken(token) {
 	      var currAuth = this.get();
 	      currAuth['accessToken'] = token;
+	      currAuth['refreshToken'] = localStorage.getItem(REFRESH_TOKEN_KEY);
 	      this.set(currAuth);
 	    }
 	  }, {
