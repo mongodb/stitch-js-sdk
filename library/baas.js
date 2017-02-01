@@ -720,21 +720,6 @@ var Baas =
 	      });
 	    }
 	  }, {
-	    key: 'isImpersonatingUser',
-	    value: function isImpersonatingUser() {
-	      return this.client.authManager.isImpersonatingUser();
-	    }
-	  }, {
-	    key: 'startImpersonation',
-	    value: function startImpersonation(userId) {
-	      return this.client.authManager.startImpersonation(this.client, userId);
-	    }
-	  }, {
-	    key: 'stopImpersonation',
-	    value: function stopImpersonation(userId) {
-	      return this.client.authManager.stopImpersonation();
-	    }
-	  }, {
 	    key: '_get',
 	    value: function _get(url, queryParams) {
 	      return this._doAuthed(url, 'GET', { queryParams: queryParams });
@@ -999,6 +984,21 @@ var Baas =
 	          };
 	        }
 	      };
+	    }
+	  }, {
+	    key: '_isImpersonatingUser',
+	    value: function _isImpersonatingUser() {
+	      return this.client.authManager.isImpersonatingUser();
+	    }
+	  }, {
+	    key: '_startImpersonation',
+	    value: function _startImpersonation(userId) {
+	      return this.client.authManager.startImpersonation(this.client, userId);
+	    }
+	  }, {
+	    key: '_stopImpersonation',
+	    value: function _stopImpersonation(userId) {
+	      return this.client.authManager.stopImpersonation();
 	    }
 	  }]);
 	

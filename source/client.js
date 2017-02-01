@@ -563,18 +563,6 @@ export class Admin {
       })
   }
 
-  isImpersonatingUser () {
-    return this.client.authManager.isImpersonatingUser()
-  }
-
-  startImpersonation (userId) {
-    return this.client.authManager.startImpersonation(this.client, userId)
-  }
-
-  stopImpersonation (userId) {
-    return this.client.authManager.stopImpersonation()
-  }
-
   _get (url, queryParams) {
     return this._doAuthed(url, 'GET', {queryParams})
   }
@@ -701,5 +689,17 @@ export class Admin {
         })
       })
     }
+  }
+
+  _isImpersonatingUser () {
+    return this.client.authManager.isImpersonatingUser()
+  }
+
+  _startImpersonation (userId) {
+    return this.client.authManager.startImpersonation(this.client, userId)
+  }
+
+  _stopImpersonation (userId) {
+    return this.client.authManager.stopImpersonation()
   }
 }
