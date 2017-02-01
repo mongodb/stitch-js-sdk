@@ -162,7 +162,7 @@ var Baas =
 	  function BaasError(message, code) {
 	    _classCallCheck(this, BaasError);
 	
-	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(BaasError).call(this, message));
+	    var _this = _possibleConstructorReturn(this, (BaasError.__proto__ || Object.getPrototypeOf(BaasError)).call(this, message));
 	
 	    _this.name = 'BaasError';
 	    _this.message = message;
@@ -279,6 +279,7 @@ var Baas =
 	    value: function clear() {
 	      localStorage.removeItem(USER_AUTH_KEY);
 	      localStorage.removeItem(REFRESH_TOKEN_KEY);
+	      this.clearImpersonation();
 	    }
 	  }, {
 	    key: 'set',
@@ -419,9 +420,6 @@ var Baas =
 	
 	      return this._doAuthed('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function (data) {
 	        _this4.authManager.clear();
-	        if (_this4.authManager.isImpersonatingUser()) {
-	          return _this4.authManager.clearImpersonation();
-	        }
 	      });
 	    }
 	

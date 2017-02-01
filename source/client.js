@@ -185,6 +185,7 @@ export class Auth {
   clear () {
     localStorage.removeItem(USER_AUTH_KEY)
     localStorage.removeItem(REFRESH_TOKEN_KEY)
+    this.clearImpersonation()
   }
 
   set (json) {
@@ -293,9 +294,6 @@ export class BaasClient {
     return this._doAuthed('/auth', 'DELETE', {refreshOnFailure: false, useRefreshToken: true})
       .then((data) => {
         this.authManager.clear()
-        if (this.authManager.isImpersonatingUser()) {
-          return this.authManager.clearImpersonation()
-        }
       })
   }
 
