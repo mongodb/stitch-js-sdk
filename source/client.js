@@ -1,5 +1,5 @@
 /* global window, localStorage, fetch */
-/* eslint no-labels: ["error", { "allowLoop": true }] */
+/* eslint no-labels: ['error', { 'allowLoop': true }] */
 import 'whatwg-fetch' // fetch polyfill
 
 const USER_AUTH_KEY = '_baas_ua'
@@ -208,7 +208,7 @@ export class Auth {
   }
 
   isImpersonatingUser () {
-    return localStorage.getItem(IMPERSONATION_ACTIVE_KEY) === "true"
+    return localStorage.getItem(IMPERSONATION_ACTIVE_KEY) === 'true'
   }
 
   refreshImpersonation (client) {
@@ -227,9 +227,9 @@ export class Auth {
 
   startImpersonation (client, userId) {
     if (this.isImpersonatingUser()) {
-      throw new Error("Already impersonating a user")
+      throw new Error('Already impersonating a user')
     }
-    localStorage.setItem(IMPERSONATION_ACTIVE_KEY, "true")
+    localStorage.setItem(IMPERSONATION_ACTIVE_KEY, 'true')
     localStorage.setItem(IMPERSONATION_USER_KEY, userId)
 
     let realUserAuth = JSON.parse(window.atob(localStorage.getItem(USER_AUTH_KEY)))
@@ -240,9 +240,9 @@ export class Auth {
 
   stopImpersonation () {
     let root = this
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       if (!root.isImpersonatingUser()) {
-        throw new Error("Not impersonating a user")
+        throw new Error('Not impersonating a user')
       }
       localStorage.removeItem(IMPERSONATION_ACTIVE_KEY)
       localStorage.removeItem(IMPERSONATION_USER_KEY)
@@ -605,14 +605,14 @@ export class Admin {
    * List all apps
    *    a.apps().list()
    *
-   * Fetch app under name "planner"
-   *    a.apps().app("planner").get()
+   * Fetch app under name 'planner'
+   *    a.apps().app('planner').get()
    *
-   * List services under the app "planner"
-   *    a.apps().app("planner").services().list()
+   * List services under the app 'planner'
+   *    a.apps().app('planner').services().list()
    *
    * Delete a rule by ID
-   *    a.apps().app("planner").services().service("mdb1").rules().rule("580e6d055b199c221fcb821d").remove()
+   *    a.apps().app('planner').services().service('mdb1').rules().rule('580e6d055b199c221fcb821d').remove()
    *
    */
   apps () {
