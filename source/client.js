@@ -226,8 +226,11 @@ export class Auth {
   }
 
   startImpersonation (client, userId) {
+    if (this.get() === null) {
+      return Promise.reject(new BaasError('Must auth first'))
+    }
     if (this.isImpersonatingUser()) {
-      throw new Error('Already impersonating a user')
+      throw new BaasError('Already impersonating a user')
     }
     localStorage.setItem(IMPERSONATION_ACTIVE_KEY, 'true')
     localStorage.setItem(IMPERSONATION_USER_KEY, userId)
@@ -242,15 +245,19 @@ export class Auth {
     let root = this
     return new Promise(function (resolve, reject) {
       if (!root.isImpersonatingUser()) {
-        throw new Error('Not impersonating a user')
+        throw new BaasError('Not impersonating a user')
       }
-      localStorage.removeItem(IMPERSONATION_ACTIVE_KEY)
-      localStorage.removeItem(IMPERSONATION_USER_KEY)
       let realUserAuth = JSON.parse(window.atob(localStorage.getItem(IMPERSONATION_REAL_USER_AUTH_KEY)))
-      localStorage.removeItem(IMPERSONATION_REAL_USER_AUTH_KEY)
       root.set(realUserAuth)
+      root.clearImpersonation()
       resolve()
     })
+  }
+
+  clearImpersonation () {
+    localStorage.removeItem(IMPERSONATION_ACTIVE_KEY)
+    localStorage.removeItem(IMPERSONATION_USER_KEY)
+    localStorage.removeItem(IMPERSONATION_REAL_USER_AUTH_KEY)
   }
 }
 
@@ -287,7 +294,7 @@ export class BaasClient {
       .then((data) => {
         this.authManager.clear()
         if (this.authManager.isImpersonatingUser()) {
-          return this.authManager.stopImpersonation()
+          return this.authManager.clearImpersonation()
         }
       })
   }

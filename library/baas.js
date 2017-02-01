@@ -61,7 +61,7 @@ var Baas =
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /* global window, localStorage, fetch */
-	/* eslint no-labels: ["error", { "allowLoop": true }] */
+	/* eslint no-labels: ['error', { 'allowLoop': true }] */
 	
 	
 	// fetch polyfill
@@ -306,7 +306,7 @@ var Baas =
 	  }, {
 	    key: 'isImpersonatingUser',
 	    value: function isImpersonatingUser() {
-	      return localStorage.getItem(IMPERSONATION_ACTIVE_KEY) === "true";
+	      return localStorage.getItem(IMPERSONATION_ACTIVE_KEY) === 'true';
 	    }
 	  }, {
 	    key: 'refreshImpersonation',
@@ -328,10 +328,13 @@ var Baas =
 	  }, {
 	    key: 'startImpersonation',
 	    value: function startImpersonation(client, userId) {
-	      if (this.isImpersonatingUser()) {
-	        throw new Error("Already impersonating a user");
+	      if (this.get() === null) {
+	        return Promise.reject(new BaasError('Must auth first'));
 	      }
-	      localStorage.setItem(IMPERSONATION_ACTIVE_KEY, "true");
+	      if (this.isImpersonatingUser()) {
+	        throw new BaasError('Already impersonating a user');
+	      }
+	      localStorage.setItem(IMPERSONATION_ACTIVE_KEY, 'true');
 	      localStorage.setItem(IMPERSONATION_USER_KEY, userId);
 	
 	      var realUserAuth = JSON.parse(window.atob(localStorage.getItem(USER_AUTH_KEY)));
@@ -345,15 +348,20 @@ var Baas =
 	      var root = this;
 	      return new Promise(function (resolve, reject) {
 	        if (!root.isImpersonatingUser()) {
-	          throw new Error("Not impersonating a user");
+	          throw new BaasError('Not impersonating a user');
 	        }
-	        localStorage.removeItem(IMPERSONATION_ACTIVE_KEY);
-	        localStorage.removeItem(IMPERSONATION_USER_KEY);
 	        var realUserAuth = JSON.parse(window.atob(localStorage.getItem(IMPERSONATION_REAL_USER_AUTH_KEY)));
-	        localStorage.removeItem(IMPERSONATION_REAL_USER_AUTH_KEY);
 	        root.set(realUserAuth);
+	        root.clearImpersonation();
 	        resolve();
 	      });
+	    }
+	  }, {
+	    key: 'clearImpersonation',
+	    value: function clearImpersonation() {
+	      localStorage.removeItem(IMPERSONATION_ACTIVE_KEY);
+	      localStorage.removeItem(IMPERSONATION_USER_KEY);
+	      localStorage.removeItem(IMPERSONATION_REAL_USER_AUTH_KEY);
 	    }
 	  }], [{
 	    key: 'generateState',
@@ -412,7 +420,7 @@ var Baas =
 	      return this._doAuthed('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function (data) {
 	        _this4.authManager.clear();
 	        if (_this4.authManager.isImpersonatingUser()) {
-	          return _this4.authManager.stopImpersonation();
+	          return _this4.authManager.clearImpersonation();
 	        }
 	      });
 	    }
@@ -787,14 +795,14 @@ var Baas =
 	     * List all apps
 	     *    a.apps().list()
 	     *
-	     * Fetch app under name "planner"
-	     *    a.apps().app("planner").get()
+	     * Fetch app under name 'planner'
+	     *    a.apps().app('planner').get()
 	     *
-	     * List services under the app "planner"
-	     *    a.apps().app("planner").services().list()
+	     * List services under the app 'planner'
+	     *    a.apps().app('planner').services().list()
 	     *
 	     * Delete a rule by ID
-	     *    a.apps().app("planner").services().service("mdb1").rules().rule("580e6d055b199c221fcb821d").remove()
+	     *    a.apps().app('planner').services().service('mdb1').rules().rule('580e6d055b199c221fcb821d').remove()
 	     *
 	     */
 	
