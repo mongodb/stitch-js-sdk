@@ -7,6 +7,9 @@ const REFRESH_TOKEN_KEY = '_baas_rt'
 const STATE_KEY = '_baas_state'
 const BAAS_ERROR_KEY = '_baas_error'
 const BAAS_LINK_KEY = '_baas_link'
+const IMPERSONATION_ACTIVE_KEY = '_baas_impers_active'
+const IMPERSONATION_USER_KEY = '_baas_impers_user'
+const IMPERSONATION_REAL_USER_AUTH_KEY = '_baas_impers_real_ua'
 const DEFAULT_BAAS_SERVER_URL = 'https://baas-dev.10gen.cc'
 const JSONTYPE = 'application/json'
 
@@ -204,6 +207,51 @@ export class Auth {
     return ((a || {}).user || {})._id
   }
 
+  isImpersonatingUser () {
+    return localStorage.getItem(IMPERSONATION_ACTIVE_KEY) === "true"
+  }
+
+  refreshImpersonation (client) {
+    let userId = localStorage.getItem(IMPERSONATION_USER_KEY)
+    return client._doAuthed(`/admin/impersonate/${userId}`, 'POST', {refreshOnFailure: false, useRefreshToken: true}).then((response) => {
+      return response.json().then((json) => {
+        json['refreshToken'] = localStorage.getItem(REFRESH_TOKEN_KEY)
+        this.set(json)
+        return Promise.resolve()
+      })
+    }).catch((e) => {
+      this.stopImpersonation()
+      throw e
+    })
+  }
+
+  startImpersonation (client, userId) {
+    if (this.isImpersonatingUser()) {
+      throw new Error("Already impersonating a user")
+    }
+    localStorage.setItem(IMPERSONATION_ACTIVE_KEY, "true")
+    localStorage.setItem(IMPERSONATION_USER_KEY, userId)
+
+    let realUserAuth = JSON.parse(window.atob(localStorage.getItem(USER_AUTH_KEY)))
+    realUserAuth['refreshToken'] = localStorage.getItem(REFRESH_TOKEN_KEY)
+    localStorage.setItem(IMPERSONATION_REAL_USER_AUTH_KEY, window.btoa(JSON.stringify(realUserAuth)))
+    return this.refreshImpersonation(client)
+  }
+
+  stopImpersonation () {
+    let root = this
+    return new Promise(function(resolve, reject) {
+      if (!root.isImpersonatingUser()) {
+        throw new Error("Not impersonating a user")
+      }
+      localStorage.removeItem(IMPERSONATION_ACTIVE_KEY)
+      localStorage.removeItem(IMPERSONATION_USER_KEY)
+      let realUserAuth = JSON.parse(window.atob(localStorage.getItem(IMPERSONATION_REAL_USER_AUTH_KEY)))
+      localStorage.removeItem(IMPERSONATION_REAL_USER_AUTH_KEY)
+      root.set(realUserAuth)
+      resolve()
+    })
+  }
 }
 
 export class BaasClient {
@@ -238,6 +286,9 @@ export class BaasClient {
     return this._doAuthed('/auth', 'DELETE', {refreshOnFailure: false, useRefreshToken: true})
       .then((data) => {
         this.authManager.clear()
+        if (this.authManager.isImpersonatingUser()) {
+          return this.authManager.stopImpersonation()
+        }
       })
   }
 
@@ -351,6 +402,9 @@ export class BaasClient {
   }
 
   _refreshToken () {
+    if (this.authManager.isImpersonatingUser()) {
+      return this.authManager.refreshImpersonation(this)
+    }
     return this._doAuthed('/auth/newAccessToken', 'POST', {refreshOnFailure: false, useRefreshToken: true}).then((response) => {
       return response.json().then((json) => {
         this.authManager.setAccessToken(json['accessToken'])
@@ -496,11 +550,22 @@ export class Admin {
   }
 
   _doAuthed (url, method, options) {
-    // TODO is this even necessary?
     return this.client._doAuthed(url, method, options)
       .then((response) => {
         return response.json()
       })
+  }
+
+  isImpersonatingUser () {
+    return this.client.authManager.isImpersonatingUser()
+  }
+
+  startImpersonation (userId) {
+    return this.client.authManager.startImpersonation(this.client, userId)
+  }
+
+  stopImpersonation (userId) {
+    return this.client.authManager.stopImpersonation()
   }
 
   _get (url, queryParams) {
@@ -630,5 +695,4 @@ export class Admin {
       })
     }
   }
-
 }
