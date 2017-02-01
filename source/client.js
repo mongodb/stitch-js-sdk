@@ -695,7 +695,7 @@ export class Admin {
       users: () => ({
         list: (filter) => this._doAuthed(`/admin/users`, 'GET', {useRefreshToken: true, queryParams: filter}),
         user: (uid) => ({
-          logout: () => this._put(`/admin/users/${uid}/logout`)
+          logout: () => this._doAuthed(`/admin/users/${uid}/logout`, 'PUT', {useRefreshToken: true})
         })
       })
     }

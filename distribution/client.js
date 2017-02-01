@@ -953,7 +953,7 @@ var Admin = exports.Admin = function () {
             user: function user(uid) {
               return {
                 logout: function logout() {
-                  return _this9._put('/admin/users/' + uid + '/logout');
+                  return _this9._doAuthed('/admin/users/' + uid + '/logout', 'PUT', { useRefreshToken: true });
                 }
               };
             }
