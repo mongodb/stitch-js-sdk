@@ -162,7 +162,7 @@ var Baas =
 	  function BaasError(message, code) {
 	    _classCallCheck(this, BaasError);
 	
-	    var _this = _possibleConstructorReturn(this, (BaasError.__proto__ || Object.getPrototypeOf(BaasError)).call(this, message));
+	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(BaasError).call(this, message));
 	
 	    _this.name = 'BaasError';
 	    _this.message = message;
@@ -315,7 +315,7 @@ var Baas =
 	      var _this3 = this;
 	
 	      var userId = localStorage.getItem(IMPERSONATION_USER_KEY);
-	      return client._doAuthed('/admin/impersonate/' + userId, 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
+	      return client._doAuthed('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
 	        return response.json().then(function (json) {
 	          json['refreshToken'] = localStorage.getItem(REFRESH_TOKEN_KEY);
 	          _this3.set(json);
@@ -979,6 +979,28 @@ var Baas =
 	                      };
 	                    }
 	                  };
+	                }
+	              };
+	            }
+	          };
+	        }
+	      };
+	    }
+	  }, {
+	    key: '_admin',
+	    value: function _admin() {
+	      var _this9 = this;
+	
+	      return {
+	        users: function users() {
+	          return {
+	            list: function list(filter) {
+	              return _this9._doAuthed('/admin/users', 'GET', { useRefreshToken: true, queryParams: filter });
+	            },
+	            user: function user(uid) {
+	              return {
+	                logout: function logout() {
+	                  return _this9._put('/admin/users/' + uid + '/logout');
 	                }
 	              };
 	            }

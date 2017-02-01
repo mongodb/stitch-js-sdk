@@ -214,7 +214,7 @@ export class Auth {
 
   refreshImpersonation (client) {
     let userId = localStorage.getItem(IMPERSONATION_USER_KEY)
-    return client._doAuthed(`/admin/impersonate/${userId}`, 'POST', {refreshOnFailure: false, useRefreshToken: true}).then((response) => {
+    return client._doAuthed(`/admin/users/${userId}/impersonate`, 'POST', {refreshOnFailure: false, useRefreshToken: true}).then((response) => {
       return response.json().then((json) => {
         json['refreshToken'] = localStorage.getItem(REFRESH_TOKEN_KEY)
         this.set(json)
@@ -685,6 +685,17 @@ export class Admin {
               })
             })
           })
+        })
+      })
+    }
+  }
+
+  _admin () {
+    return {
+      users: () => ({
+        list: (filter) => this._doAuthed(`/admin/users`, 'GET', {useRefreshToken: true, queryParams: filter}),
+        user: (uid) => ({
+          logout: () => this._put(`/admin/users/${uid}/logout`)
         })
       })
     }
