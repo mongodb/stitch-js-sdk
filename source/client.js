@@ -620,7 +620,8 @@ export class Admin {
         users: () => ({
           list: (filter) => this._get(`/apps/${app}/users`, filter),
           user: (uid) => ({
-            get: () => this._get(`/apps/${app}/users/${uid}`)
+            get: () => this._get(`/apps/${app}/users/${uid}`),
+            logout: () => this._put(`/apps/${app}/users/${uid}/logout`)
           })
         }),
 

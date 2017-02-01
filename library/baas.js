@@ -820,6 +820,9 @@ var Baas =
 	                  return {
 	                    get: function get() {
 	                      return _this8._get('/apps/' + _app + '/users/' + uid);
+	                    },
+	                    logout: function logout() {
+	                      return _this8._put('/apps/' + _app + '/users/' + uid + '/logout');
 	                    }
 	                  };
 	                }
