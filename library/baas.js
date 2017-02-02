@@ -992,6 +992,13 @@ var Baas =
 	      var _this9 = this;
 	
 	      return {
+	        logs: function logs() {
+	          return {
+	            get: function get(filter) {
+	              return _this9._doAuthed('/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter });
+	            }
+	          };
+	        },
 	        users: function users() {
 	          return {
 	            list: function list(filter) {
