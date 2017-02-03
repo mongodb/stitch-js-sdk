@@ -211,6 +211,11 @@ var Baas =
 	      this.set(currAuth);
 	    }
 	  }, {
+	    key: 'error',
+	    value: function error() {
+	      return this._error;
+	    }
+	  }, {
 	    key: 'handleRedirect',
 	    value: function handleRedirect() {
 	      var ourState = localStorage.getItem(STATE_KEY);
@@ -218,6 +223,7 @@ var Baas =
 	      var redirectState = parseRedirectFragment(redirectFragment, ourState);
 	      if (redirectState.lastError) {
 	        console.error('BaasClient: error from redirect: ' + redirectState.lastError);
+	        this._error = redirectState.lastError;
 	        window.history.replaceState(null, '', this.pageRootUrl());
 	        return;
 	      }
@@ -412,6 +418,11 @@ var Baas =
 	    key: 'auth',
 	    value: function auth() {
 	      return this.authManager.get();
+	    }
+	  }, {
+	    key: 'authError',
+	    value: function authError() {
+	      return this.authManager.error();
 	    }
 	  }, {
 	    key: 'logout',

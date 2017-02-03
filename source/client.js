@@ -121,12 +121,17 @@ export class Auth {
     this.set(currAuth)
   }
 
+  error () {
+    return this._error
+  }
+
   handleRedirect () {
     let ourState = localStorage.getItem(STATE_KEY)
     let redirectFragment = window.location.hash.substring(1)
     const redirectState = parseRedirectFragment(redirectFragment, ourState)
     if (redirectState.lastError) {
       console.error(`BaasClient: error from redirect: ${redirectState.lastError}`)
+      this._error = redirectState.lastError
       window.history.replaceState(null, '', this.pageRootUrl())
       return
     }
@@ -288,6 +293,10 @@ export class BaasClient {
 
   auth () {
     return this.authManager.get()
+  }
+
+  authError () {
+    return this.authManager.error()
   }
 
   logout () {
