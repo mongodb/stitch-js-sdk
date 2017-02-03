@@ -634,6 +634,15 @@ export class Admin {
           })
         }),
 
+        sandbox: () => ({
+          executePipeline: (data, userId) => {
+            return this._doAuthed(
+              `/apps/${app}/sandbox/pipeline`,
+              'POST',
+              {body: JSON.stringify(data), queryParams: {user_id: userId}})
+          }
+        }),
+
         authProviders: () => ({
           create: (data) => this._post(`/apps/${app}/authProviders`, data),
           list: () => this._get(`/apps/${app}/authProviders`),

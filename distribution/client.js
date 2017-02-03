@@ -115,7 +115,7 @@ var BaasError = exports.BaasError = function (_Error) {
   function BaasError(message, code) {
     _classCallCheck(this, BaasError);
 
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(BaasError).call(this, message));
+    var _this = _possibleConstructorReturn(this, (BaasError.__proto__ || Object.getPrototypeOf(BaasError)).call(this, message));
 
     _this.name = 'BaasError';
     _this.message = message;
@@ -789,6 +789,14 @@ var Admin = exports.Admin = function () {
                       return _this8._put('/apps/' + _app + '/users/' + uid + '/logout');
                     }
                   };
+                }
+              };
+            },
+
+            sandbox: function sandbox() {
+              return {
+                executePipeline: function executePipeline(data, userId) {
+                  return _this8._doAuthed('/apps/' + _app + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: { user_id: userId } });
                 }
               };
             },
