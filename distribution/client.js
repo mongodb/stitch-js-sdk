@@ -115,7 +115,7 @@ var BaasError = exports.BaasError = function (_Error) {
   function BaasError(message, code) {
     _classCallCheck(this, BaasError);
 
-    var _this = _possibleConstructorReturn(this, (BaasError.__proto__ || Object.getPrototypeOf(BaasError)).call(this, message));
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(BaasError).call(this, message));
 
     _this.name = 'BaasError';
     _this.message = message;
