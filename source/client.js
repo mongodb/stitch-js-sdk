@@ -163,6 +163,29 @@ export class Auth {
     return result
   }
 
+  anonymousAuth (cors) {
+    let init = {
+      method: 'GET',
+      headers: {
+        'Accept': JSONTYPE,
+        'Content-Type': JSONTYPE
+      }
+    }
+
+    if (cors) {
+      init['cors'] = cors
+    }
+
+    return fetch(`${this.rootUrl}/anon/user`, init)
+      .then(checkStatus)
+      .then((response) => {
+        return response.json().then((json) => {
+          this.set(json)
+          Promise.resolve()
+        })
+      })
+  }
+
   localAuth (username, password, cors) {
     let init = {
       method: 'POST',

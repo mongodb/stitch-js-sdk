@@ -256,9 +256,33 @@ var Baas =
 	      return result;
 	    }
 	  }, {
+	    key: 'anonymousAuth',
+	    value: function anonymousAuth(cors) {
+	      var _this2 = this;
+	
+	      var init = {
+	        method: 'GET',
+	        headers: {
+	          'Accept': JSONTYPE,
+	          'Content-Type': JSONTYPE
+	        }
+	      };
+	
+	      if (cors) {
+	        init['cors'] = cors;
+	      }
+	
+	      return fetch(this.rootUrl + '/anon/user', init).then(checkStatus).then(function (response) {
+	        return response.json().then(function (json) {
+	          _this2.set(json);
+	          Promise.resolve();
+	        });
+	      });
+	    }
+	  }, {
 	    key: 'localAuth',
 	    value: function localAuth(username, password, cors) {
-	      var _this2 = this;
+	      var _this3 = this;
 	
 	      var init = {
 	        method: 'POST',
@@ -275,7 +299,7 @@ var Baas =
 	
 	      return fetch(this.rootUrl + '/local/userpass', init).then(checkStatus).then(function (response) {
 	        return response.json().then(function (json) {
-	          _this2.set(json);
+	          _this3.set(json);
 	          Promise.resolve();
 	        });
 	      });
@@ -309,7 +333,7 @@ var Baas =
 	    value: function authedId() {
 	      var id = ((this.get() || {}).user || {})._id;
 	      if (id) {
-	        return { "$oid": id };
+	        return { '$oid': id };
 	      }
 	    }
 	  }, {
@@ -320,17 +344,17 @@ var Baas =
 	  }, {
 	    key: 'refreshImpersonation',
 	    value: function refreshImpersonation(client) {
-	      var _this3 = this;
+	      var _this4 = this;
 	
 	      var userId = localStorage.getItem(IMPERSONATION_USER_KEY);
 	      return client._doAuthed('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
 	        return response.json().then(function (json) {
 	          json['refreshToken'] = localStorage.getItem(REFRESH_TOKEN_KEY);
-	          _this3.set(json);
+	          _this4.set(json);
 	          return Promise.resolve();
 	        });
 	      }).catch(function (e) {
-	        _this3.stopImpersonation();
+	        _this4.stopImpersonation();
 	        throw e;
 	      });
 	    }
@@ -429,10 +453,10 @@ var Baas =
 	  }, {
 	    key: 'logout',
 	    value: function logout() {
-	      var _this4 = this;
+	      var _this5 = this;
 	
 	      return this._doAuthed('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function (data) {
-	        _this4.authManager.clear();
+	        _this5.authManager.clear();
 	      });
 	    }
 	
@@ -477,7 +501,7 @@ var Baas =
 	  }, {
 	    key: '_doAuthed',
 	    value: function _doAuthed(resource, method, options) {
-	      var _this5 = this;
+	      var _this6 = this;
 	
 	      if (options === undefined) {
 	        options = { refreshOnFailure: true, useRefreshToken: false };
@@ -525,15 +549,15 @@ var Baas =
 	            // Only want to try refreshing token when there's an invalid session
 	            if ('errorCode' in json && json['errorCode'] === ErrInvalidSession) {
 	              if (!options.refreshOnFailure) {
-	                _this5.authManager.clear();
+	                _this6.authManager.clear();
 	                var _error = new BaasError(json['error'], json['errorCode']);
 	                _error.response = response;
 	                throw _error;
 	              }
 	
-	              return _this5._refreshToken().then(function () {
+	              return _this6._refreshToken().then(function () {
 	                options.refreshOnFailure = false;
-	                return _this5._doAuthed(resource, method, options);
+	                return _this6._doAuthed(resource, method, options);
 	              });
 	            }
 	
@@ -551,14 +575,14 @@ var Baas =
 	  }, {
 	    key: '_refreshToken',
 	    value: function _refreshToken() {
-	      var _this6 = this;
+	      var _this7 = this;
 	
 	      if (this.authManager.isImpersonatingUser()) {
 	        return this.authManager.refreshImpersonation(this);
 	      }
 	      return this._doAuthed('/auth/newAccessToken', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
 	        return response.json().then(function (json) {
-	          _this6.authManager.setAccessToken(json['accessToken']);
+	          _this7.authManager.setAccessToken(json['accessToken']);
 	          return Promise.resolve();
 	        });
 	      });
@@ -753,7 +777,7 @@ var Baas =
 	  }, {
 	    key: 'profile',
 	    value: function profile() {
-	      var _this7 = this;
+	      var _this8 = this;
 	
 	      var root = this;
 	      return {
@@ -771,7 +795,7 @@ var Baas =
 	                  return root._get('/profile/keys/' + keyId);
 	                },
 	                remove: function remove() {
-	                  return _this7._delete('/profile/keys/' + keyId);
+	                  return _this8._delete('/profile/keys/' + keyId);
 	                },
 	                enable: function enable() {
 	                  return root._put('/profile/keys/' + keyId + '/enable');
@@ -805,7 +829,7 @@ var Baas =
 	  }, {
 	    key: 'apps',
 	    value: function apps() {
-	      var _this8 = this;
+	      var _this9 = this;
 	
 	      var root = this;
 	      return {
@@ -827,15 +851,15 @@ var Baas =
 	            users: function users() {
 	              return {
 	                list: function list(filter) {
-	                  return _this8._get('/apps/' + _app + '/users', filter);
+	                  return _this9._get('/apps/' + _app + '/users', filter);
 	                },
 	                user: function user(uid) {
 	                  return {
 	                    get: function get() {
-	                      return _this8._get('/apps/' + _app + '/users/' + uid);
+	                      return _this9._get('/apps/' + _app + '/users/' + uid);
 	                    },
 	                    logout: function logout() {
-	                      return _this8._put('/apps/' + _app + '/users/' + uid + '/logout');
+	                      return _this9._put('/apps/' + _app + '/users/' + uid + '/logout');
 	                    }
 	                  };
 	                }
@@ -845,7 +869,7 @@ var Baas =
 	            sandbox: function sandbox() {
 	              return {
 	                executePipeline: function executePipeline(data, userId) {
-	                  return _this8._doAuthed('/apps/' + _app + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: { user_id: userId } });
+	                  return _this9._doAuthed('/apps/' + _app + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: { user_id: userId } });
 	                }
 	              };
 	            },
@@ -853,21 +877,21 @@ var Baas =
 	            authProviders: function authProviders() {
 	              return {
 	                create: function create(data) {
-	                  return _this8._post('/apps/' + _app + '/authProviders', data);
+	                  return _this9._post('/apps/' + _app + '/authProviders', data);
 	                },
 	                list: function list() {
-	                  return _this8._get('/apps/' + _app + '/authProviders');
+	                  return _this9._get('/apps/' + _app + '/authProviders');
 	                },
 	                provider: function provider(authType, authName) {
 	                  return {
 	                    get: function get() {
-	                      return _this8._get('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
+	                      return _this9._get('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
 	                    },
 	                    remove: function remove() {
-	                      return _this8._delete('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
+	                      return _this9._delete('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
 	                    },
 	                    update: function update(data) {
-	                      return _this8._post('/apps/' + _app + '/authProviders/' + authType + '/' + authName, data);
+	                      return _this9._post('/apps/' + _app + '/authProviders/' + authType + '/' + authName, data);
 	                    }
 	                  };
 	                }
@@ -876,21 +900,21 @@ var Baas =
 	            variables: function variables() {
 	              return {
 	                list: function list() {
-	                  return _this8._get('/apps/' + _app + '/vars');
+	                  return _this9._get('/apps/' + _app + '/vars');
 	                },
 	                variable: function variable(varName) {
 	                  return {
 	                    get: function get() {
-	                      return _this8._get('/apps/' + _app + '/vars/' + varName);
+	                      return _this9._get('/apps/' + _app + '/vars/' + varName);
 	                    },
 	                    remove: function remove() {
-	                      return _this8._delete('/apps/' + _app + '/vars/' + varName);
+	                      return _this9._delete('/apps/' + _app + '/vars/' + varName);
 	                    },
 	                    create: function create(data) {
-	                      return _this8._post('/apps/' + _app + '/vars/' + varName, data);
+	                      return _this9._post('/apps/' + _app + '/vars/' + varName, data);
 	                    },
 	                    update: function update(data) {
-	                      return _this8._post('/apps/' + _app + '/vars/' + varName, data);
+	                      return _this9._post('/apps/' + _app + '/vars/' + varName, data);
 	                    }
 	                  };
 	                }
@@ -899,31 +923,31 @@ var Baas =
 	            logs: function logs() {
 	              return {
 	                get: function get(filter) {
-	                  return _this8._get('/apps/' + _app + '/logs', filter);
+	                  return _this9._get('/apps/' + _app + '/logs', filter);
 	                }
 	              };
 	            },
 	            apiKeys: function apiKeys() {
 	              return {
 	                list: function list() {
-	                  return _this8._get('/apps/' + _app + '/keys');
+	                  return _this9._get('/apps/' + _app + '/keys');
 	                },
 	                create: function create(data) {
-	                  return _this8._post('/apps/' + _app + '/keys', data);
+	                  return _this9._post('/apps/' + _app + '/keys', data);
 	                },
 	                apiKey: function apiKey(key) {
 	                  return {
 	                    get: function get() {
-	                      return _this8._get('/apps/' + _app + '/keys/' + key);
+	                      return _this9._get('/apps/' + _app + '/keys/' + key);
 	                    },
 	                    remove: function remove() {
-	                      return _this8._delete('/apps/' + _app + '/keys/' + key);
+	                      return _this9._delete('/apps/' + _app + '/keys/' + key);
 	                    },
 	                    enable: function enable() {
-	                      return _this8._put('/apps/' + _app + '/keys/' + key + '/enable');
+	                      return _this9._put('/apps/' + _app + '/keys/' + key + '/enable');
 	                    },
 	                    disable: function disable() {
-	                      return _this8._put('/apps/' + _app + '/keys/' + key + '/disable');
+	                      return _this9._put('/apps/' + _app + '/keys/' + key + '/disable');
 	                    }
 	                  };
 	                }
@@ -932,44 +956,44 @@ var Baas =
 	            services: function services() {
 	              return {
 	                list: function list() {
-	                  return _this8._get('/apps/' + _app + '/services');
+	                  return _this9._get('/apps/' + _app + '/services');
 	                },
 	                create: function create(data) {
-	                  return _this8._post('/apps/' + _app + '/services', data);
+	                  return _this9._post('/apps/' + _app + '/services', data);
 	                },
 	                service: function service(svc) {
 	                  return {
 	                    get: function get() {
-	                      return _this8._get('/apps/' + _app + '/services/' + svc);
+	                      return _this9._get('/apps/' + _app + '/services/' + svc);
 	                    },
 	                    update: function update(data) {
-	                      return _this8._post('/apps/' + _app + '/services/' + svc, data);
+	                      return _this9._post('/apps/' + _app + '/services/' + svc, data);
 	                    },
 	                    remove: function remove() {
-	                      return _this8._delete('/apps/' + _app + '/services/' + svc);
+	                      return _this9._delete('/apps/' + _app + '/services/' + svc);
 	                    },
 	                    setConfig: function setConfig(data) {
-	                      return _this8._post('/apps/' + _app + '/services/' + svc + '/config', data);
+	                      return _this9._post('/apps/' + _app + '/services/' + svc + '/config', data);
 	                    },
 	
 	                    rules: function rules() {
 	                      return {
 	                        list: function list() {
-	                          return _this8._get('/apps/' + _app + '/services/' + svc + '/rules');
+	                          return _this9._get('/apps/' + _app + '/services/' + svc + '/rules');
 	                        },
 	                        create: function create(data) {
-	                          return _this8._post('/apps/' + _app + '/services/' + svc + '/rules');
+	                          return _this9._post('/apps/' + _app + '/services/' + svc + '/rules');
 	                        },
 	                        rule: function rule(ruleId) {
 	                          return {
 	                            get: function get() {
-	                              return _this8._get('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
+	                              return _this9._get('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
 	                            },
 	                            update: function update(data) {
-	                              return _this8._post('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId, data);
+	                              return _this9._post('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId, data);
 	                            },
 	                            remove: function remove() {
-	                              return _this8._delete('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
+	                              return _this9._delete('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
 	                            }
 	                          };
 	                        }
@@ -979,21 +1003,21 @@ var Baas =
 	                    triggers: function triggers() {
 	                      return {
 	                        list: function list() {
-	                          return _this8._get('/apps/' + _app + '/services/' + svc + '/triggers');
+	                          return _this9._get('/apps/' + _app + '/services/' + svc + '/triggers');
 	                        },
 	                        create: function create(data) {
-	                          return _this8._post('/apps/' + _app + '/services/' + svc + '/triggers');
+	                          return _this9._post('/apps/' + _app + '/services/' + svc + '/triggers');
 	                        },
 	                        trigger: function trigger(triggerId) {
 	                          return {
 	                            get: function get() {
-	                              return _this8._get('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
+	                              return _this9._get('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
 	                            },
 	                            update: function update(data) {
-	                              return _this8._post('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId, data);
+	                              return _this9._post('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId, data);
 	                            },
 	                            remove: function remove() {
-	                              return _this8._delete('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
+	                              return _this9._delete('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
 	                            }
 	                          };
 	                        }
@@ -1010,25 +1034,25 @@ var Baas =
 	  }, {
 	    key: '_admin',
 	    value: function _admin() {
-	      var _this9 = this;
+	      var _this10 = this;
 	
 	      return {
 	        logs: function logs() {
 	          return {
 	            get: function get(filter) {
-	              return _this9._doAuthed('/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter });
+	              return _this10._doAuthed('/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter });
 	            }
 	          };
 	        },
 	        users: function users() {
 	          return {
 	            list: function list(filter) {
-	              return _this9._doAuthed('/admin/users', 'GET', { useRefreshToken: true, queryParams: filter });
+	              return _this10._doAuthed('/admin/users', 'GET', { useRefreshToken: true, queryParams: filter });
 	            },
 	            user: function user(uid) {
 	              return {
 	                logout: function logout() {
-	                  return _this9._doAuthed('/admin/users/' + uid + '/logout', 'PUT', { useRefreshToken: true });
+	                  return _this10._doAuthed('/admin/users/' + uid + '/logout', 'PUT', { useRefreshToken: true });
 	                }
 	              };
 	            }
