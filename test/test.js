@@ -58,7 +58,7 @@ describe('Auth', () => {
     const mb = new MockBrowser()
     global.window = mb.getWindow()
     global.localStorage = mb.getLocalStorage()
-    fetchMock.post('/auth/local/userpass', {user: {'_id': 'billybob'}})
+    fetchMock.post('/auth/local/userpass', {user: {'_id': '5899445b275d3ebe8f2ab8a6'}})
   })
 
   after(() => {
@@ -71,10 +71,10 @@ describe('Auth', () => {
     const a = new Auth('/auth')
     expect(a.get()).to.be.null
 
-    const testUser = {'foo': 'bar', 'biz': 'baz', 'user': {'_id': 'gilfoyle'}}
+    const testUser = {'foo': 'bar', 'biz': 'baz', 'user': {'_id': '5899445b275d3ebe8f2ab8a5'}}
     a.set(testUser)
     expect(a.get()).to.eql(testUser)
-    expect(a.authedId()).to.equal('gilfoyle')
+    expect(a.authedId()).to.eql({'$oid': '5899445b275d3ebe8f2ab8a5'})
 
     a.clear()
     expect(a.get()).to.be.null
@@ -83,7 +83,7 @@ describe('Auth', () => {
   it('should local auth successfully', () => {
     const a = new Auth('/auth')
     a.localAuth('user', 'password', true).then(() => {
-      expect(a.authedId()).to.eql('billybob')
+      expect(a.authedId()).to.eql({'$oid': '5899445b275d3ebe8f2ab8a6'})
     })
   })
 
