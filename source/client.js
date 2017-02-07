@@ -209,8 +209,10 @@ export class Auth {
   }
 
   authedId () {
-    var a = this.get()
-    return ((a || {}).user || {})._id
+    let id = ((this.get() || {}).user || {})._id
+    if (id) {
+      return {'$oid': id}
+    }
   }
 
   isImpersonatingUser () {

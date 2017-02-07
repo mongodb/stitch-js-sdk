@@ -115,7 +115,7 @@ var BaasError = exports.BaasError = function (_Error) {
   function BaasError(message, code) {
     _classCallCheck(this, BaasError);
 
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(BaasError).call(this, message));
+    var _this = _possibleConstructorReturn(this, (BaasError.__proto__ || Object.getPrototypeOf(BaasError)).call(this, message));
 
     _this.name = 'BaasError';
     _this.message = message;
@@ -260,8 +260,10 @@ var Auth = exports.Auth = function () {
   }, {
     key: 'authedId',
     value: function authedId() {
-      var a = this.get();
-      return ((a || {}).user || {})._id;
+      var id = ((this.get() || {}).user || {})._id;
+      if (id) {
+        return { "$oid": id };
+      }
     }
   }, {
     key: 'isImpersonatingUser',
