@@ -61,12 +61,13 @@ var parseRedirectFragment = exports.parseRedirectFragment = function parseRedire
   // builds an object describing the result.
   var vars = fragment.split('&');
   var result = { ua: null, found: false, stateValid: false, lastError: null };
+  var shouldBreak = false;
   var _iteratorNormalCompletion = true;
   var _didIteratorError = false;
   var _iteratorError = undefined;
 
   try {
-    outerloop: for (var _iterator = vars[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+    for (var _iterator = vars[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
       var pair = _step.value;
 
       var pairParts = pair.split('=');
@@ -75,7 +76,8 @@ var parseRedirectFragment = exports.parseRedirectFragment = function parseRedire
         case BAAS_ERROR_KEY:
           result.lastError = decodeURIComponent(pairParts[1]);
           result.found = true;
-          break outerloop;
+          shouldBreak = true;
+          break;
         case USER_AUTH_KEY:
           result.ua = JSON.parse(window.atob(decodeURIComponent(pairParts[1])));
           result.found = true;
@@ -89,6 +91,9 @@ var parseRedirectFragment = exports.parseRedirectFragment = function parseRedire
           if (ourState && ourState === theirState) {
             result.stateValid = true;
           }
+      }
+      if (shouldBreak) {
+        break;
       }
     }
   } catch (err) {

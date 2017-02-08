@@ -44,7 +44,7 @@ export const parseRedirectFragment = (fragment, ourState) => {
   // builds an object describing the result.
   const vars = fragment.split('&')
   const result = { ua: null, found: false, stateValid: false, lastError: null }
-  outerloop:
+  let shouldBreak = false
   for (const pair of vars) {
     var pairParts = pair.split('=')
     const pairKey = decodeURIComponent(pairParts[0])
@@ -52,7 +52,8 @@ export const parseRedirectFragment = (fragment, ourState) => {
       case BAAS_ERROR_KEY:
         result.lastError = decodeURIComponent(pairParts[1])
         result.found = true
-        break outerloop
+        shouldBreak = true
+        break
       case USER_AUTH_KEY:
         result.ua = JSON.parse(window.atob(decodeURIComponent(pairParts[1])))
         result.found = true
@@ -66,6 +67,9 @@ export const parseRedirectFragment = (fragment, ourState) => {
         if (ourState && ourState === theirState) {
           result.stateValid = true
         }
+    }
+    if (shouldBreak) {
+      break
     }
   }
   return result
