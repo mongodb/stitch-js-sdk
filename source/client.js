@@ -1,6 +1,7 @@
 /* global window, localStorage, fetch */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 import 'whatwg-fetch' // fetch polyfill
+import * as textEncodingPolyfill from 'text-encoding' // TextEncoder polyfill
 
 const USER_AUTH_KEY = '_baas_ua'
 const REFRESH_TOKEN_KEY = '_baas_rt'
@@ -16,6 +17,11 @@ const JSONTYPE = 'application/json'
 export const ErrAuthProviderNotFound = 'AuthProviderNotFound'
 export const ErrInvalidSession = 'InvalidSession'
 const stateLength = 64
+
+let TextDecoder = textEncodingPolyfill.TextDecoder
+if (typeof (window) !== 'undefined' && (window.TextEncoder !== undefined && window.TextDecoder !== undefined)) {
+  TextDecoder = window.TextDecoder
+}
 
 const toQueryString = (obj) => {
   var parts = []
@@ -176,6 +182,7 @@ export class Auth {
       }
     }
 
+    // TODO get rid of the cors flag. it should just be on all the time.
     if (cors) {
       init['cors'] = cors
     }
@@ -410,38 +417,37 @@ export class BaasClient {
       url = url + '?' + toQueryString(options.queryParams)
     }
 
-    return fetch(url, init)
-      .then((response) => {
+    return fetch(url, init).then((response) => {
         // Okay: passthrough
-        if (response.status >= 200 && response.status < 300) {
-          return Promise.resolve(response)
-        } else if (response.headers.get('Content-Type') === JSONTYPE) {
-          return response.json().then((json) => {
+      if (response.status >= 200 && response.status < 300) {
+        return Promise.resolve(response)
+      } else if (response.headers.get('Content-Type') === JSONTYPE) {
+        return response.json().then((json) => {
             // Only want to try refreshing token when there's an invalid session
-            if ('errorCode' in json && json['errorCode'] === ErrInvalidSession) {
-              if (!options.refreshOnFailure) {
-                this.authManager.clear()
-                let error = new BaasError(json['error'], json['errorCode'])
-                error.response = response
-                throw error
-              }
-
-              return this._refreshToken().then(() => {
-                options.refreshOnFailure = false
-                return this._doAuthed(resource, method, options)
-              })
+          if ('errorCode' in json && json['errorCode'] === ErrInvalidSession) {
+            if (!options.refreshOnFailure) {
+              this.authManager.clear()
+              let error = new BaasError(json['error'], json['errorCode'])
+              error.response = response
+              throw error
             }
 
-            let error = new BaasError(json['error'], json['errorCode'])
-            error.response = response
-            throw error
-          })
-        }
+            return this._refreshToken().then(() => {
+              options.refreshOnFailure = false
+              return this._doAuthed(resource, method, options)
+            })
+          }
 
-        let error = new Error(response.statusText)
-        error.response = response
-        throw error
-      })
+          let error = new BaasError(json['error'], json['errorCode'])
+          error.response = response
+          throw error
+        })
+      }
+
+      let error = new Error(response.statusText)
+      error.response = response
+      throw error
+    })
   }
 
   _refreshToken () {
@@ -456,9 +462,32 @@ export class BaasClient {
     })
   }
 
-  executePipeline (stages) {
-    return this._doAuthed('/pipeline', 'POST', {body: JSON.stringify(stages)})
-      .then((response) => response.json())
+  executePipeline (stages, options) {
+    let responseDecoder = JSON.parse
+    let responseEncoder = JSON.stringify
+    if (options) {
+      if (options.decoder) {
+        if ((typeof options.decoder) !== 'function') {
+          throw new Error('decoder option must be a function, but "' + typeof (options.decoder) + '" was provided')
+        }
+        responseDecoder = options.decoder
+      }
+      if (options.encoder) {
+        if ((typeof options.encoder) !== 'function') {
+          throw new Error('encoder option must be a function, but "' + typeof (options.encoder) + '" was provided')
+        }
+        responseEncoder = options.encoder
+      }
+    }
+    return this._doAuthed('/pipeline', 'POST', {body: responseEncoder(stages)})
+      .then(response => {
+        if (response.arrayBuffer) {
+          return response.arrayBuffer()
+        }
+        return response.buffer()
+      })
+      .then(buf => new TextDecoder('utf-8').decode(buf))
+      .then(body => responseDecoder(body))
   }
 }
 

@@ -1,9 +1,10 @@
-/* global it, describe, global, after, before, atob, btoa, require, Buffer */
+/* global it, describe, global, after, before, atob, btoa, require, Buffer, Promise */
 const fetchMock = require('fetch-mock')
-import {Auth, parseRedirectFragment} from '../source/client'
-// import {BaasError, BaasClient} from '../source/client'
+import {BaasClient, Auth, parseRedirectFragment} from '../source/client'
 import {mocks} from 'mock-browser'
+import * as bson from 'bson'
 import {expect} from 'chai'
+const EJSON = require('mongodb-extended-json')
 
 const MockBrowser = mocks.MockBrowser
 global.Buffer = global.Buffer || require('buffer').Buffer
@@ -98,36 +99,72 @@ describe('Auth', () => {
   })
 })
 
-/*
-
-describe('Client', ()=>{
+describe('pipeline execution', () => {
+  const hexStr = '5899445b275d3ebe8f2ab8c0'
 
   before(() => {
     const mb = new MockBrowser()
-    global.window = mb.getWindow();
-    global.localStorage = mb.getLocalStorage();
-  });
-
-  after(()=>{
-    delete global.window;
+    global.window = mb.getWindow()
+    global.localStorage = mb.getLocalStorage()
+  })
+  after(() => {
+    delete global.window
     delete global.localStorage
-  });
+  })
 
-  describe('constructor', ()=>{
-    it('should not throw an error', ()=>{
-      const client = new BaasClient("/", "test")
-      expect(client.auth()).to.be.null
+  describe('extended json decode (incoming)', () => {
+    before(() => {
+      fetchMock.post('https://baas-dev.10gen.cc/v1/app/testapp/auth/local/userpass', {user: {'_id': '5899445b275d3ebe8f2ab8a6'}})
+      fetchMock.post('https://baas-dev.10gen.cc/v1/app/testapp/pipeline', (url, opts) => {
+        return {result: [{x: {'$oid': hexStr}}]}
+      })
+    })
+
+    after(() => {
+      fetchMock.restore()
+    })
+
+    it('should decode extended json from pipeline responses', () => {
+      var testClient = new BaasClient('testapp', {baseUrl: ''})
+      return testClient.authManager.localAuth('user', 'password', true)
+      .then(() => {
+        return testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}], {decoder: EJSON.parse})
+      })
+      .then((response) => {
+        return expect(response.result[0].x).to.eql(bson.ObjectId(hexStr))
+      })
     })
   })
 
-  describe('auth()', ()=>{
-    it('should get an OAuth URL', ()=>{
-      const client = new BaasClient("/", "test")
-      let loginUrl = client.getOAuthLoginURL("facebook")
-      console.log("login url is", loginUrl)
-      //client.authWithOAuth("facebook", "http://localhost:8080")
+  describe('extended json encode (outgoing)', () => {
+    let requestOpts
+    before(() => {
+      fetchMock.post('https://baas-dev.10gen.cc/v1/app/testapp/auth/local/userpass', {user: {'_id': '5899445b275d3ebe8f2ab8a6'}})
+      fetchMock.post('https://baas-dev.10gen.cc/v1/app/testapp/pipeline', (url, opts) => {
+        // TODO there should be a better way to capture request payload for
+        // using in an assertion without doing this.
+        requestOpts = opts
+        return {result: [{x: {'$oid': hexStr}}]}
+      })
+    })
+
+    after(() => {
+      fetchMock.restore()
+    })
+
+    it('should encode objects to extended json for outgoing pipeline request body', () => {
+      var requestBodyObj = {action: 'literal', args: {items: [{x: bson.ObjectId(hexStr)}]}}
+      var requestBodyExtJSON = {action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}
+      var testClient = new BaasClient('testapp', {baseUrl: ''})
+      return testClient.authManager.localAuth('user', 'password', true).then((a) => {
+        return testClient.executePipeline([requestBodyObj], {encoder: EJSON.stringify})
+      })
+      .then((response) => {
+        return Promise.all([
+          expect(JSON.parse(requestOpts.body)).to.eql([requestBodyExtJSON])
+        ])
+      })
     })
   })
 })
-*/
 

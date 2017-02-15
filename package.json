@@ -5,7 +5,7 @@
   "main": "distribution/client.js",
   "scripts": {
     "build": "npm run transpile && npm run makelib",
-	"makelib" : "webpack",
+    "makelib": "webpack",
     "transpile": "babel source --presets babel-preset-es2015 --out-dir distribution",
     "test": "mocha --compilers js:babel-core/register --require babel-polyfill",
     "lint": "eslint source/ test/",
@@ -32,6 +32,9 @@
     "webpack": "^1.14.0"
   },
   "dependencies": {
+    "bson": "^1.0.4",
+    "mongodb-extended-json": "^1.9.0",
+    "text-encoding": "^0.6.4",
     "whatwg-fetch": "^2.0.1"
   }
 }
