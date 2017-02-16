@@ -5,9 +5,17 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Admin = exports.MongoClient = exports.BaasClient = exports.Auth = exports.BaasError = exports.parseRedirectFragment = exports.ErrInvalidSession = exports.ErrAuthProviderNotFound = undefined;
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 require('whatwg-fetch');
+
+var _textEncoding = require('text-encoding');
+
+var textEncodingPolyfill = _interopRequireWildcard(_textEncoding);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -15,9 +23,10 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /* global window, localStorage, fetch */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
-
-
 // fetch polyfill
+
+
+// TextEncoder polyfill
 
 var USER_AUTH_KEY = '_baas_ua';
 var REFRESH_TOKEN_KEY = '_baas_rt';
@@ -33,6 +42,11 @@ var JSONTYPE = 'application/json';
 var ErrAuthProviderNotFound = exports.ErrAuthProviderNotFound = 'AuthProviderNotFound';
 var ErrInvalidSession = exports.ErrInvalidSession = 'InvalidSession';
 var stateLength = 64;
+
+var TextDecoder = textEncodingPolyfill.TextDecoder;
+if (typeof window !== 'undefined' && window.TextEncoder !== undefined && window.TextDecoder !== undefined) {
+  TextDecoder = window.TextDecoder;
+}
 
 var toQueryString = function toQueryString(obj) {
   var parts = [];
@@ -226,6 +240,7 @@ var Auth = exports.Auth = function () {
         }
       };
 
+      // TODO get rid of the cors flag. it should just be on all the time.
       if (cors) {
         init['cors'] = cors;
       }
@@ -547,9 +562,32 @@ var BaasClient = exports.BaasClient = function () {
     }
   }, {
     key: 'executePipeline',
-    value: function executePipeline(stages) {
-      return this._doAuthed('/pipeline', 'POST', { body: JSON.stringify(stages) }).then(function (response) {
-        return response.json();
+    value: function executePipeline(stages, options) {
+      var responseDecoder = JSON.parse;
+      var responseEncoder = JSON.stringify;
+      if (options) {
+        if (options.decoder) {
+          if (typeof options.decoder !== 'function') {
+            throw new Error('decoder option must be a function, but "' + _typeof(options.decoder) + '" was provided');
+          }
+          responseDecoder = options.decoder;
+        }
+        if (options.encoder) {
+          if (typeof options.encoder !== 'function') {
+            throw new Error('encoder option must be a function, but "' + _typeof(options.encoder) + '" was provided');
+          }
+          responseEncoder = options.encoder;
+        }
+      }
+      return this._doAuthed('/pipeline', 'POST', { body: responseEncoder(stages) }).then(function (response) {
+        if (response.arrayBuffer) {
+          return response.arrayBuffer();
+        }
+        return response.buffer();
+      }).then(function (buf) {
+        return new TextDecoder('utf-8').decode(buf);
+      }).then(function (body) {
+        return responseDecoder(body);
       });
     }
   }]);
@@ -630,10 +668,17 @@ var Collection = function () {
     }
   }, {
     key: 'insert',
-    value: function insert(documents) {
+    value: function insert(docs) {
+      var toInsert = void 0;
+      if (docs instanceof Array) {
+        toInsert = docs;
+      } else {
+        toInsert = Array.from(arguments);
+      }
+
       return this.db.client.executePipeline([{ 'action': 'literal',
         'args': {
-          'items': documents
+          'items': toInsert
         }
       }, {
         'service': this.db.service,

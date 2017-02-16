@@ -555,11 +555,18 @@ class Collection {
     ])
   }
 
-  insert (documents) {
+  insert (docs) {
+    let toInsert
+    if (docs instanceof Array) {
+      toInsert = docs
+    } else {
+      toInsert = Array.from(arguments)
+    }
+
     return this.db.client.executePipeline([
       {'action': 'literal',
         'args': {
-          'items': documents
+          'items': toInsert
         }
       },
       {
