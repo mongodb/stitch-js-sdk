@@ -304,15 +304,15 @@ export class Auth {
 }
 
 export class BaasClient {
-  constructor (app, options) {
+  constructor (clientAppID, options) {
     let baseUrl = DEFAULT_BAAS_SERVER_URL
     if (options && options.baseUrl) {
       baseUrl = options.baseUrl
     }
     this.appUrl = `${baseUrl}/admin/v1`
     this.authUrl = `${baseUrl}/admin/v1/auth`
-    if (app) {
-      this.appUrl = `${baseUrl}/v1/app/${app}`
+    if (clientAppID) {
+      this.appUrl = `${baseUrl}/v1/app/${clientAppID}`
       this.authUrl = `${this.appUrl}/auth`
     }
     this.authManager = new Auth(this.authUrl)
@@ -687,84 +687,84 @@ export class Admin {
     return {
       list: () => root._get(`/apps`),
       create: (data) => root._post(`/apps`, data),
-      app: (app) => ({
-        get: () => root._get(`/apps/${app}`),
-        remove: () => root._delete(`/apps/${app}`),
+      app: (appID) => ({
+        get: () => root._get(`/apps/${appID}`),
+        remove: () => root._delete(`/apps/${appID}`),
 
         users: () => ({
-          list: (filter) => this._get(`/apps/${app}/users`, filter),
+          list: (filter) => this._get(`/apps/${appID}/users`, filter),
           user: (uid) => ({
-            get: () => this._get(`/apps/${app}/users/${uid}`),
-            logout: () => this._put(`/apps/${app}/users/${uid}/logout`)
+            get: () => this._get(`/apps/${appID}/users/${uid}`),
+            logout: () => this._put(`/apps/${appID}/users/${uid}/logout`)
           })
         }),
 
         sandbox: () => ({
           executePipeline: (data, userId) => {
             return this._doAuthed(
-              `/apps/${app}/sandbox/pipeline`,
+              `/apps/${appID}/sandbox/pipeline`,
               'POST',
               {body: JSON.stringify(data), queryParams: {user_id: userId}})
           }
         }),
 
         authProviders: () => ({
-          create: (data) => this._post(`/apps/${app}/authProviders`, data),
-          list: () => this._get(`/apps/${app}/authProviders`),
+          create: (data) => this._post(`/apps/${appID}/authProviders`, data),
+          list: () => this._get(`/apps/${appID}/authProviders`),
           provider: (authType, authName) => ({
-            get: () => this._get(`/apps/${app}/authProviders/${authType}/${authName}`),
-            remove: () => this._delete(`/apps/${app}/authProviders/${authType}/${authName}`),
-            update: (data) => this._post(`/apps/${app}/authProviders/${authType}/${authName}`, data)
+            get: () => this._get(`/apps/${appID}/authProviders/${authType}/${authName}`),
+            remove: () => this._delete(`/apps/${appID}/authProviders/${authType}/${authName}`),
+            update: (data) => this._post(`/apps/${appID}/authProviders/${authType}/${authName}`, data)
           })
         }),
         variables: () => ({
-          list: () => this._get(`/apps/${app}/vars`),
+          list: () => this._get(`/apps/${appID}/vars`),
           variable: (varName) => ({
-            get: () => this._get(`/apps/${app}/vars/${varName}`),
-            remove: () => this._delete(`/apps/${app}/vars/${varName}`),
-            create: (data) => this._post(`/apps/${app}/vars/${varName}`, data),
-            update: (data) => this._post(`/apps/${app}/vars/${varName}`, data)
+            get: () => this._get(`/apps/${appID}/vars/${varName}`),
+            remove: () => this._delete(`/apps/${appID}/vars/${varName}`),
+            create: (data) => this._post(`/apps/${appID}/vars/${varName}`, data),
+            update: (data) => this._post(`/apps/${appID}/vars/${varName}`, data)
           })
         }),
         logs: () => ({
-          get: (filter) => this._get(`/apps/${app}/logs`, filter)
+          get: (filter) => this._get(`/apps/${appID}/logs`, filter)
         }),
         apiKeys: () => ({
-          list: () => this._get(`/apps/${app}/keys`),
-          create: (data) => this._post(`/apps/${app}/keys`, data),
+          list: () => this._get(`/apps/${appID}/keys`),
+          create: (data) => this._post(`/apps/${appID}/keys`, data),
           apiKey: (key) => ({
-            get: () => this._get(`/apps/${app}/keys/${key}`),
-            remove: () => this._delete(`/apps/${app}/keys/${key}`),
-            enable: () => this._put(`/apps/${app}/keys/${key}/enable`),
-            disable: () => this._put(`/apps/${app}/keys/${key}/disable`)
+            get: () => this._get(`/apps/${appID}/keys/${key}`),
+            remove: () => this._delete(`/apps/${appID}/keys/${key}`),
+            enable: () => this._put(`/apps/${appID}/keys/${key}/enable`),
+            disable: () => this._put(`/apps/${appID}/keys/${key}/disable`)
           })
         }),
         services: () => ({
-          list: () => this._get(`/apps/${app}/services`),
-          create: (data) => this._post(`/apps/${app}/services`, data),
+          list: () => this._get(`/apps/${appID}/services`),
+          create: (data) => this._post(`/apps/${appID}/services`, data),
           service: (svc) => ({
-            get: () => this._get(`/apps/${app}/services/${svc}`),
-            update: (data) => this._post(`/apps/${app}/services/${svc}`, data),
-            remove: () => this._delete(`/apps/${app}/services/${svc}`),
-            setConfig: (data) => this._post(`/apps/${app}/services/${svc}/config`, data),
+            get: () => this._get(`/apps/${appID}/services/${svc}`),
+            update: (data) => this._post(`/apps/${appID}/services/${svc}`, data),
+            remove: () => this._delete(`/apps/${appID}/services/${svc}`),
+            setConfig: (data) => this._post(`/apps/${appID}/services/${svc}/config`, data),
 
             rules: () => ({
-              list: () => this._get(`/apps/${app}/services/${svc}/rules`),
-              create: (data) => this._post(`/apps/${app}/services/${svc}/rules`),
+              list: () => this._get(`/apps/${appID}/services/${svc}/rules`),
+              create: (data) => this._post(`/apps/${appID}/services/${svc}/rules`),
               rule: (ruleId) => ({
-                get: () => this._get(`/apps/${app}/services/${svc}/rules/${ruleId}`),
-                update: (data) => this._post(`/apps/${app}/services/${svc}/rules/${ruleId}`, data),
-                remove: () => this._delete(`/apps/${app}/services/${svc}/rules/${ruleId}`)
+                get: () => this._get(`/apps/${appID}/services/${svc}/rules/${ruleId}`),
+                update: (data) => this._post(`/apps/${appID}/services/${svc}/rules/${ruleId}`, data),
+                remove: () => this._delete(`/apps/${appID}/services/${svc}/rules/${ruleId}`)
               })
             }),
 
             triggers: () => ({
-              list: () => this._get(`/apps/${app}/services/${svc}/triggers`),
-              create: (data) => this._post(`/apps/${app}/services/${svc}/triggers`),
+              list: () => this._get(`/apps/${appID}/services/${svc}/triggers`),
+              create: (data) => this._post(`/apps/${appID}/services/${svc}/triggers`),
               trigger: (triggerId) => ({
-                get: () => this._get(`/apps/${app}/services/${svc}/triggers/${triggerId}`),
-                update: (data) => this._post(`/apps/${app}/services/${svc}/triggers/${triggerId}`, data),
-                remove: () => this._delete(`/apps/${app}/services/${svc}/triggers/${triggerId}`)
+                get: () => this._get(`/apps/${appID}/services/${svc}/triggers/${triggerId}`),
+                update: (data) => this._post(`/apps/${appID}/services/${svc}/triggers/${triggerId}`, data),
+                remove: () => this._delete(`/apps/${appID}/services/${svc}/triggers/${triggerId}`)
               })
             })
           })
