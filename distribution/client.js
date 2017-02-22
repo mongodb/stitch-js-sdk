@@ -386,7 +386,7 @@ var Auth = exports.Auth = function () {
 }();
 
 var BaasClient = exports.BaasClient = function () {
-  function BaasClient(app, options) {
+  function BaasClient(clientAppID, options) {
     _classCallCheck(this, BaasClient);
 
     var baseUrl = DEFAULT_BAAS_SERVER_URL;
@@ -395,8 +395,8 @@ var BaasClient = exports.BaasClient = function () {
     }
     this.appUrl = baseUrl + '/admin/v1';
     this.authUrl = baseUrl + '/admin/v1/auth';
-    if (app) {
-      this.appUrl = baseUrl + '/v1/app/' + app;
+    if (clientAppID) {
+      this.appUrl = baseUrl + '/v1/app/' + clientAppID;
       this.authUrl = this.appUrl + '/auth';
     }
     this.authManager = new Auth(this.authUrl);
@@ -842,27 +842,27 @@ var Admin = exports.Admin = function () {
         create: function create(data) {
           return root._post('/apps', data);
         },
-        app: function app(_app) {
+        app: function app(appID) {
           return {
             get: function get() {
-              return root._get('/apps/' + _app);
+              return root._get('/apps/' + appID);
             },
             remove: function remove() {
-              return root._delete('/apps/' + _app);
+              return root._delete('/apps/' + appID);
             },
 
             users: function users() {
               return {
                 list: function list(filter) {
-                  return _this9._get('/apps/' + _app + '/users', filter);
+                  return _this9._get('/apps/' + appID + '/users', filter);
                 },
                 user: function user(uid) {
                   return {
                     get: function get() {
-                      return _this9._get('/apps/' + _app + '/users/' + uid);
+                      return _this9._get('/apps/' + appID + '/users/' + uid);
                     },
                     logout: function logout() {
-                      return _this9._put('/apps/' + _app + '/users/' + uid + '/logout');
+                      return _this9._put('/apps/' + appID + '/users/' + uid + '/logout');
                     }
                   };
                 }
@@ -872,7 +872,7 @@ var Admin = exports.Admin = function () {
             sandbox: function sandbox() {
               return {
                 executePipeline: function executePipeline(data, userId) {
-                  return _this9._doAuthed('/apps/' + _app + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: { user_id: userId } });
+                  return _this9._doAuthed('/apps/' + appID + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: { user_id: userId } });
                 }
               };
             },
@@ -880,21 +880,21 @@ var Admin = exports.Admin = function () {
             authProviders: function authProviders() {
               return {
                 create: function create(data) {
-                  return _this9._post('/apps/' + _app + '/authProviders', data);
+                  return _this9._post('/apps/' + appID + '/authProviders', data);
                 },
                 list: function list() {
-                  return _this9._get('/apps/' + _app + '/authProviders');
+                  return _this9._get('/apps/' + appID + '/authProviders');
                 },
                 provider: function provider(authType, authName) {
                   return {
                     get: function get() {
-                      return _this9._get('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
+                      return _this9._get('/apps/' + appID + '/authProviders/' + authType + '/' + authName);
                     },
                     remove: function remove() {
-                      return _this9._delete('/apps/' + _app + '/authProviders/' + authType + '/' + authName);
+                      return _this9._delete('/apps/' + appID + '/authProviders/' + authType + '/' + authName);
                     },
                     update: function update(data) {
-                      return _this9._post('/apps/' + _app + '/authProviders/' + authType + '/' + authName, data);
+                      return _this9._post('/apps/' + appID + '/authProviders/' + authType + '/' + authName, data);
                     }
                   };
                 }
@@ -903,21 +903,21 @@ var Admin = exports.Admin = function () {
             variables: function variables() {
               return {
                 list: function list() {
-                  return _this9._get('/apps/' + _app + '/vars');
+                  return _this9._get('/apps/' + appID + '/vars');
                 },
                 variable: function variable(varName) {
                   return {
                     get: function get() {
-                      return _this9._get('/apps/' + _app + '/vars/' + varName);
+                      return _this9._get('/apps/' + appID + '/vars/' + varName);
                     },
                     remove: function remove() {
-                      return _this9._delete('/apps/' + _app + '/vars/' + varName);
+                      return _this9._delete('/apps/' + appID + '/vars/' + varName);
                     },
                     create: function create(data) {
-                      return _this9._post('/apps/' + _app + '/vars/' + varName, data);
+                      return _this9._post('/apps/' + appID + '/vars/' + varName, data);
                     },
                     update: function update(data) {
-                      return _this9._post('/apps/' + _app + '/vars/' + varName, data);
+                      return _this9._post('/apps/' + appID + '/vars/' + varName, data);
                     }
                   };
                 }
@@ -926,31 +926,31 @@ var Admin = exports.Admin = function () {
             logs: function logs() {
               return {
                 get: function get(filter) {
-                  return _this9._get('/apps/' + _app + '/logs', filter);
+                  return _this9._get('/apps/' + appID + '/logs', filter);
                 }
               };
             },
             apiKeys: function apiKeys() {
               return {
                 list: function list() {
-                  return _this9._get('/apps/' + _app + '/keys');
+                  return _this9._get('/apps/' + appID + '/keys');
                 },
                 create: function create(data) {
-                  return _this9._post('/apps/' + _app + '/keys', data);
+                  return _this9._post('/apps/' + appID + '/keys', data);
                 },
                 apiKey: function apiKey(key) {
                   return {
                     get: function get() {
-                      return _this9._get('/apps/' + _app + '/keys/' + key);
+                      return _this9._get('/apps/' + appID + '/keys/' + key);
                     },
                     remove: function remove() {
-                      return _this9._delete('/apps/' + _app + '/keys/' + key);
+                      return _this9._delete('/apps/' + appID + '/keys/' + key);
                     },
                     enable: function enable() {
-                      return _this9._put('/apps/' + _app + '/keys/' + key + '/enable');
+                      return _this9._put('/apps/' + appID + '/keys/' + key + '/enable');
                     },
                     disable: function disable() {
-                      return _this9._put('/apps/' + _app + '/keys/' + key + '/disable');
+                      return _this9._put('/apps/' + appID + '/keys/' + key + '/disable');
                     }
                   };
                 }
@@ -959,44 +959,44 @@ var Admin = exports.Admin = function () {
             services: function services() {
               return {
                 list: function list() {
-                  return _this9._get('/apps/' + _app + '/services');
+                  return _this9._get('/apps/' + appID + '/services');
                 },
                 create: function create(data) {
-                  return _this9._post('/apps/' + _app + '/services', data);
+                  return _this9._post('/apps/' + appID + '/services', data);
                 },
                 service: function service(svc) {
                   return {
                     get: function get() {
-                      return _this9._get('/apps/' + _app + '/services/' + svc);
+                      return _this9._get('/apps/' + appID + '/services/' + svc);
                     },
                     update: function update(data) {
-                      return _this9._post('/apps/' + _app + '/services/' + svc, data);
+                      return _this9._post('/apps/' + appID + '/services/' + svc, data);
                     },
                     remove: function remove() {
-                      return _this9._delete('/apps/' + _app + '/services/' + svc);
+                      return _this9._delete('/apps/' + appID + '/services/' + svc);
                     },
                     setConfig: function setConfig(data) {
-                      return _this9._post('/apps/' + _app + '/services/' + svc + '/config', data);
+                      return _this9._post('/apps/' + appID + '/services/' + svc + '/config', data);
                     },
 
                     rules: function rules() {
                       return {
                         list: function list() {
-                          return _this9._get('/apps/' + _app + '/services/' + svc + '/rules');
+                          return _this9._get('/apps/' + appID + '/services/' + svc + '/rules');
                         },
                         create: function create(data) {
-                          return _this9._post('/apps/' + _app + '/services/' + svc + '/rules');
+                          return _this9._post('/apps/' + appID + '/services/' + svc + '/rules');
                         },
                         rule: function rule(ruleId) {
                           return {
                             get: function get() {
-                              return _this9._get('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
+                              return _this9._get('/apps/' + appID + '/services/' + svc + '/rules/' + ruleId);
                             },
                             update: function update(data) {
-                              return _this9._post('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId, data);
+                              return _this9._post('/apps/' + appID + '/services/' + svc + '/rules/' + ruleId, data);
                             },
                             remove: function remove() {
-                              return _this9._delete('/apps/' + _app + '/services/' + svc + '/rules/' + ruleId);
+                              return _this9._delete('/apps/' + appID + '/services/' + svc + '/rules/' + ruleId);
                             }
                           };
                         }
@@ -1006,21 +1006,21 @@ var Admin = exports.Admin = function () {
                     triggers: function triggers() {
                       return {
                         list: function list() {
-                          return _this9._get('/apps/' + _app + '/services/' + svc + '/triggers');
+                          return _this9._get('/apps/' + appID + '/services/' + svc + '/triggers');
                         },
                         create: function create(data) {
-                          return _this9._post('/apps/' + _app + '/services/' + svc + '/triggers');
+                          return _this9._post('/apps/' + appID + '/services/' + svc + '/triggers');
                         },
                         trigger: function trigger(triggerId) {
                           return {
                             get: function get() {
-                              return _this9._get('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
+                              return _this9._get('/apps/' + appID + '/services/' + svc + '/triggers/' + triggerId);
                             },
                             update: function update(data) {
-                              return _this9._post('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId, data);
+                              return _this9._post('/apps/' + appID + '/services/' + svc + '/triggers/' + triggerId, data);
                             },
                             remove: function remove() {
-                              return _this9._delete('/apps/' + _app + '/services/' + svc + '/triggers/' + triggerId);
+                              return _this9._delete('/apps/' + appID + '/services/' + svc + '/triggers/' + triggerId);
                             }
                           };
                         }
