@@ -1,22 +1,14 @@
-/* global window, localStorage, fetch */
+/* global window, fetch */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
-import 'whatwg-fetch' // fetch polyfill
-import * as textEncodingPolyfill from 'text-encoding' // TextEncoder polyfill
+require('isomorphic-fetch')
 
-const USER_AUTH_KEY = '_baas_ua'
-const REFRESH_TOKEN_KEY = '_baas_rt'
-const STATE_KEY = '_baas_state'
-const BAAS_ERROR_KEY = '_baas_error'
-const BAAS_LINK_KEY = '_baas_link'
-const IMPERSONATION_ACTIVE_KEY = '_baas_impers_active'
-const IMPERSONATION_USER_KEY = '_baas_impers_user'
-const IMPERSONATION_REAL_USER_AUTH_KEY = '_baas_impers_real_ua'
-const DEFAULT_BAAS_SERVER_URL = 'https://baas-dev.10gen.cc'
-const JSONTYPE = 'application/json'
+import Auth from './auth'
+import * as common from './common'
+
+import * as textEncodingPolyfill from 'text-encoding' // TextEncoder polyfill
 
 export const ErrAuthProviderNotFound = 'AuthProviderNotFound'
 export const ErrInvalidSession = 'InvalidSession'
-const stateLength = 64
 
 let TextDecoder = textEncodingPolyfill.TextDecoder
 if (typeof (window) !== 'undefined' && (window.TextEncoder !== undefined && window.TextDecoder !== undefined)) {
@@ -33,279 +25,9 @@ const toQueryString = (obj) => {
   return parts.join('&')
 }
 
-const checkStatus = (response) => {
-  if (response.status >= 200 && response.status < 300) {
-    return response
-  } else {
-    var error = new Error(response.statusText)
-    error.response = response
-    throw error
-  }
-}
-
-export const parseRedirectFragment = (fragment, ourState) => {
-  // After being redirected from oauth, the URL will look like:
-  // https://todo.examples.baas-dev.10gen.cc/#_baas_state=...&_baas_ua=...
-  // This function parses out baas-specific tokens from the fragment and
-  // builds an object describing the result.
-  const vars = fragment.split('&')
-  const result = { ua: null, found: false, stateValid: false, lastError: null }
-  let shouldBreak = false
-  for (const pair of vars) {
-    var pairParts = pair.split('=')
-    const pairKey = decodeURIComponent(pairParts[0])
-    switch (pairKey) {
-      case BAAS_ERROR_KEY:
-        result.lastError = decodeURIComponent(pairParts[1])
-        result.found = true
-        shouldBreak = true
-        break
-      case USER_AUTH_KEY:
-        result.ua = JSON.parse(window.atob(decodeURIComponent(pairParts[1])))
-        result.found = true
-        continue
-      case BAAS_LINK_KEY:
-        result.found = true
-        continue
-      case STATE_KEY:
-        result.found = true
-        let theirState = decodeURIComponent(pairParts[1])
-        if (ourState && ourState === theirState) {
-          result.stateValid = true
-        }
-    }
-    if (shouldBreak) {
-      break
-    }
-  }
-  return result
-}
-
-export class BaasError extends Error {
-  constructor (message, code) {
-    super(message)
-    this.name = 'BaasError'
-    this.message = message
-    if (code !== undefined) {
-      this.code = code
-    }
-    if (typeof Error.captureStackTrace === 'function') {
-      Error.captureStackTrace(this, this.constructor)
-    } else {
-      this.stack = (new Error(message)).stack
-    }
-  }
-}
-
-export class Auth {
-  constructor (rootUrl) {
-    this.rootUrl = rootUrl
-  }
-
-  pageRootUrl () {
-    return [window.location.protocol, '//', window.location.host, window.location.pathname].join('')
-  }
-
-  // The state we generate is to be used for any kind of request where we will
-  // complete an authentication flow via a redirect. We store the generate in
-  // a local storage bound to the app's origin. This ensures that any time we
-  // receive a redirect, there must be a state parameter and it must match
-  // what we ourselves have generated. This state MUST only be sent to
-  // a trusted BaaS endpoint in order to preserve its integrity. BaaS will
-  // store it in some way on its origin (currently a cookie stored on this client)
-  // and use that state at the end of an auth flow as a parameter in the redirect URI.
-  static generateState () {
-    let alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    let state = ''
-    for (var i = 0; i < stateLength; i++) {
-      let pos = Math.floor(Math.random() * alpha.length)
-      state += alpha.substring(pos, pos + 1)
-    }
-    return state
-  }
-
-  setAccessToken (token) {
-    let currAuth = this.get()
-    currAuth['accessToken'] = token
-    currAuth['refreshToken'] = localStorage.getItem(REFRESH_TOKEN_KEY)
-    this.set(currAuth)
-  }
-
-  error () {
-    return this._error
-  }
-
-  handleRedirect () {
-    let ourState = localStorage.getItem(STATE_KEY)
-    let redirectFragment = window.location.hash.substring(1)
-    const redirectState = parseRedirectFragment(redirectFragment, ourState)
-    if (redirectState.lastError) {
-      console.error(`BaasClient: error from redirect: ${redirectState.lastError}`)
-      this._error = redirectState.lastError
-      window.history.replaceState(null, '', this.pageRootUrl())
-      return
-    }
-    if (!redirectState.found) {
-      return
-    }
-    localStorage.removeItem(STATE_KEY)
-    if (!redirectState.stateValid) {
-      console.error(`BaasClient: state values did not match!`)
-      window.history.replaceState(null, '', this.pageRootUrl())
-      return
-    }
-    if (!redirectState.ua) {
-      console.error(`BaasClient: no UA value was returned from redirect!`)
-      return
-    }
-    // If we get here, the state is valid - set auth appropriately.
-    this.set(redirectState.ua)
-    window.history.replaceState(null, '', this.pageRootUrl())
-  }
-
-  getOAuthLoginURL (providerName, redirectUrl) {
-    if (redirectUrl === undefined) {
-      redirectUrl = this.pageRootUrl()
-    }
-    let state = Auth.generateState()
-    localStorage.setItem(STATE_KEY, state)
-    let result = `${this.rootUrl}/oauth2/${providerName}?redirect=${encodeURI(redirectUrl)}&state=${state}`
-    return result
-  }
-
-  anonymousAuth (cors) {
-    let init = {
-      method: 'GET',
-      headers: {
-        'Accept': JSONTYPE,
-        'Content-Type': JSONTYPE
-      }
-    }
-
-    // TODO get rid of the cors flag. it should just be on all the time.
-    if (cors) {
-      init['cors'] = cors
-    }
-
-    return fetch(`${this.rootUrl}/anon/user`, init)
-      .then(checkStatus)
-      .then((response) => {
-        return response.json().then((json) => {
-          this.set(json)
-          Promise.resolve()
-        })
-      })
-  }
-
-  localAuth (username, password, cors) {
-    let init = {
-      method: 'POST',
-      headers: {
-        'Accept': JSONTYPE,
-        'Content-Type': JSONTYPE
-      },
-      body: JSON.stringify({'username': username, 'password': password})
-    }
-
-    if (cors) {
-      init['cors'] = cors
-    }
-
-    return fetch(`${this.rootUrl}/local/userpass`, init)
-      .then(checkStatus)
-      .then((response) => {
-        return response.json().then((json) => {
-          this.set(json)
-          Promise.resolve()
-        })
-      })
-  }
-
-  clear () {
-    localStorage.removeItem(USER_AUTH_KEY)
-    localStorage.removeItem(REFRESH_TOKEN_KEY)
-    this.clearImpersonation()
-  }
-
-  set (json) {
-    let rt = json['refreshToken']
-    delete json['refreshToken']
-
-    localStorage.setItem(USER_AUTH_KEY, window.btoa(JSON.stringify(json)))
-    localStorage.setItem(REFRESH_TOKEN_KEY, rt)
-  }
-
-  get () {
-    if (localStorage.getItem(USER_AUTH_KEY) === null) {
-      return null
-    }
-    return JSON.parse(window.atob(localStorage.getItem(USER_AUTH_KEY)))
-  }
-
-  authedId () {
-    let id = ((this.get() || {}).user || {})._id
-    if (id) {
-      return {'$oid': id}
-    }
-  }
-
-  isImpersonatingUser () {
-    return localStorage.getItem(IMPERSONATION_ACTIVE_KEY) === 'true'
-  }
-
-  refreshImpersonation (client) {
-    let userId = localStorage.getItem(IMPERSONATION_USER_KEY)
-    return client._doAuthed(`/admin/users/${userId}/impersonate`, 'POST', {refreshOnFailure: false, useRefreshToken: true}).then((response) => {
-      return response.json().then((json) => {
-        json['refreshToken'] = localStorage.getItem(REFRESH_TOKEN_KEY)
-        this.set(json)
-        return Promise.resolve()
-      })
-    }).catch((e) => {
-      this.stopImpersonation()
-      throw e
-    })
-  }
-
-  startImpersonation (client, userId) {
-    if (this.get() === null) {
-      return Promise.reject(new BaasError('Must auth first'))
-    }
-    if (this.isImpersonatingUser()) {
-      throw new BaasError('Already impersonating a user')
-    }
-    localStorage.setItem(IMPERSONATION_ACTIVE_KEY, 'true')
-    localStorage.setItem(IMPERSONATION_USER_KEY, userId)
-
-    let realUserAuth = JSON.parse(window.atob(localStorage.getItem(USER_AUTH_KEY)))
-    realUserAuth['refreshToken'] = localStorage.getItem(REFRESH_TOKEN_KEY)
-    localStorage.setItem(IMPERSONATION_REAL_USER_AUTH_KEY, window.btoa(JSON.stringify(realUserAuth)))
-    return this.refreshImpersonation(client)
-  }
-
-  stopImpersonation () {
-    let root = this
-    return new Promise(function (resolve, reject) {
-      if (!root.isImpersonatingUser()) {
-        throw new BaasError('Not impersonating a user')
-      }
-      let realUserAuth = JSON.parse(window.atob(localStorage.getItem(IMPERSONATION_REAL_USER_AUTH_KEY)))
-      root.set(realUserAuth)
-      root.clearImpersonation()
-      resolve()
-    })
-  }
-
-  clearImpersonation () {
-    localStorage.removeItem(IMPERSONATION_ACTIVE_KEY)
-    localStorage.removeItem(IMPERSONATION_USER_KEY)
-    localStorage.removeItem(IMPERSONATION_REAL_USER_AUTH_KEY)
-  }
-}
-
 export class BaasClient {
   constructor (clientAppID, options) {
-    let baseUrl = DEFAULT_BAAS_SERVER_URL
+    let baseUrl = common.DEFAULT_BAAS_SERVER_URL
     if (options && options.baseUrl) {
       baseUrl = options.baseUrl
     }
@@ -350,7 +72,7 @@ export class BaasClient {
     let url = `${this.appUrl}${resource}`
     let init = {
       method: method,
-      headers: { 'Accept': JSONTYPE, 'Content-Type': JSONTYPE }
+      headers: { 'Accept': common.JSONTYPE, 'Content-Type': common.JSONTYPE }
     }
     if (options.body) {
       init['body'] = options.body
@@ -364,9 +86,9 @@ export class BaasClient {
         // Okay: passthrough
         if (response.status >= 200 && response.status < 300) {
           return Promise.resolve(response)
-        } else if (response.headers.get('Content-Type') === JSONTYPE) {
+        } else if (response.headers.get('Content-Type') === common.JSONTYPE) {
           return response.json().then((json) => {
-            let error = new BaasError(json['error'], json['errorCode'])
+            let error = new common.BaasError(json['error'], json['errorCode'])
             error.response = response
             throw error
           })
@@ -392,16 +114,16 @@ export class BaasClient {
     }
 
     if (this.auth() === null) {
-      return Promise.reject(new BaasError('Must auth first'))
+      return Promise.reject(new common.BaasError('Must auth first'))
     }
 
     let url = `${this.appUrl}${resource}`
 
     let headers = {
-      'Accept': JSONTYPE,
-      'Content-Type': JSONTYPE
+      'Accept': common.JSONTYPE,
+      'Content-Type': common.JSONTYPE
     }
-    let token = options.useRefreshToken ? localStorage.getItem(REFRESH_TOKEN_KEY) : this.auth()['accessToken']
+    let token = options.useRefreshToken ? this.authManager.getRefreshToken() : this.auth()['accessToken']
     headers['Authorization'] = `Bearer ${token}`
 
     let init = {
@@ -421,13 +143,13 @@ export class BaasClient {
         // Okay: passthrough
       if (response.status >= 200 && response.status < 300) {
         return Promise.resolve(response)
-      } else if (response.headers.get('Content-Type') === JSONTYPE) {
+      } else if (response.headers.get('Content-Type') === common.JSONTYPE) {
         return response.json().then((json) => {
             // Only want to try refreshing token when there's an invalid session
           if ('errorCode' in json && json['errorCode'] === ErrInvalidSession) {
             if (!options.refreshOnFailure) {
               this.authManager.clear()
-              let error = new BaasError(json['error'], json['errorCode'])
+              let error = new common.BaasError(json['error'], json['errorCode'])
               error.response = response
               throw error
             }
@@ -438,7 +160,7 @@ export class BaasClient {
             })
           }
 
-          let error = new BaasError(json['error'], json['errorCode'])
+          let error = new common.BaasError(json['error'], json['errorCode'])
           error.response = response
           throw error
         })

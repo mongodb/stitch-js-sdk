@@ -1,6 +1,8 @@
 /* global it, describe, global, after, before, atob, btoa, require, Buffer, Promise */
 const fetchMock = require('fetch-mock')
-import {BaasClient, Auth, parseRedirectFragment} from '../source/client'
+import {BaasClient} from '../source/client'
+import {parseRedirectFragment} from '../source/common'
+import Auth from '../source/auth'
 import {mocks} from 'mock-browser'
 import * as bson from 'bson'
 import {expect} from 'chai'
@@ -58,13 +60,11 @@ describe('Auth', () => {
   before(() => {
     const mb = new MockBrowser()
     global.window = mb.getWindow()
-    global.localStorage = mb.getLocalStorage()
     fetchMock.post('/auth/local/userpass', {user: {'_id': '5899445b275d3ebe8f2ab8a6'}})
   })
 
   after(() => {
     delete global.window
-    delete global.localStorage
     fetchMock.restore()
   })
 
@@ -105,11 +105,9 @@ describe('pipeline execution', () => {
   before(() => {
     const mb = new MockBrowser()
     global.window = mb.getWindow()
-    global.localStorage = mb.getLocalStorage()
   })
   after(() => {
     delete global.window
-    delete global.localStorage
   })
 
   describe('extended json decode (incoming)', () => {
