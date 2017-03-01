@@ -17,6 +17,10 @@ var _common = require('./common');
 
 var common = _interopRequireWildcard(_common);
 
+var _textEncoding = require('text-encoding');
+
+var textEncodingPolyfill = _interopRequireWildcard(_textEncoding);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -27,8 +31,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 require('isomorphic-fetch');
 
+// TextEncoder polyfill
+
 var ErrAuthProviderNotFound = exports.ErrAuthProviderNotFound = 'AuthProviderNotFound';
 var ErrInvalidSession = exports.ErrInvalidSession = 'InvalidSession';
+
+var TextDecoder = textEncodingPolyfill.TextDecoder;
+if (typeof window !== 'undefined' && window.TextEncoder !== undefined && window.TextDecoder !== undefined) {
+  TextDecoder = window.TextDecoder;
+}
 
 var toQueryString = function toQueryString(obj) {
   var parts = [];
@@ -240,7 +251,7 @@ var BaasClient = exports.BaasClient = function () {
         }
         return response.buffer();
       }).then(function (buf) {
-        return new common.TextDecoder('utf-8').decode(buf);
+        return new TextDecoder('utf-8').decode(buf);
       }).then(function (body) {
         return responseDecoder(body);
       });
