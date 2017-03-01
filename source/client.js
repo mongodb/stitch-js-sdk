@@ -10,6 +10,8 @@ import * as textEncodingPolyfill from 'text-encoding' // TextEncoder polyfill
 export const ErrAuthProviderNotFound = 'AuthProviderNotFound'
 export const ErrInvalidSession = 'InvalidSession'
 
+var EJSON = require('mongodb-extjson')
+
 let TextDecoder = textEncodingPolyfill.TextDecoder
 if (typeof (window) !== 'undefined' && (window.TextEncoder !== undefined && window.TextDecoder !== undefined)) {
   TextDecoder = window.TextDecoder
@@ -185,8 +187,8 @@ export class BaasClient {
   }
 
   executePipeline (stages, options) {
-    let responseDecoder = JSON.parse
-    let responseEncoder = JSON.stringify
+    let responseDecoder = (d) => (new EJSON()).parse(d, {strict:false})
+    let responseEncoder = (d) => (new EJSON()).stringify(d)
     if (options) {
       if (options.decoder) {
         if ((typeof options.decoder) !== 'function') {

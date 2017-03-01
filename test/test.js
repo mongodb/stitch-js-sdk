@@ -4,9 +4,8 @@ import {BaasClient} from '../source/client'
 import {parseRedirectFragment} from '../source/common'
 import Auth from '../source/auth'
 import {mocks} from 'mock-browser'
-import * as bson from 'bson'
 import {expect} from 'chai'
-const EJSON = require('mongodb-extended-json')
+const EJSON = require('mongodb-extjson')
 
 const MockBrowser = mocks.MockBrowser
 global.Buffer = global.Buffer || require('buffer').Buffer
@@ -126,10 +125,12 @@ describe('pipeline execution', () => {
       var testClient = new BaasClient('testapp', {baseUrl: ''})
       return testClient.authManager.localAuth('user', 'password', true)
       .then(() => {
-        return testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}], {decoder: EJSON.parse})
+        const ejson = new EJSON()
+        return testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}], {decoder: (p) => ejson.parse(p)})
       })
       .then((response) => {
-        return expect(response.result[0].x).to.eql(bson.ObjectId(hexStr))
+        const ejson = new EJSON()
+        return expect(response.result[0].x).to.eql(ejson.bson.ObjectID(hexStr))
       })
     })
   })
@@ -151,7 +152,8 @@ describe('pipeline execution', () => {
     })
 
     it('should encode objects to extended json for outgoing pipeline request body', () => {
-      var requestBodyObj = {action: 'literal', args: {items: [{x: bson.ObjectId(hexStr)}]}}
+      const ejson = new EJSON()
+      var requestBodyObj = {action: 'literal', args: {items: [{x: ejson.bson.ObjectID(hexStr)}]}}
       var requestBodyExtJSON = {action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}
       var testClient = new BaasClient('testapp', {baseUrl: ''})
       return testClient.authManager.localAuth('user', 'password', true).then((a) => {

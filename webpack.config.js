@@ -11,6 +11,14 @@
         minimize: true
       })
    ],
+  module: {
+    loaders: [
+      {
+        test: /\.js?$/,
+        loaders: ['babel']
+      }, 
+    ]
+  },
    output: {
      path: __dirname + "/library",
      // export itself to a global var

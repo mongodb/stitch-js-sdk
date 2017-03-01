@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Admin = exports.MongoClient = exports.BaasClient = exports.ErrInvalidSession = exports.ErrAuthProviderNotFound = undefined;
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -35,6 +35,8 @@ require('isomorphic-fetch');
 
 var ErrAuthProviderNotFound = exports.ErrAuthProviderNotFound = 'AuthProviderNotFound';
 var ErrInvalidSession = exports.ErrInvalidSession = 'InvalidSession';
+
+var EJSON = require('mongodb-extjson');
 
 var TextDecoder = textEncodingPolyfill.TextDecoder;
 if (typeof window !== 'undefined' && window.TextEncoder !== undefined && window.TextDecoder !== undefined) {
@@ -229,8 +231,12 @@ var BaasClient = exports.BaasClient = function () {
   }, {
     key: 'executePipeline',
     value: function executePipeline(stages, options) {
-      var responseDecoder = JSON.parse;
-      var responseEncoder = JSON.stringify;
+      var responseDecoder = function responseDecoder(d) {
+        return new EJSON().parse(d, { strict: false });
+      };
+      var responseEncoder = function responseEncoder(d) {
+        return new EJSON().stringify(d);
+      };
       if (options) {
         if (options.decoder) {
           if (typeof options.decoder !== 'function') {
