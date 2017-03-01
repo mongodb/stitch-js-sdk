@@ -238,6 +238,7 @@ var Auth = function () {
   }, {
     key: 'set',
     value: function set(json) {
+
       var rt = json['refreshToken'];
       delete json['refreshToken'];
 
@@ -248,10 +249,11 @@ var Auth = function () {
   }, {
     key: 'get',
     value: function get() {
-      if (this.authDataStorage.getItem(common.USER_AUTH_KEY) === null) {
+      if (!this.authDataStorage.getItem(common.USER_AUTH_KEY)) {
         return null;
       }
-      return JSON.parse(_jsBase.Base64.decode(this.authDataStorage.getItem(common.USER_AUTH_KEY)));
+      var item = this.authDataStorage.getItem(common.USER_AUTH_KEY);
+      return JSON.parse(_jsBase.Base64.decode(item));
     }
   }, {
     key: 'authedId',

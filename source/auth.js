@@ -202,6 +202,7 @@ export default class Auth {
   }
 
   set (json) {
+
     let rt = json['refreshToken']
     delete json['refreshToken']
 
@@ -211,10 +212,11 @@ export default class Auth {
   }
 
   get () {
-    if (this.authDataStorage.getItem(common.USER_AUTH_KEY) === null) {
+    if (!this.authDataStorage.getItem(common.USER_AUTH_KEY)) {
       return null
     }
-    return JSON.parse(Base64.decode(this.authDataStorage.getItem(common.USER_AUTH_KEY)))
+    const item = this.authDataStorage.getItem(common.USER_AUTH_KEY)
+    return JSON.parse(Base64.decode(item))
   }
 
   authedId () {
