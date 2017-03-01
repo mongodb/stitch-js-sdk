@@ -44,6 +44,7 @@
     "isomorphic-fetch": "^2.2.1",
     "js-base64": "^2.1.9",
     "mongodb-extended-json": "^1.9.0",
+    "mongodb-extjson": "^1.0.2",
     "text-encoding": "^0.6.4",
     "whatwg-fetch": "^2.0.1"
   }
