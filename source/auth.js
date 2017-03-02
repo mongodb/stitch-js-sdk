@@ -248,7 +248,7 @@ export default class Auth {
       return Promise.reject(new common.BaasError('Must auth first'))
     }
     if (this.isImpersonatingUser()) {
-      throw new common.BaasError('Already impersonating a user')
+      return Promise.reject(new common.BaasError('Already impersonating a user'))
     }
     this.authDataStorage.setItem(common.IMPERSONATION_ACTIVE_KEY, 'true')
     this.authDataStorage.setItem(common.IMPERSONATION_USER_KEY, userId)
@@ -260,14 +260,13 @@ export default class Auth {
   }
 
   stopImpersonation () {
-    let root = this
-    return new Promise(function (resolve, reject) {
-      if (!root.isImpersonatingUser()) {
+    return new Promise((resolve, reject) => {
+      if (!this.isImpersonatingUser()) {
         throw new common.BaasError('Not impersonating a user')
       }
       let realUserAuth = JSON.parse(Base64.decode(this.authDataStorage.getItem(common.IMPERSONATION_REAL_USER_AUTH_KEY)))
-      root.set(realUserAuth)
-      root.clearImpersonation()
+      this.set(realUserAuth)
+      this.clearImpersonation()
       resolve()
     })
   }

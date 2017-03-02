@@ -291,7 +291,7 @@ var Auth = function () {
         return Promise.reject(new common.BaasError('Must auth first'));
       }
       if (this.isImpersonatingUser()) {
-        throw new common.BaasError('Already impersonating a user');
+        return Promise.reject(new common.BaasError('Already impersonating a user'));
       }
       this.authDataStorage.setItem(common.IMPERSONATION_ACTIVE_KEY, 'true');
       this.authDataStorage.setItem(common.IMPERSONATION_USER_KEY, userId);
@@ -304,14 +304,15 @@ var Auth = function () {
   }, {
     key: 'stopImpersonation',
     value: function stopImpersonation() {
-      var root = this;
+      var _this5 = this;
+
       return new Promise(function (resolve, reject) {
-        if (!root.isImpersonatingUser()) {
+        if (!_this5.isImpersonatingUser()) {
           throw new common.BaasError('Not impersonating a user');
         }
-        var realUserAuth = JSON.parse(_jsBase.Base64.decode(this.authDataStorage.getItem(common.IMPERSONATION_REAL_USER_AUTH_KEY)));
-        root.set(realUserAuth);
-        root.clearImpersonation();
+        var realUserAuth = JSON.parse(_jsBase.Base64.decode(_this5.authDataStorage.getItem(common.IMPERSONATION_REAL_USER_AUTH_KEY)));
+        _this5.set(realUserAuth);
+        _this5.clearImpersonation();
         resolve();
       });
     }

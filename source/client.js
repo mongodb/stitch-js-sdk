@@ -519,7 +519,7 @@ export class Admin {
     return this.client.authManager.startImpersonation(this.client, userId)
   }
 
-  _stopImpersonation (userId) {
+  _stopImpersonation () {
     return this.client.authManager.stopImpersonation()
   }
 }

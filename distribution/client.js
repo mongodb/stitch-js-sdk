@@ -747,7 +747,7 @@ var Admin = exports.Admin = function () {
     }
   }, {
     key: '_stopImpersonation',
-    value: function _stopImpersonation(userId) {
+    value: function _stopImpersonation() {
       return this.client.authManager.stopImpersonation();
     }
   }]);
