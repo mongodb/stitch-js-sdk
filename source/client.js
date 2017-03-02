@@ -5,7 +5,7 @@ require('isomorphic-fetch')
 import Auth from './auth'
 import * as common from './common'
 
-import * as textEncodingPolyfill from 'text-encoding' // TextEncoder polyfill
+import * as textEncodingPolyfill from 'text-encoding-utf-8' // TextEncoder polyfill
 
 export const ErrAuthProviderNotFound = 'AuthProviderNotFound'
 export const ErrInvalidSession = 'InvalidSession'
@@ -187,7 +187,7 @@ export class BaasClient {
   }
 
   executePipeline (stages, options) {
-    let responseDecoder = (d) => (new EJSON()).parse(d, {strict:false})
+    let responseDecoder = (d) => (new EJSON()).parse(d, {strict: false})
     let responseEncoder = (d) => (new EJSON()).stringify(d)
     if (options) {
       if (options.decoder) {

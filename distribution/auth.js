@@ -238,7 +238,6 @@ var Auth = function () {
   }, {
     key: 'set',
     value: function set(json) {
-
       var rt = json['refreshToken'];
       delete json['refreshToken'];
 

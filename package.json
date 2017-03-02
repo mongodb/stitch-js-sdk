@@ -28,7 +28,6 @@
     "babel-preset-es2015": "^6.22.0",
     "babel-register": "^6.22.0",
     "chai": "^3.5.0",
-    "cookie_js": "^1.2.0",
     "eslint": "^3.13.0",
     "eslint-config-standard": "^6.2.1",
     "eslint-plugin-promise": "^3.4.0",
@@ -40,12 +39,10 @@
     "webpack": "^1.14.0"
   },
   "dependencies": {
-    "bson": "^1.0.4",
     "isomorphic-fetch": "^2.2.1",
     "js-base64": "^2.1.9",
-    "mongodb-extended-json": "^1.9.0",
     "mongodb-extjson": "^1.0.2",
     "text-encoding": "^0.6.4",
-    "whatwg-fetch": "^2.0.1"
+    "text-encoding-utf-8": "^1.0.1"
   }
 }

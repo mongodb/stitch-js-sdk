@@ -202,7 +202,6 @@ export default class Auth {
   }
 
   set (json) {
-
     let rt = json['refreshToken']
     delete json['refreshToken']
 
