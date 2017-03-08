@@ -6,13 +6,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, fetch */
 
-/* let authDataStorage;
-if(window !== undefined && window.localStorage !== undefined){
-  authDataStorage = window.localStorage
-}
-
-*/
-
 var _common = require('./common');
 
 var common = _interopRequireWildcard(_common);
@@ -159,10 +152,9 @@ var Auth = function () {
       }
 
       return fetch(this.rootUrl + '/anon/user', init).then(common.checkStatus).then(function (response) {
-        return response.json().then(function (json) {
-          _this.set(json);
-          Promise.resolve();
-        });
+        return response.json();
+      }).then(function (json) {
+        _this.set(json);
       });
     }
   }, {

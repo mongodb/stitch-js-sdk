@@ -52,7 +52,7 @@ var Baas =
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.Admin = exports.MongoClient = exports.BaasClient = exports.ErrInvalidSession = exports.ErrAuthProviderNotFound = undefined;
+	exports.Admin = exports.MongoClient = exports.BaasClient = exports.toQueryString = exports.ErrInvalidSession = exports.ErrAuthProviderNotFound = undefined;
 	
 	var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol" ? function (obj) {
 	  return typeof obj === "undefined" ? "undefined" : _typeof2(obj);
@@ -80,8 +80,6 @@ var Baas =
 	
 	var _textEncodingUtf = __webpack_require__(8);
 	
-	var textEncodingPolyfill = _interopRequireWildcard(_textEncodingUtf);
-	
 	function _interopRequireWildcard(obj) {
 	  if (obj && obj.__esModule) {
 	    return obj;
@@ -108,19 +106,23 @@ var Baas =
 	/* eslint no-labels: ['error', { 'allowLoop': true }] */
 	__webpack_require__(9);
 	
-	// TextEncoder polyfill
-	
 	var ErrAuthProviderNotFound = exports.ErrAuthProviderNotFound = 'AuthProviderNotFound';
 	var ErrInvalidSession = exports.ErrInvalidSession = 'InvalidSession';
 	
 	var EJSON = __webpack_require__(11);
 	
-	var TextDecoder = textEncodingPolyfill.TextDecoder;
-	if (typeof window !== 'undefined' && window.TextEncoder !== undefined && window.TextDecoder !== undefined) {
-	  TextDecoder = window.TextDecoder;
-	}
+	var makeFetchArgs = function makeFetchArgs(method, body) {
+	  var init = {
+	    method: method,
+	    headers: { 'Accept': common.JSONTYPE, 'Content-Type': common.JSONTYPE }
+	  };
+	  if (body) {
+	    init['body'] = body;
+	  }
+	  return init;
+	};
 	
-	var toQueryString = function toQueryString(obj) {
+	var toQueryString = exports.toQueryString = function toQueryString(obj) {
 	  var parts = [];
 	  for (var i in obj) {
 	    if (obj.hasOwnProperty(i)) {
@@ -173,92 +175,34 @@ var Baas =
 	    value: function logout() {
 	      var _this = this;
 	
-	      return this._doAuthed('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function (data) {
-	        _this.authManager.clear();
+	      return this._do('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function () {
+	        return _this.authManager.clear();
 	      });
 	    }
-	
-	    // wrapper around fetch() that matches the signature of doAuthed but does not
-	    // actually use any auth. This is necessary for routes that must be
-	    // accessible without logging in, like listing available auth providers.
-	
 	  }, {
 	    key: '_do',
-	    value: function _do(resource, method, options) {
-	      options = options || {};
-	      var url = '' + this.appUrl + resource;
-	      var init = {
-	        method: method,
-	        headers: { 'Accept': common.JSONTYPE, 'Content-Type': common.JSONTYPE }
-	      };
-	      if (options.body) {
-	        init['body'] = options.body;
-	      }
-	      if (options.queryParams) {
-	        url = url + '?' + toQueryString(options.queryParams);
-	      }
-	
-	      return fetch(url, init).then(function (response) {
-	        // Okay: passthrough
-	        if (response.status >= 200 && response.status < 300) {
-	          return Promise.resolve(response);
-	        } else if (response.headers.get('Content-Type') === common.JSONTYPE) {
-	          return response.json().then(function (json) {
-	            var error = new common.BaasError(json['error'], json['errorCode']);
-	            error.response = response;
-	            throw error;
-	          });
-	        }
-	        var error = new Error(response.statusText);
-	        error.response = response;
-	        throw error;
-	      }).then(function (response) {
-	        return response.json();
-	      });
-	    }
-	  }, {
-	    key: '_doAuthed',
-	    value: function _doAuthed(resource, method, options) {
+	    value: function _do(resource, method) {
 	      var _this2 = this;
 	
-	      if (options === undefined) {
-	        options = { refreshOnFailure: true, useRefreshToken: false };
-	      } else {
-	        if (options.refreshOnFailure === undefined) {
-	          options.refreshOnFailure = true;
-	        }
-	        if (options.useRefreshToken === undefined) {
-	          options.useRefreshToken = false;
-	        }
-	      }
+	      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : { refreshOnFailure: true, useRefreshToken: false };
 	
-	      if (this.auth() === null) {
-	        return Promise.reject(new common.BaasError('Must auth first'));
+	      if (!options.noAuth) {
+	        if (this.auth() === null) {
+	          return Promise.reject(new common.BaasError('Must auth first'));
+	        }
 	      }
 	
 	      var url = '' + this.appUrl + resource;
-	
-	      var headers = {
-	        'Accept': common.JSONTYPE,
-	        'Content-Type': common.JSONTYPE
-	      };
-	      var token = options.useRefreshToken ? this.authManager.getRefreshToken() : this.auth()['accessToken'];
-	      headers['Authorization'] = 'Bearer ' + token;
-	
-	      var init = {
-	        method: method,
-	        headers: headers
-	      };
-	
-	      if (options.body) {
-	        init['body'] = options.body;
+	      var fetchArgs = makeFetchArgs(method, options.body);
+	      if (!options.noAuth) {
+	        var token = options.useRefreshToken ? this.authManager.getRefreshToken() : this.auth()['accessToken'];
+	        fetchArgs.headers['Authorization'] = 'Bearer ' + token;
 	      }
-	
 	      if (options.queryParams) {
 	        url = url + '?' + toQueryString(options.queryParams);
 	      }
 	
-	      return fetch(url, init).then(function (response) {
+	      return fetch(url, fetchArgs).then(function (response) {
 	        // Okay: passthrough
 	        if (response.status >= 200 && response.status < 300) {
 	          return Promise.resolve(response);
@@ -275,7 +219,7 @@ var Baas =
 	
 	              return _this2._refreshToken().then(function () {
 	                options.refreshOnFailure = false;
-	                return _this2._doAuthed(resource, method, options);
+	                return _this2._do(resource, method, options);
 	              });
 	            }
 	
@@ -298,7 +242,7 @@ var Baas =
 	      if (this.authManager.isImpersonatingUser()) {
 	        return this.authManager.refreshImpersonation(this);
 	      }
-	      return this._doAuthed('/auth/newAccessToken', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
+	      return this._do('/auth/newAccessToken', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
 	        return response.json().then(function (json) {
 	          _this3.authManager.setAccessToken(json['accessToken']);
 	          return Promise.resolve();
@@ -328,13 +272,13 @@ var Baas =
 	          responseEncoder = options.encoder;
 	        }
 	      }
-	      return this._doAuthed('/pipeline', 'POST', { body: responseEncoder(stages) }).then(function (response) {
+	      return this._do('/pipeline', 'POST', { body: responseEncoder(stages) }).then(function (response) {
 	        if (response.arrayBuffer) {
 	          return response.arrayBuffer();
 	        }
 	        return response.buffer();
 	      }).then(function (buf) {
-	        return new TextDecoder('utf-8').decode(buf);
+	        return new _textEncodingUtf.TextDecoder('utf-8').decode(new Uint8Array(buf));
 	      }).then(function (body) {
 	        return responseDecoder(body);
 	      });
@@ -500,31 +444,31 @@ var Baas =
 	  }
 	
 	  _createClass(Admin, [{
-	    key: '_doAuthed',
-	    value: function _doAuthed(url, method, options) {
-	      return this.client._doAuthed(url, method, options).then(function (response) {
+	    key: '_do',
+	    value: function _do(url, method, options) {
+	      return this.client._do(url, method, options).then(function (response) {
 	        return response.json();
 	      });
 	    }
 	  }, {
 	    key: '_get',
 	    value: function _get(url, queryParams) {
-	      return this._doAuthed(url, 'GET', { queryParams: queryParams });
+	      return this._do(url, 'GET', { queryParams: queryParams });
 	    }
 	  }, {
 	    key: '_put',
 	    value: function _put(url, queryParams) {
-	      return this._doAuthed(url, 'PUT', { queryParams: queryParams });
+	      return this._do(url, 'PUT', { queryParams: queryParams });
 	    }
 	  }, {
 	    key: '_delete',
 	    value: function _delete(url) {
-	      return this._doAuthed(url, 'DELETE');
+	      return this._do(url, 'DELETE');
 	    }
 	  }, {
 	    key: '_post',
 	    value: function _post(url, body) {
-	      return this._doAuthed(url, 'POST', { body: JSON.stringify(body) });
+	      return this._do(url, 'POST', { body: JSON.stringify(body) });
 	    }
 	  }, {
 	    key: 'profile',
@@ -621,7 +565,7 @@ var Baas =
 	            sandbox: function sandbox() {
 	              return {
 	                executePipeline: function executePipeline(data, userId) {
-	                  return _this5._doAuthed('/apps/' + appID + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: { user_id: userId } });
+	                  return _this5._do('/apps/' + appID + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: { user_id: userId } });
 	                }
 	              };
 	            },
@@ -792,19 +736,19 @@ var Baas =
 	        logs: function logs() {
 	          return {
 	            get: function get(filter) {
-	              return _this6._doAuthed('/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter });
+	              return _this6._do('/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter });
 	            }
 	          };
 	        },
 	        users: function users() {
 	          return {
 	            list: function list(filter) {
-	              return _this6._doAuthed('/admin/users', 'GET', { useRefreshToken: true, queryParams: filter });
+	              return _this6._do('/admin/users', 'GET', { useRefreshToken: true, queryParams: filter });
 	            },
 	            user: function user(uid) {
 	              return {
 	                logout: function logout() {
-	                  return _this6._doAuthed('/admin/users/' + uid + '/logout', 'PUT', { useRefreshToken: true });
+	                  return _this6._do('/admin/users/' + uid + '/logout', 'PUT', { useRefreshToken: true });
 	                }
 	              };
 	            }
@@ -851,13 +795,6 @@ var Baas =
 	    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
 	  };
 	}(); /* global window, fetch */
-	
-	/* let authDataStorage;
-	if(window !== undefined && window.localStorage !== undefined){
-	  authDataStorage = window.localStorage
-	}
-	
-	*/
 	
 	var _common = __webpack_require__(2);
 	
@@ -1019,10 +956,9 @@ var Baas =
 	      }
 	
 	      return fetch(this.rootUrl + '/anon/user', init).then(common.checkStatus).then(function (response) {
-	        return response.json().then(function (json) {
-	          _this.set(json);
-	          Promise.resolve();
-	        });
+	        return response.json();
+	      }).then(function (json) {
+	        _this.set(json);
 	      });
 	    }
 	  }, {
