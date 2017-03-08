@@ -20,6 +20,17 @@ export const checkStatus = (response) => {
   }
 }
 
+export const makeFetchArgs = (method, body) => {
+  const init = {
+    method: method,
+    headers: { 'Accept': JSONTYPE, 'Content-Type': JSONTYPE }
+  }
+  if (body) {
+    init['body'] = body
+  }
+  return init
+}
+
 export const parseRedirectFragment = (fragment, ourState) => {
   // After being redirected from oauth, the URL will look like:
   // https://todo.examples.baas-dev.10gen.cc/#_baas_state=...&_baas_ua=...

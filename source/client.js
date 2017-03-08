@@ -11,17 +11,6 @@ export const ErrInvalidSession = 'InvalidSession'
 
 var EJSON = require('mongodb-extjson')
 
-const makeFetchArgs = (method, body) => {
-  const init = {
-    method: method,
-    headers: { 'Accept': common.JSONTYPE, 'Content-Type': common.JSONTYPE }
-  }
-  if (body) {
-    init['body'] = body
-  }
-  return init
-}
-
 export const toQueryString = (obj) => {
   var parts = []
   for (var i in obj) {
@@ -69,7 +58,16 @@ export class BaasClient {
       .then(() => this.authManager.clear())
   }
 
-  _do (resource, method, options = {refreshOnFailure: true, useRefreshToken: false}) {
+  _do (resource, method, options) {
+    if (!options) {
+      options = {}
+    }
+    if (options.refreshOnFailure === undefined) {
+      options.refreshOnFailure = true
+    }
+    if (options.useRefreshToken === undefined) {
+      options.useRefreshToken = false
+    }
     if (!options.noAuth) {
       if (this.auth() === null) {
         return Promise.reject(new common.BaasError('Must auth first'))
@@ -77,7 +75,7 @@ export class BaasClient {
     }
 
     let url = `${this.appUrl}${resource}`
-    let fetchArgs = makeFetchArgs(method, options.body)
+    let fetchArgs = common.makeFetchArgs(method, options.body)
     if (!options.noAuth) {
       let token = options.useRefreshToken ? this.authManager.getRefreshToken() : this.auth()['accessToken']
       fetchArgs.headers['Authorization'] = `Bearer ${token}`
@@ -109,13 +107,14 @@ export class BaasClient {
 
           const error = new common.BaasError(json['error'], json['errorCode'])
           error.response = response
-          throw error
+          return Promise.reject(error)
         })
       }
 
       const error = new Error(response.statusText)
       error.response = response
-      throw error
+
+      return Promise.reject(error)
     })
   }
 

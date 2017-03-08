@@ -66,12 +66,12 @@ export default class Auth {
   }
 
   handleRedirect () {
-    let ourState = this.authDataStorage.getItem(common.STATE_KEY)
     if (typeof (window) === 'undefined') {
       // This means we're running in some environment other
       // than a browser - so handling a redirect makes no sense here.
       return
     }
+    let ourState = this.authDataStorage.getItem(common.STATE_KEY)
     let redirectFragment = window.location.hash.substring(1)
     const redirectState = common.parseRedirectFragment(redirectFragment, ourState)
     if (redirectState.lastError) {
@@ -108,21 +108,11 @@ export default class Auth {
     return result
   }
 
-  anonymousAuth (cors) {
-    let init = {
-      method: 'GET',
-      headers: {
-        'Accept': common.JSONTYPE,
-        'Content-Type': common.JSONTYPE
-      }
-    }
+  anonymousAuth () {
+    let fetchArgs = common.makeFetchArgs('GET')
+    fetchArgs['cors'] = true
 
-    // TODO get rid of the cors flag. it should just be on all the time.
-    if (cors) {
-      init['cors'] = cors
-    }
-
-    return fetch(`${this.rootUrl}/anon/user`, init)
+    return fetch(`${this.rootUrl}/anon/user`, fetchArgs)
       .then(common.checkStatus)
       .then(response => response.json())
       .then(json => {
@@ -130,49 +120,23 @@ export default class Auth {
       })
   }
 
-  apiKeyAuth (key, options = {cors: true}) {
-    let init = {
-      method: 'POST',
-      headers: {
-        'Accept': common.JSONTYPE,
-        'Content-Type': common.JSONTYPE
-      },
-      body: JSON.stringify({'key': key})
-    }
+  apiKeyAuth (key) {
+    const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({'key': key}))
+    fetchArgs['cors'] = true
 
-    if (options && options.cors === false) {
-      init['cors'] = false
-    } else {
-      init['cors'] = true
-    }
-
-    return fetch(`${this.rootUrl}/api/key`, init)
+    return fetch(`${this.rootUrl}/api/key`, fetchArgs)
       .then(common.checkStatus)
-      .then((response) => {
-        return response.json().then((json) => {
-          this.set(json)
-          return Promise.resolve()
-        })
+      .then(response => response.json())
+      .then(json => {
+        this.set(json)
       })
   }
 
   localAuth (username, password, options = {cors: true}) {
-    let init = {
-      method: 'POST',
-      headers: {
-        'Accept': common.JSONTYPE,
-        'Content-Type': common.JSONTYPE
-      },
-      body: JSON.stringify({'username': username, 'password': password})
-    }
+    const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({username, password}))
+    fetchArgs['cors'] = true
 
-    if (options && options.cors === false) {
-      init['cors'] = false
-    } else {
-      init['cors'] = true
-    }
-
-    return fetch(`${this.rootUrl}/local/userpass`, init)
+    return fetch(`${this.rootUrl}/local/userpass`, fetchArgs)
       .then(common.checkStatus)
       .then((response) => {
         return response.json().then((json) => {
@@ -230,7 +194,7 @@ export default class Auth {
       })
     }).catch((e) => {
       this.stopImpersonation()
-      throw e
+      return Promise.reject(e)
     })
   }
 
@@ -251,10 +215,10 @@ export default class Auth {
   }
 
   stopImpersonation () {
+    if (!this.isImpersonatingUser()) {
+      throw new common.BaasError('Not impersonating a user')
+    }
     return new Promise((resolve, reject) => {
-      if (!this.isImpersonatingUser()) {
-        throw new common.BaasError('Not impersonating a user')
-      }
       let realUserAuth = JSON.parse(Base64.decode(this.authDataStorage.getItem(common.IMPERSONATION_REAL_USER_AUTH_KEY)))
       this.set(realUserAuth)
       this.clearImpersonation()
