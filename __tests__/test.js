@@ -1,7 +1,7 @@
-/* global expect, it, describe, global, beforeEach, afterEach, afterAll, beforeAll, require, Buffer, Promise */
+/* global expect, it, describe, global, afterEach, beforeEach, afterAll, beforeAll, require, Buffer, Promise */
 const fetchMock = require('fetch-mock')
-import {BaasClient, BaasError, toQueryString} from '../source/client'
-import {parseRedirectFragment, JSONTYPE} from '../source/common'
+import {BaasClient, toQueryString} from '../source/client'
+import {parseRedirectFragment, JSONTYPE, DEFAULT_BAAS_SERVER_URL} from '../source/common'
 import Auth from '../source/auth'
 import {mocks} from 'mock-browser'
 import {Base64} from 'js-base64'
@@ -11,6 +11,29 @@ const MockBrowser = mocks.MockBrowser
 global.Buffer = global.Buffer || require('buffer').Buffer
 
 const hexStr = '5899445b275d3ebe8f2ab8c0'
+
+const mockBrowserHarness = {
+  setup () {
+    const mb = new MockBrowser()
+    global.window = mb.getWindow()
+  },
+  teardown () {
+    global.window = undefined
+  }
+}
+
+const envConfigs = [
+  {
+    name: 'with window.localStorage',
+    setup: mockBrowserHarness.setup,
+    teardown: mockBrowserHarness.teardown
+  },
+  {
+    name: 'without window.localStorage',
+    setup: () => {},
+    teardown: () => {}
+  }
+]
 
 describe('query string', () => {
   it('should encode an object to a query string', () => {
@@ -54,64 +77,67 @@ describe('Redirect fragment parsing', () => {
 })
 
 describe('Auth', () => {
-  beforeAll(() => {
-    const mb = new MockBrowser()
-    global.window = mb.getWindow()
-    fetchMock.post('/auth/local/userpass', {user: {'_id': hexStr}})
-    fetchMock.post('https://baas-dev.10gen.cc/v1/app/testapp/auth/local/userpass', {user: {'_id': hexStr}})
-    fetchMock.delete('https://baas-dev.10gen.cc/v1/app/testapp/auth', {})
-  })
+  for (const envConfig of envConfigs) {
+    describe(envConfig.name, () => {
+      beforeEach(() => {
+        envConfig.setup()
+        fetchMock.post('/auth/local/userpass', {user: {'_id': hexStr}})
+        fetchMock.post(DEFAULT_BAAS_SERVER_URL + '/v1/app/testapp/auth/local/userpass', {user: {'_id': hexStr}})
+        fetchMock.delete(DEFAULT_BAAS_SERVER_URL + '/v1/app/testapp/auth', {})
+      })
 
-  afterAll(() => {
-    delete global.window
-    fetchMock.restore()
-  })
+      afterEach(() => {
+        envConfig.teardown()
+        fetchMock.restore()
+      })
 
-  it('get() set() clear() authedId() should work', () => {
-    const a = new Auth('/auth')
-    expect(a.get()).toBeNull()
+      it('get() set() clear() authedId() should work', () => {
+        const a = new Auth('/auth')
+        expect(a.get()).toBeNull()
 
-    const testUser = {'foo': 'bar', 'biz': 'baz', 'user': {'_id': hexStr}}
-    a.set(testUser)
-    expect(a.get()).toEqual(testUser)
-    expect(a.authedId()).toEqual({'$oid': hexStr})
+        const testUser = {'foo': 'bar', 'biz': 'baz', 'user': {'_id': hexStr}}
+        a.set(testUser)
+        expect(a.get()).toEqual(testUser)
+        expect(a.authedId()).toEqual({'$oid': hexStr})
 
-    a.clear()
-    expect(a.get()).toBeNull()
-  })
+        a.clear()
+        expect(a.get()).toBeNull()
+      })
 
-  it('should local auth successfully', () => {
-    const a = new Auth('/auth')
-    a.localAuth('user', 'password', true).then(() => {
-      expect(a.authedId()).toEqual({'$oid': hexStr})
+      it('should local auth successfully', () => {
+        const a = new Auth('/auth')
+        a.localAuth('user', 'password', true).then(() => {
+          expect(a.authedId()).toEqual({'$oid': hexStr})
+        })
+      })
+
+      it('should allow setting access tokens', () => {
+        const a = new Auth('/auth')
+        a.localAuth('user', 'password', true).then(() => {
+          expect(a.authedId()).toEqual('billybob')
+          expect(a.get()['sessionToken']).toBeUndefined()
+          a.setSessionToken('foo')
+          expect(a.get()['sessionToken']).toEqual('foo')
+        })
+      })
+
+      it('should be able to access auth methods from client', () => {
+        var testClient = new BaasClient('testapp')
+        return testClient.authManager.localAuth('user', 'password', true)
+        .then(() => {
+          expect(testClient.authedId()).toEqual({'$oid': hexStr})
+          expect(testClient.authError()).toBeFalsy()
+          expect(testClient.auth()).toEqual({user: {_id: hexStr}})
+        })
+        .then(() => testClient.logout())
+        .then(() => {
+          expect(testClient.authedId()).toBeFalsy()
+          expect(testClient.authError()).toBeFalsy()
+          expect(testClient.auth()).toBeNull()
+        })
+      })
     })
-  })
-
-  it('should allow setting access tokens', () => {
-    const a = new Auth('/auth')
-    a.localAuth('user', 'password', true).then(() => {
-      expect(a.authedId()).toEqual('billybob')
-      expect(a.get()['sessionToken']).toBeUndefined()
-      a.setSessionToken('foo')
-      expect(a.get()['sessionToken']).toEqual('foo')
-    })
-  })
-
-  it('should be able to access auth methods from client', () => {
-    var testClient = new BaasClient('testapp')
-    return testClient.authManager.localAuth('user', 'password', true)
-    .then(() => {
-      expect(testClient.authedId()).toEqual({'$oid': hexStr})
-      expect(testClient.authError()).toBeFalsy()
-      expect(testClient.auth()).toEqual({user: {_id: hexStr}})
-    })
-    .then(() => testClient.logout())
-    .then(() => {
-      expect(testClient.authedId()).toBeFalsy()
-      expect(testClient.authError()).toBeFalsy()
-      expect(testClient.auth()).toBeNull()
-    })
-  })
+  }
 })
 
 describe('http error responses', () => {
@@ -130,17 +156,17 @@ describe('http error responses', () => {
     fetchMock.post('https://baas-dev2.10gen.cc/v1/app/testapp/auth/local/userpass', {user: {'_id': hexStr}})
   })
   it('should return a BaasError instance with the error and errorCode extracted', (done) => {
-    expect.assertions(2)
     const testClient = new BaasClient('testapp', {baseUrl: 'https://baas-dev2.10gen.cc'})
     testClient.authManager.localAuth('user', 'passwordsdkgjbskdgjb')
     .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: 5}]}}]))
-    .then(() => console.log(testClient.auth()))
     .catch(e => {
+      // This is actually a BaasError, but there are quirks with transpiling
+      // a class that subclasses Error.
+      expect(e).toBeInstanceOf(Error)
       expect(e.code).toEqual(testErrCode)
       expect(e.message).toEqual(testErrMsg)
       done()
     })
-    .catch(done)
   })
 })
 
@@ -189,74 +215,72 @@ describe('client options', () => {
 describe('pipeline execution', () => {
   const hexStr = '5899445b275d3ebe8f2ab8c0'
 
-  beforeAll(() => {
-    const mb = new MockBrowser()
-    global.window = mb.getWindow()
-  })
-  afterAll(() => {
-    delete global.window
-  })
+  for (const envConfig of envConfigs) {
+    describe(envConfig.name, () => {
+      beforeAll(envConfig.setup)
+      afterAll(envConfig.teardown)
+      describe(envConfig.name + ' extended json decode (incoming)', () => {
+        beforeAll(() => {
+          fetchMock.restore()
+          fetchMock.post('https://baas-dev.10gen.cc/v1/app/testapp/auth/local/userpass', {user: {'_id': '5899445b275d3ebe8f2ab8a6'}})
+          fetchMock.post('https://baas-dev.10gen.cc/v1/app/testapp/pipeline', (url, opts) => {
+            let out = JSON.stringify({result: [{x: {'$oid': hexStr}}]})
+            return out
+          })
+        })
 
-  describe('extended json decode (incoming)', () => {
-    beforeAll(() => {
-      fetchMock.restore()
-      fetchMock.post('https://baas-dev.10gen.cc/v1/app/testapp/auth/local/userpass', {user: {'_id': '5899445b275d3ebe8f2ab8a6'}})
-      fetchMock.post('https://baas-dev.10gen.cc/v1/app/testapp/pipeline', (url, opts) => {
-        let out = JSON.stringify({result: [{x: {'$oid': hexStr}}]})
-        return out
+        it('should decode extended json from pipeline responses', () => {
+          var testClient = new BaasClient('testapp')
+          return testClient.authManager.localAuth('user', 'password', true)
+          .then(() => {
+            return testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}])
+          })
+          .then((response) => {
+            const ejson = new EJSON()
+            return expect(response.result[0].x).toEqual(ejson.bson.ObjectID(hexStr))
+          })
+        })
+
+        it('should allow overriding the decoder implementation', () => {
+          var testClient = new BaasClient('testapp')
+          return testClient.authManager.localAuth('user', 'password', true)
+          .then(() => {
+            return testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}], {decoder: JSON.parse})
+          })
+          .then((response) => {
+            return expect(response.result[0].x).toEqual({'$oid': hexStr})
+          })
+        })
+      })
+
+      describe('extended json encode (outgoing)', () => {
+        let requestOpts
+        beforeAll(() => {
+          fetchMock.restore()
+          fetchMock.post('https://baas-dev.10gen.cc/v1/app/testapp/auth/local/userpass', {user: {'_id': hexStr}})
+          fetchMock.post('https://baas-dev.10gen.cc/v1/app/testapp/pipeline', (url, opts) => {
+              // TODO there should be a better way to capture request payload for
+              // using in an assertion without doing this.
+            requestOpts = opts
+            return {result: [{x: {'$oid': hexStr}}]}
+          })
+        })
+
+        it('should encode objects to extended json for outgoing pipeline request body', () => {
+          const ejson = new EJSON()
+          var requestBodyObj = {action: 'literal', args: {items: [{x: ejson.bson.ObjectID(hexStr)}]}}
+          var requestBodyExtJSON = {action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}
+          var testClient = new BaasClient('testapp', {baseUrl: ''})
+          return testClient.authManager.localAuth('user', 'password', true).then((a) => {
+            return testClient.executePipeline([requestBodyObj])
+          })
+          .then((response) => {
+            return Promise.all([
+              expect(JSON.parse(requestOpts.body)).toEqual([requestBodyExtJSON])
+            ])
+          })
+        })
       })
     })
-
-    it('should decode extended json from pipeline responses', () => {
-      var testClient = new BaasClient('testapp')
-      return testClient.authManager.localAuth('user', 'password', true)
-      .then(() => {
-        return testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}])
-      })
-      .then((response) => {
-        const ejson = new EJSON()
-        return expect(response.result[0].x).toEqual(ejson.bson.ObjectID(hexStr))
-      })
-    })
-
-    it('should allow overriding the decoder implementation', () => {
-      var testClient = new BaasClient('testapp')
-      return testClient.authManager.localAuth('user', 'password', true)
-      .then(() => {
-        return testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}], {decoder: JSON.parse})
-      })
-      .then((response) => {
-        return expect(response.result[0].x).toEqual({'$oid': hexStr})
-      })
-    })
-  })
-
-  describe('extended json encode (outgoing)', () => {
-    let requestOpts
-    beforeAll(() => {
-      fetchMock.restore()
-      fetchMock.post('https://baas-dev.10gen.cc/v1/app/testapp/auth/local/userpass', {user: {'_id': hexStr}})
-      fetchMock.post('https://baas-dev.10gen.cc/v1/app/testapp/pipeline', (url, opts) => {
-        // TODO there should be a better way to capture request payload for
-        // using in an assertion without doing this.
-        requestOpts = opts
-        return {result: [{x: {'$oid': hexStr}}]}
-      })
-    })
-
-    it('should encode objects to extended json for outgoing pipeline request body', () => {
-      const ejson = new EJSON()
-      var requestBodyObj = {action: 'literal', args: {items: [{x: ejson.bson.ObjectID(hexStr)}]}}
-      var requestBodyExtJSON = {action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}
-      var testClient = new BaasClient('testapp', {baseUrl: ''})
-      return testClient.authManager.localAuth('user', 'password', true).then((a) => {
-        return testClient.executePipeline([requestBodyObj])
-      })
-      .then((response) => {
-        return Promise.all([
-          expect(JSON.parse(requestOpts.body)).toEqual([requestBodyExtJSON])
-        ])
-      })
-    })
-  })
+  }
 })

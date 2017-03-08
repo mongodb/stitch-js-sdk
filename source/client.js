@@ -5,19 +5,24 @@ require('isomorphic-fetch')
 import Auth from './auth'
 import * as common from './common'
 
-import * as textEncodingPolyfill from 'text-encoding-utf-8' // TextEncoder polyfill
-
+import {TextDecoder} from 'text-encoding-utf-8'
 export const ErrAuthProviderNotFound = 'AuthProviderNotFound'
 export const ErrInvalidSession = 'InvalidSession'
 
 var EJSON = require('mongodb-extjson')
 
-let TextDecoder = textEncodingPolyfill.TextDecoder
-if (typeof (window) !== 'undefined' && (window.TextEncoder !== undefined && window.TextDecoder !== undefined)) {
-  TextDecoder = window.TextDecoder
+const makeFetchArgs = (method, body) => {
+  const init = {
+    method: method,
+    headers: { 'Accept': common.JSONTYPE, 'Content-Type': common.JSONTYPE }
+  }
+  if (body) {
+    init['body'] = body
+  }
+  return init
 }
 
-const toQueryString = (obj) => {
+export const toQueryString = (obj) => {
   var parts = []
   for (var i in obj) {
     if (obj.hasOwnProperty(i)) {
@@ -60,115 +65,55 @@ export class BaasClient {
   }
 
   logout () {
-    return this._doAuthed('/auth', 'DELETE', {refreshOnFailure: false, useRefreshToken: true})
-      .then((data) => {
-        this.authManager.clear()
-      })
+    return this._do('/auth', 'DELETE', {refreshOnFailure: false, useRefreshToken: true})
+      .then(() => this.authManager.clear())
   }
 
-  // wrapper around fetch() that matches the signature of doAuthed but does not
-  // actually use any auth. This is necessary for routes that must be
-  // accessible without logging in, like listing available auth providers.
-  _do (resource, method, options) {
-    options = options || {}
-    let url = `${this.appUrl}${resource}`
-    let init = {
-      method: method,
-      headers: { 'Accept': common.JSONTYPE, 'Content-Type': common.JSONTYPE }
+  _do (resource, method, options = {refreshOnFailure: true, useRefreshToken: false}) {
+    if (!options.noAuth) {
+      if (this.auth() === null) {
+        return Promise.reject(new common.BaasError('Must auth first'))
+      }
     }
-    if (options.body) {
-      init['body'] = options.body
+
+    let url = `${this.appUrl}${resource}`
+    let fetchArgs = makeFetchArgs(method, options.body)
+    if (!options.noAuth) {
+      let token = options.useRefreshToken ? this.authManager.getRefreshToken() : this.auth()['accessToken']
+      fetchArgs.headers['Authorization'] = `Bearer ${token}`
     }
     if (options.queryParams) {
       url = url + '?' + toQueryString(options.queryParams)
     }
 
-    return fetch(url, init)
-      .then((response) => {
-        // Okay: passthrough
-        if (response.status >= 200 && response.status < 300) {
-          return Promise.resolve(response)
-        } else if (response.headers.get('Content-Type') === common.JSONTYPE) {
-          return response.json().then((json) => {
-            let error = new common.BaasError(json['error'], json['errorCode'])
-            error.response = response
-            throw error
-          })
-        }
-        let error = new Error(response.statusText)
-        error.response = response
-        throw error
-      }).then((response) => {
-        return response.json()
-      })
-  }
-
-  _doAuthed (resource, method, options) {
-    if (options === undefined) {
-      options = {refreshOnFailure: true, useRefreshToken: false}
-    } else {
-      if (options.refreshOnFailure === undefined) {
-        options.refreshOnFailure = true
-      }
-      if (options.useRefreshToken === undefined) {
-        options.useRefreshToken = false
-      }
-    }
-
-    if (this.auth() === null) {
-      return Promise.reject(new common.BaasError('Must auth first'))
-    }
-
-    let url = `${this.appUrl}${resource}`
-
-    let headers = {
-      'Accept': common.JSONTYPE,
-      'Content-Type': common.JSONTYPE
-    }
-    let token = options.useRefreshToken ? this.authManager.getRefreshToken() : this.auth()['accessToken']
-    headers['Authorization'] = `Bearer ${token}`
-
-    let init = {
-      method: method,
-      headers: headers
-    }
-
-    if (options.body) {
-      init['body'] = options.body
-    }
-
-    if (options.queryParams) {
-      url = url + '?' + toQueryString(options.queryParams)
-    }
-
-    return fetch(url, init).then((response) => {
-        // Okay: passthrough
+    return fetch(url, fetchArgs).then((response) => {
+      // Okay: passthrough
       if (response.status >= 200 && response.status < 300) {
         return Promise.resolve(response)
       } else if (response.headers.get('Content-Type') === common.JSONTYPE) {
         return response.json().then((json) => {
-            // Only want to try refreshing token when there's an invalid session
+          // Only want to try refreshing token when there's an invalid session
           if ('errorCode' in json && json['errorCode'] === ErrInvalidSession) {
             if (!options.refreshOnFailure) {
               this.authManager.clear()
-              let error = new common.BaasError(json['error'], json['errorCode'])
+              const error = new common.BaasError(json['error'], json['errorCode'])
               error.response = response
               throw error
             }
 
             return this._refreshToken().then(() => {
               options.refreshOnFailure = false
-              return this._doAuthed(resource, method, options)
+              return this._do(resource, method, options)
             })
           }
 
-          let error = new common.BaasError(json['error'], json['errorCode'])
+          const error = new common.BaasError(json['error'], json['errorCode'])
           error.response = response
           throw error
         })
       }
 
-      let error = new Error(response.statusText)
+      const error = new Error(response.statusText)
       error.response = response
       throw error
     })
@@ -178,8 +123,8 @@ export class BaasClient {
     if (this.authManager.isImpersonatingUser()) {
       return this.authManager.refreshImpersonation(this)
     }
-    return this._doAuthed('/auth/newAccessToken', 'POST', {refreshOnFailure: false, useRefreshToken: true}).then((response) => {
-      return response.json().then((json) => {
+    return this._do('/auth/newAccessToken', 'POST', {refreshOnFailure: false, useRefreshToken: true}).then((response) => {
+      return response.json().then(json => {
         this.authManager.setAccessToken(json['accessToken'])
         return Promise.resolve()
       })
@@ -203,14 +148,14 @@ export class BaasClient {
         responseEncoder = options.encoder
       }
     }
-    return this._doAuthed('/pipeline', 'POST', {body: responseEncoder(stages)})
+    return this._do('/pipeline', 'POST', {body: responseEncoder(stages)})
       .then(response => {
         if (response.arrayBuffer) {
           return response.arrayBuffer()
         }
         return response.buffer()
       })
-      .then(buf => new TextDecoder('utf-8').decode(buf))
+      .then(buf => (new TextDecoder('utf-8')).decode(new Uint8Array(buf)))
       .then(body => responseDecoder(body))
   }
 }
@@ -352,27 +297,25 @@ export class Admin {
     this.client = new BaasClient('', {baseUrl})
   }
 
-  _doAuthed (url, method, options) {
-    return this.client._doAuthed(url, method, options)
-      .then((response) => {
-        return response.json()
-      })
+  _do (url, method, options) {
+    return this.client._do(url, method, options)
+      .then(response => response.json())
   }
 
   _get (url, queryParams) {
-    return this._doAuthed(url, 'GET', {queryParams})
+    return this._do(url, 'GET', {queryParams})
   }
 
   _put (url, queryParams) {
-    return this._doAuthed(url, 'PUT', {queryParams})
+    return this._do(url, 'PUT', {queryParams})
   }
 
   _delete (url) {
-    return this._doAuthed(url, 'DELETE')
+    return this._do(url, 'DELETE')
   }
 
   _post (url, body) {
-    return this._doAuthed(url, 'POST', {body: JSON.stringify(body)})
+    return this._do(url, 'POST', {body: JSON.stringify(body)})
   }
 
   profile () {
@@ -425,7 +368,7 @@ export class Admin {
 
         sandbox: () => ({
           executePipeline: (data, userId) => {
-            return this._doAuthed(
+            return this._do(
               `/apps/${appID}/sandbox/pipeline`,
               'POST',
               {body: JSON.stringify(data), queryParams: {user_id: userId}})
@@ -500,12 +443,12 @@ export class Admin {
   _admin () {
     return {
       logs: () => ({
-        get: (filter) => this._doAuthed('/admin/logs', 'GET', {useRefreshToken: true, queryParams: filter})
+        get: (filter) => this._do('/admin/logs', 'GET', {useRefreshToken: true, queryParams: filter})
       }),
       users: () => ({
-        list: (filter) => this._doAuthed('/admin/users', 'GET', {useRefreshToken: true, queryParams: filter}),
+        list: (filter) => this._do('/admin/users', 'GET', {useRefreshToken: true, queryParams: filter}),
         user: (uid) => ({
-          logout: () => this._doAuthed(`/admin/users/${uid}/logout`, 'PUT', {useRefreshToken: true})
+          logout: () => this._do(`/admin/users/${uid}/logout`, 'PUT', {useRefreshToken: true})
         })
       })
     }

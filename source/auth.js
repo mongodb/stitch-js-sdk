@@ -1,12 +1,5 @@
 /* global window, fetch */
 
-/* let authDataStorage;
-if(window !== undefined && window.localStorage !== undefined){
-  authDataStorage = window.localStorage
-}
-
-*/
-
 import * as common from './common'
 import {Base64} from 'js-base64'
 
@@ -131,11 +124,9 @@ export default class Auth {
 
     return fetch(`${this.rootUrl}/anon/user`, init)
       .then(common.checkStatus)
-      .then((response) => {
-        return response.json().then((json) => {
-          this.set(json)
-          Promise.resolve()
-        })
+      .then(response => response.json())
+      .then(json => {
+        this.set(json)
       })
   }
 
