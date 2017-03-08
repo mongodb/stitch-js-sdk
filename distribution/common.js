@@ -32,6 +32,17 @@ var checkStatus = exports.checkStatus = function checkStatus(response) {
   }
 };
 
+var makeFetchArgs = exports.makeFetchArgs = function makeFetchArgs(method, body) {
+  var init = {
+    method: method,
+    headers: { 'Accept': JSONTYPE, 'Content-Type': JSONTYPE }
+  };
+  if (body) {
+    init['body'] = body;
+  }
+  return init;
+};
+
 var parseRedirectFragment = exports.parseRedirectFragment = function parseRedirectFragment(fragment, ourState) {
   // After being redirected from oauth, the URL will look like:
   // https://todo.examples.baas-dev.10gen.cc/#_baas_state=...&_baas_ua=...

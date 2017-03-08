@@ -111,17 +111,6 @@ var Baas =
 	
 	var EJSON = __webpack_require__(11);
 	
-	var makeFetchArgs = function makeFetchArgs(method, body) {
-	  var init = {
-	    method: method,
-	    headers: { 'Accept': common.JSONTYPE, 'Content-Type': common.JSONTYPE }
-	  };
-	  if (body) {
-	    init['body'] = body;
-	  }
-	  return init;
-	};
-	
 	var toQueryString = exports.toQueryString = function toQueryString(obj) {
 	  var parts = [];
 	  for (var i in obj) {
@@ -181,11 +170,18 @@ var Baas =
 	    }
 	  }, {
 	    key: '_do',
-	    value: function _do(resource, method) {
+	    value: function _do(resource, method, options) {
 	      var _this2 = this;
 	
-	      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : { refreshOnFailure: true, useRefreshToken: false };
-	
+	      if (!options) {
+	        options = {};
+	      }
+	      if (options.refreshOnFailure === undefined) {
+	        options.refreshOnFailure = true;
+	      }
+	      if (options.useRefreshToken === undefined) {
+	        options.useRefreshToken = false;
+	      }
 	      if (!options.noAuth) {
 	        if (this.auth() === null) {
 	          return Promise.reject(new common.BaasError('Must auth first'));
@@ -193,7 +189,7 @@ var Baas =
 	      }
 	
 	      var url = '' + this.appUrl + resource;
-	      var fetchArgs = makeFetchArgs(method, options.body);
+	      var fetchArgs = common.makeFetchArgs(method, options.body);
 	      if (!options.noAuth) {
 	        var token = options.useRefreshToken ? this.authManager.getRefreshToken() : this.auth()['accessToken'];
 	        fetchArgs.headers['Authorization'] = 'Bearer ' + token;
@@ -225,13 +221,14 @@ var Baas =
 	
 	            var error = new common.BaasError(json['error'], json['errorCode']);
 	            error.response = response;
-	            throw error;
+	            return Promise.reject(error);
 	          });
 	        }
 	
 	        var error = new Error(response.statusText);
 	        error.response = response;
-	        throw error;
+	
+	        return Promise.reject(error);
 	      });
 	    }
 	  }, {
@@ -895,12 +892,12 @@ var Baas =
 	  }, {
 	    key: 'handleRedirect',
 	    value: function handleRedirect() {
-	      var ourState = this.authDataStorage.getItem(common.STATE_KEY);
 	      if (typeof window === 'undefined') {
 	        // This means we're running in some environment other
 	        // than a browser - so handling a redirect makes no sense here.
 	        return;
 	      }
+	      var ourState = this.authDataStorage.getItem(common.STATE_KEY);
 	      var redirectFragment = window.location.hash.substring(1);
 	      var redirectState = common.parseRedirectFragment(redirectFragment, ourState);
 	      if (redirectState.lastError) {
@@ -939,23 +936,13 @@ var Baas =
 	    }
 	  }, {
 	    key: 'anonymousAuth',
-	    value: function anonymousAuth(cors) {
+	    value: function anonymousAuth() {
 	      var _this = this;
 	
-	      var init = {
-	        method: 'GET',
-	        headers: {
-	          'Accept': common.JSONTYPE,
-	          'Content-Type': common.JSONTYPE
-	        }
-	      };
+	      var fetchArgs = common.makeFetchArgs('GET');
+	      fetchArgs['cors'] = true;
 	
-	      // TODO get rid of the cors flag. it should just be on all the time.
-	      if (cors) {
-	        init['cors'] = cors;
-	      }
-	
-	      return fetch(this.rootUrl + '/anon/user', init).then(common.checkStatus).then(function (response) {
+	      return fetch(this.rootUrl + '/anon/user', fetchArgs).then(common.checkStatus).then(function (response) {
 	        return response.json();
 	      }).then(function (json) {
 	        _this.set(json);
@@ -966,28 +953,13 @@ var Baas =
 	    value: function apiKeyAuth(key) {
 	      var _this2 = this;
 	
-	      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { cors: true };
+	      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ 'key': key }));
+	      fetchArgs['cors'] = true;
 	
-	      var init = {
-	        method: 'POST',
-	        headers: {
-	          'Accept': common.JSONTYPE,
-	          'Content-Type': common.JSONTYPE
-	        },
-	        body: JSON.stringify({ 'key': key })
-	      };
-	
-	      if (options && options.cors === false) {
-	        init['cors'] = false;
-	      } else {
-	        init['cors'] = true;
-	      }
-	
-	      return fetch(this.rootUrl + '/api/key', init).then(common.checkStatus).then(function (response) {
-	        return response.json().then(function (json) {
-	          _this2.set(json);
-	          return Promise.resolve();
-	        });
+	      return fetch(this.rootUrl + '/api/key', fetchArgs).then(common.checkStatus).then(function (response) {
+	        return response.json();
+	      }).then(function (json) {
+	        _this2.set(json);
 	      });
 	    }
 	  }, {
@@ -997,22 +969,10 @@ var Baas =
 	
 	      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : { cors: true };
 	
-	      var init = {
-	        method: 'POST',
-	        headers: {
-	          'Accept': common.JSONTYPE,
-	          'Content-Type': common.JSONTYPE
-	        },
-	        body: JSON.stringify({ 'username': username, 'password': password })
-	      };
+	      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password }));
+	      fetchArgs['cors'] = true;
 	
-	      if (options && options.cors === false) {
-	        init['cors'] = false;
-	      } else {
-	        init['cors'] = true;
-	      }
-	
-	      return fetch(this.rootUrl + '/local/userpass', init).then(common.checkStatus).then(function (response) {
+	      return fetch(this.rootUrl + '/local/userpass', fetchArgs).then(common.checkStatus).then(function (response) {
 	        return response.json().then(function (json) {
 	          _this3.set(json);
 	          return Promise.resolve(json);
@@ -1077,7 +1037,7 @@ var Baas =
 	        });
 	      }).catch(function (e) {
 	        _this4.stopImpersonation();
-	        throw e;
+	        return Promise.reject(e);
 	      });
 	    }
 	  }, {
@@ -1102,10 +1062,10 @@ var Baas =
 	    value: function stopImpersonation() {
 	      var _this5 = this;
 	
+	      if (!this.isImpersonatingUser()) {
+	        throw new common.BaasError('Not impersonating a user');
+	      }
 	      return new Promise(function (resolve, reject) {
-	        if (!_this5.isImpersonatingUser()) {
-	          throw new common.BaasError('Not impersonating a user');
-	        }
 	        var realUserAuth = JSON.parse(_jsBase.Base64.decode(_this5.authDataStorage.getItem(common.IMPERSONATION_REAL_USER_AUTH_KEY)));
 	        _this5.set(realUserAuth);
 	        _this5.clearImpersonation();
@@ -1188,6 +1148,17 @@ var Baas =
 	    error.response = response;
 	    throw error;
 	  }
+	};
+	
+	var makeFetchArgs = exports.makeFetchArgs = function makeFetchArgs(method, body) {
+	  var init = {
+	    method: method,
+	    headers: { 'Accept': JSONTYPE, 'Content-Type': JSONTYPE }
+	  };
+	  if (body) {
+	    init['body'] = body;
+	  }
+	  return init;
 	};
 	
 	var parseRedirectFragment = exports.parseRedirectFragment = function parseRedirectFragment(fragment, ourState) {

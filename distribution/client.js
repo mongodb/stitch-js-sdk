@@ -34,17 +34,6 @@ var ErrInvalidSession = exports.ErrInvalidSession = 'InvalidSession';
 
 var EJSON = require('mongodb-extjson');
 
-var makeFetchArgs = function makeFetchArgs(method, body) {
-  var init = {
-    method: method,
-    headers: { 'Accept': common.JSONTYPE, 'Content-Type': common.JSONTYPE }
-  };
-  if (body) {
-    init['body'] = body;
-  }
-  return init;
-};
-
 var toQueryString = exports.toQueryString = function toQueryString(obj) {
   var parts = [];
   for (var i in obj) {
@@ -104,11 +93,18 @@ var BaasClient = exports.BaasClient = function () {
     }
   }, {
     key: '_do',
-    value: function _do(resource, method) {
+    value: function _do(resource, method, options) {
       var _this2 = this;
 
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : { refreshOnFailure: true, useRefreshToken: false };
-
+      if (!options) {
+        options = {};
+      }
+      if (options.refreshOnFailure === undefined) {
+        options.refreshOnFailure = true;
+      }
+      if (options.useRefreshToken === undefined) {
+        options.useRefreshToken = false;
+      }
       if (!options.noAuth) {
         if (this.auth() === null) {
           return Promise.reject(new common.BaasError('Must auth first'));
@@ -116,7 +112,7 @@ var BaasClient = exports.BaasClient = function () {
       }
 
       var url = '' + this.appUrl + resource;
-      var fetchArgs = makeFetchArgs(method, options.body);
+      var fetchArgs = common.makeFetchArgs(method, options.body);
       if (!options.noAuth) {
         var token = options.useRefreshToken ? this.authManager.getRefreshToken() : this.auth()['accessToken'];
         fetchArgs.headers['Authorization'] = 'Bearer ' + token;
@@ -148,13 +144,14 @@ var BaasClient = exports.BaasClient = function () {
 
             var error = new common.BaasError(json['error'], json['errorCode']);
             error.response = response;
-            throw error;
+            return Promise.reject(error);
           });
         }
 
         var error = new Error(response.statusText);
         error.response = response;
-        throw error;
+
+        return Promise.reject(error);
       });
     }
   }, {
