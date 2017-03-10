@@ -424,13 +424,13 @@ export class Admin {
               })
             }),
 
-            triggers: () => ({
-              list: () => this._get(`/apps/${appID}/services/${svc}/triggers`),
-              create: (data) => this._post(`/apps/${appID}/services/${svc}/triggers`),
-              trigger: (triggerId) => ({
-                get: () => this._get(`/apps/${appID}/services/${svc}/triggers/${triggerId}`),
-                update: (data) => this._post(`/apps/${appID}/services/${svc}/triggers/${triggerId}`, data),
-                remove: () => this._delete(`/apps/${appID}/services/${svc}/triggers/${triggerId}`)
+            incomingWebhooks: () => ({
+              list: () => this._get(`/apps/${appID}/services/${svc}/incomingWebhooks`),
+              create: (data) => this._post(`/apps/${appID}/services/${svc}/incomingWebhooks`),
+              incomingWebhook: (incomingWebhookId) => ({
+                get: () => this._get(`/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`),
+                update: (data) => this._post(`/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`, data),
+                remove: () => this._delete(`/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`)
               })
             })
           })
