@@ -186,7 +186,7 @@ export default class Auth {
 
   refreshImpersonation (client) {
     let userId = this.authDataStorage.getItem(common.IMPERSONATION_USER_KEY)
-    return client._doAuthed(`/admin/users/${userId}/impersonate`, 'POST', {refreshOnFailure: false, useRefreshToken: true}).then((response) => {
+    return client._do(`/admin/users/${userId}/impersonate`, 'POST', {refreshOnFailure: false, useRefreshToken: true}).then((response) => {
       return response.json().then((json) => {
         json['refreshToken'] = this.authDataStorage.getItem(common.REFRESH_TOKEN_KEY)
         this.set(json)

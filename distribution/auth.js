@@ -228,7 +228,7 @@ var Auth = function () {
       var _this4 = this;
 
       var userId = this.authDataStorage.getItem(common.IMPERSONATION_USER_KEY);
-      return client._doAuthed('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
+      return client._do('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
         return response.json().then(function (json) {
           json['refreshToken'] = _this4.authDataStorage.getItem(common.REFRESH_TOKEN_KEY);
           _this4.set(json);
