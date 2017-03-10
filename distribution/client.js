@@ -616,24 +616,24 @@ var Admin = exports.Admin = function () {
                       };
                     },
 
-                    triggers: function triggers() {
+                    incomingWebhooks: function incomingWebhooks() {
                       return {
                         list: function list() {
-                          return _this5._get('/apps/' + appID + '/services/' + svc + '/triggers');
+                          return _this5._get('/apps/' + appID + '/services/' + svc + '/incomingWebhooks');
                         },
                         create: function create(data) {
-                          return _this5._post('/apps/' + appID + '/services/' + svc + '/triggers');
+                          return _this5._post('/apps/' + appID + '/services/' + svc + '/incomingWebhooks');
                         },
-                        trigger: function trigger(triggerId) {
+                        incomingWebhook: function incomingWebhook(incomingWebhookId) {
                           return {
                             get: function get() {
-                              return _this5._get('/apps/' + appID + '/services/' + svc + '/triggers/' + triggerId);
+                              return _this5._get('/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId);
                             },
                             update: function update(data) {
-                              return _this5._post('/apps/' + appID + '/services/' + svc + '/triggers/' + triggerId, data);
+                              return _this5._post('/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId, data);
                             },
                             remove: function remove() {
-                              return _this5._delete('/apps/' + appID + '/services/' + svc + '/triggers/' + triggerId);
+                              return _this5._delete('/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId);
                             }
                           };
                         }
