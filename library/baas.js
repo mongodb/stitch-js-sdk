@@ -590,24 +590,47 @@ var Baas =
 	                }
 	              };
 	            },
-	            variables: function variables() {
+	            values: function values() {
 	              return {
 	                list: function list() {
-	                  return _this5._get('/apps/' + appID + '/vars');
+	                  return _this5._get('/apps/' + appID + '/values');
 	                },
-	                variable: function variable(varName) {
+	                value: function value(varName) {
 	                  return {
 	                    get: function get() {
-	                      return _this5._get('/apps/' + appID + '/vars/' + varName);
+	                      return _this5._get('/apps/' + appID + '/values/' + varName);
 	                    },
 	                    remove: function remove() {
-	                      return _this5._delete('/apps/' + appID + '/vars/' + varName);
+	                      return _this5._delete('/apps/' + appID + '/values/' + varName);
 	                    },
 	                    create: function create(data) {
-	                      return _this5._post('/apps/' + appID + '/vars/' + varName, data);
+	                      return _this5._post('/apps/' + appID + '/values/' + varName, data);
 	                    },
 	                    update: function update(data) {
-	                      return _this5._post('/apps/' + appID + '/vars/' + varName, data);
+	                      return _this5._post('/apps/' + appID + '/values/' + varName, data);
+	                    }
+	                  };
+	                }
+	              };
+	            },
+	            pipelines: function pipelines() {
+	              return {
+	                list: function list() {
+	                  return _this5._get('/apps/' + appID + '/pipelines');
+	                },
+	                pipeline: function pipeline(varName) {
+	                  return {
+	                    get: function get() {
+	                      return _this5._get('/apps/' + appID + '/pipelines/' + varName);
+	                    },
+	                    remove: function remove() {
+	                      return _this5._delete('/apps/' + appID + '/pipelines/' + varName);
+	                    },
+	                    create: function create(data) {
+	                      return _this5._post('/apps/' + appID + '/pipelines/' + varName, data);
+	                    },
+	                    update: function update(data) {
+	                      return _this5._post('/apps/' + appID + '/pipelines/' + varName, data);
 	                    }
 	                  };
 	                }
@@ -4476,19 +4499,12 @@ var Baas =
 /* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
+	/* WEBPACK VAR INJECTION */(function(Buffer) {'use strict';
 	
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 	
 	var bsonModule = __webpack_require__(13);
 	var atob = __webpack_require__(15).atob;
-	var bufferConstructor = null;
-	
-	if (typeof Buffer !== 'undefined') {
-	  bufferConstructor = new Buffer(1) instanceof Uint8Array ? Buffer : Uint8Array;
-	} else {
-	  bufferConstructor = Uint8Array;
-	}
 	
 	var ExtJSON = function ExtJSON(module) {
 	  if (module) {
@@ -4528,16 +4544,12 @@ var Baas =
 	    return date;
 	  } else if (value['$binary'] != null) {
 	    if (typeof Buffer !== 'undefined') {
-	      if (bufferConstructor === Buffer) {
-	        var data = new Buffer(value['$binary'], 'base64');
-	        var type = value['$type'] ? parseInt(value['$type'], 16) : 0;
-	        return new self.bson.Binary(data, type);
-	      }
+	      var data = new Buffer(value['$binary'], 'base64');
+	    } else {
+	      var data = new Uint8Array(atob(value['$binary']).split("").map(function (c) {
+	        return c.charCodeAt(0);
+	      }));
 	    }
-	
-	    var data = new Uint8Array(atob(value['$binary']).split("").map(function (c) {
-	      return c.charCodeAt(0);
-	    }));
 	
 	    var type = value['$type'] ? parseInt(value['$type'], 16) : 0;
 	    return new self.bson.Binary(data, type);
@@ -4696,7 +4708,7 @@ var Baas =
 /* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	var Binary = __webpack_require__(14);
 	var Code = __webpack_require__(16);
@@ -4714,15 +4726,14 @@ var Baas =
 	
 	module.exports = {
 	  Binary: Binary, Code: Code, DBRef: DBRef, Decimal128: Decimal128, Double: Double,
-	  Int32: Int32, Long: Long, MaxKey: MaxKey, MinKey: MinKey, ObjectID: ObjectID,
-	  BSONRegExp: BSONRegExp, Symbol: _Symbol, Timestamp: Timestamp
+	  Int32: Int32, Long: Long, MaxKey: MaxKey, MinKey: MinKey, ObjectID: ObjectID, BSONRegExp: BSONRegExp, Symbol: _Symbol, Timestamp: Timestamp
 	};
 
 /***/ },
 /* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
+	/* WEBPACK VAR INJECTION */(function(Buffer) {'use strict';
 	
 	var btoa = __webpack_require__(15).btoa;
 	
@@ -5006,7 +5017,7 @@ var Baas =
 /* 15 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 	
@@ -5059,7 +5070,7 @@ var Baas =
 /* 16 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	/**
 	 * A class representation of the BSON Code type.
@@ -5069,7 +5080,6 @@ var Baas =
 	 * @param {Object} [scope] an optional scope for the function.
 	 * @return {Code}
 	 */
-	
 	var Code = function Code(code, scope) {
 	  this._bsontype = 'Code';
 	  this.code = code;
@@ -5093,7 +5103,7 @@ var Baas =
 /* 17 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	/**
 	 * A class representation of the BSON DBRef type.
@@ -5104,7 +5114,6 @@ var Baas =
 	 * @param {String} [db] optional db name, if omitted the reference is local to the current db.
 	 * @return {DBRef}
 	 */
-	
 	var DBRef = function DBRef(namespace, oid, db) {
 	  this._bsontype = 'DBRef';
 	  this.namespace = namespace;
@@ -5880,7 +5889,7 @@ var Baas =
 /* 19 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	// Licensed under the Apache License, Version 2.0 (the "License");
 	// you may not use this file except in compliance with the License.
@@ -5924,7 +5933,6 @@ var Baas =
 	 * @param {number} high the high (signed) 32 bits of the Long.
 	 * @return {Long}
 	 */
-	
 	var Long = function Long(low, high) {
 	  this._bsontype = 'Long';
 	  /**
@@ -6729,7 +6737,7 @@ var Baas =
 /* 20 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	/**
 	 * A class representation of the BSON Double type.
@@ -6738,7 +6746,6 @@ var Baas =
 	 * @param {number} value the number we want to represent as a double.
 	 * @return {Double}
 	 */
-	
 	var Double = function Double(value) {
 	  this._bsontype = 'Double';
 	  this.value = value;
@@ -6771,7 +6778,7 @@ var Baas =
 /* 21 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	/**
 	 * A class representation of the BSON Int32 type.
@@ -6780,7 +6787,6 @@ var Baas =
 	 * @param {number} value the number we want to represent as an int32.
 	 * @return {Int32}
 	 */
-	
 	var Int32 = function Int32(value) {
 	  this._bsontype = 'Int32';
 	  this.value = value;
@@ -6813,7 +6819,7 @@ var Baas =
 /* 22 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	/**
 	 * A class representation of the BSON MaxKey type.
@@ -6821,7 +6827,6 @@ var Baas =
 	 * @class
 	 * @return {MaxKey} A MaxKey instance
 	 */
-	
 	var MaxKey = function MaxKey() {
 	  this._bsontype = 'MaxKey';
 	};
@@ -6841,7 +6846,7 @@ var Baas =
 /* 23 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	/**
 	 * A class representation of the BSON MinKey type.
@@ -6849,7 +6854,6 @@ var Baas =
 	 * @class
 	 * @return {MinKey} A MinKey instance
 	 */
-	
 	var MinKey = function MinKey() {
 	  this._bsontype = 'MinKey';
 	};
@@ -6869,7 +6873,7 @@ var Baas =
 /* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(process) {"use strict";
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 	
 	/**
 	 * Machine id.
@@ -6879,7 +6883,6 @@ var Baas =
 	 * that would mean an asyc call to gethostname, so we don't bother.
 	 * @ignore
 	 */
-	
 	var MACHINE_ID = parseInt(Math.random() * 0xFFFFFF, 10);
 	
 	// Regular expression that checks for hex value
@@ -7385,7 +7388,7 @@ var Baas =
 /* 26 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	/**
 	 * A class representation of the BSON RegExp type.
@@ -7393,7 +7396,6 @@ var Baas =
 	 * @class
 	 * @return {BSONRegExp} A MinKey instance
 	 */
-	
 	var BSONRegExp = function BSONRegExp(pattern, options) {
 	  // Execute
 	  this._bsontype = 'BSONRegExp';
@@ -7426,7 +7428,7 @@ var Baas =
 /* 27 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	/**
 	 * A class representation of the BSON Symbol type.
@@ -7436,7 +7438,6 @@ var Baas =
 	 * @param {String} value the string representing the symbol.
 	 * @return {Symbol}
 	 */
-	
 	var _Symbol = function _Symbol(value) {
 	  this._bsontype = 'Symbol';
 	  this.value = value;
@@ -7471,7 +7472,7 @@ var Baas =
 /* 28 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	// Licensed under the Apache License, Version 2.0 (the "License");
 	// you may not use this file except in compliance with the License.
@@ -7515,7 +7516,6 @@ var Baas =
 	 * @param {number} high the high (signed) 32 bits of the Timestamp.
 	 * @return {Timestamp}
 	 */
-	
 	var Timestamp = function Timestamp(low, high) {
 	  this._bsontype = 'Timestamp';
 	  /**

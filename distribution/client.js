@@ -513,24 +513,47 @@ var Admin = exports.Admin = function () {
                 }
               };
             },
-            variables: function variables() {
+            values: function values() {
               return {
                 list: function list() {
-                  return _this5._get('/apps/' + appID + '/vars');
+                  return _this5._get('/apps/' + appID + '/values');
                 },
-                variable: function variable(varName) {
+                value: function value(varName) {
                   return {
                     get: function get() {
-                      return _this5._get('/apps/' + appID + '/vars/' + varName);
+                      return _this5._get('/apps/' + appID + '/values/' + varName);
                     },
                     remove: function remove() {
-                      return _this5._delete('/apps/' + appID + '/vars/' + varName);
+                      return _this5._delete('/apps/' + appID + '/values/' + varName);
                     },
                     create: function create(data) {
-                      return _this5._post('/apps/' + appID + '/vars/' + varName, data);
+                      return _this5._post('/apps/' + appID + '/values/' + varName, data);
                     },
                     update: function update(data) {
-                      return _this5._post('/apps/' + appID + '/vars/' + varName, data);
+                      return _this5._post('/apps/' + appID + '/values/' + varName, data);
+                    }
+                  };
+                }
+              };
+            },
+            pipelines: function pipelines() {
+              return {
+                list: function list() {
+                  return _this5._get('/apps/' + appID + '/pipelines');
+                },
+                pipeline: function pipeline(varName) {
+                  return {
+                    get: function get() {
+                      return _this5._get('/apps/' + appID + '/pipelines/' + varName);
+                    },
+                    remove: function remove() {
+                      return _this5._delete('/apps/' + appID + '/pipelines/' + varName);
+                    },
+                    create: function create(data) {
+                      return _this5._post('/apps/' + appID + '/pipelines/' + varName, data);
+                    },
+                    update: function update(data) {
+                      return _this5._post('/apps/' + appID + '/pipelines/' + varName, data);
                     }
                   };
                 }
