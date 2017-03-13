@@ -8,6 +8,7 @@ import * as common from './common'
 import {TextDecoder} from 'text-encoding-utf-8'
 export const ErrAuthProviderNotFound = 'AuthProviderNotFound'
 export const ErrInvalidSession = 'InvalidSession'
+export const ErrUnauthorized = 'Unauthorized'
 
 var EJSON = require('mongodb-extjson')
 
@@ -70,7 +71,7 @@ export class BaasClient {
     }
     if (!options.noAuth) {
       if (this.auth() === null) {
-        return Promise.reject(new common.BaasError('Must auth first'))
+        return Promise.reject(new common.BaasError('Must auth first', ErrUnauthorized))
       }
     }
 

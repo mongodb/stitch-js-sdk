@@ -52,7 +52,7 @@ var Baas =
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.Admin = exports.MongoClient = exports.BaasClient = exports.toQueryString = exports.ErrInvalidSession = exports.ErrAuthProviderNotFound = undefined;
+	exports.Admin = exports.MongoClient = exports.BaasClient = exports.toQueryString = exports.ErrUnauthorized = exports.ErrInvalidSession = exports.ErrAuthProviderNotFound = undefined;
 	
 	var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol" ? function (obj) {
 	  return typeof obj === "undefined" ? "undefined" : _typeof2(obj);
@@ -108,6 +108,7 @@ var Baas =
 	
 	var ErrAuthProviderNotFound = exports.ErrAuthProviderNotFound = 'AuthProviderNotFound';
 	var ErrInvalidSession = exports.ErrInvalidSession = 'InvalidSession';
+	var ErrUnauthorized = exports.ErrUnauthorized = 'Unauthorized';
 	
 	var EJSON = __webpack_require__(11);
 	
@@ -184,7 +185,7 @@ var Baas =
 	      }
 	      if (!options.noAuth) {
 	        if (this.auth() === null) {
-	          return Promise.reject(new common.BaasError('Must auth first'));
+	          return Promise.reject(new common.BaasError('Must auth first', ErrUnauthorized));
 	        }
 	      }
 	

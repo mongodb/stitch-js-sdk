@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Admin = exports.MongoClient = exports.BaasClient = exports.toQueryString = exports.ErrInvalidSession = exports.ErrAuthProviderNotFound = undefined;
+exports.Admin = exports.MongoClient = exports.BaasClient = exports.toQueryString = exports.ErrUnauthorized = exports.ErrInvalidSession = exports.ErrAuthProviderNotFound = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -31,6 +31,7 @@ require('isomorphic-fetch');
 
 var ErrAuthProviderNotFound = exports.ErrAuthProviderNotFound = 'AuthProviderNotFound';
 var ErrInvalidSession = exports.ErrInvalidSession = 'InvalidSession';
+var ErrUnauthorized = exports.ErrUnauthorized = 'Unauthorized';
 
 var EJSON = require('mongodb-extjson');
 
@@ -107,7 +108,7 @@ var BaasClient = exports.BaasClient = function () {
       }
       if (!options.noAuth) {
         if (this.auth() === null) {
-          return Promise.reject(new common.BaasError('Must auth first'));
+          return Promise.reject(new common.BaasError('Must auth first', ErrUnauthorized));
         }
       }
 
