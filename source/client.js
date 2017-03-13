@@ -383,13 +383,22 @@ export class Admin {
             update: (data) => this._post(`/apps/${appID}/authProviders/${authType}/${authName}`, data)
           })
         }),
-        variables: () => ({
-          list: () => this._get(`/apps/${appID}/vars`),
-          variable: (varName) => ({
-            get: () => this._get(`/apps/${appID}/vars/${varName}`),
-            remove: () => this._delete(`/apps/${appID}/vars/${varName}`),
-            create: (data) => this._post(`/apps/${appID}/vars/${varName}`, data),
-            update: (data) => this._post(`/apps/${appID}/vars/${varName}`, data)
+        values: () => ({
+          list: () => this._get(`/apps/${appID}/values`),
+          value: (varName) => ({
+            get: () => this._get(`/apps/${appID}/values/${varName}`),
+            remove: () => this._delete(`/apps/${appID}/values/${varName}`),
+            create: (data) => this._post(`/apps/${appID}/values/${varName}`, data),
+            update: (data) => this._post(`/apps/${appID}/values/${varName}`, data)
+          })
+        }),
+        pipelines: () => ({
+          list: () => this._get(`/apps/${appID}/pipelines`),
+          pipeline: (varName) => ({
+            get: () => this._get(`/apps/${appID}/pipelines/${varName}`),
+            remove: () => this._delete(`/apps/${appID}/pipelines/${varName}`),
+            create: (data) => this._post(`/apps/${appID}/pipelines/${varName}`, data),
+            update: (data) => this._post(`/apps/${appID}/pipelines/${varName}`, data)
           })
         }),
         logs: () => ({
