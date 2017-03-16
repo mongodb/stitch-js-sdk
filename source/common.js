@@ -28,6 +28,7 @@ export const makeFetchArgs = (method, body) => {
   if (body) {
     init['body'] = body
   }
+  init['cors'] = true
   return init
 }
 
