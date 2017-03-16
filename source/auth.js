@@ -1,7 +1,7 @@
 /* global window, fetch */
 
 import * as common from './common'
-const Base64 = require("Base64")
+const Base64 = require('Base64')
 
 const b64Encode = Base64.btoa
 const b64Decode = Base64.atob
