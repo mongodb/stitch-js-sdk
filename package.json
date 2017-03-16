@@ -17,8 +17,8 @@
       "stage-2"
     ]
   },
-  "jest":{
-	"automock": false
+  "jest": {
+    "automock": false
   },
   "author": "",
   "license": "ISC",
@@ -42,6 +42,7 @@
     "webpack": "^1.14.0"
   },
   "dependencies": {
+    "Base64": "^1.0.0",
     "isomorphic-fetch": "^2.2.1",
     "js-base64": "^2.1.9",
     "mongodb-extjson": "^1.0.2",

@@ -78,7 +78,7 @@ var Baas =
 	
 	var common = _interopRequireWildcard(_common);
 	
-	var _textEncodingUtf = __webpack_require__(8);
+	var _textEncodingUtf = __webpack_require__(4);
 	
 	function _interopRequireWildcard(obj) {
 	  if (obj && obj.__esModule) {
@@ -104,13 +104,13 @@ var Baas =
 	
 	/* global window, fetch */
 	/* eslint no-labels: ['error', { 'allowLoop': true }] */
-	__webpack_require__(9);
+	__webpack_require__(5);
 	
 	var ErrAuthProviderNotFound = exports.ErrAuthProviderNotFound = 'AuthProviderNotFound';
 	var ErrInvalidSession = exports.ErrInvalidSession = 'InvalidSession';
 	var ErrUnauthorized = exports.ErrUnauthorized = 'Unauthorized';
 	
-	var EJSON = __webpack_require__(11);
+	var EJSON = __webpack_require__(7);
 	
 	var toQueryString = exports.toQueryString = function toQueryString(obj) {
 	  var parts = [];
@@ -821,8 +821,6 @@ var Baas =
 	
 	var common = _interopRequireWildcard(_common);
 	
-	var _jsBase = __webpack_require__(3);
-	
 	function _interopRequireWildcard(obj) {
 	  if (obj && obj.__esModule) {
 	    return obj;
@@ -840,6 +838,11 @@ var Baas =
 	    throw new TypeError("Cannot call a class as a function");
 	  }
 	}
+	
+	var Base64 = __webpack_require__(3);
+	
+	var b64Encode = Base64.btoa;
+	var b64Decode = Base64.atob;
 	
 	var AuthDataStorage = function () {
 	  function AuthDataStorage() {
@@ -1021,8 +1024,7 @@ var Baas =
 	      var rt = json['refreshToken'];
 	      delete json['refreshToken'];
 	
-	      var c = _jsBase.Base64.encode;
-	      this.authDataStorage.setItem(common.USER_AUTH_KEY, c(JSON.stringify(json)));
+	      this.authDataStorage.setItem(common.USER_AUTH_KEY, b64Encode(JSON.stringify(json)));
 	      this.authDataStorage.setItem(common.REFRESH_TOKEN_KEY, rt);
 	    }
 	  }, {
@@ -1032,7 +1034,7 @@ var Baas =
 	        return null;
 	      }
 	      var item = this.authDataStorage.getItem(common.USER_AUTH_KEY);
-	      return JSON.parse(_jsBase.Base64.decode(item));
+	      return JSON.parse(b64Decode(item));
 	    }
 	  }, {
 	    key: 'authedId',
@@ -1076,9 +1078,9 @@ var Baas =
 	      this.authDataStorage.setItem(common.IMPERSONATION_ACTIVE_KEY, 'true');
 	      this.authDataStorage.setItem(common.IMPERSONATION_USER_KEY, userId);
 	
-	      var realUserAuth = JSON.parse(_jsBase.Base64.decode(this.authDataStorage.getItem(common.USER_AUTH_KEY)));
+	      var realUserAuth = JSON.parse(b64Decode(this.authDataStorage.getItem(common.USER_AUTH_KEY)));
 	      realUserAuth['refreshToken'] = this.authDataStorage.getItem(common.REFRESH_TOKEN_KEY);
-	      this.authDataStorage.setItem(common.IMPERSONATION_REAL_USER_AUTH_KEY, _jsBase.Base64.encode(JSON.stringify(realUserAuth)));
+	      this.authDataStorage.setItem(common.IMPERSONATION_REAL_USER_AUTH_KEY, b64Encode(JSON.stringify(realUserAuth)));
 	      return this.refreshImpersonation(client);
 	    }
 	  }, {
@@ -1090,7 +1092,7 @@ var Baas =
 	        throw new common.BaasError('Not impersonating a user');
 	      }
 	      return new Promise(function (resolve, reject) {
-	        var realUserAuth = JSON.parse(_jsBase.Base64.decode(_this5.authDataStorage.getItem(common.IMPERSONATION_REAL_USER_AUTH_KEY)));
+	        var realUserAuth = JSON.parse(b64Decode(_this5.authDataStorage.getItem(common.IMPERSONATION_REAL_USER_AUTH_KEY)));
 	        _this5.set(realUserAuth);
 	        _this5.clearImpersonation();
 	        resolve();
@@ -1275,160 +1277,1389 @@ var Baas =
 
 	'use strict';
 	
-	/*
-	 * $Id: base64.js,v 2.15 2014/04/05 12:58:57 dankogai Exp dankogai $
-	 *
-	 *  Licensed under the MIT license.
-	 *    http://opensource.org/licenses/mit-license
-	 *
-	 *  References:
-	 *    http://en.wikipedia.org/wiki/Base64
-	 */
+	;(function () {
 	
-	(function (global) {
-	    'use strict';
-	    // existing version for noConflict()
+	  var object =  true ? exports : self; // #8: web workers
+	  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 	
-	    var _Base64 = global.Base64;
-	    var version = "2.1.9";
-	    // if node.js, we use Buffer
-	    var buffer;
-	    if (typeof module !== 'undefined' && module.exports) {
-	        try {
-	            buffer = __webpack_require__(4).Buffer;
-	        } catch (err) {}
+	  function InvalidCharacterError(message) {
+	    this.message = message;
+	  }
+	  InvalidCharacterError.prototype = new Error();
+	  InvalidCharacterError.prototype.name = 'InvalidCharacterError';
+	
+	  // encoder
+	  // [https://gist.github.com/999166] by [https://github.com/nignag]
+	  object.btoa || (object.btoa = function (input) {
+	    var str = String(input);
+	    for (
+	    // initialize result and counter
+	    var block, charCode, idx = 0, map = chars, output = '';
+	    // if the next str index does not exist:
+	    //   change the mapping table to "="
+	    //   check if d has no fractional digits
+	    str.charAt(idx | 0) || (map = '=', idx % 1);
+	    // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
+	    output += map.charAt(63 & block >> 8 - idx % 1 * 8)) {
+	      charCode = str.charCodeAt(idx += 3 / 4);
+	      if (charCode > 0xFF) {
+	        throw new InvalidCharacterError("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
+	      }
+	      block = block << 8 | charCode;
 	    }
-	    // constants
-	    var b64chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-	    var b64tab = function (bin) {
-	        var t = {};
-	        for (var i = 0, l = bin.length; i < l; i++) {
-	            t[bin.charAt(i)] = i;
-	        }return t;
-	    }(b64chars);
-	    var fromCharCode = String.fromCharCode;
-	    // encoder stuff
-	    var cb_utob = function cb_utob(c) {
-	        if (c.length < 2) {
-	            var cc = c.charCodeAt(0);
-	            return cc < 0x80 ? c : cc < 0x800 ? fromCharCode(0xc0 | cc >>> 6) + fromCharCode(0x80 | cc & 0x3f) : fromCharCode(0xe0 | cc >>> 12 & 0x0f) + fromCharCode(0x80 | cc >>> 6 & 0x3f) + fromCharCode(0x80 | cc & 0x3f);
-	        } else {
-	            var cc = 0x10000 + (c.charCodeAt(0) - 0xD800) * 0x400 + (c.charCodeAt(1) - 0xDC00);
-	            return fromCharCode(0xf0 | cc >>> 18 & 0x07) + fromCharCode(0x80 | cc >>> 12 & 0x3f) + fromCharCode(0x80 | cc >>> 6 & 0x3f) + fromCharCode(0x80 | cc & 0x3f);
-	        }
-	    };
-	    var re_utob = /[\uD800-\uDBFF][\uDC00-\uDFFFF]|[^\x00-\x7F]/g;
-	    var utob = function utob(u) {
-	        return u.replace(re_utob, cb_utob);
-	    };
-	    var cb_encode = function cb_encode(ccc) {
-	        var padlen = [0, 2, 1][ccc.length % 3],
-	            ord = ccc.charCodeAt(0) << 16 | (ccc.length > 1 ? ccc.charCodeAt(1) : 0) << 8 | (ccc.length > 2 ? ccc.charCodeAt(2) : 0),
-	            chars = [b64chars.charAt(ord >>> 18), b64chars.charAt(ord >>> 12 & 63), padlen >= 2 ? '=' : b64chars.charAt(ord >>> 6 & 63), padlen >= 1 ? '=' : b64chars.charAt(ord & 63)];
-	        return chars.join('');
-	    };
-	    var btoa = global.btoa ? function (b) {
-	        return global.btoa(b);
-	    } : function (b) {
-	        return b.replace(/[\s\S]{1,3}/g, cb_encode);
-	    };
-	    var _encode = buffer ? function (u) {
-	        return (u.constructor === buffer.constructor ? u : new buffer(u)).toString('base64');
-	    } : function (u) {
-	        return btoa(utob(u));
-	    };
-	    var encode = function encode(u, urisafe) {
-	        return !urisafe ? _encode(String(u)) : _encode(String(u)).replace(/[+\/]/g, function (m0) {
-	            return m0 == '+' ? '-' : '_';
-	        }).replace(/=/g, '');
-	    };
-	    var encodeURI = function encodeURI(u) {
-	        return encode(u, true);
-	    };
-	    // decoder stuff
-	    var re_btou = new RegExp(['[\xC0-\xDF][\x80-\xBF]', '[\xE0-\xEF][\x80-\xBF]{2}', '[\xF0-\xF7][\x80-\xBF]{3}'].join('|'), 'g');
-	    var cb_btou = function cb_btou(cccc) {
-	        switch (cccc.length) {
-	            case 4:
-	                var cp = (0x07 & cccc.charCodeAt(0)) << 18 | (0x3f & cccc.charCodeAt(1)) << 12 | (0x3f & cccc.charCodeAt(2)) << 6 | 0x3f & cccc.charCodeAt(3),
-	                    offset = cp - 0x10000;
-	                return fromCharCode((offset >>> 10) + 0xD800) + fromCharCode((offset & 0x3FF) + 0xDC00);
-	            case 3:
-	                return fromCharCode((0x0f & cccc.charCodeAt(0)) << 12 | (0x3f & cccc.charCodeAt(1)) << 6 | 0x3f & cccc.charCodeAt(2));
-	            default:
-	                return fromCharCode((0x1f & cccc.charCodeAt(0)) << 6 | 0x3f & cccc.charCodeAt(1));
-	        }
-	    };
-	    var btou = function btou(b) {
-	        return b.replace(re_btou, cb_btou);
-	    };
-	    var cb_decode = function cb_decode(cccc) {
-	        var len = cccc.length,
-	            padlen = len % 4,
-	            n = (len > 0 ? b64tab[cccc.charAt(0)] << 18 : 0) | (len > 1 ? b64tab[cccc.charAt(1)] << 12 : 0) | (len > 2 ? b64tab[cccc.charAt(2)] << 6 : 0) | (len > 3 ? b64tab[cccc.charAt(3)] : 0),
-	            chars = [fromCharCode(n >>> 16), fromCharCode(n >>> 8 & 0xff), fromCharCode(n & 0xff)];
-	        chars.length -= [0, 0, 2, 1][padlen];
-	        return chars.join('');
-	    };
-	    var atob = global.atob ? function (a) {
-	        return global.atob(a);
-	    } : function (a) {
-	        return a.replace(/[\s\S]{1,4}/g, cb_decode);
-	    };
-	    var _decode = buffer ? function (a) {
-	        return (a.constructor === buffer.constructor ? a : new buffer(a, 'base64')).toString();
-	    } : function (a) {
-	        return btou(atob(a));
-	    };
-	    var decode = function decode(a) {
-	        return _decode(String(a).replace(/[-_]/g, function (m0) {
-	            return m0 == '-' ? '+' : '/';
-	        }).replace(/[^A-Za-z0-9\+\/]/g, ''));
-	    };
-	    var noConflict = function noConflict() {
-	        var Base64 = global.Base64;
-	        global.Base64 = _Base64;
-	        return Base64;
-	    };
-	    // export Base64
-	    global.Base64 = {
-	        VERSION: version,
-	        atob: atob,
-	        btoa: btoa,
-	        fromBase64: decode,
-	        toBase64: encode,
-	        utob: utob,
-	        encode: encode,
-	        encodeURI: encodeURI,
-	        btou: btou,
-	        decode: decode,
-	        noConflict: noConflict
-	    };
-	    // if ES5 is available, make Base64.extendString() available
-	    if (typeof Object.defineProperty === 'function') {
-	        var noEnum = function noEnum(v) {
-	            return { value: v, enumerable: false, writable: true, configurable: true };
-	        };
-	        global.Base64.extendString = function () {
-	            Object.defineProperty(String.prototype, 'fromBase64', noEnum(function () {
-	                return decode(this);
-	            }));
-	            Object.defineProperty(String.prototype, 'toBase64', noEnum(function (urisafe) {
-	                return encode(this, urisafe);
-	            }));
-	            Object.defineProperty(String.prototype, 'toBase64URI', noEnum(function () {
-	                return encode(this, true);
-	            }));
-	        };
+	    return output;
+	  });
+	
+	  // decoder
+	  // [https://gist.github.com/1020396] by [https://github.com/atk]
+	  object.atob || (object.atob = function (input) {
+	    var str = String(input).replace(/=+$/, '');
+	    if (str.length % 4 == 1) {
+	      throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
 	    }
-	    // that's it!
-	    if (global['Meteor']) {
-	        Base64 = global.Base64; // for normal export in Meteor.js
+	    for (
+	    // initialize result and counters
+	    var bc = 0, bs, buffer, idx = 0, output = '';
+	    // get next character
+	    buffer = str.charAt(idx++);
+	    // character found in table? initialize bit storage and add its ascii value;
+	    ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
+	    // and if not first of each 4 characters,
+	    // convert the first 8 bits to one ascii character
+	    bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0) {
+	      // try to find character in table (0-63, not found => -1)
+	      buffer = chars.indexOf(buffer);
 	    }
-	})(undefined);
+	    return output;
+	  });
+	})();
 
 /***/ },
 /* 4 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	// This is free and unencumbered software released into the public domain.
+	// See LICENSE.md for more information.
+	
+	//
+	// Utilities
+	//
+	
+	/**
+	 * @param {number} a The number to test.
+	 * @param {number} min The minimum value in the range, inclusive.
+	 * @param {number} max The maximum value in the range, inclusive.
+	 * @return {boolean} True if a >= min and a <= max.
+	 */
+	
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	
+	function inRange(a, min, max) {
+	  return min <= a && a <= max;
+	}
+	
+	/**
+	 * @param {*} o
+	 * @return {Object}
+	 */
+	function ToDictionary(o) {
+	  if (o === undefined) return {};
+	  if (o === Object(o)) return o;
+	  throw TypeError('Could not convert argument to dictionary');
+	}
+	
+	/**
+	 * @param {string} string Input string of UTF-16 code units.
+	 * @return {!Array.<number>} Code points.
+	 */
+	function stringToCodePoints(string) {
+	  // https://heycam.github.io/webidl/#dfn-obtain-unicode
+	
+	  // 1. Let S be the DOMString value.
+	  var s = String(string);
+	
+	  // 2. Let n be the length of S.
+	  var n = s.length;
+	
+	  // 3. Initialize i to 0.
+	  var i = 0;
+	
+	  // 4. Initialize U to be an empty sequence of Unicode characters.
+	  var u = [];
+	
+	  // 5. While i < n:
+	  while (i < n) {
+	
+	    // 1. Let c be the code unit in S at index i.
+	    var c = s.charCodeAt(i);
+	
+	    // 2. Depending on the value of c:
+	
+	    // c < 0xD800 or c > 0xDFFF
+	    if (c < 0xD800 || c > 0xDFFF) {
+	      // Append to U the Unicode character with code point c.
+	      u.push(c);
+	    }
+	
+	    // 0xDC00 ≤ c ≤ 0xDFFF
+	    else if (0xDC00 <= c && c <= 0xDFFF) {
+	        // Append to U a U+FFFD REPLACEMENT CHARACTER.
+	        u.push(0xFFFD);
+	      }
+	
+	      // 0xD800 ≤ c ≤ 0xDBFF
+	      else if (0xD800 <= c && c <= 0xDBFF) {
+	          // 1. If i = n−1, then append to U a U+FFFD REPLACEMENT
+	          // CHARACTER.
+	          if (i === n - 1) {
+	            u.push(0xFFFD);
+	          }
+	          // 2. Otherwise, i < n−1:
+	          else {
+	              // 1. Let d be the code unit in S at index i+1.
+	              var d = string.charCodeAt(i + 1);
+	
+	              // 2. If 0xDC00 ≤ d ≤ 0xDFFF, then:
+	              if (0xDC00 <= d && d <= 0xDFFF) {
+	                // 1. Let a be c & 0x3FF.
+	                var a = c & 0x3FF;
+	
+	                // 2. Let b be d & 0x3FF.
+	                var b = d & 0x3FF;
+	
+	                // 3. Append to U the Unicode character with code point
+	                // 2^16+2^10*a+b.
+	                u.push(0x10000 + (a << 10) + b);
+	
+	                // 4. Set i to i+1.
+	                i += 1;
+	              }
+	
+	              // 3. Otherwise, d < 0xDC00 or d > 0xDFFF. Append to U a
+	              // U+FFFD REPLACEMENT CHARACTER.
+	              else {
+	                  u.push(0xFFFD);
+	                }
+	            }
+	        }
+	
+	    // 3. Set i to i+1.
+	    i += 1;
+	  }
+	
+	  // 6. Return U.
+	  return u;
+	}
+	
+	/**
+	 * @param {!Array.<number>} code_points Array of code points.
+	 * @return {string} string String of UTF-16 code units.
+	 */
+	function codePointsToString(code_points) {
+	  var s = '';
+	  for (var i = 0; i < code_points.length; ++i) {
+	    var cp = code_points[i];
+	    if (cp <= 0xFFFF) {
+	      s += String.fromCharCode(cp);
+	    } else {
+	      cp -= 0x10000;
+	      s += String.fromCharCode((cp >> 10) + 0xD800, (cp & 0x3FF) + 0xDC00);
+	    }
+	  }
+	  return s;
+	}
+	
+	//
+	// Implementation of Encoding specification
+	// https://encoding.spec.whatwg.org/
+	//
+	
+	//
+	// 3. Terminology
+	//
+	
+	/**
+	 * End-of-stream is a special token that signifies no more tokens
+	 * are in the stream.
+	 * @const
+	 */var end_of_stream = -1;
+	
+	/**
+	 * A stream represents an ordered sequence of tokens.
+	 *
+	 * @constructor
+	 * @param {!(Array.<number>|Uint8Array)} tokens Array of tokens that provide the
+	 * stream.
+	 */
+	function Stream(tokens) {
+	  /** @type {!Array.<number>} */
+	  this.tokens = [].slice.call(tokens);
+	}
+	
+	Stream.prototype = {
+	  /**
+	   * @return {boolean} True if end-of-stream has been hit.
+	   */
+	  endOfStream: function endOfStream() {
+	    return !this.tokens.length;
+	  },
+	
+	  /**
+	   * When a token is read from a stream, the first token in the
+	   * stream must be returned and subsequently removed, and
+	   * end-of-stream must be returned otherwise.
+	   *
+	   * @return {number} Get the next token from the stream, or
+	   * end_of_stream.
+	   */
+	  read: function read() {
+	    if (!this.tokens.length) return end_of_stream;
+	    return this.tokens.shift();
+	  },
+	
+	  /**
+	   * When one or more tokens are prepended to a stream, those tokens
+	   * must be inserted, in given order, before the first token in the
+	   * stream.
+	   *
+	   * @param {(number|!Array.<number>)} token The token(s) to prepend to the stream.
+	   */
+	  prepend: function prepend(token) {
+	    if (Array.isArray(token)) {
+	      var tokens = /**@type {!Array.<number>}*/token;
+	      while (tokens.length) {
+	        this.tokens.unshift(tokens.pop());
+	      }
+	    } else {
+	      this.tokens.unshift(token);
+	    }
+	  },
+	
+	  /**
+	   * When one or more tokens are pushed to a stream, those tokens
+	   * must be inserted, in given order, after the last token in the
+	   * stream.
+	   *
+	   * @param {(number|!Array.<number>)} token The tokens(s) to prepend to the stream.
+	   */
+	  push: function push(token) {
+	    if (Array.isArray(token)) {
+	      var tokens = /**@type {!Array.<number>}*/token;
+	      while (tokens.length) {
+	        this.tokens.push(tokens.shift());
+	      }
+	    } else {
+	      this.tokens.push(token);
+	    }
+	  }
+	};
+	
+	//
+	// 4. Encodings
+	//
+	
+	// 4.1 Encoders and decoders
+	
+	/** @const */
+	var finished = -1;
+	
+	/**
+	 * @param {boolean} fatal If true, decoding errors raise an exception.
+	 * @param {number=} opt_code_point Override the standard fallback code point.
+	 * @return {number} The code point to insert on a decoding error.
+	 */
+	function decoderError(fatal, opt_code_point) {
+	  if (fatal) throw TypeError('Decoder error');
+	  return opt_code_point || 0xFFFD;
+	}
+	
+	//
+	// 7. API
+	//
+	
+	/** @const */var DEFAULT_ENCODING = 'utf-8';
+	
+	// 7.1 Interface TextDecoder
+	
+	/**
+	 * @constructor
+	 * @param {string=} encoding The label of the encoding;
+	 *     defaults to 'utf-8'.
+	 * @param {Object=} options
+	 */
+	function TextDecoder(encoding, options) {
+	  if (!(this instanceof TextDecoder)) {
+	    return new TextDecoder(encoding, options);
+	  }
+	  encoding = encoding !== undefined ? String(encoding).toLowerCase() : DEFAULT_ENCODING;
+	  if (encoding !== DEFAULT_ENCODING) {
+	    throw new Error('Encoding not supported. Only utf-8 is supported');
+	  }
+	  options = ToDictionary(options);
+	
+	  /** @private @type {boolean} */
+	  this._streaming = false;
+	  /** @private @type {boolean} */
+	  this._BOMseen = false;
+	  /** @private @type {?Decoder} */
+	  this._decoder = null;
+	  /** @private @type {boolean} */
+	  this._fatal = Boolean(options['fatal']);
+	  /** @private @type {boolean} */
+	  this._ignoreBOM = Boolean(options['ignoreBOM']);
+	
+	  Object.defineProperty(this, 'encoding', { value: 'utf-8' });
+	  Object.defineProperty(this, 'fatal', { value: this._fatal });
+	  Object.defineProperty(this, 'ignoreBOM', { value: this._ignoreBOM });
+	}
+	
+	TextDecoder.prototype = {
+	  /**
+	   * @param {ArrayBufferView=} input The buffer of bytes to decode.
+	   * @param {Object=} options
+	   * @return {string} The decoded string.
+	   */
+	  decode: function decode(input, options) {
+	    var bytes;
+	    if ((typeof input === 'undefined' ? 'undefined' : _typeof(input)) === 'object' && input instanceof ArrayBuffer) {
+	      bytes = new Uint8Array(input);
+	    } else if ((typeof input === 'undefined' ? 'undefined' : _typeof(input)) === 'object' && 'buffer' in input && input.buffer instanceof ArrayBuffer) {
+	      bytes = new Uint8Array(input.buffer, input.byteOffset, input.byteLength);
+	    } else {
+	      bytes = new Uint8Array(0);
+	    }
+	
+	    options = ToDictionary(options);
+	
+	    if (!this._streaming) {
+	      this._decoder = new UTF8Decoder({ fatal: this._fatal });
+	      this._BOMseen = false;
+	    }
+	    this._streaming = Boolean(options['stream']);
+	
+	    var input_stream = new Stream(bytes);
+	
+	    var code_points = [];
+	
+	    /** @type {?(number|!Array.<number>)} */
+	    var result;
+	
+	    while (!input_stream.endOfStream()) {
+	      result = this._decoder.handler(input_stream, input_stream.read());
+	      if (result === finished) break;
+	      if (result === null) continue;
+	      if (Array.isArray(result)) code_points.push.apply(code_points, /**@type {!Array.<number>}*/result);else code_points.push(result);
+	    }
+	    if (!this._streaming) {
+	      do {
+	        result = this._decoder.handler(input_stream, input_stream.read());
+	        if (result === finished) break;
+	        if (result === null) continue;
+	        if (Array.isArray(result)) code_points.push.apply(code_points, /**@type {!Array.<number>}*/result);else code_points.push(result);
+	      } while (!input_stream.endOfStream());
+	      this._decoder = null;
+	    }
+	
+	    if (code_points.length) {
+	      // If encoding is one of utf-8, utf-16be, and utf-16le, and
+	      // ignore BOM flag and BOM seen flag are unset, run these
+	      // subsubsteps:
+	      if (['utf-8'].indexOf(this.encoding) !== -1 && !this._ignoreBOM && !this._BOMseen) {
+	        // If token is U+FEFF, set BOM seen flag.
+	        if (code_points[0] === 0xFEFF) {
+	          this._BOMseen = true;
+	          code_points.shift();
+	        } else {
+	          // Otherwise, if token is not end-of-stream, set BOM seen
+	          // flag and append token to output.
+	          this._BOMseen = true;
+	        }
+	      }
+	    }
+	
+	    return codePointsToString(code_points);
+	  }
+	};
+	
+	// 7.2 Interface TextEncoder
+	
+	/**
+	 * @constructor
+	 * @param {string=} encoding The label of the encoding;
+	 *     defaults to 'utf-8'.
+	 * @param {Object=} options
+	 */
+	function TextEncoder(encoding, options) {
+	  if (!(this instanceof TextEncoder)) return new TextEncoder(encoding, options);
+	  encoding = encoding !== undefined ? String(encoding).toLowerCase() : DEFAULT_ENCODING;
+	  if (encoding !== DEFAULT_ENCODING) {
+	    throw new Error('Encoding not supported. Only utf-8 is supported');
+	  }
+	  options = ToDictionary(options);
+	
+	  /** @private @type {boolean} */
+	  this._streaming = false;
+	  /** @private @type {?Encoder} */
+	  this._encoder = null;
+	  /** @private @type {{fatal: boolean}} */
+	  this._options = { fatal: Boolean(options['fatal']) };
+	
+	  Object.defineProperty(this, 'encoding', { value: 'utf-8' });
+	}
+	
+	TextEncoder.prototype = {
+	  /**
+	   * @param {string=} opt_string The string to encode.
+	   * @param {Object=} options
+	   * @return {Uint8Array} Encoded bytes, as a Uint8Array.
+	   */
+	  encode: function encode(opt_string, options) {
+	    opt_string = opt_string ? String(opt_string) : '';
+	    options = ToDictionary(options);
+	
+	    // NOTE: This option is nonstandard. None of the encodings
+	    // permitted for encoding (i.e. UTF-8, UTF-16) are stateful,
+	    // so streaming is not necessary.
+	    if (!this._streaming) this._encoder = new UTF8Encoder(this._options);
+	    this._streaming = Boolean(options['stream']);
+	
+	    var bytes = [];
+	    var input_stream = new Stream(stringToCodePoints(opt_string));
+	    /** @type {?(number|!Array.<number>)} */
+	    var result;
+	    while (!input_stream.endOfStream()) {
+	      result = this._encoder.handler(input_stream, input_stream.read());
+	      if (result === finished) break;
+	      if (Array.isArray(result)) bytes.push.apply(bytes, /**@type {!Array.<number>}*/result);else bytes.push(result);
+	    }
+	    if (!this._streaming) {
+	      while (true) {
+	        result = this._encoder.handler(input_stream, input_stream.read());
+	        if (result === finished) break;
+	        if (Array.isArray(result)) bytes.push.apply(bytes, /**@type {!Array.<number>}*/result);else bytes.push(result);
+	      }
+	      this._encoder = null;
+	    }
+	    return new Uint8Array(bytes);
+	  }
+	};
+	
+	//
+	// 8. The encoding
+	//
+	
+	// 8.1 utf-8
+	
+	/**
+	 * @constructor
+	 * @implements {Decoder}
+	 * @param {{fatal: boolean}} options
+	 */
+	function UTF8Decoder(options) {
+	  var fatal = options.fatal;
+	
+	  // utf-8's decoder's has an associated utf-8 code point, utf-8
+	  // bytes seen, and utf-8 bytes needed (all initially 0), a utf-8
+	  // lower boundary (initially 0x80), and a utf-8 upper boundary
+	  // (initially 0xBF).
+	  var /** @type {number} */utf8_code_point = 0,
+	
+	  /** @type {number} */utf8_bytes_seen = 0,
+	
+	  /** @type {number} */utf8_bytes_needed = 0,
+	
+	  /** @type {number} */utf8_lower_boundary = 0x80,
+	
+	  /** @type {number} */utf8_upper_boundary = 0xBF;
+	
+	  /**
+	   * @param {Stream} stream The stream of bytes being decoded.
+	   * @param {number} bite The next byte read from the stream.
+	   * @return {?(number|!Array.<number>)} The next code point(s)
+	   *     decoded, or null if not enough data exists in the input
+	   *     stream to decode a complete code point.
+	   */
+	  this.handler = function (stream, bite) {
+	    // 1. If byte is end-of-stream and utf-8 bytes needed is not 0,
+	    // set utf-8 bytes needed to 0 and return error.
+	    if (bite === end_of_stream && utf8_bytes_needed !== 0) {
+	      utf8_bytes_needed = 0;
+	      return decoderError(fatal);
+	    }
+	
+	    // 2. If byte is end-of-stream, return finished.
+	    if (bite === end_of_stream) return finished;
+	
+	    // 3. If utf-8 bytes needed is 0, based on byte:
+	    if (utf8_bytes_needed === 0) {
+	
+	      // 0x00 to 0x7F
+	      if (inRange(bite, 0x00, 0x7F)) {
+	        // Return a code point whose value is byte.
+	        return bite;
+	      }
+	
+	      // 0xC2 to 0xDF
+	      if (inRange(bite, 0xC2, 0xDF)) {
+	        // Set utf-8 bytes needed to 1 and utf-8 code point to byte
+	        // − 0xC0.
+	        utf8_bytes_needed = 1;
+	        utf8_code_point = bite - 0xC0;
+	      }
+	
+	      // 0xE0 to 0xEF
+	      else if (inRange(bite, 0xE0, 0xEF)) {
+	          // 1. If byte is 0xE0, set utf-8 lower boundary to 0xA0.
+	          if (bite === 0xE0) utf8_lower_boundary = 0xA0;
+	          // 2. If byte is 0xED, set utf-8 upper boundary to 0x9F.
+	          if (bite === 0xED) utf8_upper_boundary = 0x9F;
+	          // 3. Set utf-8 bytes needed to 2 and utf-8 code point to
+	          // byte − 0xE0.
+	          utf8_bytes_needed = 2;
+	          utf8_code_point = bite - 0xE0;
+	        }
+	
+	        // 0xF0 to 0xF4
+	        else if (inRange(bite, 0xF0, 0xF4)) {
+	            // 1. If byte is 0xF0, set utf-8 lower boundary to 0x90.
+	            if (bite === 0xF0) utf8_lower_boundary = 0x90;
+	            // 2. If byte is 0xF4, set utf-8 upper boundary to 0x8F.
+	            if (bite === 0xF4) utf8_upper_boundary = 0x8F;
+	            // 3. Set utf-8 bytes needed to 3 and utf-8 code point to
+	            // byte − 0xF0.
+	            utf8_bytes_needed = 3;
+	            utf8_code_point = bite - 0xF0;
+	          }
+	
+	          // Otherwise
+	          else {
+	              // Return error.
+	              return decoderError(fatal);
+	            }
+	
+	      // Then (byte is in the range 0xC2 to 0xF4) set utf-8 code
+	      // point to utf-8 code point << (6 × utf-8 bytes needed) and
+	      // return continue.
+	      utf8_code_point = utf8_code_point << 6 * utf8_bytes_needed;
+	      return null;
+	    }
+	
+	    // 4. If byte is not in the range utf-8 lower boundary to utf-8
+	    // upper boundary, run these substeps:
+	    if (!inRange(bite, utf8_lower_boundary, utf8_upper_boundary)) {
+	
+	      // 1. Set utf-8 code point, utf-8 bytes needed, and utf-8
+	      // bytes seen to 0, set utf-8 lower boundary to 0x80, and set
+	      // utf-8 upper boundary to 0xBF.
+	      utf8_code_point = utf8_bytes_needed = utf8_bytes_seen = 0;
+	      utf8_lower_boundary = 0x80;
+	      utf8_upper_boundary = 0xBF;
+	
+	      // 2. Prepend byte to stream.
+	      stream.prepend(bite);
+	
+	      // 3. Return error.
+	      return decoderError(fatal);
+	    }
+	
+	    // 5. Set utf-8 lower boundary to 0x80 and utf-8 upper boundary
+	    // to 0xBF.
+	    utf8_lower_boundary = 0x80;
+	    utf8_upper_boundary = 0xBF;
+	
+	    // 6. Increase utf-8 bytes seen by one and set utf-8 code point
+	    // to utf-8 code point + (byte − 0x80) << (6 × (utf-8 bytes
+	    // needed − utf-8 bytes seen)).
+	    utf8_bytes_seen += 1;
+	    utf8_code_point += bite - 0x80 << 6 * (utf8_bytes_needed - utf8_bytes_seen);
+	
+	    // 7. If utf-8 bytes seen is not equal to utf-8 bytes needed,
+	    // continue.
+	    if (utf8_bytes_seen !== utf8_bytes_needed) return null;
+	
+	    // 8. Let code point be utf-8 code point.
+	    var code_point = utf8_code_point;
+	
+	    // 9. Set utf-8 code point, utf-8 bytes needed, and utf-8 bytes
+	    // seen to 0.
+	    utf8_code_point = utf8_bytes_needed = utf8_bytes_seen = 0;
+	
+	    // 10. Return a code point whose value is code point.
+	    return code_point;
+	  };
+	}
+	
+	/**
+	 * @constructor
+	 * @implements {Encoder}
+	 * @param {{fatal: boolean}} options
+	 */
+	function UTF8Encoder(options) {
+	  var fatal = options.fatal;
+	  /**
+	   * @param {Stream} stream Input stream.
+	   * @param {number} code_point Next code point read from the stream.
+	   * @return {(number|!Array.<number>)} Byte(s) to emit.
+	   */
+	  this.handler = function (stream, code_point) {
+	    // 1. If code point is end-of-stream, return finished.
+	    if (code_point === end_of_stream) return finished;
+	
+	    // 2. If code point is in the range U+0000 to U+007F, return a
+	    // byte whose value is code point.
+	    if (inRange(code_point, 0x0000, 0x007f)) return code_point;
+	
+	    // 3. Set count and offset based on the range code point is in:
+	    var count, offset;
+	    // U+0080 to U+07FF:    1 and 0xC0
+	    if (inRange(code_point, 0x0080, 0x07FF)) {
+	      count = 1;
+	      offset = 0xC0;
+	    }
+	    // U+0800 to U+FFFF:    2 and 0xE0
+	    else if (inRange(code_point, 0x0800, 0xFFFF)) {
+	        count = 2;
+	        offset = 0xE0;
+	      }
+	      // U+10000 to U+10FFFF: 3 and 0xF0
+	      else if (inRange(code_point, 0x10000, 0x10FFFF)) {
+	          count = 3;
+	          offset = 0xF0;
+	        }
+	
+	    // 4.Let bytes be a byte sequence whose first byte is (code
+	    // point >> (6 × count)) + offset.
+	    var bytes = [(code_point >> 6 * count) + offset];
+	
+	    // 5. Run these substeps while count is greater than 0:
+	    while (count > 0) {
+	
+	      // 1. Set temp to code point >> (6 × (count − 1)).
+	      var temp = code_point >> 6 * (count - 1);
+	
+	      // 2. Append to bytes 0x80 | (temp & 0x3F).
+	      bytes.push(0x80 | temp & 0x3F);
+	
+	      // 3. Decrease count by one.
+	      count -= 1;
+	    }
+	
+	    // 6. Return bytes bytes, in order.
+	    return bytes;
+	  };
+	}
+	
+	exports.TextEncoder = TextEncoder;
+	exports.TextDecoder = TextDecoder;
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	// the whatwg-fetch polyfill installs the fetch() function
+	// on the global object (window or self)
+	//
+	// Return that as the export for use in Webpack, Browserify etc.
+	__webpack_require__(6);
+	module.exports = self.fetch.bind(self);
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	(function (self) {
+	  'use strict';
+	
+	  if (self.fetch) {
+	    return;
+	  }
+	
+	  var support = {
+	    searchParams: 'URLSearchParams' in self,
+	    iterable: 'Symbol' in self && 'iterator' in Symbol,
+	    blob: 'FileReader' in self && 'Blob' in self && function () {
+	      try {
+	        new Blob();
+	        return true;
+	      } catch (e) {
+	        return false;
+	      }
+	    }(),
+	    formData: 'FormData' in self,
+	    arrayBuffer: 'ArrayBuffer' in self
+	  };
+	
+	  if (support.arrayBuffer) {
+	    var viewClasses = ['[object Int8Array]', '[object Uint8Array]', '[object Uint8ClampedArray]', '[object Int16Array]', '[object Uint16Array]', '[object Int32Array]', '[object Uint32Array]', '[object Float32Array]', '[object Float64Array]'];
+	
+	    var isDataView = function isDataView(obj) {
+	      return obj && DataView.prototype.isPrototypeOf(obj);
+	    };
+	
+	    var isArrayBufferView = ArrayBuffer.isView || function (obj) {
+	      return obj && viewClasses.indexOf(Object.prototype.toString.call(obj)) > -1;
+	    };
+	  }
+	
+	  function normalizeName(name) {
+	    if (typeof name !== 'string') {
+	      name = String(name);
+	    }
+	    if (/[^a-z0-9\-#$%&'*+.\^_`|~]/i.test(name)) {
+	      throw new TypeError('Invalid character in header field name');
+	    }
+	    return name.toLowerCase();
+	  }
+	
+	  function normalizeValue(value) {
+	    if (typeof value !== 'string') {
+	      value = String(value);
+	    }
+	    return value;
+	  }
+	
+	  // Build a destructive iterator for the value list
+	  function iteratorFor(items) {
+	    var iterator = {
+	      next: function next() {
+	        var value = items.shift();
+	        return { done: value === undefined, value: value };
+	      }
+	    };
+	
+	    if (support.iterable) {
+	      iterator[Symbol.iterator] = function () {
+	        return iterator;
+	      };
+	    }
+	
+	    return iterator;
+	  }
+	
+	  function Headers(headers) {
+	    this.map = {};
+	
+	    if (headers instanceof Headers) {
+	      headers.forEach(function (value, name) {
+	        this.append(name, value);
+	      }, this);
+	    } else if (headers) {
+	      Object.getOwnPropertyNames(headers).forEach(function (name) {
+	        this.append(name, headers[name]);
+	      }, this);
+	    }
+	  }
+	
+	  Headers.prototype.append = function (name, value) {
+	    name = normalizeName(name);
+	    value = normalizeValue(value);
+	    var oldValue = this.map[name];
+	    this.map[name] = oldValue ? oldValue + ',' + value : value;
+	  };
+	
+	  Headers.prototype['delete'] = function (name) {
+	    delete this.map[normalizeName(name)];
+	  };
+	
+	  Headers.prototype.get = function (name) {
+	    name = normalizeName(name);
+	    return this.has(name) ? this.map[name] : null;
+	  };
+	
+	  Headers.prototype.has = function (name) {
+	    return this.map.hasOwnProperty(normalizeName(name));
+	  };
+	
+	  Headers.prototype.set = function (name, value) {
+	    this.map[normalizeName(name)] = normalizeValue(value);
+	  };
+	
+	  Headers.prototype.forEach = function (callback, thisArg) {
+	    for (var name in this.map) {
+	      if (this.map.hasOwnProperty(name)) {
+	        callback.call(thisArg, this.map[name], name, this);
+	      }
+	    }
+	  };
+	
+	  Headers.prototype.keys = function () {
+	    var items = [];
+	    this.forEach(function (value, name) {
+	      items.push(name);
+	    });
+	    return iteratorFor(items);
+	  };
+	
+	  Headers.prototype.values = function () {
+	    var items = [];
+	    this.forEach(function (value) {
+	      items.push(value);
+	    });
+	    return iteratorFor(items);
+	  };
+	
+	  Headers.prototype.entries = function () {
+	    var items = [];
+	    this.forEach(function (value, name) {
+	      items.push([name, value]);
+	    });
+	    return iteratorFor(items);
+	  };
+	
+	  if (support.iterable) {
+	    Headers.prototype[Symbol.iterator] = Headers.prototype.entries;
+	  }
+	
+	  function consumed(body) {
+	    if (body.bodyUsed) {
+	      return Promise.reject(new TypeError('Already read'));
+	    }
+	    body.bodyUsed = true;
+	  }
+	
+	  function fileReaderReady(reader) {
+	    return new Promise(function (resolve, reject) {
+	      reader.onload = function () {
+	        resolve(reader.result);
+	      };
+	      reader.onerror = function () {
+	        reject(reader.error);
+	      };
+	    });
+	  }
+	
+	  function readBlobAsArrayBuffer(blob) {
+	    var reader = new FileReader();
+	    var promise = fileReaderReady(reader);
+	    reader.readAsArrayBuffer(blob);
+	    return promise;
+	  }
+	
+	  function readBlobAsText(blob) {
+	    var reader = new FileReader();
+	    var promise = fileReaderReady(reader);
+	    reader.readAsText(blob);
+	    return promise;
+	  }
+	
+	  function readArrayBufferAsText(buf) {
+	    var view = new Uint8Array(buf);
+	    var chars = new Array(view.length);
+	
+	    for (var i = 0; i < view.length; i++) {
+	      chars[i] = String.fromCharCode(view[i]);
+	    }
+	    return chars.join('');
+	  }
+	
+	  function bufferClone(buf) {
+	    if (buf.slice) {
+	      return buf.slice(0);
+	    } else {
+	      var view = new Uint8Array(buf.byteLength);
+	      view.set(new Uint8Array(buf));
+	      return view.buffer;
+	    }
+	  }
+	
+	  function Body() {
+	    this.bodyUsed = false;
+	
+	    this._initBody = function (body) {
+	      this._bodyInit = body;
+	      if (!body) {
+	        this._bodyText = '';
+	      } else if (typeof body === 'string') {
+	        this._bodyText = body;
+	      } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
+	        this._bodyBlob = body;
+	      } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {
+	        this._bodyFormData = body;
+	      } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
+	        this._bodyText = body.toString();
+	      } else if (support.arrayBuffer && support.blob && isDataView(body)) {
+	        this._bodyArrayBuffer = bufferClone(body.buffer);
+	        // IE 10-11 can't handle a DataView body.
+	        this._bodyInit = new Blob([this._bodyArrayBuffer]);
+	      } else if (support.arrayBuffer && (ArrayBuffer.prototype.isPrototypeOf(body) || isArrayBufferView(body))) {
+	        this._bodyArrayBuffer = bufferClone(body);
+	      } else {
+	        throw new Error('unsupported BodyInit type');
+	      }
+	
+	      if (!this.headers.get('content-type')) {
+	        if (typeof body === 'string') {
+	          this.headers.set('content-type', 'text/plain;charset=UTF-8');
+	        } else if (this._bodyBlob && this._bodyBlob.type) {
+	          this.headers.set('content-type', this._bodyBlob.type);
+	        } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
+	          this.headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
+	        }
+	      }
+	    };
+	
+	    if (support.blob) {
+	      this.blob = function () {
+	        var rejected = consumed(this);
+	        if (rejected) {
+	          return rejected;
+	        }
+	
+	        if (this._bodyBlob) {
+	          return Promise.resolve(this._bodyBlob);
+	        } else if (this._bodyArrayBuffer) {
+	          return Promise.resolve(new Blob([this._bodyArrayBuffer]));
+	        } else if (this._bodyFormData) {
+	          throw new Error('could not read FormData body as blob');
+	        } else {
+	          return Promise.resolve(new Blob([this._bodyText]));
+	        }
+	      };
+	
+	      this.arrayBuffer = function () {
+	        if (this._bodyArrayBuffer) {
+	          return consumed(this) || Promise.resolve(this._bodyArrayBuffer);
+	        } else {
+	          return this.blob().then(readBlobAsArrayBuffer);
+	        }
+	      };
+	    }
+	
+	    this.text = function () {
+	      var rejected = consumed(this);
+	      if (rejected) {
+	        return rejected;
+	      }
+	
+	      if (this._bodyBlob) {
+	        return readBlobAsText(this._bodyBlob);
+	      } else if (this._bodyArrayBuffer) {
+	        return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer));
+	      } else if (this._bodyFormData) {
+	        throw new Error('could not read FormData body as text');
+	      } else {
+	        return Promise.resolve(this._bodyText);
+	      }
+	    };
+	
+	    if (support.formData) {
+	      this.formData = function () {
+	        return this.text().then(decode);
+	      };
+	    }
+	
+	    this.json = function () {
+	      return this.text().then(JSON.parse);
+	    };
+	
+	    return this;
+	  }
+	
+	  // HTTP methods whose capitalization should be normalized
+	  var methods = ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT'];
+	
+	  function normalizeMethod(method) {
+	    var upcased = method.toUpperCase();
+	    return methods.indexOf(upcased) > -1 ? upcased : method;
+	  }
+	
+	  function Request(input, options) {
+	    options = options || {};
+	    var body = options.body;
+	
+	    if (input instanceof Request) {
+	      if (input.bodyUsed) {
+	        throw new TypeError('Already read');
+	      }
+	      this.url = input.url;
+	      this.credentials = input.credentials;
+	      if (!options.headers) {
+	        this.headers = new Headers(input.headers);
+	      }
+	      this.method = input.method;
+	      this.mode = input.mode;
+	      if (!body && input._bodyInit != null) {
+	        body = input._bodyInit;
+	        input.bodyUsed = true;
+	      }
+	    } else {
+	      this.url = String(input);
+	    }
+	
+	    this.credentials = options.credentials || this.credentials || 'omit';
+	    if (options.headers || !this.headers) {
+	      this.headers = new Headers(options.headers);
+	    }
+	    this.method = normalizeMethod(options.method || this.method || 'GET');
+	    this.mode = options.mode || this.mode || null;
+	    this.referrer = null;
+	
+	    if ((this.method === 'GET' || this.method === 'HEAD') && body) {
+	      throw new TypeError('Body not allowed for GET or HEAD requests');
+	    }
+	    this._initBody(body);
+	  }
+	
+	  Request.prototype.clone = function () {
+	    return new Request(this, { body: this._bodyInit });
+	  };
+	
+	  function decode(body) {
+	    var form = new FormData();
+	    body.trim().split('&').forEach(function (bytes) {
+	      if (bytes) {
+	        var split = bytes.split('=');
+	        var name = split.shift().replace(/\+/g, ' ');
+	        var value = split.join('=').replace(/\+/g, ' ');
+	        form.append(decodeURIComponent(name), decodeURIComponent(value));
+	      }
+	    });
+	    return form;
+	  }
+	
+	  function parseHeaders(rawHeaders) {
+	    var headers = new Headers();
+	    rawHeaders.split(/\r?\n/).forEach(function (line) {
+	      var parts = line.split(':');
+	      var key = parts.shift().trim();
+	      if (key) {
+	        var value = parts.join(':').trim();
+	        headers.append(key, value);
+	      }
+	    });
+	    return headers;
+	  }
+	
+	  Body.call(Request.prototype);
+	
+	  function Response(bodyInit, options) {
+	    if (!options) {
+	      options = {};
+	    }
+	
+	    this.type = 'default';
+	    this.status = 'status' in options ? options.status : 200;
+	    this.ok = this.status >= 200 && this.status < 300;
+	    this.statusText = 'statusText' in options ? options.statusText : 'OK';
+	    this.headers = new Headers(options.headers);
+	    this.url = options.url || '';
+	    this._initBody(bodyInit);
+	  }
+	
+	  Body.call(Response.prototype);
+	
+	  Response.prototype.clone = function () {
+	    return new Response(this._bodyInit, {
+	      status: this.status,
+	      statusText: this.statusText,
+	      headers: new Headers(this.headers),
+	      url: this.url
+	    });
+	  };
+	
+	  Response.error = function () {
+	    var response = new Response(null, { status: 0, statusText: '' });
+	    response.type = 'error';
+	    return response;
+	  };
+	
+	  var redirectStatuses = [301, 302, 303, 307, 308];
+	
+	  Response.redirect = function (url, status) {
+	    if (redirectStatuses.indexOf(status) === -1) {
+	      throw new RangeError('Invalid status code');
+	    }
+	
+	    return new Response(null, { status: status, headers: { location: url } });
+	  };
+	
+	  self.Headers = Headers;
+	  self.Request = Request;
+	  self.Response = Response;
+	
+	  self.fetch = function (input, init) {
+	    return new Promise(function (resolve, reject) {
+	      var request = new Request(input, init);
+	      var xhr = new XMLHttpRequest();
+	
+	      xhr.onload = function () {
+	        var options = {
+	          status: xhr.status,
+	          statusText: xhr.statusText,
+	          headers: parseHeaders(xhr.getAllResponseHeaders() || '')
+	        };
+	        options.url = 'responseURL' in xhr ? xhr.responseURL : options.headers.get('X-Request-URL');
+	        var body = 'response' in xhr ? xhr.response : xhr.responseText;
+	        resolve(new Response(body, options));
+	      };
+	
+	      xhr.onerror = function () {
+	        reject(new TypeError('Network request failed'));
+	      };
+	
+	      xhr.ontimeout = function () {
+	        reject(new TypeError('Network request failed'));
+	      };
+	
+	      xhr.open(request.method, request.url, true);
+	
+	      if (request.credentials === 'include') {
+	        xhr.withCredentials = true;
+	      }
+	
+	      if ('responseType' in xhr && support.blob) {
+	        xhr.responseType = 'blob';
+	      }
+	
+	      request.headers.forEach(function (value, name) {
+	        xhr.setRequestHeader(name, value);
+	      });
+	
+	      xhr.send(typeof request._bodyInit === 'undefined' ? null : request._bodyInit);
+	    });
+	  };
+	  self.fetch.polyfill = true;
+	})(typeof self !== 'undefined' ? self : undefined);
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var ExtJSON = __webpack_require__(8);
+	ExtJSON.BSON = __webpack_require__(13);
+	
+	module.exports = ExtJSON;
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
+	
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	
+	var bsonModule = __webpack_require__(13);
+	var atob = __webpack_require__(15).atob;
+	var bufferConstructor = null;
+	
+	if (typeof Buffer !== 'undefined') {
+	  bufferConstructor = new Buffer(1) instanceof Uint8Array ? Buffer : Uint8Array;
+	} else {
+	  bufferConstructor = Uint8Array;
+	}
+	
+	var ExtJSON = function ExtJSON(module) {
+	  if (module) {
+	    for (var i = 0; i < BSONTypes.length; i++) {
+	      if (!module[BSONTypes[i]]) throw new Error('passed in module does not contain all BSON types required');
+	    }
+	
+	    this.bson = module;
+	  } else {
+	    this.bson = bsonModule;
+	  }
+	};
+	
+	ExtJSON.extend = function (module) {
+	  if (!module) throw new Error("expecting mongodb module, invoke by calling ExtJSON.extend(require('mongodb'))");
+	  // Rewrite passed in types
+	  for (var i = 0; i < BSONTypes.length; i++) {
+	    if (module[BSONTypes[i]]) {
+	      // Add the toJSON to the passed in types
+	      // This lets us modify the toJSON method withou breaking
+	      // backward compatibility
+	      module[BSONTypes[i]].prototype.toJSON = bsonModule[BSONTypes[i]].prototype.toJSON;
+	    }
+	  }
+	
+	  return module;
+	};
+	
+	function deseralizeValue(self, value, options) {
+	  if (value['$oid'] != null) {
+	    return new self.bson.ObjectID(value['$oid']);
+	  } else if (value['$date'] && typeof value['$date'] == 'string') {
+	    return Date.parse(value['$date']);
+	  } else if (value['$date'] && value['$date'] instanceof self.bson.Long) {
+	    var date = new Date();
+	    date.setTime(value['$date'].toNumber());
+	    return date;
+	  } else if (value['$binary'] != null) {
+	    if (typeof Buffer !== 'undefined') {
+	      if (bufferConstructor === Buffer) {
+	        var data = new Buffer(value['$binary'], 'base64');
+	        var type = value['$type'] ? parseInt(value['$type'], 16) : 0;
+	        return new self.bson.Binary(data, type);
+	      }
+	    }
+	
+	    var data = new Uint8Array(atob(value['$binary']).split("").map(function (c) {
+	      return c.charCodeAt(0);
+	    }));
+	
+	    var type = value['$type'] ? parseInt(value['$type'], 16) : 0;
+	    return new self.bson.Binary(data, type);
+	  } else if (value['$maxKey'] != null) {
+	    return new self.bson.MaxKey();
+	  } else if (value['$minKey'] != null) {
+	    return new self.bson.MinKey();
+	  } else if (value['$code'] != null) {
+	    return new self.bson.Code(value['$code'], deseralizeValue(self, value['$scope'] || {}, options));
+	  } else if (value['$numberLong'] != null) {
+	    return self.bson.Long.fromString(value['$numberLong']);
+	  } else if (value['$numberDouble'] != null && options.strict) {
+	    return new self.bson.Double(parseFloat(value['$numberDouble']));
+	  } else if (value['$numberDouble'] != null && !options.strict) {
+	    return parseFloat(value['$numberDouble']);
+	  } else if (value['$numberInt'] != null && options.strict) {
+	    return new self.bson.Int32(parseInt(value['$numberInt'], 10));
+	  } else if (value['$numberInt'] != null && !options.strict) {
+	    return parseInt(value['$numberInt'], 10);
+	  } else if (value['$numberDecimal'] != null) {
+	    return self.bson.Decimal128.fromString(value['$numberDecimal']);
+	  } else if (value['$regex'] != null) {
+	    return new self.bson.BSONRegExp(value['$regex'], value['$options'] || '');
+	  } else if (value['$symbol'] != null) {
+	    return new self.bson.Symbol(value['$symbol']);
+	  } else if (value['$ref'] != null) {
+	    return new self.bson.DBRef(value['$ref'], deseralizeValue(self, value['$id'], options), value['$db']);
+	  } else if (value['$timestamp'] != null) {
+	    return self.bson.Timestamp.fromString(value['$timestamp']);
+	  } else if (typeof value == 'number' && options.strict) {
+	    if (Math.floor(value) === value && value >= JS_INT_MIN && value <= JS_INT_MAX) {
+	      if (value >= BSON_INT32_MIN && value <= BSON_INT32_MAX) {
+	        return new self.bson.Int32(value);
+	      } else if (value >= JS_INT_MIN && value <= JS_INT_MAX) {
+	        return new self.bson.Double(value);
+	      } else {
+	        return new self.bson.Long.fromNumber(value);
+	      }
+	    } else {
+	      return new self.bson.Double(value);
+	    }
+	  } else if (typeof value == 'number' && !options.strict) {
+	    if (Math.floor(value) === value && value >= JS_INT_MIN && value <= JS_INT_MAX) {
+	      if (value >= BSON_INT32_MIN && value <= BSON_INT32_MAX) {
+	        return value;
+	      } else if (value >= JS_INT_MIN && value <= JS_INT_MAX) {
+	        return value;
+	      } else {
+	        return new self.bson.Long.fromNumber(value);
+	      }
+	    } else {
+	      return value;
+	    }
+	  } else {
+	    return value;
+	  }
+	}
+	
+	ExtJSON.prototype.parse = function (text, options) {
+	  var self = this;
+	  options = options || { strict: true };
+	
+	  var object = JSON.parse(text, function (key, value) {
+	    return deseralizeValue(self, value, options);
+	  });
+	
+	  return object;
+	};
+	
+	//
+	// Serializer
+	//
+	
+	// MAX INT32 boundaries
+	var BSON_INT32_MAX = 0x7FFFFFFF;
+	var BSON_INT32_MIN = -0x80000000;
+	
+	// JS MAX PRECISE VALUES
+	var JS_INT_MAX = 0x20000000000000; // Any integer up to 2^53 can be precisely represented by a double.
+	var JS_INT_MIN = -0x20000000000000; // Any integer down to -2^53 can be precisely represented by a double.
+	
+	ExtJSON.prototype.stringify = function (value, reducer, indents) {
+	  var doc = null;
+	
+	  if (Array.isArray(value)) {
+	    doc = serializeArray(value);
+	  } else {
+	    doc = serializeDocument(value);
+	  }
+	
+	  return JSON.stringify(doc, reducer, indents);
+	};
+	
+	function serializeArray(array) {
+	  var _array = new Array(array.length);
+	
+	  for (var i = 0; i < array.length; i++) {
+	    _array[i] = serializeValue(array[i]);
+	  }
+	
+	  return _array;
+	}
+	
+	function serializeValue(value) {
+	  if (value instanceof Date) {
+	    return { $date: { $numberLong: value.getTime().toString() } };
+	  } else if (typeof value == 'number') {
+	    if (Math.floor(value) === value && value >= JS_INT_MIN && value <= JS_INT_MAX) {
+	      if (value >= BSON_INT32_MIN && value <= BSON_INT32_MAX) {
+	        return { $numberInt: value.toString() };
+	      } else if (value >= JS_INT_MIN && value <= JS_INT_MAX) {
+	        return { $numberDouble: value.toString() };
+	      } else {
+	        return { $numberLong: value.toString() };
+	      }
+	    } else {
+	      return { $numberDouble: value.toString() };
+	    }
+	  } else if (Array.isArray(value)) {
+	    return serializeArray(value);
+	  } else if (value != null && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) == 'object') {
+	    return serializeDocument(value);
+	  }
+	
+	  return value;
+	}
+	
+	var BSONTypes = ['Binary', 'Code', 'DBRef', 'Decimal128', 'Double', 'Int32', 'Long', 'MaxKey', 'MinKey', 'ObjectID', 'BSONRegExp', 'Symbol', 'Timestamp'];
+	
+	function serializeDocument(doc) {
+	  if (doc == null || (typeof doc === 'undefined' ? 'undefined' : _typeof(doc)) !== 'object') throw new Error('not an object instance');
+	  var _doc = {};
+	
+	  for (var name in doc) {
+	    if (Array.isArray(doc[name])) {
+	      _doc[name] = serializeArray(doc[name]);
+	    } else if (doc[name] != null && doc[name]._bsontype && BSONTypes.indexOf(doc[name]._bsontype) != -1) {
+	      _doc[name] = doc[name];
+	    } else if (doc[name] instanceof Date) {
+	      _doc[name] = serializeValue(doc[name]);
+	    } else if (doc[name] != null && _typeof(doc[name]) === 'object') {
+	      _doc[name] = serializeDocument(doc[name]);
+	    } else {
+	      _doc[name] = serializeValue(doc[name]);
+	    }
+	  }
+	
+	  return _doc;
+	}
+	
+	// Export the Extended BSON
+	module.exports = ExtJSON;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+
+/***/ },
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/*!
@@ -1441,9 +2672,9 @@ var Baas =
 	
 	'use strict';
 	
-	var base64 = __webpack_require__(5);
-	var ieee754 = __webpack_require__(6);
-	var isArray = __webpack_require__(7);
+	var base64 = __webpack_require__(10);
+	var ieee754 = __webpack_require__(11);
+	var isArray = __webpack_require__(12);
 	
 	exports.Buffer = Buffer;
 	exports.SlowBuffer = SlowBuffer;
@@ -3171,7 +4402,7 @@ var Baas =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 5 */
+/* 10 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -3290,7 +4521,7 @@ var Baas =
 	}
 
 /***/ },
-/* 6 */
+/* 11 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3381,7 +4612,7 @@ var Baas =
 	};
 
 /***/ },
-/* 7 */
+/* 12 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -3391,1334 +4622,6 @@ var Baas =
 	module.exports = Array.isArray || function (arr) {
 	  return toString.call(arr) == '[object Array]';
 	};
-
-/***/ },
-/* 8 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	// This is free and unencumbered software released into the public domain.
-	// See LICENSE.md for more information.
-	
-	//
-	// Utilities
-	//
-	
-	/**
-	 * @param {number} a The number to test.
-	 * @param {number} min The minimum value in the range, inclusive.
-	 * @param {number} max The maximum value in the range, inclusive.
-	 * @return {boolean} True if a >= min and a <= max.
-	 */
-	
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-	
-	function inRange(a, min, max) {
-	  return min <= a && a <= max;
-	}
-	
-	/**
-	 * @param {*} o
-	 * @return {Object}
-	 */
-	function ToDictionary(o) {
-	  if (o === undefined) return {};
-	  if (o === Object(o)) return o;
-	  throw TypeError('Could not convert argument to dictionary');
-	}
-	
-	/**
-	 * @param {string} string Input string of UTF-16 code units.
-	 * @return {!Array.<number>} Code points.
-	 */
-	function stringToCodePoints(string) {
-	  // https://heycam.github.io/webidl/#dfn-obtain-unicode
-	
-	  // 1. Let S be the DOMString value.
-	  var s = String(string);
-	
-	  // 2. Let n be the length of S.
-	  var n = s.length;
-	
-	  // 3. Initialize i to 0.
-	  var i = 0;
-	
-	  // 4. Initialize U to be an empty sequence of Unicode characters.
-	  var u = [];
-	
-	  // 5. While i < n:
-	  while (i < n) {
-	
-	    // 1. Let c be the code unit in S at index i.
-	    var c = s.charCodeAt(i);
-	
-	    // 2. Depending on the value of c:
-	
-	    // c < 0xD800 or c > 0xDFFF
-	    if (c < 0xD800 || c > 0xDFFF) {
-	      // Append to U the Unicode character with code point c.
-	      u.push(c);
-	    }
-	
-	    // 0xDC00 ≤ c ≤ 0xDFFF
-	    else if (0xDC00 <= c && c <= 0xDFFF) {
-	        // Append to U a U+FFFD REPLACEMENT CHARACTER.
-	        u.push(0xFFFD);
-	      }
-	
-	      // 0xD800 ≤ c ≤ 0xDBFF
-	      else if (0xD800 <= c && c <= 0xDBFF) {
-	          // 1. If i = n−1, then append to U a U+FFFD REPLACEMENT
-	          // CHARACTER.
-	          if (i === n - 1) {
-	            u.push(0xFFFD);
-	          }
-	          // 2. Otherwise, i < n−1:
-	          else {
-	              // 1. Let d be the code unit in S at index i+1.
-	              var d = string.charCodeAt(i + 1);
-	
-	              // 2. If 0xDC00 ≤ d ≤ 0xDFFF, then:
-	              if (0xDC00 <= d && d <= 0xDFFF) {
-	                // 1. Let a be c & 0x3FF.
-	                var a = c & 0x3FF;
-	
-	                // 2. Let b be d & 0x3FF.
-	                var b = d & 0x3FF;
-	
-	                // 3. Append to U the Unicode character with code point
-	                // 2^16+2^10*a+b.
-	                u.push(0x10000 + (a << 10) + b);
-	
-	                // 4. Set i to i+1.
-	                i += 1;
-	              }
-	
-	              // 3. Otherwise, d < 0xDC00 or d > 0xDFFF. Append to U a
-	              // U+FFFD REPLACEMENT CHARACTER.
-	              else {
-	                  u.push(0xFFFD);
-	                }
-	            }
-	        }
-	
-	    // 3. Set i to i+1.
-	    i += 1;
-	  }
-	
-	  // 6. Return U.
-	  return u;
-	}
-	
-	/**
-	 * @param {!Array.<number>} code_points Array of code points.
-	 * @return {string} string String of UTF-16 code units.
-	 */
-	function codePointsToString(code_points) {
-	  var s = '';
-	  for (var i = 0; i < code_points.length; ++i) {
-	    var cp = code_points[i];
-	    if (cp <= 0xFFFF) {
-	      s += String.fromCharCode(cp);
-	    } else {
-	      cp -= 0x10000;
-	      s += String.fromCharCode((cp >> 10) + 0xD800, (cp & 0x3FF) + 0xDC00);
-	    }
-	  }
-	  return s;
-	}
-	
-	//
-	// Implementation of Encoding specification
-	// https://encoding.spec.whatwg.org/
-	//
-	
-	//
-	// 3. Terminology
-	//
-	
-	/**
-	 * End-of-stream is a special token that signifies no more tokens
-	 * are in the stream.
-	 * @const
-	 */var end_of_stream = -1;
-	
-	/**
-	 * A stream represents an ordered sequence of tokens.
-	 *
-	 * @constructor
-	 * @param {!(Array.<number>|Uint8Array)} tokens Array of tokens that provide the
-	 * stream.
-	 */
-	function Stream(tokens) {
-	  /** @type {!Array.<number>} */
-	  this.tokens = [].slice.call(tokens);
-	}
-	
-	Stream.prototype = {
-	  /**
-	   * @return {boolean} True if end-of-stream has been hit.
-	   */
-	  endOfStream: function endOfStream() {
-	    return !this.tokens.length;
-	  },
-	
-	  /**
-	   * When a token is read from a stream, the first token in the
-	   * stream must be returned and subsequently removed, and
-	   * end-of-stream must be returned otherwise.
-	   *
-	   * @return {number} Get the next token from the stream, or
-	   * end_of_stream.
-	   */
-	  read: function read() {
-	    if (!this.tokens.length) return end_of_stream;
-	    return this.tokens.shift();
-	  },
-	
-	  /**
-	   * When one or more tokens are prepended to a stream, those tokens
-	   * must be inserted, in given order, before the first token in the
-	   * stream.
-	   *
-	   * @param {(number|!Array.<number>)} token The token(s) to prepend to the stream.
-	   */
-	  prepend: function prepend(token) {
-	    if (Array.isArray(token)) {
-	      var tokens = /**@type {!Array.<number>}*/token;
-	      while (tokens.length) {
-	        this.tokens.unshift(tokens.pop());
-	      }
-	    } else {
-	      this.tokens.unshift(token);
-	    }
-	  },
-	
-	  /**
-	   * When one or more tokens are pushed to a stream, those tokens
-	   * must be inserted, in given order, after the last token in the
-	   * stream.
-	   *
-	   * @param {(number|!Array.<number>)} token The tokens(s) to prepend to the stream.
-	   */
-	  push: function push(token) {
-	    if (Array.isArray(token)) {
-	      var tokens = /**@type {!Array.<number>}*/token;
-	      while (tokens.length) {
-	        this.tokens.push(tokens.shift());
-	      }
-	    } else {
-	      this.tokens.push(token);
-	    }
-	  }
-	};
-	
-	//
-	// 4. Encodings
-	//
-	
-	// 4.1 Encoders and decoders
-	
-	/** @const */
-	var finished = -1;
-	
-	/**
-	 * @param {boolean} fatal If true, decoding errors raise an exception.
-	 * @param {number=} opt_code_point Override the standard fallback code point.
-	 * @return {number} The code point to insert on a decoding error.
-	 */
-	function decoderError(fatal, opt_code_point) {
-	  if (fatal) throw TypeError('Decoder error');
-	  return opt_code_point || 0xFFFD;
-	}
-	
-	//
-	// 7. API
-	//
-	
-	/** @const */var DEFAULT_ENCODING = 'utf-8';
-	
-	// 7.1 Interface TextDecoder
-	
-	/**
-	 * @constructor
-	 * @param {string=} encoding The label of the encoding;
-	 *     defaults to 'utf-8'.
-	 * @param {Object=} options
-	 */
-	function TextDecoder(encoding, options) {
-	  if (!(this instanceof TextDecoder)) {
-	    return new TextDecoder(encoding, options);
-	  }
-	  encoding = encoding !== undefined ? String(encoding).toLowerCase() : DEFAULT_ENCODING;
-	  if (encoding !== DEFAULT_ENCODING) {
-	    throw new Error('Encoding not supported. Only utf-8 is supported');
-	  }
-	  options = ToDictionary(options);
-	
-	  /** @private @type {boolean} */
-	  this._streaming = false;
-	  /** @private @type {boolean} */
-	  this._BOMseen = false;
-	  /** @private @type {?Decoder} */
-	  this._decoder = null;
-	  /** @private @type {boolean} */
-	  this._fatal = Boolean(options['fatal']);
-	  /** @private @type {boolean} */
-	  this._ignoreBOM = Boolean(options['ignoreBOM']);
-	
-	  Object.defineProperty(this, 'encoding', { value: 'utf-8' });
-	  Object.defineProperty(this, 'fatal', { value: this._fatal });
-	  Object.defineProperty(this, 'ignoreBOM', { value: this._ignoreBOM });
-	}
-	
-	TextDecoder.prototype = {
-	  /**
-	   * @param {ArrayBufferView=} input The buffer of bytes to decode.
-	   * @param {Object=} options
-	   * @return {string} The decoded string.
-	   */
-	  decode: function decode(input, options) {
-	    var bytes;
-	    if ((typeof input === 'undefined' ? 'undefined' : _typeof(input)) === 'object' && input instanceof ArrayBuffer) {
-	      bytes = new Uint8Array(input);
-	    } else if ((typeof input === 'undefined' ? 'undefined' : _typeof(input)) === 'object' && 'buffer' in input && input.buffer instanceof ArrayBuffer) {
-	      bytes = new Uint8Array(input.buffer, input.byteOffset, input.byteLength);
-	    } else {
-	      bytes = new Uint8Array(0);
-	    }
-	
-	    options = ToDictionary(options);
-	
-	    if (!this._streaming) {
-	      this._decoder = new UTF8Decoder({ fatal: this._fatal });
-	      this._BOMseen = false;
-	    }
-	    this._streaming = Boolean(options['stream']);
-	
-	    var input_stream = new Stream(bytes);
-	
-	    var code_points = [];
-	
-	    /** @type {?(number|!Array.<number>)} */
-	    var result;
-	
-	    while (!input_stream.endOfStream()) {
-	      result = this._decoder.handler(input_stream, input_stream.read());
-	      if (result === finished) break;
-	      if (result === null) continue;
-	      if (Array.isArray(result)) code_points.push.apply(code_points, /**@type {!Array.<number>}*/result);else code_points.push(result);
-	    }
-	    if (!this._streaming) {
-	      do {
-	        result = this._decoder.handler(input_stream, input_stream.read());
-	        if (result === finished) break;
-	        if (result === null) continue;
-	        if (Array.isArray(result)) code_points.push.apply(code_points, /**@type {!Array.<number>}*/result);else code_points.push(result);
-	      } while (!input_stream.endOfStream());
-	      this._decoder = null;
-	    }
-	
-	    if (code_points.length) {
-	      // If encoding is one of utf-8, utf-16be, and utf-16le, and
-	      // ignore BOM flag and BOM seen flag are unset, run these
-	      // subsubsteps:
-	      if (['utf-8'].indexOf(this.encoding) !== -1 && !this._ignoreBOM && !this._BOMseen) {
-	        // If token is U+FEFF, set BOM seen flag.
-	        if (code_points[0] === 0xFEFF) {
-	          this._BOMseen = true;
-	          code_points.shift();
-	        } else {
-	          // Otherwise, if token is not end-of-stream, set BOM seen
-	          // flag and append token to output.
-	          this._BOMseen = true;
-	        }
-	      }
-	    }
-	
-	    return codePointsToString(code_points);
-	  }
-	};
-	
-	// 7.2 Interface TextEncoder
-	
-	/**
-	 * @constructor
-	 * @param {string=} encoding The label of the encoding;
-	 *     defaults to 'utf-8'.
-	 * @param {Object=} options
-	 */
-	function TextEncoder(encoding, options) {
-	  if (!(this instanceof TextEncoder)) return new TextEncoder(encoding, options);
-	  encoding = encoding !== undefined ? String(encoding).toLowerCase() : DEFAULT_ENCODING;
-	  if (encoding !== DEFAULT_ENCODING) {
-	    throw new Error('Encoding not supported. Only utf-8 is supported');
-	  }
-	  options = ToDictionary(options);
-	
-	  /** @private @type {boolean} */
-	  this._streaming = false;
-	  /** @private @type {?Encoder} */
-	  this._encoder = null;
-	  /** @private @type {{fatal: boolean}} */
-	  this._options = { fatal: Boolean(options['fatal']) };
-	
-	  Object.defineProperty(this, 'encoding', { value: 'utf-8' });
-	}
-	
-	TextEncoder.prototype = {
-	  /**
-	   * @param {string=} opt_string The string to encode.
-	   * @param {Object=} options
-	   * @return {Uint8Array} Encoded bytes, as a Uint8Array.
-	   */
-	  encode: function encode(opt_string, options) {
-	    opt_string = opt_string ? String(opt_string) : '';
-	    options = ToDictionary(options);
-	
-	    // NOTE: This option is nonstandard. None of the encodings
-	    // permitted for encoding (i.e. UTF-8, UTF-16) are stateful,
-	    // so streaming is not necessary.
-	    if (!this._streaming) this._encoder = new UTF8Encoder(this._options);
-	    this._streaming = Boolean(options['stream']);
-	
-	    var bytes = [];
-	    var input_stream = new Stream(stringToCodePoints(opt_string));
-	    /** @type {?(number|!Array.<number>)} */
-	    var result;
-	    while (!input_stream.endOfStream()) {
-	      result = this._encoder.handler(input_stream, input_stream.read());
-	      if (result === finished) break;
-	      if (Array.isArray(result)) bytes.push.apply(bytes, /**@type {!Array.<number>}*/result);else bytes.push(result);
-	    }
-	    if (!this._streaming) {
-	      while (true) {
-	        result = this._encoder.handler(input_stream, input_stream.read());
-	        if (result === finished) break;
-	        if (Array.isArray(result)) bytes.push.apply(bytes, /**@type {!Array.<number>}*/result);else bytes.push(result);
-	      }
-	      this._encoder = null;
-	    }
-	    return new Uint8Array(bytes);
-	  }
-	};
-	
-	//
-	// 8. The encoding
-	//
-	
-	// 8.1 utf-8
-	
-	/**
-	 * @constructor
-	 * @implements {Decoder}
-	 * @param {{fatal: boolean}} options
-	 */
-	function UTF8Decoder(options) {
-	  var fatal = options.fatal;
-	
-	  // utf-8's decoder's has an associated utf-8 code point, utf-8
-	  // bytes seen, and utf-8 bytes needed (all initially 0), a utf-8
-	  // lower boundary (initially 0x80), and a utf-8 upper boundary
-	  // (initially 0xBF).
-	  var /** @type {number} */utf8_code_point = 0,
-	
-	  /** @type {number} */utf8_bytes_seen = 0,
-	
-	  /** @type {number} */utf8_bytes_needed = 0,
-	
-	  /** @type {number} */utf8_lower_boundary = 0x80,
-	
-	  /** @type {number} */utf8_upper_boundary = 0xBF;
-	
-	  /**
-	   * @param {Stream} stream The stream of bytes being decoded.
-	   * @param {number} bite The next byte read from the stream.
-	   * @return {?(number|!Array.<number>)} The next code point(s)
-	   *     decoded, or null if not enough data exists in the input
-	   *     stream to decode a complete code point.
-	   */
-	  this.handler = function (stream, bite) {
-	    // 1. If byte is end-of-stream and utf-8 bytes needed is not 0,
-	    // set utf-8 bytes needed to 0 and return error.
-	    if (bite === end_of_stream && utf8_bytes_needed !== 0) {
-	      utf8_bytes_needed = 0;
-	      return decoderError(fatal);
-	    }
-	
-	    // 2. If byte is end-of-stream, return finished.
-	    if (bite === end_of_stream) return finished;
-	
-	    // 3. If utf-8 bytes needed is 0, based on byte:
-	    if (utf8_bytes_needed === 0) {
-	
-	      // 0x00 to 0x7F
-	      if (inRange(bite, 0x00, 0x7F)) {
-	        // Return a code point whose value is byte.
-	        return bite;
-	      }
-	
-	      // 0xC2 to 0xDF
-	      if (inRange(bite, 0xC2, 0xDF)) {
-	        // Set utf-8 bytes needed to 1 and utf-8 code point to byte
-	        // − 0xC0.
-	        utf8_bytes_needed = 1;
-	        utf8_code_point = bite - 0xC0;
-	      }
-	
-	      // 0xE0 to 0xEF
-	      else if (inRange(bite, 0xE0, 0xEF)) {
-	          // 1. If byte is 0xE0, set utf-8 lower boundary to 0xA0.
-	          if (bite === 0xE0) utf8_lower_boundary = 0xA0;
-	          // 2. If byte is 0xED, set utf-8 upper boundary to 0x9F.
-	          if (bite === 0xED) utf8_upper_boundary = 0x9F;
-	          // 3. Set utf-8 bytes needed to 2 and utf-8 code point to
-	          // byte − 0xE0.
-	          utf8_bytes_needed = 2;
-	          utf8_code_point = bite - 0xE0;
-	        }
-	
-	        // 0xF0 to 0xF4
-	        else if (inRange(bite, 0xF0, 0xF4)) {
-	            // 1. If byte is 0xF0, set utf-8 lower boundary to 0x90.
-	            if (bite === 0xF0) utf8_lower_boundary = 0x90;
-	            // 2. If byte is 0xF4, set utf-8 upper boundary to 0x8F.
-	            if (bite === 0xF4) utf8_upper_boundary = 0x8F;
-	            // 3. Set utf-8 bytes needed to 3 and utf-8 code point to
-	            // byte − 0xF0.
-	            utf8_bytes_needed = 3;
-	            utf8_code_point = bite - 0xF0;
-	          }
-	
-	          // Otherwise
-	          else {
-	              // Return error.
-	              return decoderError(fatal);
-	            }
-	
-	      // Then (byte is in the range 0xC2 to 0xF4) set utf-8 code
-	      // point to utf-8 code point << (6 × utf-8 bytes needed) and
-	      // return continue.
-	      utf8_code_point = utf8_code_point << 6 * utf8_bytes_needed;
-	      return null;
-	    }
-	
-	    // 4. If byte is not in the range utf-8 lower boundary to utf-8
-	    // upper boundary, run these substeps:
-	    if (!inRange(bite, utf8_lower_boundary, utf8_upper_boundary)) {
-	
-	      // 1. Set utf-8 code point, utf-8 bytes needed, and utf-8
-	      // bytes seen to 0, set utf-8 lower boundary to 0x80, and set
-	      // utf-8 upper boundary to 0xBF.
-	      utf8_code_point = utf8_bytes_needed = utf8_bytes_seen = 0;
-	      utf8_lower_boundary = 0x80;
-	      utf8_upper_boundary = 0xBF;
-	
-	      // 2. Prepend byte to stream.
-	      stream.prepend(bite);
-	
-	      // 3. Return error.
-	      return decoderError(fatal);
-	    }
-	
-	    // 5. Set utf-8 lower boundary to 0x80 and utf-8 upper boundary
-	    // to 0xBF.
-	    utf8_lower_boundary = 0x80;
-	    utf8_upper_boundary = 0xBF;
-	
-	    // 6. Increase utf-8 bytes seen by one and set utf-8 code point
-	    // to utf-8 code point + (byte − 0x80) << (6 × (utf-8 bytes
-	    // needed − utf-8 bytes seen)).
-	    utf8_bytes_seen += 1;
-	    utf8_code_point += bite - 0x80 << 6 * (utf8_bytes_needed - utf8_bytes_seen);
-	
-	    // 7. If utf-8 bytes seen is not equal to utf-8 bytes needed,
-	    // continue.
-	    if (utf8_bytes_seen !== utf8_bytes_needed) return null;
-	
-	    // 8. Let code point be utf-8 code point.
-	    var code_point = utf8_code_point;
-	
-	    // 9. Set utf-8 code point, utf-8 bytes needed, and utf-8 bytes
-	    // seen to 0.
-	    utf8_code_point = utf8_bytes_needed = utf8_bytes_seen = 0;
-	
-	    // 10. Return a code point whose value is code point.
-	    return code_point;
-	  };
-	}
-	
-	/**
-	 * @constructor
-	 * @implements {Encoder}
-	 * @param {{fatal: boolean}} options
-	 */
-	function UTF8Encoder(options) {
-	  var fatal = options.fatal;
-	  /**
-	   * @param {Stream} stream Input stream.
-	   * @param {number} code_point Next code point read from the stream.
-	   * @return {(number|!Array.<number>)} Byte(s) to emit.
-	   */
-	  this.handler = function (stream, code_point) {
-	    // 1. If code point is end-of-stream, return finished.
-	    if (code_point === end_of_stream) return finished;
-	
-	    // 2. If code point is in the range U+0000 to U+007F, return a
-	    // byte whose value is code point.
-	    if (inRange(code_point, 0x0000, 0x007f)) return code_point;
-	
-	    // 3. Set count and offset based on the range code point is in:
-	    var count, offset;
-	    // U+0080 to U+07FF:    1 and 0xC0
-	    if (inRange(code_point, 0x0080, 0x07FF)) {
-	      count = 1;
-	      offset = 0xC0;
-	    }
-	    // U+0800 to U+FFFF:    2 and 0xE0
-	    else if (inRange(code_point, 0x0800, 0xFFFF)) {
-	        count = 2;
-	        offset = 0xE0;
-	      }
-	      // U+10000 to U+10FFFF: 3 and 0xF0
-	      else if (inRange(code_point, 0x10000, 0x10FFFF)) {
-	          count = 3;
-	          offset = 0xF0;
-	        }
-	
-	    // 4.Let bytes be a byte sequence whose first byte is (code
-	    // point >> (6 × count)) + offset.
-	    var bytes = [(code_point >> 6 * count) + offset];
-	
-	    // 5. Run these substeps while count is greater than 0:
-	    while (count > 0) {
-	
-	      // 1. Set temp to code point >> (6 × (count − 1)).
-	      var temp = code_point >> 6 * (count - 1);
-	
-	      // 2. Append to bytes 0x80 | (temp & 0x3F).
-	      bytes.push(0x80 | temp & 0x3F);
-	
-	      // 3. Decrease count by one.
-	      count -= 1;
-	    }
-	
-	    // 6. Return bytes bytes, in order.
-	    return bytes;
-	  };
-	}
-	
-	exports.TextEncoder = TextEncoder;
-	exports.TextDecoder = TextDecoder;
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	// the whatwg-fetch polyfill installs the fetch() function
-	// on the global object (window or self)
-	//
-	// Return that as the export for use in Webpack, Browserify etc.
-	__webpack_require__(10);
-	module.exports = self.fetch.bind(self);
-
-/***/ },
-/* 10 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	(function (self) {
-	  'use strict';
-	
-	  if (self.fetch) {
-	    return;
-	  }
-	
-	  var support = {
-	    searchParams: 'URLSearchParams' in self,
-	    iterable: 'Symbol' in self && 'iterator' in Symbol,
-	    blob: 'FileReader' in self && 'Blob' in self && function () {
-	      try {
-	        new Blob();
-	        return true;
-	      } catch (e) {
-	        return false;
-	      }
-	    }(),
-	    formData: 'FormData' in self,
-	    arrayBuffer: 'ArrayBuffer' in self
-	  };
-	
-	  if (support.arrayBuffer) {
-	    var viewClasses = ['[object Int8Array]', '[object Uint8Array]', '[object Uint8ClampedArray]', '[object Int16Array]', '[object Uint16Array]', '[object Int32Array]', '[object Uint32Array]', '[object Float32Array]', '[object Float64Array]'];
-	
-	    var isDataView = function isDataView(obj) {
-	      return obj && DataView.prototype.isPrototypeOf(obj);
-	    };
-	
-	    var isArrayBufferView = ArrayBuffer.isView || function (obj) {
-	      return obj && viewClasses.indexOf(Object.prototype.toString.call(obj)) > -1;
-	    };
-	  }
-	
-	  function normalizeName(name) {
-	    if (typeof name !== 'string') {
-	      name = String(name);
-	    }
-	    if (/[^a-z0-9\-#$%&'*+.\^_`|~]/i.test(name)) {
-	      throw new TypeError('Invalid character in header field name');
-	    }
-	    return name.toLowerCase();
-	  }
-	
-	  function normalizeValue(value) {
-	    if (typeof value !== 'string') {
-	      value = String(value);
-	    }
-	    return value;
-	  }
-	
-	  // Build a destructive iterator for the value list
-	  function iteratorFor(items) {
-	    var iterator = {
-	      next: function next() {
-	        var value = items.shift();
-	        return { done: value === undefined, value: value };
-	      }
-	    };
-	
-	    if (support.iterable) {
-	      iterator[Symbol.iterator] = function () {
-	        return iterator;
-	      };
-	    }
-	
-	    return iterator;
-	  }
-	
-	  function Headers(headers) {
-	    this.map = {};
-	
-	    if (headers instanceof Headers) {
-	      headers.forEach(function (value, name) {
-	        this.append(name, value);
-	      }, this);
-	    } else if (Array.isArray(headers)) {
-	      headers.forEach(function (header) {
-	        this.append(header[0], header[1]);
-	      }, this);
-	    } else if (headers) {
-	      Object.getOwnPropertyNames(headers).forEach(function (name) {
-	        this.append(name, headers[name]);
-	      }, this);
-	    }
-	  }
-	
-	  Headers.prototype.append = function (name, value) {
-	    name = normalizeName(name);
-	    value = normalizeValue(value);
-	    var oldValue = this.map[name];
-	    this.map[name] = oldValue ? oldValue + ',' + value : value;
-	  };
-	
-	  Headers.prototype['delete'] = function (name) {
-	    delete this.map[normalizeName(name)];
-	  };
-	
-	  Headers.prototype.get = function (name) {
-	    name = normalizeName(name);
-	    return this.has(name) ? this.map[name] : null;
-	  };
-	
-	  Headers.prototype.has = function (name) {
-	    return this.map.hasOwnProperty(normalizeName(name));
-	  };
-	
-	  Headers.prototype.set = function (name, value) {
-	    this.map[normalizeName(name)] = normalizeValue(value);
-	  };
-	
-	  Headers.prototype.forEach = function (callback, thisArg) {
-	    for (var name in this.map) {
-	      if (this.map.hasOwnProperty(name)) {
-	        callback.call(thisArg, this.map[name], name, this);
-	      }
-	    }
-	  };
-	
-	  Headers.prototype.keys = function () {
-	    var items = [];
-	    this.forEach(function (value, name) {
-	      items.push(name);
-	    });
-	    return iteratorFor(items);
-	  };
-	
-	  Headers.prototype.values = function () {
-	    var items = [];
-	    this.forEach(function (value) {
-	      items.push(value);
-	    });
-	    return iteratorFor(items);
-	  };
-	
-	  Headers.prototype.entries = function () {
-	    var items = [];
-	    this.forEach(function (value, name) {
-	      items.push([name, value]);
-	    });
-	    return iteratorFor(items);
-	  };
-	
-	  if (support.iterable) {
-	    Headers.prototype[Symbol.iterator] = Headers.prototype.entries;
-	  }
-	
-	  function consumed(body) {
-	    if (body.bodyUsed) {
-	      return Promise.reject(new TypeError('Already read'));
-	    }
-	    body.bodyUsed = true;
-	  }
-	
-	  function fileReaderReady(reader) {
-	    return new Promise(function (resolve, reject) {
-	      reader.onload = function () {
-	        resolve(reader.result);
-	      };
-	      reader.onerror = function () {
-	        reject(reader.error);
-	      };
-	    });
-	  }
-	
-	  function readBlobAsArrayBuffer(blob) {
-	    var reader = new FileReader();
-	    var promise = fileReaderReady(reader);
-	    reader.readAsArrayBuffer(blob);
-	    return promise;
-	  }
-	
-	  function readBlobAsText(blob) {
-	    var reader = new FileReader();
-	    var promise = fileReaderReady(reader);
-	    reader.readAsText(blob);
-	    return promise;
-	  }
-	
-	  function readArrayBufferAsText(buf) {
-	    var view = new Uint8Array(buf);
-	    var chars = new Array(view.length);
-	
-	    for (var i = 0; i < view.length; i++) {
-	      chars[i] = String.fromCharCode(view[i]);
-	    }
-	    return chars.join('');
-	  }
-	
-	  function bufferClone(buf) {
-	    if (buf.slice) {
-	      return buf.slice(0);
-	    } else {
-	      var view = new Uint8Array(buf.byteLength);
-	      view.set(new Uint8Array(buf));
-	      return view.buffer;
-	    }
-	  }
-	
-	  function Body() {
-	    this.bodyUsed = false;
-	
-	    this._initBody = function (body) {
-	      this._bodyInit = body;
-	      if (!body) {
-	        this._bodyText = '';
-	      } else if (typeof body === 'string') {
-	        this._bodyText = body;
-	      } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
-	        this._bodyBlob = body;
-	      } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {
-	        this._bodyFormData = body;
-	      } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
-	        this._bodyText = body.toString();
-	      } else if (support.arrayBuffer && support.blob && isDataView(body)) {
-	        this._bodyArrayBuffer = bufferClone(body.buffer);
-	        // IE 10-11 can't handle a DataView body.
-	        this._bodyInit = new Blob([this._bodyArrayBuffer]);
-	      } else if (support.arrayBuffer && (ArrayBuffer.prototype.isPrototypeOf(body) || isArrayBufferView(body))) {
-	        this._bodyArrayBuffer = bufferClone(body);
-	      } else {
-	        throw new Error('unsupported BodyInit type');
-	      }
-	
-	      if (!this.headers.get('content-type')) {
-	        if (typeof body === 'string') {
-	          this.headers.set('content-type', 'text/plain;charset=UTF-8');
-	        } else if (this._bodyBlob && this._bodyBlob.type) {
-	          this.headers.set('content-type', this._bodyBlob.type);
-	        } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
-	          this.headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
-	        }
-	      }
-	    };
-	
-	    if (support.blob) {
-	      this.blob = function () {
-	        var rejected = consumed(this);
-	        if (rejected) {
-	          return rejected;
-	        }
-	
-	        if (this._bodyBlob) {
-	          return Promise.resolve(this._bodyBlob);
-	        } else if (this._bodyArrayBuffer) {
-	          return Promise.resolve(new Blob([this._bodyArrayBuffer]));
-	        } else if (this._bodyFormData) {
-	          throw new Error('could not read FormData body as blob');
-	        } else {
-	          return Promise.resolve(new Blob([this._bodyText]));
-	        }
-	      };
-	
-	      this.arrayBuffer = function () {
-	        if (this._bodyArrayBuffer) {
-	          return consumed(this) || Promise.resolve(this._bodyArrayBuffer);
-	        } else {
-	          return this.blob().then(readBlobAsArrayBuffer);
-	        }
-	      };
-	    }
-	
-	    this.text = function () {
-	      var rejected = consumed(this);
-	      if (rejected) {
-	        return rejected;
-	      }
-	
-	      if (this._bodyBlob) {
-	        return readBlobAsText(this._bodyBlob);
-	      } else if (this._bodyArrayBuffer) {
-	        return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer));
-	      } else if (this._bodyFormData) {
-	        throw new Error('could not read FormData body as text');
-	      } else {
-	        return Promise.resolve(this._bodyText);
-	      }
-	    };
-	
-	    if (support.formData) {
-	      this.formData = function () {
-	        return this.text().then(decode);
-	      };
-	    }
-	
-	    this.json = function () {
-	      return this.text().then(JSON.parse);
-	    };
-	
-	    return this;
-	  }
-	
-	  // HTTP methods whose capitalization should be normalized
-	  var methods = ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT'];
-	
-	  function normalizeMethod(method) {
-	    var upcased = method.toUpperCase();
-	    return methods.indexOf(upcased) > -1 ? upcased : method;
-	  }
-	
-	  function Request(input, options) {
-	    options = options || {};
-	    var body = options.body;
-	
-	    if (input instanceof Request) {
-	      if (input.bodyUsed) {
-	        throw new TypeError('Already read');
-	      }
-	      this.url = input.url;
-	      this.credentials = input.credentials;
-	      if (!options.headers) {
-	        this.headers = new Headers(input.headers);
-	      }
-	      this.method = input.method;
-	      this.mode = input.mode;
-	      if (!body && input._bodyInit != null) {
-	        body = input._bodyInit;
-	        input.bodyUsed = true;
-	      }
-	    } else {
-	      this.url = String(input);
-	    }
-	
-	    this.credentials = options.credentials || this.credentials || 'omit';
-	    if (options.headers || !this.headers) {
-	      this.headers = new Headers(options.headers);
-	    }
-	    this.method = normalizeMethod(options.method || this.method || 'GET');
-	    this.mode = options.mode || this.mode || null;
-	    this.referrer = null;
-	
-	    if ((this.method === 'GET' || this.method === 'HEAD') && body) {
-	      throw new TypeError('Body not allowed for GET or HEAD requests');
-	    }
-	    this._initBody(body);
-	  }
-	
-	  Request.prototype.clone = function () {
-	    return new Request(this, { body: this._bodyInit });
-	  };
-	
-	  function decode(body) {
-	    var form = new FormData();
-	    body.trim().split('&').forEach(function (bytes) {
-	      if (bytes) {
-	        var split = bytes.split('=');
-	        var name = split.shift().replace(/\+/g, ' ');
-	        var value = split.join('=').replace(/\+/g, ' ');
-	        form.append(decodeURIComponent(name), decodeURIComponent(value));
-	      }
-	    });
-	    return form;
-	  }
-	
-	  function parseHeaders(rawHeaders) {
-	    var headers = new Headers();
-	    rawHeaders.split(/\r?\n/).forEach(function (line) {
-	      var parts = line.split(':');
-	      var key = parts.shift().trim();
-	      if (key) {
-	        var value = parts.join(':').trim();
-	        headers.append(key, value);
-	      }
-	    });
-	    return headers;
-	  }
-	
-	  Body.call(Request.prototype);
-	
-	  function Response(bodyInit, options) {
-	    if (!options) {
-	      options = {};
-	    }
-	
-	    this.type = 'default';
-	    this.status = 'status' in options ? options.status : 200;
-	    this.ok = this.status >= 200 && this.status < 300;
-	    this.statusText = 'statusText' in options ? options.statusText : 'OK';
-	    this.headers = new Headers(options.headers);
-	    this.url = options.url || '';
-	    this._initBody(bodyInit);
-	  }
-	
-	  Body.call(Response.prototype);
-	
-	  Response.prototype.clone = function () {
-	    return new Response(this._bodyInit, {
-	      status: this.status,
-	      statusText: this.statusText,
-	      headers: new Headers(this.headers),
-	      url: this.url
-	    });
-	  };
-	
-	  Response.error = function () {
-	    var response = new Response(null, { status: 0, statusText: '' });
-	    response.type = 'error';
-	    return response;
-	  };
-	
-	  var redirectStatuses = [301, 302, 303, 307, 308];
-	
-	  Response.redirect = function (url, status) {
-	    if (redirectStatuses.indexOf(status) === -1) {
-	      throw new RangeError('Invalid status code');
-	    }
-	
-	    return new Response(null, { status: status, headers: { location: url } });
-	  };
-	
-	  self.Headers = Headers;
-	  self.Request = Request;
-	  self.Response = Response;
-	
-	  self.fetch = function (input, init) {
-	    return new Promise(function (resolve, reject) {
-	      var request = new Request(input, init);
-	      var xhr = new XMLHttpRequest();
-	
-	      xhr.onload = function () {
-	        var options = {
-	          status: xhr.status,
-	          statusText: xhr.statusText,
-	          headers: parseHeaders(xhr.getAllResponseHeaders() || '')
-	        };
-	        options.url = 'responseURL' in xhr ? xhr.responseURL : options.headers.get('X-Request-URL');
-	        var body = 'response' in xhr ? xhr.response : xhr.responseText;
-	        resolve(new Response(body, options));
-	      };
-	
-	      xhr.onerror = function () {
-	        reject(new TypeError('Network request failed'));
-	      };
-	
-	      xhr.ontimeout = function () {
-	        reject(new TypeError('Network request failed'));
-	      };
-	
-	      xhr.open(request.method, request.url, true);
-	
-	      if (request.credentials === 'include') {
-	        xhr.withCredentials = true;
-	      }
-	
-	      if ('responseType' in xhr && support.blob) {
-	        xhr.responseType = 'blob';
-	      }
-	
-	      request.headers.forEach(function (value, name) {
-	        xhr.setRequestHeader(name, value);
-	      });
-	
-	      xhr.send(typeof request._bodyInit === 'undefined' ? null : request._bodyInit);
-	    });
-	  };
-	  self.fetch.polyfill = true;
-	})(typeof self !== 'undefined' ? self : undefined);
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	var ExtJSON = __webpack_require__(12);
-	ExtJSON.BSON = __webpack_require__(13);
-	
-	module.exports = ExtJSON;
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
-	
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-	
-	var bsonModule = __webpack_require__(13);
-	var atob = __webpack_require__(15).atob;
-	var bufferConstructor = null;
-	
-	if (typeof Buffer !== 'undefined') {
-	  bufferConstructor = new Buffer(1) instanceof Uint8Array ? Buffer : Uint8Array;
-	} else {
-	  bufferConstructor = Uint8Array;
-	}
-	
-	var ExtJSON = function ExtJSON(module) {
-	  if (module) {
-	    for (var i = 0; i < BSONTypes.length; i++) {
-	      if (!module[BSONTypes[i]]) throw new Error('passed in module does not contain all BSON types required');
-	    }
-	
-	    this.bson = module;
-	  } else {
-	    this.bson = bsonModule;
-	  }
-	};
-	
-	ExtJSON.extend = function (module) {
-	  if (!module) throw new Error("expecting mongodb module, invoke by calling ExtJSON.extend(require('mongodb'))");
-	  // Rewrite passed in types
-	  for (var i = 0; i < BSONTypes.length; i++) {
-	    if (module[BSONTypes[i]]) {
-	      // Add the toJSON to the passed in types
-	      // This lets us modify the toJSON method withou breaking
-	      // backward compatibility
-	      module[BSONTypes[i]].prototype.toJSON = bsonModule[BSONTypes[i]].prototype.toJSON;
-	    }
-	  }
-	
-	  return module;
-	};
-	
-	function deseralizeValue(self, value, options) {
-	  if (value['$oid'] != null) {
-	    return new self.bson.ObjectID(value['$oid']);
-	  } else if (value['$date'] && typeof value['$date'] == 'string') {
-	    return Date.parse(value['$date']);
-	  } else if (value['$date'] && value['$date'] instanceof self.bson.Long) {
-	    var date = new Date();
-	    date.setTime(value['$date'].toNumber());
-	    return date;
-	  } else if (value['$binary'] != null) {
-	    if (typeof Buffer !== 'undefined') {
-	      if (bufferConstructor === Buffer) {
-	        var data = new Buffer(value['$binary'], 'base64');
-	        var type = value['$type'] ? parseInt(value['$type'], 16) : 0;
-	        return new self.bson.Binary(data, type);
-	      }
-	    }
-	
-	    var data = new Uint8Array(atob(value['$binary']).split("").map(function (c) {
-	      return c.charCodeAt(0);
-	    }));
-	
-	    var type = value['$type'] ? parseInt(value['$type'], 16) : 0;
-	    return new self.bson.Binary(data, type);
-	  } else if (value['$maxKey'] != null) {
-	    return new self.bson.MaxKey();
-	  } else if (value['$minKey'] != null) {
-	    return new self.bson.MinKey();
-	  } else if (value['$code'] != null) {
-	    return new self.bson.Code(value['$code'], deseralizeValue(self, value['$scope'] || {}, options));
-	  } else if (value['$numberLong'] != null) {
-	    return self.bson.Long.fromString(value['$numberLong']);
-	  } else if (value['$numberDouble'] != null && options.strict) {
-	    return new self.bson.Double(parseFloat(value['$numberDouble']));
-	  } else if (value['$numberDouble'] != null && !options.strict) {
-	    return parseFloat(value['$numberDouble']);
-	  } else if (value['$numberInt'] != null && options.strict) {
-	    return new self.bson.Int32(parseInt(value['$numberInt'], 10));
-	  } else if (value['$numberInt'] != null && !options.strict) {
-	    return parseInt(value['$numberInt'], 10);
-	  } else if (value['$numberDecimal'] != null) {
-	    return self.bson.Decimal128.fromString(value['$numberDecimal']);
-	  } else if (value['$regex'] != null) {
-	    return new self.bson.BSONRegExp(value['$regex'], value['$options'] || '');
-	  } else if (value['$symbol'] != null) {
-	    return new self.bson.Symbol(value['$symbol']);
-	  } else if (value['$ref'] != null) {
-	    return new self.bson.DBRef(value['$ref'], deseralizeValue(self, value['$id'], options), value['$db']);
-	  } else if (value['$timestamp'] != null) {
-	    return self.bson.Timestamp.fromString(value['$timestamp']);
-	  } else if (typeof value == 'number' && options.strict) {
-	    if (Math.floor(value) === value && value >= JS_INT_MIN && value <= JS_INT_MAX) {
-	      if (value >= BSON_INT32_MIN && value <= BSON_INT32_MAX) {
-	        return new self.bson.Int32(value);
-	      } else if (value >= JS_INT_MIN && value <= JS_INT_MAX) {
-	        return new self.bson.Double(value);
-	      } else {
-	        return new self.bson.Long.fromNumber(value);
-	      }
-	    } else {
-	      return new self.bson.Double(value);
-	    }
-	  } else if (typeof value == 'number' && !options.strict) {
-	    if (Math.floor(value) === value && value >= JS_INT_MIN && value <= JS_INT_MAX) {
-	      if (value >= BSON_INT32_MIN && value <= BSON_INT32_MAX) {
-	        return value;
-	      } else if (value >= JS_INT_MIN && value <= JS_INT_MAX) {
-	        return value;
-	      } else {
-	        return new self.bson.Long.fromNumber(value);
-	      }
-	    } else {
-	      return value;
-	    }
-	  } else {
-	    return value;
-	  }
-	}
-	
-	ExtJSON.prototype.parse = function (text, options) {
-	  var self = this;
-	  options = options || { strict: true };
-	
-	  var object = JSON.parse(text, function (key, value) {
-	    return deseralizeValue(self, value, options);
-	  });
-	
-	  return object;
-	};
-	
-	//
-	// Serializer
-	//
-	
-	// MAX INT32 boundaries
-	var BSON_INT32_MAX = 0x7FFFFFFF;
-	var BSON_INT32_MIN = -0x80000000;
-	
-	// JS MAX PRECISE VALUES
-	var JS_INT_MAX = 0x20000000000000; // Any integer up to 2^53 can be precisely represented by a double.
-	var JS_INT_MIN = -0x20000000000000; // Any integer down to -2^53 can be precisely represented by a double.
-	
-	ExtJSON.prototype.stringify = function (value, reducer, indents) {
-	  var doc = null;
-	
-	  if (Array.isArray(value)) {
-	    doc = serializeArray(value);
-	  } else {
-	    doc = serializeDocument(value);
-	  }
-	
-	  return JSON.stringify(doc, reducer, indents);
-	};
-	
-	function serializeArray(array) {
-	  var _array = new Array(array.length);
-	
-	  for (var i = 0; i < array.length; i++) {
-	    _array[i] = serializeValue(array[i]);
-	  }
-	
-	  return _array;
-	}
-	
-	function serializeValue(value) {
-	  if (value instanceof Date) {
-	    return { $date: { $numberLong: value.getTime().toString() } };
-	  } else if (typeof value == 'number') {
-	    if (Math.floor(value) === value && value >= JS_INT_MIN && value <= JS_INT_MAX) {
-	      if (value >= BSON_INT32_MIN && value <= BSON_INT32_MAX) {
-	        return { $numberInt: value.toString() };
-	      } else if (value >= JS_INT_MIN && value <= JS_INT_MAX) {
-	        return { $numberDouble: value.toString() };
-	      } else {
-	        return { $numberLong: value.toString() };
-	      }
-	    } else {
-	      return { $numberDouble: value.toString() };
-	    }
-	  } else if (Array.isArray(value)) {
-	    return serializeArray(value);
-	  } else if (value != null && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) == 'object') {
-	    return serializeDocument(value);
-	  }
-	
-	  return value;
-	}
-	
-	var BSONTypes = ['Binary', 'Code', 'DBRef', 'Decimal128', 'Double', 'Int32', 'Long', 'MaxKey', 'MinKey', 'ObjectID', 'BSONRegExp', 'Symbol', 'Timestamp'];
-	
-	function serializeDocument(doc) {
-	  if (doc == null || (typeof doc === 'undefined' ? 'undefined' : _typeof(doc)) !== 'object') throw new Error('not an object instance');
-	  var _doc = {};
-	
-	  for (var name in doc) {
-	    if (Array.isArray(doc[name])) {
-	      _doc[name] = serializeArray(doc[name]);
-	    } else if (doc[name] != null && doc[name]._bsontype && BSONTypes.indexOf(doc[name]._bsontype) != -1) {
-	      _doc[name] = doc[name];
-	    } else if (doc[name] instanceof Date) {
-	      _doc[name] = serializeValue(doc[name]);
-	    } else if (doc[name] != null && _typeof(doc[name]) === 'object') {
-	      _doc[name] = serializeDocument(doc[name]);
-	    } else {
-	      _doc[name] = serializeValue(doc[name]);
-	    }
-	  }
-	
-	  return _doc;
-	}
-	
-	// Export the Extended BSON
-	module.exports = ExtJSON;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
 
 /***/ },
 /* 13 */
@@ -5028,7 +4931,7 @@ var Baas =
 	Binary.SUBTYPE_USER_DEFINED = 128;
 	
 	module.exports = Binary;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
 /* 15 */
@@ -5902,7 +5805,7 @@ var Baas =
 	};
 	
 	module.exports = Decimal128;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
 /* 19 */

@@ -1,7 +1,10 @@
 /* global window, fetch */
 
 import * as common from './common'
-import {Base64} from 'js-base64'
+const Base64 = require("Base64")
+
+const b64Encode = Base64.btoa
+const b64Decode = Base64.atob
 
 class AuthDataStorage {
   constructor () {
@@ -160,8 +163,7 @@ export default class Auth {
     let rt = json['refreshToken']
     delete json['refreshToken']
 
-    let c = Base64.encode
-    this.authDataStorage.setItem(common.USER_AUTH_KEY, c(JSON.stringify(json)))
+    this.authDataStorage.setItem(common.USER_AUTH_KEY, b64Encode(JSON.stringify(json)))
     this.authDataStorage.setItem(common.REFRESH_TOKEN_KEY, rt)
   }
 
@@ -170,7 +172,7 @@ export default class Auth {
       return null
     }
     const item = this.authDataStorage.getItem(common.USER_AUTH_KEY)
-    return JSON.parse(Base64.decode(item))
+    return JSON.parse(b64Decode(item))
   }
 
   authedId () {
@@ -208,9 +210,9 @@ export default class Auth {
     this.authDataStorage.setItem(common.IMPERSONATION_ACTIVE_KEY, 'true')
     this.authDataStorage.setItem(common.IMPERSONATION_USER_KEY, userId)
 
-    let realUserAuth = JSON.parse(Base64.decode(this.authDataStorage.getItem(common.USER_AUTH_KEY)))
+    let realUserAuth = JSON.parse(b64Decode(this.authDataStorage.getItem(common.USER_AUTH_KEY)))
     realUserAuth['refreshToken'] = this.authDataStorage.getItem(common.REFRESH_TOKEN_KEY)
-    this.authDataStorage.setItem(common.IMPERSONATION_REAL_USER_AUTH_KEY, Base64.encode(JSON.stringify(realUserAuth)))
+    this.authDataStorage.setItem(common.IMPERSONATION_REAL_USER_AUTH_KEY, b64Encode(JSON.stringify(realUserAuth)))
     return this.refreshImpersonation(client)
   }
 
@@ -219,7 +221,7 @@ export default class Auth {
       throw new common.BaasError('Not impersonating a user')
     }
     return new Promise((resolve, reject) => {
-      let realUserAuth = JSON.parse(Base64.decode(this.authDataStorage.getItem(common.IMPERSONATION_REAL_USER_AUTH_KEY)))
+      let realUserAuth = JSON.parse(b64Decode(this.authDataStorage.getItem(common.IMPERSONATION_REAL_USER_AUTH_KEY)))
       this.set(realUserAuth)
       this.clearImpersonation()
       resolve()
