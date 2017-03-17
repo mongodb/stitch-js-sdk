@@ -42,6 +42,14 @@ export class BaasClient {
     window.location.replace(this.authManager.getOAuthLoginURL(providerName, redirectUrl))
   }
 
+  getOAuthLoginURL (providerName, redirectUrl) {
+    return this.authManager.getOAuthLoginURL(providerName, redirectUrl)
+  }
+
+  anonymousAuth () {
+    return this.client.authManager.stopImpersonation()
+  }
+
   authedId () {
     return this.authManager.authedId()
   }
@@ -474,4 +482,5 @@ export class Admin {
   _stopImpersonation () {
     return this.client.authManager.stopImpersonation()
   }
+
 }
