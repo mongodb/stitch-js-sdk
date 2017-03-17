@@ -1,4 +1,4 @@
-var Baas =
+var baas =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -144,6 +144,16 @@ var Baas =
 	    key: 'authWithOAuth',
 	    value: function authWithOAuth(providerName, redirectUrl) {
 	      window.location.replace(this.authManager.getOAuthLoginURL(providerName, redirectUrl));
+	    }
+	  }, {
+	    key: 'getOAuthLoginURL',
+	    value: function getOAuthLoginURL(providerName, redirectUrl) {
+	      return this.authManager.getOAuthLoginURL(providerName, redirectUrl);
+	    }
+	  }, {
+	    key: 'anonymousAuth',
+	    value: function anonymousAuth() {
+	      return this.client.authManager.stopImpersonation();
 	    }
 	  }, {
 	    key: 'authedId',
@@ -1184,6 +1194,7 @@ var Baas =
 	  if (body) {
 	    init['body'] = body;
 	  }
+	  init['cors'] = true;
 	  return init;
 	};
 	

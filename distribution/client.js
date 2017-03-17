@@ -69,6 +69,16 @@ var BaasClient = exports.BaasClient = function () {
       window.location.replace(this.authManager.getOAuthLoginURL(providerName, redirectUrl));
     }
   }, {
+    key: 'getOAuthLoginURL',
+    value: function getOAuthLoginURL(providerName, redirectUrl) {
+      return this.authManager.getOAuthLoginURL(providerName, redirectUrl);
+    }
+  }, {
+    key: 'anonymousAuth',
+    value: function anonymousAuth() {
+      return this.client.authManager.stopImpersonation();
+    }
+  }, {
     key: 'authedId',
     value: function authedId() {
       return this.authManager.authedId();

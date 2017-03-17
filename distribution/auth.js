@@ -14,7 +14,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Base64 = require("Base64");
+var Base64 = require('Base64');
 
 var b64Encode = Base64.btoa;
 var b64Decode = Base64.atob;
