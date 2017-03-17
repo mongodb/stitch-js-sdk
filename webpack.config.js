@@ -24,7 +24,7 @@
      // export itself to a global var
      libraryTarget: "var",
      // name of the global var: "Foo"
-     library: "Baas",
+     library: "baas",
      filename: '[name].js'
    },
    externals: {},
