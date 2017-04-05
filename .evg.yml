@@ -1,0 +1,72 @@
+functions:
+  "fetch_source":
+    - command: git.get_project
+      params:
+        directory: "baas-js-sdk"
+
+  "setup_mongod":
+    - command: shell.exec
+      params:
+        script: |
+          set -v
+          curl --silent ${mongodb_url} | tar xvz
+    - command: shell.exec
+      params:
+        background: true
+        script: |
+          set -v
+          cd mongodb-*
+          echo "starting mongod..."
+          mkdir db_files
+          ./bin/mongod --dbpath ./db_files --port 26000 &
+          echo "waiting for mongod to start up"
+    - command: shell.exec
+      params:
+        script: |
+          set -e
+          cd mongodb-*
+          ./bin/mongo --nodb --eval 'assert.soon(function(x){try{var d = new Mongo("localhost:26000"); return true}catch(e){return false}}, "timed out connecting")'
+          echo "mongod is up."
+
+  "setup_baas":
+    - command: shell.exec
+      params:
+        script: |
+          mkdir -p src/github.com/10gen
+    - command: git.get_project
+      params:
+        directory: src/github.com/10gen/baas
+    - command: shell.exec
+      params:
+        background: true
+        script: |
+          wget --quiet "https://s3.amazonaws.com/baas-tools/libmongo.so"
+          chmod +x libmongo.so
+          export GOPATH=`pwd`
+          cd $GOPATH/src/github.com/10gen/baas
+          go run main/main.go --configFile test_config.json
+
+tasks:
+  - name: run_tests
+    commands:
+      - func: "fetch_source"
+      - func: "setup_mongod"
+      - func: "setup_baas"
+      - command: shell.exec
+        params:
+          script: |
+            set -e
+            echo "running client tests"
+            cd baas-js-sdk
+            npm install
+            npm test
+
+buildvariants:
+- name: linux-64
+  display_name: Linux-64
+  run_on:
+    - baas-linux
+  expansions:
+    mongodb_url: http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.1.tgz
+  tasks:
+    - name: run_tests
