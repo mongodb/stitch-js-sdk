@@ -1,0 +1,12 @@
+{
+  "unique_user@domain.com": {
+    "hpass": "4a510c54b7a55297d1ee5030da0c993598552330415198ee6420b0d02eaff77e",
+    "email": "unique_user@domain.com",
+    "name": "Unique User"
+  },
+  "eric.daniels@mongodb.com": {
+    "hpass": "b635b06ed9e85c23bf4d3b4134f1923332ca97f18aaf4a1949ea2d0af104f7ce",
+    "email": "eric.daniels@mongodb.com",
+    "name": "Eric Daniels"
+  }
+}

@@ -1,31 +1,49 @@
- webpack = require('webpack')
- module.exports = {
-   entry: {
-     "baas": './distribution/client.js',
-     "baas.min": './distribution/client.js'
-   },
-   devtool: "source-map",
-   plugins: [
-      new webpack.optimize.UglifyJsPlugin({
-        include: /\.min\.js$/,
-        minimize: true
-      })
-   ],
+/*global __dirname, require, module*/
+
+const webpack = require('webpack');
+const UglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
+const path = require('path');
+const env  = require('yargs').argv.env; // use --env with webpack 2
+const libraryName = 'baas';
+
+let plugins = [];
+let outputFile;
+if (env === 'build') {
+  plugins.push(new UglifyJsPlugin({ minimize: true, sourceMap: true }));
+  outputFile = libraryName + '.min.js';
+} else {
+  outputFile = libraryName + '.js';
+}
+
+const config = {
+  entry: __dirname + '/src/index.js',
+  devtool: 'source-map',
+  output: {
+    path: __dirname + '/dist',
+    filename: outputFile,
+    library: libraryName,
+    libraryTarget: 'umd',
+    umdNamedDefine: true
+  },
   module: {
-    loaders: [
+    rules: [
       {
-        test: /\.js?$/,
-        loaders: ['babel']
-      }, 
+        test: /(\.jsx|\.js)$/,
+        loader: 'babel-loader',
+        exclude: /(node_modules|bower_components)/
+      },
+      {
+        test: /(\.jsx|\.js)$/,
+        loader: 'eslint-loader',
+        exclude: /node_modules/
+      }
     ]
   },
-   output: {
-     path: __dirname + "/library",
-     // export itself to a global var
-     libraryTarget: "var",
-     // name of the global var: "Foo"
-     library: "baas",
-     filename: '[name].js'
-   },
-   externals: {},
+  resolve: {
+    modules: [ path.resolve('./src'), path.resolve('./node_modules') ],
+    extensions: ['.json', '.js']
+  },
+  plugins: plugins
 };
+
+module.exports = config;

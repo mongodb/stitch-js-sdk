@@ -1,0 +1,69 @@
+{
+  "env": "local",
+  "development": true,
+  "api": {
+    "server": {
+      "port": 7080
+    }
+  },
+  "admin": {
+    "baseUrl": "http://localhost:7080",
+    "server": {
+      "port": 7000
+    },
+    "cors": true,
+    "authProviders": {
+      "oauth2/google": {
+        "metadataFields": ["email", "name"],
+        "clientId": "CLIENT-ID",
+        "clientSecret": "CLIENT-SECRET",
+        "redirectURIs":[
+          "http://localhost:7080",
+          "http://localhost:7080/",
+          "http://localhost:8001",
+          "http://localhost:8001/"
+        ]
+      },
+      "oauth2/facebook": {
+        "metadataFields": ["email", "name"],
+        "clientId": "1606022673025557",
+        "clientSecret": "e87609bf0bd18e3147970a0799a4c1f4",
+        "redirectURIs":[
+          "http://localhost:7080",
+          "http://localhost:7080/",
+          "http://localhost:8001",
+          "http://localhost:8001/"
+        ]
+      },
+      "local/userpass": {
+        "metadataFields": ["email", "name"]
+      }
+    },
+    "staticDir": "../../../../../admin/static"
+  },
+  "combinedServer": {
+    "port": 7080
+  },
+  "db": {
+    "mongoDBURI": "mongodb://localhost:27017"
+  },
+  "dataStore": "mongodb",
+  "auth": {
+    "salt": "DQOWene1723baqD!_@#",
+    "saml": {
+      "enabled": true,
+      "spCertPath": "../conf/saml_sp.crt",
+      "spKeyPath": "../conf/saml_sp.key"
+    },
+    "authRequest": {
+      "cookieHashKey": "F+43gQpES4aoi9U+8t1V1KWqtsldNh+fqZBvOhaVPRt814FPGNtPKLthy2ty/Vc0",
+      "cookieBlockKey": "jTMu3vNVyGy4MNLs/GEdHrif1FG7HSYh"
+    },
+    "jwtSigningKey": "K!@#JIJ!@#*LANNZK!@#IOJDLWJRGG^!G#NCBGAS",
+    "local": {
+      "userpass": {
+        "filePath": "../conf/userpass.json"
+      }
+    }
+  }
+}

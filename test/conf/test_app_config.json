@@ -1,0 +1,35 @@
+{
+  "_id": { "$oid": "5847118713035de9831f1769" },
+  "name": "test_app",
+  "domainId": { "$oid": "5847118763fca6ebdddb451f" },
+  "ownerId": { "$oid": "5847e04963fca6fd08904c94" },
+  "services": {
+    "mdb1": {
+      "type": "mongodb",
+      "config": {
+        "uri": "mongodb://localhost:27017"
+      },
+      "rules": {
+        "5873a33f772e2e08ce645b9a": {
+          "_id": { "$oid": "5873a33f772e2e08ce645b9a" },
+          "namespace": "test.documents",
+          "read": {
+            "$$true": true
+          },
+          "write": {
+            "$$true": true
+          },
+          "fields": {
+            "_id": {},
+            "a": {}
+          }
+        }
+      }
+    }
+  },
+  "authProviders": {
+    "api/key": {}
+  }
+}
+
+
