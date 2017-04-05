@@ -62,6 +62,30 @@ export default class Collection {
   }
 
   /**
+   * Delete a single document
+   *
+   * @method
+   * @param {Object} query The query used to match a single document.
+   * @param {Object} [options] Additional options object.
+   * @return {Promise<Object, Error>} Returns a Promise for the operation.
+   */
+  deleteOne(query, options = {}) {
+    return deleteOp(this, query, Object.assign({}, options, { singleDoc: true }));
+  }
+
+  /**
+   * Delete all documents matching query
+   *
+   * @method
+   * @param {Object} query The query used to match the documents to delete.
+   * @param {Object} [options] Additional options object.
+   * @return {Promise<Object, Error>} Returns a Promise for the operation.
+   */
+  deleteMany(query, options = {}) {
+    return deleteOp(this, query, Object.assign({}, options, { singleDoc: false }));
+  }
+
+  /**
    * Update a single document
    *
    * @method
@@ -90,51 +114,29 @@ export default class Collection {
   }
 
   /**
-   * Delete a single document
-   *
-   * @method
-   * @param {Object} query The query used to match a single document.
-   * @param {Object} [options] Additional options object.
-   * @return {Promise<Object, Error>} Returns a Promise for the operation.
-   */
-  deleteOne(query, options = {}) {
-    return deleteOp(this, query, Object.assign({}, options, { singleDoc: true }));
-  }
-
-  /**
-   * Delete all documents matching query
-   *
-   * @method
-   * @param {Object} query The query used to match the documents to delete.
-   * @param {Object} [options] Additional options object.
-   * @return {Promise<Object, Error>} Returns a Promise for the operation.
-   */
-  deleteMany(query, options = {}) {
-    return deleteOp(this, query, Object.assign({}, options, { singleDoc: false }));
-  }
-
-  /**
    * Find documents
    *
    * @method
-   * @param {Object} query The query used to match the first document.
+   * @param {Object} query The query used to match documents.
    * @param {Object} [options] Additional options object.
-   * @param {Object} [options.project=null] The query document projection.
+   * @param {Object} [options.projection=null] The query document projection.
+   * @param {Number} [options.limit=null] The maximum number of documents to return.
    * @return {Array} An array of documents.
    */
   find(query, options = {}) {
-    const args = Object.assign({
-      database: this.db.name,
-      collection: this.name
-    }, options);
+    return findOp(this, query, options);
+  }
 
-    return this.db.client.executePipeline([
-      {
-        service: this.db.service,
-        action: 'find',
-        args: args
-      }
-    ]);
+  /**
+   * Count number of matching documents for a given query
+   *
+   * @param {Object} query The query used to match documents.
+   * @param {Object} options Additional find options.
+   * @param {Number} [options.limit=null] The maximum number of documents to return.
+   * @return {Array} An array of documents.
+   */
+  count(query, options = {}) {
+    return findOp(this, query, Object.assign({}, options, { count: true }));
   }
 
   // deprecated
@@ -180,6 +182,27 @@ function updateOp(self, query, update, options) {
     {
       service: self.db.service,
       action: 'update',
+      args: args
+    }
+  ]);
+}
+
+function findOp(self, query, options) {
+  const args = Object.assign({
+    database: self.db.name,
+    collection: self.name
+  }, options);
+
+  // legacy argument naming
+  if (args.projection) {
+    args.project = args.projection;
+    delete args.projection;
+  }
+
+  return self.db.client.executePipeline([
+    {
+      service: self.db.service,
+      action: 'find',
       args: args
     }
   ]);

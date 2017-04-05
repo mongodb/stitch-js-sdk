@@ -66,4 +66,15 @@ describe('MongoDBService', function() {
       expect(results).toEqual([ { a: 1 } ]);
     });
   });
+
+  describe('count', function() {
+    beforeEach(() => testSetup());
+    afterEach(() => test.cleanDatabase());
+
+    it('should count documents', async function() {
+      await test.db.collection('documents').insertMany([ {}, {}, {}, {}, {} ]);
+      let response = await test.db.collection('documents').count();
+      expect(response.result).toEqual([ 5 ]);
+    });
+  });
 });
