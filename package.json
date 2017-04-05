@@ -23,8 +23,9 @@
     "text-encoding-utf-8": "^1.0.1"
   },
   "devDependencies": {
-    "babel-jest": "^19.0.0",
     "babel-eslint": "^7.2.1",
+    "babel-jest": "^19.0.0",
+    "babel-loader": "^6.4.1",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-transform-async-to-generator": "^6.22.0",
     "babel-polyfill": "^6.23.0",
