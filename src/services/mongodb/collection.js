@@ -14,13 +14,6 @@ export default class Collection {
     this.name = name;
   }
 
-  getBaseArgs() {
-    return {
-      'database': this.db.name,
-      'collection': this.name
-    };
-  }
-
   /**
    * Insert a single document
    *
@@ -52,22 +45,20 @@ export default class Collection {
 
     return this.db.client.executePipeline([
       {
-        'action': 'literal',
-        'args': {
-          'items': docs
+        action: 'literal',
+        args: {
+          items: docs
         }
       },
       {
-        'service': this.db.service,
-        'action': 'insert',
-        'args': this.getBaseArgs()
+        service: this.db.service,
+        action: 'insert',
+        args: {
+          database: this.db.name,
+          collection: this.name
+        }
       }
     ]);
-  }
-
-  // deprecated
-  insert(docs) {
-    return this.insertMany(docs);
   }
 
   /**
@@ -98,11 +89,6 @@ export default class Collection {
     return updateOp(this, query, update, Object.assign({}, options, { multi: true }));
   }
 
-  // deprecated
-  upsert(query, update, options = {}) {
-    return updateOp(this, query, update, Object.assign({}, options, { upsert: true }));
-  }
-
   /**
    * Delete a single document
    *
@@ -128,23 +114,36 @@ export default class Collection {
   }
 
   /**
-   * <TBD wrt cursors>
+   * Find documents
    *
    * @method
    * @param {Object} query The query used to match the first document.
+   * @param {Object} [options] Additional options object.
+   * @param {Object} [options.project=null] The query document projection.
    * @return {Array} An array of documents.
    */
-  find(query, project) {
-    let args = this.getBaseArgs();
-    args.query = query;
-    args.project = project;
+  find(query, options = {}) {
+    const args = Object.assign({
+      database: this.db.name,
+      collection: this.name
+    }, options);
+
     return this.db.client.executePipeline([
       {
-        'service': this.db.service,
-        'action': 'find',
-        'args': args
+        service: this.db.service,
+        action: 'find',
+        args: args
       }
     ]);
+  }
+
+  // deprecated
+  insert(docs, options = {}) {
+    return this.insertMany(docs, options);
+  }
+
+  upsert(query, update, options = {}) {
+    return updateOp(this, query, update, Object.assign({}, options, { upsert: true }));
   }
 }
 
