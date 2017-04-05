@@ -22,6 +22,11 @@ describe('MongoDBService', function() {
       let response = await test.db.collection('documents').insertOne({ a: 1 });
       expect(response.insertedIds).toHaveLength(1);
     });
+
+    it('should correctly insert a many documents', async function() {
+      let response = await test.db.collection('documents').insertMany([{}, {}, {}]);
+      expect(response.insertedIds).toHaveLength(3);
+    });
   });
 
   describe.skip('update', function() {
@@ -46,6 +51,13 @@ describe('MongoDBService', function() {
       let response = await test.db.collection('documents').insertOne({ a: 1 });
       response = await test.db.collection('documents').deleteOne({ _id: response.insertedIds[0] });
       expect(response.deletedCount).toEqual(1);
+    });
+
+
+    it('should delete multiple documents', async function() {
+      let response = await test.db.collection('documents').insertMany([{ a: 1 }, { a: 1 }, { a: 1 }]);
+      response = await test.db.collection('documents').deleteMany({ a: 1 });
+      expect(response.deletedCount).toEqual(3);
     });
   });
 
