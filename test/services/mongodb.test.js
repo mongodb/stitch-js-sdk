@@ -20,8 +20,7 @@ describe('MongoDBService', function() {
 
     it('should correctly insert a single document', async function() {
       let response = await test.db.collection('documents').insertOne({ a: 1 });
-      let results = stripObjectIds(response.result);
-      expect(results).toEqual([ { a: 1 } ]);
+      expect(response.insertedIds).toHaveLength(1);
     });
   });
 
@@ -30,13 +29,12 @@ describe('MongoDBService', function() {
     afterEach(() => test.cleanDatabase());
 
     it('should update a single document', async function() {
-      let response = await test.db.collection('documents').insertOne({ a: 1 });
-      let results = stripObjectIds(response.result);
-      expect(results).toEqual([ { a: 1 } ]);
-
-      response = await test.db.collection('documents')
+      await test.db.collection('documents').insertOne({ a: 1 });
+      let response = await test.db.collection('documents')
         .updateOne({ _id: response.result[0]._id }, { a: 2 });
-      console.log(response);
+      expect(response.matchedCount).toEqual(1);
+      expect(response.modifiedCount).toEqual(1);
+      expect(response.upsertedId).toBeNull();
     });
   });
 
@@ -46,10 +44,8 @@ describe('MongoDBService', function() {
 
     it('should delete a single document', async function() {
       let response = await test.db.collection('documents').insertOne({ a: 1 });
-      let results = stripObjectIds(response.result);
-      expect(results).toEqual([ { a: 1 } ]);
-      response = await test.db.collection('documents').deleteOne({ _id: response.result[0]._id });
-      expect(response).toEqual({ result: [ { removed: 1 } ] });
+      response = await test.db.collection('documents').deleteOne({ _id: response.insertedIds[0] });
+      expect(response.deletedCount).toEqual(1);
     });
   });
 
@@ -58,11 +54,9 @@ describe('MongoDBService', function() {
     afterEach(() => test.cleanDatabase());
 
     it('should find documents', async function() {
-      let response = await test.db.collection('documents').insertOne({ a: 1 });
+      await test.db.collection('documents').insertOne({ a: 1 });
+      let response = await test.db.collection('documents').find();
       let results = stripObjectIds(response.result);
-      expect(results).toEqual([ { a: 1 } ]);
-      response = await test.db.collection('documents').find(null, null);
-      results = stripObjectIds(response.result);
       expect(results).toEqual([ { a: 1 } ]);
     });
   });

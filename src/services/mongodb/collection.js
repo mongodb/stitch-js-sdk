@@ -23,7 +23,7 @@ export default class Collection {
    * @return {Promise<Object, Error>} a Promise for the operation.
    */
   insertOne(doc, options = {}) {
-    return this.insertMany(doc, options);
+    return insertOp(this, doc, options);
   }
 
   /**
@@ -34,31 +34,8 @@ export default class Collection {
    * @param {Object} [options] Additional options object.
    * @return {Promise<Object, Error>} Returns a Promise for the operation.
    */
-  insertMany(docs) {
-    docs = Array.isArray(docs) ? docs : [ docs ];
-
-    // add ObjectIds to docs that have none
-    docs = docs.map(doc => {
-      if (doc._id === undefined) doc._id = new ObjectID();
-      return doc;
-    });
-
-    return this.db.client.executePipeline([
-      {
-        action: 'literal',
-        args: {
-          items: docs
-        }
-      },
-      {
-        service: this.db.service,
-        action: 'insert',
-        args: {
-          database: this.db.name,
-          collection: this.name
-        }
-      }
-    ]);
+  insertMany(docs, options = {}) {
+    return insertOp(this, docs, options);
   }
 
   /**
@@ -141,7 +118,7 @@ export default class Collection {
 
   // deprecated
   insert(docs, options = {}) {
-    return this.insertMany(docs, options);
+    return insertOp(this, docs, options);
   }
 
   upsert(query, update, options = {}) {
@@ -154,6 +131,38 @@ Collection.prototype.upsert =
   deprecate(Collection.prototype.upsert, 'use `updateOne`/`updateMany` instead of `upsert`');
 
 // private
+function insertOp(self, docs, options) {
+  docs = Array.isArray(docs) ? docs : [ docs ];
+
+  // add ObjectIds to docs that have none
+  docs = docs.map(doc => {
+    if (!doc._id) doc._id = new ObjectID();
+    return doc;
+  });
+
+  return self.db.client.executePipeline([
+    {
+      action: 'literal',
+      args: {
+        items: docs
+      }
+    },
+    {
+      service: self.db.service,
+      action: 'insert',
+      args: {
+        database: self.db.name,
+        collection: self.name
+      }
+    }
+  ])
+  .then(response => {
+    return {
+      insertedIds: response.result.map(doc => doc._id)
+    };
+  });
+}
+
 function deleteOp(self, query, options) {
   const args = Object.assign({
     database: self.db.name,
@@ -167,7 +176,12 @@ function deleteOp(self, query, options) {
       action: 'delete',
       args: args
     }
-  ]);
+  ])
+  .then(response => {
+    return {
+      deletedCount: response.result[0].removed
+    };
+  });
 }
 
 function updateOp(self, query, update, options) {
