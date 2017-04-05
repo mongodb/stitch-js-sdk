@@ -86,7 +86,7 @@ export default class Collection {
    * @param {Boolean} [options.upsert=false] Perform an upsert operation.
    * @return {Promise<Object, Error>} Returns a Promise for the operation.
    */
-  updateMany(query, update, upsert, multi) {
+  updateMany(query, update, options = {}) {
     return updateOp(this, query, update, Object.assign({}, options, { multi: true }));
   }
 

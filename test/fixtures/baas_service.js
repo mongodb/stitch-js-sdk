@@ -19,8 +19,11 @@ export default class BaasService {
     }
 
     let config = path.join(CONF_PATH, 'test_config.json');
+    let env = Object.assign({}, process.env);
+    env.PATH = `${env.PATH}:${BIN_PATH}`;
+
     return new Promise((resolve, reject) => {
-      this.process = spawn(BAAS_PATH, [ '-configFile', config ], { cwd: BIN_PATH });
+      this.process = spawn(BAAS_PATH, [ '-configFile', config ], { cwd: BIN_PATH, env: env });
       this.process.once('close', (code, signal) => {
         console.log('baas process closed with code: ', code);
         reject();
