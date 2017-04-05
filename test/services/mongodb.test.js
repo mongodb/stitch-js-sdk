@@ -71,6 +71,13 @@ describe('MongoDBService', function() {
       let results = stripObjectIds(response.result);
       expect(results).toEqual([ { a: 1 } ]);
     });
+
+    it('should find documents using projection', async function() {
+      await test.db.collection('documents').insertOne({ a: 'a', b: 'b', c: 'c' });
+      let response = await test.db.collection('documents').find({}, { projection: { a: 1 }});
+      let results = stripObjectIds(response.result);
+      expect(results).toEqual([ { a: 'a' } ]);
+    });
   });
 
   describe('count', function() {
