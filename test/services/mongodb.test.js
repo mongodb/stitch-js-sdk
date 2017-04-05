@@ -29,17 +29,34 @@ describe('MongoDBService', function() {
     });
   });
 
-  describe.skip('update', function() {
+  describe('update', function() {
     beforeEach(() => testSetup());
     afterEach(() => test.cleanDatabase());
 
     it('should update a single document', async function() {
-      await test.db.collection('documents').insertOne({ a: 1 });
-      let response = await test.db.collection('documents')
-        .updateOne({ _id: response.result[0]._id }, { a: 2 });
-      expect(response.matchedCount).toEqual(1);
-      expect(response.modifiedCount).toEqual(1);
-      expect(response.upsertedId).toBeNull();
+      let response = await test.db.collection('documents').insertMany([ { a: 1 }, { a: 1 } ]);
+      response = await test.db.collection('documents').updateOne({ a: 1 }, { a: 2 });
+      let results = stripObjectIds(response.result);
+      expect(results).toHaveLength(1);
+      expect(results).toEqual([ { a: 2 } ]);
+
+      // TODO: reenable when BAAS-89 is complete
+      // expect(response.matchedCount).toEqual(1);
+      // expect(response.modifiedCount).toEqual(1);
+      // expect(response.upsertedId).toBeNull();
+    });
+
+    it('should update multiple documents', async function() {
+      let response = await test.db.collection('documents').insertMany([ { a: 1 }, { a: 1 } ]);
+      response = await test.db.collection('documents').updateMany({ a: 1 }, { a: 2 });
+      let results = stripObjectIds(response.result);
+      expect(results).toHaveLength(2);
+      expect(results).toEqual([ { a: 2 }, { a: 2 } ]);
+
+      // TODO: reenable when BAAS-89 is complete
+      // expect(response.matchedCount).toEqual(2);
+      // expect(response.modifiedCount).toEqual(2);
+      // expect(response.upsertedId).toBeNull();
     });
   });
 
