@@ -80,8 +80,8 @@ export default class Collection {
    * @param {Boolean} [options.upsert=false] Perform an upsert operation.
    * @return {Promise<Object, Error>} A Promise for the operation.
    */
-  updateOne(query, update) {
-    return this.db.client.executePipeline([this.makeUpdateStage(query, update, false, false)]);
+  updateOne(query, update, options = {}) {
+    return updateOp(this, query, update, Object.assign({}, options, { multi: false }));
   }
 
   /**
@@ -95,12 +95,12 @@ export default class Collection {
    * @return {Promise<Object, Error>} Returns a Promise for the operation.
    */
   updateMany(query, update, upsert, multi) {
-    return this.db.client.executePipeline([this.makeUpdateStage(query, update, false, true)]);
+    return updateOp(this, query, update, Object.assign({}, options, { multi: true }));
   }
 
   // deprecated
-  upsert(query, update) {
-    return this.db.client.executePipeline([this.makeUpdateStage(query, update, true, false)]);
+  upsert(query, update, options = {}) {
+    return updateOp(this, query, update, Object.assign({}, options, { upsert: true }));
   }
 
   /**
@@ -146,26 +146,9 @@ export default class Collection {
       }
     ]);
   }
-
-  makeUpdateStage(query, update, upsert, multi) {
-    let args = this.getBaseArgs();
-    args.query = query;
-    args.update = update;
-    if (upsert) {
-      args.upsert = true;
-    }
-    if (multi) {
-      args.multi = true;
-    }
-
-    return {
-      'service': this.db.service,
-      'action': 'update',
-      'args': args
-    };
-  }
 }
 
+// deprecated methods
 Collection.prototype.upsert =
   deprecate(Collection.prototype.upsert, 'use `updateOne`/`updateMany` instead of `upsert`');
 
@@ -181,6 +164,23 @@ function deleteOp(self, query, options) {
     {
       service: self.db.service,
       action: 'delete',
+      args: args
+    }
+  ]);
+}
+
+function updateOp(self, query, update, options) {
+  const args = Object.assign({
+    database: self.db.name,
+    collection: self.name,
+    query: query,
+    update: update
+  }, options);
+
+  return self.db.client.executePipeline([
+    {
+      service: self.db.service,
+      action: 'update',
       args: args
     }
   ]);
