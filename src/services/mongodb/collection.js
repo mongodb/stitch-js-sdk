@@ -111,17 +111,8 @@ export default class Collection {
    * @param {Object} [options] Additional options object.
    * @return {Promise<Object, Error>} Returns a Promise for the operation.
    */
-  deleteOne(query) {
-    let args = this.getBaseArgs();
-    args.query = query;
-    args.singleDoc = true;
-    return this.db.client.executePipeline([
-      {
-        'service': this.db.service,
-        'action': 'delete',
-        'args': args
-      }
-    ]);
+  deleteOne(query, options = {}) {
+    return deleteOp(this, query, Object.assign({}, options, { singleDoc: true }));
   }
 
   /**
@@ -132,17 +123,8 @@ export default class Collection {
    * @param {Object} [options] Additional options object.
    * @return {Promise<Object, Error>} Returns a Promise for the operation.
    */
-  deleteMany(query) {
-    let args = this.getBaseArgs();
-    args.query = query;
-    args.singleDoc = false;
-    return this.db.client.executePipeline([
-      {
-        'service': this.db.service,
-        'action': 'delete',
-        'args': args
-      }
-    ]);
+  deleteMany(query, options = {}) {
+    return deleteOp(this, query, Object.assign({}, options, { singleDoc: false }));
   }
 
   /**
@@ -186,3 +168,20 @@ export default class Collection {
 
 Collection.prototype.upsert =
   deprecate(Collection.prototype.upsert, 'use `updateOne`/`updateMany` instead of `upsert`');
+
+// private
+function deleteOp(self, query, options) {
+  const args = Object.assign({
+    database: self.db.name,
+    collection: self.name,
+    query: query
+  }, options);
+
+  return self.db.client.executePipeline([
+    {
+      service: self.db.service,
+      action: 'delete',
+      args: args
+    }
+  ]);
+}
