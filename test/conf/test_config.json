@@ -39,7 +39,7 @@
         "metadataFields": ["email", "name"]
       }
     },
-    "staticDir": "../../../../../admin/static"
+    "staticDir": "admin/static"
   },
   "combinedServer": {
     "port": 7080

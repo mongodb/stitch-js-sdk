@@ -18,33 +18,37 @@ functions:
           cd mongodb-*
           echo "starting mongod..."
           mkdir db_files
-          ./bin/mongod --dbpath ./db_files --port 26000 &
+          ./bin/mongod --dbpath ./db_files --port 27017 &
           echo "waiting for mongod to start up"
     - command: shell.exec
       params:
         script: |
           set -e
           cd mongodb-*
-          ./bin/mongo --nodb --eval 'assert.soon(function(x){try{var d = new Mongo("localhost:26000"); return true}catch(e){return false}}, "timed out connecting")'
+          ./bin/mongo --nodb --eval 'assert.soon(function(x){try{var d = new Mongo("localhost:27017"); return true}catch(e){return false}}, "timed out connecting")'
           echo "mongod is up."
 
   "setup_baas":
     - command: shell.exec
       params:
         script: |
+          set -e
+          echo "cloning baas"
           mkdir -p src/github.com/10gen
-    - command: git.get_project
-      params:
-        directory: src/github.com/10gen/baas
+          git clone git@github.com:10gen/baas src/github.com/10gen/baas
+
+          echo "downloading libmongo"
+          wget --quiet "https://s3.amazonaws.com/baas-tools/libmongo.so"
+          chmod +x libmongo.so
     - command: shell.exec
       params:
         background: true
         script: |
-          wget --quiet "https://s3.amazonaws.com/baas-tools/libmongo.so"
-          chmod +x libmongo.so
           export GOPATH=`pwd`
-          cd $GOPATH/src/github.com/10gen/baas
-          go run main/main.go --configFile test_config.json
+          export BAAS_PATH=$GOPATH/src/github.com/10gen/baas
+          cd baas-js-sdk/test/bin
+          echo "running baas"
+          go run $BAAS_PATH/main/main.go --configFile ../conf/test_config.json
 
 tasks:
   - name: run_tests
