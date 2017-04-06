@@ -86,9 +86,10 @@ export class BaasClient {
   }
 
   _do(resource, method, options) {
-    options = options || {};
-    options.refreshOnFailure = options.refreshOnFailure || true;
-    options.useRefreshToken = options.useRefreshToken || false;
+    options = Object.assign({}, {
+      refreshOnFailure: true,
+      useRefreshToken: false
+    }, options);
 
     if (!options.noAuth) {
       if (this.auth() === null) {
@@ -152,19 +153,16 @@ export class BaasClient {
     if (this.authManager.isImpersonatingUser()) {
       return this.authManager.refreshImpersonation(this);
     }
-    return this._do('/auth/newAccessToken', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then((response) => {
-      return response.json().then(json => {
-        this.authManager.setAccessToken(json.accessToken);
-        return Promise.resolve();
-      });
-    });
+
+    return this._do('/auth/newAccessToken', 'POST', { refreshOnFailure: false, useRefreshToken: true })
+      .then(response => response.json())
+      .then(json => this.authManager.setAccessToken(json.accessToken));
   }
 
-  executePipeline(stages, options) {
+  executePipeline(stages, options = {}) {
     let responseDecoder = (d) => EJSON.parse(d, { strict: false });
     let responseEncoder = (d) => EJSON.stringify(d);
 
-    options = options || {};
     if (options.decoder) {
       if ((typeof options.decoder) !== 'function') {
         throw new Error('decoder option must be a function, but "' + typeof (options.decoder) + '" was provided');
