@@ -247,7 +247,10 @@ export class Admin {
     let root = this;
     return {
       list: () => root._get('/apps'),
-      create: (data) => root._post('/apps', data),
+      create: (data, options) => {
+        let query = (options && options.defaults) ? '?defaults=true' : '';
+        return root._post('/apps' + query, data);
+      },
 
       app: (appID) => ({
         get: () => root._get(`/apps/${appID}`),
