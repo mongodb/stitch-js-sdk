@@ -3159,9 +3159,10 @@ var BaasClient = exports.BaasClient = function () {
     value: function _do(resource, method, options) {
       var _this2 = this;
 
-      options = options || {};
-      options.refreshOnFailure = options.refreshOnFailure || true;
-      options.useRefreshToken = options.useRefreshToken || false;
+      options = Object.assign({}, {
+        refreshOnFailure: true,
+        useRefreshToken: false
+      }, options);
 
       if (!options.noAuth) {
         if (this.auth() === null) {
@@ -3228,16 +3229,18 @@ var BaasClient = exports.BaasClient = function () {
       if (this.authManager.isImpersonatingUser()) {
         return this.authManager.refreshImpersonation(this);
       }
+
       return this._do('/auth/newAccessToken', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
-        return response.json().then(function (json) {
-          _this3.authManager.setAccessToken(json.accessToken);
-          return Promise.resolve();
-        });
+        return response.json();
+      }).then(function (json) {
+        return _this3.authManager.setAccessToken(json.accessToken);
       });
     }
   }, {
     key: 'executePipeline',
-    value: function executePipeline(stages, options) {
+    value: function executePipeline(stages) {
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
       var responseDecoder = function responseDecoder(d) {
         return EJSON.parse(d, { strict: false });
       };
@@ -3245,7 +3248,6 @@ var BaasClient = exports.BaasClient = function () {
         return EJSON.stringify(d);
       };
 
-      options = options || {};
       if (options.decoder) {
         if (typeof options.decoder !== 'function') {
           throw new Error('decoder option must be a function, but "' + _typeof(options.decoder) + '" was provided');
