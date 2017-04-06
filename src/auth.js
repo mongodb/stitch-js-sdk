@@ -105,9 +105,7 @@ export default class Auth {
     return fetch(`${this.rootUrl}/anon/user`, fetchArgs)
       .then(common.checkStatus)
       .then(response => response.json())
-      .then(json => {
-        this.set(json);
-      });
+      .then(json => this.set(json));
   }
 
   apiKeyAuth(key) {
@@ -117,9 +115,7 @@ export default class Auth {
     return fetch(`${this.rootUrl}/api/key`, fetchArgs)
       .then(common.checkStatus)
       .then(response => response.json())
-      .then(json => {
-        this.set(json);
-      });
+      .then(json => this.set(json));
   }
 
   localAuth(username, password, options = {cors: true}) {
@@ -128,11 +124,10 @@ export default class Auth {
 
     return fetch(`${this.rootUrl}/local/userpass`, fetchArgs)
       .then(common.checkStatus)
-      .then((response) => {
-        return response.json().then((json) => {
-          this.set(json);
-          return Promise.resolve(json);
-        });
+      .then(response => response.json())
+      .then(json => {
+        this.set(json);
+        return json;
       });
   }
 
@@ -176,16 +171,16 @@ export default class Auth {
 
   refreshImpersonation(client) {
     let userId = this.authDataStorage.get(common.IMPERSONATION_USER_KEY);
-    return client._do(`/admin/users/${userId}/impersonate`, 'POST', {refreshOnFailure: false, useRefreshToken: true}).then((response) => {
-      return response.json().then((json) => {
+    return client._do(`/admin/users/${userId}/impersonate`, 'POST', { refreshOnFailure: false, useRefreshToken: true })
+      .then(response => response.json())
+      .then(json => {
         json.refreshToken = this.authDataStorage.get(common.REFRESH_TOKEN_KEY);
         this.set(json);
-        return Promise.resolve();
+      })
+      .catch(e => {
+        this.stopImpersonation();
+        throw e;  // rethrow
       });
-    }).catch((e) => {
-      this.stopImpersonation();
-      return Promise.reject(e);
-    });
   }
 
   startImpersonation(client, userId) {
