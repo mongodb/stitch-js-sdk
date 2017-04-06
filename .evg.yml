@@ -45,6 +45,7 @@ functions:
         background: true
         script: |
           export GOPATH=`pwd`
+          export PATH="`pwd`:$PATH"
           export BAAS_PATH=$GOPATH/src/github.com/10gen/baas
           cd baas-js-sdk/test/bin
           echo "running baas"
