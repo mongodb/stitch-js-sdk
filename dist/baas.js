@@ -3369,8 +3369,9 @@ var Admin = exports.Admin = function () {
         list: function list() {
           return root._get('/apps');
         },
-        create: function create(data) {
-          return root._post('/apps', data);
+        create: function create(data, options) {
+          var query = options && options.defaults ? '?defaults=true' : '';
+          return root._post('/apps' + query, data);
         },
 
         app: function app(appID) {
@@ -4050,30 +4051,22 @@ var Collection = function () {
     this.name = name;
   }
 
+  /**
+   * Insert a single document
+   *
+   * @method
+   * @param {Object} doc The document to insert.
+   * @param {Object} [options] Additional options object.
+   * @return {Promise<Object, Error>} a Promise for the operation.
+   */
+
+
   _createClass(Collection, [{
-    key: 'getBaseArgs',
-    value: function getBaseArgs() {
-      return {
-        'database': this.db.name,
-        'collection': this.name
-      };
-    }
-
-    /**
-     * Insert a single document
-     *
-     * @method
-     * @param {Object} doc The document to insert.
-     * @param {Object} [options] Additional options object.
-     * @return {Promise<Object, Error>} a Promise for the operation.
-     */
-
-  }, {
     key: 'insertOne',
     value: function insertOne(doc) {
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      return this.insertMany(doc, options);
+      return insertOp(this, doc, options);
     }
 
     /**
@@ -4088,32 +4081,43 @@ var Collection = function () {
   }, {
     key: 'insertMany',
     value: function insertMany(docs) {
-      docs = Array.isArray(docs) ? docs : [docs];
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      // add ObjectIds to docs that have none
-      docs = docs.map(function (doc) {
-        if (doc._id === undefined) doc._id = new ObjectID();
-        return doc;
-      });
-
-      return this.db.client.executePipeline([{
-        'action': 'literal',
-        'args': {
-          'items': docs
-        }
-      }, {
-        'service': this.db.service,
-        'action': 'insert',
-        'args': this.getBaseArgs()
-      }]);
+      return insertOp(this, docs, options);
     }
 
-    // deprecated
+    /**
+     * Delete a single document
+     *
+     * @method
+     * @param {Object} query The query used to match a single document.
+     * @param {Object} [options] Additional options object.
+     * @return {Promise<Object, Error>} Returns a Promise for the operation.
+     */
 
   }, {
-    key: 'insert',
-    value: function insert(docs) {
-      return this.insertMany(docs);
+    key: 'deleteOne',
+    value: function deleteOne(query) {
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+      return deleteOp(this, query, Object.assign({}, options, { singleDoc: true }));
+    }
+
+    /**
+     * Delete all documents matching query
+     *
+     * @method
+     * @param {Object} query The query used to match the documents to delete.
+     * @param {Object} [options] Additional options object.
+     * @return {Promise<Object, Error>} Returns a Promise for the operation.
+     */
+
+  }, {
+    key: 'deleteMany',
+    value: function deleteMany(query) {
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+      return deleteOp(this, query, Object.assign({}, options, { singleDoc: false }));
     }
 
     /**
@@ -4130,7 +4134,9 @@ var Collection = function () {
   }, {
     key: 'updateOne',
     value: function updateOne(query, update) {
-      return this.db.client.executePipeline([this.makeUpdateStage(query, update, false, false)]);
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+      return updateOp(this, query, update, Object.assign({}, options, { multi: false }));
     }
 
     /**
@@ -4146,110 +4152,157 @@ var Collection = function () {
 
   }, {
     key: 'updateMany',
-    value: function updateMany(query, update, upsert, multi) {
-      return this.db.client.executePipeline([this.makeUpdateStage(query, update, false, true)]);
-    }
+    value: function updateMany(query, update) {
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-    // deprecated
-
-  }, {
-    key: 'upsert',
-    value: function upsert(query, update) {
-      return this.db.client.executePipeline([this.makeUpdateStage(query, update, true, false)]);
+      return updateOp(this, query, update, Object.assign({}, options, { multi: true }));
     }
 
     /**
-     * Delete a single document
+     * Find documents
      *
      * @method
-     * @param {Object} query The query used to match a single document.
+     * @param {Object} query The query used to match documents.
      * @param {Object} [options] Additional options object.
-     * @return {Promise<Object, Error>} Returns a Promise for the operation.
-     */
-
-  }, {
-    key: 'deleteOne',
-    value: function deleteOne(query) {
-      var args = this.getBaseArgs();
-      args.query = query;
-      args.singleDoc = true;
-      return this.db.client.executePipeline([{
-        'service': this.db.service,
-        'action': 'delete',
-        'args': args
-      }]);
-    }
-
-    /**
-     * Delete all documents matching query
-     *
-     * @method
-     * @param {Object} query The query used to match the documents to delete.
-     * @param {Object} [options] Additional options object.
-     * @return {Promise<Object, Error>} Returns a Promise for the operation.
-     */
-
-  }, {
-    key: 'deleteMany',
-    value: function deleteMany(query) {
-      var args = this.getBaseArgs();
-      args.query = query;
-      args.singleDoc = false;
-      return this.db.client.executePipeline([{
-        'service': this.db.service,
-        'action': 'delete',
-        'args': args
-      }]);
-    }
-
-    /**
-     * <TBD wrt cursors>
-     *
-     * @method
-     * @param {Object} query The query used to match the first document.
+     * @param {Object} [options.projection=null] The query document projection.
+     * @param {Number} [options.limit=null] The maximum number of documents to return.
      * @return {Array} An array of documents.
      */
 
   }, {
     key: 'find',
-    value: function find(query, project) {
-      var args = this.getBaseArgs();
-      args.query = query;
-      args.project = project;
-      return this.db.client.executePipeline([{
-        'service': this.db.service,
-        'action': 'find',
-        'args': args
-      }]);
+    value: function find(query) {
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+      return findOp(this, query, options);
+    }
+
+    /**
+     * Count number of matching documents for a given query
+     *
+     * @param {Object} query The query used to match documents.
+     * @param {Object} options Additional find options.
+     * @param {Number} [options.limit=null] The maximum number of documents to return.
+     * @return {Array} An array of documents.
+     */
+
+  }, {
+    key: 'count',
+    value: function count(query) {
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+      return findOp(this, query, Object.assign({}, options, { count: true }));
+    }
+
+    // deprecated
+
+  }, {
+    key: 'insert',
+    value: function insert(docs) {
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+      return insertOp(this, docs, options);
     }
   }, {
-    key: 'makeUpdateStage',
-    value: function makeUpdateStage(query, update, upsert, multi) {
-      var args = this.getBaseArgs();
-      args.query = query;
-      args.update = update;
-      if (upsert) {
-        args.upsert = true;
-      }
-      if (multi) {
-        args.multi = true;
-      }
+    key: 'upsert',
+    value: function upsert(query, update) {
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-      return {
-        'service': this.db.service,
-        'action': 'update',
-        'args': args
-      };
+      return updateOp(this, query, update, Object.assign({}, options, { upsert: true }));
     }
   }]);
 
   return Collection;
 }();
 
+// deprecated methods
+
+
 exports.default = Collection;
-
-
 Collection.prototype.upsert = (0, _util.deprecate)(Collection.prototype.upsert, 'use `updateOne`/`updateMany` instead of `upsert`');
+
+// private
+function insertOp(self, docs, options) {
+  docs = Array.isArray(docs) ? docs : [docs];
+
+  // add ObjectIds to docs that have none
+  docs = docs.map(function (doc) {
+    if (!doc._id) doc._id = new ObjectID();
+    return doc;
+  });
+
+  return self.db.client.executePipeline([{
+    action: 'literal',
+    args: {
+      items: docs
+    }
+  }, {
+    service: self.db.service,
+    action: 'insert',
+    args: {
+      database: self.db.name,
+      collection: self.name
+    }
+  }]).then(function (response) {
+    return {
+      insertedIds: response.result.map(function (doc) {
+        return doc._id;
+      })
+    };
+  });
+}
+
+function deleteOp(self, query, options) {
+  var args = Object.assign({
+    database: self.db.name,
+    collection: self.name,
+    query: query
+  }, options);
+
+  return self.db.client.executePipeline([{
+    service: self.db.service,
+    action: 'delete',
+    args: args
+  }]).then(function (response) {
+    return {
+      deletedCount: response.result[0].removed
+    };
+  });
+}
+
+function updateOp(self, query, update, options) {
+  var args = Object.assign({
+    database: self.db.name,
+    collection: self.name,
+    query: query,
+    update: update
+  }, options);
+
+  return self.db.client.executePipeline([{
+    service: self.db.service,
+    action: 'update',
+    args: args
+  }]);
+}
+
+function findOp(self, query, options) {
+  var args = Object.assign({
+    database: self.db.name,
+    collection: self.name
+  }, options);
+
+  // legacy argument naming
+  if (args.projection) {
+    args.project = args.projection;
+    delete args.projection;
+  }
+
+  return self.db.client.executePipeline([{
+    service: self.db.service,
+    action: 'find',
+    args: args
+  }]);
+}
 module.exports = exports['default'];
 
 /***/ }),
