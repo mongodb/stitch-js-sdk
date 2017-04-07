@@ -49,7 +49,7 @@ export class BaasClient {
   }
 
   anonymousAuth() {
-    return this.client.authManager.stopImpersonation();
+    return this.authManager.anonymousAuth();
   }
 
   authedId() {
