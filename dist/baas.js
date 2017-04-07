@@ -3109,7 +3109,7 @@ var BaasClient = exports.BaasClient = function () {
   }, {
     key: 'anonymousAuth',
     value: function anonymousAuth() {
-      return this.client.authManager.stopImpersonation();
+      return this.authManager.anonymousAuth();
     }
   }, {
     key: 'authedId',
