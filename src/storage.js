@@ -4,7 +4,7 @@ class MemoryStorage {
   }
 
   getItem(key) {
-    return (key in this._data) ? this._data[key] : undefined;
+    return (key in this._data) ? this._data[key] : null;
   }
 
   setItem(key, value) {
@@ -39,14 +39,10 @@ export function createStorage(type) {
     if (window && 'localStorage' in window && window.localStorage !== null) {
       return new Storage(window.localStorage);
     }
-
-    // output warning?
   } else if (type === 'sessionStorage') {
     if (window && 'sessionStorage' in window && window.sessionStorage !== null) {
       return new Storage(window.sessionStorage);
     }
-
-    // output warning?
   }
 
   // default to memory storage
