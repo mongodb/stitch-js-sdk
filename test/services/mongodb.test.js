@@ -89,6 +89,13 @@ describe('MongoDBService', function() {
       expect(results).toEqual([ { a: 1 } ]);
     });
 
+    it('should find documents with a query', async function() {
+      await test.db.collection('documents').insertMany([ { a: 1 }, { b: 1 } ]);
+      let response = await test.db.collection('documents').find({ a: 1 });
+      let results = stripObjectIds(response.result);
+      expect(results).toEqual([ { a: 1 } ]);
+    });
+
     it('should find documents using projection', async function() {
       await test.db.collection('documents').insertOne({ a: 'a', b: 'b', c: 'c' });
       let response = await test.db.collection('documents').find({}, { projection: { a: 1 }});

@@ -204,7 +204,8 @@ function updateOp(self, query, update, options) {
 function findOp(self, query, options) {
   const args = Object.assign({
     database: self.db.name,
-    collection: self.name
+    collection: self.name,
+    query: query
   }, options);
 
   // legacy argument naming
