@@ -78,6 +78,10 @@ export class BaasClient {
    * @return {Object} returns a named service
    */
   service(type, name) {
+    if (this.constructor !== BaasClient) {
+      throw new BaasError('`service` is a factory method, do not use `new`');
+    }
+
     if (type === 'mongodb') {
       return new MongoDBService(this, name);
     }
