@@ -78,14 +78,17 @@ tasks:
             cd baas-js-sdk
             npm install
             npm run build
-            npm pack
+            npm run build-dev
+            mkdir tmp
+            cd tmp
+            npm pack ../
 
       - command: s3.put
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
           local_file: baas-js-sdk/dist/baas.js
-          remote_file: js/npm/${revision}/baas.js
+          remote_file: js/library/${revision}/baas.js
           bucket: baas-sdks
           permissions: public-read
           content_type: application/javascript
@@ -96,7 +99,7 @@ tasks:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
           local_file: baas-js-sdk/dist/baas.min.js
-          remote_file: js/npm/${revision}/baas.min.js
+          remote_file: js/library/${revision}/baas.min.js
           bucket: baas-sdks
           permissions: public-read
           content_type: application/javascript
@@ -106,8 +109,41 @@ tasks:
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
-          local_file: baas-js-sdk/baas-1.0.0.tgz
-          remote_file: js/npm/${revision}/baas.tgz
+          local_files_include_filter: ["baas-js-sdk/tmp/*"]
+          remote_file: js/npm/${revision}/
+          bucket: baas-sdks
+          permissions: public-read
+          content_type: application/gzip
+          display_name: BaaS NPM package
+
+      - command: s3.put
+        params:
+          aws_key: ${sdks_aws_key}
+          aws_secret: ${sdks_aws_secret}
+          local_file: baas-js-sdk/dist/baas.js
+          remote_file: js/library/${branch_name}/baas.js
+          bucket: baas-sdks
+          permissions: public-read
+          content_type: application/javascript
+          display_name: BaaS Javascript Library
+
+      - command: s3.put
+        params:
+          aws_key: ${sdks_aws_key}
+          aws_secret: ${sdks_aws_secret}
+          local_file: baas-js-sdk/dist/baas.min.js
+          remote_file: js/library/${branch_name}/baas.min.js
+          bucket: baas-sdks
+          permissions: public-read
+          content_type: application/javascript
+          display_name: BaaS Javascript Library (minified)
+
+      - command: s3.put
+        params:
+          aws_key: ${sdks_aws_key}
+          aws_secret: ${sdks_aws_secret}
+          local_files_include_filter: ["baas-js-sdk/tmp/*"]
+          remote_file: js/npm/${branch_name}/
           bucket: baas-sdks
           permissions: public-read
           content_type: application/gzip
@@ -125,15 +161,27 @@ tasks:
             cd baas-js-sdk
             npm install
             npm run docs
-      - command: s3.put
+
+      - command: shell.exec
         params:
-          aws_key: ${sdks_aws_key}
-          aws_secret: ${sdks_aws_secret}
-          local_files_include_filter: ["baas-js-sdk/docs/*/*"]
-          remote_file: js/docs/${revision}/baas.min.js
-          bucket: baas-sdks
-          permissions: public-read
-          content_type: text/html
+          script: |
+            set -e
+            echo "setting up AWS CLI"
+            curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+            unzip awscli-bundle.zip
+            ./awscli-bundle/install -b ~/bin/aws
+            echo "uploading docs for ${branch_name}/${revision}"
+
+      - command: shell.exec
+        params:
+          silent: true
+          script: |
+            set -e
+            export PATH=$HOME/bin:$PATH
+            export AWS_ACCESS_KEY_ID=${sdks_aws_key}
+            export AWS_SECRET_ACCESS_KEY=${sdks_aws_secret}
+            aws s3 cp baas-js-sdk/docs s3://baas-sdks/js/docs/${revision} --recursive --acl public-read
+            aws s3 cp baas-js-sdk/docs s3://baas-sdks/js/docs/${branch_name} --recursive --acl public-read
 
 buildvariants:
 - name: linux-64
