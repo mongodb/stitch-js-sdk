@@ -3148,6 +3148,10 @@ var BaasClient = exports.BaasClient = function () {
   }, {
     key: 'service',
     value: function service(type, name) {
+      if (this.constructor !== BaasClient) {
+        throw new _errors.BaasError('`service` is a factory method, do not use `new`');
+      }
+
       if (type === 'mongodb') {
         return new _mongodb_service2.default(this, name);
       }
@@ -3842,7 +3846,7 @@ var Auth = function () {
       return fetch(this.rootUrl + '/anon/user', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
-        _this.set(json);
+        return _this.set(json);
       });
     }
   }, {
@@ -3856,7 +3860,7 @@ var Auth = function () {
       return fetch(this.rootUrl + '/api/key', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
-        _this2.set(json);
+        return _this2.set(json);
       });
     }
   }, {
@@ -3870,10 +3874,10 @@ var Auth = function () {
       fetchArgs.cors = true;
 
       return fetch(this.rootUrl + '/local/userpass', fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json().then(function (json) {
-          _this3.set(json);
-          return Promise.resolve(json);
-        });
+        return response.json();
+      }).then(function (json) {
+        _this3.set(json);
+        return json;
       });
     }
   }, {
@@ -3927,14 +3931,13 @@ var Auth = function () {
 
       var userId = this.authDataStorage.get(common.IMPERSONATION_USER_KEY);
       return client._do('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
-        return response.json().then(function (json) {
-          json.refreshToken = _this4.authDataStorage.get(common.REFRESH_TOKEN_KEY);
-          _this4.set(json);
-          return Promise.resolve();
-        });
+        return response.json();
+      }).then(function (json) {
+        json.refreshToken = _this4.authDataStorage.get(common.REFRESH_TOKEN_KEY);
+        _this4.set(json);
       }).catch(function (e) {
         _this4.stopImpersonation();
-        return Promise.reject(e);
+        throw e; // rethrow
       });
     }
   }, {
@@ -4290,7 +4293,8 @@ function updateOp(self, query, update, options) {
 function findOp(self, query, options) {
   var args = Object.assign({
     database: self.db.name,
-    collection: self.name
+    collection: self.name,
+    query: query
   }, options);
 
   // legacy argument naming
@@ -4466,7 +4470,7 @@ var MemoryStorage = function () {
   _createClass(MemoryStorage, [{
     key: 'getItem',
     value: function getItem(key) {
-      return key in this._data ? this._data[key] : undefined;
+      return key in this._data ? this._data[key] : null;
     }
   }, {
     key: 'setItem',
@@ -4528,14 +4532,10 @@ function createStorage(type) {
     if (window && 'localStorage' in window && window.localStorage !== null) {
       return new Storage(window.localStorage);
     }
-
-    // output warning?
   } else if (type === 'sessionStorage') {
     if (window && 'sessionStorage' in window && window.sessionStorage !== null) {
       return new Storage(window.sessionStorage);
     }
-
-    // output warning?
   }
 
   // default to memory storage
