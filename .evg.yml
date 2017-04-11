@@ -109,8 +109,8 @@ tasks:
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
-          local_files_include_filter: ["baas-js-sdk/tmp/*"]
-          remote_file: js/npm/${revision}/
+          local_file: baas-js-sdk/tmp/baas-1.0.0.tgz
+          remote_file: js/npm/${revision}/baas.tgz
           bucket: baas-sdks
           permissions: public-read
           content_type: application/gzip
@@ -142,8 +142,8 @@ tasks:
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
-          local_files_include_filter: ["baas-js-sdk/tmp/*"]
-          remote_file: js/npm/${branch_name}/
+          local_file: baas-js-sdk/tmp/baas-1.0.0.tgz
+          remote_file: js/npm/${branch_name}/baas.tgz
           bucket: baas-sdks
           permissions: public-read
           content_type: application/gzip
