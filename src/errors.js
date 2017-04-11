@@ -3,9 +3,9 @@
  *
  * @class
  * @augments Error
- * @param {String} message The error message
- * @param {Object} code The error code
- * @return {BaasError} A BaasError instance
+ * @param {String} message The error message.
+ * @param {Object} code The error code.
+ * @return {BaasError} A BaasError instance.
  */
 export class BaasError extends Error {
   constructor(message, code) {

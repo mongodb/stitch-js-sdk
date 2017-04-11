@@ -48,53 +48,55 @@ class BaasClient {
   }
 
   /**
+   * Sends the user to the OAuth flow for the specified third-party service.
    *
-   * @param {*} providerName
-   * @param {*} redirectUrl
+   * @param {*} providerName The OAuth provider name.
+   * @param {*} redirectUrl The redirect URL to use after the flow completes.
    */
   authWithOAuth(providerName, redirectUrl) {
     window.location.replace(this.authManager.getOAuthLoginURL(providerName, redirectUrl));
   }
 
   /**
+   * Generates a URL that can be used to initiate an OAuth login flow with the specified OAuth provider.
    *
-   * @param {*} providerName
-   * @param {*} redirectUrl
+   * @param {*} providerName The OAuth provider name.
+   * @param {*} redirectUrlThe redirect URL to use after the flow completes.
    */
   getOAuthLoginURL(providerName, redirectUrl) {
     return this.authManager.getOAuthLoginURL(providerName, redirectUrl);
   }
 
   /**
-   *
+   * Logs in as an anonymous user.
    */
   anonymousAuth() {
     return this.authManager.anonymousAuth();
   }
 
   /**
-   *
+   *  @return {ObjectID} Returns the currently authed user's ID.
    */
   authedId() {
     return this.authManager.authedId();
   }
 
   /**
-   *
+   * @return {Object} Returns the currently authed user's authentication information.
    */
   auth() {
     return this.authManager.get();
   }
 
   /**
-   *
+   * @return {*} Returns any error from the BaaS authentication system.
    */
   authError() {
     return this.authManager.error();
   }
 
   /**
-   *
+   * Ends the session for the current user.
    */
   logout() {
     return this._do('/auth', 'DELETE', {refreshOnFailure: false, useRefreshToken: true})
@@ -107,7 +109,7 @@ class BaasClient {
    * @method
    * @param {String} type The service type [mongodb, {String}]
    * @param {String} name The service name.
-   * @return {Object} returns a named service
+   * @return {Object} returns a named service.
    */
   service(type, name) {
     if (this.constructor !== BaasClient) {
@@ -124,8 +126,8 @@ class BaasClient {
   /**
    * Executes a service pipeline.
    *
-   * @param {Array} stages Stages to process
-   * @param {Object} [options] Additional options to pass to the execution context
+   * @param {Array} stages Stages to process.
+   * @param {Object} [options] Additional options to pass to the execution context.
    */
   executePipeline(stages, options = {}) {
     let responseDecoder = (d) => EJSON.parse(d, { strict: false });

@@ -15,7 +15,7 @@ class Collection {
   }
 
   /**
-   * Insert a single document
+   * Inserts a single document.
    *
    * @method
    * @param {Object} doc The document to insert.
@@ -27,7 +27,7 @@ class Collection {
   }
 
   /**
-   * Insert multiple documents
+   * Inserts multiple documents.
    *
    * @method
    * @param {Array} docs The documents to insert.
@@ -39,7 +39,7 @@ class Collection {
   }
 
   /**
-   * Delete a single document
+   * Deletes a single document.
    *
    * @method
    * @param {Object} query The query used to match a single document.
@@ -51,7 +51,7 @@ class Collection {
   }
 
   /**
-   * Delete all documents matching query
+   * Deletes. all documents matching query
    *
    * @method
    * @param {Object} query The query used to match the documents to delete.
@@ -63,7 +63,7 @@ class Collection {
   }
 
   /**
-   * Update a single document
+   * Updates a single document.
    *
    * @method
    * @param {Object} query The query used to match a single document.
@@ -77,7 +77,7 @@ class Collection {
   }
 
   /**
-   * Update multiple documents
+   * Updates multiple documents.
    *
    * @method
    * @param {Object} query The query used to match the documents.
@@ -91,7 +91,7 @@ class Collection {
   }
 
   /**
-   * Find documents
+   * Finds documents.
    *
    * @method
    * @param {Object} query The query used to match documents.
@@ -105,7 +105,7 @@ class Collection {
   }
 
   /**
-   * Count number of matching documents for a given query
+   * Counts the number of matching documents for a given query.
    *
    * @param {Object} query The query used to match documents.
    * @param {Object} options Additional find options.

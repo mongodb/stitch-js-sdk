@@ -3,28 +3,30 @@
 The original source is located in `src/`.
 To transpile to pure JS, run `npm run build` which places the output into `dist/`.
 
-### TODO
-
-* Handle auth expiring (observer pattern?)
-* Handle User/app domain mismatch (same as auth expiry?)
-
 ### Usage
 
 Construct a simple app-wide client:
 ```
 import { BaasClient } from 'baas';
-let baasHostName = 'localhost:8080';
-let appName = 'sample-app';
-let baasClient = new BaasClient(`http://${baasHostName}/v1/app/${appName}`);
+let appId = 'sample-app-ovmyj';
+let baasClient = new BaasClient(appId);
+```
+
+Authenticate anonymously:
+```
+baasClient.anonymousAuth()
+  .then(() => console.log('logged in as: ' + baasClient.auth().user._id))
+  .catch(e => console.log('error: ', e));
 ```
 
 Access MongoDB APIs:
 ```
-let db = baasClient.service('mongodb', 'mdb1').db('dbName'); // mdb1 is the name of the mongodb service registered with the app.
-let testCollection = db.collection('test');
+let db = baasClient.service('mongodb', 'mongodb1').db('app-ovmyj'); // mdb1 is the name of the mongodb service registered with the app.
+let itemsCollection = db.collection('items');
 
 // CRUD operations:
-testCollection.insertMany([ { x: 'item1' }, { x: 'item2' }, { x: 'item3' } ])
+let userId = baasClient.authedId();
+itemsCollection.insertMany([ { owner_id: userId, x: 'item1' }, { owner_id: userId, x: 'item2' }, { owner_id: userId, x: 'item3' } ])
   .then(result => console.log('success: ', result))
   .catch(e => console.log('error: ', e));
 ```
@@ -32,22 +34,20 @@ testCollection.insertMany([ { x: 'item1' }, { x: 'item2' }, { x: 'item3' } ])
 Access other services:
 ```
 // executePipeline takes an array of pipeline stages.
-
 baasClient.executePipeline([
   {
     action: 'literal',
     args: {
-      items: [ { name: 'hi' } ]
+      items: [ { name: 'hi' }, { name: 'hello' }, { name: 'goodbye' } ]
     }
   },
   {
-    service: 'tw1',
-    action: 'send',
+    action: 'match',
     args: {
-      to: '+1' + this._number.value,
-      from: '$$values.ourNumber',
-      body: 'Your confirmation code is ' + code
+      expression: { name: 'hello' }
     }
   }
-]);
+])
+  .then(result => console.log('success: ', result))
+  .catch(e => console.log('error: ', e));;
 ```
