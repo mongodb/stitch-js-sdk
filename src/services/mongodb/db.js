@@ -6,7 +6,7 @@ import { deprecate } from '../../util';
  * @class
  * @return {DB} a DB instance.
  */
-export default class DB {
+class DB {
   constructor(client, service, name) {
     this.client = client;
     this.service = service;
@@ -29,3 +29,5 @@ export default class DB {
 // deprecated
 DB.prototype.getCollection =
   deprecate(DB.prototype.collection, 'use `collection` instead of `getCollection`');
+
+export default DB;

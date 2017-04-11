@@ -10,11 +10,11 @@ import ExtJSONModule from 'mongodb-extjson';
 const EJSON = new ExtJSONModule();
 const UTF8Decoder = new TextDecoder('utf-8');
 
-export const ErrAuthProviderNotFound = 'AuthProviderNotFound';
-export const ErrInvalidSession = 'InvalidSession';
-export const ErrUnauthorized = 'Unauthorized';
+const ErrAuthProviderNotFound = 'AuthProviderNotFound';
+const ErrInvalidSession = 'InvalidSession';
+const ErrUnauthorized = 'Unauthorized';
 
-export const toQueryString = (obj) => {
+const toQueryString = (obj) => {
   let parts = [];
   for (let i in obj) {
     if (obj.hasOwnProperty(i)) {
@@ -24,7 +24,14 @@ export const toQueryString = (obj) => {
   return parts.join('&');
 };
 
-export class BaasClient {
+
+/**
+ * Create a new BaasClient instance.
+ *
+ * @class
+ * @return {BaasClient} a BaasClient instance.
+ */
+class BaasClient {
   constructor(clientAppID, options) {
     let baseUrl = common.DEFAULT_BAAS_SERVER_URL;
     if (options && options.baseUrl) {
@@ -40,37 +47,62 @@ export class BaasClient {
     this.authManager.handleRedirect();
   }
 
+  /**
+   *
+   * @param {*} providerName
+   * @param {*} redirectUrl
+   */
   authWithOAuth(providerName, redirectUrl) {
     window.location.replace(this.authManager.getOAuthLoginURL(providerName, redirectUrl));
   }
 
+  /**
+   *
+   * @param {*} providerName
+   * @param {*} redirectUrl
+   */
   getOAuthLoginURL(providerName, redirectUrl) {
     return this.authManager.getOAuthLoginURL(providerName, redirectUrl);
   }
 
+  /**
+   *
+   */
   anonymousAuth() {
     return this.authManager.anonymousAuth();
   }
 
+  /**
+   *
+   */
   authedId() {
     return this.authManager.authedId();
   }
 
+  /**
+   *
+   */
   auth() {
     return this.authManager.get();
   }
 
+  /**
+   *
+   */
   authError() {
     return this.authManager.error();
   }
 
+  /**
+   *
+   */
   logout() {
     return this._do('/auth', 'DELETE', {refreshOnFailure: false, useRefreshToken: true})
       .then(() => this.authManager.clear());
   }
 
   /**
-   * Get a BAAS service
+   * Factory method for accessing BaaS services.
    *
    * @method
    * @param {String} type The service type [mongodb, {String}]
@@ -87,6 +119,36 @@ export class BaasClient {
     }
 
     throw new BaasError('Invalid service type specified: ' + type);
+  }
+
+  /**
+   * Executes a service pipeline.
+   *
+   * @param {Array} stages Stages to process
+   * @param {Object} [options] Additional options to pass to the execution context
+   */
+  executePipeline(stages, options = {}) {
+    let responseDecoder = (d) => EJSON.parse(d, { strict: false });
+    let responseEncoder = (d) => EJSON.stringify(d);
+
+    if (options.decoder) {
+      if ((typeof options.decoder) !== 'function') {
+        throw new Error('decoder option must be a function, but "' + typeof (options.decoder) + '" was provided');
+      }
+      responseDecoder = options.decoder;
+    }
+
+    if (options.encoder) {
+      if ((typeof options.encoder) !== 'function') {
+        throw new Error('encoder option must be a function, but "' + typeof (options.encoder) + '" was provided');
+      }
+      responseEncoder = options.encoder;
+    }
+
+    return this._do('/pipeline', 'POST', { body: responseEncoder(stages) })
+      .then(response => (response.arrayBuffer) ? response.arrayBuffer() : response.buffer())
+      .then(buf => UTF8Decoder.decode(buf))
+      .then(body => responseDecoder(body));
   }
 
   _do(resource, method, options) {
@@ -162,33 +224,9 @@ export class BaasClient {
       .then(response => response.json())
       .then(json => this.authManager.setAccessToken(json.accessToken));
   }
-
-  executePipeline(stages, options = {}) {
-    let responseDecoder = (d) => EJSON.parse(d, { strict: false });
-    let responseEncoder = (d) => EJSON.stringify(d);
-
-    if (options.decoder) {
-      if ((typeof options.decoder) !== 'function') {
-        throw new Error('decoder option must be a function, but "' + typeof (options.decoder) + '" was provided');
-      }
-      responseDecoder = options.decoder;
-    }
-
-    if (options.encoder) {
-      if ((typeof options.encoder) !== 'function') {
-        throw new Error('encoder option must be a function, but "' + typeof (options.encoder) + '" was provided');
-      }
-      responseEncoder = options.encoder;
-    }
-
-    return this._do('/pipeline', 'POST', { body: responseEncoder(stages) })
-      .then(response => (response.arrayBuffer) ? response.arrayBuffer() : response.buffer())
-      .then(buf => UTF8Decoder.decode(buf))
-      .then(body => responseDecoder(body));
-  }
 }
 
-export class Admin {
+class Admin {
   constructor(baseUrl) {
     this.client = new BaasClient('', {baseUrl});
   }
@@ -379,3 +417,12 @@ export class Admin {
     return this.client.authManager.stopImpersonation();
   }
 }
+
+export {
+  BaasClient,
+  Admin,
+  ErrAuthProviderNotFound,
+  ErrInvalidSession,
+  ErrUnauthorized,
+  toQueryString
+};

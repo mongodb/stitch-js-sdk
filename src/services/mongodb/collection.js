@@ -8,7 +8,7 @@ const { ObjectID } = BSON;
  * @class
  * @return {Collection} a Collection instance.
  */
-export default class Collection {
+class Collection {
   constructor(db, name) {
     this.db = db;
     this.name = name;
@@ -222,3 +222,5 @@ function findOp(self, query, options) {
     }
   ]);
 }
+
+export default Collection;

@@ -4,7 +4,7 @@
  * @class
  * @augments Error
  * @param {String} message The error message
- * @param {Object} fields Optional fields to decorate the error with
+ * @param {Object} code The error code
  * @return {BaasError} A BaasError instance
  */
 export class BaasError extends Error {

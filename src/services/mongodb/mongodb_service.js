@@ -2,24 +2,24 @@ import DB from './db';
 import { deprecate } from '../../util';
 
 /**
- * Create a new MongoClient instance (not meant to be instantiated directly).
+ * Create a new MongoDBService instance (not meant to be instantiated directly).
  *
  * @class
- * @return {MongoClient} a MongoClient instance.
+ * @return {MongoDBService} a MongoDBService instance.
  */
-export default class MongoDBService {
+class MongoDBService {
   constructor(baasClient, serviceName) {
     this.baasClient = baasClient;
     this.serviceName = serviceName;
   }
 
   /**
-   * Get a Db instance
+   * Get a DB instance
    *
    * @method
    * @param {String} databaseName The MongoDB database name
    * @param {Object} [options] Additional options.
-   * @return {Db} returns a Db instance representing a MongoDB database.
+   * @return {DB} returns a DB instance representing a MongoDB database.
    */
   db(databaseName, options = {}) {
     return new DB(this.baasClient, this.serviceName, databaseName);
@@ -30,3 +30,6 @@ export default class MongoDBService {
 MongoDBService.prototype.getDB =
 MongoDBService.prototype.getDb =
   deprecate(MongoDBService.prototype.db, 'use `db` instead of `getDB`');
+
+
+export default MongoDBService;

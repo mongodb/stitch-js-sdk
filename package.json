@@ -7,6 +7,7 @@
     "build": "webpack --env build",
     "build-dev": "webpack --env dev",
     "dev": "webpack --progress --colors --watch --env dev",
+    "docs": "jsdoc -r -c jsdoc.json -R README.md",
     "test": "jest",
     "lint": "eslint source/ __tests__/",
     "lintfix": "eslint --fix source/ __tests__/"
@@ -36,6 +37,7 @@
     "fetch-mock": "^5.9.4",
     "jest": "^19.0.2",
     "jest-fetch-mock": "^1.0.8",
+    "jsdoc": "^3.4.3",
     "mock-browser": "^0.92.12",
     "mongodb": "^2.2.25",
     "regenerator-runtime": "^0.10.3",
