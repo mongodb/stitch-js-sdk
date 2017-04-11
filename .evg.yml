@@ -66,6 +66,75 @@ tasks:
             npm install
             npm test
 
+  - name: dist
+    depends_on:
+      - name: run_tests
+    commands:
+      - func: "fetch_source"
+      - command: shell.exec
+        params:
+          script: |
+            set -e
+            cd baas-js-sdk
+            npm install
+            npm run build
+            npm pack
+
+      - command: s3.put
+        params:
+          aws_key: ${sdks_aws_key}
+          aws_secret: ${sdks_aws_secret}
+          local_file: baas-js-sdk/dist/baas.js
+          remote_file: js/npm/${revision}/baas.js
+          bucket: baas-sdks
+          permissions: public-read
+          content_type: application/javascript
+          display_name: BaaS Javascript Library
+
+      - command: s3.put
+        params:
+          aws_key: ${sdks_aws_key}
+          aws_secret: ${sdks_aws_secret}
+          local_file: baas-js-sdk/dist/baas.min.js
+          remote_file: js/npm/${revision}/baas.min.js
+          bucket: baas-sdks
+          permissions: public-read
+          content_type: application/javascript
+          display_name: BaaS Javascript Library (minified)
+
+      - command: s3.put
+        params:
+          aws_key: ${sdks_aws_key}
+          aws_secret: ${sdks_aws_secret}
+          local_file: baas-js-sdk/baas-1.0.0.tgz
+          remote_file: js/npm/${revision}/baas.tgz
+          bucket: baas-sdks
+          permissions: public-read
+          content_type: application/gzip
+          display_name: BaaS NPM package
+
+  - name: docs_dist
+    depends_on:
+      - name: run_tests
+    commands:
+      - func: "fetch_source"
+      - command: shell.exec
+        params:
+          script: |
+            set -e
+            cd baas-js-sdk
+            npm install
+            npm run docs
+      - command: s3.put
+        params:
+          aws_key: ${sdks_aws_key}
+          aws_secret: ${sdks_aws_secret}
+          local_files_include_filter: ["baas-js-sdk/docs/*/*"]
+          remote_file: js/docs/${revision}/baas.min.js
+          bucket: baas-sdks
+          permissions: public-read
+          content_type: text/html
+
 buildvariants:
 - name: linux-64
   display_name: Linux-64
@@ -75,3 +144,5 @@ buildvariants:
     mongodb_url: http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.1.tgz
   tasks:
     - name: run_tests
+    - name: dist
+    - name: docs_dist
