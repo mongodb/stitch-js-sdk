@@ -36,11 +36,11 @@ class Storage {
 
 export function createStorage(type) {
   if (type === 'localStorage') {
-    if (window && 'localStorage' in window && window.localStorage !== null) {
+    if ((typeof window !== 'undefined') && 'localStorage' in window && window.localStorage !== null) {
       return new Storage(window.localStorage);
     }
   } else if (type === 'sessionStorage') {
-    if (window && 'sessionStorage' in window && window.sessionStorage !== null) {
+    if ((typeof window !== 'undefined') && 'sessionStorage' in window && window.sessionStorage !== null) {
       return new Storage(window.sessionStorage);
     }
   }
