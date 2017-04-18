@@ -4,11 +4,6 @@ import { BaasClient, toQueryString } from '../src/client';
 import { parseRedirectFragment, JSONTYPE, REFRESH_TOKEN_KEY, DEFAULT_BAAS_SERVER_URL } from '../src/common';
 import Auth from '../src/auth';
 import { mocks } from 'mock-browser';
-import { btoa, atob } from 'Base64';
-const Base64 = {
-  encode: btoa,
-  decode: atob
-};
 
 const EJSON = require('mongodb-extjson');
 
@@ -66,26 +61,26 @@ describe('Redirect fragment parsing', () => {
   );
 
   it('should detect valid states', () => {
-    let result = parseRedirectFragment(makeFragment({'_baas_state': Base64.encode('state_XYZ')}), Base64.encode('state_XYZ'));
+    let result = parseRedirectFragment(makeFragment({'_baas_state': 'state_XYZ'}), 'state_XYZ');
     expect(result.stateValid).toBe(true);
     expect(result.found).toBe(true);
     expect(result.lastError).toBe(null);
   });
 
   it('should detect invalid states', () => {
-    let result = parseRedirectFragment(makeFragment({'_baas_state': Base64.encode('state_XYZ')}), Base64.encode('state_ABC'));
+    let result = parseRedirectFragment(makeFragment({'_baas_state': 'state_XYZ'}), 'state_ABC');
     expect(result.stateValid).toBe(false);
     expect(result.lastError).toBe(null);
   });
 
   it('should detect errors', () => {
-    let result = parseRedirectFragment(makeFragment({'_baas_error': 'hello world'}), Base64.encode('state_ABC'));
+    let result = parseRedirectFragment(makeFragment({'_baas_error': 'hello world'}), 'state_ABC');
     expect(result.lastError).toEqual('hello world');
     expect(result.stateValid).toBe(false);
   });
 
   it('should detect if no items found', () => {
-    let result = parseRedirectFragment(makeFragment({'foo': 'bar'}), Base64.encode('state_ABC'));
+    let result = parseRedirectFragment(makeFragment({'foo': 'bar'}), 'state_ABC');
     expect(result.found).toBe(false);
   });
 });

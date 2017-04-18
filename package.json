@@ -18,7 +18,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "Base64": "^1.0.0",
     "isomorphic-fetch": "^2.2.1",
     "mongodb-extjson": "^1.0.4"
   },

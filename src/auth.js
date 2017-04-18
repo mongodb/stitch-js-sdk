@@ -3,10 +3,6 @@
 import { createStorage } from './storage';
 import { BaasError } from './errors';
 import * as common from './common';
-import {
-  btoa as b64Encode,
-  atob as b64Decode
-} from 'Base64';
 
 export default class Auth {
   constructor(rootUrl) {
@@ -145,7 +141,7 @@ export default class Auth {
     let rt = json.refreshToken;
     delete json.refreshToken;
 
-    this.authDataStorage.set(common.USER_AUTH_KEY, b64Encode(JSON.stringify(json)));
+    this.authDataStorage.set(common.USER_AUTH_KEY, JSON.stringify(json));
     this.authDataStorage.set(common.REFRESH_TOKEN_KEY, rt);
   }
 
@@ -155,7 +151,7 @@ export default class Auth {
     }
 
     const item = this.authDataStorage.get(common.USER_AUTH_KEY);
-    return JSON.parse(b64Decode(item));
+    return JSON.parse(item);
   }
 
   authedId() {
