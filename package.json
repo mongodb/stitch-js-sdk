@@ -20,8 +20,7 @@
   "dependencies": {
     "Base64": "^1.0.0",
     "isomorphic-fetch": "^2.2.1",
-    "mongodb-extjson": "^1.0.4",
-    "text-encoding-utf-8": "^1.0.1"
+    "mongodb-extjson": "^1.0.4"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.1",

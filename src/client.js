@@ -5,10 +5,8 @@ import Auth from './auth';
 import MongoDBService from './services/mongodb/mongodb_service';
 import { BaasError } from './errors';
 import * as common from './common';
-import { TextDecoder } from 'text-encoding-utf-8';
 import ExtJSONModule from 'mongodb-extjson';
 const EJSON = new ExtJSONModule();
-const UTF8Decoder = new TextDecoder('utf-8');
 
 const ErrAuthProviderNotFound = 'AuthProviderNotFound';
 const ErrInvalidSession = 'InvalidSession';
@@ -148,8 +146,7 @@ class BaasClient {
     }
 
     return this._do('/pipeline', 'POST', { body: responseEncoder(stages) })
-      .then(response => (response.arrayBuffer) ? response.arrayBuffer() : response.buffer())
-      .then(buf => UTF8Decoder.decode(buf))
+      .then(response => response.text())
       .then(body => responseDecoder(body));
   }
 
