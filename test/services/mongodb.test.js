@@ -85,21 +85,21 @@ describe('MongoDBService', function() {
     it('should find documents', async function() {
       await test.db.collection('documents').insertOne({ a: 1 });
       let response = await test.db.collection('documents').find();
-      let results = stripObjectIds(response.result);
+      let results = stripObjectIds(response);
       expect(results).toEqual([ { a: 1 } ]);
     });
 
     it('should find documents with a query', async function() {
       await test.db.collection('documents').insertMany([ { a: 1 }, { b: 1 } ]);
       let response = await test.db.collection('documents').find({ a: 1 });
-      let results = stripObjectIds(response.result);
+      let results = stripObjectIds(response);
       expect(results).toEqual([ { a: 1 } ]);
     });
 
     it('should find documents using projection', async function() {
       await test.db.collection('documents').insertOne({ a: 'a', b: 'b', c: 'c' });
       let response = await test.db.collection('documents').find({}, { projection: { a: 1 }});
-      let results = stripObjectIds(response.result);
+      let results = stripObjectIds(response);
       expect(results).toEqual([ { a: 'a' } ]);
     });
   });
@@ -111,7 +111,7 @@ describe('MongoDBService', function() {
     it('should count documents', async function() {
       await test.db.collection('documents').insertMany([ {}, {}, {}, {}, {} ]);
       let response = await test.db.collection('documents').count();
-      expect(response.result).toEqual([ 5 ]);
+      expect(response).toEqual(5);
     });
   });
 });

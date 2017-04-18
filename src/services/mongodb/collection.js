@@ -51,7 +51,7 @@ class Collection {
   }
 
   /**
-   * Deletes. all documents matching query
+   * Deletes all documents matching query.
    *
    * @method
    * @param {Object} query The query used to match the documents to delete.
@@ -105,15 +105,16 @@ class Collection {
   }
 
   /**
-   * Counts the number of matching documents for a given query.
+   * Gets the number of documents matching the filter.
    *
    * @param {Object} query The query used to match documents.
    * @param {Object} options Additional find options.
    * @param {Number} [options.limit=null] The maximum number of documents to return.
-   * @return {Array} An array of documents.
+   * @return {Number} An array of documents.
    */
   count(query, options = {}) {
-    return findOp(this, query, Object.assign({}, options, { count: true }));
+    return findOp(this, query, Object.assign({}, options, { count: true }))
+      .then(result => result[0] || 0);
   }
 
   // deprecated
@@ -220,7 +221,8 @@ function findOp(self, query, options) {
       action: 'find',
       args: args
     }
-  ]);
+  ])
+  .then(response => response.result);
 }
 
 export default Collection;
