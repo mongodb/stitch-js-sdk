@@ -78,7 +78,8 @@ tasks:
             cd baas-js-sdk
             npm install
             npm run build
-            npm run build-dev
+            npm run build-web
+            npm run build-web-dev
             mkdir tmp
             cd tmp
             npm pack ../
@@ -87,23 +88,23 @@ tasks:
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
-          local_file: baas-js-sdk/dist/baas.js
+          local_file: baas-js-sdk/dist/web/baas.js
           remote_file: js/library/${revision}/baas.js
           bucket: baas-sdks
           permissions: public-read
           content_type: application/javascript
-          display_name: BaaS Javascript Library
+          display_name: BaaS Javascript Library for Web
 
       - command: s3.put
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
-          local_file: baas-js-sdk/dist/baas.min.js
+          local_file: baas-js-sdk/dist/web/baas.min.js
           remote_file: js/library/${revision}/baas.min.js
           bucket: baas-sdks
           permissions: public-read
           content_type: application/javascript
-          display_name: BaaS Javascript Library (minified)
+          display_name: BaaS Javascript Library for Web (minified)
 
       - command: s3.put
         params:
@@ -120,23 +121,23 @@ tasks:
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
-          local_file: baas-js-sdk/dist/baas.js
+          local_file: baas-js-sdk/dist/web/baas.js
           remote_file: js/library/${branch_name}/baas.js
           bucket: baas-sdks
           permissions: public-read
           content_type: application/javascript
-          display_name: BaaS Javascript Library
+          display_name: BaaS Javascript Library for Web
 
       - command: s3.put
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
-          local_file: baas-js-sdk/dist/baas.min.js
+          local_file: baas-js-sdk/dist/web/baas.min.js
           remote_file: js/library/${branch_name}/baas.min.js
           bucket: baas-sdks
           permissions: public-read
           content_type: application/javascript
-          display_name: BaaS Javascript Library (minified)
+          display_name: BaaS Javascript Library for Web (minified)
 
       - command: s3.put
         params:
