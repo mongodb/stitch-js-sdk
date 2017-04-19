@@ -19,7 +19,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * @param {Object} code The error code.
  * @return {BaasError} A BaasError instance.
  */
-
 var BaasError = exports.BaasError = function (_Error) {
   _inherits(BaasError, _Error);
 

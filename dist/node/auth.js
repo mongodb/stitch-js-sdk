@@ -14,8 +14,6 @@ var _common = require('./common');
 
 var common = _interopRequireWildcard(_common);
 
-var _Base = require('Base64');
-
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -62,6 +60,9 @@ var Auth = function () {
       if (typeof window === 'undefined') {
         // This means we're running in some environment other
         // than a browser - so handling a redirect makes no sense here.
+        return;
+      }
+      if (!window.location || !window.location.hash) {
         return;
       }
 
@@ -170,7 +171,7 @@ var Auth = function () {
       var rt = json.refreshToken;
       delete json.refreshToken;
 
-      this.authDataStorage.set(common.USER_AUTH_KEY, (0, _Base.btoa)(JSON.stringify(json)));
+      this.authDataStorage.set(common.USER_AUTH_KEY, JSON.stringify(json));
       this.authDataStorage.set(common.REFRESH_TOKEN_KEY, rt);
     }
   }, {
@@ -181,7 +182,7 @@ var Auth = function () {
       }
 
       var item = this.authDataStorage.get(common.USER_AUTH_KEY);
-      return JSON.parse((0, _Base.atob)(item));
+      return JSON.parse(item);
     }
   }, {
     key: 'authedId',
@@ -226,9 +227,9 @@ var Auth = function () {
       this.authDataStorage.set(common.IMPERSONATION_ACTIVE_KEY, 'true');
       this.authDataStorage.set(common.IMPERSONATION_USER_KEY, userId);
 
-      var realUserAuth = JSON.parse((0, _Base.atob)(this.authDataStorage.get(common.USER_AUTH_KEY)));
+      var realUserAuth = JSON.parse(b64Decode(this.authDataStorage.get(common.USER_AUTH_KEY)));
       realUserAuth.refreshToken = this.authDataStorage.get(common.REFRESH_TOKEN_KEY);
-      this.authDataStorage.set(common.IMPERSONATION_REAL_USER_AUTH_KEY, (0, _Base.btoa)(JSON.stringify(realUserAuth)));
+      this.authDataStorage.set(common.IMPERSONATION_REAL_USER_AUTH_KEY, b64Encode(JSON.stringify(realUserAuth)));
       return this.refreshImpersonation(client);
     }
   }, {
@@ -241,7 +242,7 @@ var Auth = function () {
       }
 
       return new Promise(function (resolve, reject) {
-        var realUserAuth = JSON.parse((0, _Base.atob)(_this5.authDataStorage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY)));
+        var realUserAuth = JSON.parse(b64Decode(_this5.authDataStorage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY)));
         _this5.set(realUserAuth);
         _this5.clearImpersonation();
         resolve();

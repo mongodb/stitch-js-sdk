@@ -21,7 +21,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @class
  * @return {DB} a DB instance.
  */
-
 var DB = function () {
   function DB(client, service, name) {
     _classCallCheck(this, DB);

@@ -22,7 +22,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @class
  * @return {MongoDBService} a MongoDBService instance.
  */
-
 var MongoDBService = function () {
   function MongoDBService(baasClient, serviceName) {
     _classCallCheck(this, MongoDBService);

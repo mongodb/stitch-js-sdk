@@ -82,7 +82,7 @@ var Collection = function () {
     }
 
     /**
-     * Deletes. all documents matching query
+     * Deletes all documents matching query.
      *
      * @method
      * @param {Object} query The query used to match the documents to delete.
@@ -156,12 +156,12 @@ var Collection = function () {
     }
 
     /**
-     * Counts the number of matching documents for a given query.
+     * Gets the number of documents matching the filter.
      *
      * @param {Object} query The query used to match documents.
      * @param {Object} options Additional find options.
      * @param {Number} [options.limit=null] The maximum number of documents to return.
-     * @return {Array} An array of documents.
+     * @return {Number} An array of documents.
      */
 
   }, {
@@ -169,7 +169,9 @@ var Collection = function () {
     value: function count(query) {
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      return findOp(this, query, Object.assign({}, options, { count: true }));
+      return findOp(this, query, Object.assign({}, options, { count: true })).then(function (result) {
+        return result[0] || 0;
+      });
     }
 
     // deprecated
@@ -279,7 +281,9 @@ function findOp(self, query, options) {
     service: self.db.service,
     action: 'find',
     args: args
-  }]);
+  }]).then(function (response) {
+    return response.result;
+  });
 }
 
 exports.default = Collection;

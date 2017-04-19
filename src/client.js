@@ -1,6 +1,6 @@
 /* global window, fetch */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
-import 'isomorphic-fetch';
+import 'fetch-everywhere';
 import Auth from './auth';
 import MongoDBService from './services/mongodb/mongodb_service';
 import { BaasError } from './errors';
