@@ -201,9 +201,9 @@ export default class Auth {
     this.authDataStorage.set(common.IMPERSONATION_ACTIVE_KEY, 'true');
     this.authDataStorage.set(common.IMPERSONATION_USER_KEY, userId);
 
-    let realUserAuth = JSON.parse(b64Decode(this.authDataStorage.get(common.USER_AUTH_KEY)));
+    let realUserAuth = JSON.parse(this.authDataStorage.get(common.USER_AUTH_KEY));
     realUserAuth.refreshToken = this.authDataStorage.get(common.REFRESH_TOKEN_KEY);
-    this.authDataStorage.set(common.IMPERSONATION_REAL_USER_AUTH_KEY, b64Encode(JSON.stringify(realUserAuth)));
+    this.authDataStorage.set(common.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
     return this.refreshImpersonation(client);
   }
 
@@ -213,7 +213,7 @@ export default class Auth {
     }
 
     return new Promise((resolve, reject) => {
-      let realUserAuth = JSON.parse(b64Decode(this.authDataStorage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY)));
+      let realUserAuth = JSON.parse(this.authDataStorage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY));
       this.set(realUserAuth);
       this.clearImpersonation();
       resolve();
