@@ -3949,9 +3949,9 @@ var Auth = function () {
       this.authDataStorage.set(common.IMPERSONATION_ACTIVE_KEY, 'true');
       this.authDataStorage.set(common.IMPERSONATION_USER_KEY, userId);
 
-      var realUserAuth = JSON.parse(b64Decode(this.authDataStorage.get(common.USER_AUTH_KEY)));
+      var realUserAuth = JSON.parse(this.authDataStorage.get(common.USER_AUTH_KEY));
       realUserAuth.refreshToken = this.authDataStorage.get(common.REFRESH_TOKEN_KEY);
-      this.authDataStorage.set(common.IMPERSONATION_REAL_USER_AUTH_KEY, b64Encode(JSON.stringify(realUserAuth)));
+      this.authDataStorage.set(common.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
       return this.refreshImpersonation(client);
     }
   }, {
@@ -3964,7 +3964,7 @@ var Auth = function () {
       }
 
       return new Promise(function (resolve, reject) {
-        var realUserAuth = JSON.parse(b64Decode(_this5.authDataStorage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY)));
+        var realUserAuth = JSON.parse(_this5.authDataStorage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY));
         _this5.set(realUserAuth);
         _this5.clearImpersonation();
         resolve();
