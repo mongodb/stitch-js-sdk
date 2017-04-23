@@ -154,7 +154,14 @@ export default class Auth {
     }
 
     const item = this.authDataStorage.get(common.USER_AUTH_KEY);
-    return JSON.parse(item);
+    try {
+      return JSON.parse(item);
+    } catch (e) {
+      // Need to back out and clear auth otherwise we will never
+      // be able to do anything useful.
+      this.clear();
+      throw new BaasError('Failure retrieving stored auth');
+    }
   }
 
   authedId() {
