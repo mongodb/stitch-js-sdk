@@ -6,7 +6,7 @@
  */
 class TwilioService {
   constructor(baasClient, serviceName) {
-    this.baasClient = baasClient;
+    this.client = baasClient;
     this.serviceName = serviceName;
   }
 
@@ -20,7 +20,7 @@ class TwilioService {
    * @return {Promise}
    */
   send(from, to, body) {
-    return self.db.client.executePipeline([
+    return this.client.executePipeline([
       {
         service: this.serviceName,
         action: 'send',
