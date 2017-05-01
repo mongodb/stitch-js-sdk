@@ -1,4 +1,4 @@
-import { deprecate } from '../../util';
+import { deprecate, serviceResponse } from '../../util';
 import { BSON } from 'mongodb-extjson';
 const { ObjectID } = BSON;
 
@@ -113,8 +113,9 @@ class Collection {
    * @return {Number} An array of documents.
    */
   count(query, options = {}) {
-    return findOp(this, query, Object.assign({}, options, { count: true }))
-      .then(result => result[0] || 0);
+    return findOp(this, query, Object.assign({}, options, {
+      count: true
+    }), result => !!result.result ? result.result[0] : 0);
   }
 
   // deprecated
@@ -133,31 +134,37 @@ Collection.prototype.upsert =
 
 // private
 function insertOp(self, docs, options) {
-  docs = Array.isArray(docs) ? docs : [ docs ];
+  let stages = [];
 
-  // add ObjectIds to docs that have none
-  docs = docs.map(doc => {
-    if (!doc._id) doc._id = new ObjectID();
-    return doc;
-  });
+  // there may be no docs, when building for chained pipeline stages in
+  // which case the source is considered to be the previous stage
+  if (docs) {
+    docs = Array.isArray(docs) ? docs : [ docs ];
 
-  return self.db.client.executePipeline([
-    {
+    // add ObjectIds to docs that have none
+    docs = docs.map(doc => {
+      if (!doc._id) doc._id = new ObjectID();
+      return doc;
+    });
+
+    stages.push({
       action: 'literal',
       args: {
         items: docs
       }
-    },
-    {
-      service: self.db.service,
-      action: 'insert',
-      args: {
-        database: self.db.name,
-        collection: self.name
-      }
+    });
+  }
+
+  stages.push({
+    service: self.db.service,
+    action: 'insert',
+    args: {
+      database: self.db.name,
+      collection: self.name
     }
-  ])
-  .then(response => {
+  });
+
+  return serviceResponse(self.db.client, stages, response => {
     return {
       insertedIds: response.result.map(doc => doc._id)
     };
@@ -171,14 +178,11 @@ function deleteOp(self, query, options) {
     query: query
   }, options);
 
-  return self.db.client.executePipeline([
-    {
-      service: self.db.service,
-      action: 'delete',
-      args: args
-    }
-  ])
-  .then(response => {
+  return serviceResponse(self.db.client, {
+    service: self.db.service,
+    action: 'delete',
+    args: args
+  }, response => {
     return {
       deletedCount: response.result[0].removed
     };
@@ -193,16 +197,15 @@ function updateOp(self, query, update, options) {
     update: update
   }, options);
 
-  return self.db.client.executePipeline([
-    {
-      service: self.db.service,
-      action: 'update',
-      args: args
-    }
-  ]);
+  return serviceResponse(self.db.client, {
+    service: self.db.service,
+    action: 'update',
+    args: args
+  });
 }
 
-function findOp(self, query, options) {
+function findOp(self, query, options, finalizer) {
+  finalizer = finalizer || ((response) => response.result);
   const args = Object.assign({
     database: self.db.name,
     collection: self.name,
@@ -215,14 +218,11 @@ function findOp(self, query, options) {
     delete args.projection;
   }
 
-  return self.db.client.executePipeline([
-    {
-      service: self.db.service,
-      action: 'find',
-      args: args
-    }
-  ])
-  .then(response => response.result);
+  return serviceResponse(self.db.client, {
+    service: self.db.service,
+    action: 'find',
+    args: args
+  }, finalizer);
 }
 
 export default Collection;

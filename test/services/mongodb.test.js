@@ -114,4 +114,22 @@ describe('MongoDBService', function() {
       expect(response).toEqual(5);
     });
   });
+
+  describe('pipelines', function() {
+    beforeEach(() => testSetup());
+    afterEach(() => test.cleanDatabase());
+
+    it('should allow for composed database actions', async function() {
+      let docs = test.db.collection('documents');
+      let docs2 = test.db.collection('documents2');
+
+      let response = await test.client.executePipeline([
+        docs.insertMany([ {}, {}, {}, {}, {} ]),
+        docs2.insertMany()
+      ]);
+
+      expect(response.result).toBeInstanceOf(Array);
+      expect(response.result).toHaveLength(5);
+    });
+  });
 });
