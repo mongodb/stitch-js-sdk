@@ -130,6 +130,7 @@ class BaasClient {
   executePipeline(stages, options = {}) {
     let responseDecoder = (d) => EJSON.parse(d, { strict: false });
     let responseEncoder = (d) => EJSON.stringify(d);
+    stages = stages.reduce((acc, stage) => acc.concat(stage), []);
 
     if (options.decoder) {
       if ((typeof options.decoder) !== 'function') {
