@@ -1,3 +1,5 @@
+import { serviceResponse } from '../../util';
+
 /**
  * Convenience wrapper for AWS SQS (not meant to be instantiated directly).
  *
@@ -16,12 +18,10 @@ class SQSService {
    * @return {Promise}
    */
   send() {
-    return this.client.executePipeline([
-      {
-        service: this.serviceName,
-        action: 'send'
-      }
-    ]);
+    return serviceResponse(this.client, {
+      service: this.serviceName,
+      action: 'send'
+    });
   }
 
   /**
@@ -30,14 +30,11 @@ class SQSService {
    * @return {Promise}
    */
   receive() {
-    return this.client.executePipeline([
-      {
-        service: this.serviceName,
-        action: 'receive'
-      }
-    ]);
+    return serviceResponse(this.client, {
+      service: this.serviceName,
+      action: 'receive'
+    });
   }
-
 }
 
 export default SQSService;

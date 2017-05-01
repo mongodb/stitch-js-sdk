@@ -1,3 +1,5 @@
+import { serviceResponse } from '../../util';
+
 /**
  * Convenience wrapper around Slack API (not meant to be instantiated directly).
  *
@@ -30,13 +32,11 @@ class SlackService {
     if (!!options.iconEmoji) args.iconEmoji = options.iconEmoji;
     if (!!options.attachments) args.attachments = options.attachments;
 
-    return this.client.executePipeline([
-      {
-        service: this.serviceName,
-        action: 'publish',
-        args: args
-      }
-    ]);
+    return serviceResponse(this.client, {
+      service: this.serviceName,
+      action: 'publish',
+      args: args
+    });
   }
 }
 

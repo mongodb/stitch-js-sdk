@@ -1,3 +1,5 @@
+import { serviceResponse } from '../../util';
+
 /**
  * Convenience wrapper around Pubnub API (not meant to be instantiated directly).
  *
@@ -19,13 +21,11 @@ class PubnubService {
    * @return {Promise}
    */
   publish(channel, message) {
-    return this.client.executePipeline([
-      {
-        service: this.serviceName,
-        action: 'publish',
-        args: { channel, message }
-      }
-    ]);
+    return serviceResponse(this.client, {
+      service: this.serviceName,
+      action: 'publish',
+      args: { channel, message }
+    });
   }
 }
 

@@ -1,3 +1,5 @@
+import { serviceResponse } from '../../util';
+
 /**
  * Convenience wrapper around AWS SES service (not meant to be instantiated directly).
  *
@@ -21,13 +23,11 @@ class SESService {
    * @return {Promise}
    */
   send(from, to, subject, body) {
-    return this.client.executePipeline([
-      {
-        service: this.serviceName,
-        action: 'send',
-        args: { from, to, subject, body }
-      }
-    ]);
+    return serviceResponse(this.client, {
+      service: this.serviceName,
+      action: 'send',
+      args: { from, to, subject, body }
+    });
   }
 }
 

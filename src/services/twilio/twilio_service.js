@@ -1,3 +1,5 @@
+import { serviceResponse } from '../../util';
+
 /**
  * Create a new TwilioService instance (not meant to be instantiated directly).
  *
@@ -20,13 +22,11 @@ class TwilioService {
    * @return {Promise}
    */
   send(from, to, body) {
-    return this.client.executePipeline([
-      {
-        service: this.serviceName,
-        action: 'send',
-        args: { from, to, body }
-      }
-    ]);
+    return serviceResponse(this.client, {
+      service: this.serviceName,
+      action: 'send',
+      args: { from, to, body }
+    });
   }
 }
 

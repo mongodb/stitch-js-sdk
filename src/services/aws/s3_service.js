@@ -1,3 +1,5 @@
+import { serviceResponse } from '../../util';
+
 /**
  * Convenience wrapper around AWS S3 service (not meant to be instantiated directly).
  *
@@ -22,13 +24,11 @@ class S3Service {
    * @return {Promise}
    */
   put(bucket, key, acl, contentType) {
-    return this.client.executePipeline([
-      {
-        service: this.serviceName,
-        action: 'put',
-        args: { bucket, key, acl, contentType }
-      }
-    ]);
+    return serviceResponse(this.client, {
+      service: this.serviceName,
+      action: 'put',
+      args: { bucket, key, acl, contentType }
+    });
   }
 
   /**
@@ -41,13 +41,11 @@ class S3Service {
    * @return {Promise}
    */
   signPolicy(bucket, key, acl, contentType) {
-    return this.client.executePipeline([
-      {
-        service: this.serviceName,
-        action: 'signPolicy',
-        args: { bucket, key, acl, contentType }
-      }
-    ]);
+    return serviceResponse(this.client, {
+      service: this.serviceName,
+      action: 'signPolicy',
+      args: { bucket, key, acl, contentType }
+    });
   }
 }
 

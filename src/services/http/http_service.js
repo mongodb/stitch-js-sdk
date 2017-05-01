@@ -1,3 +1,5 @@
+import { serviceResponse } from '../../util';
+
 /**
  * Convenience wrapper for HTTP service (not meant to be instantiated directly).
  *
@@ -22,13 +24,11 @@ class HTTPService {
     const args = { url };
     if (!!options.authUrl) args.authUrl = options.authUrl;
 
-    return this.client.executePipeline([
-      {
-        service: this.serviceName,
-        action: 'get',
-        args: args
-      }
-    ]);
+    return serviceResponse(this.client, {
+      service: this.serviceName,
+      action: 'get',
+      args: args
+    });
   }
 
   /**
@@ -45,13 +45,11 @@ class HTTPService {
     let args = { url };
     if (!!options.authUrl) args.authUrl = options.authUrl;
 
-    return this.client.executePipeline([
-      {
-        service: this.serviceName,
-        action: 'post',
-        args: args
-      }
-    ]);
+    return serviceResponse(this.client, {
+      service: this.serviceName,
+      action: 'post',
+      args: args
+    });
   }
 }
 
