@@ -35,8 +35,8 @@ class BaasClient {
     if (options && options.baseUrl) {
       baseUrl = options.baseUrl;
     }
-    this.appUrl = `${baseUrl}/admin/v1`;
-    this.authUrl = `${baseUrl}/admin/v1/auth`;
+    this.appUrl = `${baseUrl}/api/public/v1.0`;
+    this.authUrl = `${baseUrl}/api/public/v1.0/auth`;
     if (clientAppID) {
       this.appUrl = `${baseUrl}/v1/app/${clientAppID}`;
       this.authUrl = `${this.appUrl}/auth`;
@@ -73,7 +73,7 @@ class BaasClient {
   }
 
   /**
-   *  @return {ObjectID} Returns the currently authed user's ID.
+   *  @return {String} Returns the currently authed user's ID.
    */
   authedId() {
     return this.authManager.authedId();
@@ -284,106 +284,106 @@ class Admin {
    *    a.apps().app('planner').services().service('mdb1').rules().rule('580e6d055b199c221fcb821d').remove()
    *
    */
-  apps() {
+  apps(groupId) {
     let root = this;
     return {
-      list: () => root._get('/apps'),
+      list: () => root._get(`/groups/${groupId}/apps`),
       create: (data, options) => {
         let query = (options && options.defaults) ? '?defaults=true' : '';
-        return root._post('/apps' + query, data);
+        return root._post(`/groups/${groupId}/apps` + query, data);
       },
 
       app: (appID) => ({
-        get: () => root._get(`/apps/${appID}`),
-        remove: () => root._delete(`/apps/${appID}`),
-        replace: (doc) => root._put(`/apps/${appID}`, {
+        get: () => root._get(`/groups/${groupId}/apps/${appID}`),
+        remove: () => root._delete(`/groups/${groupId}/apps/${appID}`),
+        replace: (doc) => root._put(`/groups/${groupId}/apps/${appID}`, {
           headers: { 'X-Baas-Unsafe': appID },
           body: JSON.stringify(doc)
         }),
 
         users: () => ({
-          list: (filter) => this._get(`/apps/${appID}/users`, filter),
+          list: (filter) => this._get(`/groups/${groupId}/apps/${appID}/users`, filter),
           user: (uid) => ({
-            get: () => this._get(`/apps/${appID}/users/${uid}`),
-            logout: () => this._put(`/apps/${appID}/users/${uid}/logout`)
+            get: () => this._get(`/groups/${groupId}/apps/${appID}/users/${uid}`),
+            logout: () => this._put(`/groups/${groupId}/apps/${appID}/users/${uid}/logout`)
           })
         }),
 
         sandbox: () => ({
           executePipeline: (data, userId) => {
             return this._do(
-              `/apps/${appID}/sandbox/pipeline`,
+              `/groups/${groupId}/apps/${appID}/sandbox/pipeline`,
               'POST',
               {body: JSON.stringify(data), queryParams: {user_id: userId}});
           }
         }),
 
         authProviders: () => ({
-          create: (data) => this._post(`/apps/${appID}/authProviders`, data),
-          list: () => this._get(`/apps/${appID}/authProviders`),
+          create: (data) => this._post(`/groups/${groupId}/apps/${appID}/authProviders`, data),
+          list: () => this._get(`/groups/${groupId}/apps/${appID}/authProviders`),
           provider: (authType, authName) => ({
-            get: () => this._get(`/apps/${appID}/authProviders/${authType}/${authName}`),
-            remove: () => this._delete(`/apps/${appID}/authProviders/${authType}/${authName}`),
-            update: (data) => this._post(`/apps/${appID}/authProviders/${authType}/${authName}`, data)
+            get: () => this._get(`/groups/${groupId}/apps/${appID}/authProviders/${authType}/${authName}`),
+            remove: () => this._delete(`/groups/${groupId}/apps/${appID}/authProviders/${authType}/${authName}`),
+            update: (data) => this._post(`/groups/${groupId}/apps/${appID}/authProviders/${authType}/${authName}`, data)
           })
         }),
         values: () => ({
-          list: () => this._get(`/apps/${appID}/values`),
+          list: () => this._get(`/groups/${groupId}/apps/${appID}/values`),
           value: (varName) => ({
-            get: () => this._get(`/apps/${appID}/values/${varName}`),
-            remove: () => this._delete(`/apps/${appID}/values/${varName}`),
-            create: (data) => this._post(`/apps/${appID}/values/${varName}`, data),
-            update: (data) => this._post(`/apps/${appID}/values/${varName}`, data)
+            get: () => this._get(`/groups/${groupId}/apps/${appID}/values/${varName}`),
+            remove: () => this._delete(`/groups/${groupId}/apps/${appID}/values/${varName}`),
+            create: (data) => this._post(`/groups/${groupId}/apps/${appID}/values/${varName}`, data),
+            update: (data) => this._post(`/groups/${groupId}/apps/${appID}/values/${varName}`, data)
           })
         }),
         pipelines: () => ({
-          list: () => this._get(`/apps/${appID}/pipelines`),
+          list: () => this._get(`/groups/${groupId}/apps/${appID}/pipelines`),
           pipeline: (varName) => ({
-            get: () => this._get(`/apps/${appID}/pipelines/${varName}`),
-            remove: () => this._delete(`/apps/${appID}/pipelines/${varName}`),
-            create: (data) => this._post(`/apps/${appID}/pipelines/${varName}`, data),
-            update: (data) => this._post(`/apps/${appID}/pipelines/${varName}`, data)
+            get: () => this._get(`/groups/${groupId}/apps/${appID}/pipelines/${varName}`),
+            remove: () => this._delete(`/groups/${groupId}/apps/${appID}/pipelines/${varName}`),
+            create: (data) => this._post(`/groups/${groupId}/apps/${appID}/pipelines/${varName}`, data),
+            update: (data) => this._post(`/groups/${groupId}/apps/${appID}/pipelines/${varName}`, data)
           })
         }),
         logs: () => ({
-          get: (filter) => this._get(`/apps/${appID}/logs`, filter)
+          get: (filter) => this._get(`/groups/${groupId}/apps/${appID}/logs`, filter)
         }),
         apiKeys: () => ({
-          list: () => this._get(`/apps/${appID}/keys`),
-          create: (data) => this._post(`/apps/${appID}/keys`, data),
+          list: () => this._get(`/groups/${groupId}/apps/${appID}/keys`),
+          create: (data) => this._post(`/groups/${groupId}/apps/${appID}/keys`, data),
           apiKey: (key) => ({
-            get: () => this._get(`/apps/${appID}/keys/${key}`),
-            remove: () => this._delete(`/apps/${appID}/keys/${key}`),
-            enable: () => this._put(`/apps/${appID}/keys/${key}/enable`),
-            disable: () => this._put(`/apps/${appID}/keys/${key}/disable`)
+            get: () => this._get(`/groups/${groupId}/apps/${appID}/keys/${key}`),
+            remove: () => this._delete(`/groups/${groupId}/apps/${appID}/keys/${key}`),
+            enable: () => this._put(`/groups/${groupId}/apps/${appID}/keys/${key}/enable`),
+            disable: () => this._put(`/groups/${groupId}/apps/${appID}/keys/${key}/disable`)
           })
         }),
         services: () => ({
-          list: () => this._get(`/apps/${appID}/services`),
-          create: (data) => this._post(`/apps/${appID}/services`, data),
+          list: () => this._get(`/groups/${groupId}/apps/${appID}/services`),
+          create: (data) => this._post(`/groups/${groupId}/apps/${appID}/services`, data),
           service: (svc) => ({
-            get: () => this._get(`/apps/${appID}/services/${svc}`),
-            update: (data) => this._post(`/apps/${appID}/services/${svc}`, data),
-            remove: () => this._delete(`/apps/${appID}/services/${svc}`),
-            setConfig: (data) => this._post(`/apps/${appID}/services/${svc}/config`, data),
+            get: () => this._get(`/groups/${groupId}/apps/${appID}/services/${svc}`),
+            update: (data) => this._post(`/groups/${groupId}/apps/${appID}/services/${svc}`, data),
+            remove: () => this._delete(`/groups/${groupId}/apps/${appID}/services/${svc}`),
+            setConfig: (data) => this._post(`/groups/${groupId}/apps/${appID}/services/${svc}/config`, data),
 
             rules: () => ({
-              list: () => this._get(`/apps/${appID}/services/${svc}/rules`),
-              create: (data) => this._post(`/apps/${appID}/services/${svc}/rules`),
+              list: () => this._get(`/groups/${groupId}/apps/${appID}/services/${svc}/rules`),
+              create: (data) => this._post(`/groups/${groupId}/apps/${appID}/services/${svc}/rules`),
               rule: (ruleId) => ({
-                get: () => this._get(`/apps/${appID}/services/${svc}/rules/${ruleId}`),
-                update: (data) => this._post(`/apps/${appID}/services/${svc}/rules/${ruleId}`, data),
-                remove: () => this._delete(`/apps/${appID}/services/${svc}/rules/${ruleId}`)
+                get: () => this._get(`/groups/${groupId}/apps/${appID}/services/${svc}/rules/${ruleId}`),
+                update: (data) => this._post(`/groups/${groupId}/apps/${appID}/services/${svc}/rules/${ruleId}`, data),
+                remove: () => this._delete(`/groups/${groupId}/apps/${appID}/services/${svc}/rules/${ruleId}`)
               })
             }),
 
             incomingWebhooks: () => ({
-              list: () => this._get(`/apps/${appID}/services/${svc}/incomingWebhooks`),
-              create: (data) => this._post(`/apps/${appID}/services/${svc}/incomingWebhooks`),
+              list: () => this._get(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks`),
+              create: (data) => this._post(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks`),
               incomingWebhook: (incomingWebhookId) => ({
-                get: () => this._get(`/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`),
-                update: (data) => this._post(`/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`, data),
-                remove: () => this._delete(`/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`)
+                get: () => this._get(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`),
+                update: (data) => this._post(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`, data),
+                remove: () => this._delete(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`)
               })
             })
           })
