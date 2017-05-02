@@ -1,4 +1,4 @@
-/* global window, fetch */
+/* global window, document, fetch */
 
 import { createStorage } from './storage';
 import { BaasError } from './errors';
@@ -86,6 +86,42 @@ export default class Auth {
     window.history.replaceState(null, '', this.pageRootUrl());
   }
 
+  getCookie(name) {
+    let splitCookies = document.cookie.split(' ');
+    for (let i = 0; i < splitCookies.length; i++) {
+      let cookie = splitCookies[0];
+      let sepIdx = cookie.indexOf('=');
+      let cookieName = cookie.substring(0, sepIdx);
+      if (cookieName === name) {
+        let cookieVal = cookie.substring(sepIdx + 1, cookie.length);
+        if (cookieVal[cookieVal.length - 1] === ';') {
+          return cookieVal.substring(0, cookie.length - 1);
+        }
+        return cookieVal;
+      }
+    }
+  }
+
+  handleCookie() {
+    if (typeof (window) === 'undefined' || typeof (document) === 'undefined') {
+      // This means we're running in some environment other
+      // than a browser - so handling a cookie makes no sense here.
+      return;
+    }
+    if (!document.cookie) {
+      return;
+    }
+
+    let uaCookie = this.getCookie(common.USER_AUTH_COOKIE_NAME);
+    if (!uaCookie) {
+      return;
+    }
+    document.cookie = `${common.USER_AUTH_COOKIE_NAME}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
+
+    let ua = JSON.parse(window.atob(uaCookie));
+    this.set(ua);
+  }
+
   getOAuthLoginURL(providerName, redirectUrl) {
     if (redirectUrl === undefined) {
       redirectUrl = this.pageRootUrl();
@@ -128,6 +164,26 @@ export default class Auth {
         this.set(json);
         return json;
       });
+  }
+
+  mongodbCloudAuth(username, apiKey, options = {cors: true, cookie: false}) {
+    const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({username, apiKey}));
+    fetchArgs.cors = true;
+    fetchArgs.credentials = 'include';
+
+    let url = `${this.rootUrl}/mongodb/cloud`;
+    if (!options.cookie) {
+      return fetch(url, fetchArgs)
+        .then(common.checkStatus)
+        .then(response => response.json())
+        .then(json => {
+          this.set(json);
+          return json;
+        });
+    }
+
+    return fetch(url + '?cookie=true', fetchArgs)
+      .then(common.checkStatus);
   }
 
   clear() {

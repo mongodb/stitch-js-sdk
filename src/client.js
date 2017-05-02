@@ -43,6 +43,7 @@ class BaasClient {
     }
     this.authManager = new Auth(this.authUrl);
     this.authManager.handleRedirect();
+    this.authManager.handleCookie();
   }
 
   /**

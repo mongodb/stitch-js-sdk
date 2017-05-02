@@ -7,6 +7,7 @@ export const BAAS_LINK_KEY = '_baas_link';
 export const IMPERSONATION_ACTIVE_KEY = '_baas_impers_active';
 export const IMPERSONATION_USER_KEY = '_baas_impers_user';
 export const IMPERSONATION_REAL_USER_AUTH_KEY = '_baas_impers_real_ua';
+export const USER_AUTH_COOKIE_NAME = 'baas_ua';
 export const DEFAULT_BAAS_SERVER_URL = 'https://baas-dev.10gen.cc';
 
 export const checkStatus = (response) => {
