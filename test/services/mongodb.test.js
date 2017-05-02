@@ -27,6 +27,12 @@ describe('MongoDBService', function() {
       let response = await test.db.collection('documents').insertMany([{}, {}, {}]);
       expect(response.insertedIds).toHaveLength(3);
     });
+
+    it('should add oids to docs without them', async function() {
+      let request = test.db.collection('documents').insertMany([{}, {}, {}]);
+      let items = request[0].args.items;
+      items.map(item => expect(item).toHaveProperty('_id'));
+    });
   });
 
   describe('update', function() {

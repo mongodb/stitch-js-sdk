@@ -143,7 +143,7 @@ function insertOp(self, docs, options) {
 
     // add ObjectIds to docs that have none
     docs = docs.map(doc => {
-      if (!doc._id) doc._id = new ObjectID();
+      if (doc._id === undefined || doc._id === null) doc._id = new ObjectID();
       return doc;
     });
 
