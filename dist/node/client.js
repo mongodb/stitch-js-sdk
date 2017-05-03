@@ -267,6 +267,7 @@ var BaasClient = function () {
                 _this2.authManager.clear();
                 var _error = new _errors.BaasError(json.error, json.errorCode);
                 _error.response = response;
+                _error.json = json;
                 throw _error;
               }
 
@@ -278,6 +279,7 @@ var BaasClient = function () {
 
             var error = new _errors.BaasError(json.error, json.errorCode);
             error.response = response;
+            error.json = json;
             return Promise.reject(error);
           });
         }

@@ -192,6 +192,7 @@ class BaasClient {
               this.authManager.clear();
               const error = new BaasError(json.error, json.errorCode);
               error.response = response;
+              error.json = json;
               throw error;
             }
 
@@ -203,6 +204,7 @@ class BaasClient {
 
           const error = new BaasError(json.error, json.errorCode);
           error.response = response;
+          error.json = json;
           return Promise.reject(error);
         });
       }
