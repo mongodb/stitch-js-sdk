@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, fetch */
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, document, fetch */
 
 var _storage = require('./storage');
 
@@ -97,6 +97,44 @@ var Auth = function () {
       window.history.replaceState(null, '', this.pageRootUrl());
     }
   }, {
+    key: 'getCookie',
+    value: function getCookie(name) {
+      var splitCookies = document.cookie.split(' ');
+      for (var i = 0; i < splitCookies.length; i++) {
+        var cookie = splitCookies[0];
+        var sepIdx = cookie.indexOf('=');
+        var cookieName = cookie.substring(0, sepIdx);
+        if (cookieName === name) {
+          var cookieVal = cookie.substring(sepIdx + 1, cookie.length);
+          if (cookieVal[cookieVal.length - 1] === ';') {
+            return cookieVal.substring(0, cookie.length - 1);
+          }
+          return cookieVal;
+        }
+      }
+    }
+  }, {
+    key: 'handleCookie',
+    value: function handleCookie() {
+      if (typeof window === 'undefined' || typeof document === 'undefined') {
+        // This means we're running in some environment other
+        // than a browser - so handling a cookie makes no sense here.
+        return;
+      }
+      if (!document.cookie) {
+        return;
+      }
+
+      var uaCookie = this.getCookie(common.USER_AUTH_COOKIE_NAME);
+      if (!uaCookie) {
+        return;
+      }
+      document.cookie = common.USER_AUTH_COOKIE_NAME + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+
+      var ua = JSON.parse(window.atob(uaCookie));
+      this.set(ua);
+    }
+  }, {
     key: 'getOAuthLoginURL',
     value: function getOAuthLoginURL(providerName, redirectUrl) {
       if (redirectUrl === undefined) {
@@ -154,6 +192,29 @@ var Auth = function () {
       });
     }
   }, {
+    key: 'mongodbCloudAuth',
+    value: function mongodbCloudAuth(username, apiKey) {
+      var _this4 = this;
+
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : { cors: true, cookie: false };
+
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, apiKey: apiKey }));
+      fetchArgs.cors = true;
+      fetchArgs.credentials = 'include';
+
+      var url = this.rootUrl + '/mongodb/cloud';
+      if (!options.cookie) {
+        return fetch(url, fetchArgs).then(common.checkStatus).then(function (response) {
+          return response.json();
+        }).then(function (json) {
+          _this4.set(json);
+          return json;
+        });
+      }
+
+      return fetch(url + '?cookie=true', fetchArgs).then(common.checkStatus);
+    }
+  }, {
     key: 'clear',
     value: function clear() {
       this.authDataStorage.remove(common.USER_AUTH_KEY);
@@ -207,16 +268,16 @@ var Auth = function () {
   }, {
     key: 'refreshImpersonation',
     value: function refreshImpersonation(client) {
-      var _this4 = this;
+      var _this5 = this;
 
       var userId = this.authDataStorage.get(common.IMPERSONATION_USER_KEY);
       return client._do('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
         return response.json();
       }).then(function (json) {
-        json.refreshToken = _this4.authDataStorage.get(common.REFRESH_TOKEN_KEY);
-        _this4.set(json);
+        json.refreshToken = _this5.authDataStorage.get(common.REFRESH_TOKEN_KEY);
+        _this5.set(json);
       }).catch(function (e) {
-        _this4.stopImpersonation();
+        _this5.stopImpersonation();
         throw e; // rethrow
       });
     }
@@ -242,16 +303,16 @@ var Auth = function () {
   }, {
     key: 'stopImpersonation',
     value: function stopImpersonation() {
-      var _this5 = this;
+      var _this6 = this;
 
       if (!this.isImpersonatingUser()) {
         throw new _errors.BaasError('Not impersonating a user');
       }
 
       return new Promise(function (resolve, reject) {
-        var realUserAuth = JSON.parse(_this5.authDataStorage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY));
-        _this5.set(realUserAuth);
-        _this5.clearImpersonation();
+        var realUserAuth = JSON.parse(_this6.authDataStorage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY));
+        _this6.set(realUserAuth);
+        _this6.clearImpersonation();
         resolve();
       });
     }

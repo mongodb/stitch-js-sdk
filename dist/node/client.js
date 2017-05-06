@@ -68,14 +68,15 @@ var BaasClient = function () {
     if (options && options.baseUrl) {
       baseUrl = options.baseUrl;
     }
-    this.appUrl = baseUrl + '/admin/v1';
-    this.authUrl = baseUrl + '/admin/v1/auth';
+    this.appUrl = baseUrl + '/api/public/v1.0';
+    this.authUrl = baseUrl + '/api/public/v1.0/auth';
     if (clientAppID) {
-      this.appUrl = baseUrl + '/v1/app/' + clientAppID;
+      this.appUrl = baseUrl + '/api/client/v1.0/app/' + clientAppID;
       this.authUrl = this.appUrl + '/auth';
     }
     this.authManager = new _auth2.default(this.authUrl);
     this.authManager.handleRedirect();
+    this.authManager.handleCookie();
   }
 
   /**
@@ -116,7 +117,7 @@ var BaasClient = function () {
     }
 
     /**
-     *  @return {ObjectID} Returns the currently authed user's ID.
+     *  @return {String} Returns the currently authed user's ID.
      */
 
   }, {
@@ -383,44 +384,44 @@ var Admin = function () {
     /* Examples of how to access admin API with this client:
      *
      * List all apps
-     *    a.apps().list()
+     *    a.apps('580e6d055b199c221fcb821c').list()
      *
      * Fetch app under name 'planner'
-     *    a.apps().app('planner').get()
+     *    a.apps('580e6d055b199c221fcb821c').app('planner').get()
      *
      * List services under the app 'planner'
-     *    a.apps().app('planner').services().list()
+     *    a.apps('580e6d055b199c221fcb821c').app('planner').services().list()
      *
      * Delete a rule by ID
-     *    a.apps().app('planner').services().service('mdb1').rules().rule('580e6d055b199c221fcb821d').remove()
+     *    a.apps('580e6d055b199c221fcb821c').app('planner').services().service('mdb1').rules().rule('580e6d055b199c221fcb821d').remove()
      *
      */
 
   }, {
     key: 'apps',
-    value: function apps() {
+    value: function apps(groupId) {
       var _this5 = this;
 
       var root = this;
       return {
         list: function list() {
-          return root._get('/apps');
+          return root._get('/groups/' + groupId + '/apps');
         },
         create: function create(data, options) {
           var query = options && options.defaults ? '?defaults=true' : '';
-          return root._post('/apps' + query, data);
+          return root._post('/groups/' + groupId + '/apps' + query, data);
         },
 
         app: function app(appID) {
           return {
             get: function get() {
-              return root._get('/apps/' + appID);
+              return root._get('/groups/' + groupId + '/apps/' + appID);
             },
             remove: function remove() {
-              return root._delete('/apps/' + appID);
+              return root._delete('/groups/' + groupId + '/apps/' + appID);
             },
             replace: function replace(doc) {
-              return root._put('/apps/' + appID, {
+              return root._put('/groups/' + groupId + '/apps/' + appID, {
                 headers: { 'X-Baas-Unsafe': appID },
                 body: JSON.stringify(doc)
               });
@@ -429,15 +430,15 @@ var Admin = function () {
             users: function users() {
               return {
                 list: function list(filter) {
-                  return _this5._get('/apps/' + appID + '/users', filter);
+                  return _this5._get('/groups/' + groupId + '/apps/' + appID + '/users', filter);
                 },
                 user: function user(uid) {
                   return {
                     get: function get() {
-                      return _this5._get('/apps/' + appID + '/users/' + uid);
+                      return _this5._get('/groups/' + groupId + '/apps/' + appID + '/users/' + uid);
                     },
                     logout: function logout() {
-                      return _this5._put('/apps/' + appID + '/users/' + uid + '/logout');
+                      return _this5._put('/groups/' + groupId + '/apps/' + appID + '/users/' + uid + '/logout');
                     }
                   };
                 }
@@ -447,7 +448,7 @@ var Admin = function () {
             sandbox: function sandbox() {
               return {
                 executePipeline: function executePipeline(data, userId) {
-                  return _this5._do('/apps/' + appID + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: { user_id: userId } });
+                  return _this5._do('/groups/' + groupId + '/apps/' + appID + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: { user_id: userId } });
                 }
               };
             },
@@ -455,21 +456,21 @@ var Admin = function () {
             authProviders: function authProviders() {
               return {
                 create: function create(data) {
-                  return _this5._post('/apps/' + appID + '/authProviders', data);
+                  return _this5._post('/groups/' + groupId + '/apps/' + appID + '/authProviders', data);
                 },
                 list: function list() {
-                  return _this5._get('/apps/' + appID + '/authProviders');
+                  return _this5._get('/groups/' + groupId + '/apps/' + appID + '/authProviders');
                 },
                 provider: function provider(authType, authName) {
                   return {
                     get: function get() {
-                      return _this5._get('/apps/' + appID + '/authProviders/' + authType + '/' + authName);
+                      return _this5._get('/groups/' + groupId + '/apps/' + appID + '/authProviders/' + authType + '/' + authName);
                     },
                     remove: function remove() {
-                      return _this5._delete('/apps/' + appID + '/authProviders/' + authType + '/' + authName);
+                      return _this5._delete('/groups/' + groupId + '/apps/' + appID + '/authProviders/' + authType + '/' + authName);
                     },
                     update: function update(data) {
-                      return _this5._post('/apps/' + appID + '/authProviders/' + authType + '/' + authName, data);
+                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/authProviders/' + authType + '/' + authName, data);
                     }
                   };
                 }
@@ -478,21 +479,21 @@ var Admin = function () {
             values: function values() {
               return {
                 list: function list() {
-                  return _this5._get('/apps/' + appID + '/values');
+                  return _this5._get('/groups/' + groupId + '/apps/' + appID + '/values');
                 },
                 value: function value(varName) {
                   return {
                     get: function get() {
-                      return _this5._get('/apps/' + appID + '/values/' + varName);
+                      return _this5._get('/groups/' + groupId + '/apps/' + appID + '/values/' + varName);
                     },
                     remove: function remove() {
-                      return _this5._delete('/apps/' + appID + '/values/' + varName);
+                      return _this5._delete('/groups/' + groupId + '/apps/' + appID + '/values/' + varName);
                     },
                     create: function create(data) {
-                      return _this5._post('/apps/' + appID + '/values/' + varName, data);
+                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/values/' + varName, data);
                     },
                     update: function update(data) {
-                      return _this5._post('/apps/' + appID + '/values/' + varName, data);
+                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/values/' + varName, data);
                     }
                   };
                 }
@@ -501,21 +502,21 @@ var Admin = function () {
             pipelines: function pipelines() {
               return {
                 list: function list() {
-                  return _this5._get('/apps/' + appID + '/pipelines');
+                  return _this5._get('/groups/' + groupId + '/apps/' + appID + '/pipelines');
                 },
                 pipeline: function pipeline(varName) {
                   return {
                     get: function get() {
-                      return _this5._get('/apps/' + appID + '/pipelines/' + varName);
+                      return _this5._get('/groups/' + groupId + '/apps/' + appID + '/pipelines/' + varName);
                     },
                     remove: function remove() {
-                      return _this5._delete('/apps/' + appID + '/pipelines/' + varName);
+                      return _this5._delete('/groups/' + groupId + '/apps/' + appID + '/pipelines/' + varName);
                     },
                     create: function create(data) {
-                      return _this5._post('/apps/' + appID + '/pipelines/' + varName, data);
+                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/pipelines/' + varName, data);
                     },
                     update: function update(data) {
-                      return _this5._post('/apps/' + appID + '/pipelines/' + varName, data);
+                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/pipelines/' + varName, data);
                     }
                   };
                 }
@@ -524,31 +525,31 @@ var Admin = function () {
             logs: function logs() {
               return {
                 get: function get(filter) {
-                  return _this5._get('/apps/' + appID + '/logs', filter);
+                  return _this5._get('/groups/' + groupId + '/apps/' + appID + '/logs', filter);
                 }
               };
             },
             apiKeys: function apiKeys() {
               return {
                 list: function list() {
-                  return _this5._get('/apps/' + appID + '/keys');
+                  return _this5._get('/groups/' + groupId + '/apps/' + appID + '/keys');
                 },
                 create: function create(data) {
-                  return _this5._post('/apps/' + appID + '/keys', data);
+                  return _this5._post('/groups/' + groupId + '/apps/' + appID + '/keys', data);
                 },
                 apiKey: function apiKey(key) {
                   return {
                     get: function get() {
-                      return _this5._get('/apps/' + appID + '/keys/' + key);
+                      return _this5._get('/groups/' + groupId + '/apps/' + appID + '/keys/' + key);
                     },
                     remove: function remove() {
-                      return _this5._delete('/apps/' + appID + '/keys/' + key);
+                      return _this5._delete('/groups/' + groupId + '/apps/' + appID + '/keys/' + key);
                     },
                     enable: function enable() {
-                      return _this5._put('/apps/' + appID + '/keys/' + key + '/enable');
+                      return _this5._put('/groups/' + groupId + '/apps/' + appID + '/keys/' + key + '/enable');
                     },
                     disable: function disable() {
-                      return _this5._put('/apps/' + appID + '/keys/' + key + '/disable');
+                      return _this5._put('/groups/' + groupId + '/apps/' + appID + '/keys/' + key + '/disable');
                     }
                   };
                 }
@@ -557,44 +558,44 @@ var Admin = function () {
             services: function services() {
               return {
                 list: function list() {
-                  return _this5._get('/apps/' + appID + '/services');
+                  return _this5._get('/groups/' + groupId + '/apps/' + appID + '/services');
                 },
                 create: function create(data) {
-                  return _this5._post('/apps/' + appID + '/services', data);
+                  return _this5._post('/groups/' + groupId + '/apps/' + appID + '/services', data);
                 },
                 service: function service(svc) {
                   return {
                     get: function get() {
-                      return _this5._get('/apps/' + appID + '/services/' + svc);
+                      return _this5._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc);
                     },
                     update: function update(data) {
-                      return _this5._post('/apps/' + appID + '/services/' + svc, data);
+                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc, data);
                     },
                     remove: function remove() {
-                      return _this5._delete('/apps/' + appID + '/services/' + svc);
+                      return _this5._delete('/groups/' + groupId + '/apps/' + appID + '/services/' + svc);
                     },
                     setConfig: function setConfig(data) {
-                      return _this5._post('/apps/' + appID + '/services/' + svc + '/config', data);
+                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/config', data);
                     },
 
                     rules: function rules() {
                       return {
                         list: function list() {
-                          return _this5._get('/apps/' + appID + '/services/' + svc + '/rules');
+                          return _this5._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules');
                         },
                         create: function create(data) {
-                          return _this5._post('/apps/' + appID + '/services/' + svc + '/rules');
+                          return _this5._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules');
                         },
                         rule: function rule(ruleId) {
                           return {
                             get: function get() {
-                              return _this5._get('/apps/' + appID + '/services/' + svc + '/rules/' + ruleId);
+                              return _this5._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules/' + ruleId);
                             },
                             update: function update(data) {
-                              return _this5._post('/apps/' + appID + '/services/' + svc + '/rules/' + ruleId, data);
+                              return _this5._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules/' + ruleId, data);
                             },
                             remove: function remove() {
-                              return _this5._delete('/apps/' + appID + '/services/' + svc + '/rules/' + ruleId);
+                              return _this5._delete('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules/' + ruleId);
                             }
                           };
                         }
@@ -604,21 +605,21 @@ var Admin = function () {
                     incomingWebhooks: function incomingWebhooks() {
                       return {
                         list: function list() {
-                          return _this5._get('/apps/' + appID + '/services/' + svc + '/incomingWebhooks');
+                          return _this5._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks');
                         },
                         create: function create(data) {
-                          return _this5._post('/apps/' + appID + '/services/' + svc + '/incomingWebhooks');
+                          return _this5._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks');
                         },
                         incomingWebhook: function incomingWebhook(incomingWebhookId) {
                           return {
                             get: function get() {
-                              return _this5._get('/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId);
+                              return _this5._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId);
                             },
                             update: function update(data) {
-                              return _this5._post('/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId, data);
+                              return _this5._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId, data);
                             },
                             remove: function remove() {
-                              return _this5._delete('/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId);
+                              return _this5._delete('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId);
                             }
                           };
                         }
