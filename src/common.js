@@ -8,7 +8,7 @@ export const IMPERSONATION_ACTIVE_KEY = '_baas_impers_active';
 export const IMPERSONATION_USER_KEY = '_baas_impers_user';
 export const IMPERSONATION_REAL_USER_AUTH_KEY = '_baas_impers_real_ua';
 export const USER_AUTH_COOKIE_NAME = 'baas_ua';
-export const DEFAULT_BAAS_SERVER_URL = 'https://baas-dev.10gen.cc';
+export const DEFAULT_BAAS_SERVER_URL = 'https://baas-master.10gen.cc';
 
 export const checkStatus = (response) => {
   if (response.status >= 200 && response.status < 300) {
@@ -35,7 +35,7 @@ export const makeFetchArgs = (method, body) => {
 
 export const parseRedirectFragment = (fragment, ourState) => {
   // After being redirected from oauth, the URL will look like:
-  // https://todo.examples.baas-dev.10gen.cc/#_baas_state=...&_baas_ua=...
+  // https://todo.examples.baas-master.10gen.cc/#_baas_state=...&_baas_ua=...
   // This function parses out baas-specific tokens from the fragment and
   // builds an object describing the result.
   const vars = fragment.split('&');
