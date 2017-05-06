@@ -11,7 +11,11 @@
     "server": {
       "port": 7000
     },
-    "cors": true,
+    "cors": {
+      "enabled": true,
+      "allowedOrigins": ["http://localhost:8080", "http://localhost:8001", "http://localhost:8000"]
+    },
+    "authSource": "local",
     "authProviders": {
       "oauth2/google": {
         "metadataFields": ["email", "name"],
@@ -37,7 +41,8 @@
       },
       "local/userpass": {
         "metadataFields": ["email", "name"]
-      }
+      },
+      "api/key": {}
     },
     "staticDir": "admin/static"
   },

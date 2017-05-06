@@ -38,7 +38,7 @@ class BaasClient {
     this.appUrl = `${baseUrl}/api/public/v1.0`;
     this.authUrl = `${baseUrl}/api/public/v1.0/auth`;
     if (clientAppID) {
-      this.appUrl = `${baseUrl}/v1/app/${clientAppID}`;
+      this.appUrl = `${baseUrl}/api/client/v1.0/app/${clientAppID}`;
       this.authUrl = `${this.appUrl}/auth`;
     }
     this.authManager = new Auth(this.authUrl);

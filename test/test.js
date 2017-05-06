@@ -7,12 +7,12 @@ import { mocks } from 'mock-browser';
 
 const EJSON = require('mongodb-extjson');
 
-const ANON_AUTH_URL = 'https://baas-dev.10gen.cc/v1/app/testapp/auth/anon/user';
-const APIKEY_AUTH_URL = 'https://baas-dev.10gen.cc/v1/app/testapp/auth/api/key';
-const LOCALAUTH_URL = 'https://baas-dev.10gen.cc/v1/app/testapp/auth/local/userpass';
-const PIPELINE_URL = 'https://baas-dev.10gen.cc/v1/app/testapp/pipeline';
-const NEW_ACCESSTOKEN_URL = 'https://baas-dev.10gen.cc/v1/app/testapp/auth/newAccessToken';
-const BASEAUTH_URL = 'https://baas-dev.10gen.cc/v1/app/testapp/auth';
+const ANON_AUTH_URL = 'https://baas-dev.10gen.cc/api/client/v1.0/app/testapp/auth/anon/user';
+const APIKEY_AUTH_URL = 'https://baas-dev.10gen.cc/api/client/v1.0/app/testapp/auth/api/key';
+const LOCALAUTH_URL = 'https://baas-dev.10gen.cc/api/client/v1.0/app/testapp/auth/local/userpass';
+const PIPELINE_URL = 'https://baas-dev.10gen.cc/api/client/v1.0/app/testapp/pipeline';
+const NEW_ACCESSTOKEN_URL = 'https://baas-dev.10gen.cc/api/client/v1.0/app/testapp/auth/newAccessToken';
+const BASEAUTH_URL = 'https://baas-dev.10gen.cc/api/client/v1.0/app/testapp/auth';
 const ejson = new EJSON();
 
 const MockBrowser = mocks.MockBrowser;
@@ -91,8 +91,8 @@ describe('Auth', () => {
       beforeEach(() => {
         envConfig.setup();
         fetchMock.post('/auth/local/userpass', {user: {'_id': hexStr}});
-        fetchMock.post(DEFAULT_BAAS_SERVER_URL + '/v1/app/testapp/auth/local/userpass', {user: {'_id': hexStr}});
-        fetchMock.delete(DEFAULT_BAAS_SERVER_URL + '/v1/app/testapp/auth', {});
+        fetchMock.post(DEFAULT_BAAS_SERVER_URL + '/api/client/v1.0/app/testapp/auth/local/userpass', {user: {'_id': hexStr}});
+        fetchMock.delete(DEFAULT_BAAS_SERVER_URL + '/api/client/v1.0/app/testapp/auth', {});
       });
 
       afterEach(() => {
@@ -351,8 +351,8 @@ describe('login/logout', () => {
 describe('client options', () => {
   beforeEach(() => {
     fetchMock.restore();
-    fetchMock.post('https://baas-dev2.10gen.cc/v1/app/testapp/auth/local/userpass', {user: {'_id': hexStr}});
-    fetchMock.post('https://baas-dev2.10gen.cc/v1/app/testapp/pipeline', (url, opts) => {
+    fetchMock.post('https://baas-dev2.10gen.cc/api/client/v1.0/app/testapp/auth/local/userpass', {user: {'_id': hexStr}});
+    fetchMock.post('https://baas-dev2.10gen.cc/api/client/v1.0/app/testapp/pipeline', (url, opts) => {
       return {result: [{x: {'$oid': hexStr}}]};
     });
     fetchMock.delete(BASEAUTH_URL, {});

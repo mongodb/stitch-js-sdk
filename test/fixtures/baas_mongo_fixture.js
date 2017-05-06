@@ -43,6 +43,7 @@ export default class BaasMongoFixture {
     let userData = await this._generateTestUser();
     await this.mongo.db('auth').collection('users').insert(userData.user);
     await this.mongo.db('auth').collection('apiKeys').insert(userData.apiKey);
+    await this.mongo.db('auth').collection('groups').insert(userData.group);
     this.userData = userData;
 
     // start the local BaaS service
@@ -50,12 +51,12 @@ export default class BaasMongoFixture {
 
     // create an app `test_app`, and authorize a user
     this.admin = new baas.Admin('http://localhost:7080');
-    await this.admin.client.authManager.localAuth('unique_user@domain.com', 'password');
-    let result = await this.admin.apps().create({ name: 'test_app' });
+    await this.admin.client.authManager.apiKeyAuth(userData.apiKey.key);
+    let result = await this.admin.apps(userData.group.groupId).create({ name: 'test_app' });
     this.clientAppId = result.clientAppId;
     const appConfig = EJSON.parse(fs.readFileSync(`${CONF_PATH}/test_app_config.json`, 'utf8'));
-    await this.admin.apps().app(result._id).replace(appConfig);
-    this.appKey = await this.admin.apps().app(result._id).apiKeys().create({ name: 'app-key' });
+    await this.admin.apps(userData.group.groupId).app(result._id).replace(appConfig);
+    this.appKey = await this.admin.apps(userData.group.groupId).app(result._id).apiKeys().create({ name: 'app-key' });
   }
 
   async teardown() {
@@ -78,11 +79,13 @@ export default class BaasMongoFixture {
   async _generateTestUser() {
     const rootId = new mongodb.ObjectId('000000000000000000000000');
     const apiKeyId = new mongodb.ObjectId();
-    const userId = new mongodb.ObjectId();
+    const userId = new mongodb.ObjectId().toHexString();
+    const groupId = new mongodb.ObjectId().toHexString();
     let testUser = {
-      _id: new mongodb.ObjectId(),
+      userId: new mongodb.ObjectId().toHexString(),
       domainId: rootId,
-      identities: [ { id: apiKeyId, provider: 'api/key' } ]
+      identities: [ { id: apiKeyId.toHexString(), provider: 'api/key' } ],
+      roles: [{roleName: "groupOwner", groupId: groupId}]
     };
 
     const key = randomString(64);
@@ -100,6 +103,11 @@ export default class BaasMongoFixture {
       visible: true
     };
 
-    return { user: testUser, apiKey: testAPIKey };
+    const testGroup = {
+      domainId: rootId,
+      groupId,
+    };
+
+    return { user: testUser, apiKey: testAPIKey, group: testGroup };
   }
 }
