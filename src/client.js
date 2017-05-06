@@ -273,16 +273,16 @@ class Admin {
   /* Examples of how to access admin API with this client:
    *
    * List all apps
-   *    a.apps().list()
+   *    a.apps('580e6d055b199c221fcb821c').list()
    *
    * Fetch app under name 'planner'
-   *    a.apps().app('planner').get()
+   *    a.apps('580e6d055b199c221fcb821c').app('planner').get()
    *
    * List services under the app 'planner'
-   *    a.apps().app('planner').services().list()
+   *    a.apps('580e6d055b199c221fcb821c').app('planner').services().list()
    *
    * Delete a rule by ID
-   *    a.apps().app('planner').services().service('mdb1').rules().rule('580e6d055b199c221fcb821d').remove()
+   *    a.apps('580e6d055b199c221fcb821c').app('planner').services().service('mdb1').rules().rule('580e6d055b199c221fcb821d').remove()
    *
    */
   apps(groupId) {
