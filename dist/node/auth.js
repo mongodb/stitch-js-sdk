@@ -255,10 +255,7 @@ var Auth = function () {
   }, {
     key: 'authedId',
     value: function authedId() {
-      var id = ((this.get() || {}).user || {})._id;
-      if (id) {
-        return { '$oid': id };
-      }
+      return ((this.get() || {}).user || {})._id;
     }
   }, {
     key: 'isImpersonatingUser',
