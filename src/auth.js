@@ -221,10 +221,7 @@ export default class Auth {
   }
 
   authedId() {
-    let id = ((this.get() || {}).user || {})._id;
-    if (id) {
-      return {'$oid': id};
-    }
+    return ((this.get() || {}).user || {})._id;
   }
 
   isImpersonatingUser() {

@@ -108,7 +108,7 @@ describe('Auth', () => {
         const testUser = {'foo': 'bar', 'biz': 'baz', 'user': {'_id': hexStr}};
         a.set(testUser);
         expect(a.get()).toEqual(testUser);
-        expect(a.authedId()).toEqual({'$oid': hexStr});
+        expect(a.authedId()).toEqual(hexStr);
 
         a.clear();
         expect(a.get()).toBeNull();
@@ -118,7 +118,7 @@ describe('Auth', () => {
         expect.assertions(1);
         const a = new Auth('/auth');
         return a.localAuth('user', 'password', true).then(() => {
-          expect(a.authedId()).toEqual({'$oid': hexStr});
+          expect(a.authedId()).toEqual(hexStr);
         });
       });
 
@@ -126,7 +126,7 @@ describe('Auth', () => {
         expect.assertions(3);
         const a = new Auth('/auth');
         return a.localAuth('user', 'password', true).then(() => {
-          expect(a.authedId()).toEqual({'$oid': hexStr});
+          expect(a.authedId()).toEqual(hexStr);
           expect(a.get()['accessToken']).toBeUndefined();
           a.setAccessToken('foo');
           expect(a.get()['accessToken']).toEqual('foo');
@@ -138,7 +138,7 @@ describe('Auth', () => {
         let testClient = new BaasClient('testapp');
         return testClient.authManager.localAuth('user', 'password', true)
         .then(() => {
-          expect(testClient.authedId()).toEqual({'$oid': hexStr});
+          expect(testClient.authedId()).toEqual(hexStr);
           expect(testClient.authError()).toBeFalsy();
           expect(testClient.auth()).toEqual({user: {_id: hexStr}});
         })
