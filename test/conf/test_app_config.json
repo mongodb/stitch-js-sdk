@@ -25,6 +25,22 @@
             "b": {},
             "c": {}
           }
+        },
+        "5873a33f772e2e08ce645b9b": {
+          "_id": { "$oid": "5873a33f772e2e08ce645b9b" },
+          "namespace": "test.documents2",
+          "read": {
+            "$$true": true
+          },
+          "write": {
+            "$$true": true
+          },
+          "fields": {
+            "_id": {},
+            "a": {},
+            "b": {},
+            "c": {}
+          }
         }
       }
     }

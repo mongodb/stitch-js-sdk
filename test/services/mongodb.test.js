@@ -27,6 +27,12 @@ describe('MongoDBService', function() {
       let response = await test.db.collection('documents').insertMany([{}, {}, {}]);
       expect(response.insertedIds).toHaveLength(3);
     });
+
+    it('should add oids to docs without them', async function() {
+      let request = test.db.collection('documents').insertMany([{}, {}, {}]);
+      let items = request[0].args.items;
+      items.map(item => expect(item).toHaveProperty('_id'));
+    });
   });
 
   describe('update', function() {
@@ -112,6 +118,24 @@ describe('MongoDBService', function() {
       await test.db.collection('documents').insertMany([ {}, {}, {}, {}, {} ]);
       let response = await test.db.collection('documents').count();
       expect(response).toEqual(5);
+    });
+  });
+
+  describe('pipelines', function() {
+    beforeEach(() => testSetup());
+    afterEach(() => test.cleanDatabase());
+
+    it('should allow for composed database actions', async function() {
+      let docs = test.db.collection('documents');
+      let docs2 = test.db.collection('documents2');
+
+      let response = await test.client.executePipeline([
+        docs.insertMany([ {}, {}, {}, {}, {} ]),
+        docs2.insertMany()
+      ]);
+
+      expect(response.result).toBeInstanceOf(Array);
+      expect(response.result).toHaveLength(5);
     });
   });
 });
