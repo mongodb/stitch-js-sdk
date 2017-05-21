@@ -7,8 +7,8 @@ import { serviceResponse } from '../../util';
  * @return {HTTPService} a HTTPService instance.
  */
 class HTTPService {
-  constructor(baasClient, serviceName) {
-    this.client = baasClient;
+  constructor(client, serviceName) {
+    this.client = client;
     this.serviceName = serviceName;
   }
 
@@ -21,12 +21,7 @@ class HTTPService {
    * @return {Promise}
    */
   get(urlOrOptions, options = {}) {
-    let args = buildArgs(urlOrOptions, options);
-    return serviceResponse(this.client, {
-      service: this.serviceName,
-      action: 'get',
-      args: args
-    });
+    return buildResponse('get', this, buildArgs(urlOrOptions, options));
   }
 
   /**
@@ -40,12 +35,7 @@ class HTTPService {
    * @return {Promise}
    */
   post(urlOrOptions, options = {}) {
-    let args = buildArgs(urlOrOptions, options);
-    return serviceResponse(this.client, {
-      service: this.serviceName,
-      action: 'post',
-      args: args
-    });
+    return buildResponse('post', this, buildArgs(urlOrOptions, options));
   }
 
   /**
@@ -59,12 +49,7 @@ class HTTPService {
    * @return {Promise}
    */
   put(urlOrOptions, options = {}) {
-    let args = buildArgs(urlOrOptions, options);
-    return serviceResponse(this.client, {
-      service: this.serviceName,
-      action: 'put',
-      args: args
-    });
+    return buildResponse('put', this, buildArgs(urlOrOptions, options));
   }
 
   /**
@@ -78,12 +63,7 @@ class HTTPService {
    * @return {Promise}
    */
   patch(urlOrOptions, options = {}) {
-    let args = buildArgs(urlOrOptions, options);
-    return serviceResponse(this.client, {
-      service: this.serviceName,
-      action: 'patch',
-      args: args
-    });
+    return buildResponse('patch', this, buildArgs(urlOrOptions, options));
   }
 
   /**
@@ -95,12 +75,7 @@ class HTTPService {
    * @return {Promise}
    */
   delete(urlOrOptions, options = {}) {
-    let args = buildArgs(urlOrOptions, options);
-    return serviceResponse(this.client, {
-      service: this.serviceName,
-      action: 'delete',
-      args: args
-    });
+    return buildResponse('delete', this, buildArgs(urlOrOptions, options));
   }
 
   /**
@@ -112,12 +87,7 @@ class HTTPService {
    * @return {Promise}
    */
   head(urlOrOptions, options = {}) {
-    let args = buildArgs(urlOrOptions, options);
-    return serviceResponse(this.client, {
-      service: this.serviceName,
-      action: 'head',
-      args: args
-    });
+    return buildResponse('head', this, buildArgs(urlOrOptions, options));
   }
 }
 
@@ -131,6 +101,14 @@ function buildArgs(urlOrOptions, options) {
   }
 
   return args;
+}
+
+function buildResponse(action, service, args) {
+  return serviceResponse(service.client, {
+    service: service.serviceName,
+    action: action,
+    args: args
+  });
 }
 
 export default HTTPService;
