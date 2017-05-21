@@ -9,7 +9,7 @@ TestFixture.prototype.setup = function() {
 
 const test = new TestFixture();
 describe('HttpService', function() {
-  ['get', 'post'].forEach(method => {
+  ['get', 'post', 'put', 'patch', 'delete', 'head'].forEach(method => {
     describe(method, () => {
       beforeEach(() => test.setup());
       it('should accept a string as the first argument', () => {
