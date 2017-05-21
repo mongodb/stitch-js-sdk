@@ -15,15 +15,13 @@ class HTTPService {
   /**
    * Send a GET request to a resource (result must be application/json)
    *
-   * @param {String} url the url to request
+   * @param {String|Object} urlOrOptions the url to request, or an object of GET args
    * @param {Object} [options] optional settings for the GET operation
    * @param {String} [options.authUrl] url that grants a cookie
    * @return {Promise}
    */
-  get(url, options = {}) {
-    const args = { url };
-    if (!!options.authUrl) args.authUrl = options.authUrl;
-
+  get(urlOrOptions, options = {}) {
+    let args = buildArgs(urlOrOptions, options);
     return serviceResponse(this.client, {
       service: this.serviceName,
       action: 'get',
@@ -36,21 +34,31 @@ class HTTPService {
    *
    * NOTE: item from previous stage must serializable to application/json
    *
-   * @param {String} url the url to request
+   * @param {String|Object} urlOrOptions the url to request, or an object of POST args
    * @param {Object} [options] optional settings for the GET operation
    * @param {String} [options.authUrl] url that grants a cookie
    * @return {Promise}
    */
-  post(url, options = {}) {
-    let args = { url };
-    if (!!options.authUrl) args.authUrl = options.authUrl;
-
+  post(urlOrOptions, options = {}) {
+    let args = buildArgs(urlOrOptions, options);
     return serviceResponse(this.client, {
       service: this.serviceName,
       action: 'post',
       args: args
     });
   }
+}
+
+function buildArgs(urlOrOptions, options) {
+  let args;
+  if (typeof urlOrOptions !== 'string') {
+    args = urlOrOptions;
+  } else {
+    args = { url: urlOrOptions };
+    if (!!options.authUrl) args.authUrl = options.authUrl;
+  }
+
+  return args;
 }
 
 export default HTTPService;
