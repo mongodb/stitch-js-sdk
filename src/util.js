@@ -1,4 +1,10 @@
-export function deprecate(fn, msg) {
+/**
+ * Utility function for displaying deprecation notices
+ *
+ * @param {Function} fn the function to deprecate
+ * @param {String} msg the message to display to the user regarding deprecation
+ */
+function deprecate(fn, msg) {
   let alreadyWarned = false;
   function deprecated() {
     if (!alreadyWarned) {
@@ -17,7 +23,17 @@ export function deprecate(fn, msg) {
   return deprecated;
 }
 
-export function serviceResponse(client, stages, finalizer) {
+/**
+ * Utility method for converting the rest response from services
+ * into composable `thenables`. This allows us to use the same
+ * API for calling helper methods (single-stage pipelines) and
+ * pipeline building.
+ *
+ * @param {Object} client the client to execute the stages on
+ * @param {Array} stages the pipeline stages to execute
+ * @param {Function} [finalizer] optional function to call on the result of the response
+ */
+function serviceResponse(client, stages, finalizer) {
   if (finalizer && typeof finalizer !== 'function') {
     throw new Error('Service response finalizer must be a function');
   }
@@ -47,3 +63,5 @@ export function serviceResponse(client, stages, finalizer) {
 
   return stages;
 }
+
+export { deprecate, serviceResponse };

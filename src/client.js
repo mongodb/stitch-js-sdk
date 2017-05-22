@@ -2,7 +2,7 @@
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 import 'fetch-everywhere';
 import Auth from './auth';
-import MongoDBService from './services/mongodb/mongodb_service';
+import ServiceRegistry from './services';
 import { BaasError } from './errors';
 import * as common from './common';
 import ExtJSONModule from 'mongodb-extjson';
@@ -115,11 +115,12 @@ class BaasClient {
       throw new BaasError('`service` is a factory method, do not use `new`');
     }
 
-    if (type === 'mongodb') {
-      return new MongoDBService(this, name);
+    if (!ServiceRegistry.has(type)) {
+      throw new BaasError('Invalid service type specified: ' + type);
     }
 
-    throw new BaasError('Invalid service type specified: ' + type);
+    const ServiceType = ServiceRegistry.get(type);
+    return new ServiceType(this, name);
   }
 
   /**
