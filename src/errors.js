@@ -7,7 +7,7 @@
  * @param {Object} code The error code.
  * @return {BaasError} A BaasError instance.
  */
-export class BaasError extends Error {
+class BaasError extends Error {
   constructor(message, code) {
     super(message);
     this.name = 'BaasError';
@@ -23,3 +23,15 @@ export class BaasError extends Error {
     }
   }
 }
+
+const ErrAuthProviderNotFound = 'AuthProviderNotFound';
+const ErrInvalidSession = 'InvalidSession';
+const ErrUnauthorized = 'Unauthorized';
+
+
+export {
+  BaasError,
+  ErrAuthProviderNotFound,
+  ErrInvalidSession,
+  ErrUnauthorized
+};

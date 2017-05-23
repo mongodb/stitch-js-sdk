@@ -3,15 +3,16 @@
 import 'fetch-everywhere';
 import Auth from './auth';
 import ServiceRegistry from './services';
-import { BaasError } from './errors';
 import * as common from './common';
 import ExtJSONModule from 'mongodb-extjson';
 import queryString from 'query-string';
-const EJSON = new ExtJSONModule();
+import {
+  BaasError,
+  ErrInvalidSession,
+  ErrUnauthorized
+} from './errors';
 
-const ErrAuthProviderNotFound = 'AuthProviderNotFound';
-const ErrInvalidSession = 'InvalidSession';
-const ErrUnauthorized = 'Unauthorized';
+const EJSON = new ExtJSONModule();
 
 /**
  * Create a new BaasClient instance.
@@ -414,8 +415,5 @@ class Admin {
 
 export {
   BaasClient,
-  Admin,
-  ErrAuthProviderNotFound,
-  ErrInvalidSession,
-  ErrUnauthorized
+  Admin
 };
