@@ -6,22 +6,12 @@ import ServiceRegistry from './services';
 import { BaasError } from './errors';
 import * as common from './common';
 import ExtJSONModule from 'mongodb-extjson';
+import queryString from 'query-string';
 const EJSON = new ExtJSONModule();
 
 const ErrAuthProviderNotFound = 'AuthProviderNotFound';
 const ErrInvalidSession = 'InvalidSession';
 const ErrUnauthorized = 'Unauthorized';
-
-const toQueryString = (obj) => {
-  let parts = [];
-  for (let i in obj) {
-    if (obj.hasOwnProperty(i)) {
-      parts.push(encodeURIComponent(i) + '=' + encodeURIComponent(obj[i]));
-    }
-  }
-  return parts.join('&');
-};
-
 
 /**
  * Create a new BaasClient instance.
@@ -178,7 +168,7 @@ class BaasClient {
     }
 
     if (options.queryParams) {
-      url = url + '?' + toQueryString(options.queryParams);
+      url = `${url}?${queryString.parse(options.queryParams)}`;
     }
 
     return fetch(url, fetchArgs).then((response) => {
@@ -427,6 +417,5 @@ export {
   Admin,
   ErrAuthProviderNotFound,
   ErrInvalidSession,
-  ErrUnauthorized,
-  toQueryString
+  ErrUnauthorized
 };

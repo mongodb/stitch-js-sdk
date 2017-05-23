@@ -44,15 +44,6 @@ const envConfigs = [
   }
 ];
 
-describe('query string', () => {
-  it('should encode an object to a query string', () => {
-    expect(toQueryString({
-      'x': 'Hello Günter',
-      'y': 'foo'
-    })).toEqual('x=Hello%20G%C3%BCnter&y=foo');
-  });
-});
-
 describe('Redirect fragment parsing', () => {
   const makeFragment = (parts) => (
     Object.keys(parts).map(
