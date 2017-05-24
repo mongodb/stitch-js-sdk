@@ -19,7 +19,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * @param {Object} code The error code.
  * @return {BaasError} A BaasError instance.
  */
-var BaasError = exports.BaasError = function (_Error) {
+var BaasError = function (_Error) {
   _inherits(BaasError, _Error);
 
   function BaasError(message, code) {
@@ -43,3 +43,12 @@ var BaasError = exports.BaasError = function (_Error) {
 
   return BaasError;
 }(Error);
+
+var ErrAuthProviderNotFound = 'AuthProviderNotFound';
+var ErrInvalidSession = 'InvalidSession';
+var ErrUnauthorized = 'Unauthorized';
+
+exports.BaasError = BaasError;
+exports.ErrAuthProviderNotFound = ErrAuthProviderNotFound;
+exports.ErrInvalidSession = ErrInvalidSession;
+exports.ErrUnauthorized = ErrUnauthorized;

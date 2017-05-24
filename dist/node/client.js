@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.toQueryString = exports.ErrUnauthorized = exports.ErrInvalidSession = exports.ErrAuthProviderNotFound = exports.Admin = exports.BaasClient = undefined;
+exports.Admin = exports.BaasClient = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -17,11 +17,9 @@ var _auth = require('./auth');
 
 var _auth2 = _interopRequireDefault(_auth);
 
-var _mongodb_service = require('./services/mongodb/mongodb_service');
+var _services = require('./services');
 
-var _mongodb_service2 = _interopRequireDefault(_mongodb_service);
-
-var _errors = require('./errors');
+var _services2 = _interopRequireDefault(_services);
 
 var _common = require('./common');
 
@@ -31,6 +29,12 @@ var _mongodbExtjson = require('mongodb-extjson');
 
 var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
+var _queryString = require('query-string');
+
+var _queryString2 = _interopRequireDefault(_queryString);
+
+var _errors = require('./errors');
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -38,20 +42,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var EJSON = new _mongodbExtjson2.default();
-
-var ErrAuthProviderNotFound = 'AuthProviderNotFound';
-var ErrInvalidSession = 'InvalidSession';
-var ErrUnauthorized = 'Unauthorized';
-
-var toQueryString = function toQueryString(obj) {
-  var parts = [];
-  for (var i in obj) {
-    if (obj.hasOwnProperty(i)) {
-      parts.push(encodeURIComponent(i) + '=' + encodeURIComponent(obj[i]));
-    }
-  }
-  return parts.join('&');
-};
 
 /**
  * Create a new BaasClient instance.
@@ -176,11 +166,12 @@ var BaasClient = function () {
         throw new _errors.BaasError('`service` is a factory method, do not use `new`');
       }
 
-      if (type === 'mongodb') {
-        return new _mongodb_service2.default(this, name);
+      if (!_services2.default.has(type)) {
+        throw new _errors.BaasError('Invalid service type specified: ' + type);
       }
 
-      throw new _errors.BaasError('Invalid service type specified: ' + type);
+      var ServiceType = _services2.default.get(type);
+      return new ServiceType(this, name);
     }
 
     /**
@@ -201,6 +192,9 @@ var BaasClient = function () {
       var responseEncoder = function responseEncoder(d) {
         return EJSON.stringify(d);
       };
+      stages = stages.reduce(function (acc, stage) {
+        return acc.concat(stage);
+      }, []);
 
       if (options.decoder) {
         if (typeof options.decoder !== 'function') {
@@ -234,7 +228,7 @@ var BaasClient = function () {
 
       if (!options.noAuth) {
         if (this.auth() === null) {
-          return Promise.reject(new _errors.BaasError('Must auth first', ErrUnauthorized));
+          return Promise.reject(new _errors.BaasError('Must auth first', _errors.ErrUnauthorized));
         }
       }
 
@@ -251,7 +245,7 @@ var BaasClient = function () {
       }
 
       if (options.queryParams) {
-        url = url + '?' + toQueryString(options.queryParams);
+        url = url + '?' + _queryString2.default.parse(options.queryParams);
       }
 
       return fetch(url, fetchArgs).then(function (response) {
@@ -263,7 +257,7 @@ var BaasClient = function () {
         if (response.headers.get('Content-Type') === common.JSONTYPE) {
           return response.json().then(function (json) {
             // Only want to try refreshing token when there's an invalid session
-            if ('errorCode' in json && json.errorCode === ErrInvalidSession) {
+            if ('errorCode' in json && json.errorCode === _errors.ErrInvalidSession) {
               if (!options.refreshOnFailure) {
                 _this2.authManager.clear();
                 var _error = new _errors.BaasError(json.error, json.errorCode);
@@ -684,7 +678,3 @@ var Admin = function () {
 
 exports.BaasClient = BaasClient;
 exports.Admin = Admin;
-exports.ErrAuthProviderNotFound = ErrAuthProviderNotFound;
-exports.ErrInvalidSession = ErrInvalidSession;
-exports.ErrUnauthorized = ErrUnauthorized;
-exports.toQueryString = toQueryString;

@@ -169,8 +169,10 @@ var Collection = function () {
     value: function count(query) {
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      return findOp(this, query, Object.assign({}, options, { count: true })).then(function (result) {
-        return result[0] || 0;
+      return findOp(this, query, Object.assign({}, options, {
+        count: true
+      }), function (result) {
+        return !!result.result ? result.result[0] : 0;
       });
     }
 
@@ -202,27 +204,37 @@ Collection.prototype.upsert = (0, _util.deprecate)(Collection.prototype.upsert, 
 
 // private
 function insertOp(self, docs, options) {
-  docs = Array.isArray(docs) ? docs : [docs];
+  var stages = [];
 
-  // add ObjectIds to docs that have none
-  docs = docs.map(function (doc) {
-    if (!doc._id) doc._id = new ObjectID();
-    return doc;
-  });
+  // there may be no docs, when building for chained pipeline stages in
+  // which case the source is considered to be the previous stage
+  if (docs) {
+    docs = Array.isArray(docs) ? docs : [docs];
 
-  return self.db.client.executePipeline([{
-    action: 'literal',
-    args: {
-      items: docs
-    }
-  }, {
+    // add ObjectIds to docs that have none
+    docs = docs.map(function (doc) {
+      if (doc._id === undefined || doc._id === null) doc._id = new ObjectID();
+      return doc;
+    });
+
+    stages.push({
+      action: 'literal',
+      args: {
+        items: docs
+      }
+    });
+  }
+
+  stages.push({
     service: self.db.service,
     action: 'insert',
     args: {
       database: self.db.name,
       collection: self.name
     }
-  }]).then(function (response) {
+  });
+
+  return (0, _util.serviceResponse)(self.db.client, stages, function (response) {
     return {
       insertedIds: response.result.map(function (doc) {
         return doc._id;
@@ -238,11 +250,11 @@ function deleteOp(self, query, options) {
     query: query
   }, options);
 
-  return self.db.client.executePipeline([{
+  return (0, _util.serviceResponse)(self.db.client, {
     service: self.db.service,
     action: 'delete',
     args: args
-  }]).then(function (response) {
+  }, function (response) {
     return {
       deletedCount: response.result[0].removed
     };
@@ -257,14 +269,17 @@ function updateOp(self, query, update, options) {
     update: update
   }, options);
 
-  return self.db.client.executePipeline([{
+  return (0, _util.serviceResponse)(self.db.client, {
     service: self.db.service,
     action: 'update',
     args: args
-  }]);
+  });
 }
 
-function findOp(self, query, options) {
+function findOp(self, query, options, finalizer) {
+  finalizer = finalizer || function (response) {
+    return response.result;
+  };
   var args = Object.assign({
     database: self.db.name,
     collection: self.name,
@@ -277,13 +292,11 @@ function findOp(self, query, options) {
     delete args.projection;
   }
 
-  return self.db.client.executePipeline([{
+  return (0, _util.serviceResponse)(self.db.client, {
     service: self.db.service,
     action: 'find',
     args: args
-  }]).then(function (response) {
-    return response.result;
-  });
+  }, finalizer);
 }
 
 exports.default = Collection;
