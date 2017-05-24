@@ -17,10 +17,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @return {SESService} a SESService instance.
  */
 var SESService = function () {
-  function SESService(baasClient, serviceName) {
+  function SESService(stitchClient, serviceName) {
     _classCallCheck(this, SESService);
 
-    this.client = baasClient;
+    this.client = stitchClient;
     this.serviceName = serviceName;
   }
 

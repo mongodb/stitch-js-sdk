@@ -7,7 +7,7 @@ import { serviceResponse } from '../../util';
  * @return {SQSService} a SQSService instance.
  */
 class SQSService {
-  constructor(baasClient, serviceName) {
+  constructor(stitchClient, serviceName) {
     this.client = client;
     this.serviceName = serviceName;
   }

@@ -7,8 +7,8 @@ import { serviceResponse } from '../../util';
  * @return {PubnubService} a PubnubService instance.
  */
 class PubnubService {
-  constructor(baasClient, serviceName) {
-    this.client = baasClient;
+  constructor(stitchClient, serviceName) {
+    this.client = stitchClient;
     this.serviceName = serviceName;
   }
 

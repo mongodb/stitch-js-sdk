@@ -416,7 +416,7 @@ var Admin = function () {
             },
             replace: function replace(doc) {
               return root._put('/groups/' + groupId + '/apps/' + appID, {
-                headers: { 'X-Stitch-Unsafe': appID },
+                headers: { 'X-Baas-Unsafe': appID },
                 body: JSON.stringify(doc)
               });
             },

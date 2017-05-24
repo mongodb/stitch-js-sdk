@@ -17,15 +17,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @return {S3Service} a S3Service instance.
  */
 var S3Service = function () {
-  function S3Service(baasClient, serviceName) {
+  function S3Service(stitchClient, serviceName) {
     _classCallCheck(this, S3Service);
 
-    this.client = baasClient;
+    this.client = stitchClient;
     this.serviceName = serviceName;
   }
 
   /**
-   * Put an object to S3 via BaaS. For small uploads
+   * Put an object to S3 via Stitch. For small uploads
    *
    * NOTE: body must be a pipeline stream
    *
@@ -48,7 +48,7 @@ var S3Service = function () {
     }
 
     /**
-     * Sign a policy for putting via BaaS. For large uploads
+     * Sign a policy for putting via Stitch. For large uploads
      *
      * @param {String} bucket which S3 bucket to use
      * @param {String} key which key (filename) to use

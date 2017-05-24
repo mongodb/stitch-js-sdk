@@ -3495,7 +3495,7 @@ var Admin = function () {
             },
             replace: function replace(doc) {
               return root._put('/groups/' + groupId + '/apps/' + appID, {
-                headers: { 'X-Stitch-Unsafe': appID },
+                headers: { 'X-Baas-Unsafe': appID },
                 body: JSON.stringify(doc)
               });
             },
@@ -4147,15 +4147,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @return {S3Service} a S3Service instance.
  */
 var S3Service = function () {
-  function S3Service(baasClient, serviceName) {
+  function S3Service(stitchClient, serviceName) {
     _classCallCheck(this, S3Service);
 
-    this.client = baasClient;
+    this.client = stitchClient;
     this.serviceName = serviceName;
   }
 
   /**
-   * Put an object to S3 via BaaS. For small uploads
+   * Put an object to S3 via Stitch. For small uploads
    *
    * NOTE: body must be a pipeline stream
    *
@@ -4178,7 +4178,7 @@ var S3Service = function () {
     }
 
     /**
-     * Sign a policy for putting via BaaS. For large uploads
+     * Sign a policy for putting via Stitch. For large uploads
      *
      * @param {String} bucket which S3 bucket to use
      * @param {String} key which key (filename) to use
@@ -4228,10 +4228,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @return {SESService} a SESService instance.
  */
 var SESService = function () {
-  function SESService(baasClient, serviceName) {
+  function SESService(stitchClient, serviceName) {
     _classCallCheck(this, SESService);
 
-    this.client = baasClient;
+    this.client = stitchClient;
     this.serviceName = serviceName;
   }
 
@@ -4288,7 +4288,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @return {SQSService} a SQSService instance.
  */
 var SQSService = function () {
-  function SQSService(baasClient, serviceName) {
+  function SQSService(stitchClient, serviceName) {
     _classCallCheck(this, SQSService);
 
     this.client = client;
@@ -5025,10 +5025,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @return {PubnubService} a PubnubService instance.
  */
 var PubnubService = function () {
-  function PubnubService(baasClient, serviceName) {
+  function PubnubService(stitchClient, serviceName) {
     _classCallCheck(this, PubnubService);
 
-    this.client = baasClient;
+    this.client = stitchClient;
     this.serviceName = serviceName;
   }
 
@@ -5083,10 +5083,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @return {SlackService} a SlackService instance.
  */
 var SlackService = function () {
-  function SlackService(baasClient, serviceName) {
+  function SlackService(stitchClient, serviceName) {
     _classCallCheck(this, SlackService);
 
-    this.client = baasClient;
+    this.client = stitchClient;
     this.serviceName = serviceName;
   }
 
@@ -5154,10 +5154,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @return {TwilioService} a TwilioService instance.
  */
 var TwilioService = function () {
-  function TwilioService(baasClient, serviceName) {
+  function TwilioService(stitchClient, serviceName) {
     _classCallCheck(this, TwilioService);
 
-    this.client = baasClient;
+    this.client = stitchClient;
     this.serviceName = serviceName;
   }
 

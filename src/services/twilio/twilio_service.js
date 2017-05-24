@@ -7,8 +7,8 @@ import { serviceResponse } from '../../util';
  * @return {TwilioService} a TwilioService instance.
  */
 class TwilioService {
-  constructor(baasClient, serviceName) {
-    this.client = baasClient;
+  constructor(stitchClient, serviceName) {
+    this.client = stitchClient;
     this.serviceName = serviceName;
   }
 

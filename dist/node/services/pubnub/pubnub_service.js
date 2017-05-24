@@ -17,10 +17,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @return {PubnubService} a PubnubService instance.
  */
 var PubnubService = function () {
-  function PubnubService(baasClient, serviceName) {
+  function PubnubService(stitchClient, serviceName) {
     _classCallCheck(this, PubnubService);
 
-    this.client = baasClient;
+    this.client = stitchClient;
     this.serviceName = serviceName;
   }
 

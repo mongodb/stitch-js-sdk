@@ -17,10 +17,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @return {TwilioService} a TwilioService instance.
  */
 var TwilioService = function () {
-  function TwilioService(baasClient, serviceName) {
+  function TwilioService(stitchClient, serviceName) {
     _classCallCheck(this, TwilioService);
 
-    this.client = baasClient;
+    this.client = stitchClient;
     this.serviceName = serviceName;
   }
 

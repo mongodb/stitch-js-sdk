@@ -17,10 +17,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @return {SlackService} a SlackService instance.
  */
 var SlackService = function () {
-  function SlackService(baasClient, serviceName) {
+  function SlackService(stitchClient, serviceName) {
     _classCallCheck(this, SlackService);
 
-    this.client = baasClient;
+    this.client = stitchClient;
     this.serviceName = serviceName;
   }
 

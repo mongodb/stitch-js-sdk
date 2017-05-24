@@ -17,7 +17,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @return {SQSService} a SQSService instance.
  */
 var SQSService = function () {
-  function SQSService(baasClient, serviceName) {
+  function SQSService(stitchClient, serviceName) {
     _classCallCheck(this, SQSService);
 
     this.client = client;
