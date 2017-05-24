@@ -23,10 +23,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @return {MongoDBService} a MongoDBService instance.
  */
 var MongoDBService = function () {
-  function MongoDBService(baasClient, serviceName) {
+  function MongoDBService(stitchClient, serviceName) {
     _classCallCheck(this, MongoDBService);
 
-    this.baasClient = baasClient;
+    this.stitchClient = stitchClient;
     this.serviceName = serviceName;
   }
 
@@ -45,7 +45,7 @@ var MongoDBService = function () {
     value: function db(databaseName) {
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      return new _db2.default(this.baasClient, this.serviceName, databaseName);
+      return new _db2.default(this.stitchClient, this.serviceName, databaseName);
     }
   }]);
 

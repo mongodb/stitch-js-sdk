@@ -8,8 +8,8 @@ import { deprecate } from '../../util';
  * @return {MongoDBService} a MongoDBService instance.
  */
 class MongoDBService {
-  constructor(baasClient, serviceName) {
-    this.baasClient = baasClient;
+  constructor(stitchClient, serviceName) {
+    this.stitchClient = stitchClient;
     this.serviceName = serviceName;
   }
 
@@ -22,7 +22,7 @@ class MongoDBService {
    * @return {DB} returns a DB instance representing a MongoDB database.
    */
   db(databaseName, options = {}) {
-    return new DB(this.baasClient, this.serviceName, databaseName);
+    return new DB(this.stitchClient, this.serviceName, databaseName);
   }
 }
 

@@ -1,4 +1,4 @@
-# BaaS JS Client
+# Stitch JS Client
 
 The original source is located in `src/`.
 To transpile to pure JS, run `npm run build` which places the output into `dist/`.
@@ -7,25 +7,25 @@ To transpile to pure JS, run `npm run build` which places the output into `dist/
 
 Construct a simple app-wide client:
 ```
-import { BaasClient } from 'baas';
+import { StitchClient } from 'stitch';
 let appId = 'sample-app-ovmyj';
-let baasClient = new BaasClient(appId);
+let stitchClient = new StitchClient(appId);
 ```
 
 Authenticate anonymously:
 ```
-baasClient.anonymousAuth()
-  .then(() => console.log('logged in as: ' + baasClient.auth().user._id))
+stitchClient.anonymousAuth()
+  .then(() => console.log('logged in as: ' + stitchClient.auth().user._id))
   .catch(e => console.log('error: ', e));
 ```
 
 Access MongoDB APIs:
 ```
-let db = baasClient.service('mongodb', 'mongodb1').db('app-ovmyj'); // mdb1 is the name of the mongodb service registered with the app.
+let db = stitchClient.service('mongodb', 'mongodb1').db('app-ovmyj'); // mdb1 is the name of the mongodb service registered with the app.
 let itemsCollection = db.collection('items');
 
 // CRUD operations:
-let userId = baasClient.authedId();
+let userId = stitchClient.authedId();
 itemsCollection.insertMany([ { owner_id: userId, x: 'item1' }, { owner_id: userId, x: 'item2' }, { owner_id: userId, x: 'item3' } ])
   .then(result => console.log('success: ', result))
   .catch(e => console.log('error: ', e));
@@ -34,7 +34,7 @@ itemsCollection.insertMany([ { owner_id: userId, x: 'item1' }, { owner_id: userI
 Access other services:
 ```
 // executePipeline takes an array of pipeline stages.
-baasClient.executePipeline([
+stitchClient.executePipeline([
   {
     action: 'literal',
     args: {

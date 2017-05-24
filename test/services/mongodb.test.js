@@ -1,15 +1,15 @@
-const BaasMongoFixture = require('../fixtures/baas_mongo_fixture');
-const baas = require('../../src');
+const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
+const stitch = require('../../src');
 
 let stripObjectIds = (data) => data.map(d => { delete d._id; return d; });
 async function testSetup() {
-  test.client = new baas.BaasClient(test.clientAppId, { baseUrl: 'http://localhost:7080' });
+  test.client = new stitch.StitchClient(test.clientAppId, { baseUrl: 'http://localhost:7080' });
   await test.client.authManager.apiKeyAuth(test.appKey.key);
   let service = test.client.service('mongodb', 'mdb1');
   test.db = service.db('test');
 }
 
-let test = new BaasMongoFixture;
+let test = new StitchMongoFixture;
 describe('MongoDBService', function() {
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());

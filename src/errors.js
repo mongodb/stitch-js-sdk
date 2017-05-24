@@ -1,16 +1,16 @@
 /**
- * Creates a new BaasError
+ * Creates a new StitchError
  *
  * @class
  * @augments Error
  * @param {String} message The error message.
  * @param {Object} code The error code.
- * @return {BaasError} A BaasError instance.
+ * @return {StitchError} A StitchError instance.
  */
-class BaasError extends Error {
+class StitchError extends Error {
   constructor(message, code) {
     super(message);
-    this.name = 'BaasError';
+    this.name = 'StitchError';
     this.message = message;
     if (code !== undefined) {
       this.code = code;
@@ -30,7 +30,7 @@ const ErrUnauthorized = 'Unauthorized';
 
 
 export {
-  BaasError,
+  StitchError,
   ErrAuthProviderNotFound,
   ErrInvalidSession,
   ErrUnauthorized

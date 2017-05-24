@@ -2,7 +2,7 @@ functions:
   "fetch_source":
     - command: git.get_project
       params:
-        directory: "baas-js-sdk"
+        directory: "stitch-js-sdk"
 
   "setup_mongod":
     - command: shell.exec
@@ -28,17 +28,17 @@ functions:
           ./bin/mongo --nodb --eval 'assert.soon(function(x){try{var d = new Mongo("localhost:27017"); return true}catch(e){return false}}, "timed out connecting")'
           echo "mongod is up."
 
-  "setup_baas":
+  "setup_stitch":
     - command: shell.exec
       params:
         script: |
           set -e
-          echo "cloning baas"
+          echo "cloning stitch"
           mkdir -p src/github.com/10gen
-          git clone git@github.com:10gen/baas src/github.com/10gen/baas
+          git clone git@github.com:10gen/stitch src/github.com/10gen/baas
 
           echo "downloading libmongo"
-          wget --quiet "https://s3.amazonaws.com/baas-tools/libmongo.so"
+          wget --quiet "https://s3.amazonaws.com/stitch-tools/libmongo.so"
           chmod +x libmongo.so
     - command: shell.exec
       params:
@@ -46,23 +46,23 @@ functions:
         script: |
           export GOPATH=`pwd`
           export PATH="`pwd`:$PATH"
-          export BAAS_PATH=$GOPATH/src/github.com/10gen/baas
-          cd baas-js-sdk/test/bin
-          echo "running baas"
-          go run $BAAS_PATH/main/main.go --configFile ../conf/test_config.json
+          export STITCH_PATH=$GOPATH/src/github.com/10gen/baas
+          cd stitch-js-sdk/test/bin
+          echo "running stitch"
+          go run $STITCH_PATH/main/main.go --configFile ../conf/test_config.json
 
 tasks:
   - name: run_tests
     commands:
       - func: "fetch_source"
       - func: "setup_mongod"
-      - func: "setup_baas"
+      - func: "setup_stitch"
       - command: shell.exec
         params:
           script: |
             set -e
             echo "running client tests"
-            cd baas-js-sdk
+            cd stitch-js-sdk
             npm install
             npm test
 
@@ -75,7 +75,7 @@ tasks:
         params:
           script: |
             set -e
-            cd baas-js-sdk
+            cd stitch-js-sdk
             npm install
             npm run build
             npm run build-web
@@ -88,67 +88,67 @@ tasks:
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
-          local_file: baas-js-sdk/dist/web/baas.js
-          remote_file: js/library/${revision}/baas.js
-          bucket: baas-sdks
+          local_file: stitch-js-sdk/dist/web/stitch.js
+          remote_file: js/library/${revision}/stitch.js
+          bucket: stitch-sdks
           permissions: public-read
           content_type: application/javascript
-          display_name: BaaS Javascript Library for Web
+          display_name: Stitch Javascript Library for Web
 
       - command: s3.put
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
-          local_file: baas-js-sdk/dist/web/baas.min.js
-          remote_file: js/library/${revision}/baas.min.js
-          bucket: baas-sdks
+          local_file: stitch-js-sdk/dist/web/stitch.min.js
+          remote_file: js/library/${revision}/stitch.min.js
+          bucket: stitch-sdks
           permissions: public-read
           content_type: application/javascript
-          display_name: BaaS Javascript Library for Web (minified)
+          display_name: Stitch Javascript Library for Web (minified)
 
       - command: s3.put
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
-          local_file: baas-js-sdk/tmp/baas-1.0.0.tgz
-          remote_file: js/npm/${revision}/baas.tgz
-          bucket: baas-sdks
+          local_file: stitch-js-sdk/tmp/stitch-1.0.0.tgz
+          remote_file: js/npm/${revision}/stitch.tgz
+          bucket: stitch-sdks
           permissions: public-read
           content_type: application/gzip
-          display_name: BaaS NPM package
+          display_name: Stitch NPM package
 
       - command: s3.put
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
-          local_file: baas-js-sdk/dist/web/baas.js
-          remote_file: js/library/${branch_name}/baas.js
-          bucket: baas-sdks
+          local_file: stitch-js-sdk/dist/web/stitch.js
+          remote_file: js/library/${branch_name}/stitch.js
+          bucket: stitch-sdks
           permissions: public-read
           content_type: application/javascript
-          display_name: BaaS Javascript Library for Web
+          display_name: Stitch Javascript Library for Web
 
       - command: s3.put
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
-          local_file: baas-js-sdk/dist/web/baas.min.js
-          remote_file: js/library/${branch_name}/baas.min.js
-          bucket: baas-sdks
+          local_file: stitch-js-sdk/dist/web/stitch.min.js
+          remote_file: js/library/${branch_name}/stitch.min.js
+          bucket: stitch-sdks
           permissions: public-read
           content_type: application/javascript
-          display_name: BaaS Javascript Library for Web (minified)
+          display_name: Stitch Javascript Library for Web (minified)
 
       - command: s3.put
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
-          local_file: baas-js-sdk/tmp/baas-1.0.0.tgz
-          remote_file: js/npm/${branch_name}/baas.tgz
-          bucket: baas-sdks
+          local_file: stitch-js-sdk/tmp/stitch-1.0.0.tgz
+          remote_file: js/npm/${branch_name}/stitch.tgz
+          bucket: stitch-sdks
           permissions: public-read
           content_type: application/gzip
-          display_name: BaaS NPM package
+          display_name: Stitch NPM package
 
   - name: docs_dist
     depends_on:
@@ -159,7 +159,7 @@ tasks:
         params:
           script: |
             set -e
-            cd baas-js-sdk
+            cd stitch-js-sdk
             npm install
             npm run docs
 
@@ -181,8 +181,8 @@ tasks:
             export PATH=$HOME/bin:$PATH
             export AWS_ACCESS_KEY_ID=${sdks_aws_key}
             export AWS_SECRET_ACCESS_KEY=${sdks_aws_secret}
-            aws s3 cp baas-js-sdk/docs s3://baas-sdks/js/docs/${revision} --recursive --acl public-read
-            aws s3 cp baas-js-sdk/docs s3://baas-sdks/js/docs/${branch_name} --recursive --acl public-read
+            aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/${revision} --recursive --acl public-read
+            aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/${branch_name} --recursive --acl public-read
 
 buildvariants:
 - name: linux-64

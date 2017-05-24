@@ -11,23 +11,23 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 /**
- * Creates a new BaasError
+ * Creates a new StitchError
  *
  * @class
  * @augments Error
  * @param {String} message The error message.
  * @param {Object} code The error code.
- * @return {BaasError} A BaasError instance.
+ * @return {StitchError} A StitchError instance.
  */
-var BaasError = function (_Error) {
-  _inherits(BaasError, _Error);
+var StitchError = function (_Error) {
+  _inherits(StitchError, _Error);
 
-  function BaasError(message, code) {
-    _classCallCheck(this, BaasError);
+  function StitchError(message, code) {
+    _classCallCheck(this, StitchError);
 
-    var _this = _possibleConstructorReturn(this, (BaasError.__proto__ || Object.getPrototypeOf(BaasError)).call(this, message));
+    var _this = _possibleConstructorReturn(this, (StitchError.__proto__ || Object.getPrototypeOf(StitchError)).call(this, message));
 
-    _this.name = 'BaasError';
+    _this.name = 'StitchError';
     _this.message = message;
     if (code !== undefined) {
       _this.code = code;
@@ -41,14 +41,14 @@ var BaasError = function (_Error) {
     return _this;
   }
 
-  return BaasError;
+  return StitchError;
 }(Error);
 
 var ErrAuthProviderNotFound = 'AuthProviderNotFound';
 var ErrInvalidSession = 'InvalidSession';
 var ErrUnauthorized = 'Unauthorized';
 
-exports.BaasError = BaasError;
+exports.StitchError = StitchError;
 exports.ErrAuthProviderNotFound = ErrAuthProviderNotFound;
 exports.ErrInvalidSession = ErrInvalidSession;
 exports.ErrUnauthorized = ErrUnauthorized;

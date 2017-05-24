@@ -19,11 +19,11 @@
         "default"       : {
             "outputSourceFiles" : false
         },
-        "applicationName": "baas",
+        "applicationName": "stitch",
         "disqus": "",
         "googleAnalytics": "",
         "openGraph": {
-            "title": "baas",
+            "title": "stitch",
             "type": "website",
             "image": "",
             "site_name": "",
@@ -46,7 +46,7 @@
         "private"       : false,
         "lenient"       : false,
         "destination"   : "./docs",
-        "sourceRoot"    : "https://github.com/10gen/baas-js-sdk/blob/master/src/",
-        "repo"          : "https://github.com/10gen/baas-js-sdk"
+        "sourceRoot"    : "https://github.com/10gen/stitch-js-sdk/blob/master/src/",
+        "repo"          : "https://github.com/10gen/stitch-js-sdk"
     }
 }

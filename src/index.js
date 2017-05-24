@@ -1,6 +1,6 @@
-import { BaasClient, Admin } from './client';
+import { StitchClient, Admin } from './client';
 
 export {
-  BaasClient,
+  StitchClient,
   Admin
 };

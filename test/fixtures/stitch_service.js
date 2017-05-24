@@ -1,10 +1,10 @@
 const path = require('path');
 const fs = require('fs');
 const spawn = require('child_process').spawn;
-const { CONF_PATH, BAAS_PATH, BIN_PATH } = require('./constants');
-const debug = require('util').debuglog('baas');
+const { CONF_PATH, STITCH_PATH, BIN_PATH } = require('./constants');
+const debug = require('util').debuglog('stitch');
 
-export default class BaasService {
+export default class StitchService {
   constructor() {
     // ensure cleanup occurs on process close
     process.on('SIGINT', this.teardown);
@@ -12,8 +12,8 @@ export default class BaasService {
   }
 
   setup() {
-    if (process.env.BAAS_URL || !fs.existsSync(BAAS_PATH)) {
-      debug('using external baas process');
+    if (process.env.STITCH_URL || !fs.existsSync(STITCH_PATH)) {
+      debug('using external stitch process');
       this.externalProcess = true;
       return;
     }
@@ -23,9 +23,9 @@ export default class BaasService {
     env.PATH = `${env.PATH}:${BIN_PATH}`;
 
     return new Promise((resolve, reject) => {
-      this.process = spawn(BAAS_PATH, [ '-configFile', config ], { cwd: BIN_PATH, env: env });
+      this.process = spawn(STITCH_PATH, [ '-configFile', config ], { cwd: BIN_PATH, env: env });
       this.process.once('close', (code, signal) => {
-        console.log('baas process closed with code: ', code);
+        console.log('stitch process closed with code: ', code);
         reject();
       });
 

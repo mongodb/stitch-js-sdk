@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Admin = exports.BaasClient = undefined;
+exports.Admin = exports.StitchClient = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -44,17 +44,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var EJSON = new _mongodbExtjson2.default();
 
 /**
- * Create a new BaasClient instance.
+ * Create a new StitchClient instance.
  *
  * @class
- * @return {BaasClient} a BaasClient instance.
+ * @return {StitchClient} a StitchClient instance.
  */
 
-var BaasClient = function () {
-  function BaasClient(clientAppID, options) {
-    _classCallCheck(this, BaasClient);
+var StitchClient = function () {
+  function StitchClient(clientAppID, options) {
+    _classCallCheck(this, StitchClient);
 
-    var baseUrl = common.DEFAULT_BAAS_SERVER_URL;
+    var baseUrl = common.DEFAULT_STITCH_SERVER_URL;
     if (options && options.baseUrl) {
       baseUrl = options.baseUrl;
     }
@@ -77,7 +77,7 @@ var BaasClient = function () {
    */
 
 
-  _createClass(BaasClient, [{
+  _createClass(StitchClient, [{
     key: 'authWithOAuth',
     value: function authWithOAuth(providerName, redirectUrl) {
       window.location.replace(this.authManager.getOAuthLoginURL(providerName, redirectUrl));
@@ -127,7 +127,7 @@ var BaasClient = function () {
     }
 
     /**
-     * @return {*} Returns any error from the BaaS authentication system.
+     * @return {*} Returns any error from the Stitch authentication system.
      */
 
   }, {
@@ -151,7 +151,7 @@ var BaasClient = function () {
     }
 
     /**
-     * Factory method for accessing BaaS services.
+     * Factory method for accessing Stitch services.
      *
      * @method
      * @param {String} type The service type [mongodb, {String}]
@@ -162,12 +162,12 @@ var BaasClient = function () {
   }, {
     key: 'service',
     value: function service(type, name) {
-      if (this.constructor !== BaasClient) {
-        throw new _errors.BaasError('`service` is a factory method, do not use `new`');
+      if (this.constructor !== StitchClient) {
+        throw new _errors.StitchError('`service` is a factory method, do not use `new`');
       }
 
       if (!_services2.default.has(type)) {
-        throw new _errors.BaasError('Invalid service type specified: ' + type);
+        throw new _errors.StitchError('Invalid service type specified: ' + type);
       }
 
       var ServiceType = _services2.default.get(type);
@@ -228,7 +228,7 @@ var BaasClient = function () {
 
       if (!options.noAuth) {
         if (this.auth() === null) {
-          return Promise.reject(new _errors.BaasError('Must auth first', _errors.ErrUnauthorized));
+          return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
         }
       }
 
@@ -260,7 +260,7 @@ var BaasClient = function () {
             if ('errorCode' in json && json.errorCode === _errors.ErrInvalidSession) {
               if (!options.refreshOnFailure) {
                 _this2.authManager.clear();
-                var _error = new _errors.BaasError(json.error, json.errorCode);
+                var _error = new _errors.StitchError(json.error, json.errorCode);
                 _error.response = response;
                 _error.json = json;
                 throw _error;
@@ -272,7 +272,7 @@ var BaasClient = function () {
               });
             }
 
-            var error = new _errors.BaasError(json.error, json.errorCode);
+            var error = new _errors.StitchError(json.error, json.errorCode);
             error.response = response;
             error.json = json;
             return Promise.reject(error);
@@ -302,14 +302,14 @@ var BaasClient = function () {
     }
   }]);
 
-  return BaasClient;
+  return StitchClient;
 }();
 
 var Admin = function () {
   function Admin(baseUrl) {
     _classCallCheck(this, Admin);
 
-    this.client = new BaasClient('', { baseUrl: baseUrl });
+    this.client = new StitchClient('', { baseUrl: baseUrl });
   }
 
   _createClass(Admin, [{
@@ -416,7 +416,7 @@ var Admin = function () {
             },
             replace: function replace(doc) {
               return root._put('/groups/' + groupId + '/apps/' + appID, {
-                headers: { 'X-Baas-Unsafe': appID },
+                headers: { 'X-Stitch-Unsafe': appID },
                 body: JSON.stringify(doc)
               });
             },
@@ -676,5 +676,5 @@ var Admin = function () {
   return Admin;
 }();
 
-exports.BaasClient = BaasClient;
+exports.StitchClient = StitchClient;
 exports.Admin = Admin;

@@ -1,5 +1,5 @@
 {
-  "name": "baas",
+  "name": "stitch",
   "version": "1.0.0",
   "description": "",
   "main": "dist/node/client.js",

@@ -1,7 +1,7 @@
 /* global window, document, fetch */
 
 import { createStorage } from './storage';
-import { BaasError } from './errors';
+import { StitchError } from './errors';
 import * as common from './common';
 
 export default class Auth {
@@ -19,7 +19,7 @@ export default class Auth {
   // a local storage bound to the app's origin. This ensures that any time we
   // receive a redirect, there must be a state parameter and it must match
   // what we ourselves have generated. This state MUST only be sent to
-  // a trusted BaaS endpoint in order to preserve its integrity. BaaS will
+  // a trusted Stitch endpoint in order to preserve its integrity. Stitch will
   // store it in some way on its origin (currently a cookie stored on this client)
   // and use that state at the end of an auth flow as a parameter in the redirect URI.
   static generateState() {
@@ -59,7 +59,7 @@ export default class Auth {
     let redirectFragment = window.location.hash.substring(1);
     const redirectState = common.parseRedirectFragment(redirectFragment, ourState);
     if (redirectState.lastError) {
-      console.error(`BaasClient: error from redirect: ${redirectState.lastError}`);
+      console.error(`StitchClient: error from redirect: ${redirectState.lastError}`);
       this._error = redirectState.lastError;
       window.history.replaceState(null, '', this.pageRootUrl());
       return;
@@ -71,13 +71,13 @@ export default class Auth {
 
     this.authDataStorage.remove(common.STATE_KEY);
     if (!redirectState.stateValid) {
-      console.error('BaasClient: state values did not match!');
+      console.error('StitchClient: state values did not match!');
       window.history.replaceState(null, '', this.pageRootUrl());
       return;
     }
 
     if (!redirectState.ua) {
-      console.error('BaasClient: no UA value was returned from redirect!');
+      console.error('StitchClient: no UA value was returned from redirect!');
       return;
     }
 
@@ -216,7 +216,7 @@ export default class Auth {
       // Need to back out and clear auth otherwise we will never
       // be able to do anything useful.
       this.clear();
-      throw new BaasError('Failure retrieving stored auth');
+      throw new StitchError('Failure retrieving stored auth');
     }
   }
 
@@ -244,11 +244,11 @@ export default class Auth {
 
   startImpersonation(client, userId) {
     if (this.get() === null) {
-      return Promise.reject(new BaasError('Must auth first'));
+      return Promise.reject(new StitchError('Must auth first'));
     }
 
     if (this.isImpersonatingUser()) {
-      return Promise.reject(new BaasError('Already impersonating a user'));
+      return Promise.reject(new StitchError('Already impersonating a user'));
     }
 
     this.authDataStorage.set(common.IMPERSONATION_ACTIVE_KEY, 'true');
@@ -262,7 +262,7 @@ export default class Auth {
 
   stopImpersonation() {
     if (!this.isImpersonatingUser()) {
-      throw new BaasError('Not impersonating a user');
+      throw new StitchError('Not impersonating a user');
     }
 
     return new Promise((resolve, reject) => {

@@ -7,7 +7,7 @@ import * as common from './common';
 import ExtJSONModule from 'mongodb-extjson';
 import queryString from 'query-string';
 import {
-  BaasError,
+  StitchError,
   ErrInvalidSession,
   ErrUnauthorized
 } from './errors';
@@ -15,14 +15,14 @@ import {
 const EJSON = new ExtJSONModule();
 
 /**
- * Create a new BaasClient instance.
+ * Create a new StitchClient instance.
  *
  * @class
- * @return {BaasClient} a BaasClient instance.
+ * @return {StitchClient} a StitchClient instance.
  */
-class BaasClient {
+class StitchClient {
   constructor(clientAppID, options) {
-    let baseUrl = common.DEFAULT_BAAS_SERVER_URL;
+    let baseUrl = common.DEFAULT_STITCH_SERVER_URL;
     if (options && options.baseUrl) {
       baseUrl = options.baseUrl;
     }
@@ -79,7 +79,7 @@ class BaasClient {
   }
 
   /**
-   * @return {*} Returns any error from the BaaS authentication system.
+   * @return {*} Returns any error from the Stitch authentication system.
    */
   authError() {
     return this.authManager.error();
@@ -94,7 +94,7 @@ class BaasClient {
   }
 
   /**
-   * Factory method for accessing BaaS services.
+   * Factory method for accessing Stitch services.
    *
    * @method
    * @param {String} type The service type [mongodb, {String}]
@@ -102,12 +102,12 @@ class BaasClient {
    * @return {Object} returns a named service.
    */
   service(type, name) {
-    if (this.constructor !== BaasClient) {
-      throw new BaasError('`service` is a factory method, do not use `new`');
+    if (this.constructor !== StitchClient) {
+      throw new StitchError('`service` is a factory method, do not use `new`');
     }
 
     if (!ServiceRegistry.has(type)) {
-      throw new BaasError('Invalid service type specified: ' + type);
+      throw new StitchError('Invalid service type specified: ' + type);
     }
 
     const ServiceType = ServiceRegistry.get(type);
@@ -152,7 +152,7 @@ class BaasClient {
 
     if (!options.noAuth) {
       if (this.auth() === null) {
-        return Promise.reject(new BaasError('Must auth first', ErrUnauthorized));
+        return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
       }
     }
 
@@ -184,7 +184,7 @@ class BaasClient {
           if ('errorCode' in json && json.errorCode === ErrInvalidSession) {
             if (!options.refreshOnFailure) {
               this.authManager.clear();
-              const error = new BaasError(json.error, json.errorCode);
+              const error = new StitchError(json.error, json.errorCode);
               error.response = response;
               error.json = json;
               throw error;
@@ -196,7 +196,7 @@ class BaasClient {
             });
           }
 
-          const error = new BaasError(json.error, json.errorCode);
+          const error = new StitchError(json.error, json.errorCode);
           error.response = response;
           error.json = json;
           return Promise.reject(error);
@@ -223,7 +223,7 @@ class BaasClient {
 
 class Admin {
   constructor(baseUrl) {
-    this.client = new BaasClient('', {baseUrl});
+    this.client = new StitchClient('', {baseUrl});
   }
 
   _do(url, method, options) {
@@ -414,6 +414,6 @@ class Admin {
 }
 
 export {
-  BaasClient,
+  StitchClient,
   Admin
 };

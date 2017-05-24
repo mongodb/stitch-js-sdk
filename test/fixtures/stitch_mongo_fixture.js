@@ -1,5 +1,5 @@
-const BaasService = require('./baas_service');
-const baas = require('../../src/client');
+const StitchService = require('./stitch_service');
+const stitch = require('../../src/client');
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
 const ExtJSON = require('mongodb-extjson');
@@ -15,7 +15,7 @@ const randomString = (length) => {
   return result;
 };
 
-const testSalt = process.env.BAAS_TEST_SALT || 'DQOWene1723baqD!_@#';
+const testSalt = process.env.STITCH_TEST_SALT || 'DQOWene1723baqD!_@#';
 const hashValue = (key, salt) => {
   return new Promise((resolve, reject) => {
     crypto.pbkdf2(key, salt, 4096, 32, 'sha256', (err, _key) => {
@@ -25,13 +25,13 @@ const hashValue = (key, salt) => {
   });
 };
 
-export default class BaasMongoFixture {
+export default class StitchMongoFixture {
   constructor(options) {
     options = options || {};
     options.uri = options.uri || DEFAULT_URI;
 
     this.options = options;
-    this.baas = new BaasService;
+    this.stitch = new StitchService;
   }
 
   async setup() {
@@ -46,11 +46,11 @@ export default class BaasMongoFixture {
     await this.mongo.db('auth').collection('groups').insert(userData.group);
     this.userData = userData;
 
-    // start the local BaaS service
-    await this.baas.setup();
+    // start the local Stitch service
+    await this.stitch.setup();
 
     // create an app `test_app`, and authorize a user
-    this.admin = new baas.Admin('http://localhost:7080');
+    this.admin = new stitch.Admin('http://localhost:7080');
     await this.admin.client.authManager.apiKeyAuth(userData.apiKey.key);
     let result = await this.admin.apps(userData.group.groupId).create({ name: 'test_app' });
     this.clientAppId = result.clientAppId;
@@ -62,7 +62,7 @@ export default class BaasMongoFixture {
   async teardown() {
     // await this.clearDatabase();
     await this.mongo.close();
-    await this.baas.teardown();
+    await this.stitch.teardown();
   }
 
   async clearDatabase() {

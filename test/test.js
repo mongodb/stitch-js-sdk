@@ -1,7 +1,7 @@
 /* global expect, it, describe, global, afterEach, beforeEach, afterAll, beforeAll, require, Buffer, Promise */
 const fetchMock = require('fetch-mock');
-import { BaasClient, toQueryString } from '../src/client';
-import { parseRedirectFragment, JSONTYPE, REFRESH_TOKEN_KEY, DEFAULT_BAAS_SERVER_URL } from '../src/common';
+import { StitchClient, toQueryString } from '../src/client';
+import { parseRedirectFragment, JSONTYPE, REFRESH_TOKEN_KEY, DEFAULT_STITCH_SERVER_URL } from '../src/common';
 import Auth from '../src/auth';
 import { mocks } from 'mock-browser';
 
@@ -52,20 +52,20 @@ describe('Redirect fragment parsing', () => {
   );
 
   it('should detect valid states', () => {
-    let result = parseRedirectFragment(makeFragment({'_baas_state': 'state_XYZ'}), 'state_XYZ');
+    let result = parseRedirectFragment(makeFragment({'_stitch_state': 'state_XYZ'}), 'state_XYZ');
     expect(result.stateValid).toBe(true);
     expect(result.found).toBe(true);
     expect(result.lastError).toBe(null);
   });
 
   it('should detect invalid states', () => {
-    let result = parseRedirectFragment(makeFragment({'_baas_state': 'state_XYZ'}), 'state_ABC');
+    let result = parseRedirectFragment(makeFragment({'_stitch_state': 'state_XYZ'}), 'state_ABC');
     expect(result.stateValid).toBe(false);
     expect(result.lastError).toBe(null);
   });
 
   it('should detect errors', () => {
-    let result = parseRedirectFragment(makeFragment({'_baas_error': 'hello world'}), 'state_ABC');
+    let result = parseRedirectFragment(makeFragment({'_stitch_error': 'hello world'}), 'state_ABC');
     expect(result.lastError).toEqual('hello world');
     expect(result.stateValid).toBe(false);
   });
@@ -82,8 +82,8 @@ describe('Auth', () => {
       beforeEach(() => {
         envConfig.setup();
         fetchMock.post('/auth/local/userpass', {user: {'_id': hexStr}});
-        fetchMock.post(DEFAULT_BAAS_SERVER_URL + '/api/client/v1.0/app/testapp/auth/local/userpass', {user: {'_id': hexStr}});
-        fetchMock.delete(DEFAULT_BAAS_SERVER_URL + '/api/client/v1.0/app/testapp/auth', {});
+        fetchMock.post(DEFAULT_STITCH_SERVER_URL + '/api/client/v1.0/app/testapp/auth/local/userpass', {user: {'_id': hexStr}});
+        fetchMock.delete(DEFAULT_STITCH_SERVER_URL + '/api/client/v1.0/app/testapp/auth', {});
       });
 
       afterEach(() => {
@@ -126,7 +126,7 @@ describe('Auth', () => {
 
       it('should be able to access auth methods from client', () => {
         expect.assertions(6);
-        let testClient = new BaasClient('testapp');
+        let testClient = new StitchClient('testapp');
         return testClient.authManager.localAuth('user', 'password', true)
         .then(() => {
           expect(testClient.authedId()).toEqual(hexStr);
@@ -160,12 +160,12 @@ describe('http error responses', () => {
       fetchMock.post(LOCALAUTH_URL, {user: {'_id': hexStr}});
     });
 
-    it('should return a BaasError instance with the error and errorCode extracted', (done) => {
-      const testClient = new BaasClient('testapp');
+    it('should return a StitchError instance with the error and errorCode extracted', (done) => {
+      const testClient = new StitchClient('testapp');
       testClient.authManager.localAuth('user', 'password')
       .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: 5}]}}]))
       .catch(e => {
-        // This is actually a BaasError, but because there are quirks with
+        // This is actually a StitchError, but because there are quirks with
         // transpiling a class that subclasses Error, we can only really
         // check for instanceof Error here.
         expect(e).toBeInstanceOf(Error);
@@ -194,7 +194,7 @@ describe('anonymous auth', () => {
 
   it('can authenticate with anonymous auth method', () => {
     expect.assertions(2);
-    let testClient = new BaasClient('testapp');
+    let testClient = new StitchClient('testapp');
     return testClient.authManager.anonymousAuth()
       .then(() => {
         expect(testClient.auth()).toEqual({
@@ -234,7 +234,7 @@ describe('api key auth/logout', () => {
 
   it('can authenticate with a valid api key', () => {
     expect.assertions(2);
-    let testClient = new BaasClient('testapp');
+    let testClient = new StitchClient('testapp');
     return testClient.authManager.apiKeyAuth('valid-api-key')
       .then(() => {
         expect(testClient.auth()).toEqual({user: {_id: hexStr}});
@@ -247,7 +247,7 @@ describe('api key auth/logout', () => {
 
   it('gets a rejected promise if using an invalid API key', (done) => {
     expect.assertions(2);
-    let testClient = new BaasClient('testapp');
+    let testClient = new StitchClient('testapp');
     return testClient.authManager.apiKeyAuth('INVALID_KEY')
       .then(() => {
         done('Error should have been thrown, but was not');
@@ -300,7 +300,7 @@ describe('login/logout', () => {
 
       it('stores the refresh token after logging in', () => {
         expect.assertions(2);
-        let testClient = new BaasClient('testapp');
+        let testClient = new StitchClient('testapp');
         return testClient.authManager.localAuth('user', 'password')
           .then(() => {
             let storedToken = testClient.authManager.authDataStorage.get(REFRESH_TOKEN_KEY);
@@ -311,7 +311,7 @@ describe('login/logout', () => {
 
       it('fetches a new access token if InvalidSession is received', () => {
         expect.assertions(4);
-        let testClient = new BaasClient('testapp');
+        let testClient = new StitchClient('testapp');
         return testClient.authManager.localAuth('user', 'password')
           .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: 'foo'}]}}]))
           .then(response => {
@@ -351,7 +351,7 @@ describe('client options', () => {
   });
 
   it('allows overriding the base url', () => {
-    let testClient = new BaasClient('testapp', {baseUrl: 'https://baas-dev2.10gen.cc'});
+    let testClient = new StitchClient('testapp', {baseUrl: 'https://baas-dev2.10gen.cc'});
     expect.assertions(1);
     return testClient.authManager.localAuth('user', 'password', true)
     .then(() => {
@@ -363,7 +363,7 @@ describe('client options', () => {
   });
 
   it('returns a rejected promise if trying to execute a pipeline without auth', (done) => {
-    let testClient = new BaasClient('testapp');
+    let testClient = new StitchClient('testapp');
     return testClient.logout()
     .then(() => {
       return testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}]);
@@ -394,7 +394,7 @@ describe('pipeline execution', () => {
 
         it('should decode extended json from pipeline responses', () => {
           expect.assertions(1);
-          let testClient = new BaasClient('testapp');
+          let testClient = new StitchClient('testapp');
           return testClient.authManager.localAuth('user', 'password', true)
           .then(() => {
             return testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}]);
@@ -406,7 +406,7 @@ describe('pipeline execution', () => {
 
         it('should allow overriding the decoder implementation', () => {
           expect.assertions(1);
-          let testClient = new BaasClient('testapp');
+          let testClient = new StitchClient('testapp');
           return testClient.authManager.localAuth('user', 'password', true)
           .then(() => {
             return testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}], {decoder: JSON.parse});
@@ -434,7 +434,7 @@ describe('pipeline execution', () => {
           expect.assertions(1);
           let requestBodyObj = {action: 'literal', args: {items: [{x: new ejson.bson.ObjectID(hexStr)}]}};
           let requestBodyExtJSON = {action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}};
-          let testClient = new BaasClient('testapp', {baseUrl: ''});
+          let testClient = new StitchClient('testapp', {baseUrl: ''});
           return testClient.authManager.localAuth('user', 'password', true).then((a) => {
             return testClient.executePipeline([requestBodyObj]);
           })

@@ -37,7 +37,7 @@ var Auth = function () {
     // a local storage bound to the app's origin. This ensures that any time we
     // receive a redirect, there must be a state parameter and it must match
     // what we ourselves have generated. This state MUST only be sent to
-    // a trusted BaaS endpoint in order to preserve its integrity. BaaS will
+    // a trusted Stitch endpoint in order to preserve its integrity. Stitch will
     // store it in some way on its origin (currently a cookie stored on this client)
     // and use that state at the end of an auth flow as a parameter in the redirect URI.
 
@@ -70,7 +70,7 @@ var Auth = function () {
       var redirectFragment = window.location.hash.substring(1);
       var redirectState = common.parseRedirectFragment(redirectFragment, ourState);
       if (redirectState.lastError) {
-        console.error('BaasClient: error from redirect: ' + redirectState.lastError);
+        console.error('StitchClient: error from redirect: ' + redirectState.lastError);
         this._error = redirectState.lastError;
         window.history.replaceState(null, '', this.pageRootUrl());
         return;
@@ -82,13 +82,13 @@ var Auth = function () {
 
       this.authDataStorage.remove(common.STATE_KEY);
       if (!redirectState.stateValid) {
-        console.error('BaasClient: state values did not match!');
+        console.error('StitchClient: state values did not match!');
         window.history.replaceState(null, '', this.pageRootUrl());
         return;
       }
 
       if (!redirectState.ua) {
-        console.error('BaasClient: no UA value was returned from redirect!');
+        console.error('StitchClient: no UA value was returned from redirect!');
         return;
       }
 
@@ -249,7 +249,7 @@ var Auth = function () {
         // Need to back out and clear auth otherwise we will never
         // be able to do anything useful.
         this.clear();
-        throw new _errors.BaasError('Failure retrieving stored auth');
+        throw new _errors.StitchError('Failure retrieving stored auth');
       }
     }
   }, {
@@ -282,11 +282,11 @@ var Auth = function () {
     key: 'startImpersonation',
     value: function startImpersonation(client, userId) {
       if (this.get() === null) {
-        return Promise.reject(new _errors.BaasError('Must auth first'));
+        return Promise.reject(new _errors.StitchError('Must auth first'));
       }
 
       if (this.isImpersonatingUser()) {
-        return Promise.reject(new _errors.BaasError('Already impersonating a user'));
+        return Promise.reject(new _errors.StitchError('Already impersonating a user'));
       }
 
       this.authDataStorage.set(common.IMPERSONATION_ACTIVE_KEY, 'true');
@@ -303,7 +303,7 @@ var Auth = function () {
       var _this6 = this;
 
       if (!this.isImpersonatingUser()) {
-        throw new _errors.BaasError('Not impersonating a user');
+        throw new _errors.StitchError('Not impersonating a user');
       }
 
       return new Promise(function (resolve, reject) {
