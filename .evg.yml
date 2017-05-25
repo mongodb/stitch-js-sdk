@@ -35,7 +35,7 @@ functions:
           set -e
           echo "cloning stitch"
           mkdir -p src/github.com/10gen
-          git clone git@github.com:10gen/stitch src/github.com/10gen/baas
+          git clone git@github.com:10gen/stitch src/github.com/10gen/stitch
 
           echo "downloading libmongo"
           wget --quiet "https://s3.amazonaws.com/stitch-tools/libmongo.so"
@@ -46,7 +46,7 @@ functions:
         script: |
           export GOPATH=`pwd`
           export PATH="`pwd`:$PATH"
-          export STITCH_PATH=$GOPATH/src/github.com/10gen/baas
+          export STITCH_PATH=$GOPATH/src/github.com/10gen/stitch
           cd stitch-js-sdk/test/bin
           echo "running stitch"
           go run $STITCH_PATH/main/main.go --configFile ../conf/test_config.json

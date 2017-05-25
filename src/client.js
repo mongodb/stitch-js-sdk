@@ -291,7 +291,7 @@ class Admin {
         get: () => root._get(`/groups/${groupId}/apps/${appID}`),
         remove: () => root._delete(`/groups/${groupId}/apps/${appID}`),
         replace: (doc) => root._put(`/groups/${groupId}/apps/${appID}`, {
-          headers: { 'X-Baas-Unsafe': appID },
+          headers: { 'X-Stitch-Unsafe': appID },
           body: JSON.stringify(doc)
         }),
 
