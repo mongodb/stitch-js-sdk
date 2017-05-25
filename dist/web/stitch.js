@@ -3324,7 +3324,7 @@ var StitchClient = function () {
       }
 
       if (options.queryParams) {
-        url = url + '?' + _queryString2.default.stringify(_queryString2.default.parse(options.queryParams));
+        url = url + '?' + _queryString2.default.stringify(options.queryParams);
       }
 
       return fetch(url, fetchArgs).then(function (response) {
