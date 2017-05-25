@@ -169,7 +169,7 @@ class StitchClient {
     }
 
     if (options.queryParams) {
-      url = `${url}?${queryString.stringify(queryString.parse(options.queryParams))}`;
+      url = `${url}?${queryString.stringify(options.queryParams)}`;
     }
 
     return fetch(url, fetchArgs).then((response) => {
