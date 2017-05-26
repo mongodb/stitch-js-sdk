@@ -313,14 +313,18 @@ export default class Auth {
     return json;
   }
 
+  get accessToken() {
+    return this.get().accessToken || undefined;
+  }
+
   get() {
-    if (!this.storage.get(common.USER_AUTH_KEY)) {
-      return null;
+    const data = this.storage.get(common.USER_AUTH_KEY);
+    if (!data) {
+      return {};
     }
 
-    const item = this.storage.get(common.USER_AUTH_KEY);
     try {
-      return JSON.parse(item);
+      return JSON.parse(data);
     } catch (e) {
       // Need to back out and clear auth otherwise we will never
       // be able to do anything useful.
