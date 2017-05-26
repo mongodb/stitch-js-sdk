@@ -51,7 +51,7 @@ export default class StitchMongoFixture {
 
     // create an app `test_app`, and authorize a user
     this.admin = new stitch.Admin('http://localhost:7080');
-    await this.admin.client.authManager.apiKeyAuth(userData.apiKey.key);
+    await this.admin.client.auth.apiKeyAuth(userData.apiKey.key);
     let result = await this.admin.apps(userData.group.groupId).create({ name: 'test_app' });
     this.clientAppId = result.clientAppId;
     const appConfig = EJSON.parse(fs.readFileSync(`${CONF_PATH}/test_app_config.json`, 'utf8'));
