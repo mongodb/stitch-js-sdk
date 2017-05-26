@@ -111,7 +111,7 @@ describe('Auth', () => {
 
       it('get() set() clear() authedId() should work', () => {
         expect.assertions(4);
-        const a = new Auth('/auth');
+        const a = new Auth(null, '/auth');
         expect(a.get()).toBeNull();
 
         const testUser = {'foo': 'bar', 'biz': 'baz', 'user': {'_id': hexStr}};
@@ -125,7 +125,7 @@ describe('Auth', () => {
 
       it('should local auth successfully', () => {
         expect.assertions(1);
-        const a = new Auth('/auth');
+        const a = new Auth(null, '/auth');
         return a.localAuth('user', 'password', true).then(() => {
           expect(a.authedId()).toEqual(hexStr);
         });
@@ -133,7 +133,7 @@ describe('Auth', () => {
 
       it('should allow setting access tokens', () => {
         expect.assertions(3);
-        const a = new Auth('/auth');
+        const a = new Auth(null, '/auth');
         return a.localAuth('user', 'password', true).then(() => {
           expect(a.authedId()).toEqual(hexStr);
           expect(a.get()['accessToken']).toBeUndefined();

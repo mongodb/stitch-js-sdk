@@ -5,13 +5,25 @@ import { StitchError } from './errors';
 import * as common from './common';
 
 export default class Auth {
-  constructor(rootUrl, options) {
+  constructor(client, rootUrl, options) {
     options = Object.assign({}, {
       storageType: 'localStorage'
     }, options);
 
+    this.client = client;
     this.rootUrl = rootUrl;
     this.storage = createStorage(options.storageType);
+  }
+
+  refreshToken() {
+    if (this.isImpersonatingUser()) {
+      return this.refreshImpersonation(this.client);
+    }
+
+    const requestOptions = { refreshOnFailure: false, useRefreshToken: true };
+    return this.client._do('/auth/newAccessToken', 'POST', requestOptions)
+      .then(response => response.json())
+      .then(json => this.setAccessToken(json.accessToken));
   }
 
   pageRootUrl() {
@@ -324,4 +336,3 @@ export default class Auth {
     this.storage.remove(common.IMPERSONATION_REAL_USER_AUTH_KEY);
   }
 }
-

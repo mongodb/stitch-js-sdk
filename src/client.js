@@ -36,7 +36,7 @@ class StitchClient {
       this.profileUrl = `${this.appUrl}/auth/me`;
     }
 
-    this.auth = new Auth(this.authUrl);
+    this.auth = new Auth(this, this.authUrl);
     this.auth.handleRedirect();
     this.auth.handleCookie();
   }
@@ -93,7 +93,7 @@ class StitchClient {
    * Ends the session for the current user.
    */
   logout() {
-    return this._do('/auth', 'DELETE', {refreshOnFailure: false, useRefreshToken: true})
+    return this._do('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true })
       .then(() => this.auth.clear());
   }
 
@@ -194,7 +194,8 @@ class StitchClient {
     }
 
     if (!options.noAuth) {
-      let token = options.useRefreshToken ? this.auth.getRefreshToken() : this.userInfo().accessToken;
+      let token =
+        options.useRefreshToken ? this.auth.getRefreshToken() : this.userInfo().accessToken;
       fetchArgs.headers.Authorization = `Bearer ${token}`;
     }
 
@@ -202,52 +203,44 @@ class StitchClient {
       url = `${url}?${queryString.stringify(options.queryParams)}`;
     }
 
-    return fetch(url, fetchArgs).then((response) => {
-      // Okay: passthrough
-      if (response.status >= 200 && response.status < 300) {
-        return Promise.resolve(response);
-      }
+    return fetch(url, fetchArgs)
+      .then((response) => {
+        // Okay: passthrough
+        if (response.status >= 200 && response.status < 300) {
+          return Promise.resolve(response);
+        }
 
-      if (response.headers.get('Content-Type') === common.JSONTYPE) {
-        return response.json().then((json) => {
-          // Only want to try refreshing token when there's an invalid session
-          if ('errorCode' in json && json.errorCode === ErrInvalidSession) {
-            if (!options.refreshOnFailure) {
-              this.auth.clear();
+        if (response.headers.get('Content-Type') === common.JSONTYPE) {
+          return response.json()
+            .then((json) => {
+              // Only want to try refreshing token when there's an invalid session
+              if ('errorCode' in json && json.errorCode === ErrInvalidSession) {
+                if (!options.refreshOnFailure) {
+                  this.auth.clear();
+                  const error = new StitchError(json.error, json.errorCode);
+                  error.response = response;
+                  error.json = json;
+                  throw error;
+                }
+
+                return this.auth.refreshToken()
+                  .then(() => {
+                    options.refreshOnFailure = false;
+                    return this._do(resource, method, options);
+                  });
+              }
+
               const error = new StitchError(json.error, json.errorCode);
               error.response = response;
               error.json = json;
-              throw error;
-            }
-
-            return this._refreshToken().then(() => {
-              options.refreshOnFailure = false;
-              return this._do(resource, method, options);
+              return Promise.reject(error);
             });
-          }
+        }
 
-          const error = new StitchError(json.error, json.errorCode);
-          error.response = response;
-          error.json = json;
-          return Promise.reject(error);
-        });
-      }
-
-      const error = new Error(response.statusText);
-      error.response = response;
-
-      return Promise.reject(error);
-    });
-  }
-
-  _refreshToken() {
-    if (this.auth.isImpersonatingUser()) {
-      return this.auth.refreshImpersonation(this);
-    }
-
-    return this._do('/auth/newAccessToken', 'POST', { refreshOnFailure: false, useRefreshToken: true })
-      .then(response => response.json())
-      .then(json => this.auth.setAccessToken(json.accessToken));
+        const error = new Error(response.statusText);
+        error.response = response;
+        return Promise.reject(error);
+      });
   }
 }
 
@@ -438,12 +431,12 @@ class Admin {
   _admin() {
     return {
       logs: () => ({
-        get: (filter) => this._do('/admin/logs', 'GET', {useRefreshToken: true, queryParams: filter})
+        get: (filter) => this._do('/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter })
       }),
       users: () => ({
-        list: (filter) => this._do('/admin/users', 'GET', {useRefreshToken: true, queryParams: filter}),
+        list: (filter) => this._do('/admin/users', 'GET', { useRefreshToken: true, queryParams: filter }),
         user: (uid) => ({
-          logout: () => this._do(`/admin/users/${uid}/logout`, 'PUT', {useRefreshToken: true})
+          logout: () => this._do(`/admin/users/${uid}/logout`, 'PUT', { useRefreshToken: true })
         })
       })
     };
