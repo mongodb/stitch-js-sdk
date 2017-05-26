@@ -5,9 +5,13 @@ import { StitchError } from './errors';
 import * as common from './common';
 
 export default class Auth {
-  constructor(rootUrl) {
+  constructor(rootUrl, options) {
+    options = Object.assign({}, {
+      storageType: 'localStorage'
+    }, options);
+
     this.rootUrl = rootUrl;
-    this.authDataStorage = createStorage('localStorage');
+    this.storage = createStorage(options.storageType);
   }
 
   pageRootUrl() {
@@ -37,7 +41,7 @@ export default class Auth {
   setAccessToken(token) {
     let currAuth = this.get();
     currAuth.accessToken = token;
-    currAuth.refreshToken = this.authDataStorage.get(common.REFRESH_TOKEN_KEY);
+    currAuth.refreshToken = this.storage.get(common.REFRESH_TOKEN_KEY);
     this.set(currAuth);
   }
 
@@ -55,7 +59,7 @@ export default class Auth {
       return;
     }
 
-    let ourState = this.authDataStorage.get(common.STATE_KEY);
+    let ourState = this.storage.get(common.STATE_KEY);
     let redirectFragment = window.location.hash.substring(1);
     const redirectState = common.parseRedirectFragment(redirectFragment, ourState);
     if (redirectState.lastError) {
@@ -69,7 +73,7 @@ export default class Auth {
       return;
     }
 
-    this.authDataStorage.remove(common.STATE_KEY);
+    this.storage.remove(common.STATE_KEY);
     if (!redirectState.stateValid) {
       console.error('StitchClient: state values did not match!');
       window.history.replaceState(null, '', this.pageRootUrl());
@@ -129,7 +133,7 @@ export default class Auth {
     }
 
     let state = Auth.generateState();
-    this.authDataStorage.set(common.STATE_KEY, state);
+    this.storage.set(common.STATE_KEY, state);
     let result = `${this.rootUrl}/oauth2/${providerName}?redirect=${encodeURI(redirectUrl)}&state=${state}`;
     return result;
   }
@@ -227,30 +231,30 @@ export default class Auth {
   }
 
   clear() {
-    this.authDataStorage.remove(common.USER_AUTH_KEY);
-    this.authDataStorage.remove(common.REFRESH_TOKEN_KEY);
+    this.storage.remove(common.USER_AUTH_KEY);
+    this.storage.remove(common.REFRESH_TOKEN_KEY);
     this.clearImpersonation();
   }
 
   getRefreshToken() {
-    return this.authDataStorage.get(common.REFRESH_TOKEN_KEY);
+    return this.storage.get(common.REFRESH_TOKEN_KEY);
   }
 
   set(json) {
     let rt = json.refreshToken;
     delete json.refreshToken;
 
-    this.authDataStorage.set(common.USER_AUTH_KEY, JSON.stringify(json));
-    this.authDataStorage.set(common.REFRESH_TOKEN_KEY, rt);
+    this.storage.set(common.USER_AUTH_KEY, JSON.stringify(json));
+    this.storage.set(common.REFRESH_TOKEN_KEY, rt);
     return json;
   }
 
   get() {
-    if (!this.authDataStorage.get(common.USER_AUTH_KEY)) {
+    if (!this.storage.get(common.USER_AUTH_KEY)) {
       return null;
     }
 
-    const item = this.authDataStorage.get(common.USER_AUTH_KEY);
+    const item = this.storage.get(common.USER_AUTH_KEY);
     try {
       return JSON.parse(item);
     } catch (e) {
@@ -266,15 +270,15 @@ export default class Auth {
   }
 
   isImpersonatingUser() {
-    return this.authDataStorage.get(common.IMPERSONATION_ACTIVE_KEY) === 'true';
+    return this.storage.get(common.IMPERSONATION_ACTIVE_KEY) === 'true';
   }
 
   refreshImpersonation(client) {
-    let userId = this.authDataStorage.get(common.IMPERSONATION_USER_KEY);
+    let userId = this.storage.get(common.IMPERSONATION_USER_KEY);
     return client._do(`/admin/users/${userId}/impersonate`, 'POST', { refreshOnFailure: false, useRefreshToken: true })
       .then(response => response.json())
       .then(json => {
-        json.refreshToken = this.authDataStorage.get(common.REFRESH_TOKEN_KEY);
+        json.refreshToken = this.storage.get(common.REFRESH_TOKEN_KEY);
         this.set(json);
       })
       .catch(e => {
@@ -292,12 +296,12 @@ export default class Auth {
       return Promise.reject(new StitchError('Already impersonating a user'));
     }
 
-    this.authDataStorage.set(common.IMPERSONATION_ACTIVE_KEY, 'true');
-    this.authDataStorage.set(common.IMPERSONATION_USER_KEY, userId);
+    this.storage.set(common.IMPERSONATION_ACTIVE_KEY, 'true');
+    this.storage.set(common.IMPERSONATION_USER_KEY, userId);
 
-    let realUserAuth = JSON.parse(this.authDataStorage.get(common.USER_AUTH_KEY));
-    realUserAuth.refreshToken = this.authDataStorage.get(common.REFRESH_TOKEN_KEY);
-    this.authDataStorage.set(common.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
+    let realUserAuth = JSON.parse(this.storage.get(common.USER_AUTH_KEY));
+    realUserAuth.refreshToken = this.storage.get(common.REFRESH_TOKEN_KEY);
+    this.storage.set(common.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
     return this.refreshImpersonation(client);
   }
 
@@ -307,7 +311,7 @@ export default class Auth {
     }
 
     return new Promise((resolve, reject) => {
-      let realUserAuth = JSON.parse(this.authDataStorage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY));
+      let realUserAuth = JSON.parse(this.storage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY));
       this.set(realUserAuth);
       this.clearImpersonation();
       resolve();
@@ -315,9 +319,9 @@ export default class Auth {
   }
 
   clearImpersonation() {
-    this.authDataStorage.remove(common.IMPERSONATION_ACTIVE_KEY);
-    this.authDataStorage.remove(common.IMPERSONATION_USER_KEY);
-    this.authDataStorage.remove(common.IMPERSONATION_REAL_USER_AUTH_KEY);
+    this.storage.remove(common.IMPERSONATION_ACTIVE_KEY);
+    this.storage.remove(common.IMPERSONATION_USER_KEY);
+    this.storage.remove(common.IMPERSONATION_REAL_USER_AUTH_KEY);
   }
 }
 
