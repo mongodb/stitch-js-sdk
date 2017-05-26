@@ -42,34 +42,60 @@ class StitchClient {
   }
 
   /**
-   * Sends the user to the OAuth flow for the specified third-party service.
+   * Login to stich instance, optionally providing a username and password. In
+   * the event that these are omitted, anonymous authentication is used.
    *
-   * @param {*} providerName The OAuth provider name.
-   * @param {*} redirectUrl The redirect URL to use after the flow completes.
+   * @param {String} [email] the email address used for login
+   * @param {String} [password] the password for the provided email address
+   * @param {Object} [options] additional authentication options
+   * @returns {Promise}
    */
-  authWithOAuth(providerName, redirectUrl) {
-    window.location.replace(this.auth.getOAuthLoginURL(providerName, redirectUrl));
+  login(email, password, options = {}) {
+    return this.auth.provider('local').login(email, password);
   }
 
   /**
-   * Generates a URL that can be used to initiate an OAuth login flow with the specified OAuth provider.
+   * Send a request to the server indicating the provided email would like
+   * to sign up for an account.
    *
-   * @param {*} providerName The OAuth provider name.
-   * @param {*} redirectUrlThe redirect URL to use after the flow completes.
+   * @param {String} email the email used to sign up for the service
+   * @param {Object} [options] additional authentication options
+   * @returns {Promise}
    */
-  getOAuthLoginURL(providerName, redirectUrl) {
-    return this.auth.getOAuthLoginURL(providerName, redirectUrl);
+  signup(email, options = {}) {
+    return this.auth.provider('local').signup(email);
   }
 
   /**
-   * Logs in as an anonymous user.
+   * Starts an OAuth authorization flow by opening a popup window
+   *
+   * @param {String} providerType the provider used for authentication (e.g. 'facebook', 'google')
+   * @param {Object} [options] additional authentication options (user data)
+   * @returns {Promise}
    */
-  anonymousAuth() {
-    return this.auth.anonymousAuth();
+  authenticate(providerType, options) {
+    return this.auth.provider(providerType).authenticate(options);
   }
 
   /**
-   *  @return {String} Returns the currently authed user's ID.
+   * Ends the session for the current user.
+   *
+   * @returns {Promise}
+   */
+  logout() {
+    return this._do('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true })
+      .then(() => this.auth.clear());
+  }
+
+  /**
+   * @returns {Boolean} whether the use is currently authenticated
+   */
+  isAuthenticated() {
+    return this.auth.isAuthenticated();
+  }
+
+  /**
+   * @return {String} Returns the currently authed user's ID.
    */
   authedId() {
     return this.auth.authedId();
@@ -87,14 +113,6 @@ class StitchClient {
    */
   authError() {
     return this.auth.error();
-  }
-
-  /**
-   * Ends the session for the current user.
-   */
-  logout() {
-    return this._do('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true })
-      .then(() => this.auth.clear());
   }
 
   /**
