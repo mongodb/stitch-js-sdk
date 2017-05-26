@@ -88,24 +88,17 @@ class StitchClient {
   }
 
   /**
-   * @returns {Boolean} whether the use is currently authenticated
+   * @returns {Boolean} whether the use is currently authenticated.
    */
   isAuthenticated() {
     return this.auth.isAuthenticated();
   }
 
   /**
-   * @return {String} Returns the currently authed user's ID.
+   * @return {Object} Returns the currently authenticated user's information.
    */
-  authedId() {
-    return this.auth.authedId();
-  }
-
-  /**
-   * @return {Object} Returns the currently authed user's authentication information.
-   */
-  userInfo() {
-    return this.auth.get();
+  get user() {
+    return this.auth.get().user || {};
   }
 
   /**
@@ -199,7 +192,7 @@ class StitchClient {
     }, options);
 
     if (!options.noAuth) {
-      if (this.userInfo() === null) {
+      if (this.user === null) {
         return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
       }
     }
@@ -213,7 +206,7 @@ class StitchClient {
 
     if (!options.noAuth) {
       let token =
-        options.useRefreshToken ? this.auth.getRefreshToken() : this.userInfo().accessToken;
+        options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.accessToken;
       fetchArgs.headers.Authorization = `Bearer ${token}`;
     }
 

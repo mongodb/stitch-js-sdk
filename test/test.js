@@ -112,7 +112,7 @@ describe('Auth', () => {
       it('get() set() clear() authedId() should work', () => {
         expect.assertions(4);
         const a = new Auth(null, '/auth');
-        expect(a.get()).toBeNull();
+        expect(a.get()).toEqual({});
 
         const testUser = {'foo': 'bar', 'biz': 'baz', 'user': {'_id': hexStr}};
         a.set(testUser);
@@ -120,7 +120,7 @@ describe('Auth', () => {
         expect(a.authedId()).toEqual(hexStr);
 
         a.clear();
-        expect(a.get()).toBeNull();
+        expect(a.get()).toEqual({});
       });
 
       it('should local auth successfully', () => {
@@ -136,9 +136,9 @@ describe('Auth', () => {
         return auth.provider('local').login('user', 'password')
           .then(() => {
             expect(auth.authedId()).toEqual(hexStr);
-            expect(auth.get()['accessToken']).toBeUndefined();
+            expect(auth.accessToken).toBeUndefined();
             auth.setAccessToken('foo');
-            expect(auth.get()['accessToken']).toEqual('foo');
+            expect(auth.accessToken).toEqual('foo');
           });
       });
 
@@ -147,15 +147,15 @@ describe('Auth', () => {
         let testClient = new StitchClient('testapp');
         return testClient.login('user', 'password')
           .then(() => {
-            expect(testClient.authedId()).toEqual(hexStr);
+            expect(testClient.user._id).toEqual(hexStr);
             expect(testClient.authError()).toBeFalsy();
-            expect(testClient.userInfo()).toEqual({user: {_id: hexStr}});
+            expect(testClient.user).toEqual({_id: hexStr});
           })
           .then(() => testClient.logout())
           .then(() => {
-            expect(testClient.authedId()).toBeFalsy();
+            expect(testClient.user._id).toBeFalsy();
             expect(testClient.authError()).toBeFalsy();
-            expect(testClient.userInfo()).toBeNull();
+            expect(testClient.user).toEqual({});
           });
       });
     });
@@ -178,7 +178,7 @@ describe('http error responses', () => {
       fetchMock.post(LOCALAUTH_URL, {user: {'_id': hexStr}});
     });
 
-    it('should return a StitchError instance with the error and errorCode extracted', () => {
+    it('should return a StitchError instance with the error and errorCode extracted', (done) => {
       const testClient = new StitchClient('testapp');
       return testClient.login('user', 'password')
         .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: 5}]}}]))
@@ -211,14 +211,12 @@ describe('anonymous auth', () => {
   });
 
   it('can authenticate with anonymous auth method', () => {
-    expect.assertions(2);
+    expect.assertions(3);
     let testClient = new StitchClient('testapp');
     return testClient.auth.anonymousAuth()
       .then(() => {
-        expect(testClient.userInfo()).toEqual({
-          accessToken: 'test-access-token',
-          user: {_id: hexStr}
-        });
+        expect(testClient.auth.accessToken).toEqual('test-access-token');
+        expect(testClient.user).toEqual({_id: hexStr});
       })
       .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: 'foo'}]}}]))
       .then(response => {
@@ -256,7 +254,7 @@ describe('api key auth/logout', () => {
     let testClient = new StitchClient('testapp');
     return testClient.auth.apiKeyAuth('valid-api-key')
       .then(() => {
-        expect(testClient.userInfo()).toEqual({user: {_id: hexStr}});
+        expect(testClient.user).toEqual({_id: hexStr});
       })
       .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: 'foo'}]}}]))
       .then(response => {
@@ -288,13 +286,11 @@ describe('login/logout', () => {
       let count = 0;
       beforeEach(() => {
         fetchMock.restore();
-        fetchMock.post(LOCALAUTH_URL,
-          ({
-            user: {'_id': hexStr},
-            refreshToken: testOriginalRefreshToken,
-            accessToken: testOriginalAccessToken
-          })
-        );
+        fetchMock.post(LOCALAUTH_URL, {
+          user: {'_id': hexStr},
+          refreshToken: testOriginalRefreshToken,
+          accessToken: testOriginalAccessToken
+        });
 
         fetchMock.post(PIPELINE_URL, (url, opts) => {
           const providedToken = opts.headers['Authorization'].split(' ')[1];
@@ -318,13 +314,14 @@ describe('login/logout', () => {
       });
 
       it('stores the refresh token after logging in', () => {
-        expect.assertions(2);
+        expect.assertions(3);
         let testClient = new StitchClient('testapp');
         return testClient.login('user', 'password')
           .then(() => {
             let storedToken = testClient.auth.storage.get(REFRESH_TOKEN_KEY);
             expect(storedToken).toEqual(testOriginalRefreshToken);
-            expect(testClient.userInfo()).toEqual({user: {_id: hexStr}, accessToken: testOriginalAccessToken});
+            expect(testClient.auth.accessToken).toEqual(testOriginalAccessToken);
+            expect(testClient.user).toEqual({_id: hexStr});
           });
       });
 
@@ -346,11 +343,11 @@ describe('login/logout', () => {
             expect(response.result[0].x).toEqual(2);
           })
           .then(() => {
-            expect(testClient.userInfo().accessToken).toEqual(validAccessTokens[0]);
+            expect(testClient.auth.accessToken).toEqual(validAccessTokens[0]);
           })
           .then(() => {
             testClient.auth.storage.clear();
-            expect(testClient.userInfo()).toBeNull();
+            expect(testClient.user).toEqual({});
           });
       });
     });
