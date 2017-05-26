@@ -126,37 +126,37 @@ describe('Auth', () => {
       it('should local auth successfully', () => {
         expect.assertions(1);
         const a = new Auth(null, '/auth');
-        return a.localAuth('user', 'password', true).then(() => {
-          expect(a.authedId()).toEqual(hexStr);
-        });
+        return a.provider('local').login('user', 'password')
+          .then(() => expect(a.authedId()).toEqual(hexStr));
       });
 
       it('should allow setting access tokens', () => {
         expect.assertions(3);
-        const a = new Auth(null, '/auth');
-        return a.localAuth('user', 'password', true).then(() => {
-          expect(a.authedId()).toEqual(hexStr);
-          expect(a.get()['accessToken']).toBeUndefined();
-          a.setAccessToken('foo');
-          expect(a.get()['accessToken']).toEqual('foo');
-        });
+        const auth = new Auth(null, '/auth');
+        return auth.provider('local').login('user', 'password')
+          .then(() => {
+            expect(auth.authedId()).toEqual(hexStr);
+            expect(auth.get()['accessToken']).toBeUndefined();
+            auth.setAccessToken('foo');
+            expect(auth.get()['accessToken']).toEqual('foo');
+          });
       });
 
       it('should be able to access auth methods from client', () => {
         expect.assertions(6);
         let testClient = new StitchClient('testapp');
-        return testClient.auth.localAuth('user', 'password', true)
-        .then(() => {
-          expect(testClient.authedId()).toEqual(hexStr);
-          expect(testClient.authError()).toBeFalsy();
-          expect(testClient.userInfo()).toEqual({user: {_id: hexStr}});
-        })
-        .then(() => testClient.logout())
-        .then(() => {
-          expect(testClient.authedId()).toBeFalsy();
-          expect(testClient.authError()).toBeFalsy();
-          expect(testClient.userInfo()).toBeNull();
-        });
+        return testClient.login('user', 'password')
+          .then(() => {
+            expect(testClient.authedId()).toEqual(hexStr);
+            expect(testClient.authError()).toBeFalsy();
+            expect(testClient.userInfo()).toEqual({user: {_id: hexStr}});
+          })
+          .then(() => testClient.logout())
+          .then(() => {
+            expect(testClient.authedId()).toBeFalsy();
+            expect(testClient.authError()).toBeFalsy();
+            expect(testClient.userInfo()).toBeNull();
+          });
       });
     });
   }
@@ -178,19 +178,19 @@ describe('http error responses', () => {
       fetchMock.post(LOCALAUTH_URL, {user: {'_id': hexStr}});
     });
 
-    it('should return a StitchError instance with the error and errorCode extracted', (done) => {
+    it('should return a StitchError instance with the error and errorCode extracted', () => {
       const testClient = new StitchClient('testapp');
-      testClient.auth.localAuth('user', 'password')
-      .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: 5}]}}]))
-      .catch(e => {
-        // This is actually a StitchError, but because there are quirks with
-        // transpiling a class that subclasses Error, we can only really
-        // check for instanceof Error here.
-        expect(e).toBeInstanceOf(Error);
-        expect(e.code).toEqual(testErrCode);
-        expect(e.message).toEqual(testErrMsg);
-        done();
-      });
+      return testClient.login('user', 'password')
+        .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: 5}]}}]))
+        .catch(e => {
+          // This is actually a StitchError, but because there are quirks with
+          // transpiling a class that subclasses Error, we can only really
+          // check for instanceof Error here.
+          expect(e).toBeInstanceOf(Error);
+          expect(e.code).toEqual(testErrCode);
+          expect(e.message).toEqual(testErrMsg);
+          done();
+        });
     });
   });
 });
@@ -238,6 +238,7 @@ describe('api key auth/logout', () => {
           user: {'_id': hexStr}
         };
       }
+
       return {
         body: {error: 'unauthorized', errorCode: 'unauthorized'},
         headers: { 'Content-Type': JSONTYPE },
@@ -319,7 +320,7 @@ describe('login/logout', () => {
       it('stores the refresh token after logging in', () => {
         expect.assertions(2);
         let testClient = new StitchClient('testapp');
-        return testClient.auth.localAuth('user', 'password')
+        return testClient.login('user', 'password')
           .then(() => {
             let storedToken = testClient.auth.storage.get(REFRESH_TOKEN_KEY);
             expect(storedToken).toEqual(testOriginalRefreshToken);
@@ -330,7 +331,7 @@ describe('login/logout', () => {
       it('fetches a new access token if InvalidSession is received', () => {
         expect.assertions(4);
         let testClient = new StitchClient('testapp');
-        return testClient.auth.localAuth('user', 'password')
+        return testClient.login('user', 'password')
           .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: 'foo'}]}}]))
           .then(response => {
             // first request (token is still valid) should yield the response we expect
@@ -371,27 +372,25 @@ describe('client options', () => {
   it('allows overriding the base url', () => {
     let testClient = new StitchClient('testapp', {baseUrl: 'https://stitch2.mongodb.com'});
     expect.assertions(1);
-    return testClient.auth.localAuth('user', 'password', true)
-    .then(() => {
-      return testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}]);
-    })
-    .then((response) => {
-      expect(response.result[0].x).toEqual(new ejson.bson.ObjectID(hexStr));
-    });
+    return testClient.login('user', 'password')
+      .then(() => {
+        return testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}]);
+      })
+      .then((response) => {
+        expect(response.result[0].x).toEqual(new ejson.bson.ObjectID(hexStr));
+      });
   });
 
   it('returns a rejected promise if trying to execute a pipeline without auth', (done) => {
     let testClient = new StitchClient('testapp');
-    return testClient.logout()
-    .then(() => {
-      return testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}]);
-    })
-    .then(() => {
-      done(new Error('Error should have been triggered, but was not'));
-    })
-    .catch((e) => {
-      done();
-    });
+    testClient.logout()
+      .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}]))
+      .then(() => {
+        done(new Error('Error should have been triggered, but was not'));
+      })
+      .catch((e) => {
+        done();
+      });
   });
 });
 
@@ -413,25 +412,18 @@ describe('pipeline execution', () => {
         it('should decode extended json from pipeline responses', () => {
           expect.assertions(1);
           let testClient = new StitchClient('testapp');
-          return testClient.auth.localAuth('user', 'password', true)
-          .then(() => {
-            return testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}]);
-          })
-          .then((response) => {
-            return expect(response.result[0].x).toEqual(new ejson.bson.ObjectID(hexStr));
-          });
+          return testClient.login('user', 'password')
+            .then(() =>
+              testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}]))
+            .then((response) => expect(response.result[0].x).toEqual(new ejson.bson.ObjectID(hexStr)));
         });
 
         it('should allow overriding the decoder implementation', () => {
           expect.assertions(1);
           let testClient = new StitchClient('testapp');
-          return testClient.auth.localAuth('user', 'password', true)
-          .then(() => {
-            return testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}], {decoder: JSON.parse});
-          })
-          .then((response) => {
-            return expect(response.result[0].x).toEqual({'$oid': hexStr});
-          });
+          return testClient.login('user', 'password')
+            .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}], {decoder: JSON.parse}))
+            .then((response) => expect(response.result[0].x).toEqual({'$oid': hexStr}));
         });
       });
 
@@ -453,14 +445,9 @@ describe('pipeline execution', () => {
           let requestBodyObj = {action: 'literal', args: {items: [{x: new ejson.bson.ObjectID(hexStr)}]}};
           let requestBodyExtJSON = {action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}};
           let testClient = new StitchClient('testapp', {baseUrl: ''});
-          return testClient.auth.localAuth('user', 'password', true).then((a) => {
-            return testClient.executePipeline([requestBodyObj]);
-          })
-          .then((response) => {
-            return Promise.all([
-              expect(JSON.parse(requestOpts.body)).toEqual([requestBodyExtJSON])
-            ]);
-          });
+          return testClient.login('user', 'password')
+            .then(a => testClient.executePipeline([requestBodyObj]))
+            .then(response => expect(JSON.parse(requestOpts.body)).toEqual([requestBodyExtJSON]));
         });
       });
     });

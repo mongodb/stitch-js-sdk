@@ -13,7 +13,59 @@ export default class Auth {
     this.client = client;
     this.rootUrl = rootUrl;
     this.storage = createStorage(options.storageType);
+
+    this.providers = new Map();
+    this.providers.set('local', {
+      login: (email, password, opts) => {
+        if (email === undefined || password === undefined) {
+          return this.anonymousAuth();
+        }
+
+        return this.localAuth(email, password, opts);
+      },
+      signup: (email) => {
+        throw new Error('not implemented!');
+      }
+    });
+
+    this.providers.set('apiKey', {
+      authenticate: key => {
+        return this.apiKeyAuth(key);
+      }
+    });
+
+    this.providers.set('google', {
+      authenticate: data => {
+        const { redirectUrl } = data;
+        window.location.replace(this.getOAuthLoginURL('google', redirectUrl));
+      }
+    });
+
+    this.providers.set('facebook', {
+      authenticate: data => {
+        const { redirectUrl } = data;
+        window.location.replace(this.getOAuthLoginURL('facebook', redirectUrl));
+      }
+    });
+
+    this.providers.set('mongodbCloud', {
+      authenticate: data => {
+        const { username, apiKey, cors, cookie } = data;
+        options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
+        return mongodbCloudAuth(username, apiKey, options);
+      }
+    });
   }
+
+  provider(name) {
+    if (!this.providers.has(name)) {
+      throw new Error('Invalid auth provider specified: ' + name);
+    }
+
+    return this.providers.get(name);
+  }
+
+  isAuthenticated() { return false; }
 
   refreshToken() {
     if (this.isImpersonatingUser()) {
