@@ -321,7 +321,7 @@ describe('login/logout', () => {
         let testClient = new StitchClient('testapp');
         return testClient.authManager.localAuth('user', 'password')
           .then(() => {
-            let storedToken = testClient.authManager.authDataStorage.get(REFRESH_TOKEN_KEY);
+            let storedToken = testClient.authManager.storage.get(REFRESH_TOKEN_KEY);
             expect(storedToken).toEqual(testOriginalRefreshToken);
             expect(testClient.auth()).toEqual({user: {_id: hexStr}, accessToken: testOriginalAccessToken});
           });
@@ -348,7 +348,7 @@ describe('login/logout', () => {
             expect(testClient.auth().accessToken).toEqual(validAccessTokens[0]);
           })
           .then(() => {
-            testClient.authManager.authDataStorage.clear();
+            testClient.authManager.storage.clear();
             expect(testClient.auth()).toBeNull();
           });
       });
