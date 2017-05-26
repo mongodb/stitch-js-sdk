@@ -36,9 +36,9 @@ class StitchClient {
       this.profileUrl = `${this.appUrl}/auth/me`;
     }
 
-    this.authManager = new Auth(this.authUrl);
-    this.authManager.handleRedirect();
-    this.authManager.handleCookie();
+    this.auth = new Auth(this.authUrl);
+    this.auth.handleRedirect();
+    this.auth.handleCookie();
   }
 
   /**
@@ -48,7 +48,7 @@ class StitchClient {
    * @param {*} redirectUrl The redirect URL to use after the flow completes.
    */
   authWithOAuth(providerName, redirectUrl) {
-    window.location.replace(this.authManager.getOAuthLoginURL(providerName, redirectUrl));
+    window.location.replace(this.auth.getOAuthLoginURL(providerName, redirectUrl));
   }
 
   /**
@@ -58,35 +58,35 @@ class StitchClient {
    * @param {*} redirectUrlThe redirect URL to use after the flow completes.
    */
   getOAuthLoginURL(providerName, redirectUrl) {
-    return this.authManager.getOAuthLoginURL(providerName, redirectUrl);
+    return this.auth.getOAuthLoginURL(providerName, redirectUrl);
   }
 
   /**
    * Logs in as an anonymous user.
    */
   anonymousAuth() {
-    return this.authManager.anonymousAuth();
+    return this.auth.anonymousAuth();
   }
 
   /**
    *  @return {String} Returns the currently authed user's ID.
    */
   authedId() {
-    return this.authManager.authedId();
+    return this.auth.authedId();
   }
 
   /**
    * @return {Object} Returns the currently authed user's authentication information.
    */
-  auth() {
-    return this.authManager.get();
+  userInfo() {
+    return this.auth.get();
   }
 
   /**
    * @return {*} Returns any error from the Stitch authentication system.
    */
   authError() {
-    return this.authManager.error();
+    return this.auth.error();
   }
 
   /**
@@ -94,7 +94,7 @@ class StitchClient {
    */
   logout() {
     return this._do('/auth', 'DELETE', {refreshOnFailure: false, useRefreshToken: true})
-      .then(() => this.authManager.clear());
+      .then(() => this.auth.clear());
   }
 
   /**
@@ -181,7 +181,7 @@ class StitchClient {
     }, options);
 
     if (!options.noAuth) {
-      if (this.auth() === null) {
+      if (this.userInfo() === null) {
         return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
       }
     }
@@ -194,7 +194,7 @@ class StitchClient {
     }
 
     if (!options.noAuth) {
-      let token = options.useRefreshToken ? this.authManager.getRefreshToken() : this.auth().accessToken;
+      let token = options.useRefreshToken ? this.auth.getRefreshToken() : this.userInfo().accessToken;
       fetchArgs.headers.Authorization = `Bearer ${token}`;
     }
 
@@ -213,7 +213,7 @@ class StitchClient {
           // Only want to try refreshing token when there's an invalid session
           if ('errorCode' in json && json.errorCode === ErrInvalidSession) {
             if (!options.refreshOnFailure) {
-              this.authManager.clear();
+              this.auth.clear();
               const error = new StitchError(json.error, json.errorCode);
               error.response = response;
               error.json = json;
@@ -241,13 +241,13 @@ class StitchClient {
   }
 
   _refreshToken() {
-    if (this.authManager.isImpersonatingUser()) {
-      return this.authManager.refreshImpersonation(this);
+    if (this.auth.isImpersonatingUser()) {
+      return this.auth.refreshImpersonation(this);
     }
 
     return this._do('/auth/newAccessToken', 'POST', { refreshOnFailure: false, useRefreshToken: true })
       .then(response => response.json())
-      .then(json => this.authManager.setAccessToken(json.accessToken));
+      .then(json => this.auth.setAccessToken(json.accessToken));
   }
 }
 
@@ -450,15 +450,15 @@ class Admin {
   }
 
   _isImpersonatingUser() {
-    return this.client.authManager.isImpersonatingUser();
+    return this.client.auth.isImpersonatingUser();
   }
 
   _startImpersonation(userId) {
-    return this.client.authManager.startImpersonation(this.client, userId);
+    return this.client.auth.startImpersonation(this.client, userId);
   }
 
   _stopImpersonation() {
-    return this.client.authManager.stopImpersonation();
+    return this.client.auth.stopImpersonation();
   }
 }
 

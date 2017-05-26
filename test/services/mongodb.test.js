@@ -4,7 +4,7 @@ const stitch = require('../../src');
 let stripObjectIds = (data) => data.map(d => { delete d._id; return d; });
 async function testSetup() {
   test.client = new stitch.StitchClient(test.clientAppId, { baseUrl: 'http://localhost:7080' });
-  await test.client.authManager.apiKeyAuth(test.appKey.key);
+  await test.client.auth.apiKeyAuth(test.appKey.key);
   let service = test.client.service('mongodb', 'mdb1');
   test.db = service.db('test');
 }

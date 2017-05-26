@@ -17,7 +17,7 @@ let stitchClient = new StitchClient(appId);
 Authenticate anonymously:
 ```
 stitchClient.anonymousAuth()
-  .then(() => console.log('logged in as: ' + stitchClient.auth().user._id))
+  .then(() => console.log('logged in as: ' + stitchClient.userInfo().user._id))
   .catch(e => console.log('error: ', e));
 ```
 
