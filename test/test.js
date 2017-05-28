@@ -213,7 +213,7 @@ describe('anonymous auth', () => {
   it('can authenticate with anonymous auth method', () => {
     expect.assertions(3);
     let testClient = new StitchClient('testapp');
-    return testClient.auth.anonymousAuth()
+    return testClient.login()
       .then(() => {
         expect(testClient.auth.accessToken).toEqual('test-access-token');
         expect(testClient.user).toEqual({_id: hexStr});
@@ -252,7 +252,7 @@ describe('api key auth/logout', () => {
   it('can authenticate with a valid api key', () => {
     expect.assertions(2);
     let testClient = new StitchClient('testapp');
-    return testClient.auth.apiKeyAuth('valid-api-key')
+    return testClient.authenticate('apiKey', 'valid-api-key')
       .then(() => {
         expect(testClient.user).toEqual({_id: hexStr});
       })
@@ -265,7 +265,7 @@ describe('api key auth/logout', () => {
   it('gets a rejected promise if using an invalid API key', (done) => {
     expect.assertions(2);
     let testClient = new StitchClient('testapp');
-    return testClient.auth.apiKeyAuth('INVALID_KEY')
+    return testClient.authenticate('apiKey', 'INVALID_KEY')
       .then(() => {
         done('Error should have been thrown, but was not');
       })

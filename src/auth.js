@@ -1,6 +1,7 @@
 /* global window, document, fetch */
 
 import { createStorage } from './storage';
+import { createProviders } from './auth/providers';
 import { StitchError } from './errors';
 import * as common from './common';
 
@@ -13,48 +14,7 @@ export default class Auth {
     this.client = client;
     this.rootUrl = rootUrl;
     this.storage = createStorage(options.storageType);
-
-    this.providers = new Map();
-    this.providers.set('local', {
-      login: (email, password, opts) => {
-        if (email === undefined || password === undefined) {
-          return this.anonymousAuth();
-        }
-
-        return this.localAuth(email, password, opts);
-      },
-      signup: (email) => {
-        throw new Error('not implemented!');
-      }
-    });
-
-    this.providers.set('apiKey', {
-      authenticate: key => {
-        return this.apiKeyAuth(key);
-      }
-    });
-
-    this.providers.set('google', {
-      authenticate: data => {
-        const { redirectUrl } = data;
-        window.location.replace(this.getOAuthLoginURL('google', redirectUrl));
-      }
-    });
-
-    this.providers.set('facebook', {
-      authenticate: data => {
-        const { redirectUrl } = data;
-        window.location.replace(this.getOAuthLoginURL('facebook', redirectUrl));
-      }
-    });
-
-    this.providers.set('mongodbCloud', {
-      authenticate: data => {
-        const { username, apiKey, cors, cookie } = data;
-        options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
-        return mongodbCloudAuth(username, apiKey, options);
-      }
-    });
+    this.providers = createProviders(this);
   }
 
   provider(name) {
@@ -80,26 +40,6 @@ export default class Auth {
 
   pageRootUrl() {
     return [window.location.protocol, '//', window.location.host, window.location.pathname].join('');
-  }
-
-  // The state we generate is to be used for any kind of request where we will
-  // complete an authentication flow via a redirect. We store the generate in
-  // a local storage bound to the app's origin. This ensures that any time we
-  // receive a redirect, there must be a state parameter and it must match
-  // what we ourselves have generated. This state MUST only be sent to
-  // a trusted Stitch endpoint in order to preserve its integrity. Stitch will
-  // store it in some way on its origin (currently a cookie stored on this client)
-  // and use that state at the end of an auth flow as a parameter in the redirect URI.
-  static generateState() {
-    let alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let state = '';
-    const stateLength = 64;
-    for (let i = 0; i < stateLength; i++) {
-      let pos = Math.floor(Math.random() * alpha.length);
-      state += alpha.substring(pos, pos + 1);
-    }
-
-    return state;
   }
 
   setAccessToken(token) {
@@ -189,109 +129,6 @@ export default class Auth {
     const userAuth = common.unmarshallUserAuth(uaCookie);
     this.set(userAuth);
     window.history.replaceState(null, '', this.pageRootUrl());
-  }
-
-  getOAuthLoginURL(providerName, redirectUrl) {
-    if (redirectUrl === undefined) {
-      redirectUrl = this.pageRootUrl();
-    }
-
-    let state = Auth.generateState();
-    this.storage.set(common.STATE_KEY, state);
-    let result = `${this.rootUrl}/oauth2/${providerName}?redirect=${encodeURI(redirectUrl)}&state=${state}`;
-    return result;
-  }
-
-  anonymousAuth() {
-    let fetchArgs = common.makeFetchArgs('GET');
-    fetchArgs.cors = true;
-
-    return fetch(`${this.rootUrl}/anon/user`, fetchArgs)
-      .then(common.checkStatus)
-      .then(response => response.json())
-      .then(json => this.set(json));
-  }
-
-  apiKeyAuth(key) {
-    const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({'key': key}));
-    fetchArgs.cors = true;
-
-    return fetch(`${this.rootUrl}/api/key`, fetchArgs)
-      .then(common.checkStatus)
-      .then(response => response.json())
-      .then(json => this.set(json));
-  }
-
-  emailConfirm(tokenId, token) {
-    const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({tokenId, token}));
-    fetchArgs.cors = true;
-    return fetch(`${this.rootUrl}/local/userpass/confirm`, fetchArgs)
-      .then(common.checkStatus)
-      .then(response => response.json())
-      .then(json => this.set(json));
-  }
-
-  sendEmailConfirm(email) {
-    const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({email}));
-    fetchArgs.cors = true;
-    return fetch(`${this.rootUrl}/local/userpass/confirm/send`, fetchArgs)
-      .then(common.checkStatus)
-      .then(response => response.json())
-      .then(json => this.set(json));
-  }
-
-  sendPasswordReset(email) {
-    const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({email}));
-    fetchArgs.cors = true;
-    return fetch(`${this.rootUrl}/local/userpass/reset/send`, fetchArgs)
-      .then(common.checkStatus)
-      .then(response => response.json())
-      .then(json => this.set(json));
-  }
-
-  passwordReset(tokenId, token) {
-    const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({tokenId, token}));
-    fetchArgs.cors = true;
-    return fetch(`${this.rootUrl}/local/userpass/reset`, fetchArgs)
-      .then(common.checkStatus)
-      .then(response => response.json())
-      .then(json => this.set(json));
-  }
-
-  register(email, password) {
-    const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({email, password}));
-    fetchArgs.cors = true;
-    return fetch(`${this.rootUrl}/local/userpass/register`, fetchArgs)
-      .then(common.checkStatus)
-      .then(response => response.json())
-      .then(json => this.set(json));
-  }
-
-  localAuth(username, password, options = {cors: true}) {
-    const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({username, password}));
-    fetchArgs.cors = true;
-
-    return fetch(`${this.rootUrl}/local/userpass`, fetchArgs)
-      .then(common.checkStatus)
-      .then(response => response.json())
-      .then(json => this.set(json));
-  }
-
-  mongodbCloudAuth(username, apiKey, options = {cors: true, cookie: false}) {
-    const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({username, apiKey}));
-    fetchArgs.cors = true;
-    fetchArgs.credentials = 'include';
-
-    let url = `${this.rootUrl}/mongodb/cloud`;
-    if (!options.cookie) {
-      return fetch(url, fetchArgs)
-        .then(common.checkStatus)
-        .then(response => response.json())
-        .then(json => this.set(json));
-    }
-
-    return fetch(url + '?cookie=true', fetchArgs)
-      .then(common.checkStatus);
   }
 
   clear() {
