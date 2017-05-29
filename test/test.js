@@ -342,8 +342,8 @@ describe('login/logout', () => {
 describe('client options', () => {
   beforeEach(() => {
     fetchMock.restore();
-    fetchMock.post('https://baas-dev2.10gen.cc/api/client/v1.0/app/testapp/auth/local/userpass', {user: {'_id': hexStr}});
-    fetchMock.post('https://baas-dev2.10gen.cc/api/client/v1.0/app/testapp/pipeline', (url, opts) => {
+    fetchMock.post('https://stitch2.mongodb.com/api/client/v1.0/app/testapp/auth/local/userpass', {user: {'_id': hexStr}});
+    fetchMock.post('https://stitch2.mongodb.com/api/client/v1.0/app/testapp/pipeline', (url, opts) => {
       return {result: [{x: {'$oid': hexStr}}]};
     });
     fetchMock.delete(BASEAUTH_URL, {});
@@ -351,7 +351,7 @@ describe('client options', () => {
   });
 
   it('allows overriding the base url', () => {
-    let testClient = new StitchClient('testapp', {baseUrl: 'https://baas-dev2.10gen.cc'});
+    let testClient = new StitchClient('testapp', {baseUrl: 'https://stitch2.mongodb.com'});
     expect.assertions(1);
     return testClient.authManager.localAuth('user', 'password', true)
     .then(() => {
