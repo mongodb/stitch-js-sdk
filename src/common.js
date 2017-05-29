@@ -8,7 +8,7 @@ export const IMPERSONATION_ACTIVE_KEY = '_stitch_impers_active';
 export const IMPERSONATION_USER_KEY = '_stitch_impers_user';
 export const IMPERSONATION_REAL_USER_AUTH_KEY = '_stitch_impers_real_ua';
 export const USER_AUTH_COOKIE_NAME = 'stitch_ua';
-export const DEFAULT_STITCH_SERVER_URL = 'https://baas-dev.10gen.cc';
+export const DEFAULT_STITCH_SERVER_URL = 'https://stitch.mongodb.com';
 
 export const checkStatus = (response) => {
   if (response.status >= 200 && response.status < 300) {
