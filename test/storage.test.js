@@ -1,5 +1,5 @@
 /* eslint no-loop-func: 0 */
-import { createStorage } from '../src/storage';
+import { createStorage } from '../src/auth/storage';
 import { mocks } from 'mock-browser';
 const MockBrowser = mocks.MockBrowser;
 
