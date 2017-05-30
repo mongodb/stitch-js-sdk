@@ -1,9 +1,9 @@
 /* global window, document, fetch */
 
 import { createStorage } from './storage';
-import { createProviders } from './auth/providers';
-import { StitchError } from './errors';
-import * as common from './common';
+import { createProviders } from './providers';
+import { StitchError } from '../errors';
+import * as common from '../common';
 
 export default class Auth {
   constructor(client, rootUrl, options) {
