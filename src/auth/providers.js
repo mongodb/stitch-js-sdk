@@ -115,13 +115,11 @@ function apiKeyProvider(auth) {
 // a trusted Stitch endpoint in order to preserve its integrity. Stitch will
 // store it in some way on its origin (currently a cookie stored on this client)
 // and use that state at the end of an auth flow as a parameter in the redirect URI.
+const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 function generateState() {
-  let alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let state = '';
-  const stateLength = 64;
-  for (let i = 0; i < stateLength; i++) {
-    let pos = Math.floor(Math.random() * alpha.length);
-    state += alpha.substring(pos, pos + 1);
+  for (let i = 0; i < 64; ++i) {
+    state += alpha.charAt(Math.floor(Math.random() * alpha.length));
   }
 
   return state;
@@ -133,8 +131,8 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
   }
 
   let state = generateState();
-  this.storage.set(common.STATE_KEY, state);
-  let result = `${this.rootUrl}/oauth2/${providerName}?redirect=${encodeURI(redirectUrl)}&state=${state}`;
+  auth.storage.set(common.STATE_KEY, state);
+  let result = `${auth.rootUrl}/oauth2/${providerName}?redirect=${encodeURI(redirectUrl)}&state=${state}`;
   return result;
 }
 
@@ -143,6 +141,7 @@ function googleProvider(auth) {
     authenticate: data => {
       const { redirectUrl } = data;
       window.location.replace(getOAuthLoginURL(auth, 'google', redirectUrl));
+      return Promise.resolve();
     }
   };
 }
@@ -152,6 +151,7 @@ function facebookProvider(auth) {
     authenticate: data => {
       const { redirectUrl } = data;
       window.location.replace(getOAuthLoginURL(auth, 'facebook', redirectUrl));
+      return Promise.resolve();
     }
   };
 }
@@ -179,7 +179,8 @@ function mongodbCloudProvider(auth) {
   };
 }
 
-function createProviders(auth) {
+// TODO: support auth-specific options
+function createProviders(auth, options = {}) {
   let providers = new Map();
   providers.set('local', localProvider(auth));
   providers.set('apiKey', apiKeyProvider(auth));
