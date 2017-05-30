@@ -106,11 +106,11 @@ class StitchClient {
       throw new StitchError('`service` is a factory method, do not use `new`');
     }
 
-    if (!ServiceRegistry.has(type)) {
+    if (!ServiceRegistry.hasOwnProperty(type)) {
       throw new StitchError('Invalid service type specified: ' + type);
     }
 
-    const ServiceType = ServiceRegistry.get(type);
+    const ServiceType = ServiceRegistry[type];
     return new ServiceType(this, name);
   }
 

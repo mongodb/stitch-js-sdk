@@ -15,7 +15,7 @@ function deprecate(fn, msg) {
     return fn.apply(this, arguments);
   }
 
-  Object.setPrototypeOf(deprecated, fn);
+  deprecated.__proto__ = fn;  // eslint-disable-line
   if (fn.prototype) {
     deprecated.prototype = fn.prototype;
   }

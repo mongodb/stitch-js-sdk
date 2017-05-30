@@ -38,14 +38,13 @@ var _twilio_service2 = _interopRequireDefault(_twilio_service);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var services = new Map();
-services.set('aws/s3', _s3_service2.default);
-services.set('aws/ses', _ses_service2.default);
-services.set('aws/sqs', _sqs_service2.default);
-services.set('http', _http_service2.default);
-services.set('mongodb', _mongodb_service2.default);
-services.set('pubnub', _pubnub_service2.default);
-services.set('slack', _slack_service2.default);
-services.set('twilio', _twilio_service2.default);
-
-exports.default = services;
+exports.default = {
+  'aws/s3': _s3_service2.default,
+  'aws/ses': _ses_service2.default,
+  'aws/sqs': _sqs_service2.default,
+  'http': _http_service2.default,
+  'mongodb': _mongodb_service2.default,
+  'pubnub': _pubnub_service2.default,
+  'slack': _slack_service2.default,
+  'twilio': _twilio_service2.default
+};

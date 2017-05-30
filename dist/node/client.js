@@ -166,11 +166,11 @@ var StitchClient = function () {
         throw new _errors.StitchError('`service` is a factory method, do not use `new`');
       }
 
-      if (!_services2.default.has(type)) {
+      if (!_services2.default.hasOwnProperty(type)) {
         throw new _errors.StitchError('Invalid service type specified: ' + type);
       }
 
-      var ServiceType = _services2.default.get(type);
+      var ServiceType = _services2.default[type];
       return new ServiceType(this, name);
     }
 

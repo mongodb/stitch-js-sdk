@@ -7,14 +7,13 @@ import PubnubService from './pubnub/pubnub_service';
 import SlackService from './slack/slack_service';
 import TwilioService from './twilio/twilio_service';
 
-let services = new Map();
-services.set('aws/s3', S3Service);
-services.set('aws/ses', SESService);
-services.set('aws/sqs', SQSService);
-services.set('http', HTTPService);
-services.set('mongodb', MongoDBService);
-services.set('pubnub', PubnubService);
-services.set('slack', SlackService);
-services.set('twilio', TwilioService);
-
-export default services;
+export default {
+  'aws/s3': S3Service,
+  'aws/ses': SESService,
+  'aws/sqs': SQSService,
+  'http': HTTPService,
+  'mongodb': MongoDBService,
+  'pubnub': PubnubService,
+  'slack': SlackService,
+  'twilio': TwilioService
+};
