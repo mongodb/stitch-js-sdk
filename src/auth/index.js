@@ -18,11 +18,11 @@ export default class Auth {
   }
 
   provider(name) {
-    if (!this.providers.has(name)) {
+    if (!this.providers.hasOwnProperty(name)) {
       throw new Error('Invalid auth provider specified: ' + name);
     }
 
-    return this.providers.get(name);
+    return this.providers[name];
   }
 
   isAuthenticated() { return false; }
