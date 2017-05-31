@@ -181,13 +181,13 @@ function mongodbCloudProvider(auth) {
 
 // TODO: support auth-specific options
 function createProviders(auth, options = {}) {
-  let providers = new Map();
-  providers.set('local', localProvider(auth));
-  providers.set('apiKey', apiKeyProvider(auth));
-  providers.set('google', googleProvider(auth));
-  providers.set('facebook', facebookProvider(auth));
-  providers.set('mongodbCloud', mongodbCloudProvider(auth));
-  return providers;
+  return {
+    local: localProvider(auth),
+    apiKey: apiKeyProvider(auth),
+    google: googleProvider(auth),
+    facebook: facebookProvider(auth),
+    mongodbCloud: mongodbCloudProvider(auth)
+  };
 }
 
 export { createProviders };
