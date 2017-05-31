@@ -3,6 +3,8 @@
 The original source is located in `src/`.
 To transpile to pure JS, run `npm run build` which places the output into `dist/`.
 
+### [Documentation](https://s3.amazonaws.com/stitch-sdks/js/docs/master/index.html)
+
 ### Usage
 
 Construct a simple app-wide client:
