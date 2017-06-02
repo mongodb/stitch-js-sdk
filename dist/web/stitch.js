@@ -103,7 +103,7 @@ function deprecate(fn, msg) {
     return fn.apply(this, arguments);
   }
 
-  Object.setPrototypeOf(deprecated, fn);
+  deprecated.__proto__ = fn; // eslint-disable-line
   if (fn.prototype) {
     deprecated.prototype = fn.prototype;
   }
@@ -3245,11 +3245,11 @@ var StitchClient = function () {
         throw new _errors.StitchError('`service` is a factory method, do not use `new`');
       }
 
-      if (!_services2.default.has(type)) {
+      if (!_services2.default.hasOwnProperty(type)) {
         throw new _errors.StitchError('Invalid service type specified: ' + type);
       }
 
-      var ServiceType = _services2.default.get(type);
+      var ServiceType = _services2.default[type];
       return new ServiceType(this, name);
     }
 
@@ -3544,6 +3544,20 @@ var Admin = function () {
                     },
                     update: function update(data) {
                       return _this5._post('/groups/' + groupId + '/apps/' + appID + '/authProviders/' + authType + '/' + authName, data);
+                    }
+                  };
+                }
+              };
+            },
+            security: function security() {
+              return {
+                allowedRequestOrigins: function allowedRequestOrigins() {
+                  return {
+                    get: function get() {
+                      return _this5._get('/groups/' + groupId + '/apps/' + appID + '/security/allowedRequestOrigins');
+                    },
+                    update: function update(data) {
+                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/security/allowedRequestOrigins', data);
                     }
                   };
                 }
@@ -4545,17 +4559,16 @@ var _twilio_service2 = _interopRequireDefault(_twilio_service);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var services = new Map();
-services.set('aws/s3', _s3_service2.default);
-services.set('aws/ses', _ses_service2.default);
-services.set('aws/sqs', _sqs_service2.default);
-services.set('http', _http_service2.default);
-services.set('mongodb', _mongodb_service2.default);
-services.set('pubnub', _pubnub_service2.default);
-services.set('slack', _slack_service2.default);
-services.set('twilio', _twilio_service2.default);
-
-exports.default = services;
+exports.default = {
+  'aws/s3': _s3_service2.default,
+  'aws/ses': _ses_service2.default,
+  'aws/sqs': _sqs_service2.default,
+  'http': _http_service2.default,
+  'mongodb': _mongodb_service2.default,
+  'pubnub': _pubnub_service2.default,
+  'slack': _slack_service2.default,
+  'twilio': _twilio_service2.default
+};
 module.exports = exports['default'];
 
 /***/ }),

@@ -470,6 +470,20 @@ var Admin = function () {
                 }
               };
             },
+            security: function security() {
+              return {
+                allowedRequestOrigins: function allowedRequestOrigins() {
+                  return {
+                    get: function get() {
+                      return _this5._get('/groups/' + groupId + '/apps/' + appID + '/security/allowedRequestOrigins');
+                    },
+                    update: function update(data) {
+                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/security/allowedRequestOrigins', data);
+                    }
+                  };
+                }
+              };
+            },
             values: function values() {
               return {
                 list: function list() {
