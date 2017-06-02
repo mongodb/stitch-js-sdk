@@ -321,6 +321,12 @@ class Admin {
             update: (data) => this._post(`/groups/${groupId}/apps/${appID}/authProviders/${authType}/${authName}`, data)
           })
         }),
+        security: () => ({
+          allowedRequestOrigins: () => ({
+            get: () => this._get(`/groups/${groupId}/apps/${appID}/security/allowedRequestOrigins`),
+            update: (data) => this._post(`/groups/${groupId}/apps/${appID}/security/allowedRequestOrigins`, data)
+          })
+        }),
         values: () => ({
           list: () => this._get(`/groups/${groupId}/apps/${appID}/values`),
           value: (varName) => ({
