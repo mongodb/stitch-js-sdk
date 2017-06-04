@@ -1,5 +1,6 @@
 /* global window, document, fetch */
 
+import pako from 'pako';
 import { createStorage } from './storage';
 import { StitchError } from './errors';
 import * as common from './common';
@@ -89,7 +90,7 @@ export default class Auth {
   getCookie(name) {
     let splitCookies = document.cookie.split(' ');
     for (let i = 0; i < splitCookies.length; i++) {
-      let cookie = splitCookies[0];
+      let cookie = splitCookies[i];
       let sepIdx = cookie.indexOf('=');
       let cookieName = cookie.substring(0, sepIdx);
       if (cookieName === name) {
@@ -118,8 +119,16 @@ export default class Auth {
     }
     document.cookie = `${common.USER_AUTH_COOKIE_NAME}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
 
-    let ua = JSON.parse(window.atob(uaCookie));
-    this.set(ua);
+    const binaryStr = window.atob(uaCookie);
+    const charArray = [];
+    for (let i = 0; i < binaryStr.length; i++) {
+      charArray.push(binaryStr.charCodeAt(i));
+    }
+    const inflated = pako.inflate(new Uint8Array(charArray));
+    const jsonStr = String.fromCharCode.apply(null, new Uint16Array(inflated));
+
+    this.set(JSON.parse(jsonStr));
+    window.history.replaceState(null, '', this.pageRootUrl());
   }
 
   getOAuthLoginURL(providerName, redirectUrl) {

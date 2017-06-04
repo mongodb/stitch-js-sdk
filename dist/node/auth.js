@@ -6,6 +6,10 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, document, fetch */
 
+var _pako = require('pako');
+
+var _pako2 = _interopRequireDefault(_pako);
+
 var _storage = require('./storage');
 
 var _errors = require('./errors');
@@ -15,6 +19,8 @@ var _common = require('./common');
 var common = _interopRequireWildcard(_common);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -101,7 +107,7 @@ var Auth = function () {
     value: function getCookie(name) {
       var splitCookies = document.cookie.split(' ');
       for (var i = 0; i < splitCookies.length; i++) {
-        var cookie = splitCookies[0];
+        var cookie = splitCookies[i];
         var sepIdx = cookie.indexOf('=');
         var cookieName = cookie.substring(0, sepIdx);
         if (cookieName === name) {
@@ -131,8 +137,16 @@ var Auth = function () {
       }
       document.cookie = common.USER_AUTH_COOKIE_NAME + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
 
-      var ua = JSON.parse(window.atob(uaCookie));
-      this.set(ua);
+      var binaryStr = window.atob(uaCookie);
+      var charArray = [];
+      for (var i = 0; i < binaryStr.length; i++) {
+        charArray.push(binaryStr.charCodeAt(i));
+      }
+      var inflated = _pako2.default.inflate(new Uint8Array(charArray));
+      var jsonStr = String.fromCharCode.apply(null, new Uint16Array(inflated));
+
+      this.set(JSON.parse(jsonStr));
+      window.history.replaceState(null, '', this.pageRootUrl());
     }
   }, {
     key: 'getOAuthLoginURL',
