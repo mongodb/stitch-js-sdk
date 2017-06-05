@@ -295,6 +295,17 @@ class Admin {
           body: JSON.stringify(doc)
         }),
 
+        messages: () => ({
+          list: (filter) =>  this._get(`/groups/${groupId}/apps/${appID}/push/messages`, filter),
+          create: (msg) =>  this._put(`/groups/${groupId}/apps/${appID}/push/messages`,  {body: JSON.stringify(msg)}),
+          message: (id) => ({
+            get: () => this._get(`/groups/${groupId}/apps/${appID}/push/messages/${id}`),
+            remove: () => this._delete(`/groups/${groupId}/apps/${appID}/push/messages/${id}`),
+            setSaveType: type => this._post(`/groups/${groupId}/apps/${appID}/push/messages/${id}`, {type}),
+            update: msg => this._put(`/groups/${groupId}/apps/${appID}/push/messages/${id}`, {body: JSON.stringify(msg)})
+          })
+        }),
+
         users: () => ({
           list: (filter) => this._get(`/groups/${groupId}/apps/${appID}/users`, filter),
           user: (uid) => ({
@@ -304,11 +315,12 @@ class Admin {
         }),
 
         sandbox: () => ({
-          executePipeline: (data, userId) => {
+          executePipeline: (data, userId, options) => {
+            const queryParams = Object.assign({}, options, {user_id: userId});
             return this._do(
               `/groups/${groupId}/apps/${appID}/sandbox/pipeline`,
               'POST',
-              {body: JSON.stringify(data), queryParams: {user_id: userId}});
+              {body: JSON.stringify(data), queryParams});
           }
         }),
 

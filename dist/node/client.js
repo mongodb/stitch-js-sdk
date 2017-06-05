@@ -421,6 +421,33 @@ var Admin = function () {
               });
             },
 
+            messages: function messages() {
+              return {
+                list: function list(filter) {
+                  return _this5._get('/groups/' + groupId + '/apps/' + appID + '/push/messages', filter);
+                },
+                create: function create(msg) {
+                  return _this5._put('/groups/' + groupId + '/apps/' + appID + '/push/messages', { body: JSON.stringify(msg) });
+                },
+                message: function message(id) {
+                  return {
+                    get: function get() {
+                      return _this5._get('/groups/' + groupId + '/apps/' + appID + '/push/messages/' + id);
+                    },
+                    remove: function remove() {
+                      return _this5._delete('/groups/' + groupId + '/apps/' + appID + '/push/messages/' + id);
+                    },
+                    setSaveType: function setSaveType(type) {
+                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/push/messages/' + id, { type: type });
+                    },
+                    update: function update(msg) {
+                      return _this5._put('/groups/' + groupId + '/apps/' + appID + '/push/messages/' + id, { body: JSON.stringify(msg) });
+                    }
+                  };
+                }
+              };
+            },
+
             users: function users() {
               return {
                 list: function list(filter) {
@@ -441,8 +468,9 @@ var Admin = function () {
 
             sandbox: function sandbox() {
               return {
-                executePipeline: function executePipeline(data, userId) {
-                  return _this5._do('/groups/' + groupId + '/apps/' + appID + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: { user_id: userId } });
+                executePipeline: function executePipeline(data, userId, options) {
+                  var queryParams = Object.assign({}, options, { user_id: userId });
+                  return _this5._do('/groups/' + groupId + '/apps/' + appID + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: queryParams });
                 }
               };
             },
