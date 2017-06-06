@@ -46,56 +46,35 @@ var parseRedirectFragment = exports.parseRedirectFragment = function parseRedire
   var vars = fragment.split('&');
   var result = { ua: null, found: false, stateValid: false, lastError: null };
   var shouldBreak = false;
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
-
-  try {
-    for (var _iterator = vars[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var pair = _step.value;
-
-      var pairParts = pair.split('=');
-      var pairKey = decodeURIComponent(pairParts[0]);
-      switch (pairKey) {
-        case STITCH_ERROR_KEY:
-          result.lastError = decodeURIComponent(pairParts[1]);
-          result.found = true;
-          shouldBreak = true;
-          break;
-        case USER_AUTH_KEY:
-          result.ua = JSON.parse(window.atob(decodeURIComponent(pairParts[1])));
-          result.found = true;
-          continue;
-        case STITCH_LINK_KEY:
-          result.found = true;
-          continue;
-        case STATE_KEY:
-          result.found = true;
-          var theirState = decodeURIComponent(pairParts[1]);
-          if (ourState && ourState === theirState) {
-            result.stateValid = true;
-          }
-          continue;
-        default:
-          continue;
-      }
-
-      if (shouldBreak) {
+  for (var i = 0; i < vars.length; ++i) {
+    var pairParts = vars[i].split('=');
+    var pairKey = decodeURIComponent(pairParts[0]);
+    switch (pairKey) {
+      case STITCH_ERROR_KEY:
+        result.lastError = decodeURIComponent(pairParts[1]);
+        result.found = true;
+        shouldBreak = true;
         break;
-      }
+      case USER_AUTH_KEY:
+        result.ua = JSON.parse(window.atob(decodeURIComponent(pairParts[1])));
+        result.found = true;
+        continue;
+      case STITCH_LINK_KEY:
+        result.found = true;
+        continue;
+      case STATE_KEY:
+        result.found = true;
+        var theirState = decodeURIComponent(pairParts[1]);
+        if (ourState && ourState === theirState) {
+          result.stateValid = true;
+        }
+        continue;
+      default:
+        continue;
     }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator.return) {
-        _iterator.return();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
+
+    if (shouldBreak) {
+      break;
     }
   }
 
