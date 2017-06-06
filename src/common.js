@@ -41,8 +41,8 @@ export const parseRedirectFragment = (fragment, ourState) => {
   const vars = fragment.split('&');
   const result = { ua: null, found: false, stateValid: false, lastError: null };
   let shouldBreak = false;
-  for (const pair of vars) {
-    let pairParts = pair.split('=');
+  for (let i = 0; i < vars.length; ++i) {
+    const pairParts = vars[i].split('=');
     const pairKey = decodeURIComponent(pairParts[0]);
     switch (pairKey) {
     case STITCH_ERROR_KEY:
