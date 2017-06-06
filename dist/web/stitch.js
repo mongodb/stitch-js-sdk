@@ -3751,6 +3751,7 @@ var StitchClient = function () {
       var responseEncoder = function responseEncoder(d) {
         return EJSON.stringify(d);
       };
+      stages = Array.isArray(stages) ? stages : [stages];
       stages = stages.reduce(function (acc, stage) {
         return acc.concat(stage);
       }, []);
