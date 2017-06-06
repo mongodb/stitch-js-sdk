@@ -123,6 +123,7 @@ class StitchClient {
   executePipeline(stages, options = {}) {
     let responseDecoder = (d) => EJSON.parse(d, { strict: false });
     let responseEncoder = (d) => EJSON.stringify(d);
+    stages = Array.isArray(stages) ? stages : [ stages ];
     stages = stages.reduce((acc, stage) => acc.concat(stage), []);
 
     if (options.decoder) {
