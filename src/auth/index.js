@@ -25,8 +25,6 @@ export default class Auth {
     return this.providers[name];
   }
 
-  isAuthenticated() { return false; }
-
   refreshToken() {
     if (this.isImpersonatingUser()) {
       return this.refreshImpersonation(this.client);
