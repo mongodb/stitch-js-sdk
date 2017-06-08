@@ -9,8 +9,7 @@ function localProvider(auth) {
 
         return fetch(`${auth.rootUrl}/anon/user`, fetchArgs)
           .then(common.checkStatus)
-          .then(response => response.json())
-          .then(json => auth.set(json));
+          .then(response => response.json());
       }
 
       const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email, password }));
@@ -18,8 +17,7 @@ function localProvider(auth) {
 
       return fetch(`${auth.rootUrl}/local/userpass`, fetchArgs)
         .then(common.checkStatus)
-        .then(response => response.json())
-        .then(json => auth.set(json));
+        .then(response => response.json());
     },
 
     signup: (email) => {
@@ -101,8 +99,7 @@ function apiKeyProvider(auth) {
 
       return fetch(`${auth.rootUrl}/api/key`, fetchArgs)
         .then(common.checkStatus)
-        .then(response => response.json())
-        .then(json => auth.set(json));
+        .then(response => response.json());
     }
   };
 }
@@ -173,8 +170,7 @@ function mongodbCloudProvider(auth) {
 
       return fetch(url, fetchArgs)
         .then(common.checkStatus)
-        .then(response => response.json())
-        .then(json => auth.set(json));
+        .then(response => response.json());
     }
   };
 }
