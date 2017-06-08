@@ -88,20 +88,6 @@ class StitchClient {
   }
 
   /**
-   * @returns {Boolean} whether the use is currently authenticated.
-   */
-  isAuthenticated() {
-    return this.auth.isAuthenticated();
-  }
-
-  /**
-   * @return {Object} Returns the currently authenticated user's information.
-   */
-  get user() {
-    return this.auth.get().user || {};
-  }
-
-  /**
    * @return {*} Returns any error from the Stitch authentication system.
    */
   authError() {
