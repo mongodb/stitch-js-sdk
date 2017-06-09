@@ -29,15 +29,28 @@ function deprecate(fn, msg) {
  * API for calling helper methods (single-stage pipelines) and
  * pipeline building.
  *
- * @param {Object} client the client to execute the stages on
+ * @param {Object} service the service to execute the stages on
  * @param {Array} stages the pipeline stages to execute
  * @param {Function} [finalizer] optional function to call on the result of the response
  */
-function serviceResponse(client, stages, finalizer) {
+function serviceResponse(service, stages, finalizer) {
+  if (service && !service.client) {
+    throw new Error('Service has no client');
+  }
+
   if (finalizer && typeof finalizer !== 'function') {
     throw new Error('Service response finalizer must be a function');
   }
 
+  if (service.hasOwnProperty('__let__')) {
+    if (Array.isArray(stages)) {
+      // what do we do here?
+    } else {
+      stages.let = service.__let__;
+    }
+  }
+
+  const client = service.client;
   Object.defineProperties(stages, {
     then: {
       enumerable: false,
@@ -64,4 +77,22 @@ function serviceResponse(client, stages, finalizer) {
   return stages;
 }
 
-export { deprecate, serviceResponse };
+/**
+ * Mixin that allows a definition of an optional `let` stage for
+ * services is mixes in with.
+ *
+ * @param {*} Type the service to mixin
+ */
+function letMixin(Type) {
+  Type.prototype.let = function(options) {
+    Object.defineProperty(this, '__let__', {
+      enumerable: false, configurable: false, writable: false, value: options
+    });
+
+    return this;
+  };
+
+  return Type;
+}
+
+export { deprecate, serviceResponse, letMixin };

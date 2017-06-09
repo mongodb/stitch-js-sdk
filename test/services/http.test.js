@@ -9,6 +9,30 @@ TestFixture.prototype.setup = function() {
 
 const test = new TestFixture();
 describe('HttpService', function() {
+  describe('substages', () => {
+    beforeEach(() => test.setup());
+    it('should support a `let` argument', () => {
+      return test.service
+        .let({
+          test: '%%values.test',
+          auth: { $concat: [ 'Bearer ', '$$values.sg-api-key' ] }
+        })
+        .get('http://google.com')
+        .then(() => {
+          const stage = test.client.executePipeline.getCall(0).args[0][0];
+          expect(stage).toEqual({
+            service: 'testHttpService',
+            action: 'get',
+            args: { url: 'http://google.com' },
+            'let': {
+              test: '%%values.test',
+              auth: { $concat: [ 'Bearer ', '$$values.sg-api-key' ] }
+            }
+          });
+        });
+    });
+  });
+
   ['get', 'post', 'put', 'patch', 'delete', 'head'].forEach(method => {
     describe(method, () => {
       beforeEach(() => test.setup());

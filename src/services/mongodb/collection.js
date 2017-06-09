@@ -164,7 +164,7 @@ function insertOp(self, docs, options) {
     }
   });
 
-  return serviceResponse(self.db.client, stages, response => {
+  return serviceResponse(self.db, stages, response => {
     return {
       insertedIds: response.result.map(doc => doc._id)
     };
@@ -178,7 +178,7 @@ function deleteOp(self, query, options) {
     query: query
   }, options);
 
-  return serviceResponse(self.db.client, {
+  return serviceResponse(self.db, {
     service: self.db.service,
     action: 'delete',
     args: args
@@ -197,7 +197,7 @@ function updateOp(self, query, update, options) {
     update: update
   }, options);
 
-  return serviceResponse(self.db.client, {
+  return serviceResponse(self.db, {
     service: self.db.service,
     action: 'update',
     args: args
@@ -218,7 +218,7 @@ function findOp(self, query, options, finalizer) {
     delete args.projection;
   }
 
-  return serviceResponse(self.db.client, {
+  return serviceResponse(self.db, {
     service: self.db.service,
     action: 'find',
     args: args
