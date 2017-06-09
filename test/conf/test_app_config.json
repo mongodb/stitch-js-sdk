@@ -14,10 +14,10 @@
           "_id": { "$oid": "5873a33f772e2e08ce645b9a" },
           "namespace": "test.documents",
           "read": {
-            "$$true": true
+            "%%true": true
           },
           "write": {
-            "$$true": true
+            "%%true": true
           },
           "fields": {
             "_id": {},
@@ -30,10 +30,10 @@
           "_id": { "$oid": "5873a33f772e2e08ce645b9b" },
           "namespace": "test.documents2",
           "read": {
-            "$$true": true
+            "%%true": true
           },
           "write": {
-            "$$true": true
+            "%%true": true
           },
           "fields": {
             "_id": {},
