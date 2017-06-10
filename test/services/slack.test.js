@@ -12,7 +12,7 @@ describe('SlackService', function() {
   describe('substages', () => {
     beforeEach(() => test.setup());
 
-    it('should support a `let` argument', () => {
+    it('should support a `let` substage', () => {
       return test.service
         .let({ test: '%%values.test' })
         .post('test-channel', 'test-message')
@@ -20,6 +20,17 @@ describe('SlackService', function() {
           const stage = test.client.executePipeline.getCall(0).args[0][0];
           expect(stage).toHaveProperty('let');
           expect(stage.let).toEqual({ test: '%%values.test' });
+        });
+    });
+
+    it('should support a `post` substage', () => {
+      return test.service
+        .post('test-channel', 'test-message')
+        .post({ some: 'data' })
+        .then(() => {
+          const stage = test.client.executePipeline.getCall(0).args[0][0];
+          expect(stage).toHaveProperty('post');
+          expect(stage.post).toEqual({ some: 'data' });
         });
     });
   });
