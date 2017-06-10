@@ -53,9 +53,7 @@ function serviceResponse(service, stages, finalizer) {
   const client = service.client;
   Object.defineProperties(stages, {
     then: {
-      enumerable: false,
-      writable: false,
-      configurable: false,
+      enumerable: false, writable: false, configurable: false,
       value: (resolve, reject) => {
         let result = client.executePipeline(Array.isArray(stages) ? stages : [ stages ]);
         return (!!finalizer) ?
@@ -63,13 +61,23 @@ function serviceResponse(service, stages, finalizer) {
       }
     },
     catch: {
-      enumerable: false,
-      writable: false,
-      configurable: false,
+      enumerable: false, writable: false, configurable: false,
       value: (rejected) => {
         let result = client.executePipeline(Array.isArray(stages) ? stages : [ stages ]);
         return (!!finalizer) ?
           result.then(finalizer).catch(rejected) : result.catch(rejected);
+      }
+    },
+    post: {
+      enumerable: false, writable: true, configurable: true,
+      value: (options) => {
+        if (Array.isArray(stages)) {
+          // what do we do here?
+        } else {
+          stages.post = options;
+        }
+
+        return stages;
       }
     }
   });

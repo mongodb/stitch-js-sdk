@@ -12,7 +12,7 @@ describe('S3Service', function() {
   describe('substages', () => {
     beforeEach(() => test.setup());
 
-    it('should support a `let` argument', () => {
+    it('should support a `let` substage', () => {
       return test.service
         .let({ test: '%%values.test' })
         .put('bucket', 'key', 'acl', 'contentType')
@@ -20,6 +20,17 @@ describe('S3Service', function() {
           const stage = test.client.executePipeline.getCall(0).args[0][0];
           expect(stage).toHaveProperty('let');
           expect(stage.let).toEqual({ test: '%%values.test' });
+        });
+    });
+
+    it('should support a `post` substage', () => {
+      return test.service
+        .put('bucket', 'key', 'acl', 'contentType')
+        .post({ some: 'data' })
+        .then(() => {
+          const stage = test.client.executePipeline.getCall(0).args[0][0];
+          expect(stage).toHaveProperty('post');
+          expect(stage.post).toEqual({ some: 'data' });
         });
     });
   });

@@ -1,4 +1,4 @@
-import { deprecate, serviceResponse } from '../../util';
+import { deprecate, serviceResponse, letMixin } from '../../util';
 import { BSON } from 'mongodb-extjson';
 const { ObjectID } = BSON;
 
@@ -225,4 +225,4 @@ function findOp(self, query, options, finalizer) {
   }, finalizer);
 }
 
-export default Collection;
+export default letMixin(Collection);
