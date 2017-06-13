@@ -162,6 +162,65 @@ export default class Auth {
       .then(json => this.set(json));
   }
 
+  emailConfirm(tokenId, token) {
+    const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({tokenId, token}));
+    fetchArgs.cors = true;
+    return fetch(`${this.rootUrl}/local/userpass/confirm`, fetchArgs)
+      .then(common.checkStatus)
+      .then(response => response.json())
+      .then(json => {
+        this.set(json);
+        return json;
+      });
+  }
+  sendEmailConfirm(email) {
+    const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({email}));
+    fetchArgs.cors = true;
+    return fetch(`${this.rootUrl}/local/userpass/confirm/send`, fetchArgs)
+      .then(common.checkStatus)
+      .then(response => response.json())
+      .then(json => {
+        this.set(json);
+        return json;
+      });
+  }
+
+  sendPasswordReset(email) {
+    const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({email}));
+    fetchArgs.cors = true;
+    return fetch(`${this.rootUrl}/local/userpass/reset/send`, fetchArgs)
+      .then(common.checkStatus)
+      .then(response => response.json())
+      .then(json => {
+        this.set(json);
+        return json;
+      });
+  }
+
+  passwordReset(tokenId, token) {
+    const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({tokenId, token}));
+    fetchArgs.cors = true;
+    return fetch(`${this.rootUrl}/local/userpass/reset`, fetchArgs)
+      .then(common.checkStatus)
+      .then(response => response.json())
+      .then(json => {
+        this.set(json);
+        return json;
+      });
+  }
+
+  register(email, password) {
+    const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({email, password}));
+    fetchArgs.cors = true;
+    return fetch(`${this.rootUrl}/local/userpass/register`, fetchArgs)
+      .then(common.checkStatus)
+      .then(response => response.json())
+      .then(json => {
+        this.set(json);
+        return json;
+      });
+  }
+
   localAuth(username, password, options = {cors: true}) {
     const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({username, password}));
     fetchArgs.cors = true;
