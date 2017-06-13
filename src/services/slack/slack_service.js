@@ -17,7 +17,7 @@ class SlackService {
    *
    * @method
    * @param {String} channel the channel to post to
-   * @param {String} message the message to post
+   * @param {String} text the text to post
    * @param {Object} [options]
    * @param {String} [options.username] the username to post as
    * @param {String} [options.iconUrl] url to icon of user
@@ -25,8 +25,8 @@ class SlackService {
    * @param {String[]} [options.attachments] a list of attachments for the message
    * @return {Promise}
    */
-  post(channel, message, options = {}) {
-    let args = { channel, message };
+  post(channel, text, options = {}) {
+    let args = { channel, text };
     if (!!options.username) args.username = options.username;
     if (!!options.iconUrl) args.iconUrl = options.iconUrl;
     if (!!options.iconEmoji) args.iconEmoji = options.iconEmoji;
