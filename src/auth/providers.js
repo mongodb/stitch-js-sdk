@@ -9,7 +9,8 @@ function localProvider(auth) {
 
         return fetch(`${auth.rootUrl}/anon/user`, fetchArgs)
           .then(common.checkStatus)
-          .then(response => response.json());
+          .then(response => response.json())
+          .then(json => auth.set(json));
       }
 
       const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email, password }));
@@ -17,24 +18,21 @@ function localProvider(auth) {
 
       return fetch(`${auth.rootUrl}/local/userpass`, fetchArgs)
         .then(common.checkStatus)
-        .then(response => response.json());
-    },
+        .then(response => response.json())
+        .then(json => auth.set(json));
+    }
+  };
+}
 
-    signup: (email) => {
-      throw new Error('not implemented!');
-    },
-
+function userPassProvider(auth) {
+  return {
     emailConfirm: (tokenId, token) => {
       const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId, token }));
       fetchArgs.cors = true;
 
       return fetch(`${auth.rootUrl}/local/userpass/confirm`, fetchArgs)
         .then(common.checkStatus)
-        .then(response => response.json())
-        .then(json => {
-          auth.set(json);
-          return json;
-        });
+        .then(response => response.json());
     },
 
     sendEmailConfirm: (email) => {
@@ -43,11 +41,7 @@ function localProvider(auth) {
 
       return fetch(`${auth.rootUrl}/local/userpass/confirm/send`, fetchArgs)
         .then(common.checkStatus)
-        .then(response => response.json())
-        .then(json => {
-          auth.set(json);
-          return json;
-        });
+        .then(response => response.json());
     },
 
     sendPasswordReset: (email) => {
@@ -56,11 +50,7 @@ function localProvider(auth) {
 
       return fetch(`${auth.rootUrl}/local/userpass/reset/send`, fetchArgs)
         .then(common.checkStatus)
-        .then(response => response.json())
-        .then(json => {
-          auth.set(json);
-          return json;
-        });
+        .then(response => response.json());
     },
 
     passwordReset: (tokenId, token) => {
@@ -69,11 +59,7 @@ function localProvider(auth) {
 
       return fetch(`${auth.rootUrl}/local/userpass/reset`, fetchArgs)
         .then(common.checkStatus)
-        .then(response => response.json())
-        .then(json => {
-          auth.set(json);
-          return json;
-        });
+        .then(response => response.json());
     },
 
     register: (email, password) => {
@@ -82,11 +68,7 @@ function localProvider(auth) {
 
       return fetch(`${auth.rootUrl}/local/userpass/register`, fetchArgs)
         .then(common.checkStatus)
-        .then(response => response.json())
-        .then(json => {
-          auth.set(json);
-          return json;
-        });
+        .then(response => response.json());
     }
   };
 }
@@ -99,7 +81,8 @@ function apiKeyProvider(auth) {
 
       return fetch(`${auth.rootUrl}/api/key`, fetchArgs)
         .then(common.checkStatus)
-        .then(response => response.json());
+        .then(response => response.json())
+        .then(json => auth.set(json));
     }
   };
 }
@@ -170,7 +153,8 @@ function mongodbCloudProvider(auth) {
 
       return fetch(url, fetchArgs)
         .then(common.checkStatus)
-        .then(response => response.json());
+        .then(response => response.json())
+        .then(json => auth.set(json));
     }
   };
 }
@@ -182,7 +166,8 @@ function createProviders(auth, options = {}) {
     apiKey: apiKeyProvider(auth),
     google: googleProvider(auth),
     facebook: facebookProvider(auth),
-    mongodbCloud: mongodbCloudProvider(auth)
+    mongodbCloud: mongodbCloudProvider(auth),
+    userpass: userPassProvider(auth)
   };
 }
 

@@ -17,7 +17,7 @@ let stitchClient = new StitchClient(appId);
 Authenticate anonymously:
 ```
 stitchClient.anonymousAuth()
-  .then(() => console.log('logged in as: ' + stitchClient.user._id))
+  .then(() => console.log('logged in as: ' + stitchClient.authedId()))
   .catch(e => console.log('error: ', e));
 ```
 
@@ -27,7 +27,7 @@ let db = stitchClient.service('mongodb', 'mongodb1').db('app-ovmyj'); // mdb1 is
 let itemsCollection = db.collection('items');
 
 // CRUD operations:
-let userId = stitchClient.user._id;
+let userId = stitchClient.authedId();
 itemsCollection.insertMany([ { owner_id: userId, x: 'item1' }, { owner_id: userId, x: 'item2' }, { owner_id: userId, x: 'item3' } ])
   .then(result => console.log('success: ', result))
   .catch(e => console.log('error: ', e));

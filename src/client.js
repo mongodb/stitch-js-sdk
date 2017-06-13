@@ -6,6 +6,7 @@ import ServiceRegistry from './services';
 import * as common from './common';
 import ExtJSONModule from 'mongodb-extjson';
 import queryString from 'query-string';
+import { deprecate } from 'util';
 import {
   StitchError,
   ErrInvalidSession,
@@ -39,6 +40,21 @@ class StitchClient {
     this.auth = new Auth(this, this.authUrl);
     this.auth.handleRedirect();
     this.auth.handleCookie();
+
+    // deprecated API
+    this.authManager = {
+      apiKeyAuth: (key) => this.authenticate('apiKey', key),
+      localAuth: (email, password) => this.login(email, password),
+      mongodbCloudAuth: (username, apiKey, opts) =>
+        this.authenticate('mongodbCloud', Object.assign({ username, apiKey }, opts))
+    };
+
+    this.authManager.apiKeyAuth =
+      deprecate(this.authManager.apiKeyAuth, 'use `client.authenticate("apiKey", "key")` instead of `client.authManager.apiKey`');
+    this.authManager.localAuth =
+      deprecate(this.authManager.localAuth, 'use `client.login` instead of `client.authManager.localAuth`');
+    this.authManager.mongodbCloudAuth =
+      deprecate(this.authManager.mongodbCloudAuth, 'use `client.authenticate("mongodbCloud", opts)` instead of `client.authManager.mongodbCloudAuth`');
   }
 
   /**
@@ -51,19 +67,23 @@ class StitchClient {
    * @returns {Promise}
    */
   login(email, password, options = {}) {
-    return this.auth.provider('local').login(email, password);
+    return this.auth.provider('local').login(email, password, options);
   }
 
   /**
    * Send a request to the server indicating the provided email would like
-   * to sign up for an account.
+   * to sign up for an account. This will trigger a confirmation email containing
+   * a token which must be used with the `emailConfirm` method of the `userpass`
+   * auth provider in order to complete registration. The user will not be able
+   * to log in until that flow has been completed.
    *
-   * @param {String} email the email used to sign up for the service
+   * @param {String} email the email used to sign up for the app
+   * @param {String} password the password used to sign up for the app
    * @param {Object} [options] additional authentication options
    * @returns {Promise}
    */
-  signup(email, options = {}) {
-    return this.auth.provider('local').signup(email);
+  register(email, password, options = {}) {
+    return this.auth.provider('userpass').register(email, password, options);
   }
 
   /**
@@ -101,6 +121,13 @@ class StitchClient {
    */
   userProfile() {
     return this._do(`${this.authUrl}/me`, 'GET');
+  }
+
+  /**
+   *  @return {String} Returns the currently authed user's ID.
+   */
+  authedId() {
+    return this.auth.authedId();
   }
 
   /**
@@ -201,7 +228,7 @@ class StitchClient {
 
     if (!options.noAuth) {
       let token =
-        options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.accessToken;
+        options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
       fetchArgs.headers.Authorization = `Bearer ${token}`;
     }
 
@@ -248,7 +275,24 @@ class StitchClient {
         return Promise.reject(error);
       });
   }
+
+
+  // Deprecated API
+  authWithOAuth(providerType, redirectUrl) {
+    return this.auth.provider(providerType).authenticate({ redirectUrl });
+  }
+
+  anonymousAuth() {
+    return this.login();
+  }
 }
+
+StitchClient.prototype.authWithOAuth =
+  deprecate(StitchClient.prototype.authWithOAuth, 'use `authenticate` instead of `authWithOAuth`');
+StitchClient.prototype.anonymousAuth =
+  deprecate(StitchClient.prototype.anonymousAuth, 'use `login()` instead of `anonymousAuth`');
+
+
 
 class Admin {
   constructor(baseUrl) {
