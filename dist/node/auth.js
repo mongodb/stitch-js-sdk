@@ -189,9 +189,79 @@ var Auth = function () {
       });
     }
   }, {
+    key: 'emailConfirm',
+    value: function emailConfirm(tokenId, token) {
+      var _this3 = this;
+
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token }));
+      fetchArgs.cors = true;
+      return fetch(this.rootUrl + '/local/userpass/confirm', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        _this3.set(json);
+        return json;
+      });
+    }
+  }, {
+    key: 'sendEmailConfirm',
+    value: function sendEmailConfirm(email) {
+      var _this4 = this;
+
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
+      fetchArgs.cors = true;
+      return fetch(this.rootUrl + '/local/userpass/confirm/send', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        _this4.set(json);
+        return json;
+      });
+    }
+  }, {
+    key: 'sendPasswordReset',
+    value: function sendPasswordReset(email) {
+      var _this5 = this;
+
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
+      fetchArgs.cors = true;
+      return fetch(this.rootUrl + '/local/userpass/reset/send', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        _this5.set(json);
+        return json;
+      });
+    }
+  }, {
+    key: 'passwordReset',
+    value: function passwordReset(tokenId, token) {
+      var _this6 = this;
+
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token }));
+      fetchArgs.cors = true;
+      return fetch(this.rootUrl + '/local/userpass/reset', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        _this6.set(json);
+        return json;
+      });
+    }
+  }, {
+    key: 'register',
+    value: function register(email, password) {
+      var _this7 = this;
+
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email, password: password }));
+      fetchArgs.cors = true;
+      return fetch(this.rootUrl + '/local/userpass/register', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        _this7.set(json);
+        return json;
+      });
+    }
+  }, {
     key: 'localAuth',
     value: function localAuth(username, password) {
-      var _this3 = this;
+      var _this8 = this;
 
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : { cors: true };
 
@@ -201,14 +271,14 @@ var Auth = function () {
       return fetch(this.rootUrl + '/local/userpass', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
-        _this3.set(json);
+        _this8.set(json);
         return json;
       });
     }
   }, {
     key: 'mongodbCloudAuth',
     value: function mongodbCloudAuth(username, apiKey) {
-      var _this4 = this;
+      var _this9 = this;
 
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : { cors: true, cookie: false };
 
@@ -221,7 +291,7 @@ var Auth = function () {
         return fetch(url, fetchArgs).then(common.checkStatus).then(function (response) {
           return response.json();
         }).then(function (json) {
-          _this4.set(json);
+          _this9.set(json);
           return json;
         });
       }
@@ -279,16 +349,16 @@ var Auth = function () {
   }, {
     key: 'refreshImpersonation',
     value: function refreshImpersonation(client) {
-      var _this5 = this;
+      var _this10 = this;
 
       var userId = this.authDataStorage.get(common.IMPERSONATION_USER_KEY);
       return client._do('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
         return response.json();
       }).then(function (json) {
-        json.refreshToken = _this5.authDataStorage.get(common.REFRESH_TOKEN_KEY);
-        _this5.set(json);
+        json.refreshToken = _this10.authDataStorage.get(common.REFRESH_TOKEN_KEY);
+        _this10.set(json);
       }).catch(function (e) {
-        _this5.stopImpersonation();
+        _this10.stopImpersonation();
         throw e; // rethrow
       });
     }
@@ -314,16 +384,16 @@ var Auth = function () {
   }, {
     key: 'stopImpersonation',
     value: function stopImpersonation() {
-      var _this6 = this;
+      var _this11 = this;
 
       if (!this.isImpersonatingUser()) {
         throw new _errors.StitchError('Not impersonating a user');
       }
 
       return new Promise(function (resolve, reject) {
-        var realUserAuth = JSON.parse(_this6.authDataStorage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY));
-        _this6.set(realUserAuth);
-        _this6.clearImpersonation();
+        var realUserAuth = JSON.parse(_this11.authDataStorage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY));
+        _this11.set(realUserAuth);
+        _this11.clearImpersonation();
         resolve();
       });
     }
