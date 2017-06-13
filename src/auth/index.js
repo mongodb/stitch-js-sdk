@@ -135,21 +135,23 @@ export default class Auth {
     this.clearImpersonation();
   }
 
+  getAccessToken() {
+    return this.get()['accessToken'];
+  }
+
   getRefreshToken() {
     return this.storage.get(common.REFRESH_TOKEN_KEY);
   }
 
   set(json) {
-    let rt = json.refreshToken;
-    delete json.refreshToken;
+    if (json && json.refreshToken) {
+      let rt = json.refreshToken;
+      delete json.refreshToken;
+      this.storage.set(common.REFRESH_TOKEN_KEY, rt);
+    }
 
     this.storage.set(common.USER_AUTH_KEY, JSON.stringify(json));
-    this.storage.set(common.REFRESH_TOKEN_KEY, rt);
     return json;
-  }
-
-  get accessToken() {
-    return this.get().accessToken || undefined;
   }
 
   get() {
@@ -169,7 +171,7 @@ export default class Auth {
   }
 
   authedId() {
-    return ((this.get() || {}).user || {})._id;
+    return this.get()['userId'];
   }
 
   isImpersonatingUser() {
