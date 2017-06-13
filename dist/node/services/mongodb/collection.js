@@ -234,7 +234,7 @@ function insertOp(self, docs, options) {
     }
   });
 
-  return (0, _util.serviceResponse)(self.db.client, stages, function (response) {
+  return (0, _util.serviceResponse)(self.db, stages, function (response) {
     return {
       insertedIds: response.result.map(function (doc) {
         return doc._id;
@@ -250,7 +250,7 @@ function deleteOp(self, query, options) {
     query: query
   }, options);
 
-  return (0, _util.serviceResponse)(self.db.client, {
+  return (0, _util.serviceResponse)(self.db, {
     service: self.db.service,
     action: 'delete',
     args: args
@@ -269,7 +269,7 @@ function updateOp(self, query, update, options) {
     update: update
   }, options);
 
-  return (0, _util.serviceResponse)(self.db.client, {
+  return (0, _util.serviceResponse)(self.db, {
     service: self.db.service,
     action: 'update',
     args: args
@@ -292,11 +292,11 @@ function findOp(self, query, options, finalizer) {
     delete args.projection;
   }
 
-  return (0, _util.serviceResponse)(self.db.client, {
+  return (0, _util.serviceResponse)(self.db, {
     service: self.db.service,
     action: 'find',
     args: args
   }, finalizer);
 }
 
-exports.default = Collection;
+exports.default = (0, _util.letMixin)(Collection);

@@ -17,7 +17,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @return {SQSService} a SQSService instance.
  */
 var SQSService = function () {
-  function SQSService(stitchClient, serviceName) {
+  function SQSService(client, serviceName) {
     _classCallCheck(this, SQSService);
 
     this.client = client;
@@ -34,7 +34,7 @@ var SQSService = function () {
   _createClass(SQSService, [{
     key: 'send',
     value: function send() {
-      return (0, _util.serviceResponse)(this.client, {
+      return (0, _util.serviceResponse)(this, {
         service: this.serviceName,
         action: 'send'
       });
@@ -49,7 +49,7 @@ var SQSService = function () {
   }, {
     key: 'receive',
     value: function receive() {
-      return (0, _util.serviceResponse)(this.client, {
+      return (0, _util.serviceResponse)(this, {
         service: this.serviceName,
         action: 'receive'
       });
@@ -59,4 +59,4 @@ var SQSService = function () {
   return SQSService;
 }();
 
-exports.default = SQSService;
+exports.default = (0, _util.letMixin)(SQSService);

@@ -38,7 +38,7 @@ var TwilioService = function () {
   _createClass(TwilioService, [{
     key: 'send',
     value: function send(from, to, body) {
-      return (0, _util.serviceResponse)(this.client, {
+      return (0, _util.serviceResponse)(this, {
         service: this.serviceName,
         action: 'send',
         args: { from: from, to: to, body: body }
@@ -49,4 +49,4 @@ var TwilioService = function () {
   return TwilioService;
 }();
 
-exports.default = TwilioService;
+exports.default = (0, _util.letMixin)(TwilioService);

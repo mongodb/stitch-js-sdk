@@ -37,7 +37,7 @@ var PubnubService = function () {
   _createClass(PubnubService, [{
     key: 'publish',
     value: function publish(channel, message) {
-      return (0, _util.serviceResponse)(this.client, {
+      return (0, _util.serviceResponse)(this, {
         service: this.serviceName,
         action: 'publish',
         args: { channel: channel, message: message }
@@ -48,4 +48,4 @@ var PubnubService = function () {
   return PubnubService;
 }();
 
-exports.default = PubnubService;
+exports.default = (0, _util.letMixin)(PubnubService);
