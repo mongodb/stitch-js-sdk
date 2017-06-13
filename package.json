@@ -45,7 +45,6 @@
     "mongodb": "^2.2.26",
     "regenerator-runtime": "^0.10.5",
     "sinon": "^2.2.0",
-    "sinon-as-promised": "^4.0.3",
     "webpack": "^2.5.1",
     "yargs": "^8.0.1"
   }
