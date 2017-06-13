@@ -29,7 +29,7 @@ var SlackService = function () {
    *
    * @method
    * @param {String} channel the channel to post to
-   * @param {String} message the message to post
+   * @param {String} text the text to post
    * @param {Object} [options]
    * @param {String} [options.username] the username to post as
    * @param {String} [options.iconUrl] url to icon of user
@@ -41,16 +41,16 @@ var SlackService = function () {
 
   _createClass(SlackService, [{
     key: 'post',
-    value: function post(channel, message) {
+    value: function post(channel, text) {
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-      var args = { channel: channel, message: message };
+      var args = { channel: channel, text: text };
       if (!!options.username) args.username = options.username;
       if (!!options.iconUrl) args.iconUrl = options.iconUrl;
       if (!!options.iconEmoji) args.iconEmoji = options.iconEmoji;
       if (!!options.attachments) args.attachments = options.attachments;
 
-      return (0, _util.serviceResponse)(this.client, {
+      return (0, _util.serviceResponse)(this, {
         service: this.serviceName,
         action: 'publish',
         args: args
@@ -61,4 +61,4 @@ var SlackService = function () {
   return SlackService;
 }();
 
-exports.default = SlackService;
+exports.default = (0, _util.letMixin)(SlackService);

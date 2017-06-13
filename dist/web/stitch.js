@@ -117,32 +117,53 @@ function deprecate(fn, msg) {
  * API for calling helper methods (single-stage pipelines) and
  * pipeline building.
  *
- * @param {Object} client the client to execute the stages on
+ * @param {Object} service the service to execute the stages on
  * @param {Array} stages the pipeline stages to execute
  * @param {Function} [finalizer] optional function to call on the result of the response
  */
-function serviceResponse(client, stages, finalizer) {
+function serviceResponse(service, stages, finalizer) {
+  if (service && !service.client) {
+    throw new Error('Service has no client');
+  }
+
   if (finalizer && typeof finalizer !== 'function') {
     throw new Error('Service response finalizer must be a function');
   }
 
+  if (service.hasOwnProperty('__let__')) {
+    if (Array.isArray(stages)) {
+      // what do we do here?
+    } else {
+      stages.let = service.__let__;
+    }
+  }
+
+  var client = service.client;
   Object.defineProperties(stages, {
     then: {
-      enumerable: false,
-      writable: false,
-      configurable: false,
+      enumerable: false, writable: false, configurable: false,
       value: function value(resolve, reject) {
         var result = client.executePipeline(Array.isArray(stages) ? stages : [stages]);
         return !!finalizer ? result.then(finalizer).then(resolve, reject) : result.then(resolve, reject);
       }
     },
     catch: {
-      enumerable: false,
-      writable: false,
-      configurable: false,
+      enumerable: false, writable: false, configurable: false,
       value: function value(rejected) {
         var result = client.executePipeline(Array.isArray(stages) ? stages : [stages]);
         return !!finalizer ? result.then(finalizer).catch(rejected) : result.catch(rejected);
+      }
+    },
+    post: {
+      enumerable: false, writable: true, configurable: true,
+      value: function value(options) {
+        if (Array.isArray(stages)) {
+          // what do we do here?
+        } else {
+          stages.post = options;
+        }
+
+        return stages;
       }
     }
   });
@@ -150,8 +171,27 @@ function serviceResponse(client, stages, finalizer) {
   return stages;
 }
 
+/**
+ * Mixin that allows a definition of an optional `let` stage for
+ * services is mixes in with.
+ *
+ * @param {*} Type the service to mixin
+ */
+function letMixin(Type) {
+  Type.prototype.let = function (options) {
+    Object.defineProperty(this, '__let__', {
+      enumerable: false, configurable: false, writable: false, value: options
+    });
+
+    return this;
+  };
+
+  return Type;
+}
+
 exports.deprecate = deprecate;
 exports.serviceResponse = serviceResponse;
+exports.letMixin = letMixin;
 
 /***/ }),
 /* 1 */
@@ -4105,6 +4145,9 @@ var Admin = function () {
                 list: function list(filter) {
                   return _this5._get('/groups/' + groupId + '/apps/' + appID + '/users', filter);
                 },
+                create: function create(user) {
+                  return _this5._post('/groups/' + groupId + '/apps/' + appID + '/users', user);
+                },
                 user: function user(uid) {
                   return {
                     get: function get() {
@@ -4569,9 +4612,79 @@ var Auth = function () {
       });
     }
   }, {
+    key: 'emailConfirm',
+    value: function emailConfirm(tokenId, token) {
+      var _this3 = this;
+
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token }));
+      fetchArgs.cors = true;
+      return fetch(this.rootUrl + '/local/userpass/confirm', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        _this3.set(json);
+        return json;
+      });
+    }
+  }, {
+    key: 'sendEmailConfirm',
+    value: function sendEmailConfirm(email) {
+      var _this4 = this;
+
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
+      fetchArgs.cors = true;
+      return fetch(this.rootUrl + '/local/userpass/confirm/send', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        _this4.set(json);
+        return json;
+      });
+    }
+  }, {
+    key: 'sendPasswordReset',
+    value: function sendPasswordReset(email) {
+      var _this5 = this;
+
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
+      fetchArgs.cors = true;
+      return fetch(this.rootUrl + '/local/userpass/reset/send', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        _this5.set(json);
+        return json;
+      });
+    }
+  }, {
+    key: 'passwordReset',
+    value: function passwordReset(tokenId, token) {
+      var _this6 = this;
+
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token }));
+      fetchArgs.cors = true;
+      return fetch(this.rootUrl + '/local/userpass/reset', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        _this6.set(json);
+        return json;
+      });
+    }
+  }, {
+    key: 'register',
+    value: function register(email, password) {
+      var _this7 = this;
+
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email, password: password }));
+      fetchArgs.cors = true;
+      return fetch(this.rootUrl + '/local/userpass/register', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        _this7.set(json);
+        return json;
+      });
+    }
+  }, {
     key: 'localAuth',
     value: function localAuth(username, password) {
-      var _this3 = this;
+      var _this8 = this;
 
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : { cors: true };
 
@@ -4581,14 +4694,14 @@ var Auth = function () {
       return fetch(this.rootUrl + '/local/userpass', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
-        _this3.set(json);
+        _this8.set(json);
         return json;
       });
     }
   }, {
     key: 'mongodbCloudAuth',
     value: function mongodbCloudAuth(username, apiKey) {
-      var _this4 = this;
+      var _this9 = this;
 
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : { cors: true, cookie: false };
 
@@ -4601,7 +4714,7 @@ var Auth = function () {
         return fetch(url, fetchArgs).then(common.checkStatus).then(function (response) {
           return response.json();
         }).then(function (json) {
-          _this4.set(json);
+          _this9.set(json);
           return json;
         });
       }
@@ -4659,16 +4772,16 @@ var Auth = function () {
   }, {
     key: 'refreshImpersonation',
     value: function refreshImpersonation(client) {
-      var _this5 = this;
+      var _this10 = this;
 
       var userId = this.authDataStorage.get(common.IMPERSONATION_USER_KEY);
       return client._do('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
         return response.json();
       }).then(function (json) {
-        json.refreshToken = _this5.authDataStorage.get(common.REFRESH_TOKEN_KEY);
-        _this5.set(json);
+        json.refreshToken = _this10.authDataStorage.get(common.REFRESH_TOKEN_KEY);
+        _this10.set(json);
       }).catch(function (e) {
-        _this5.stopImpersonation();
+        _this10.stopImpersonation();
         throw e; // rethrow
       });
     }
@@ -4694,16 +4807,16 @@ var Auth = function () {
   }, {
     key: 'stopImpersonation',
     value: function stopImpersonation() {
-      var _this6 = this;
+      var _this11 = this;
 
       if (!this.isImpersonatingUser()) {
         throw new _errors.StitchError('Not impersonating a user');
       }
 
       return new Promise(function (resolve, reject) {
-        var realUserAuth = JSON.parse(_this6.authDataStorage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY));
-        _this6.set(realUserAuth);
-        _this6.clearImpersonation();
+        var realUserAuth = JSON.parse(_this11.authDataStorage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY));
+        _this11.set(realUserAuth);
+        _this11.clearImpersonation();
         resolve();
       });
     }
@@ -4799,7 +4912,7 @@ var S3Service = function () {
   _createClass(S3Service, [{
     key: 'put',
     value: function put(bucket, key, acl, contentType) {
-      return (0, _util.serviceResponse)(this.client, {
+      return (0, _util.serviceResponse)(this, {
         service: this.serviceName,
         action: 'put',
         args: { bucket: bucket, key: key, acl: acl, contentType: contentType }
@@ -4819,7 +4932,7 @@ var S3Service = function () {
   }, {
     key: 'signPolicy',
     value: function signPolicy(bucket, key, acl, contentType) {
-      return (0, _util.serviceResponse)(this.client, {
+      return (0, _util.serviceResponse)(this, {
         service: this.serviceName,
         action: 'signPolicy',
         args: { bucket: bucket, key: key, acl: acl, contentType: contentType }
@@ -4830,7 +4943,7 @@ var S3Service = function () {
   return S3Service;
 }();
 
-exports.default = S3Service;
+exports.default = (0, _util.letMixin)(S3Service);
 module.exports = exports['default'];
 
 /***/ }),
@@ -4879,7 +4992,7 @@ var SESService = function () {
   _createClass(SESService, [{
     key: 'send',
     value: function send(from, to, subject, body) {
-      return (0, _util.serviceResponse)(this.client, {
+      return (0, _util.serviceResponse)(this, {
         service: this.serviceName,
         action: 'send',
         args: { from: from, to: to, subject: subject, body: body }
@@ -4890,7 +5003,7 @@ var SESService = function () {
   return SESService;
 }();
 
-exports.default = SESService;
+exports.default = (0, _util.letMixin)(SESService);
 module.exports = exports['default'];
 
 /***/ }),
@@ -4917,7 +5030,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @return {SQSService} a SQSService instance.
  */
 var SQSService = function () {
-  function SQSService(stitchClient, serviceName) {
+  function SQSService(client, serviceName) {
     _classCallCheck(this, SQSService);
 
     this.client = client;
@@ -4934,7 +5047,7 @@ var SQSService = function () {
   _createClass(SQSService, [{
     key: 'send',
     value: function send() {
-      return (0, _util.serviceResponse)(this.client, {
+      return (0, _util.serviceResponse)(this, {
         service: this.serviceName,
         action: 'send'
       });
@@ -4949,7 +5062,7 @@ var SQSService = function () {
   }, {
     key: 'receive',
     value: function receive() {
-      return (0, _util.serviceResponse)(this.client, {
+      return (0, _util.serviceResponse)(this, {
         service: this.serviceName,
         action: 'receive'
       });
@@ -4959,7 +5072,7 @@ var SQSService = function () {
   return SQSService;
 }();
 
-exports.default = SQSService;
+exports.default = (0, _util.letMixin)(SQSService);
 module.exports = exports['default'];
 
 /***/ }),
@@ -5119,14 +5232,14 @@ function buildArgs(urlOrOptions, options) {
 }
 
 function buildResponse(action, service, args) {
-  return (0, _util.serviceResponse)(service.client, {
+  return (0, _util.serviceResponse)(service, {
     service: service.serviceName,
     action: action,
     args: args
   });
 }
 
-exports.default = HTTPService;
+exports.default = (0, _util.letMixin)(HTTPService);
 module.exports = exports['default'];
 
 /***/ }),
@@ -5427,7 +5540,7 @@ function insertOp(self, docs, options) {
     }
   });
 
-  return (0, _util.serviceResponse)(self.db.client, stages, function (response) {
+  return (0, _util.serviceResponse)(self.db, stages, function (response) {
     return {
       insertedIds: response.result.map(function (doc) {
         return doc._id;
@@ -5443,7 +5556,7 @@ function deleteOp(self, query, options) {
     query: query
   }, options);
 
-  return (0, _util.serviceResponse)(self.db.client, {
+  return (0, _util.serviceResponse)(self.db, {
     service: self.db.service,
     action: 'delete',
     args: args
@@ -5462,7 +5575,7 @@ function updateOp(self, query, update, options) {
     update: update
   }, options);
 
-  return (0, _util.serviceResponse)(self.db.client, {
+  return (0, _util.serviceResponse)(self.db, {
     service: self.db.service,
     action: 'update',
     args: args
@@ -5485,14 +5598,14 @@ function findOp(self, query, options, finalizer) {
     delete args.projection;
   }
 
-  return (0, _util.serviceResponse)(self.db.client, {
+  return (0, _util.serviceResponse)(self.db, {
     service: self.db.service,
     action: 'find',
     args: args
   }, finalizer);
 }
 
-exports.default = Collection;
+exports.default = (0, _util.letMixin)(Collection);
 module.exports = exports['default'];
 
 /***/ }),
@@ -5673,7 +5786,7 @@ var PubnubService = function () {
   _createClass(PubnubService, [{
     key: 'publish',
     value: function publish(channel, message) {
-      return (0, _util.serviceResponse)(this.client, {
+      return (0, _util.serviceResponse)(this, {
         service: this.serviceName,
         action: 'publish',
         args: { channel: channel, message: message }
@@ -5684,7 +5797,7 @@ var PubnubService = function () {
   return PubnubService;
 }();
 
-exports.default = PubnubService;
+exports.default = (0, _util.letMixin)(PubnubService);
 module.exports = exports['default'];
 
 /***/ }),
@@ -5723,7 +5836,7 @@ var SlackService = function () {
    *
    * @method
    * @param {String} channel the channel to post to
-   * @param {String} message the message to post
+   * @param {String} text the text to post
    * @param {Object} [options]
    * @param {String} [options.username] the username to post as
    * @param {String} [options.iconUrl] url to icon of user
@@ -5735,16 +5848,16 @@ var SlackService = function () {
 
   _createClass(SlackService, [{
     key: 'post',
-    value: function post(channel, message) {
+    value: function post(channel, text) {
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-      var args = { channel: channel, message: message };
+      var args = { channel: channel, text: text };
       if (!!options.username) args.username = options.username;
       if (!!options.iconUrl) args.iconUrl = options.iconUrl;
       if (!!options.iconEmoji) args.iconEmoji = options.iconEmoji;
       if (!!options.attachments) args.attachments = options.attachments;
 
-      return (0, _util.serviceResponse)(this.client, {
+      return (0, _util.serviceResponse)(this, {
         service: this.serviceName,
         action: 'publish',
         args: args
@@ -5755,7 +5868,7 @@ var SlackService = function () {
   return SlackService;
 }();
 
-exports.default = SlackService;
+exports.default = (0, _util.letMixin)(SlackService);
 module.exports = exports['default'];
 
 /***/ }),
@@ -5803,7 +5916,7 @@ var TwilioService = function () {
   _createClass(TwilioService, [{
     key: 'send',
     value: function send(from, to, body) {
-      return (0, _util.serviceResponse)(this.client, {
+      return (0, _util.serviceResponse)(this, {
         service: this.serviceName,
         action: 'send',
         args: { from: from, to: to, body: body }
@@ -5814,7 +5927,7 @@ var TwilioService = function () {
   return TwilioService;
 }();
 
-exports.default = TwilioService;
+exports.default = (0, _util.letMixin)(TwilioService);
 module.exports = exports['default'];
 
 /***/ }),

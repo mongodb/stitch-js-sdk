@@ -454,6 +454,9 @@ var Admin = function () {
                 list: function list(filter) {
                   return _this5._get('/groups/' + groupId + '/apps/' + appID + '/users', filter);
                 },
+                create: function create(user) {
+                  return _this5._post('/groups/' + groupId + '/apps/' + appID + '/users', user);
+                },
                 user: function user(uid) {
                   return {
                     get: function get() {
