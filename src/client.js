@@ -95,6 +95,15 @@ class StitchClient {
   }
 
   /**
+   * Returns profile information for the currently logged in user
+   *
+   * @returns {Promise}
+   */
+  userProfile() {
+    return this._do(`${this.authUrl}/me`, 'GET');
+  }
+
+  /**
    * Factory method for accessing Stitch services.
    *
    * @method
