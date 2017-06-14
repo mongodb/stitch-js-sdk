@@ -33,6 +33,22 @@ export const makeFetchArgs = (method, body) => {
   return init;
 };
 
+export const marshallUserAuth = (data) => {
+  return `${data.accessToken}$${data.refreshToken}`;
+};
+
+export const unmarshallUserAuth = (data) => {
+  let parts = data.split('$');
+  if (parts.length !== 2) {
+    throw new RangeError('invalid user auth data provided: ' + data);
+  }
+
+  return {
+    accessToken: parts[0],
+    refreshToken: parts[1]
+  };
+};
+
 export const parseRedirectFragment = (fragment, ourState) => {
   // After being redirected from oauth, the URL will look like:
   // https://todo.examples.stitch.mongodb.com/#_stitch_state=...&_stitch_ua=...
@@ -51,8 +67,12 @@ export const parseRedirectFragment = (fragment, ourState) => {
       shouldBreak = true;
       break;
     case USER_AUTH_KEY:
-      result.ua = JSON.parse(window.atob(decodeURIComponent(pairParts[1])));
-      result.found = true;
+      try {
+        result.ua = unmarshallUserAuth(decodeURIComponent(pairParts[1]));
+        result.found = true;
+      } catch (e) {
+        result.lastError = e;
+      }
       continue;
     case STITCH_LINK_KEY:
       result.found = true;

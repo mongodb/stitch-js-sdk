@@ -6,10 +6,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, document, fetch */
 
-var _pako = require('pako');
-
-var _pako2 = _interopRequireDefault(_pako);
-
 var _storage = require('./storage');
 
 var _errors = require('./errors');
@@ -19,8 +15,6 @@ var _common = require('./common');
 var common = _interopRequireWildcard(_common);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -135,17 +129,10 @@ var Auth = function () {
       if (!uaCookie) {
         return;
       }
+
       document.cookie = common.USER_AUTH_COOKIE_NAME + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-
-      var binaryStr = window.atob(uaCookie);
-      var charArray = [];
-      for (var i = 0; i < binaryStr.length; i++) {
-        charArray.push(binaryStr.charCodeAt(i));
-      }
-      var inflated = _pako2.default.inflate(new Uint8Array(charArray));
-      var jsonStr = String.fromCharCode.apply(null, new Uint16Array(inflated));
-
-      this.set(JSON.parse(jsonStr));
+      var userAuth = common.unmarshallUserAuth(uaCookie);
+      this.set(userAuth);
       window.history.replaceState(null, '', this.pageRootUrl());
     }
   }, {
@@ -198,8 +185,7 @@ var Auth = function () {
       return fetch(this.rootUrl + '/local/userpass/confirm', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
-        _this3.set(json);
-        return json;
+        return _this3.set(json);
       });
     }
   }, {
@@ -212,8 +198,7 @@ var Auth = function () {
       return fetch(this.rootUrl + '/local/userpass/confirm/send', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
-        _this4.set(json);
-        return json;
+        return _this4.set(json);
       });
     }
   }, {
@@ -226,8 +211,7 @@ var Auth = function () {
       return fetch(this.rootUrl + '/local/userpass/reset/send', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
-        _this5.set(json);
-        return json;
+        return _this5.set(json);
       });
     }
   }, {
@@ -240,8 +224,7 @@ var Auth = function () {
       return fetch(this.rootUrl + '/local/userpass/reset', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
-        _this6.set(json);
-        return json;
+        return _this6.set(json);
       });
     }
   }, {
@@ -254,8 +237,7 @@ var Auth = function () {
       return fetch(this.rootUrl + '/local/userpass/register', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
-        _this7.set(json);
-        return json;
+        return _this7.set(json);
       });
     }
   }, {
@@ -271,8 +253,7 @@ var Auth = function () {
       return fetch(this.rootUrl + '/local/userpass', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
-        _this8.set(json);
-        return json;
+        return _this8.set(json);
       });
     }
   }, {
@@ -291,8 +272,7 @@ var Auth = function () {
         return fetch(url, fetchArgs).then(common.checkStatus).then(function (response) {
           return response.json();
         }).then(function (json) {
-          _this9.set(json);
-          return json;
+          return _this9.set(json);
         });
       }
 
@@ -318,6 +298,7 @@ var Auth = function () {
 
       this.authDataStorage.set(common.USER_AUTH_KEY, JSON.stringify(json));
       this.authDataStorage.set(common.REFRESH_TOKEN_KEY, rt);
+      return json;
     }
   }, {
     key: 'get',

@@ -1,6 +1,6 @@
 /* global expect, it, describe, global, afterEach, beforeEach, afterAll, beforeAll, require, Buffer, Promise */
 const fetchMock = require('fetch-mock');
-import { StitchClient, toQueryString } from '../src/client';
+import { StitchClient } from '../src/client';
 import { parseRedirectFragment, JSONTYPE, REFRESH_TOKEN_KEY, DEFAULT_STITCH_SERVER_URL } from '../src/common';
 import Auth from '../src/auth';
 import { mocks } from 'mock-browser';
@@ -73,6 +73,22 @@ describe('Redirect fragment parsing', () => {
   it('should detect if no items found', () => {
     let result = parseRedirectFragment(makeFragment({'foo': 'bar'}), 'state_ABC');
     expect(result.found).toBe(false);
+  });
+
+  it('should handle ua redirects', () => {
+    let result = parseRedirectFragment(makeFragment({'_stitch_ua': 'somejwt$anotherjwt'}), 'state_ABC');
+    expect(result.found).toBe(true);
+    expect(result.ua).toEqual({
+      accessToken: 'somejwt',
+      refreshToken: 'anotherjwt'
+    });
+  });
+
+  it('should gracefully handle invalid ua data', () => {
+    let result = parseRedirectFragment(makeFragment({'_stitch_ua': 'invalid'}), 'state_ABC');
+    expect(result.found).toBe(false);
+    expect(result.ua).toBeNull();
+    expect(result.lastError).toBeTruthy();
   });
 });
 

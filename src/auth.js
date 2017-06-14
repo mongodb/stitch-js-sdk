@@ -1,6 +1,5 @@
 /* global window, document, fetch */
 
-import pako from 'pako';
 import { createStorage } from './storage';
 import { StitchError } from './errors';
 import * as common from './common';
@@ -117,17 +116,10 @@ export default class Auth {
     if (!uaCookie) {
       return;
     }
+
     document.cookie = `${common.USER_AUTH_COOKIE_NAME}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
-
-    const binaryStr = window.atob(uaCookie);
-    const charArray = [];
-    for (let i = 0; i < binaryStr.length; i++) {
-      charArray.push(binaryStr.charCodeAt(i));
-    }
-    const inflated = pako.inflate(new Uint8Array(charArray));
-    const jsonStr = String.fromCharCode.apply(null, new Uint16Array(inflated));
-
-    this.set(JSON.parse(jsonStr));
+    const userAuth = common.unmarshallUserAuth(uaCookie);
+    this.set(userAuth);
     window.history.replaceState(null, '', this.pageRootUrl());
   }
 
@@ -168,21 +160,16 @@ export default class Auth {
     return fetch(`${this.rootUrl}/local/userpass/confirm`, fetchArgs)
       .then(common.checkStatus)
       .then(response => response.json())
-      .then(json => {
-        this.set(json);
-        return json;
-      });
+      .then(json => this.set(json));
   }
+
   sendEmailConfirm(email) {
     const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({email}));
     fetchArgs.cors = true;
     return fetch(`${this.rootUrl}/local/userpass/confirm/send`, fetchArgs)
       .then(common.checkStatus)
       .then(response => response.json())
-      .then(json => {
-        this.set(json);
-        return json;
-      });
+      .then(json => this.set(json));
   }
 
   sendPasswordReset(email) {
@@ -191,10 +178,7 @@ export default class Auth {
     return fetch(`${this.rootUrl}/local/userpass/reset/send`, fetchArgs)
       .then(common.checkStatus)
       .then(response => response.json())
-      .then(json => {
-        this.set(json);
-        return json;
-      });
+      .then(json => this.set(json));
   }
 
   passwordReset(tokenId, token) {
@@ -203,10 +187,7 @@ export default class Auth {
     return fetch(`${this.rootUrl}/local/userpass/reset`, fetchArgs)
       .then(common.checkStatus)
       .then(response => response.json())
-      .then(json => {
-        this.set(json);
-        return json;
-      });
+      .then(json => this.set(json));
   }
 
   register(email, password) {
@@ -215,10 +196,7 @@ export default class Auth {
     return fetch(`${this.rootUrl}/local/userpass/register`, fetchArgs)
       .then(common.checkStatus)
       .then(response => response.json())
-      .then(json => {
-        this.set(json);
-        return json;
-      });
+      .then(json => this.set(json));
   }
 
   localAuth(username, password, options = {cors: true}) {
@@ -228,10 +206,7 @@ export default class Auth {
     return fetch(`${this.rootUrl}/local/userpass`, fetchArgs)
       .then(common.checkStatus)
       .then(response => response.json())
-      .then(json => {
-        this.set(json);
-        return json;
-      });
+      .then(json => this.set(json));
   }
 
   mongodbCloudAuth(username, apiKey, options = {cors: true, cookie: false}) {
@@ -244,10 +219,7 @@ export default class Auth {
       return fetch(url, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json())
-        .then(json => {
-          this.set(json);
-          return json;
-        });
+        .then(json => this.set(json));
     }
 
     return fetch(url + '?cookie=true', fetchArgs)
@@ -270,6 +242,7 @@ export default class Auth {
 
     this.authDataStorage.set(common.USER_AUTH_KEY, JSON.stringify(json));
     this.authDataStorage.set(common.REFRESH_TOKEN_KEY, rt);
+    return json;
   }
 
   get() {
