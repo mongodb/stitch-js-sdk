@@ -39,6 +39,8 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var EJSON = new _mongodbExtjson2.default();
@@ -172,6 +174,32 @@ var StitchClient = function () {
 
       var ServiceType = _services2.default[type];
       return new ServiceType(this, name);
+    }
+
+    /**
+     * Executes a named pipeline.
+     *
+     * @param {String} name Name of the named pipeline to execute.
+     * @param {Object} args Arguments to the named pipeline to execute.
+     * @param {Object} [options] Additional options to pass to the execution context.
+     */
+
+  }, {
+    key: 'executeNamedPipeline',
+    value: function executeNamedPipeline(name, args) {
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+      var namedPipelineVar = 'namedPipelineOutput';
+      var namedPipelineStages = [{
+        action: 'literal',
+        args: {
+          items: ['%%vars.' + namedPipelineVar]
+        },
+        let: _defineProperty({}, namedPipelineVar, {
+          '%pipeline': { name: name, args: args }
+        })
+      }];
+      return this.executePipeline(namedPipelineStages, options);
     }
 
     /**
