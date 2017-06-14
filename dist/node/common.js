@@ -38,6 +38,22 @@ var makeFetchArgs = exports.makeFetchArgs = function makeFetchArgs(method, body)
   return init;
 };
 
+var marshallUserAuth = exports.marshallUserAuth = function marshallUserAuth(data) {
+  return data.accessToken + '$' + data.refreshToken;
+};
+
+var unmarshallUserAuth = exports.unmarshallUserAuth = function unmarshallUserAuth(data) {
+  var parts = data.split('$');
+  if (parts.length !== 2) {
+    throw new RangeError('invalid user auth data provided: ' + data);
+  }
+
+  return {
+    accessToken: parts[0],
+    refreshToken: parts[1]
+  };
+};
+
 var parseRedirectFragment = exports.parseRedirectFragment = function parseRedirectFragment(fragment, ourState) {
   // After being redirected from oauth, the URL will look like:
   // https://todo.examples.stitch.mongodb.com/#_stitch_state=...&_stitch_ua=...
@@ -56,8 +72,12 @@ var parseRedirectFragment = exports.parseRedirectFragment = function parseRedire
         shouldBreak = true;
         break;
       case USER_AUTH_KEY:
-        result.ua = JSON.parse(window.atob(decodeURIComponent(pairParts[1])));
-        result.found = true;
+        try {
+          result.ua = unmarshallUserAuth(decodeURIComponent(pairParts[1]));
+          result.found = true;
+        } catch (e) {
+          result.lastError = e;
+        }
         continue;
       case STITCH_LINK_KEY:
         result.found = true;
