@@ -115,6 +115,31 @@ class StitchClient {
   }
 
   /**
+   * Executes a named pipeline.
+   *
+   * @param {String} name Name of the named pipeline to execute.
+   * @param {Object} args Arguments to the named pipeline to execute.
+   * @param {Object} [options] Additional options to pass to the execution context.
+   */
+  executeNamedPipeline(name, args, options = {}) {
+    const namedPipelineVar = 'namedPipelineOutput';
+    const namedPipelineStages = [
+      {
+        action: 'literal',
+        args: {
+          items: [ `%%vars.${namedPipelineVar}` ]
+        },
+        let: {
+          [namedPipelineVar]: {
+            '%pipeline': { name, args }
+          }
+        }
+      }
+    ];
+    return this.executePipeline(namedPipelineStages, options);
+  }
+
+  /**
    * Executes a service pipeline.
    *
    * @param {Array} stages Stages to process.
