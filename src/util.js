@@ -44,7 +44,8 @@ function serviceResponse(service, stages, finalizer) {
 
   if (service.hasOwnProperty('__let__')) {
     if (Array.isArray(stages)) {
-      // what do we do here?
+      // @todo: what do we do here?
+      console.warn('`let` not yet supported on an array of stages');
     } else {
       stages.let = service.__let__;
     }
@@ -68,11 +69,25 @@ function serviceResponse(service, stages, finalizer) {
           result.then(finalizer).catch(rejected) : result.catch(rejected);
       }
     },
+    let: {
+      enumerable: false, writable: true, configurable: true,
+      value: (expr) => {
+        if (Array.isArray(stages)) {
+          // @todo: what do we do here?
+          console.warn('`let` not yet supported on an array of stages');
+        } else {
+          stages.let = expr;
+        }
+
+        return stages;
+      }
+    },
     post: {
       enumerable: false, writable: true, configurable: true,
       value: (options) => {
         if (Array.isArray(stages)) {
-          // what do we do here?
+          // @todo: what do we do here?
+          console.warn('`let` not yet supported on an array of stages');
         } else {
           stages.post = options;
         }
