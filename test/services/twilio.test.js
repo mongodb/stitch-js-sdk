@@ -26,7 +26,7 @@ describe('TwilioService', function() {
     it('should support a `post` substage', () => {
       return test.service
         .send('from', 'to', 'body')
-        .post({ some: 'data' })
+        .withPost({ some: 'data' })
         .then(() => {
           const stage = test.client.executePipeline.getCall(0).args[0][0];
           expect(stage).toHaveProperty('post');

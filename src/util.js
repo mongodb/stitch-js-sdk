@@ -69,7 +69,7 @@ function serviceResponse(service, stages, finalizer) {
           result.then(finalizer).catch(rejected) : result.catch(rejected);
       }
     },
-    let: {
+    withLet: {
       enumerable: false, writable: true, configurable: true,
       value: (expr) => {
         if (Array.isArray(stages)) {
@@ -82,12 +82,12 @@ function serviceResponse(service, stages, finalizer) {
         return stages;
       }
     },
-    post: {
+    withPost: {
       enumerable: false, writable: true, configurable: true,
       value: (options) => {
         if (Array.isArray(stages)) {
           // @todo: what do we do here?
-          console.warn('`let` not yet supported on an array of stages');
+          console.warn('`post` not yet supported on an array of stages');
         } else {
           stages.post = options;
         }
