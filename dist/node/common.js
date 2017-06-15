@@ -39,18 +39,20 @@ var makeFetchArgs = exports.makeFetchArgs = function makeFetchArgs(method, body)
 };
 
 var marshallUserAuth = exports.marshallUserAuth = function marshallUserAuth(data) {
-  return data.accessToken + '$' + data.refreshToken;
+  return data.accessToken + '$' + data.refreshToken + '$' + data.userId + '$' + data.deviceId;
 };
 
 var unmarshallUserAuth = exports.unmarshallUserAuth = function unmarshallUserAuth(data) {
   var parts = data.split('$');
-  if (parts.length !== 2) {
+  if (parts.length !== 4) {
     throw new RangeError('invalid user auth data provided: ' + data);
   }
 
   return {
     accessToken: parts[0],
-    refreshToken: parts[1]
+    refreshToken: parts[1],
+    userId: parts[2],
+    deviceId: parts[3]
   };
 };
 
