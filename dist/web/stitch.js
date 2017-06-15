@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 10);
+/******/ 	return __webpack_require__(__webpack_require__.s = 11);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -132,7 +132,8 @@ function serviceResponse(service, stages, finalizer) {
 
   if (service.hasOwnProperty('__let__')) {
     if (Array.isArray(stages)) {
-      // what do we do here?
+      // @todo: what do we do here?
+      console.warn('`let` not yet supported on an array of stages');
     } else {
       stages.let = service.__let__;
     }
@@ -154,11 +155,25 @@ function serviceResponse(service, stages, finalizer) {
         return !!finalizer ? result.then(finalizer).catch(rejected) : result.catch(rejected);
       }
     },
-    post: {
+    withLet: {
+      enumerable: false, writable: true, configurable: true,
+      value: function value(expr) {
+        if (Array.isArray(stages)) {
+          // @todo: what do we do here?
+          console.warn('`let` not yet supported on an array of stages');
+        } else {
+          stages.let = expr;
+        }
+
+        return stages;
+      }
+    },
+    withPost: {
       enumerable: false, writable: true, configurable: true,
       value: function value(options) {
         if (Array.isArray(stages)) {
-          // what do we do here?
+          // @todo: what do we do here?
+          console.warn('`post` not yet supported on an array of stages');
         } else {
           stages.post = options;
         }
@@ -195,6 +210,66 @@ exports.letMixin = letMixin;
 
 /***/ }),
 /* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * Creates a new StitchError
+ *
+ * @class
+ * @augments Error
+ * @param {String} message The error message.
+ * @param {Object} code The error code.
+ * @return {StitchError} A StitchError instance.
+ */
+var StitchError = function (_Error) {
+  _inherits(StitchError, _Error);
+
+  function StitchError(message, code) {
+    _classCallCheck(this, StitchError);
+
+    var _this = _possibleConstructorReturn(this, (StitchError.__proto__ || Object.getPrototypeOf(StitchError)).call(this, message));
+
+    _this.name = 'StitchError';
+    _this.message = message;
+    if (code !== undefined) {
+      _this.code = code;
+    }
+
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(_this, _this.constructor);
+    } else {
+      _this.stack = new Error(message).stack;
+    }
+    return _this;
+  }
+
+  return StitchError;
+}(Error);
+
+var ErrAuthProviderNotFound = 'AuthProviderNotFound';
+var ErrInvalidSession = 'InvalidSession';
+var ErrUnauthorized = 'Unauthorized';
+
+exports.StitchError = StitchError;
+exports.ErrAuthProviderNotFound = ErrAuthProviderNotFound;
+exports.ErrInvalidSession = ErrInvalidSession;
+exports.ErrUnauthorized = ErrUnauthorized;
+
+/***/ }),
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1052,7 +1127,7 @@ module.exports = Long;
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1160,66 +1235,6 @@ var parseRedirectFragment = exports.parseRedirectFragment = function parseRedire
 };
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/**
- * Creates a new StitchError
- *
- * @class
- * @augments Error
- * @param {String} message The error message.
- * @param {Object} code The error code.
- * @return {StitchError} A StitchError instance.
- */
-var StitchError = function (_Error) {
-  _inherits(StitchError, _Error);
-
-  function StitchError(message, code) {
-    _classCallCheck(this, StitchError);
-
-    var _this = _possibleConstructorReturn(this, (StitchError.__proto__ || Object.getPrototypeOf(StitchError)).call(this, message));
-
-    _this.name = 'StitchError';
-    _this.message = message;
-    if (code !== undefined) {
-      _this.code = code;
-    }
-
-    if (typeof Error.captureStackTrace === 'function') {
-      Error.captureStackTrace(_this, _this.constructor);
-    } else {
-      _this.stack = new Error(message).stack;
-    }
-    return _this;
-  }
-
-  return StitchError;
-}(Error);
-
-var ErrAuthProviderNotFound = 'AuthProviderNotFound';
-var ErrInvalidSession = 'InvalidSession';
-var ErrUnauthorized = 'Unauthorized';
-
-exports.StitchError = StitchError;
-exports.ErrAuthProviderNotFound = ErrAuthProviderNotFound;
-exports.ErrInvalidSession = ErrInvalidSession;
-exports.ErrUnauthorized = ErrUnauthorized;
-
-/***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1234,9 +1249,9 @@ exports.ErrUnauthorized = ErrUnauthorized;
 
 
 
-var base64 = __webpack_require__(23)
-var ieee754 = __webpack_require__(25)
-var isArray = __webpack_require__(26)
+var base64 = __webpack_require__(24)
+var ieee754 = __webpack_require__(26)
+var isArray = __webpack_require__(27)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -3014,13 +3029,13 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(44)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(45)))
 
 /***/ }),
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ExtJSON = __webpack_require__(39);
+var ExtJSON = __webpack_require__(40);
 ExtJSON.BSON = __webpack_require__(6);
 
 module.exports = ExtJSON;
@@ -3033,19 +3048,19 @@ module.exports = ExtJSON;
 "use strict";
 
 
-var Binary = __webpack_require__(27);
-var Code = __webpack_require__(28);
-var DBRef = __webpack_require__(29);
-var Decimal128 = __webpack_require__(30);
-var Double = __webpack_require__(31);
-var Int32 = __webpack_require__(32);
-var Long = __webpack_require__(1);
-var MaxKey = __webpack_require__(33);
-var MinKey = __webpack_require__(34);
-var ObjectID = __webpack_require__(35);
-var BSONRegExp = __webpack_require__(36);
-var Symbol = __webpack_require__(37);
-var Timestamp = __webpack_require__(38);
+var Binary = __webpack_require__(28);
+var Code = __webpack_require__(29);
+var DBRef = __webpack_require__(30);
+var Decimal128 = __webpack_require__(31);
+var Double = __webpack_require__(32);
+var Int32 = __webpack_require__(33);
+var Long = __webpack_require__(2);
+var MaxKey = __webpack_require__(34);
+var MinKey = __webpack_require__(35);
+var ObjectID = __webpack_require__(36);
+var BSONRegExp = __webpack_require__(37);
+var Symbol = __webpack_require__(38);
+var Timestamp = __webpack_require__(39);
 
 module.exports = {
   Binary: Binary, Code: Code, DBRef: DBRef, Decimal128: Decimal128, Double: Double,
@@ -3121,6 +3136,148 @@ module.exports = {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _errors = __webpack_require__(1);
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+exports.default = {
+  /**
+   * Filters its input documents and outputs only those documents that match
+   * its query filter condition.
+   *
+   * The match action cannot be in the first stage of a pipeline. The stage
+   * preceding the match action stage must output documents; for example, a
+   * built-in action literal stage.
+   *
+   * @param expression Query filter against which to compare each incoming document.
+   *                   Specify the filter as a JSON document. Filter expression can
+   *                   include MongoDB query expressions as well as variables ($$vars)
+   *                   defined in the stage.
+   * @return {Object}
+   */
+  match: function match(expression) {
+    return { service: '', action: 'match', args: { expression: expression } };
+  },
+
+  /**
+   * Explicitly defines the documents to output from the stage.
+   *
+   * You can only use the literal action in the first stage of a pipeline.
+   *
+   * @param items Documents to output. Documents can reference variables ($$vars) defined
+   *              in the stage.
+   * @return {Object}
+   */
+  literal: function literal(items) {
+    return { service: '', action: 'literal', args: { items: items } };
+  },
+
+  /**
+   * Determines which fields to include or exclude in the output documents.
+   *
+   * The project action cannot be in the first stage of a pipeline. The stage
+   * preceding the project action stage must output documents; for example, a
+   * built-in action literal stage.
+   *
+   * @param projection A document that specifies field inclusions or field
+   *                   exclusions. A projection document cannot specify both
+   *                   field inclusions and field exclusions.
+   * @return {Object}
+   */
+  project: function project(projection) {
+    return { service: '', action: 'project', args: { projection: projection } };
+  },
+
+  /**
+   * Does nothing and outputs nothing. A null action stage may be useful as a
+   * final stage for pipelines that do not need to return anything to the client.
+   *
+   * The null action stage ignores input to its stage as well its own arguments, if specified.
+   */
+  null: function _null() {
+    return { service: '', action: 'null', args: {} };
+  },
+
+  /**
+   * Decodes base64 or hexadecimal encoded data and outputs as binary data stream.
+   *
+   * You can only use the binary action in the first stage of a pipeline.
+   *
+   * @param encoding the encoding format of data argument, one of ["hex", "base64"]
+   * @param data encoded data string to decode and pass on as binary data.
+   */
+  binary: function binary(encoding, data) {
+    if (encoding !== 'hex' && encoding !== 'base64') {
+      throw new _errors.StitchError('invalid encoding specified: ' + encoding);
+    }
+
+    return { service: '', action: 'binary', args: { encoding: encoding, data: data } };
+  },
+
+  /**
+   * Encodes incoming binary data into specified format and outputs a document with
+   * the field data which holds the encoded string.
+   *
+   * The encode action cannot be in the first stage of a pipeline. The stage preceding
+   * the encode action stage must output a stream of binary data.
+   *
+   * @param encoding encoding format for outgoing data, one of: ["hex", "base64"]
+   * @return {Object}
+   */
+  encode: function encode(encoding) {
+    if (encoding !== 'hex' && encoding !== 'base64') {
+      throw new _errors.StitchError('invalid encoding specified: ' + encoding);
+    }
+
+    return { service: '', action: 'encode', args: { encoding: encoding } };
+  },
+
+  /**
+   * Reads a binary input stream and outputs a string.
+   *
+   * The reader action cannot be in the first stage of a pipeline. The stage preceding
+   * the encode action stage must output a stream of binary data.
+   *
+   * @return {Object}
+   */
+  reader: function reader() {
+    return { service: '', action: 'reader', args: {} };
+  },
+
+  /**
+   * Constructs the stages needed to execute a named pipeline
+   *
+   * @param {String} name name of the named pipeline to execute
+   * @param {String|Object} [args] optional arguments to pass to the execution
+   * @return {Object}
+   */
+  namedPipeline: function namedPipeline(name, args) {
+    var namedPipelineVar = 'namedPipelineOutput';
+    return {
+      action: 'literal',
+      args: {
+        items: ['%%vars.' + namedPipelineVar]
+      },
+      let: _defineProperty({}, namedPipelineVar, {
+        '%pipeline': { name: name, args: args }
+      })
+    };
+  }
+
+};
+module.exports = exports['default'];
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 exports.Admin = exports.StitchClient = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -3129,17 +3286,17 @@ var _createClass = function () { function defineProperties(target, props) { for 
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 
 
-__webpack_require__(24);
+__webpack_require__(25);
 
-var _auth = __webpack_require__(9);
+var _auth = __webpack_require__(10);
 
 var _auth2 = _interopRequireDefault(_auth);
 
-var _services = __webpack_require__(15);
+var _services = __webpack_require__(16);
 
 var _services2 = _interopRequireDefault(_services);
 
-var _common = __webpack_require__(2);
+var _common = __webpack_require__(3);
 
 var common = _interopRequireWildcard(_common);
 
@@ -3147,11 +3304,11 @@ var _mongodbExtjson = __webpack_require__(5);
 
 var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
-var _queryString = __webpack_require__(42);
+var _queryString = __webpack_require__(43);
 
 var _queryString2 = _interopRequireDefault(_queryString);
 
-var _errors = __webpack_require__(3);
+var _errors = __webpack_require__(1);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -3872,7 +4029,7 @@ exports.StitchClient = StitchClient;
 exports.Admin = Admin;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3884,11 +4041,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, document, fetch */
 
-var _storage = __webpack_require__(22);
+var _storage = __webpack_require__(23);
 
-var _errors = __webpack_require__(3);
+var _errors = __webpack_require__(1);
 
-var _common = __webpack_require__(2);
+var _common = __webpack_require__(3);
 
 var common = _interopRequireWildcard(_common);
 
@@ -4285,7 +4442,7 @@ exports.default = Auth;
 module.exports = exports['default'];
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4294,15 +4451,22 @@ module.exports = exports['default'];
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Admin = exports.StitchClient = undefined;
+exports.builtins = exports.Admin = exports.StitchClient = undefined;
 
-var _client = __webpack_require__(8);
+var _client = __webpack_require__(9);
+
+var _builtins = __webpack_require__(8);
+
+var _builtins2 = _interopRequireDefault(_builtins);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.StitchClient = _client.StitchClient;
 exports.Admin = _client.Admin;
+exports.builtins = _builtins2.default;
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4383,7 +4547,7 @@ exports.default = (0, _util.letMixin)(S3Service);
 module.exports = exports['default'];
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4443,7 +4607,7 @@ exports.default = (0, _util.letMixin)(SESService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4512,7 +4676,7 @@ exports.default = (0, _util.letMixin)(SQSService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4679,7 +4843,7 @@ exports.default = (0, _util.letMixin)(HTTPService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4689,35 +4853,35 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _s3_service = __webpack_require__(11);
+var _s3_service = __webpack_require__(12);
 
 var _s3_service2 = _interopRequireDefault(_s3_service);
 
-var _ses_service = __webpack_require__(12);
+var _ses_service = __webpack_require__(13);
 
 var _ses_service2 = _interopRequireDefault(_ses_service);
 
-var _sqs_service = __webpack_require__(13);
+var _sqs_service = __webpack_require__(14);
 
 var _sqs_service2 = _interopRequireDefault(_sqs_service);
 
-var _http_service = __webpack_require__(14);
+var _http_service = __webpack_require__(15);
 
 var _http_service2 = _interopRequireDefault(_http_service);
 
-var _mongodb_service = __webpack_require__(18);
+var _mongodb_service = __webpack_require__(19);
 
 var _mongodb_service2 = _interopRequireDefault(_mongodb_service);
 
-var _pubnub_service = __webpack_require__(19);
+var _pubnub_service = __webpack_require__(20);
 
 var _pubnub_service2 = _interopRequireDefault(_pubnub_service);
 
-var _slack_service = __webpack_require__(20);
+var _slack_service = __webpack_require__(21);
 
 var _slack_service2 = _interopRequireDefault(_slack_service);
 
-var _twilio_service = __webpack_require__(21);
+var _twilio_service = __webpack_require__(22);
 
 var _twilio_service2 = _interopRequireDefault(_twilio_service);
 
@@ -4736,7 +4900,7 @@ exports.default = {
 module.exports = exports['default'];
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5045,7 +5209,7 @@ exports.default = (0, _util.letMixin)(Collection);
 module.exports = exports['default'];
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5057,7 +5221,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _collection = __webpack_require__(16);
+var _collection = __webpack_require__(17);
 
 var _collection2 = _interopRequireDefault(_collection);
 
@@ -5112,7 +5276,7 @@ exports.default = DB;
 module.exports = exports['default'];
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5124,7 +5288,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _db = __webpack_require__(17);
+var _db = __webpack_require__(18);
 
 var _db2 = _interopRequireDefault(_db);
 
@@ -5179,7 +5343,7 @@ exports.default = MongoDBService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5237,7 +5401,7 @@ exports.default = (0, _util.letMixin)(PubnubService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5308,7 +5472,7 @@ exports.default = (0, _util.letMixin)(SlackService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5367,7 +5531,7 @@ exports.default = (0, _util.letMixin)(TwilioService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5466,7 +5630,7 @@ function createStorage(type) {
 }
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5587,20 +5751,20 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // the whatwg-fetch polyfill installs the fetch() function
 // on the global object (window or self)
 //
 // Return that as the export for use in Webpack, Browserify etc.
-__webpack_require__(45);
+__webpack_require__(46);
 var globalObj = typeof self !== 'undefined' && self || this;
 module.exports = globalObj.fetch.bind(globalObj);
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -5690,7 +5854,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -5701,7 +5865,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5991,7 +6155,7 @@ module.exports = Binary;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6026,7 +6190,7 @@ module.exports = Code;
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6071,13 +6235,13 @@ module.exports = DBRef;
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Long = __webpack_require__(1);
+var Long = __webpack_require__(2);
 var Buffer = (typeof Buffer !== 'undefined') ? Buffer : Uint8Array;
 
 var PARSE_STRING_REGEXP = /^(\+|\-)?(\d+|(\d*\.\d*))?(E|e)?([\-\+])?(\d+)?$/;
@@ -6793,7 +6957,7 @@ module.exports = Decimal128;
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6836,7 +7000,7 @@ module.exports = Double;
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6879,7 +7043,7 @@ module.exports = Int32;
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6908,7 +7072,7 @@ module.exports = MaxKey;
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6937,7 +7101,7 @@ module.exports = MinKey;
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7265,10 +7429,10 @@ ObjectID.index = ~~(Math.random() * 0xFFFFFF);
 
 module.exports = ObjectID;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(41)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(42)))
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7316,7 +7480,7 @@ module.exports = BSONRegExp;
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7362,13 +7526,13 @@ module.exports = Symbol;
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Long = __webpack_require__(1);
+var Long = __webpack_require__(2);
 
 /**
  * @class
@@ -7451,7 +7615,7 @@ module.exports = Timestamp;
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7733,7 +7897,7 @@ module.exports = ExtJSON;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7830,7 +7994,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -8020,13 +8184,13 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var strictUriEncode = __webpack_require__(43);
-var objectAssign = __webpack_require__(40);
+var strictUriEncode = __webpack_require__(44);
+var objectAssign = __webpack_require__(41);
 
 function encoderForArrayFormat(opts) {
 	switch (opts.arrayFormat) {
@@ -8232,7 +8396,7 @@ exports.stringify = function (obj, opts) {
 
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8245,7 +8409,7 @@ module.exports = function (str) {
 
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports) {
 
 var g;
@@ -8272,7 +8436,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports) {
 
 (function(self) {
