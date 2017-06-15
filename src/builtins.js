@@ -33,19 +33,6 @@ export default {
   },
 
   /**
-   * Evaluates an expression against each input document and outputs the evaluated
-   * documents. The $concat and the $match operators are available for use in the
-   * expression.
-   *
-   * @param expression An expression to evaluate. $concat and the $match operators
-   *                   are available for use in the expression.
-   * @return {Object}
-   */
-  expr: function(expression) {
-    return { service: '', action: 'expr', args: { expression: expression } };
-  },
-
-  /**
    * Determines which fields to include or exclude in the output documents.
    *
    * The project action cannot be in the first stage of a pipeline. The stage
@@ -115,5 +102,28 @@ export default {
    */
   reader: function() {
     return { service: '', action: 'reader', args: {} };
+  },
+
+  /**
+   * Constructs the stages needed to execute a named pipeline
+   *
+   * @param {String} name name of the named pipeline to execute
+   * @param {String|Object} [args] optional arguments to pass to the execution
+   * @return {Object}
+   */
+  namedPipeline: function(name, args) {
+    const namedPipelineVar = 'namedPipelineOutput';
+    return {
+      action: 'literal',
+      args: {
+        items: [ `%%vars.${namedPipelineVar}` ]
+      },
+      let: {
+        [namedPipelineVar]: {
+          '%pipeline': { name, args }
+        }
+      }
+    };
   }
+
 };
