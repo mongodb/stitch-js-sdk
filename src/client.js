@@ -26,12 +26,16 @@ class StitchClient {
     if (options && options.baseUrl) {
       baseUrl = options.baseUrl;
     }
+
     this.appUrl = `${baseUrl}/api/public/v1.0`;
     this.authUrl = `${baseUrl}/api/public/v1.0/auth`;
+    this.profileUrl = `${baseUrl}/api/public/v1.0/auth/me`;
     if (clientAppID) {
       this.appUrl = `${baseUrl}/api/client/v1.0/app/${clientAppID}`;
       this.authUrl = `${this.appUrl}/auth`;
+      this.profileUrl = `${this.appUrl}/auth/me`;
     }
+
     this.authManager = new Auth(this.authUrl);
     this.authManager.handleRedirect();
     this.authManager.handleCookie();
