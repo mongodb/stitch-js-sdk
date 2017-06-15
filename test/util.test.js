@@ -34,17 +34,16 @@ describe('util', () => {
 
     it('should allow a `let` substage definition, after the stage', () => {
       let response = serviceResponse(test.service, { ok: 1 });
-      response.let({ something: 'test' });
+      response.withLet({ something: 'test' });
       expect(response).toHaveProperty('let');
       expect(response.let).toEqual({ something: 'test' });
     });
 
     it('should allow a `post` substage definition, after the stage', () => {
       let response = serviceResponse(test.service, { ok: 1 });
-      response.post({ something: 'test' });
-      expect(response).toHaveProperty('let');
+      response.withPost({ something: 'test' });
+      expect(response).toHaveProperty('post');
       expect(response.post).toEqual({ something: 'test' });
     });
   });
 });
-g
