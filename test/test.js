@@ -76,11 +76,13 @@ describe('Redirect fragment parsing', () => {
   });
 
   it('should handle ua redirects', () => {
-    let result = parseRedirectFragment(makeFragment({'_stitch_ua': 'somejwt$anotherjwt'}), 'state_ABC');
+    let result = parseRedirectFragment(makeFragment({'_stitch_ua': 'somejwt$anotherjwt$userid$deviceid'}), 'state_ABC');
     expect(result.found).toBe(true);
     expect(result.ua).toEqual({
       accessToken: 'somejwt',
-      refreshToken: 'anotherjwt'
+      refreshToken: 'anotherjwt',
+      userId: 'userid',
+      deviceId: 'deviceid'
     });
   });
 

@@ -34,19 +34,20 @@ export const makeFetchArgs = (method, body) => {
 };
 
 export const marshallUserAuth = (data) => {
-  return `${data.accessToken}$${data.refreshToken}$${data.userId}`;
+  return `${data.accessToken}$${data.refreshToken}$${data.userId}$${data.deviceId}`;
 };
 
 export const unmarshallUserAuth = (data) => {
   let parts = data.split('$');
-  if (parts.length !== 3) {
+  if (parts.length !== 4) {
     throw new RangeError('invalid user auth data provided: ' + data);
   }
 
   return {
     accessToken: parts[0],
     refreshToken: parts[1],
-    userId: parts[2]
+    userId: parts[2],
+    deviceId: parts[3]
   };
 };
 
