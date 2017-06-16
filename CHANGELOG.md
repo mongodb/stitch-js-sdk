@@ -1,3 +1,19 @@
+<a name="0.0.7"></a>
+## [0.0.7](https://github.com/10gen/stitch-js-sdk/compare/v0.0.6...v0.0.7) (2017-06-16)
+
+
+### Bug Fixes
+
+* **auth-providers:** correct issues detected during integration ([cc4f1a5](https://github.com/10gen/stitch-js-sdk/commit/cc4f1a5))
+
+
+### Features
+
+* **admin-auth-me:** use admin user profile endpoint for `Admin` ([709c8cc](https://github.com/10gen/stitch-js-sdk/commit/709c8cc))
+* **user-profile:** add top level api for retrieving user profile ([52cd4de](https://github.com/10gen/stitch-js-sdk/commit/52cd4de))
+
+
+
 <a name="0.0.5"></a>
 ## [0.0.5](https://github.com/10gen/stitch-js-sdk/compare/fd5e996...v0.0.5) (2017-06-15)
 
