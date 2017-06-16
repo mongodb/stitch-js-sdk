@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 11);
+/******/ 	return __webpack_require__(__webpack_require__.s = 15);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -218,6 +218,117 @@ exports.letMixin = letMixin;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+var JSONTYPE = exports.JSONTYPE = 'application/json';
+var USER_AUTH_KEY = exports.USER_AUTH_KEY = '_stitch_ua';
+var REFRESH_TOKEN_KEY = exports.REFRESH_TOKEN_KEY = '_stitch_rt';
+var STATE_KEY = exports.STATE_KEY = '_stitch_state';
+var STITCH_ERROR_KEY = exports.STITCH_ERROR_KEY = '_stitch_error';
+var STITCH_LINK_KEY = exports.STITCH_LINK_KEY = '_stitch_link';
+var IMPERSONATION_ACTIVE_KEY = exports.IMPERSONATION_ACTIVE_KEY = '_stitch_impers_active';
+var IMPERSONATION_USER_KEY = exports.IMPERSONATION_USER_KEY = '_stitch_impers_user';
+var IMPERSONATION_REAL_USER_AUTH_KEY = exports.IMPERSONATION_REAL_USER_AUTH_KEY = '_stitch_impers_real_ua';
+var USER_AUTH_COOKIE_NAME = exports.USER_AUTH_COOKIE_NAME = 'stitch_ua';
+var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://stitch.mongodb.com';
+
+var checkStatus = exports.checkStatus = function checkStatus(response) {
+  if (response.status >= 200 && response.status < 300) {
+    return response;
+  }
+
+  var error = new Error(response.statusText);
+  error.response = response;
+  throw error;
+};
+
+var makeFetchArgs = exports.makeFetchArgs = function makeFetchArgs(method, body) {
+  var init = {
+    method: method,
+    headers: { 'Accept': JSONTYPE, 'Content-Type': JSONTYPE }
+  };
+
+  if (body) {
+    init.body = body;
+  }
+
+  init.cors = true;
+  return init;
+};
+
+var marshallUserAuth = exports.marshallUserAuth = function marshallUserAuth(data) {
+  return data.accessToken + '$' + data.refreshToken + '$' + data.userId + '$' + data.deviceId;
+};
+
+var unmarshallUserAuth = exports.unmarshallUserAuth = function unmarshallUserAuth(data) {
+  var parts = data.split('$');
+  if (parts.length !== 4) {
+    throw new RangeError('invalid user auth data provided: ' + data);
+  }
+
+  return {
+    accessToken: parts[0],
+    refreshToken: parts[1],
+    userId: parts[2],
+    deviceId: parts[3]
+  };
+};
+
+var parseRedirectFragment = exports.parseRedirectFragment = function parseRedirectFragment(fragment, ourState) {
+  // After being redirected from oauth, the URL will look like:
+  // https://todo.examples.stitch.mongodb.com/#_stitch_state=...&_stitch_ua=...
+  // This function parses out stitch-specific tokens from the fragment and
+  // builds an object describing the result.
+  var vars = fragment.split('&');
+  var result = { ua: null, found: false, stateValid: false, lastError: null };
+  var shouldBreak = false;
+  for (var i = 0; i < vars.length; ++i) {
+    var pairParts = vars[i].split('=');
+    var pairKey = decodeURIComponent(pairParts[0]);
+    switch (pairKey) {
+      case STITCH_ERROR_KEY:
+        result.lastError = decodeURIComponent(pairParts[1]);
+        result.found = true;
+        shouldBreak = true;
+        break;
+      case USER_AUTH_KEY:
+        try {
+          result.ua = unmarshallUserAuth(decodeURIComponent(pairParts[1]));
+          result.found = true;
+        } catch (e) {
+          result.lastError = e;
+        }
+        continue;
+      case STITCH_LINK_KEY:
+        result.found = true;
+        continue;
+      case STATE_KEY:
+        result.found = true;
+        var theirState = decodeURIComponent(pairParts[1]);
+        if (ourState && ourState === theirState) {
+          result.stateValid = true;
+        }
+        continue;
+      default:
+        continue;
+    }
+
+    if (shouldBreak) {
+      break;
+    }
+  }
+
+  return result;
+};
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -269,7 +380,7 @@ exports.ErrInvalidSession = ErrInvalidSession;
 exports.ErrUnauthorized = ErrUnauthorized;
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1127,116 +1238,6 @@ module.exports = Long;
 
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var JSONTYPE = exports.JSONTYPE = 'application/json';
-var USER_AUTH_KEY = exports.USER_AUTH_KEY = '_stitch_ua';
-var REFRESH_TOKEN_KEY = exports.REFRESH_TOKEN_KEY = '_stitch_rt';
-var STATE_KEY = exports.STATE_KEY = '_stitch_state';
-var STITCH_ERROR_KEY = exports.STITCH_ERROR_KEY = '_stitch_error';
-var STITCH_LINK_KEY = exports.STITCH_LINK_KEY = '_stitch_link';
-var IMPERSONATION_ACTIVE_KEY = exports.IMPERSONATION_ACTIVE_KEY = '_stitch_impers_active';
-var IMPERSONATION_USER_KEY = exports.IMPERSONATION_USER_KEY = '_stitch_impers_user';
-var IMPERSONATION_REAL_USER_AUTH_KEY = exports.IMPERSONATION_REAL_USER_AUTH_KEY = '_stitch_impers_real_ua';
-var USER_AUTH_COOKIE_NAME = exports.USER_AUTH_COOKIE_NAME = 'stitch_ua';
-var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://stitch.mongodb.com';
-
-var checkStatus = exports.checkStatus = function checkStatus(response) {
-  if (response.status >= 200 && response.status < 300) {
-    return response;
-  }
-
-  var error = new Error(response.statusText);
-  error.response = response;
-  throw error;
-};
-
-var makeFetchArgs = exports.makeFetchArgs = function makeFetchArgs(method, body) {
-  var init = {
-    method: method,
-    headers: { 'Accept': JSONTYPE, 'Content-Type': JSONTYPE }
-  };
-
-  if (body) {
-    init.body = body;
-  }
-  init.cors = true;
-  return init;
-};
-
-var marshallUserAuth = exports.marshallUserAuth = function marshallUserAuth(data) {
-  return data.accessToken + '$' + data.refreshToken + '$' + data.userId + '$' + data.deviceId;
-};
-
-var unmarshallUserAuth = exports.unmarshallUserAuth = function unmarshallUserAuth(data) {
-  var parts = data.split('$');
-  if (parts.length !== 4) {
-    throw new RangeError('invalid user auth data provided: ' + data);
-  }
-
-  return {
-    accessToken: parts[0],
-    refreshToken: parts[1],
-    userId: parts[2],
-    deviceId: parts[3]
-  };
-};
-
-var parseRedirectFragment = exports.parseRedirectFragment = function parseRedirectFragment(fragment, ourState) {
-  // After being redirected from oauth, the URL will look like:
-  // https://todo.examples.stitch.mongodb.com/#_stitch_state=...&_stitch_ua=...
-  // This function parses out stitch-specific tokens from the fragment and
-  // builds an object describing the result.
-  var vars = fragment.split('&');
-  var result = { ua: null, found: false, stateValid: false, lastError: null };
-  var shouldBreak = false;
-  for (var i = 0; i < vars.length; ++i) {
-    var pairParts = vars[i].split('=');
-    var pairKey = decodeURIComponent(pairParts[0]);
-    switch (pairKey) {
-      case STITCH_ERROR_KEY:
-        result.lastError = decodeURIComponent(pairParts[1]);
-        result.found = true;
-        shouldBreak = true;
-        break;
-      case USER_AUTH_KEY:
-        try {
-          result.ua = unmarshallUserAuth(decodeURIComponent(pairParts[1]));
-          result.found = true;
-        } catch (e) {
-          result.lastError = e;
-        }
-        continue;
-      case STITCH_LINK_KEY:
-        result.found = true;
-        continue;
-      case STATE_KEY:
-        result.found = true;
-        var theirState = decodeURIComponent(pairParts[1]);
-        if (ourState && ourState === theirState) {
-          result.stateValid = true;
-        }
-        continue;
-      default:
-        continue;
-    }
-
-    if (shouldBreak) {
-      break;
-    }
-  }
-
-  return result;
-};
-
-/***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1251,9 +1252,9 @@ var parseRedirectFragment = exports.parseRedirectFragment = function parseRedire
 
 
 
-var base64 = __webpack_require__(24)
-var ieee754 = __webpack_require__(26)
-var isArray = __webpack_require__(27)
+var base64 = __webpack_require__(27)
+var ieee754 = __webpack_require__(29)
+var isArray = __webpack_require__(31)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -3031,13 +3032,13 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(45)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ }),
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ExtJSON = __webpack_require__(40);
+var ExtJSON = __webpack_require__(44);
 ExtJSON.BSON = __webpack_require__(6);
 
 module.exports = ExtJSON;
@@ -3050,19 +3051,19 @@ module.exports = ExtJSON;
 "use strict";
 
 
-var Binary = __webpack_require__(28);
-var Code = __webpack_require__(29);
-var DBRef = __webpack_require__(30);
-var Decimal128 = __webpack_require__(31);
-var Double = __webpack_require__(32);
-var Int32 = __webpack_require__(33);
-var Long = __webpack_require__(2);
-var MaxKey = __webpack_require__(34);
-var MinKey = __webpack_require__(35);
-var ObjectID = __webpack_require__(36);
-var BSONRegExp = __webpack_require__(37);
-var Symbol = __webpack_require__(38);
-var Timestamp = __webpack_require__(39);
+var Binary = __webpack_require__(32);
+var Code = __webpack_require__(33);
+var DBRef = __webpack_require__(34);
+var Decimal128 = __webpack_require__(35);
+var Double = __webpack_require__(36);
+var Int32 = __webpack_require__(37);
+var Long = __webpack_require__(3);
+var MaxKey = __webpack_require__(38);
+var MinKey = __webpack_require__(39);
+var ObjectID = __webpack_require__(40);
+var BSONRegExp = __webpack_require__(41);
+var Symbol = __webpack_require__(42);
+var Timestamp = __webpack_require__(43);
 
 module.exports = {
   Binary: Binary, Code: Code, DBRef: DBRef, Decimal128: Decimal128, Double: Double,
@@ -3130,6 +3131,223 @@ module.exports = {
 
 /***/ }),
 /* 8 */
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3139,7 +3357,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _errors = __webpack_require__(1);
+var _errors = __webpack_require__(2);
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -3271,7 +3489,7 @@ exports.default = {
 module.exports = exports['default'];
 
 /***/ }),
-/* 9 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3288,17 +3506,17 @@ var _createClass = function () { function defineProperties(target, props) { for 
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 
 
-__webpack_require__(25);
+__webpack_require__(28);
 
-var _auth = __webpack_require__(10);
+var _auth = __webpack_require__(12);
 
 var _auth2 = _interopRequireDefault(_auth);
 
-var _services = __webpack_require__(16);
+var _services = __webpack_require__(20);
 
 var _services2 = _interopRequireDefault(_services);
 
-var _common = __webpack_require__(3);
+var _common = __webpack_require__(1);
 
 var common = _interopRequireWildcard(_common);
 
@@ -3306,11 +3524,13 @@ var _mongodbExtjson = __webpack_require__(5);
 
 var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
-var _queryString = __webpack_require__(43);
+var _queryString = __webpack_require__(46);
 
 var _queryString2 = _interopRequireDefault(_queryString);
 
-var _errors = __webpack_require__(1);
+var _util = __webpack_require__(49);
+
+var _errors = __webpack_require__(2);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -3331,78 +3551,114 @@ var EJSON = new _mongodbExtjson2.default();
 
 var StitchClient = function () {
   function StitchClient(clientAppID, options) {
+    var _this = this;
+
     _classCallCheck(this, StitchClient);
 
     var baseUrl = common.DEFAULT_STITCH_SERVER_URL;
     if (options && options.baseUrl) {
       baseUrl = options.baseUrl;
     }
+
     this.appUrl = baseUrl + '/api/public/v1.0';
     this.authUrl = baseUrl + '/api/public/v1.0/auth';
+    this.profileUrl = baseUrl + '/api/public/v1.0/auth/me';
     if (clientAppID) {
       this.appUrl = baseUrl + '/api/client/v1.0/app/' + clientAppID;
       this.authUrl = this.appUrl + '/auth';
+      this.profileUrl = this.appUrl + '/auth/me';
     }
-    this.authManager = new _auth2.default(this.authUrl);
-    this.authManager.handleRedirect();
-    this.authManager.handleCookie();
+
+    this.auth = new _auth2.default(this, this.authUrl);
+    this.auth.handleRedirect();
+    this.auth.handleCookie();
+
+    // deprecated API
+    this.authManager = {
+      apiKeyAuth: function apiKeyAuth(key) {
+        return _this.authenticate('apiKey', key);
+      },
+      localAuth: function localAuth(email, password) {
+        return _this.login(email, password);
+      },
+      mongodbCloudAuth: function mongodbCloudAuth(username, apiKey, opts) {
+        return _this.authenticate('mongodbCloud', Object.assign({ username: username, apiKey: apiKey }, opts));
+      }
+    };
+
+    this.authManager.apiKeyAuth = (0, _util.deprecate)(this.authManager.apiKeyAuth, 'use `client.authenticate("apiKey", "key")` instead of `client.authManager.apiKey`');
+    this.authManager.localAuth = (0, _util.deprecate)(this.authManager.localAuth, 'use `client.login` instead of `client.authManager.localAuth`');
+    this.authManager.mongodbCloudAuth = (0, _util.deprecate)(this.authManager.mongodbCloudAuth, 'use `client.authenticate("mongodbCloud", opts)` instead of `client.authManager.mongodbCloudAuth`');
   }
 
   /**
-   * Sends the user to the OAuth flow for the specified third-party service.
+   * Login to stich instance, optionally providing a username and password. In
+   * the event that these are omitted, anonymous authentication is used.
    *
-   * @param {*} providerName The OAuth provider name.
-   * @param {*} redirectUrl The redirect URL to use after the flow completes.
+   * @param {String} [email] the email address used for login
+   * @param {String} [password] the password for the provided email address
+   * @param {Object} [options] additional authentication options
+   * @returns {Promise}
    */
 
 
   _createClass(StitchClient, [{
-    key: 'authWithOAuth',
-    value: function authWithOAuth(providerName, redirectUrl) {
-      window.location.replace(this.authManager.getOAuthLoginURL(providerName, redirectUrl));
+    key: 'login',
+    value: function login(email, password) {
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+      return this.auth.provider('local').login(email, password, options);
     }
 
     /**
-     * Generates a URL that can be used to initiate an OAuth login flow with the specified OAuth provider.
+     * Send a request to the server indicating the provided email would like
+     * to sign up for an account. This will trigger a confirmation email containing
+     * a token which must be used with the `emailConfirm` method of the `userpass`
+     * auth provider in order to complete registration. The user will not be able
+     * to log in until that flow has been completed.
      *
-     * @param {*} providerName The OAuth provider name.
-     * @param {*} redirectUrlThe redirect URL to use after the flow completes.
+     * @param {String} email the email used to sign up for the app
+     * @param {String} password the password used to sign up for the app
+     * @param {Object} [options] additional authentication options
+     * @returns {Promise}
      */
 
   }, {
-    key: 'getOAuthLoginURL',
-    value: function getOAuthLoginURL(providerName, redirectUrl) {
-      return this.authManager.getOAuthLoginURL(providerName, redirectUrl);
+    key: 'register',
+    value: function register(email, password) {
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+      return this.auth.provider('userpass').register(email, password, options);
     }
 
     /**
-     * Logs in as an anonymous user.
+     * Starts an OAuth authorization flow by opening a popup window
+     *
+     * @param {String} providerType the provider used for authentication (e.g. 'facebook', 'google')
+     * @param {Object} [options] additional authentication options (user data)
+     * @returns {Promise}
      */
 
   }, {
-    key: 'anonymousAuth',
-    value: function anonymousAuth() {
-      return this.authManager.anonymousAuth();
+    key: 'authenticate',
+    value: function authenticate(providerType, options) {
+      return this.auth.provider(providerType).authenticate(options);
     }
 
     /**
-     *  @return {String} Returns the currently authed user's ID.
+     * Ends the session for the current user.
+     *
+     * @returns {Promise}
      */
 
   }, {
-    key: 'authedId',
-    value: function authedId() {
-      return this.authManager.authedId();
-    }
+    key: 'logout',
+    value: function logout() {
+      var _this2 = this;
 
-    /**
-     * @return {Object} Returns the currently authed user's authentication information.
-     */
-
-  }, {
-    key: 'auth',
-    value: function auth() {
-      return this.authManager.get();
+      return this._do('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function () {
+        return _this2.auth.clear();
+      });
     }
 
     /**
@@ -3412,21 +3668,29 @@ var StitchClient = function () {
   }, {
     key: 'authError',
     value: function authError() {
-      return this.authManager.error();
+      return this.auth.error();
     }
 
     /**
-     * Ends the session for the current user.
+     * Returns profile information for the currently logged in user
+     *
+     * @returns {Promise}
      */
 
   }, {
-    key: 'logout',
-    value: function logout() {
-      var _this = this;
+    key: 'userProfile',
+    value: function userProfile() {
+      return this._do(this.authUrl + '/me', 'GET');
+    }
 
-      return this._do('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function () {
-        return _this.authManager.clear();
-      });
+    /**
+     *  @return {String} Returns the currently authed user's ID.
+     */
+
+  }, {
+    key: 'authedId',
+    value: function authedId() {
+      return this.auth.authedId();
     }
 
     /**
@@ -3525,7 +3789,7 @@ var StitchClient = function () {
   }, {
     key: '_do',
     value: function _do(resource, method, options) {
-      var _this2 = this;
+      var _this3 = this;
 
       options = Object.assign({}, {
         refreshOnFailure: true,
@@ -3533,7 +3797,7 @@ var StitchClient = function () {
       }, options);
 
       if (!options.noAuth) {
-        if (this.auth() === null) {
+        if (this.user === null) {
           return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
         }
       }
@@ -3546,7 +3810,7 @@ var StitchClient = function () {
       }
 
       if (!options.noAuth) {
-        var token = options.useRefreshToken ? this.authManager.getRefreshToken() : this.auth().accessToken;
+        var token = options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
         fetchArgs.headers.Authorization = 'Bearer ' + token;
       }
 
@@ -3565,16 +3829,16 @@ var StitchClient = function () {
             // Only want to try refreshing token when there's an invalid session
             if ('errorCode' in json && json.errorCode === _errors.ErrInvalidSession) {
               if (!options.refreshOnFailure) {
-                _this2.authManager.clear();
+                _this3.auth.clear();
                 var _error = new _errors.StitchError(json.error, json.errorCode);
                 _error.response = response;
                 _error.json = json;
                 throw _error;
               }
 
-              return _this2._refreshToken().then(function () {
+              return _this3.auth.refreshToken().then(function () {
                 options.refreshOnFailure = false;
-                return _this2._do(resource, method, options);
+                return _this3._do(resource, method, options);
               });
             }
 
@@ -3587,29 +3851,29 @@ var StitchClient = function () {
 
         var error = new Error(response.statusText);
         error.response = response;
-
         return Promise.reject(error);
       });
     }
+
+    // Deprecated API
+
   }, {
-    key: '_refreshToken',
-    value: function _refreshToken() {
-      var _this3 = this;
-
-      if (this.authManager.isImpersonatingUser()) {
-        return this.authManager.refreshImpersonation(this);
-      }
-
-      return this._do('/auth/newAccessToken', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return _this3.authManager.setAccessToken(json.accessToken);
-      });
+    key: 'authWithOAuth',
+    value: function authWithOAuth(providerType, redirectUrl) {
+      return this.auth.provider(providerType).authenticate({ redirectUrl: redirectUrl });
+    }
+  }, {
+    key: 'anonymousAuth',
+    value: function anonymousAuth() {
+      return this.login();
     }
   }]);
 
   return StitchClient;
 }();
+
+StitchClient.prototype.authWithOAuth = (0, _util.deprecate)(StitchClient.prototype.authWithOAuth, 'use `authenticate` instead of `authWithOAuth`');
+StitchClient.prototype.anonymousAuth = (0, _util.deprecate)(StitchClient.prototype.anonymousAuth, 'use `login()` instead of `anonymousAuth`');
 
 var Admin = function () {
   function Admin(baseUrl) {
@@ -4010,17 +4274,17 @@ var Admin = function () {
   }, {
     key: '_isImpersonatingUser',
     value: function _isImpersonatingUser() {
-      return this.client.authManager.isImpersonatingUser();
+      return this.client.auth.isImpersonatingUser();
     }
   }, {
     key: '_startImpersonation',
     value: function _startImpersonation(userId) {
-      return this.client.authManager.startImpersonation(this.client, userId);
+      return this.client.auth.startImpersonation(this.client, userId);
     }
   }, {
     key: '_stopImpersonation',
     value: function _stopImpersonation() {
-      return this.client.authManager.stopImpersonation();
+      return this.client.auth.stopImpersonation();
     }
   }]);
 
@@ -4031,7 +4295,7 @@ exports.StitchClient = StitchClient;
 exports.Admin = Admin;
 
 /***/ }),
-/* 10 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4043,11 +4307,13 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, document, fetch */
 
-var _storage = __webpack_require__(23);
+var _storage = __webpack_require__(14);
 
-var _errors = __webpack_require__(1);
+var _providers = __webpack_require__(13);
 
-var _common = __webpack_require__(3);
+var _errors = __webpack_require__(2);
+
+var _common = __webpack_require__(1);
 
 var common = _interopRequireWildcard(_common);
 
@@ -4056,34 +4322,55 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Auth = function () {
-  function Auth(rootUrl) {
+  function Auth(client, rootUrl, options) {
     _classCallCheck(this, Auth);
 
+    options = Object.assign({}, {
+      storageType: 'localStorage'
+    }, options);
+
+    this.client = client;
     this.rootUrl = rootUrl;
-    this.authDataStorage = (0, _storage.createStorage)('localStorage');
+    this.storage = (0, _storage.createStorage)(options.storageType);
+    this.providers = (0, _providers.createProviders)(this);
   }
 
   _createClass(Auth, [{
+    key: 'provider',
+    value: function provider(name) {
+      if (!this.providers.hasOwnProperty(name)) {
+        throw new Error('Invalid auth provider specified: ' + name);
+      }
+
+      return this.providers[name];
+    }
+  }, {
+    key: 'refreshToken',
+    value: function refreshToken() {
+      var _this = this;
+
+      if (this.isImpersonatingUser()) {
+        return this.refreshImpersonation(this.client);
+      }
+
+      var requestOptions = { refreshOnFailure: false, useRefreshToken: true };
+      return this.client._do('/auth/newAccessToken', 'POST', requestOptions).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        return _this.setAccessToken(json.accessToken);
+      });
+    }
+  }, {
     key: 'pageRootUrl',
     value: function pageRootUrl() {
       return [window.location.protocol, '//', window.location.host, window.location.pathname].join('');
     }
-
-    // The state we generate is to be used for any kind of request where we will
-    // complete an authentication flow via a redirect. We store the generate in
-    // a local storage bound to the app's origin. This ensures that any time we
-    // receive a redirect, there must be a state parameter and it must match
-    // what we ourselves have generated. This state MUST only be sent to
-    // a trusted Stitch endpoint in order to preserve its integrity. Stitch will
-    // store it in some way on its origin (currently a cookie stored on this client)
-    // and use that state at the end of an auth flow as a parameter in the redirect URI.
-
   }, {
     key: 'setAccessToken',
     value: function setAccessToken(token) {
       var currAuth = this.get();
       currAuth.accessToken = token;
-      currAuth.refreshToken = this.authDataStorage.get(common.REFRESH_TOKEN_KEY);
+      currAuth.refreshToken = this.storage.get(common.REFRESH_TOKEN_KEY);
       this.set(currAuth);
     }
   }, {
@@ -4103,7 +4390,7 @@ var Auth = function () {
         return;
       }
 
-      var ourState = this.authDataStorage.get(common.STATE_KEY);
+      var ourState = this.storage.get(common.STATE_KEY);
       var redirectFragment = window.location.hash.substring(1);
       var redirectState = common.parseRedirectFragment(redirectFragment, ourState);
       if (redirectState.lastError) {
@@ -4117,7 +4404,7 @@ var Auth = function () {
         return;
       }
 
-      this.authDataStorage.remove(common.STATE_KEY);
+      this.storage.remove(common.STATE_KEY);
       if (!redirectState.stateValid) {
         console.error('StitchClient: state values did not match!');
         window.history.replaceState(null, '', this.pageRootUrl());
@@ -4173,180 +4460,44 @@ var Auth = function () {
       window.history.replaceState(null, '', this.pageRootUrl());
     }
   }, {
-    key: 'getOAuthLoginURL',
-    value: function getOAuthLoginURL(providerName, redirectUrl) {
-      if (redirectUrl === undefined) {
-        redirectUrl = this.pageRootUrl();
-      }
-
-      var state = Auth.generateState();
-      this.authDataStorage.set(common.STATE_KEY, state);
-      var result = this.rootUrl + '/oauth2/' + providerName + '?redirect=' + encodeURI(redirectUrl) + '&state=' + state;
-      return result;
-    }
-  }, {
-    key: 'anonymousAuth',
-    value: function anonymousAuth() {
-      var _this = this;
-
-      var fetchArgs = common.makeFetchArgs('GET');
-      fetchArgs.cors = true;
-
-      return fetch(this.rootUrl + '/anon/user', fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return _this.set(json);
-      });
-    }
-  }, {
-    key: 'apiKeyAuth',
-    value: function apiKeyAuth(key) {
-      var _this2 = this;
-
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ 'key': key }));
-      fetchArgs.cors = true;
-
-      return fetch(this.rootUrl + '/api/key', fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return _this2.set(json);
-      });
-    }
-  }, {
-    key: 'emailConfirm',
-    value: function emailConfirm(tokenId, token) {
-      var _this3 = this;
-
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token }));
-      fetchArgs.cors = true;
-      return fetch(this.rootUrl + '/local/userpass/confirm', fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return _this3.set(json);
-      });
-    }
-  }, {
-    key: 'sendEmailConfirm',
-    value: function sendEmailConfirm(email) {
-      var _this4 = this;
-
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
-      fetchArgs.cors = true;
-      return fetch(this.rootUrl + '/local/userpass/confirm/send', fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return _this4.set(json);
-      });
-    }
-  }, {
-    key: 'sendPasswordReset',
-    value: function sendPasswordReset(email) {
-      var _this5 = this;
-
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
-      fetchArgs.cors = true;
-      return fetch(this.rootUrl + '/local/userpass/reset/send', fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return _this5.set(json);
-      });
-    }
-  }, {
-    key: 'passwordReset',
-    value: function passwordReset(tokenId, token) {
-      var _this6 = this;
-
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token }));
-      fetchArgs.cors = true;
-      return fetch(this.rootUrl + '/local/userpass/reset', fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return _this6.set(json);
-      });
-    }
-  }, {
-    key: 'register',
-    value: function register(email, password) {
-      var _this7 = this;
-
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email, password: password }));
-      fetchArgs.cors = true;
-      return fetch(this.rootUrl + '/local/userpass/register', fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return _this7.set(json);
-      });
-    }
-  }, {
-    key: 'localAuth',
-    value: function localAuth(username, password) {
-      var _this8 = this;
-
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : { cors: true };
-
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password }));
-      fetchArgs.cors = true;
-
-      return fetch(this.rootUrl + '/local/userpass', fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return _this8.set(json);
-      });
-    }
-  }, {
-    key: 'mongodbCloudAuth',
-    value: function mongodbCloudAuth(username, apiKey) {
-      var _this9 = this;
-
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : { cors: true, cookie: false };
-
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, apiKey: apiKey }));
-      fetchArgs.cors = true;
-      fetchArgs.credentials = 'include';
-
-      var url = this.rootUrl + '/mongodb/cloud';
-      if (!options.cookie) {
-        return fetch(url, fetchArgs).then(common.checkStatus).then(function (response) {
-          return response.json();
-        }).then(function (json) {
-          return _this9.set(json);
-        });
-      }
-
-      return fetch(url + '?cookie=true', fetchArgs).then(common.checkStatus);
-    }
-  }, {
     key: 'clear',
     value: function clear() {
-      this.authDataStorage.remove(common.USER_AUTH_KEY);
-      this.authDataStorage.remove(common.REFRESH_TOKEN_KEY);
+      this.storage.remove(common.USER_AUTH_KEY);
+      this.storage.remove(common.REFRESH_TOKEN_KEY);
       this.clearImpersonation();
+    }
+  }, {
+    key: 'getAccessToken',
+    value: function getAccessToken() {
+      return this.get()['accessToken'];
     }
   }, {
     key: 'getRefreshToken',
     value: function getRefreshToken() {
-      return this.authDataStorage.get(common.REFRESH_TOKEN_KEY);
+      return this.storage.get(common.REFRESH_TOKEN_KEY);
     }
   }, {
     key: 'set',
     value: function set(json) {
-      var rt = json.refreshToken;
-      delete json.refreshToken;
+      if (json && json.refreshToken) {
+        var rt = json.refreshToken;
+        delete json.refreshToken;
+        this.storage.set(common.REFRESH_TOKEN_KEY, rt);
+      }
 
-      this.authDataStorage.set(common.USER_AUTH_KEY, JSON.stringify(json));
-      this.authDataStorage.set(common.REFRESH_TOKEN_KEY, rt);
+      this.storage.set(common.USER_AUTH_KEY, JSON.stringify(json));
       return json;
     }
   }, {
     key: 'get',
     value: function get() {
-      if (!this.authDataStorage.get(common.USER_AUTH_KEY)) {
-        return null;
+      var data = this.storage.get(common.USER_AUTH_KEY);
+      if (!data) {
+        return {};
       }
 
-      var item = this.authDataStorage.get(common.USER_AUTH_KEY);
       try {
-        return JSON.parse(item);
+        return JSON.parse(data);
       } catch (e) {
         // Need to back out and clear auth otherwise we will never
         // be able to do anything useful.
@@ -4357,26 +4508,26 @@ var Auth = function () {
   }, {
     key: 'authedId',
     value: function authedId() {
-      return ((this.get() || {}).user || {})._id;
+      return this.get()['userId'];
     }
   }, {
     key: 'isImpersonatingUser',
     value: function isImpersonatingUser() {
-      return this.authDataStorage.get(common.IMPERSONATION_ACTIVE_KEY) === 'true';
+      return this.storage.get(common.IMPERSONATION_ACTIVE_KEY) === 'true';
     }
   }, {
     key: 'refreshImpersonation',
     value: function refreshImpersonation(client) {
-      var _this10 = this;
+      var _this2 = this;
 
-      var userId = this.authDataStorage.get(common.IMPERSONATION_USER_KEY);
+      var userId = this.storage.get(common.IMPERSONATION_USER_KEY);
       return client._do('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
         return response.json();
       }).then(function (json) {
-        json.refreshToken = _this10.authDataStorage.get(common.REFRESH_TOKEN_KEY);
-        _this10.set(json);
+        json.refreshToken = _this2.storage.get(common.REFRESH_TOKEN_KEY);
+        _this2.set(json);
       }).catch(function (e) {
-        _this10.stopImpersonation();
+        _this2.stopImpersonation();
         throw e; // rethrow
       });
     }
@@ -4391,49 +4542,36 @@ var Auth = function () {
         return Promise.reject(new _errors.StitchError('Already impersonating a user'));
       }
 
-      this.authDataStorage.set(common.IMPERSONATION_ACTIVE_KEY, 'true');
-      this.authDataStorage.set(common.IMPERSONATION_USER_KEY, userId);
+      this.storage.set(common.IMPERSONATION_ACTIVE_KEY, 'true');
+      this.storage.set(common.IMPERSONATION_USER_KEY, userId);
 
-      var realUserAuth = JSON.parse(this.authDataStorage.get(common.USER_AUTH_KEY));
-      realUserAuth.refreshToken = this.authDataStorage.get(common.REFRESH_TOKEN_KEY);
-      this.authDataStorage.set(common.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
+      var realUserAuth = JSON.parse(this.storage.get(common.USER_AUTH_KEY));
+      realUserAuth.refreshToken = this.storage.get(common.REFRESH_TOKEN_KEY);
+      this.storage.set(common.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
       return this.refreshImpersonation(client);
     }
   }, {
     key: 'stopImpersonation',
     value: function stopImpersonation() {
-      var _this11 = this;
+      var _this3 = this;
 
       if (!this.isImpersonatingUser()) {
         throw new _errors.StitchError('Not impersonating a user');
       }
 
       return new Promise(function (resolve, reject) {
-        var realUserAuth = JSON.parse(_this11.authDataStorage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY));
-        _this11.set(realUserAuth);
-        _this11.clearImpersonation();
+        var realUserAuth = JSON.parse(_this3.storage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY));
+        _this3.set(realUserAuth);
+        _this3.clearImpersonation();
         resolve();
       });
     }
   }, {
     key: 'clearImpersonation',
     value: function clearImpersonation() {
-      this.authDataStorage.remove(common.IMPERSONATION_ACTIVE_KEY);
-      this.authDataStorage.remove(common.IMPERSONATION_USER_KEY);
-      this.authDataStorage.remove(common.IMPERSONATION_REAL_USER_AUTH_KEY);
-    }
-  }], [{
-    key: 'generateState',
-    value: function generateState() {
-      var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      var state = '';
-      var stateLength = 64;
-      for (var i = 0; i < stateLength; i++) {
-        var pos = Math.floor(Math.random() * alpha.length);
-        state += alpha.substring(pos, pos + 1);
-      }
-
-      return state;
+      this.storage.remove(common.IMPERSONATION_ACTIVE_KEY);
+      this.storage.remove(common.IMPERSONATION_USER_KEY);
+      this.storage.remove(common.IMPERSONATION_REAL_USER_AUTH_KEY);
     }
   }]);
 
@@ -4444,7 +4582,308 @@ exports.default = Auth;
 module.exports = exports['default'];
 
 /***/ }),
-/* 11 */
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createProviders = undefined;
+
+var _common = __webpack_require__(1);
+
+var common = _interopRequireWildcard(_common);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function localProvider(auth) {
+  return {
+    login: function login(email, password, opts) {
+      if (email === undefined || password === undefined) {
+        var _fetchArgs = common.makeFetchArgs('GET');
+        _fetchArgs.cors = true;
+
+        return fetch(auth.rootUrl + '/anon/user', _fetchArgs).then(common.checkStatus).then(function (response) {
+          return response.json();
+        }).then(function (json) {
+          return auth.set(json);
+        });
+      }
+
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email, password: password }));
+      fetchArgs.cors = true;
+
+      return fetch(auth.rootUrl + '/local/userpass', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        return auth.set(json);
+      });
+    }
+  };
+}
+
+function userPassProvider(auth) {
+  return {
+    emailConfirm: function emailConfirm(tokenId, token) {
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token }));
+      fetchArgs.cors = true;
+
+      return fetch(auth.rootUrl + '/local/userpass/confirm', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      });
+    },
+
+    sendEmailConfirm: function sendEmailConfirm(email) {
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
+      fetchArgs.cors = true;
+
+      return fetch(auth.rootUrl + '/local/userpass/confirm/send', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      });
+    },
+
+    sendPasswordReset: function sendPasswordReset(email) {
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
+      fetchArgs.cors = true;
+
+      return fetch(auth.rootUrl + '/local/userpass/reset/send', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      });
+    },
+
+    passwordReset: function passwordReset(tokenId, token) {
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token }));
+      fetchArgs.cors = true;
+
+      return fetch(auth.rootUrl + '/local/userpass/reset', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      });
+    },
+
+    register: function register(email, password) {
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email, password: password }));
+      fetchArgs.cors = true;
+
+      return fetch(auth.rootUrl + '/local/userpass/register', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      });
+    }
+  };
+}
+
+function apiKeyProvider(auth) {
+  return {
+    authenticate: function authenticate(key) {
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ 'key': key }));
+      fetchArgs.cors = true;
+
+      return fetch(auth.rootUrl + '/api/key', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        return auth.set(json);
+      });
+    }
+  };
+}
+
+// The state we generate is to be used for any kind of request where we will
+// complete an authentication flow via a redirect. We store the generate in
+// a local storage bound to the app's origin. This ensures that any time we
+// receive a redirect, there must be a state parameter and it must match
+// what we ourselves have generated. This state MUST only be sent to
+// a trusted Stitch endpoint in order to preserve its integrity. Stitch will
+// store it in some way on its origin (currently a cookie stored on this client)
+// and use that state at the end of an auth flow as a parameter in the redirect URI.
+var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+function generateState() {
+  var state = '';
+  for (var i = 0; i < 64; ++i) {
+    state += alpha.charAt(Math.floor(Math.random() * alpha.length));
+  }
+
+  return state;
+}
+
+function getOAuthLoginURL(auth, providerName, redirectUrl) {
+  if (redirectUrl === undefined) {
+    redirectUrl = auth.pageRootUrl();
+  }
+
+  var state = generateState();
+  auth.storage.set(common.STATE_KEY, state);
+  var result = auth.rootUrl + '/oauth2/' + providerName + '?redirect=' + encodeURI(redirectUrl) + '&state=' + state;
+  return result;
+}
+
+function googleProvider(auth) {
+  return {
+    authenticate: function authenticate(data) {
+      var redirectUrl = data.redirectUrl;
+
+      window.location.replace(getOAuthLoginURL(auth, 'google', redirectUrl));
+      return Promise.resolve();
+    }
+  };
+}
+
+function facebookProvider(auth) {
+  return {
+    authenticate: function authenticate(data) {
+      var redirectUrl = data.redirectUrl;
+
+      window.location.replace(getOAuthLoginURL(auth, 'facebook', redirectUrl));
+      return Promise.resolve();
+    }
+  };
+}
+
+function mongodbCloudProvider(auth) {
+  return {
+    authenticate: function authenticate(data) {
+      var username = data.username,
+          apiKey = data.apiKey,
+          cors = data.cors,
+          cookie = data.cookie;
+
+      options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, apiKey: apiKey }));
+      fetchArgs.cors = true; // TODO: shouldn't this use the passed in `cors` value?
+      fetchArgs.credentials = 'include';
+
+      var url = auth.rootUrl + '/mongodb/cloud';
+      if (options.cookie) {
+        return fetch(url + '?cookie=true', fetchArgs).then(common.checkStatus);
+      }
+
+      return fetch(url, fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        return auth.set(json);
+      });
+    }
+  };
+}
+
+// TODO: support auth-specific options
+function createProviders(auth) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  return {
+    local: localProvider(auth),
+    apiKey: apiKeyProvider(auth),
+    google: googleProvider(auth),
+    facebook: facebookProvider(auth),
+    mongodbCloud: mongodbCloudProvider(auth),
+    userpass: userPassProvider(auth)
+  };
+}
+
+exports.createProviders = createProviders;
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+exports.createStorage = createStorage;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var MemoryStorage = function () {
+  function MemoryStorage() {
+    _classCallCheck(this, MemoryStorage);
+
+    this._data = {};
+  }
+
+  _createClass(MemoryStorage, [{
+    key: 'getItem',
+    value: function getItem(key) {
+      return key in this._data ? this._data[key] : null;
+    }
+  }, {
+    key: 'setItem',
+    value: function setItem(key, value) {
+      this._data[key] = value;
+      return this._data[key];
+    }
+  }, {
+    key: 'removeItem',
+    value: function removeItem(key) {
+      delete this._data[key];
+      return undefined;
+    }
+  }, {
+    key: 'clear',
+    value: function clear() {
+      this._data = {};
+      return this._data;
+    }
+  }]);
+
+  return MemoryStorage;
+}();
+
+var Storage = function () {
+  function Storage(store) {
+    _classCallCheck(this, Storage);
+
+    this.store = store;
+  }
+
+  _createClass(Storage, [{
+    key: 'get',
+    value: function get(key) {
+      return this.store.getItem(key);
+    }
+  }, {
+    key: 'set',
+    value: function set(key, value) {
+      return this.store.setItem(key, value);
+    }
+  }, {
+    key: 'remove',
+    value: function remove(key) {
+      return this.store.removeItem(key);
+    }
+  }, {
+    key: 'clear',
+    value: function clear() {
+      return this.store.clear();
+    }
+  }]);
+
+  return Storage;
+}();
+
+function createStorage(type) {
+  if (type === 'localStorage') {
+    if (typeof window !== 'undefined' && 'localStorage' in window && window.localStorage !== null) {
+      return new Storage(window.localStorage);
+    }
+  } else if (type === 'sessionStorage') {
+    if (typeof window !== 'undefined' && 'sessionStorage' in window && window.sessionStorage !== null) {
+      return new Storage(window.sessionStorage);
+    }
+  }
+
+  // default to memory storage
+  return new Storage(new MemoryStorage());
+}
+
+/***/ }),
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4455,9 +4894,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.builtins = exports.Admin = exports.StitchClient = undefined;
 
-var _client = __webpack_require__(9);
+var _client = __webpack_require__(11);
 
-var _builtins = __webpack_require__(8);
+var _builtins = __webpack_require__(10);
 
 var _builtins2 = _interopRequireDefault(_builtins);
 
@@ -4468,7 +4907,7 @@ exports.Admin = _client.Admin;
 exports.builtins = _builtins2.default;
 
 /***/ }),
-/* 12 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4549,7 +4988,7 @@ exports.default = (0, _util.letMixin)(S3Service);
 module.exports = exports['default'];
 
 /***/ }),
-/* 13 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4609,7 +5048,7 @@ exports.default = (0, _util.letMixin)(SESService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 14 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4678,7 +5117,7 @@ exports.default = (0, _util.letMixin)(SQSService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 15 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4845,7 +5284,7 @@ exports.default = (0, _util.letMixin)(HTTPService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 16 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4855,35 +5294,35 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _s3_service = __webpack_require__(12);
+var _s3_service = __webpack_require__(16);
 
 var _s3_service2 = _interopRequireDefault(_s3_service);
 
-var _ses_service = __webpack_require__(13);
+var _ses_service = __webpack_require__(17);
 
 var _ses_service2 = _interopRequireDefault(_ses_service);
 
-var _sqs_service = __webpack_require__(14);
+var _sqs_service = __webpack_require__(18);
 
 var _sqs_service2 = _interopRequireDefault(_sqs_service);
 
-var _http_service = __webpack_require__(15);
+var _http_service = __webpack_require__(19);
 
 var _http_service2 = _interopRequireDefault(_http_service);
 
-var _mongodb_service = __webpack_require__(19);
+var _mongodb_service = __webpack_require__(23);
 
 var _mongodb_service2 = _interopRequireDefault(_mongodb_service);
 
-var _pubnub_service = __webpack_require__(20);
+var _pubnub_service = __webpack_require__(24);
 
 var _pubnub_service2 = _interopRequireDefault(_pubnub_service);
 
-var _slack_service = __webpack_require__(21);
+var _slack_service = __webpack_require__(25);
 
 var _slack_service2 = _interopRequireDefault(_slack_service);
 
-var _twilio_service = __webpack_require__(22);
+var _twilio_service = __webpack_require__(26);
 
 var _twilio_service2 = _interopRequireDefault(_twilio_service);
 
@@ -4902,7 +5341,7 @@ exports.default = {
 module.exports = exports['default'];
 
 /***/ }),
-/* 17 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5211,7 +5650,7 @@ exports.default = (0, _util.letMixin)(Collection);
 module.exports = exports['default'];
 
 /***/ }),
-/* 18 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5223,7 +5662,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _collection = __webpack_require__(17);
+var _collection = __webpack_require__(21);
 
 var _collection2 = _interopRequireDefault(_collection);
 
@@ -5278,7 +5717,7 @@ exports.default = DB;
 module.exports = exports['default'];
 
 /***/ }),
-/* 19 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5290,7 +5729,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _db = __webpack_require__(18);
+var _db = __webpack_require__(22);
 
 var _db2 = _interopRequireDefault(_db);
 
@@ -5345,7 +5784,7 @@ exports.default = MongoDBService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 20 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5403,7 +5842,7 @@ exports.default = (0, _util.letMixin)(PubnubService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 21 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5474,7 +5913,7 @@ exports.default = (0, _util.letMixin)(SlackService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 22 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5533,106 +5972,7 @@ exports.default = (0, _util.letMixin)(TwilioService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-exports.createStorage = createStorage;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var MemoryStorage = function () {
-  function MemoryStorage() {
-    _classCallCheck(this, MemoryStorage);
-
-    this._data = {};
-  }
-
-  _createClass(MemoryStorage, [{
-    key: 'getItem',
-    value: function getItem(key) {
-      return key in this._data ? this._data[key] : null;
-    }
-  }, {
-    key: 'setItem',
-    value: function setItem(key, value) {
-      this._data[key] = value;
-      return this._data[key];
-    }
-  }, {
-    key: 'removeItem',
-    value: function removeItem(key) {
-      delete this._data[key];
-      return undefined;
-    }
-  }, {
-    key: 'clear',
-    value: function clear() {
-      this._data = {};
-      return this._data;
-    }
-  }]);
-
-  return MemoryStorage;
-}();
-
-var Storage = function () {
-  function Storage(store) {
-    _classCallCheck(this, Storage);
-
-    this.store = store;
-  }
-
-  _createClass(Storage, [{
-    key: 'get',
-    value: function get(key) {
-      return this.store.getItem(key);
-    }
-  }, {
-    key: 'set',
-    value: function set(key, value) {
-      return this.store.setItem(key, value);
-    }
-  }, {
-    key: 'remove',
-    value: function remove(key) {
-      return this.store.removeItem(key);
-    }
-  }, {
-    key: 'clear',
-    value: function clear() {
-      return this.store.clear();
-    }
-  }]);
-
-  return Storage;
-}();
-
-function createStorage(type) {
-  if (type === 'localStorage') {
-    if (typeof window !== 'undefined' && 'localStorage' in window && window.localStorage !== null) {
-      return new Storage(window.localStorage);
-    }
-  } else if (type === 'sessionStorage') {
-    if (typeof window !== 'undefined' && 'sessionStorage' in window && window.sessionStorage !== null) {
-      return new Storage(window.sessionStorage);
-    }
-  }
-
-  // default to memory storage
-  return new Storage(new MemoryStorage());
-}
-
-/***/ }),
-/* 24 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5753,20 +6093,20 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 25 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // the whatwg-fetch polyfill installs the fetch() function
 // on the global object (window or self)
 //
 // Return that as the export for use in Webpack, Browserify etc.
-__webpack_require__(46);
+__webpack_require__(50);
 var globalObj = typeof self !== 'undefined' && self || this;
 module.exports = globalObj.fetch.bind(globalObj);
 
 
 /***/ }),
-/* 26 */
+/* 29 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -5856,7 +6196,36 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 27 */
+/* 30 */
+/***/ (function(module, exports) {
+
+if (typeof Object.create === 'function') {
+  // implementation from standard node.js 'util' module
+  module.exports = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    ctor.prototype = Object.create(superCtor.prototype, {
+      constructor: {
+        value: ctor,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+  };
+} else {
+  // old school shim for old browsers
+  module.exports = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    var TempCtor = function () {}
+    TempCtor.prototype = superCtor.prototype
+    ctor.prototype = new TempCtor()
+    ctor.prototype.constructor = ctor
+  }
+}
+
+
+/***/ }),
+/* 31 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -5867,7 +6236,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 28 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6157,7 +6526,7 @@ module.exports = Binary;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
 
 /***/ }),
-/* 29 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6192,7 +6561,7 @@ module.exports = Code;
 
 
 /***/ }),
-/* 30 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6237,13 +6606,13 @@ module.exports = DBRef;
 
 
 /***/ }),
-/* 31 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Long = __webpack_require__(2);
+var Long = __webpack_require__(3);
 var Buffer = (typeof Buffer !== 'undefined') ? Buffer : Uint8Array;
 
 var PARSE_STRING_REGEXP = /^(\+|\-)?(\d+|(\d*\.\d*))?(E|e)?([\-\+])?(\d+)?$/;
@@ -6959,7 +7328,7 @@ module.exports = Decimal128;
 
 
 /***/ }),
-/* 32 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7002,7 +7371,7 @@ module.exports = Double;
 
 
 /***/ }),
-/* 33 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7045,7 +7414,7 @@ module.exports = Int32;
 
 
 /***/ }),
-/* 34 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7074,7 +7443,7 @@ module.exports = MaxKey;
 
 
 /***/ }),
-/* 35 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7103,7 +7472,7 @@ module.exports = MinKey;
 
 
 /***/ }),
-/* 36 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7431,10 +7800,10 @@ ObjectID.index = ~~(Math.random() * 0xFFFFFF);
 
 module.exports = ObjectID;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(42)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
 
 /***/ }),
-/* 37 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7482,7 +7851,7 @@ module.exports = BSONRegExp;
 
 
 /***/ }),
-/* 38 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7528,13 +7897,13 @@ module.exports = Symbol;
 
 
 /***/ }),
-/* 39 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Long = __webpack_require__(2);
+var Long = __webpack_require__(3);
 
 /**
  * @class
@@ -7617,7 +7986,7 @@ module.exports = Timestamp;
 
 
 /***/ }),
-/* 40 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7899,7 +8268,7 @@ module.exports = ExtJSON;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
 
 /***/ }),
-/* 41 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7996,203 +8365,13 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 42 */
-/***/ (function(module, exports) {
-
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-
-/***/ }),
-/* 43 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var strictUriEncode = __webpack_require__(44);
-var objectAssign = __webpack_require__(41);
+var strictUriEncode = __webpack_require__(47);
+var objectAssign = __webpack_require__(45);
 
 function encoderForArrayFormat(opts) {
 	switch (opts.arrayFormat) {
@@ -8398,7 +8577,7 @@ exports.stringify = function (obj, opts) {
 
 
 /***/ }),
-/* 44 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8411,34 +8590,611 @@ module.exports = function (str) {
 
 
 /***/ }),
-/* 45 */
+/* 48 */
 /***/ (function(module, exports) {
 
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
+module.exports = function isBuffer(arg) {
+  return arg && typeof arg === 'object'
+    && typeof arg.copy === 'function'
+    && typeof arg.fill === 'function'
+    && typeof arg.readUInt8 === 'function';
 }
 
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
+/***/ }),
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = g;
+/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+var formatRegExp = /%[sdj%]/g;
+exports.format = function(f) {
+  if (!isString(f)) {
+    var objects = [];
+    for (var i = 0; i < arguments.length; i++) {
+      objects.push(inspect(arguments[i]));
+    }
+    return objects.join(' ');
+  }
+
+  var i = 1;
+  var args = arguments;
+  var len = args.length;
+  var str = String(f).replace(formatRegExp, function(x) {
+    if (x === '%%') return '%';
+    if (i >= len) return x;
+    switch (x) {
+      case '%s': return String(args[i++]);
+      case '%d': return Number(args[i++]);
+      case '%j':
+        try {
+          return JSON.stringify(args[i++]);
+        } catch (_) {
+          return '[Circular]';
+        }
+      default:
+        return x;
+    }
+  });
+  for (var x = args[i]; i < len; x = args[++i]) {
+    if (isNull(x) || !isObject(x)) {
+      str += ' ' + x;
+    } else {
+      str += ' ' + inspect(x);
+    }
+  }
+  return str;
+};
+
+
+// Mark that a method should not be used.
+// Returns a modified function which warns once by default.
+// If --no-deprecation is set, then it is a no-op.
+exports.deprecate = function(fn, msg) {
+  // Allow for deprecating things in the process of starting up.
+  if (isUndefined(global.process)) {
+    return function() {
+      return exports.deprecate(fn, msg).apply(this, arguments);
+    };
+  }
+
+  if (process.noDeprecation === true) {
+    return fn;
+  }
+
+  var warned = false;
+  function deprecated() {
+    if (!warned) {
+      if (process.throwDeprecation) {
+        throw new Error(msg);
+      } else if (process.traceDeprecation) {
+        console.trace(msg);
+      } else {
+        console.error(msg);
+      }
+      warned = true;
+    }
+    return fn.apply(this, arguments);
+  }
+
+  return deprecated;
+};
+
+
+var debugs = {};
+var debugEnviron;
+exports.debuglog = function(set) {
+  if (isUndefined(debugEnviron))
+    debugEnviron = process.env.NODE_DEBUG || '';
+  set = set.toUpperCase();
+  if (!debugs[set]) {
+    if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
+      var pid = process.pid;
+      debugs[set] = function() {
+        var msg = exports.format.apply(exports, arguments);
+        console.error('%s %d: %s', set, pid, msg);
+      };
+    } else {
+      debugs[set] = function() {};
+    }
+  }
+  return debugs[set];
+};
+
+
+/**
+ * Echos the value of a value. Trys to print the value out
+ * in the best way possible given the different types.
+ *
+ * @param {Object} obj The object to print out.
+ * @param {Object} opts Optional options object that alters the output.
+ */
+/* legacy: obj, showHidden, depth, colors*/
+function inspect(obj, opts) {
+  // default options
+  var ctx = {
+    seen: [],
+    stylize: stylizeNoColor
+  };
+  // legacy...
+  if (arguments.length >= 3) ctx.depth = arguments[2];
+  if (arguments.length >= 4) ctx.colors = arguments[3];
+  if (isBoolean(opts)) {
+    // legacy...
+    ctx.showHidden = opts;
+  } else if (opts) {
+    // got an "options" object
+    exports._extend(ctx, opts);
+  }
+  // set default options
+  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
+  if (isUndefined(ctx.depth)) ctx.depth = 2;
+  if (isUndefined(ctx.colors)) ctx.colors = false;
+  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
+  if (ctx.colors) ctx.stylize = stylizeWithColor;
+  return formatValue(ctx, obj, ctx.depth);
+}
+exports.inspect = inspect;
+
+
+// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
+inspect.colors = {
+  'bold' : [1, 22],
+  'italic' : [3, 23],
+  'underline' : [4, 24],
+  'inverse' : [7, 27],
+  'white' : [37, 39],
+  'grey' : [90, 39],
+  'black' : [30, 39],
+  'blue' : [34, 39],
+  'cyan' : [36, 39],
+  'green' : [32, 39],
+  'magenta' : [35, 39],
+  'red' : [31, 39],
+  'yellow' : [33, 39]
+};
+
+// Don't use 'blue' not visible on cmd.exe
+inspect.styles = {
+  'special': 'cyan',
+  'number': 'yellow',
+  'boolean': 'yellow',
+  'undefined': 'grey',
+  'null': 'bold',
+  'string': 'green',
+  'date': 'magenta',
+  // "name": intentionally not styling
+  'regexp': 'red'
+};
+
+
+function stylizeWithColor(str, styleType) {
+  var style = inspect.styles[styleType];
+
+  if (style) {
+    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
+           '\u001b[' + inspect.colors[style][1] + 'm';
+  } else {
+    return str;
+  }
+}
+
+
+function stylizeNoColor(str, styleType) {
+  return str;
+}
+
+
+function arrayToHash(array) {
+  var hash = {};
+
+  array.forEach(function(val, idx) {
+    hash[val] = true;
+  });
+
+  return hash;
+}
+
+
+function formatValue(ctx, value, recurseTimes) {
+  // Provide a hook for user-specified inspect functions.
+  // Check that value is an object with an inspect function on it
+  if (ctx.customInspect &&
+      value &&
+      isFunction(value.inspect) &&
+      // Filter out the util module, it's inspect function is special
+      value.inspect !== exports.inspect &&
+      // Also filter out any prototype objects using the circular check.
+      !(value.constructor && value.constructor.prototype === value)) {
+    var ret = value.inspect(recurseTimes, ctx);
+    if (!isString(ret)) {
+      ret = formatValue(ctx, ret, recurseTimes);
+    }
+    return ret;
+  }
+
+  // Primitive types cannot have properties
+  var primitive = formatPrimitive(ctx, value);
+  if (primitive) {
+    return primitive;
+  }
+
+  // Look up the keys of the object.
+  var keys = Object.keys(value);
+  var visibleKeys = arrayToHash(keys);
+
+  if (ctx.showHidden) {
+    keys = Object.getOwnPropertyNames(value);
+  }
+
+  // IE doesn't make error fields non-enumerable
+  // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
+  if (isError(value)
+      && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
+    return formatError(value);
+  }
+
+  // Some type of object without properties can be shortcutted.
+  if (keys.length === 0) {
+    if (isFunction(value)) {
+      var name = value.name ? ': ' + value.name : '';
+      return ctx.stylize('[Function' + name + ']', 'special');
+    }
+    if (isRegExp(value)) {
+      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+    }
+    if (isDate(value)) {
+      return ctx.stylize(Date.prototype.toString.call(value), 'date');
+    }
+    if (isError(value)) {
+      return formatError(value);
+    }
+  }
+
+  var base = '', array = false, braces = ['{', '}'];
+
+  // Make Array say that they are Array
+  if (isArray(value)) {
+    array = true;
+    braces = ['[', ']'];
+  }
+
+  // Make functions say that they are functions
+  if (isFunction(value)) {
+    var n = value.name ? ': ' + value.name : '';
+    base = ' [Function' + n + ']';
+  }
+
+  // Make RegExps say that they are RegExps
+  if (isRegExp(value)) {
+    base = ' ' + RegExp.prototype.toString.call(value);
+  }
+
+  // Make dates with properties first say the date
+  if (isDate(value)) {
+    base = ' ' + Date.prototype.toUTCString.call(value);
+  }
+
+  // Make error with message first say the error
+  if (isError(value)) {
+    base = ' ' + formatError(value);
+  }
+
+  if (keys.length === 0 && (!array || value.length == 0)) {
+    return braces[0] + base + braces[1];
+  }
+
+  if (recurseTimes < 0) {
+    if (isRegExp(value)) {
+      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+    } else {
+      return ctx.stylize('[Object]', 'special');
+    }
+  }
+
+  ctx.seen.push(value);
+
+  var output;
+  if (array) {
+    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
+  } else {
+    output = keys.map(function(key) {
+      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
+    });
+  }
+
+  ctx.seen.pop();
+
+  return reduceToSingleString(output, base, braces);
+}
+
+
+function formatPrimitive(ctx, value) {
+  if (isUndefined(value))
+    return ctx.stylize('undefined', 'undefined');
+  if (isString(value)) {
+    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+                                             .replace(/'/g, "\\'")
+                                             .replace(/\\"/g, '"') + '\'';
+    return ctx.stylize(simple, 'string');
+  }
+  if (isNumber(value))
+    return ctx.stylize('' + value, 'number');
+  if (isBoolean(value))
+    return ctx.stylize('' + value, 'boolean');
+  // For some reason typeof null is "object", so special case here.
+  if (isNull(value))
+    return ctx.stylize('null', 'null');
+}
+
+
+function formatError(value) {
+  return '[' + Error.prototype.toString.call(value) + ']';
+}
+
+
+function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
+  var output = [];
+  for (var i = 0, l = value.length; i < l; ++i) {
+    if (hasOwnProperty(value, String(i))) {
+      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+          String(i), true));
+    } else {
+      output.push('');
+    }
+  }
+  keys.forEach(function(key) {
+    if (!key.match(/^\d+$/)) {
+      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+          key, true));
+    }
+  });
+  return output;
+}
+
+
+function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
+  var name, str, desc;
+  desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
+  if (desc.get) {
+    if (desc.set) {
+      str = ctx.stylize('[Getter/Setter]', 'special');
+    } else {
+      str = ctx.stylize('[Getter]', 'special');
+    }
+  } else {
+    if (desc.set) {
+      str = ctx.stylize('[Setter]', 'special');
+    }
+  }
+  if (!hasOwnProperty(visibleKeys, key)) {
+    name = '[' + key + ']';
+  }
+  if (!str) {
+    if (ctx.seen.indexOf(desc.value) < 0) {
+      if (isNull(recurseTimes)) {
+        str = formatValue(ctx, desc.value, null);
+      } else {
+        str = formatValue(ctx, desc.value, recurseTimes - 1);
+      }
+      if (str.indexOf('\n') > -1) {
+        if (array) {
+          str = str.split('\n').map(function(line) {
+            return '  ' + line;
+          }).join('\n').substr(2);
+        } else {
+          str = '\n' + str.split('\n').map(function(line) {
+            return '   ' + line;
+          }).join('\n');
+        }
+      }
+    } else {
+      str = ctx.stylize('[Circular]', 'special');
+    }
+  }
+  if (isUndefined(name)) {
+    if (array && key.match(/^\d+$/)) {
+      return str;
+    }
+    name = JSON.stringify('' + key);
+    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+      name = name.substr(1, name.length - 2);
+      name = ctx.stylize(name, 'name');
+    } else {
+      name = name.replace(/'/g, "\\'")
+                 .replace(/\\"/g, '"')
+                 .replace(/(^"|"$)/g, "'");
+      name = ctx.stylize(name, 'string');
+    }
+  }
+
+  return name + ': ' + str;
+}
+
+
+function reduceToSingleString(output, base, braces) {
+  var numLinesEst = 0;
+  var length = output.reduce(function(prev, cur) {
+    numLinesEst++;
+    if (cur.indexOf('\n') >= 0) numLinesEst++;
+    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
+  }, 0);
+
+  if (length > 60) {
+    return braces[0] +
+           (base === '' ? '' : base + '\n ') +
+           ' ' +
+           output.join(',\n  ') +
+           ' ' +
+           braces[1];
+  }
+
+  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
+}
+
+
+// NOTE: These type checking functions intentionally don't use `instanceof`
+// because it is fragile and can be easily faked with `Object.create()`.
+function isArray(ar) {
+  return Array.isArray(ar);
+}
+exports.isArray = isArray;
+
+function isBoolean(arg) {
+  return typeof arg === 'boolean';
+}
+exports.isBoolean = isBoolean;
+
+function isNull(arg) {
+  return arg === null;
+}
+exports.isNull = isNull;
+
+function isNullOrUndefined(arg) {
+  return arg == null;
+}
+exports.isNullOrUndefined = isNullOrUndefined;
+
+function isNumber(arg) {
+  return typeof arg === 'number';
+}
+exports.isNumber = isNumber;
+
+function isString(arg) {
+  return typeof arg === 'string';
+}
+exports.isString = isString;
+
+function isSymbol(arg) {
+  return typeof arg === 'symbol';
+}
+exports.isSymbol = isSymbol;
+
+function isUndefined(arg) {
+  return arg === void 0;
+}
+exports.isUndefined = isUndefined;
+
+function isRegExp(re) {
+  return isObject(re) && objectToString(re) === '[object RegExp]';
+}
+exports.isRegExp = isRegExp;
+
+function isObject(arg) {
+  return typeof arg === 'object' && arg !== null;
+}
+exports.isObject = isObject;
+
+function isDate(d) {
+  return isObject(d) && objectToString(d) === '[object Date]';
+}
+exports.isDate = isDate;
+
+function isError(e) {
+  return isObject(e) &&
+      (objectToString(e) === '[object Error]' || e instanceof Error);
+}
+exports.isError = isError;
+
+function isFunction(arg) {
+  return typeof arg === 'function';
+}
+exports.isFunction = isFunction;
+
+function isPrimitive(arg) {
+  return arg === null ||
+         typeof arg === 'boolean' ||
+         typeof arg === 'number' ||
+         typeof arg === 'string' ||
+         typeof arg === 'symbol' ||  // ES6 symbol
+         typeof arg === 'undefined';
+}
+exports.isPrimitive = isPrimitive;
+
+exports.isBuffer = __webpack_require__(48);
+
+function objectToString(o) {
+  return Object.prototype.toString.call(o);
+}
+
+
+function pad(n) {
+  return n < 10 ? '0' + n.toString(10) : n.toString(10);
+}
+
+
+var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+              'Oct', 'Nov', 'Dec'];
+
+// 26 Feb 16:19:34
+function timestamp() {
+  var d = new Date();
+  var time = [pad(d.getHours()),
+              pad(d.getMinutes()),
+              pad(d.getSeconds())].join(':');
+  return [d.getDate(), months[d.getMonth()], time].join(' ');
+}
+
+
+// log is just a thin wrapper to console.log that prepends a timestamp
+exports.log = function() {
+  console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
+};
+
+
+/**
+ * Inherit the prototype methods from one constructor into another.
+ *
+ * The Function.prototype.inherits from lang.js rewritten as a standalone
+ * function (not on Function.prototype). NOTE: If this file is to be loaded
+ * during bootstrapping this function needs to be rewritten using some native
+ * functions as prototype setup using normal JavaScript does not work as
+ * expected during bootstrapping (see mirror.js in r114903).
+ *
+ * @param {function} ctor Constructor function which needs to inherit the
+ *     prototype.
+ * @param {function} superCtor Constructor function to inherit prototype from.
+ */
+exports.inherits = __webpack_require__(30);
+
+exports._extend = function(origin, add) {
+  // Don't do anything if add isn't an object
+  if (!add || !isObject(add)) return origin;
+
+  var keys = Object.keys(add);
+  var i = keys.length;
+  while (i--) {
+    origin[keys[i]] = add[keys[i]];
+  }
+  return origin;
+};
+
+function hasOwnProperty(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(8)))
 
 /***/ }),
-/* 46 */
+/* 50 */
 /***/ (function(module, exports) {
 
 (function(self) {
@@ -8461,28 +9217,6 @@ module.exports = g;
     })(),
     formData: 'FormData' in self,
     arrayBuffer: 'ArrayBuffer' in self
-  }
-
-  if (support.arrayBuffer) {
-    var viewClasses = [
-      '[object Int8Array]',
-      '[object Uint8Array]',
-      '[object Uint8ClampedArray]',
-      '[object Int16Array]',
-      '[object Uint16Array]',
-      '[object Int32Array]',
-      '[object Uint32Array]',
-      '[object Float32Array]',
-      '[object Float64Array]'
-    ]
-
-    var isDataView = function(obj) {
-      return obj && DataView.prototype.isPrototypeOf(obj)
-    }
-
-    var isArrayBufferView = ArrayBuffer.isView || function(obj) {
-      return obj && viewClasses.indexOf(Object.prototype.toString.call(obj)) > -1
-    }
   }
 
   function normalizeName(name) {
@@ -8527,10 +9261,7 @@ module.exports = g;
       headers.forEach(function(value, name) {
         this.append(name, value)
       }, this)
-    } else if (Array.isArray(headers)) {
-      headers.forEach(function(header) {
-        this.append(header[0], header[1])
-      }, this)
+
     } else if (headers) {
       Object.getOwnPropertyNames(headers).forEach(function(name) {
         this.append(name, headers[name])
@@ -8541,8 +9272,12 @@ module.exports = g;
   Headers.prototype.append = function(name, value) {
     name = normalizeName(name)
     value = normalizeValue(value)
-    var oldValue = this.map[name]
-    this.map[name] = oldValue ? oldValue+','+value : value
+    var list = this.map[name]
+    if (!list) {
+      list = []
+      this.map[name] = list
+    }
+    list.push(value)
   }
 
   Headers.prototype['delete'] = function(name) {
@@ -8550,8 +9285,12 @@ module.exports = g;
   }
 
   Headers.prototype.get = function(name) {
-    name = normalizeName(name)
-    return this.has(name) ? this.map[name] : null
+    var values = this.map[normalizeName(name)]
+    return values ? values[0] : null
+  }
+
+  Headers.prototype.getAll = function(name) {
+    return this.map[normalizeName(name)] || []
   }
 
   Headers.prototype.has = function(name) {
@@ -8559,15 +9298,15 @@ module.exports = g;
   }
 
   Headers.prototype.set = function(name, value) {
-    this.map[normalizeName(name)] = normalizeValue(value)
+    this.map[normalizeName(name)] = [normalizeValue(value)]
   }
 
   Headers.prototype.forEach = function(callback, thisArg) {
-    for (var name in this.map) {
-      if (this.map.hasOwnProperty(name)) {
-        callback.call(thisArg, this.map[name], name, this)
-      }
-    }
+    Object.getOwnPropertyNames(this.map).forEach(function(name) {
+      this.map[name].forEach(function(value) {
+        callback.call(thisArg, value, name, this)
+      }, this)
+    }, this)
   }
 
   Headers.prototype.keys = function() {
@@ -8612,36 +9351,14 @@ module.exports = g;
 
   function readBlobAsArrayBuffer(blob) {
     var reader = new FileReader()
-    var promise = fileReaderReady(reader)
     reader.readAsArrayBuffer(blob)
-    return promise
+    return fileReaderReady(reader)
   }
 
   function readBlobAsText(blob) {
     var reader = new FileReader()
-    var promise = fileReaderReady(reader)
     reader.readAsText(blob)
-    return promise
-  }
-
-  function readArrayBufferAsText(buf) {
-    var view = new Uint8Array(buf)
-    var chars = new Array(view.length)
-
-    for (var i = 0; i < view.length; i++) {
-      chars[i] = String.fromCharCode(view[i])
-    }
-    return chars.join('')
-  }
-
-  function bufferClone(buf) {
-    if (buf.slice) {
-      return buf.slice(0)
-    } else {
-      var view = new Uint8Array(buf.byteLength)
-      view.set(new Uint8Array(buf))
-      return view.buffer
-    }
+    return fileReaderReady(reader)
   }
 
   function Body() {
@@ -8649,9 +9366,7 @@ module.exports = g;
 
     this._initBody = function(body) {
       this._bodyInit = body
-      if (!body) {
-        this._bodyText = ''
-      } else if (typeof body === 'string') {
+      if (typeof body === 'string') {
         this._bodyText = body
       } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
         this._bodyBlob = body
@@ -8659,12 +9374,11 @@ module.exports = g;
         this._bodyFormData = body
       } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
         this._bodyText = body.toString()
-      } else if (support.arrayBuffer && support.blob && isDataView(body)) {
-        this._bodyArrayBuffer = bufferClone(body.buffer)
-        // IE 10-11 can't handle a DataView body.
-        this._bodyInit = new Blob([this._bodyArrayBuffer])
-      } else if (support.arrayBuffer && (ArrayBuffer.prototype.isPrototypeOf(body) || isArrayBufferView(body))) {
-        this._bodyArrayBuffer = bufferClone(body)
+      } else if (!body) {
+        this._bodyText = ''
+      } else if (support.arrayBuffer && ArrayBuffer.prototype.isPrototypeOf(body)) {
+        // Only support ArrayBuffers for POST method.
+        // Receiving ArrayBuffers happens via Blobs, instead.
       } else {
         throw new Error('unsupported BodyInit type')
       }
@@ -8689,8 +9403,6 @@ module.exports = g;
 
         if (this._bodyBlob) {
           return Promise.resolve(this._bodyBlob)
-        } else if (this._bodyArrayBuffer) {
-          return Promise.resolve(new Blob([this._bodyArrayBuffer]))
         } else if (this._bodyFormData) {
           throw new Error('could not read FormData body as blob')
         } else {
@@ -8699,28 +9411,27 @@ module.exports = g;
       }
 
       this.arrayBuffer = function() {
-        if (this._bodyArrayBuffer) {
-          return consumed(this) || Promise.resolve(this._bodyArrayBuffer)
+        return this.blob().then(readBlobAsArrayBuffer)
+      }
+
+      this.text = function() {
+        var rejected = consumed(this)
+        if (rejected) {
+          return rejected
+        }
+
+        if (this._bodyBlob) {
+          return readBlobAsText(this._bodyBlob)
+        } else if (this._bodyFormData) {
+          throw new Error('could not read FormData body as text')
         } else {
-          return this.blob().then(readBlobAsArrayBuffer)
+          return Promise.resolve(this._bodyText)
         }
       }
-    }
-
-    this.text = function() {
-      var rejected = consumed(this)
-      if (rejected) {
-        return rejected
-      }
-
-      if (this._bodyBlob) {
-        return readBlobAsText(this._bodyBlob)
-      } else if (this._bodyArrayBuffer) {
-        return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer))
-      } else if (this._bodyFormData) {
-        throw new Error('could not read FormData body as text')
-      } else {
-        return Promise.resolve(this._bodyText)
+    } else {
+      this.text = function() {
+        var rejected = consumed(this)
+        return rejected ? rejected : Promise.resolve(this._bodyText)
       }
     }
 
@@ -8748,8 +9459,7 @@ module.exports = g;
   function Request(input, options) {
     options = options || {}
     var body = options.body
-
-    if (input instanceof Request) {
+    if (Request.prototype.isPrototypeOf(input)) {
       if (input.bodyUsed) {
         throw new TypeError('Already read')
       }
@@ -8760,12 +9470,12 @@ module.exports = g;
       }
       this.method = input.method
       this.mode = input.mode
-      if (!body && input._bodyInit != null) {
+      if (!body) {
         body = input._bodyInit
         input.bodyUsed = true
       }
     } else {
-      this.url = String(input)
+      this.url = input
     }
 
     this.credentials = options.credentials || this.credentials || 'omit'
@@ -8783,7 +9493,7 @@ module.exports = g;
   }
 
   Request.prototype.clone = function() {
-    return new Request(this, { body: this._bodyInit })
+    return new Request(this)
   }
 
   function decode(body) {
@@ -8799,17 +9509,16 @@ module.exports = g;
     return form
   }
 
-  function parseHeaders(rawHeaders) {
-    var headers = new Headers()
-    rawHeaders.split(/\r?\n/).forEach(function(line) {
-      var parts = line.split(':')
-      var key = parts.shift().trim()
-      if (key) {
-        var value = parts.join(':').trim()
-        headers.append(key, value)
-      }
+  function headers(xhr) {
+    var head = new Headers()
+    var pairs = (xhr.getAllResponseHeaders() || '').trim().split('\n')
+    pairs.forEach(function(header) {
+      var split = header.trim().split(':')
+      var key = split.shift().trim()
+      var value = split.join(':').trim()
+      head.append(key, value)
     })
-    return headers
+    return head
   }
 
   Body.call(Request.prototype)
@@ -8820,10 +9529,10 @@ module.exports = g;
     }
 
     this.type = 'default'
-    this.status = 'status' in options ? options.status : 200
+    this.status = options.status
     this.ok = this.status >= 200 && this.status < 300
-    this.statusText = 'statusText' in options ? options.statusText : 'OK'
-    this.headers = new Headers(options.headers)
+    this.statusText = options.statusText
+    this.headers = options.headers instanceof Headers ? options.headers : new Headers(options.headers)
     this.url = options.url || ''
     this._initBody(bodyInit)
   }
@@ -8861,16 +9570,35 @@ module.exports = g;
 
   self.fetch = function(input, init) {
     return new Promise(function(resolve, reject) {
-      var request = new Request(input, init)
+      var request
+      if (Request.prototype.isPrototypeOf(input) && !init) {
+        request = input
+      } else {
+        request = new Request(input, init)
+      }
+
       var xhr = new XMLHttpRequest()
+
+      function responseURL() {
+        if ('responseURL' in xhr) {
+          return xhr.responseURL
+        }
+
+        // Avoid security warnings on getResponseHeader when not allowed by CORS
+        if (/^X-Request-URL:/m.test(xhr.getAllResponseHeaders())) {
+          return xhr.getResponseHeader('X-Request-URL')
+        }
+
+        return
+      }
 
       xhr.onload = function() {
         var options = {
           status: xhr.status,
           statusText: xhr.statusText,
-          headers: parseHeaders(xhr.getAllResponseHeaders() || '')
+          headers: headers(xhr),
+          url: responseURL()
         }
-        options.url = 'responseURL' in xhr ? xhr.responseURL : options.headers.get('X-Request-URL')
         var body = 'response' in xhr ? xhr.response : xhr.responseText
         resolve(new Response(body, options))
       }

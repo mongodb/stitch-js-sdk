@@ -276,7 +276,6 @@ class StitchClient {
       });
   }
 
-
   // Deprecated API
   authWithOAuth(providerType, redirectUrl) {
     return this.auth.provider(providerType).authenticate({ redirectUrl });
@@ -291,8 +290,6 @@ StitchClient.prototype.authWithOAuth =
   deprecate(StitchClient.prototype.authWithOAuth, 'use `authenticate` instead of `authWithOAuth`');
 StitchClient.prototype.anonymousAuth =
   deprecate(StitchClient.prototype.anonymousAuth, 'use `login()` instead of `anonymousAuth`');
-
-
 
 class Admin {
   constructor(baseUrl) {

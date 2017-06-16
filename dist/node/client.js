@@ -33,6 +33,8 @@ var _queryString = require('query-string');
 
 var _queryString2 = _interopRequireDefault(_queryString);
 
+var _util = require('util');
+
 var _errors = require('./errors');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -54,78 +56,114 @@ var EJSON = new _mongodbExtjson2.default();
 
 var StitchClient = function () {
   function StitchClient(clientAppID, options) {
+    var _this = this;
+
     _classCallCheck(this, StitchClient);
 
     var baseUrl = common.DEFAULT_STITCH_SERVER_URL;
     if (options && options.baseUrl) {
       baseUrl = options.baseUrl;
     }
+
     this.appUrl = baseUrl + '/api/public/v1.0';
     this.authUrl = baseUrl + '/api/public/v1.0/auth';
+    this.profileUrl = baseUrl + '/api/public/v1.0/auth/me';
     if (clientAppID) {
       this.appUrl = baseUrl + '/api/client/v1.0/app/' + clientAppID;
       this.authUrl = this.appUrl + '/auth';
+      this.profileUrl = this.appUrl + '/auth/me';
     }
-    this.authManager = new _auth2.default(this.authUrl);
-    this.authManager.handleRedirect();
-    this.authManager.handleCookie();
+
+    this.auth = new _auth2.default(this, this.authUrl);
+    this.auth.handleRedirect();
+    this.auth.handleCookie();
+
+    // deprecated API
+    this.authManager = {
+      apiKeyAuth: function apiKeyAuth(key) {
+        return _this.authenticate('apiKey', key);
+      },
+      localAuth: function localAuth(email, password) {
+        return _this.login(email, password);
+      },
+      mongodbCloudAuth: function mongodbCloudAuth(username, apiKey, opts) {
+        return _this.authenticate('mongodbCloud', Object.assign({ username: username, apiKey: apiKey }, opts));
+      }
+    };
+
+    this.authManager.apiKeyAuth = (0, _util.deprecate)(this.authManager.apiKeyAuth, 'use `client.authenticate("apiKey", "key")` instead of `client.authManager.apiKey`');
+    this.authManager.localAuth = (0, _util.deprecate)(this.authManager.localAuth, 'use `client.login` instead of `client.authManager.localAuth`');
+    this.authManager.mongodbCloudAuth = (0, _util.deprecate)(this.authManager.mongodbCloudAuth, 'use `client.authenticate("mongodbCloud", opts)` instead of `client.authManager.mongodbCloudAuth`');
   }
 
   /**
-   * Sends the user to the OAuth flow for the specified third-party service.
+   * Login to stich instance, optionally providing a username and password. In
+   * the event that these are omitted, anonymous authentication is used.
    *
-   * @param {*} providerName The OAuth provider name.
-   * @param {*} redirectUrl The redirect URL to use after the flow completes.
+   * @param {String} [email] the email address used for login
+   * @param {String} [password] the password for the provided email address
+   * @param {Object} [options] additional authentication options
+   * @returns {Promise}
    */
 
 
   _createClass(StitchClient, [{
-    key: 'authWithOAuth',
-    value: function authWithOAuth(providerName, redirectUrl) {
-      window.location.replace(this.authManager.getOAuthLoginURL(providerName, redirectUrl));
+    key: 'login',
+    value: function login(email, password) {
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+      return this.auth.provider('local').login(email, password, options);
     }
 
     /**
-     * Generates a URL that can be used to initiate an OAuth login flow with the specified OAuth provider.
+     * Send a request to the server indicating the provided email would like
+     * to sign up for an account. This will trigger a confirmation email containing
+     * a token which must be used with the `emailConfirm` method of the `userpass`
+     * auth provider in order to complete registration. The user will not be able
+     * to log in until that flow has been completed.
      *
-     * @param {*} providerName The OAuth provider name.
-     * @param {*} redirectUrlThe redirect URL to use after the flow completes.
+     * @param {String} email the email used to sign up for the app
+     * @param {String} password the password used to sign up for the app
+     * @param {Object} [options] additional authentication options
+     * @returns {Promise}
      */
 
   }, {
-    key: 'getOAuthLoginURL',
-    value: function getOAuthLoginURL(providerName, redirectUrl) {
-      return this.authManager.getOAuthLoginURL(providerName, redirectUrl);
+    key: 'register',
+    value: function register(email, password) {
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+      return this.auth.provider('userpass').register(email, password, options);
     }
 
     /**
-     * Logs in as an anonymous user.
+     * Starts an OAuth authorization flow by opening a popup window
+     *
+     * @param {String} providerType the provider used for authentication (e.g. 'facebook', 'google')
+     * @param {Object} [options] additional authentication options (user data)
+     * @returns {Promise}
      */
 
   }, {
-    key: 'anonymousAuth',
-    value: function anonymousAuth() {
-      return this.authManager.anonymousAuth();
+    key: 'authenticate',
+    value: function authenticate(providerType, options) {
+      return this.auth.provider(providerType).authenticate(options);
     }
 
     /**
-     *  @return {String} Returns the currently authed user's ID.
+     * Ends the session for the current user.
+     *
+     * @returns {Promise}
      */
 
   }, {
-    key: 'authedId',
-    value: function authedId() {
-      return this.authManager.authedId();
-    }
+    key: 'logout',
+    value: function logout() {
+      var _this2 = this;
 
-    /**
-     * @return {Object} Returns the currently authed user's authentication information.
-     */
-
-  }, {
-    key: 'auth',
-    value: function auth() {
-      return this.authManager.get();
+      return this._do('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function () {
+        return _this2.auth.clear();
+      });
     }
 
     /**
@@ -135,21 +173,29 @@ var StitchClient = function () {
   }, {
     key: 'authError',
     value: function authError() {
-      return this.authManager.error();
+      return this.auth.error();
     }
 
     /**
-     * Ends the session for the current user.
+     * Returns profile information for the currently logged in user
+     *
+     * @returns {Promise}
      */
 
   }, {
-    key: 'logout',
-    value: function logout() {
-      var _this = this;
+    key: 'userProfile',
+    value: function userProfile() {
+      return this._do(this.authUrl + '/me', 'GET');
+    }
 
-      return this._do('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function () {
-        return _this.authManager.clear();
-      });
+    /**
+     *  @return {String} Returns the currently authed user's ID.
+     */
+
+  }, {
+    key: 'authedId',
+    value: function authedId() {
+      return this.auth.authedId();
     }
 
     /**
@@ -248,7 +294,7 @@ var StitchClient = function () {
   }, {
     key: '_do',
     value: function _do(resource, method, options) {
-      var _this2 = this;
+      var _this3 = this;
 
       options = Object.assign({}, {
         refreshOnFailure: true,
@@ -256,7 +302,7 @@ var StitchClient = function () {
       }, options);
 
       if (!options.noAuth) {
-        if (this.auth() === null) {
+        if (this.user === null) {
           return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
         }
       }
@@ -269,7 +315,7 @@ var StitchClient = function () {
       }
 
       if (!options.noAuth) {
-        var token = options.useRefreshToken ? this.authManager.getRefreshToken() : this.auth().accessToken;
+        var token = options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
         fetchArgs.headers.Authorization = 'Bearer ' + token;
       }
 
@@ -288,16 +334,16 @@ var StitchClient = function () {
             // Only want to try refreshing token when there's an invalid session
             if ('errorCode' in json && json.errorCode === _errors.ErrInvalidSession) {
               if (!options.refreshOnFailure) {
-                _this2.authManager.clear();
+                _this3.auth.clear();
                 var _error = new _errors.StitchError(json.error, json.errorCode);
                 _error.response = response;
                 _error.json = json;
                 throw _error;
               }
 
-              return _this2._refreshToken().then(function () {
+              return _this3.auth.refreshToken().then(function () {
                 options.refreshOnFailure = false;
-                return _this2._do(resource, method, options);
+                return _this3._do(resource, method, options);
               });
             }
 
@@ -310,29 +356,29 @@ var StitchClient = function () {
 
         var error = new Error(response.statusText);
         error.response = response;
-
         return Promise.reject(error);
       });
     }
+
+    // Deprecated API
+
   }, {
-    key: '_refreshToken',
-    value: function _refreshToken() {
-      var _this3 = this;
-
-      if (this.authManager.isImpersonatingUser()) {
-        return this.authManager.refreshImpersonation(this);
-      }
-
-      return this._do('/auth/newAccessToken', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return _this3.authManager.setAccessToken(json.accessToken);
-      });
+    key: 'authWithOAuth',
+    value: function authWithOAuth(providerType, redirectUrl) {
+      return this.auth.provider(providerType).authenticate({ redirectUrl: redirectUrl });
+    }
+  }, {
+    key: 'anonymousAuth',
+    value: function anonymousAuth() {
+      return this.login();
     }
   }]);
 
   return StitchClient;
 }();
+
+StitchClient.prototype.authWithOAuth = (0, _util.deprecate)(StitchClient.prototype.authWithOAuth, 'use `authenticate` instead of `authWithOAuth`');
+StitchClient.prototype.anonymousAuth = (0, _util.deprecate)(StitchClient.prototype.anonymousAuth, 'use `login()` instead of `anonymousAuth`');
 
 var Admin = function () {
   function Admin(baseUrl) {
@@ -733,17 +779,17 @@ var Admin = function () {
   }, {
     key: '_isImpersonatingUser',
     value: function _isImpersonatingUser() {
-      return this.client.authManager.isImpersonatingUser();
+      return this.client.auth.isImpersonatingUser();
     }
   }, {
     key: '_startImpersonation',
     value: function _startImpersonation(userId) {
-      return this.client.authManager.startImpersonation(this.client, userId);
+      return this.client.auth.startImpersonation(this.client, userId);
     }
   }, {
     key: '_stopImpersonation',
     value: function _stopImpersonation() {
-      return this.client.authManager.stopImpersonation();
+      return this.client.auth.stopImpersonation();
     }
   }]);
 
