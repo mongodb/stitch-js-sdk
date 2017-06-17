@@ -185,7 +185,15 @@ var StitchClient = function () {
   }, {
     key: 'userProfile',
     value: function userProfile() {
-      return this._do(this.authUrl + '/me', 'GET');
+      var fetchArgs = common.makeFetchArgs('GET');
+      var token = this.auth.getAccessToken() || this.auth.getRefreshToken();
+      if (!token) {
+        return Promise.reject('must be logged in first');
+      }
+      fetchArgs.headers.Authorization = 'Bearer ' + token;
+      return fetch('' + this.profileUrl, fetchArgs).then(function (response) {
+        return response.json();
+      });
     }
 
     /**
