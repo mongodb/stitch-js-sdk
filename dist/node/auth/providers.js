@@ -13,8 +13,8 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function localProvider(auth) {
   return {
-    login: function login(email, password, opts) {
-      if (email === undefined || password === undefined) {
+    login: function login(username, password, opts) {
+      if (username === undefined || password === undefined) {
         var _fetchArgs = common.makeFetchArgs('GET');
         _fetchArgs.cors = true;
 
@@ -25,7 +25,7 @@ function localProvider(auth) {
         });
       }
 
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email, password: password }));
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password }));
       fetchArgs.cors = true;
 
       return fetch(auth.rootUrl + '/local/userpass', fetchArgs).then(common.checkStatus).then(function (response) {
@@ -160,7 +160,7 @@ function mongodbCloudProvider(auth) {
           cors = data.cors,
           cookie = data.cookie;
 
-      options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
+      var options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, apiKey: apiKey }));
       fetchArgs.cors = true; // TODO: shouldn't this use the passed in `cors` value?
       fetchArgs.credentials = 'include';
