@@ -171,7 +171,12 @@ export default class Auth {
   }
 
   authedId() {
-    return this.get()['userId'];
+    const authData = this.get();
+    if (authData.user) {
+      return authData.user._id;
+    }
+
+    return authData.userId;
   }
 
   isImpersonatingUser() {
