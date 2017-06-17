@@ -16,8 +16,7 @@
     "test": "jest",
     "lint": "eslint source/ __tests__/",
     "lintfix": "eslint --fix source/ __tests__/",
-    "publish-docs": "npm run docs && gh-pages -d docs",
-    "version": "npm run lint && npm run build && npm run publish-docs && npm run changelog && git add ."
+    "publish-docs": "npm run docs && gh-pages -d docs"
   },
   "jest": {
     "automock": false
