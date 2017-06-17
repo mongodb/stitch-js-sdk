@@ -33,7 +33,7 @@ var _queryString = require('query-string');
 
 var _queryString2 = _interopRequireDefault(_queryString);
 
-var _util = require('util');
+var _util = require('./util');
 
 var _errors = require('./errors');
 
