@@ -110,7 +110,7 @@ tasks:
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
-          local_file: stitch-js-sdk/tmp/stitch-1.0.0.tgz
+          local_file: stitch-js-sdk/tmp/stitch-0.0.12.tgz
           remote_file: js/npm/${revision}/stitch.tgz
           bucket: stitch-sdks
           permissions: public-read
@@ -143,7 +143,7 @@ tasks:
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
-          local_file: stitch-js-sdk/tmp/stitch-1.0.0.tgz
+          local_file: stitch-js-sdk/tmp/stitch-0.0.12.tgz
           remote_file: js/npm/${branch_name}/stitch.tgz
           bucket: stitch-sdks
           permissions: public-read
