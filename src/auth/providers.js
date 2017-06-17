@@ -2,8 +2,8 @@ import * as common from '../common';
 
 function localProvider(auth) {
   return {
-    login: (email, password, opts) => {
-      if (email === undefined || password === undefined) {
+    login: (username, password, opts) => {
+      if (username === undefined || password === undefined) {
         let fetchArgs = common.makeFetchArgs('GET');
         fetchArgs.cors = true;
 
@@ -13,7 +13,7 @@ function localProvider(auth) {
           .then(json => auth.set(json));
       }
 
-      const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email, password }));
+      const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username, password }));
       fetchArgs.cors = true;
 
       return fetch(`${auth.rootUrl}/local/userpass`, fetchArgs)
@@ -140,7 +140,7 @@ function mongodbCloudProvider(auth) {
   return {
     authenticate: data => {
       const { username, apiKey, cors, cookie } = data;
-      options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
+      const options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
       const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username, apiKey }));
       fetchArgs.cors = true;  // TODO: shouldn't this use the passed in `cors` value?
       fetchArgs.credentials = 'include';
