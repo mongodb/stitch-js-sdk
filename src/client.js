@@ -30,11 +30,9 @@ class StitchClient {
 
     this.appUrl = `${baseUrl}/api/public/v1.0`;
     this.authUrl = `${baseUrl}/api/public/v1.0/auth`;
-    this.profileUrl = `${baseUrl}/api/public/v1.0/auth/me`;
     if (clientAppID) {
       this.appUrl = `${baseUrl}/api/client/v1.0/app/${clientAppID}`;
       this.authUrl = `${this.appUrl}/auth`;
-      this.profileUrl = `${this.appUrl}/auth/me`;
     }
 
     this.auth = new Auth(this, this.authUrl);
@@ -120,13 +118,7 @@ class StitchClient {
    * @returns {Promise}
    */
   userProfile() {
-    const fetchArgs = common.makeFetchArgs('GET');
-    const token = this.auth.getAccessToken() || this.auth.getRefreshToken();
-    if (!token) {
-      return Promise.reject('must be logged in first');
-    }
-    fetchArgs.headers.Authorization = `Bearer ${token}`;
-    return fetch(`${this.profileUrl}`, fetchArgs)
+    return this._do('/auth/me', 'GET')
       .then(response => response.json());
   }
 
@@ -221,7 +213,7 @@ class StitchClient {
     }, options);
 
     if (!options.noAuth) {
-      if (this.user === null) {
+      if (!this.authedId()) {
         return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
       }
     }
