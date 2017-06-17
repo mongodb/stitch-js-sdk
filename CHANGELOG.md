@@ -1,3 +1,14 @@
+<a name="0.0.11"></a>
+## [0.0.11](https://github.com/10gen/stitch-js-sdk/compare/v0.0.8...v0.0.11) (2017-06-17)
+
+
+### Bug Fixes
+
+* **auth:** check for legacy auth data user info ([1abb819](https://github.com/10gen/stitch-js-sdk/commit/1abb819))
+* **client-auth:** fix missing `const` and incorrect use of email ([c945738](https://github.com/10gen/stitch-js-sdk/commit/c945738))
+
+
+
 <a name="0.0.10"></a>
 ## [0.0.10](https://github.com/10gen/stitch-js-sdk/compare/v0.0.9...v0.0.10) (2017-06-17)
 

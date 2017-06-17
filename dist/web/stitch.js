@@ -4291,7 +4291,12 @@ var Auth = function () {
   }, {
     key: 'authedId',
     value: function authedId() {
-      return this.get()['userId'];
+      var authData = this.get();
+      if (authData.user) {
+        return authData.user._id;
+      }
+
+      return authData.userId;
     }
   }, {
     key: 'isImpersonatingUser',
