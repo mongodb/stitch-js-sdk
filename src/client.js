@@ -67,7 +67,11 @@ class StitchClient {
    * @returns {Promise}
    */
   login(email, password, options = {}) {
-    return this.auth.provider('local').login(email, password, options);
+    if (email === undefined || password === undefined) {
+      return this.auth.provider('anon').login(options);
+    }
+
+    return this.auth.provider('userpass').login(email, password, options);
   }
 
   /**

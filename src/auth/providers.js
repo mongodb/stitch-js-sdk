@@ -1,27 +1,17 @@
 import * as common from '../common';
 
-function localProvider(auth) {
+function anonProvider(auth) {
   return {
-    login: (username, password, opts) => {
-      if (username === undefined || password === undefined) {
-        // reuse existing auth if present
-        if (auth.get().hasOwnProperty('accessToken')) {
-          return;
-        }
-
-        let fetchArgs = common.makeFetchArgs('GET');
-        fetchArgs.cors = true;
-
-        return fetch(`${auth.rootUrl}/anon/user`, fetchArgs)
-          .then(common.checkStatus)
-          .then(response => response.json())
-          .then(json => auth.set(json));
+    login: (opts) => {
+      // reuse existing auth if present
+      if (auth.get().hasOwnProperty('accessToken')) {
+        return;
       }
 
-      const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username, password }));
+      let fetchArgs = common.makeFetchArgs('GET');
       fetchArgs.cors = true;
 
-      return fetch(`${auth.rootUrl}/local/userpass`, fetchArgs)
+      return fetch(`${auth.rootUrl}/anon/user`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json));
@@ -31,6 +21,16 @@ function localProvider(auth) {
 
 function userPassProvider(auth) {
   return {
+    login: (username, password, opts) => {
+      const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username, password }));
+      fetchArgs.cors = true;
+
+      return fetch(`${auth.rootUrl}/local/userpass`, fetchArgs)
+        .then(common.checkStatus)
+        .then(response => response.json())
+        .then(json => auth.set(json));
+    },
+
     emailConfirm: (tokenId, token) => {
       const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId, token }));
       fetchArgs.cors = true;
@@ -167,7 +167,7 @@ function mongodbCloudProvider(auth) {
 // TODO: support auth-specific options
 function createProviders(auth, options = {}) {
   return {
-    local: localProvider(auth),
+    anon: anonProvider(auth),
     apiKey: apiKeyProvider(auth),
     google: googleProvider(auth),
     facebook: facebookProvider(auth),
