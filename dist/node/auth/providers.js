@@ -11,24 +11,18 @@ var common = _interopRequireWildcard(_common);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-function localProvider(auth) {
+function anonProvider(auth) {
   return {
-    login: function login(username, password, opts) {
-      if (username === undefined || password === undefined) {
-        var _fetchArgs = common.makeFetchArgs('GET');
-        _fetchArgs.cors = true;
-
-        return fetch(auth.rootUrl + '/anon/user', _fetchArgs).then(common.checkStatus).then(function (response) {
-          return response.json();
-        }).then(function (json) {
-          return auth.set(json);
-        });
+    login: function login(opts) {
+      // reuse existing auth if present
+      if (auth.get().hasOwnProperty('accessToken')) {
+        return;
       }
 
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password }));
+      var fetchArgs = common.makeFetchArgs('GET');
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/local/userpass', fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/anon/user', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -39,6 +33,17 @@ function localProvider(auth) {
 
 function userPassProvider(auth) {
   return {
+    login: function login(username, password, opts) {
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password }));
+      fetchArgs.cors = true;
+
+      return fetch(auth.rootUrl + '/local/userpass', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        return auth.set(json);
+      });
+    },
+
     emailConfirm: function emailConfirm(tokenId, token) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token }));
       fetchArgs.cors = true;
@@ -184,7 +189,7 @@ function createProviders(auth) {
   var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   return {
-    local: localProvider(auth),
+    anon: anonProvider(auth),
     apiKey: apiKeyProvider(auth),
     google: googleProvider(auth),
     facebook: facebookProvider(auth),

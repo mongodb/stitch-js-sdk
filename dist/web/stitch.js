@@ -3345,11 +3345,9 @@ var StitchClient = function () {
 
     this.appUrl = baseUrl + '/api/public/v1.0';
     this.authUrl = baseUrl + '/api/public/v1.0/auth';
-    this.profileUrl = baseUrl + '/api/public/v1.0/auth/me';
     if (clientAppID) {
       this.appUrl = baseUrl + '/api/client/v1.0/app/' + clientAppID;
       this.authUrl = this.appUrl + '/auth';
-      this.profileUrl = this.appUrl + '/auth/me';
     }
 
     this.auth = new _auth2.default(this, this.authUrl);
@@ -3390,7 +3388,11 @@ var StitchClient = function () {
     value: function login(email, password) {
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-      return this.auth.provider('local').login(email, password, options);
+      if (email === undefined || password === undefined) {
+        return this.auth.provider('anon').login(options);
+      }
+
+      return this.auth.provider('userpass').login(email, password, options);
     }
 
     /**
@@ -3463,13 +3465,7 @@ var StitchClient = function () {
   }, {
     key: 'userProfile',
     value: function userProfile() {
-      var fetchArgs = common.makeFetchArgs('GET');
-      var token = this.auth.getAccessToken() || this.auth.getRefreshToken();
-      if (!token) {
-        return Promise.reject('must be logged in first');
-      }
-      fetchArgs.headers.Authorization = 'Bearer ' + token;
-      return fetch('' + this.profileUrl, fetchArgs).then(function (response) {
+      return this._do('/auth/me', 'GET').then(function (response) {
         return response.json();
       });
     }
@@ -3588,7 +3584,7 @@ var StitchClient = function () {
       }, options);
 
       if (!options.noAuth) {
-        if (this.user === null) {
+        if (!this.authedId()) {
           return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
         }
       }
@@ -4395,24 +4391,18 @@ var common = _interopRequireWildcard(_common);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-function localProvider(auth) {
+function anonProvider(auth) {
   return {
-    login: function login(username, password, opts) {
-      if (username === undefined || password === undefined) {
-        var _fetchArgs = common.makeFetchArgs('GET');
-        _fetchArgs.cors = true;
-
-        return fetch(auth.rootUrl + '/anon/user', _fetchArgs).then(common.checkStatus).then(function (response) {
-          return response.json();
-        }).then(function (json) {
-          return auth.set(json);
-        });
+    login: function login(opts) {
+      // reuse existing auth if present
+      if (auth.get().hasOwnProperty('accessToken')) {
+        return;
       }
 
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password }));
+      var fetchArgs = common.makeFetchArgs('GET');
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/local/userpass', fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/anon/user', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -4423,6 +4413,17 @@ function localProvider(auth) {
 
 function userPassProvider(auth) {
   return {
+    login: function login(username, password, opts) {
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password }));
+      fetchArgs.cors = true;
+
+      return fetch(auth.rootUrl + '/local/userpass', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        return auth.set(json);
+      });
+    },
+
     emailConfirm: function emailConfirm(tokenId, token) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token }));
       fetchArgs.cors = true;
@@ -4568,7 +4569,7 @@ function createProviders(auth) {
   var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   return {
-    local: localProvider(auth),
+    anon: anonProvider(auth),
     apiKey: apiKeyProvider(auth),
     google: googleProvider(auth),
     facebook: facebookProvider(auth),

@@ -67,11 +67,9 @@ var StitchClient = function () {
 
     this.appUrl = baseUrl + '/api/public/v1.0';
     this.authUrl = baseUrl + '/api/public/v1.0/auth';
-    this.profileUrl = baseUrl + '/api/public/v1.0/auth/me';
     if (clientAppID) {
       this.appUrl = baseUrl + '/api/client/v1.0/app/' + clientAppID;
       this.authUrl = this.appUrl + '/auth';
-      this.profileUrl = this.appUrl + '/auth/me';
     }
 
     this.auth = new _auth2.default(this, this.authUrl);
@@ -112,7 +110,11 @@ var StitchClient = function () {
     value: function login(email, password) {
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-      return this.auth.provider('local').login(email, password, options);
+      if (email === undefined || password === undefined) {
+        return this.auth.provider('anon').login(options);
+      }
+
+      return this.auth.provider('userpass').login(email, password, options);
     }
 
     /**
@@ -185,13 +187,7 @@ var StitchClient = function () {
   }, {
     key: 'userProfile',
     value: function userProfile() {
-      var fetchArgs = common.makeFetchArgs('GET');
-      var token = this.auth.getAccessToken() || this.auth.getRefreshToken();
-      if (!token) {
-        return Promise.reject('must be logged in first');
-      }
-      fetchArgs.headers.Authorization = 'Bearer ' + token;
-      return fetch('' + this.profileUrl, fetchArgs).then(function (response) {
+      return this._do('/auth/me', 'GET').then(function (response) {
         return response.json();
       });
     }
@@ -310,7 +306,7 @@ var StitchClient = function () {
       }, options);
 
       if (!options.noAuth) {
-        if (this.user === null) {
+        if (!this.authedId()) {
           return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
         }
       }

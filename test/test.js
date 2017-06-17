@@ -126,14 +126,14 @@ describe('Auth', () => {
       it('should local auth successfully', () => {
         expect.assertions(1);
         const a = new Auth(null, '/auth');
-        return a.provider('local').login('user', 'password')
+        return a.provider('userpass').login('user', 'password')
           .then(() => expect(a.authedId()).toEqual(hexStr));
       });
 
       it('should allow setting access tokens', () => {
         expect.assertions(3);
         const auth = new Auth(null, '/auth');
-        return auth.provider('local').login('user', 'password')
+        return auth.provider('userpass').login('user', 'password')
           .then(() => {
             expect(auth.authedId()).toEqual(hexStr);
             expect(auth.getAccessToken()).toBeUndefined();
