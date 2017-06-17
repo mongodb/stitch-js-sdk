@@ -190,7 +190,7 @@ buildvariants:
   run_on:
     - baas-linux
   expansions:
-    mongodb_url: http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.1.tgz
+    mongodb_url: http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.4.tgz
   tasks:
     - name: run_tests
     - name: dist
