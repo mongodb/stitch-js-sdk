@@ -4,6 +4,11 @@ function localProvider(auth) {
   return {
     login: (username, password, opts) => {
       if (username === undefined || password === undefined) {
+        // reuse existing auth if present
+        if (auth.get().hasOwnProperty('accessToken')) {
+          return;
+        }
+
         let fetchArgs = common.makeFetchArgs('GET');
         fetchArgs.cors = true;
 
