@@ -120,7 +120,14 @@ class StitchClient {
    * @returns {Promise}
    */
   userProfile() {
-    return this._do(`${this.authUrl}/me`, 'GET');
+    const fetchArgs = common.makeFetchArgs('GET');
+    const token = this.auth.getAccessToken() || this.auth.getRefreshToken();
+    if (!token) {
+      return Promise.reject('must be logged in first');
+    }
+    fetchArgs.headers.Authorization = `Bearer ${token}`;
+    return fetch(`${this.profileUrl}`, fetchArgs)
+      .then(response => response.json());
   }
 
   /**
