@@ -3,7 +3,7 @@
 The original source is located in `src/`.
 To transpile to pure JS, run `npm run build` which places the output into `dist/`.
 
-### [Documentation](https://10gen.github.io/stitch-js-sdk/)
+### [Documentation](https://mongodb.github.io/stitch-js-sdk/)
 
 ### Usage
 
