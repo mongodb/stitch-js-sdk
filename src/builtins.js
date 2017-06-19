@@ -43,7 +43,7 @@ export default {
    * @param {Object} projection A document that specifies field inclusions or field
    *                   exclusions. A projection document cannot specify both
    *                   field inclusions and field exclusions.
-   * @return {Object}
+   * @returns {Object}
    */
   project: function(projection) {
     return { service: '', action: 'project', args: { projection: projection } };
@@ -54,6 +54,7 @@ export default {
    * final stage for pipelines that do not need to return anything to the client.
    *
    * The null action stage ignores input to its stage as well its own arguments, if specified.
+   * @returns {Object}
    */
   null: function() {
     return { service: '', action: 'null', args: {} };
@@ -66,6 +67,7 @@ export default {
    *
    * @param {String} encoding the encoding format of data argument, one of ["hex", "base64"]
    * @param {String} data encoded data string to decode and pass on as binary data.
+   * @returns {Object}
    */
   binary: function(encoding, data) {
     if (encoding !== 'hex' && encoding !== 'base64') {
@@ -83,7 +85,7 @@ export default {
    * the encode action stage must output a stream of binary data.
    *
    * @param {String} encoding encoding format for outgoing data, one of: ["hex", "base64"]
-   * @return {Object}
+   * @returns {Object}
    */
   encode: function(encoding) {
     if (encoding !== 'hex' && encoding !== 'base64') {
@@ -99,7 +101,7 @@ export default {
    * The reader action cannot be in the first stage of a pipeline. The stage preceding
    * the encode action stage must output a stream of binary data.
    *
-   * @return {Object}
+   * @returns {Object}
    */
   reader: function() {
     return { service: '', action: 'reader', args: {} };
@@ -110,7 +112,7 @@ export default {
    *
    * @param {String} name name of the named pipeline to execute
    * @param {String|Object} [args] optional arguments to pass to the execution
-   * @return {Object}
+   * @returns {Object}
    */
   namedPipeline: function(name, args) {
     const namedPipelineVar = 'namedPipelineOutput';
@@ -126,5 +128,4 @@ export default {
       }
     };
   }
-
 };
