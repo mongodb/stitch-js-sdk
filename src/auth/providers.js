@@ -4,8 +4,9 @@ function anonProvider(auth) {
   return {
     login: (opts) => {
       // reuse existing auth if present
-      if (auth.get().hasOwnProperty('accessToken')) {
-        return;
+      const authData = auth.get();
+      if (authData.hasOwnProperty('accessToken')) {
+        return Promise.resolve(authData);
       }
 
       let fetchArgs = common.makeFetchArgs('GET');
