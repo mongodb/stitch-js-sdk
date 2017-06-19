@@ -9,7 +9,7 @@ export default {
    * preceding the match action stage must output documents; for example, a
    * built-in action literal stage.
    *
-   * @param expression Query filter against which to compare each incoming document.
+   * @param {Object} expression Query filter against which to compare each incoming document.
    *                   Specify the filter as a JSON document. Filter expression can
    *                   include MongoDB query expressions as well as variables ($$vars)
    *                   defined in the stage.
@@ -24,11 +24,12 @@ export default {
    *
    * You can only use the literal action in the first stage of a pipeline.
    *
-   * @param items Documents to output. Documents can reference variables ($$vars) defined
-   *              in the stage.
+   * @param {Array|Object} items Documents to output. Documents can reference
+   *                       variables ($$vars) defined in the stage.
    * @return {Object}
    */
   literal: function(items) {
+    items = Array.isArray(items) ? items : [ items ];
     return { service: '', action: 'literal', args: { items: items } };
   },
 
@@ -39,7 +40,7 @@ export default {
    * preceding the project action stage must output documents; for example, a
    * built-in action literal stage.
    *
-   * @param projection A document that specifies field inclusions or field
+   * @param {Object} projection A document that specifies field inclusions or field
    *                   exclusions. A projection document cannot specify both
    *                   field inclusions and field exclusions.
    * @return {Object}
@@ -63,8 +64,8 @@ export default {
    *
    * You can only use the binary action in the first stage of a pipeline.
    *
-   * @param encoding the encoding format of data argument, one of ["hex", "base64"]
-   * @param data encoded data string to decode and pass on as binary data.
+   * @param {String} encoding the encoding format of data argument, one of ["hex", "base64"]
+   * @param {String} data encoded data string to decode and pass on as binary data.
    */
   binary: function(encoding, data) {
     if (encoding !== 'hex' && encoding !== 'base64') {
@@ -81,7 +82,7 @@ export default {
    * The encode action cannot be in the first stage of a pipeline. The stage preceding
    * the encode action stage must output a stream of binary data.
    *
-   * @param encoding encoding format for outgoing data, one of: ["hex", "base64"]
+   * @param {String} encoding encoding format for outgoing data, one of: ["hex", "base64"]
    * @return {Object}
    */
   encode: function(encoding) {
