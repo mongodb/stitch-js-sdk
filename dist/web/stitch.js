@@ -3153,7 +3153,7 @@ exports.default = {
    * preceding the match action stage must output documents; for example, a
    * built-in action literal stage.
    *
-   * @param expression Query filter against which to compare each incoming document.
+   * @param {Object} expression Query filter against which to compare each incoming document.
    *                   Specify the filter as a JSON document. Filter expression can
    *                   include MongoDB query expressions as well as variables ($$vars)
    *                   defined in the stage.
@@ -3168,11 +3168,12 @@ exports.default = {
    *
    * You can only use the literal action in the first stage of a pipeline.
    *
-   * @param items Documents to output. Documents can reference variables ($$vars) defined
-   *              in the stage.
+   * @param {Array|Object} items Documents to output. Documents can reference
+   *                       variables ($$vars) defined in the stage.
    * @return {Object}
    */
   literal: function literal(items) {
+    items = Array.isArray(items) ? items : [items];
     return { service: '', action: 'literal', args: { items: items } };
   },
 
@@ -3183,10 +3184,10 @@ exports.default = {
    * preceding the project action stage must output documents; for example, a
    * built-in action literal stage.
    *
-   * @param projection A document that specifies field inclusions or field
+   * @param {Object} projection A document that specifies field inclusions or field
    *                   exclusions. A projection document cannot specify both
    *                   field inclusions and field exclusions.
-   * @return {Object}
+   * @returns {Object}
    */
   project: function project(projection) {
     return { service: '', action: 'project', args: { projection: projection } };
@@ -3197,6 +3198,7 @@ exports.default = {
    * final stage for pipelines that do not need to return anything to the client.
    *
    * The null action stage ignores input to its stage as well its own arguments, if specified.
+   * @returns {Object}
    */
   null: function _null() {
     return { service: '', action: 'null', args: {} };
@@ -3207,8 +3209,9 @@ exports.default = {
    *
    * You can only use the binary action in the first stage of a pipeline.
    *
-   * @param encoding the encoding format of data argument, one of ["hex", "base64"]
-   * @param data encoded data string to decode and pass on as binary data.
+   * @param {String} encoding the encoding format of data argument, one of ["hex", "base64"]
+   * @param {String} data encoded data string to decode and pass on as binary data.
+   * @returns {Object}
    */
   binary: function binary(encoding, data) {
     if (encoding !== 'hex' && encoding !== 'base64') {
@@ -3225,8 +3228,8 @@ exports.default = {
    * The encode action cannot be in the first stage of a pipeline. The stage preceding
    * the encode action stage must output a stream of binary data.
    *
-   * @param encoding encoding format for outgoing data, one of: ["hex", "base64"]
-   * @return {Object}
+   * @param {String} encoding encoding format for outgoing data, one of: ["hex", "base64"]
+   * @returns {Object}
    */
   encode: function encode(encoding) {
     if (encoding !== 'hex' && encoding !== 'base64') {
@@ -3242,7 +3245,7 @@ exports.default = {
    * The reader action cannot be in the first stage of a pipeline. The stage preceding
    * the encode action stage must output a stream of binary data.
    *
-   * @return {Object}
+   * @returns {Object}
    */
   reader: function reader() {
     return { service: '', action: 'reader', args: {} };
@@ -3253,7 +3256,7 @@ exports.default = {
    *
    * @param {String} name name of the named pipeline to execute
    * @param {String|Object} [args] optional arguments to pass to the execution
-   * @return {Object}
+   * @returns {Object}
    */
   namedPipeline: function namedPipeline(name, args) {
     var namedPipelineVar = 'namedPipelineOutput';
@@ -3267,7 +3270,6 @@ exports.default = {
       })
     };
   }
-
 };
 module.exports = exports['default'];
 
@@ -4564,8 +4566,7 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
 function googleProvider(auth) {
   return {
     authenticate: function authenticate(data) {
-      var redirectUrl = data.redirectUrl;
-
+      var redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
       window.location.replace(getOAuthLoginURL(auth, 'google', redirectUrl));
       return Promise.resolve();
     }
@@ -4575,8 +4576,7 @@ function googleProvider(auth) {
 function facebookProvider(auth) {
   return {
     authenticate: function authenticate(data) {
-      var redirectUrl = data.redirectUrl;
-
+      var redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
       window.location.replace(getOAuthLoginURL(auth, 'facebook', redirectUrl));
       return Promise.resolve();
     }

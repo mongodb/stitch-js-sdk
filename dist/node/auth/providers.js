@@ -184,8 +184,7 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
 function googleProvider(auth) {
   return {
     authenticate: function authenticate(data) {
-      var redirectUrl = data.redirectUrl;
-
+      var redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
       window.location.replace(getOAuthLoginURL(auth, 'google', redirectUrl));
       return Promise.resolve();
     }
@@ -195,8 +194,7 @@ function googleProvider(auth) {
 function facebookProvider(auth) {
   return {
     authenticate: function authenticate(data) {
-      var redirectUrl = data.redirectUrl;
-
+      var redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
       window.location.replace(getOAuthLoginURL(auth, 'facebook', redirectUrl));
       return Promise.resolve();
     }
