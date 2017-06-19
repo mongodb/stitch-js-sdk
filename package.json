@@ -1,9 +1,9 @@
 {
   "name": "mongodb-stitch",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "",
   "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "main": "dist/node/index.js",
   "scripts": {
     "build": "npm run build-node && npm run build-web && npm run build-web-dev",

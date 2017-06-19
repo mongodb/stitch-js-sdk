@@ -4414,6 +4414,13 @@ function anonProvider(auth) {
 
 function userPassProvider(auth) {
   return {
+    /**
+     * Login to a stitch application using username and password authentication
+     *
+     * @param {String} username the username to use for authentication
+     * @param {String} password the password to use for authentication
+     * @returns {Promise}
+     */
     login: function login(username, password, opts) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password }));
       fetchArgs.cors = true;
@@ -4425,6 +4432,13 @@ function userPassProvider(auth) {
       });
     },
 
+    /**
+     * Completes the confirmation workflow from the stitch server
+     *
+     * @param {String} tokenId the tokenId provided by the stitch server
+     * @param {String} token the token provided by the stitch server
+     * @returns {Promise}
+     */
     emailConfirm: function emailConfirm(tokenId, token) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token }));
       fetchArgs.cors = true;
@@ -4434,6 +4448,13 @@ function userPassProvider(auth) {
       });
     },
 
+    /**
+     * Request that the stitch server send another email confirmation
+     * for account creation.
+     *
+     * @param {String} email the email to send a confirmation email for
+     * @returns {Promise}
+     */
     sendEmailConfirm: function sendEmailConfirm(email) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
       fetchArgs.cors = true;
@@ -4443,6 +4464,12 @@ function userPassProvider(auth) {
       });
     },
 
+    /**
+     * Sends a password reset request to the stitch server
+     *
+     * @param {String} email the email of the account to reset the password for
+     * @returns {Promise}
+     */
     sendPasswordReset: function sendPasswordReset(email) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
       fetchArgs.cors = true;
@@ -4452,8 +4479,17 @@ function userPassProvider(auth) {
       });
     },
 
-    passwordReset: function passwordReset(tokenId, token) {
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token }));
+    /**
+     * Use information returned from the stitch server to complete the password
+     * reset flow for a given email account, providing a new password for the account.
+     *
+     * @param {String} tokenId the tokenId provided by the stitch server
+     * @param {String} token the token provided by the stitch server
+     * @param {String} password the new password requested for this account
+     * @returns {Promise}
+     */
+    passwordReset: function passwordReset(tokenId, token, password) {
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token, password: password }));
       fetchArgs.cors = true;
 
       return fetch(auth.rootUrl + '/local/userpass/reset', fetchArgs).then(common.checkStatus).then(function (response) {
@@ -4461,6 +4497,15 @@ function userPassProvider(auth) {
       });
     },
 
+    /**
+     * Will trigger an email to the requested account containing a link with the
+     * token and tokenId that must be returned to the server using emailConfirm()
+     * to activate the account.
+     *
+     * @param {String} email the requested email for the account
+     * @param {String} password the requested password for the account
+     * @returns {Promise}
+     */
     register: function register(email, password) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email, password: password }));
       fetchArgs.cors = true;
