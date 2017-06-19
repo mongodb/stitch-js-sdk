@@ -110,17 +110,6 @@ tasks:
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
-          local_file: stitch-js-sdk/tmp/stitch-0.0.12.tgz
-          remote_file: js/npm/${revision}/stitch.tgz
-          bucket: stitch-sdks
-          permissions: public-read
-          content_type: application/gzip
-          display_name: Stitch NPM package
-
-      - command: s3.put
-        params:
-          aws_key: ${sdks_aws_key}
-          aws_secret: ${sdks_aws_secret}
           local_file: stitch-js-sdk/dist/web/stitch.js
           remote_file: js/library/${branch_name}/stitch.js
           bucket: stitch-sdks
