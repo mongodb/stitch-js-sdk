@@ -22,6 +22,13 @@ function anonProvider(auth) {
 
 function userPassProvider(auth) {
   return {
+    /**
+     * Login to a stitch application using username and password authentication
+     *
+     * @param {String} username the username to use for authentication
+     * @param {String} password the password to use for authentication
+     * @returns {Promise}
+     */
     login: (username, password, opts) => {
       const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username, password }));
       fetchArgs.cors = true;
@@ -32,6 +39,13 @@ function userPassProvider(auth) {
         .then(json => auth.set(json));
     },
 
+    /**
+     * Completes the confirmation workflow from the stitch server
+     *
+     * @param {String} tokenId the tokenId provided by the stitch server
+     * @param {String} token the token provided by the stitch server
+     * @returns {Promise}
+     */
     emailConfirm: (tokenId, token) => {
       const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId, token }));
       fetchArgs.cors = true;
@@ -41,8 +55,15 @@ function userPassProvider(auth) {
         .then(response => response.json());
     },
 
+    /**
+     * Request that the stitch server send another email confirmation
+     * for account creation.
+     *
+     * @param {String} email the email to send a confirmation email for
+     * @returns {Promise}
+     */
     sendEmailConfirm: (email) => {
-      const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({email}));
+      const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email }));
       fetchArgs.cors = true;
 
       return fetch(`${auth.rootUrl}/local/userpass/confirm/send`, fetchArgs)
@@ -50,8 +71,14 @@ function userPassProvider(auth) {
         .then(response => response.json());
     },
 
+    /**
+     * Sends a password reset request to the stitch server
+     *
+     * @param {String} email the email of the account to reset the password for
+     * @returns {Promise}
+     */
     sendPasswordReset: (email) => {
-      const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({email}));
+      const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email }));
       fetchArgs.cors = true;
 
       return fetch(`${auth.rootUrl}/local/userpass/reset/send`, fetchArgs)
@@ -59,8 +86,18 @@ function userPassProvider(auth) {
         .then(response => response.json());
     },
 
-    passwordReset: (tokenId, token) => {
-      const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({tokenId, token}));
+    /**
+     * Use information returned from the stitch server to complete the password
+     * reset flow for a given email account, providing a new password for the account.
+     *
+     * @param {String} tokenId the tokenId provided by the stitch server
+     * @param {String} token the token provided by the stitch server
+     * @param {String} password the new password requested for this account
+     * @returns {Promise}
+     */
+    passwordReset: (tokenId, token, password) => {
+      const fetchArgs =
+        common.makeFetchArgs('POST', JSON.stringify({ tokenId, token, password }));
       fetchArgs.cors = true;
 
       return fetch(`${auth.rootUrl}/local/userpass/reset`, fetchArgs)
@@ -68,8 +105,18 @@ function userPassProvider(auth) {
         .then(response => response.json());
     },
 
+
+    /**
+     * Will trigger an email to the requested account containing a link with the
+     * token and tokenId that must be returned to the server using emailConfirm()
+     * to activate the account.
+     *
+     * @param {String} email the requested email for the account
+     * @param {String} password the requested password for the account
+     * @returns {Promise}
+     */
     register: (email, password) => {
-      const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({email, password}));
+      const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email, password }));
       fetchArgs.cors = true;
 
       return fetch(`${auth.rootUrl}/local/userpass/register`, fetchArgs)
