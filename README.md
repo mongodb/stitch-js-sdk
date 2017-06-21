@@ -1,5 +1,7 @@
 # mongodb-stitch
 
+[![Join the chat at https://gitter.im/mongodb/stitch-js-sdk](https://badges.gitter.im/mongodb/stitch-js-sdk.svg)](https://gitter.im/mongodb/stitch-js-sdk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 The original source is located in `src/`.
 To transpile to pure JS, run `npm run build` which places the output into `dist/`.
 
