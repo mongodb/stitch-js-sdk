@@ -465,7 +465,7 @@ class Admin {
 
             incomingWebhooks: () => ({
               list: () => this._get(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks`),
-              create: (data) => this._post(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks`),
+              create: (data) => this._post(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks`, data),
               incomingWebhook: (incomingWebhookId) => ({
                 get: () => this._get(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`),
                 update: (data) => this._post(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`, data),
