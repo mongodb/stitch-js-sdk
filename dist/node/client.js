@@ -726,7 +726,7 @@ var Admin = function () {
                           return _this5._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks');
                         },
                         create: function create(data) {
-                          return _this5._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks');
+                          return _this5._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks', data);
                         },
                         incomingWebhook: function incomingWebhook(incomingWebhookId) {
                           return {
