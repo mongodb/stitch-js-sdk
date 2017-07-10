@@ -52,11 +52,22 @@ export default class StitchMongoFixture {
     // create an app `test_app`, and authorize a user
     this.admin = new stitch.Admin('http://localhost:7080');
     await this.admin.client.authenticate('apiKey', userData.apiKey.key);
-    let result = await this.admin.apps(userData.group.groupId).create({ name: 'test_app' });
-    this.clientAppId = result.clientAppId;
     const appConfig = EJSON.parse(fs.readFileSync(`${CONF_PATH}/test_app_config.json`, 'utf8'));
-    await this.admin.apps(userData.group.groupId).app(result._id).replace(appConfig);
+    let result = await this.admin.apps(userData.group.groupId).create(appConfig);
+
+    this.clientAppId = result.clientAppId;
+    await this.admin.apps(userData.group.groupId).app(result._id).authProviders().provider('api', 'key').update({});
     this.appKey = await this.admin.apps(userData.group.groupId).app(result._id).apiKeys().create({ name: 'app-key' });
+    await this.admin.apps(userData.group.groupId).app(result._id).services().create({name: 'mdb1', type: 'mongodb'});
+    await this.admin.apps(userData.group.groupId).app(result._id).services().service('mdb1').setConfig(appConfig.services.mdb1.config);
+
+    const rule1 = await this.admin.apps(userData.group.groupId).app(result._id).services().service('mdb1').rules().create(appConfig.services.mdb1.rules['5873a33f772e2e08ce645b9a']);
+    appConfig.services.mdb1.rules['5873a33f772e2e08ce645b9a']._id = rule1._id;
+    await this.admin.apps(userData.group.groupId).app(result._id).services().service('mdb1').rules().rule(rule1._id).update(appConfig.services.mdb1.rules['5873a33f772e2e08ce645b9a']);
+
+    const rule2 = await this.admin.apps(userData.group.groupId).app(result._id).services().service('mdb1').rules().create(appConfig.services.mdb1.rules['5873a33f772e2e08ce645b9b']);
+    appConfig.services.mdb1.rules['5873a33f772e2e08ce645b9b']._id = rule2._id;
+    await this.admin.apps(userData.group.groupId).app(result._id).services().service('mdb1').rules().rule(rule2._id).update(appConfig.services.mdb1.rules['5873a33f772e2e08ce645b9b']);
   }
 
   async teardown() {
