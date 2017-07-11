@@ -52,11 +52,29 @@ export default class StitchMongoFixture {
     // create an app `test_app`, and authorize a user
     this.admin = new stitch.Admin('http://localhost:7080');
     await this.admin.client.authenticate('apiKey', userData.apiKey.key);
-    let result = await this.admin.apps(userData.group.groupId).create({ name: 'test_app' });
-    this.clientAppId = result.clientAppId;
+
     const appConfig = EJSON.parse(fs.readFileSync(`${CONF_PATH}/test_app_config.json`, 'utf8'));
-    await this.admin.apps(userData.group.groupId).app(result._id).replace(appConfig);
-    this.appKey = await this.admin.apps(userData.group.groupId).app(result._id).apiKeys().create({ name: 'app-key' });
+    const result = await this.admin.apps(userData.group.groupId).create(appConfig);
+    const app = this.admin.apps(userData.group.groupId).app(result._id);
+    this.clientAppId = result.clientAppId;
+    await app.authProviders().provider('api', 'key').update({});
+    this.appKey = await app.apiKeys().create({ name: 'app-key' });
+
+    await app.services().create({name: 'mdb1', type: 'mongodb'});
+    const mdb1Svc = app.services().service('mdb1');
+    const mdb1 = appConfig.services.mdb1;
+    await mdb1Svc.setConfig(mdb1.config);
+
+    const rule1Key = '5873a33f772e2e08ce645b9a';
+    const rule2Key = '5873a33f772e2e08ce645b9b';
+
+    const rule1 = await mdb1Svc.rules().create(mdb1.rules[rule1Key]);
+    mdb1.rules[rule1Key]._id = rule1._id;
+    await mdb1Svc.rules().rule(rule1._id).update(mdb1.rules[rule1Key]);
+
+    const rule2 = await mdb1Svc.rules().create(mdb1.rules[rule2Key]);
+    mdb1.rules[rule2Key]._id = rule2._id;
+    await mdb1Svc.rules().rule(rule2._id).update(mdb1.rules[rule2Key]);
   }
 
   async teardown() {
@@ -85,7 +103,7 @@ export default class StitchMongoFixture {
       userId: new mongodb.ObjectId().toHexString(),
       domainId: rootId,
       identities: [ { id: apiKeyId.toHexString(), provider: 'api/key' } ],
-      roles: [{roleName: "groupOwner", groupId: groupId}]
+      roles: [{roleName: 'groupOwner', groupId: groupId}]
     };
 
     const key = randomString(64);
@@ -105,7 +123,7 @@ export default class StitchMongoFixture {
 
     const testGroup = {
       domainId: rootId,
-      groupId,
+      groupId
     };
 
     return { user: testUser, apiKey: testAPIKey, group: testGroup };
