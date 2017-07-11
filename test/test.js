@@ -95,12 +95,26 @@ describe('Redirect fragment parsing', () => {
 });
 
 describe('Auth', () => {
+  const validUsernames = ['user'];
+  const checkLogin = (url, opts) => {
+    if (validUsernames.indexOf(JSON.parse(opts.body).username) >= 0) {
+      return {
+        userId: hexStr
+      };
+    }
+
+    return {
+      body: {error: 'unauthorized', errorCode: 'unauthorized'},
+      headers: { 'Content-Type': JSONTYPE },
+      status: 401
+    };
+  };
   for (const envConfig of envConfigs) {
     describe(envConfig.name, () => {
       beforeEach(() => {
         envConfig.setup();
-        fetchMock.post('/auth/local/userpass', {userId: hexStr});
-        fetchMock.post(DEFAULT_STITCH_SERVER_URL + '/api/client/v1.0/app/testapp/auth/local/userpass', {userId: hexStr});
+        fetchMock.post('/auth/local/userpass', checkLogin);
+        fetchMock.post(DEFAULT_STITCH_SERVER_URL + '/api/client/v1.0/app/testapp/auth/local/userpass', checkLogin);
         fetchMock.delete(DEFAULT_STITCH_SERVER_URL + '/api/client/v1.0/app/testapp/auth', {});
       });
 
@@ -128,6 +142,19 @@ describe('Auth', () => {
         const a = new Auth(null, '/auth');
         return a.provider('userpass').login('user', 'password')
           .then(() => expect(a.authedId()).toEqual(hexStr));
+      });
+
+      it('should have an error if local auth is unsuccessful', (done) => {
+        expect.assertions(3);
+        const a = new Auth(null, '/auth');
+        return a.provider('userpass').login('fake-user', 'password')
+          .then(() => done('expected an error on unsuccessful login'))
+          .catch(e => {
+            expect(e).toBeInstanceOf(Error);
+            expect(e.response.status).toBe(401);
+            expect(e.error).toBe('unauthorized');
+            done();
+          });
       });
 
       it('should allow setting access tokens', () => {
@@ -259,7 +286,7 @@ describe('api key auth/logout', () => {
   });
 
   it('gets a rejected promise if using an invalid API key', (done) => {
-    expect.assertions(2);
+    expect.assertions(3);
     let testClient = new StitchClient('testapp');
     return testClient.authenticate('apiKey', 'INVALID_KEY')
       .then(() => {
@@ -268,6 +295,7 @@ describe('api key auth/logout', () => {
       .catch(e => {
         expect(e).toBeInstanceOf(Error);
         expect(e.response.status).toBe(401);
+        expect(e.error).toBe('unauthorized');
         done();
       });
   });
