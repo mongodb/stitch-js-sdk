@@ -95,12 +95,37 @@ describe('Redirect fragment parsing', () => {
 });
 
 describe('Auth', () => {
+  const validUsernames = ['user'];
+  const checkLogin = (url, opts) => {
+    const args = JSON.parse(opts.body);
+
+    if (validUsernames.indexOf(args.username) >= 0) {
+      return {
+        userId: hexStr
+      };
+    }
+
+    let body = {error: 'unauthorized', errorCode: 'unauthorized'};
+    let type = JSONTYPE;
+    let status = 401;
+    if (args.username === 'html') {
+      body = '<html><head><title>Error</title></head><body>Error</body></html>';
+      type = 'text/html';
+      status = 500;
+    }
+
+    return {
+      body: body,
+      headers: { 'Content-Type': type },
+      status: status
+    };
+  };
   for (const envConfig of envConfigs) {
     describe(envConfig.name, () => {
       beforeEach(() => {
         envConfig.setup();
-        fetchMock.post('/auth/local/userpass', {userId: hexStr});
-        fetchMock.post(DEFAULT_STITCH_SERVER_URL + '/api/client/v1.0/app/testapp/auth/local/userpass', {userId: hexStr});
+        fetchMock.post('/auth/local/userpass', checkLogin);
+        fetchMock.post(DEFAULT_STITCH_SERVER_URL + '/api/client/v1.0/app/testapp/auth/local/userpass', checkLogin);
         fetchMock.delete(DEFAULT_STITCH_SERVER_URL + '/api/client/v1.0/app/testapp/auth', {});
       });
 
@@ -128,6 +153,33 @@ describe('Auth', () => {
         const a = new Auth(null, '/auth');
         return a.provider('userpass').login('user', 'password')
           .then(() => expect(a.authedId()).toEqual(hexStr));
+      });
+
+      it('should have an error if local auth is unsuccessful', (done) => {
+        expect.assertions(4);
+        const a = new Auth(null, '/auth');
+        return a.provider('userpass').login('fake-user', 'password')
+          .then(() => done('expected an error on unsuccessful login'))
+          .catch(e => {
+            expect(e).toBeInstanceOf(Error);
+            expect(e.response.status).toBe(401);
+            expect(e.error).toBe('unauthorized');
+            expect(e.errorCode).toBe('unauthorized');
+            done();
+          });
+      });
+
+      it('should have an error if server returns non-JSON', (done) => {
+        expect.assertions(3);
+        const a = new Auth(null, '/auth');
+        return a.provider('userpass').login('html', 'password')
+          .then(() => done('expected an error on unsuccessful login'))
+          .catch(e => {
+            expect(e).toBeInstanceOf(Error);
+            expect(e.response.status).toBe(500);
+            expect(e.error).toBe('Internal Server Error');
+            done();
+          });
       });
 
       it('should allow setting access tokens', () => {
@@ -259,7 +311,7 @@ describe('api key auth/logout', () => {
   });
 
   it('gets a rejected promise if using an invalid API key', (done) => {
-    expect.assertions(2);
+    expect.assertions(3);
     let testClient = new StitchClient('testapp');
     return testClient.authenticate('apiKey', 'INVALID_KEY')
       .then(() => {
@@ -268,6 +320,7 @@ describe('api key auth/logout', () => {
       .catch(e => {
         expect(e).toBeInstanceOf(Error);
         expect(e.response.status).toBe(401);
+        expect(e.error).toBe('unauthorized');
         done();
       });
   });
