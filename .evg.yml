@@ -83,6 +83,7 @@ tasks:
             mkdir tmp
             cd tmp
             npm pack ../
+            mv mongodb-stitch-*.tgz mongodb-stitch.tgz
 
       - command: s3.put
         params:
@@ -127,6 +128,17 @@ tasks:
           permissions: public-read
           content_type: application/javascript
           display_name: Stitch Javascript Library for Web (minified)
+
+      - command: s3.put
+        params:
+          aws_key: ${sdks_aws_key}
+          aws_secret: ${sdks_aws_secret}
+          local_file: stitch-js-sdk/tmp/mongodb-stitch.tgz
+          remote_file: js/npm/${task_id}/stitch.tgz
+          bucket: stitch-sdks
+          permissions: public-read
+          content_type: application/gzip
+          display_name: Stitch NPM package
 
   - name: docs_dist
     depends_on:
