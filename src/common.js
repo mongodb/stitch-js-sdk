@@ -18,9 +18,13 @@ export const checkStatus = (response) => {
   let error = new Error(response.statusText);
   error.response = response;
 
+  // set error to statusText by default; this will be overwritten when (and if)
+  // the response is successfully parsed into json below
+  error.error = response.statusText;
+
   return response.json()
-    .then(json => Promise.reject(Object.assign(error, json)))
-    .catch(e => Promise.reject(error));
+    .catch(() => Promise.reject(error))
+    .then(json => Promise.reject(Object.assign(error, json)));
 };
 
 export const makeFetchArgs = (method, body) => {
