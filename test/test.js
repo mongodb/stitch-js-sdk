@@ -249,7 +249,7 @@ describe('anonymous auth', () => {
   beforeEach(() => {
     let count = 0;
     fetchMock.restore();
-    fetchMock.mock(ANON_AUTH_URL, {
+    fetchMock.mock(`begin:${ANON_AUTH_URL}`, {
       userId: hexStr,
       accessToken: 'test-access-token',
       refreshToken: 'test-refresh-token'

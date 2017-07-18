@@ -135,6 +135,10 @@ export default class Auth {
     this.clearImpersonation();
   }
 
+  getDeviceId() {
+    return this.get()['deviceId'];
+  }
+
   getAccessToken() {
     return this.get()['accessToken'];
   }

@@ -9,7 +9,33 @@ var _common = require('../common');
 
 var common = _interopRequireWildcard(_common);
 
+var _util = require('../util');
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+/**
+ * Create the device info for this client.
+ *
+ * @param {String} appId The app ID for this client
+ * @param {String} appVersion The version of the app
+ * @returns {Object} The device info object
+ */
+function getDeviceInfo(deviceId, appId) {
+  var appVersion = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+
+  var deviceInfo = { appId: appId, appVersion: appVersion };
+
+  if (deviceId) {
+    deviceInfo.deviceId = deviceId;
+  }
+
+  if ((0, _util.canDeterminePlatform)()) {
+    deviceInfo.platform = (0, _util.getPlatformName)();
+    deviceInfo.platformVersion = (0, _util.getPlatformVersion)();
+  }
+
+  return deviceInfo;
+}
 
 function anonProvider(auth) {
   return {
@@ -20,10 +46,11 @@ function anonProvider(auth) {
         return Promise.resolve(authData);
       }
 
+      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
       var fetchArgs = common.makeFetchArgs('GET');
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/anon/user', fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/anon/user?device=' + (0, _util.uriEncodeObject)(device), fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -42,7 +69,8 @@ function userPassProvider(auth) {
      * @returns {Promise}
      */
     login: function login(username, password, opts) {
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password }));
+      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password, options: { device: device } }));
       fetchArgs.cors = true;
 
       return fetch(auth.rootUrl + '/local/userpass', fetchArgs).then(common.checkStatus).then(function (response) {
@@ -140,7 +168,8 @@ function userPassProvider(auth) {
 function apiKeyProvider(auth) {
   return {
     authenticate: function authenticate(key) {
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ 'key': key }));
+      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ 'key': key, 'options': { device: device } }));
       fetchArgs.cors = true;
 
       return fetch(auth.rootUrl + '/api/key', fetchArgs).then(common.checkStatus).then(function (response) {
@@ -177,7 +206,10 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
 
   var state = generateState();
   auth.storage.set(common.STATE_KEY, state);
-  var result = auth.rootUrl + '/oauth2/' + providerName + '?redirect=' + encodeURI(redirectUrl) + '&state=' + state;
+
+  var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+
+  var result = auth.rootUrl + '/oauth2/' + providerName + '?redirect=' + encodeURI(redirectUrl) + '&state=' + state + '&device=' + (0, _util.uriEncodeObject)(device);
   return result;
 }
 
@@ -210,7 +242,8 @@ function mongodbCloudProvider(auth) {
           cookie = data.cookie;
 
       var options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, apiKey: apiKey }));
+      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, apiKey: apiKey, options: { device: device } }));
       fetchArgs.cors = true; // TODO: shouldn't this use the passed in `cors` value?
       fetchArgs.credentials = 'include';
 

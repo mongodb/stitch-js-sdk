@@ -166,6 +166,11 @@ var Auth = function () {
       this.clearImpersonation();
     }
   }, {
+    key: 'getDeviceId',
+    value: function getDeviceId() {
+      return this.get()['deviceId'];
+    }
+  }, {
     key: 'getAccessToken',
     value: function getAccessToken() {
       return this.get()['accessToken'];

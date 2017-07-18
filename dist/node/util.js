@@ -3,6 +3,14 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.uriEncodeObject = exports.getPlatformVersion = exports.getPlatformName = exports.canDeterminePlatform = exports.letMixin = exports.serviceResponse = exports.deprecate = undefined;
+
+var _detectBrowser = require('detect-browser');
+
+var platform = _interopRequireWildcard(_detectBrowser);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 /**
  * Utility function for displaying deprecation notices
  *
@@ -121,6 +129,45 @@ function letMixin(Type) {
   return Type;
 }
 
+/**
+ * Utility function for determining if detect-browser package successfully set
+ * itself up and determined the platform
+ */
+function canDeterminePlatform() {
+  return !!platform;
+}
+
+/**
+ * Utility function to get the name of the platform running the code. For a
+ * browser, it will be the browser's name; otherwise, it will be 'node'.
+ */
+function getPlatformName() {
+  return !!platform && platform.name;
+}
+
+/**
+ * Utility function to get the version of the platform running the code.
+ */
+function getPlatformVersion() {
+  return !!platform && platform.version;
+}
+
+/**
+ * Utility function to encode a JSON object into a valid string that can be
+ * inserted in a URI. The object is first stringified, then encoded in base64,
+ * and finally encoded via the builtin encodeURIComponent function.
+ *
+ * @param {Object} obj The object to encode
+ * @returns {String} The encoded object
+ */
+function uriEncodeObject(obj) {
+  return encodeURIComponent(new Buffer(JSON.stringify(obj)).toString('base64'));
+}
+
 exports.deprecate = deprecate;
 exports.serviceResponse = serviceResponse;
 exports.letMixin = letMixin;
+exports.canDeterminePlatform = canDeterminePlatform;
+exports.getPlatformName = getPlatformName;
+exports.getPlatformVersion = getPlatformVersion;
+exports.uriEncodeObject = uriEncodeObject;

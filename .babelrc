@@ -2,6 +2,7 @@
   "presets": [ "es2015" ],
   "plugins": [
     "transform-async-to-generator",
-    "babel-plugin-add-module-exports"
+    "babel-plugin-add-module-exports",
+    "version-transform"
   ]
 }
