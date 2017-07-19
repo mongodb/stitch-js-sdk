@@ -9,7 +9,7 @@ import { getPlatform, uriEncodeObject } from '../util';
  * @returns {Object} The device info object
  */
 function getDeviceInfo(deviceId, appId, appVersion = '') {
-  const deviceInfo = { appId, appVersion };
+  const deviceInfo = { appId, appVersion, sdkVersion: common.SDK_VERSION };
 
   if (deviceId) {
     deviceInfo.deviceId = deviceId;
