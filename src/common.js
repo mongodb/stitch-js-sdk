@@ -11,7 +11,11 @@ export const USER_AUTH_COOKIE_NAME = 'stitch_ua';
 export const DEFAULT_STITCH_SERVER_URL = 'https://stitch.mongodb.com';
 
 // VERSION is substituted with the package.json version number at build time
-export const SDK_VERSION = VERSION;
+let version = 'unknown';
+if (typeof VERSION !== 'undefined') {
+  version = VERSION;
+}
+export const SDK_VERSION = version;
 
 export const checkStatus = (response) => {
   if (response.status >= 200 && response.status < 300) {

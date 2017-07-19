@@ -1,10 +1,5 @@
 import * as common from '../common';
-import {
-  canDeterminePlatform,
-  getPlatformName,
-  getPlatformVersion,
-  uriEncodeObject
-} from '../util';
+import { getPlatform, uriEncodeObject } from '../util';
 
 /**
  * Create the device info for this client.
@@ -20,9 +15,11 @@ function getDeviceInfo(deviceId, appId, appVersion = '') {
     deviceInfo.deviceId = deviceId;
   }
 
-  if (canDeterminePlatform()) {
-    deviceInfo.platform = getPlatformName();
-    deviceInfo.platformVersion = getPlatformVersion();
+  const platform = getPlatform();
+
+  if (platform) {
+    deviceInfo.platform = platform.name;
+    deviceInfo.platformVersion = platform.version;
   }
 
   return deviceInfo;

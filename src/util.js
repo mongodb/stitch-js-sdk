@@ -1,4 +1,5 @@
 import * as platform from 'detect-browser';
+import * as base64 from 'Base64';
 
 /**
  * Utility function for displaying deprecation notices
@@ -121,26 +122,12 @@ function letMixin(Type) {
 }
 
 /**
- * Utility function for determining if detect-browser package successfully set
- * itself up and determined the platform
+ * Utility funciton to get the platform.
+ *
+ * @returns {Object} An object of the form {name: ..., version: ...}, or null
  */
-function canDeterminePlatform() {
-  return !!platform;
-}
-
-/**
- * Utility function to get the name of the platform running the code. For a
- * browser, it will be the browser's name; otherwise, it will be 'node'.
- */
-function getPlatformName() {
-  return !!platform && platform.name;
-}
-
-/**
- * Utility function to get the version of the platform running the code.
- */
-function getPlatformVersion() {
-  return !!platform && platform.version;
+function getPlatform() {
+  return platform ? platform : null;
 }
 
 /**
@@ -152,15 +139,13 @@ function getPlatformVersion() {
  * @returns {String} The encoded object
  */
 function uriEncodeObject(obj) {
-  return encodeURIComponent(new Buffer(JSON.stringify(obj)).toString('base64'));
+  return encodeURIComponent(base64.btoa(JSON.stringify(obj)));
 }
 
 export {
   deprecate,
   serviceResponse,
   letMixin,
-  canDeterminePlatform,
-  getPlatformName,
-  getPlatformVersion,
+  getPlatform,
   uriEncodeObject
 };
