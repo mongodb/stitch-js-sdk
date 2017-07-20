@@ -1,6 +1,7 @@
 export const JSONTYPE = 'application/json';
 export const USER_AUTH_KEY = '_stitch_ua';
 export const REFRESH_TOKEN_KEY = '_stitch_rt';
+export const DEVICE_ID_KEY = '_stitch_did';
 export const STATE_KEY = '_stitch_state';
 export const STITCH_ERROR_KEY = '_stitch_error';
 export const STITCH_LINK_KEY = '_stitch_link';

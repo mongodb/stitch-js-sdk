@@ -19,6 +19,7 @@ const MockBrowser = mocks.MockBrowser;
 global.Buffer = global.Buffer || require('buffer').Buffer;
 
 const hexStr = '5899445b275d3ebe8f2ab8c0';
+const mockDeviceId = '8773934448abcdef12345678';
 
 const mockBrowserHarness = {
   setup() {
@@ -101,7 +102,9 @@ describe('Auth', () => {
 
     if (validUsernames.indexOf(args.username) >= 0) {
       return {
-        userId: hexStr
+        userId: hexStr,
+        deviceId: mockDeviceId,
+        device: args.options.device
       };
     }
 
@@ -153,6 +156,80 @@ describe('Auth', () => {
         const a = new Auth(null, '/auth');
         return a.provider('userpass').login('user', 'password')
           .then(() => expect(a.authedId()).toEqual(hexStr));
+      });
+
+      // the mock API response just forwards the request body along, so we can
+      // inspect the device in this test to ensure the expected fields are sent
+      it('should send device info with local auth request', () => {
+        expect.assertions(6);
+        const a = new Auth(null, '/auth');
+        return a.provider('userpass').login('user', 'password')
+          .then(({ device }) => {
+            expect('appId' in device).toBeTruthy();
+            expect('appVersion' in device).toBeTruthy();
+            expect('platform' in device).toBeTruthy();
+            expect('platformVersion' in device).toBeTruthy();
+            expect('sdkVersion' in device).toBeTruthy();
+
+            // a new Auth does not have a deviceId to send
+            expect('deviceId' in device).toBeFalsy();
+          });
+      });
+
+      it('should set device ID on successful local auth request', () => {
+        expect.assertions(2);
+        const a = new Auth(null, '/auth');
+        expect(a.getDeviceId()).toBeNull();
+        return a.provider('userpass').login('user', 'password')
+          .then(() => expect(a.getDeviceId()).toEqual(mockDeviceId));
+      });
+
+      it('should not set device ID on unsuccessful local auth request', () => {
+        expect.assertions(1);
+        const a = new Auth(null, '/auth');
+        return a.provider('userpass').login('fake-user', 'password')
+          .then(() => console.log('expected error'))
+          .catch(() => expect(a.getDeviceId()).toBeNull());
+      });
+
+      it('should not clear device id on logout', async () => {
+        expect.assertions(3);
+        const testClient = new StitchClient('testapp');
+        expect(testClient.auth.getDeviceId()).toBeNull();
+        return testClient.login('user', 'password')
+          .then(() => {
+            expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
+          })
+          .then(() => testClient.logout())
+          .then(() => {
+            expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
+          });
+      });
+
+      it('should send device ID with device info with local auth request on subsequent logins', () => {
+        expect.assertions(10);
+        const testClient = new StitchClient('testapp');
+        expect(testClient.auth.getDeviceId()).toBeNull();
+        return testClient.login('user', 'password')
+          .then(() => {
+            expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
+          })
+          .then(() => testClient.logout())
+          .then(() => {
+            expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
+          })
+          .then(() => {
+            return testClient.login('user', 'password')
+              .then(({ device }) => {
+                expect('appId' in device).toBeTruthy();
+                expect('appVersion' in device).toBeTruthy();
+                expect('platform' in device).toBeTruthy();
+                expect('platformVersion' in device).toBeTruthy();
+                expect('sdkVersion' in device).toBeTruthy();
+                expect('deviceId' in device).toBeTruthy();
+                expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
+              });
+          });
       });
 
       it('should have an error if local auth is unsuccessful', (done) => {

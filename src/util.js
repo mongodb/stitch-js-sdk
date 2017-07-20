@@ -122,7 +122,7 @@ function letMixin(Type) {
 }
 
 /**
- * Utility funciton to get the platform.
+ * Utility function to get the platform.
  *
  * @returns {Object} An object of the form {name: ..., version: ...}, or null
  */

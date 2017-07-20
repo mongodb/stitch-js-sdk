@@ -1,6 +1,6 @@
-const sinon = require('sinon');
-const { StitchClient } = require('../src/client');
-const common = require('../src/common');
+import sinon from 'sinon';
+import { StitchClient } from '../src/client';
+import * as common from '../src/common';
 
 function mockAuthData() {
   const data = {
@@ -27,7 +27,7 @@ function mockApiResponse(options = {}) {
 }
 
 let test = {};
-describe('Auth', function() {
+describe('Auth', () => {
   beforeEach(() => { test.fetch = sinon.stub(window, 'fetch'); });
   afterEach(() => test.fetch.restore());
 
