@@ -26,9 +26,7 @@
     "babel-plugin-version-transform": "^1.0.0",
     "detect-browser": "^1.7.0",
     "fetch-everywhere": "^1.0.5",
-    "mongodb-extjson": "^1.0.5",
-    "query-string": "^4.3.4",
-    "url-parse": "^1.1.9"
+    "mongodb-extjson": "^1.0.5"
   },
   "devDependencies": {
     "babel-core": "^6.24.1",
@@ -50,8 +48,10 @@
     "jsdoc": "^3.4.3",
     "mock-browser": "^0.92.14",
     "mongodb": "^2.2.26",
+    "query-string": "^4.3.4",
     "regenerator-runtime": "^0.10.5",
     "sinon": "^2.2.0",
+    "url-parse": "^1.1.9",
     "webpack": "^2.5.1",
     "yargs": "^8.0.1"
   }
