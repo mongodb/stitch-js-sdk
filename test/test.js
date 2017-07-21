@@ -1,9 +1,11 @@
 /* global expect, it, describe, global, afterEach, beforeEach, afterAll, beforeAll, require, Buffer, Promise */
 const fetchMock = require('fetch-mock');
+const URL = require('url-parse');
 import { StitchClient } from '../src/client';
 import { parseRedirectFragment, JSONTYPE, REFRESH_TOKEN_KEY, DEFAULT_STITCH_SERVER_URL } from '../src/common';
 import Auth from '../src/auth';
 import { mocks } from 'mock-browser';
+import * as base64 from 'Base64';
 
 const EJSON = require('mongodb-extjson');
 
@@ -19,6 +21,7 @@ const MockBrowser = mocks.MockBrowser;
 global.Buffer = global.Buffer || require('buffer').Buffer;
 
 const hexStr = '5899445b275d3ebe8f2ab8c0';
+const mockDeviceId = '8773934448abcdef12345678';
 
 const mockBrowserHarness = {
   setup() {
@@ -101,7 +104,9 @@ describe('Auth', () => {
 
     if (validUsernames.indexOf(args.username) >= 0) {
       return {
-        userId: hexStr
+        userId: hexStr,
+        deviceId: mockDeviceId,
+        device: args.options.device
       };
     }
 
@@ -153,6 +158,80 @@ describe('Auth', () => {
         const a = new Auth(null, '/auth');
         return a.provider('userpass').login('user', 'password')
           .then(() => expect(a.authedId()).toEqual(hexStr));
+      });
+
+      // the mock API response just forwards the request body along, so we can
+      // inspect the device in this test to ensure the expected fields are sent
+      it('should send device info with local auth request', () => {
+        expect.assertions(6);
+        const a = new Auth(null, '/auth');
+        return a.provider('userpass').login('user', 'password')
+          .then(({ device }) => {
+            expect('appId' in device).toBeTruthy();
+            expect('appVersion' in device).toBeTruthy();
+            expect('platform' in device).toBeTruthy();
+            expect('platformVersion' in device).toBeTruthy();
+            expect('sdkVersion' in device).toBeTruthy();
+
+            // a new Auth does not have a deviceId to send
+            expect('deviceId' in device).toBeFalsy();
+          });
+      });
+
+      it('should set device ID on successful local auth request', () => {
+        expect.assertions(2);
+        const a = new Auth(null, '/auth');
+        expect(a.getDeviceId()).toBeNull();
+        return a.provider('userpass').login('user', 'password')
+          .then(() => expect(a.getDeviceId()).toEqual(mockDeviceId));
+      });
+
+      it('should not set device ID on unsuccessful local auth request', () => {
+        expect.assertions(1);
+        const a = new Auth(null, '/auth');
+        return a.provider('userpass').login('fake-user', 'password')
+          .then(() => console.log('expected error'))
+          .catch(() => expect(a.getDeviceId()).toBeNull());
+      });
+
+      it('should not clear device id on logout', async () => {
+        expect.assertions(3);
+        const testClient = new StitchClient('testapp');
+        expect(testClient.auth.getDeviceId()).toBeNull();
+        return testClient.login('user', 'password')
+          .then(() => {
+            expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
+          })
+          .then(() => testClient.logout())
+          .then(() => {
+            expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
+          });
+      });
+
+      it('should send device ID with device info with local auth request on subsequent logins', () => {
+        expect.assertions(10);
+        const testClient = new StitchClient('testapp');
+        expect(testClient.auth.getDeviceId()).toBeNull();
+        return testClient.login('user', 'password')
+          .then(() => {
+            expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
+          })
+          .then(() => testClient.logout())
+          .then(() => {
+            expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
+          })
+          .then(() => {
+            return testClient.login('user', 'password')
+              .then(({ device }) => {
+                expect('appId' in device).toBeTruthy();
+                expect('appVersion' in device).toBeTruthy();
+                expect('platform' in device).toBeTruthy();
+                expect('platformVersion' in device).toBeTruthy();
+                expect('sdkVersion' in device).toBeTruthy();
+                expect('deviceId' in device).toBeTruthy();
+                expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
+              });
+          });
       });
 
       it('should have an error if local auth is unsuccessful', (done) => {
@@ -249,10 +328,17 @@ describe('anonymous auth', () => {
   beforeEach(() => {
     let count = 0;
     fetchMock.restore();
-    fetchMock.mock(ANON_AUTH_URL, {
-      userId: hexStr,
-      accessToken: 'test-access-token',
-      refreshToken: 'test-refresh-token'
+    fetchMock.mock(`begin:${ANON_AUTH_URL}`, (url, opts) => {
+      const parsed = new URL(url, '', true);
+      const device = parsed.query ? parsed.query.device : null;
+
+      return {
+        userId: hexStr,
+        deviceId: mockDeviceId,
+        accessToken: 'test-access-token',
+        refreshToken: 'test-refresh-token',
+        device: device
+      };
     });
 
     fetchMock.post(PIPELINE_URL, (url, opts) => {
@@ -271,6 +357,24 @@ describe('anonymous auth', () => {
       .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: 'foo'}]}}]))
       .then(response => {
         expect(response.result[0].x).toEqual(1);
+      });
+  });
+
+  it('includes device info as a query param with anonymous auth method', () => {
+    expect.assertions(7);
+    let testClient = new StitchClient('testapp');
+    return testClient.login()
+      .then(({ device }) => {
+        const parsed = JSON.parse(base64.atob(decodeURIComponent(device)));
+        expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
+        expect('appId' in parsed).toBeTruthy();
+        expect('appVersion' in parsed).toBeTruthy();
+        expect('platform' in parsed).toBeTruthy();
+        expect('platformVersion' in parsed).toBeTruthy();
+        expect('sdkVersion' in parsed).toBeTruthy();
+
+        // a new Auth does not have a deviceId to send
+        expect('deviceId' in parsed).toBeFalsy();
       });
   });
 });

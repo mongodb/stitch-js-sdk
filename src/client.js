@@ -28,6 +28,8 @@ class StitchClient {
       baseUrl = options.baseUrl;
     }
 
+    this.clientAppID = clientAppID;
+
     this.appUrl = `${baseUrl}/api/public/v1.0`;
     this.authUrl = `${baseUrl}/api/public/v1.0/auth`;
     if (clientAppID) {

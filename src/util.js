@@ -1,3 +1,6 @@
+import * as platform from 'detect-browser';
+import * as base64 from 'Base64';
+
 /**
  * Utility function for displaying deprecation notices
  *
@@ -118,4 +121,31 @@ function letMixin(Type) {
   return Type;
 }
 
-export { deprecate, serviceResponse, letMixin };
+/**
+ * Utility function to get the platform.
+ *
+ * @returns {Object} An object of the form {name: ..., version: ...}, or null
+ */
+function getPlatform() {
+  return platform ? platform : null;
+}
+
+/**
+ * Utility function to encode a JSON object into a valid string that can be
+ * inserted in a URI. The object is first stringified, then encoded in base64,
+ * and finally encoded via the builtin encodeURIComponent function.
+ *
+ * @param {Object} obj The object to encode
+ * @returns {String} The encoded object
+ */
+function uriEncodeObject(obj) {
+  return encodeURIComponent(base64.btoa(JSON.stringify(obj)));
+}
+
+export {
+  deprecate,
+  serviceResponse,
+  letMixin,
+  getPlatform,
+  uriEncodeObject
+};

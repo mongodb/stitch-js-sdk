@@ -15,6 +15,9 @@ var IMPERSONATION_REAL_USER_AUTH_KEY = exports.IMPERSONATION_REAL_USER_AUTH_KEY 
 var USER_AUTH_COOKIE_NAME = exports.USER_AUTH_COOKIE_NAME = 'stitch_ua';
 var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://stitch.mongodb.com';
 
+// VERSION is substituted with the package.json version number at build time
+var SDK_VERSION = exports.SDK_VERSION = "0.0.20";
+
 var checkStatus = exports.checkStatus = function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
     return response;
@@ -22,7 +25,16 @@ var checkStatus = exports.checkStatus = function checkStatus(response) {
 
   var error = new Error(response.statusText);
   error.response = response;
-  throw error;
+
+  // set error to statusText by default; this will be overwritten when (and if)
+  // the response is successfully parsed into json below
+  error.error = response.statusText;
+
+  return response.json().catch(function () {
+    return Promise.reject(error);
+  }).then(function (json) {
+    return Promise.reject(Object.assign(error, json));
+  });
 };
 
 var makeFetchArgs = exports.makeFetchArgs = function makeFetchArgs(method, body) {

@@ -135,6 +135,10 @@ export default class Auth {
     this.clearImpersonation();
   }
 
+  getDeviceId() {
+    return this.storage.get(common.DEVICE_ID_KEY);
+  }
+
   getAccessToken() {
     return this.get()['accessToken'];
   }
@@ -148,6 +152,12 @@ export default class Auth {
       let rt = json.refreshToken;
       delete json.refreshToken;
       this.storage.set(common.REFRESH_TOKEN_KEY, rt);
+    }
+
+    if (json && json.deviceId) {
+      const deviceId = json.deviceId;
+      delete json.deviceId;
+      this.storage.set(common.DEVICE_ID_KEY, deviceId);
     }
 
     this.storage.set(common.USER_AUTH_KEY, JSON.stringify(json));
