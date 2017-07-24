@@ -3,7 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.uriEncodeObject = exports.getPlatform = exports.letMixin = exports.serviceResponse = exports.deprecate = undefined;
+exports.uriEncodeObject = exports.getPlatform = exports.letMixin = exports.serviceResponse = exports.deprecate = exports.collectMetadata = undefined;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _detectBrowser = require('detect-browser');
 
@@ -14,6 +16,38 @@ var _Base = require('Base64');
 var base64 = _interopRequireWildcard(_Base);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var RESULT_METADATA_KEY = '_stitch_metadata';
+
+/**
+ * Utility which creates a function that extracts metadata
+ * from the server in the response to a pipeline request,
+ * and attaches it to the final result after the finalizer has been applied.
+ *
+ * @param {Function} [func] optional finalizer to transform the response data
+ */
+var collectMetadata = exports.collectMetadata = function collectMetadata(func) {
+  var attachMetadata = function attachMetadata(metadata) {
+    return function (res) {
+      if ((typeof res === 'undefined' ? 'undefined' : _typeof(res)) === 'object' && !Object.prototype.hasOwnProperty.call(res, RESULT_METADATA_KEY)) {
+        Object.defineProperty(res, RESULT_METADATA_KEY, { enumerable: false, configurable: false, writable: false, value: metadata });
+      }
+      return Promise.resolve(res);
+    };
+  };
+  var captureMetadata = function captureMetadata(data) {
+    var metadata = {};
+    if (data.warnings) {
+      // Metadata is not yet attached to result, grab any data that needs to be added.
+      metadata.warnings = data.warnings;
+    }
+    if (!func) {
+      return Promise.resolve(data).then(attachMetadata(metadata));
+    }
+    return Promise.resolve(data).then(func).then(attachMetadata(metadata));
+  };
+  return captureMetadata;
+};
 
 /**
  * Utility function for displaying deprecation notices
@@ -73,15 +107,13 @@ function serviceResponse(service, stages, finalizer) {
     then: {
       enumerable: false, writable: false, configurable: false,
       value: function value(resolve, reject) {
-        var result = client.executePipeline(Array.isArray(stages) ? stages : [stages]);
-        return !!finalizer ? result.then(finalizer).then(resolve, reject) : result.then(resolve, reject);
+        return client.executePipeline(Array.isArray(stages) ? stages : [stages], { finalizer: finalizer }).then(resolve, reject);
       }
     },
     catch: {
       enumerable: false, writable: false, configurable: false,
       value: function value(rejected) {
-        var result = client.executePipeline(Array.isArray(stages) ? stages : [stages]);
-        return !!finalizer ? result.then(finalizer).catch(rejected) : result.catch(rejected);
+        return client.executePipeline(Array.isArray(stages) ? stages : [stages], { finalizer: finalizer }).catch(rejected);
       }
     },
     withLet: {

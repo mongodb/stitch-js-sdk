@@ -290,12 +290,15 @@ var StitchClient = function () {
         }
         responseEncoder = options.encoder;
       }
+      if (options.finalizer && typeof options.finalizer !== 'function') {
+        throw new Error('finalizer option must be a function, but "' + _typeof(options.finalizer) + '" was provided');
+      }
 
       return this._do('/pipeline', 'POST', { body: responseEncoder(stages) }).then(function (response) {
         return response.text();
       }).then(function (body) {
         return responseDecoder(body);
-      });
+      }).then((0, _util.collectMetadata)(options.finalizer));
     }
   }, {
     key: '_do',

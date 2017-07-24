@@ -23,6 +23,7 @@ global.Buffer = global.Buffer || require('buffer').Buffer;
 const hexStr = '5899445b275d3ebe8f2ab8c0';
 const mockDeviceId = '8773934448abcdef12345678';
 
+
 const mockBrowserHarness = {
   setup() {
     const mb = new MockBrowser();
@@ -289,6 +290,62 @@ describe('Auth', () => {
       });
     });
   }
+});
+
+describe('request metadata', () => {
+  const sampleStages = [{action: 'literal', args: {items: [{x: 5}]}}];
+  describe('warnings in response metadata', () => {
+    beforeEach(()=>{
+      fetchMock.restore();
+      fetchMock.post(LOCALAUTH_URL, {userId: hexStr});
+      fetchMock.post(PIPELINE_URL, (url, opts) => {
+        return { result: [{x: 1}], warnings: [ 'danger will robinson' ] };
+      });
+    });
+
+    it('attaches warnings to response', ()=>{
+      expect.assertions(1);
+      const testClient = new StitchClient('testapp');
+      return testClient.login('user', 'password')
+      .then(() =>
+        testClient.executePipeline(sampleStages)
+      ).then(response => {
+        expect(response._stitch_metadata).toEqual({warnings: ['danger will robinson']});
+      }).catch(
+        err => console.error('error', err)
+      );
+    });
+
+    it('attaches warnings to response with updateOne (no finalizer)', ()=>{
+      expect.assertions(1);
+      const testClient = new StitchClient('testapp');
+      let service = testClient.service('mongodb', 'mdb1');
+      let db = service.db('test');
+      return testClient.login('user', 'password')
+      .then(() =>
+        db.collection('test').updateOne({})
+      ).then(response => {
+        expect(response._stitch_metadata).toEqual({warnings: ['danger will robinson']});
+      }).catch(
+        err => console.error('error', err)
+      );
+    });
+
+    it('attaches warnings to response with find() (finalizer)', ()=>{
+      expect.assertions(1);
+      const testClient = new StitchClient('testapp');
+      let service = testClient.service('mongodb', 'mdb1');
+      let db = service.db('test');
+      return testClient.login('user', 'password')
+      .then(() =>
+        db.collection('test').find({})
+      ).then(response => {
+        expect(response._stitch_metadata).toEqual({warnings: ['danger will robinson']});
+      }).catch(
+        err => console.error('error', err)
+      );
+    });
+  });
 });
 
 describe('http error responses', () => {

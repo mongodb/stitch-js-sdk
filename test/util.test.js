@@ -4,7 +4,12 @@ let test = {};
 describe('util', () => {
   describe('serviceResponse', () => {
     beforeEach(() => {
-      test.service = { client: { executePipeline: () => Promise.resolve(true) } };
+      test.service = {
+        client: {
+          executePipeline: (stages, options) =>
+            Promise.resolve(options.finalizer ? options.finalizer(true) : true)
+        }
+      };
     });
 
     it('should return a thenable', () => {
@@ -21,7 +26,7 @@ describe('util', () => {
       return response.then(d => expect(d).toBe(true));
     });
 
-    it('should allow a finalizer', () => {
+    it('should pass its finalizer to executePipeline', () => {
       let response = serviceResponse(test.service, { ok: 1 }, () => false);
       expect(response).toBeInstanceOf(Object);
       return response.then(d => expect(d).toBe(false));

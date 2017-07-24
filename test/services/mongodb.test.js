@@ -122,6 +122,29 @@ describe('MongoDBService', function() {
     });
   });
 
+  describe('warnings', function() {
+    beforeEach(() => {
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000 * 30;
+      testSetup();
+    });
+    afterEach(() => test.cleanDatabase());
+    it('should count documents', async function() {
+      const numDocs = 20000;
+      const stepSize = 1000;
+      let testDocs = [...Array(numDocs).keys()].map(x => ({_id: x}));
+
+      for (let i = 0; i < testDocs.length; i += stepSize ) {
+        await test.db.collection('documents').insertMany(testDocs.slice(i, i + stepSize));
+      }
+
+      let response = await test.db.collection('documents').find({});
+      expect(response.length).toBe(10001);
+      expect(response._stitch_metadata.warnings).toEqual(
+        ['output array size limit of 10000 exceeded']
+      );
+    });
+  });
+
   describe('count', function() {
     beforeEach(() => testSetup());
     afterEach(() => test.cleanDatabase());
