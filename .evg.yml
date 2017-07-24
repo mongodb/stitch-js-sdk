@@ -49,7 +49,7 @@ functions:
           export STITCH_PATH=$GOPATH/src/github.com/10gen/stitch
           cd stitch-js-sdk/test/bin
           echo "running stitch"
-          go run $STITCH_PATH/main/main.go --configFile ../conf/test_config.json
+          go run $STITCH_PATH/cmd/server/main.go --configFile ../conf/test_config.json
 
 tasks:
   - name: run_tests
@@ -90,7 +90,7 @@ tasks:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
           local_file: stitch-js-sdk/dist/web/stitch.js
-          remote_file: js/library/${revision}/stitch.js
+          remote_file: js/library/${version_id}/stitch.js
           bucket: stitch-sdks
           permissions: public-read
           content_type: application/javascript
@@ -101,29 +101,7 @@ tasks:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
           local_file: stitch-js-sdk/dist/web/stitch.min.js
-          remote_file: js/library/${revision}/stitch.min.js
-          bucket: stitch-sdks
-          permissions: public-read
-          content_type: application/javascript
-          display_name: Stitch Javascript Library for Web (minified)
-
-      - command: s3.put
-        params:
-          aws_key: ${sdks_aws_key}
-          aws_secret: ${sdks_aws_secret}
-          local_file: stitch-js-sdk/dist/web/stitch.js
-          remote_file: js/library/${branch_name}/stitch.js
-          bucket: stitch-sdks
-          permissions: public-read
-          content_type: application/javascript
-          display_name: Stitch Javascript Library for Web
-
-      - command: s3.put
-        params:
-          aws_key: ${sdks_aws_key}
-          aws_secret: ${sdks_aws_secret}
-          local_file: stitch-js-sdk/dist/web/stitch.min.js
-          remote_file: js/library/${branch_name}/stitch.min.js
+          remote_file: js/library/${version_id}/stitch.min.js
           bucket: stitch-sdks
           permissions: public-read
           content_type: application/javascript
@@ -134,13 +112,14 @@ tasks:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
           local_file: stitch-js-sdk/tmp/mongodb-stitch.tgz
-          remote_file: js/npm/${task_id}/stitch.tgz
+          remote_file: js/npm/${version_id}/stitch.tgz
           bucket: stitch-sdks
           permissions: public-read
           content_type: application/gzip
           display_name: Stitch NPM package
 
   - name: docs_dist
+    patchable: false
     depends_on:
       - name: run_tests
     commands:
