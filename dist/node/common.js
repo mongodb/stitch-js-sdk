@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 var JSONTYPE = exports.JSONTYPE = 'application/json';
 var USER_AUTH_KEY = exports.USER_AUTH_KEY = '_stitch_ua';
 var REFRESH_TOKEN_KEY = exports.REFRESH_TOKEN_KEY = '_stitch_rt';
+var DEVICE_ID_KEY = exports.DEVICE_ID_KEY = '_stitch_did';
 var STATE_KEY = exports.STATE_KEY = '_stitch_state';
 var STITCH_ERROR_KEY = exports.STITCH_ERROR_KEY = '_stitch_error';
 var STITCH_LINK_KEY = exports.STITCH_LINK_KEY = '_stitch_link';
@@ -16,7 +17,11 @@ var USER_AUTH_COOKIE_NAME = exports.USER_AUTH_COOKIE_NAME = 'stitch_ua';
 var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://stitch.mongodb.com';
 
 // VERSION is substituted with the package.json version number at build time
-var SDK_VERSION = exports.SDK_VERSION = "0.0.20";
+var version = 'unknown';
+if (typeof "0.0.21" !== 'undefined') {
+  version = "0.0.21";
+}
+var SDK_VERSION = exports.SDK_VERSION = version;
 
 var checkStatus = exports.checkStatus = function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {

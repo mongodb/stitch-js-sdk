@@ -23,15 +23,17 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function getDeviceInfo(deviceId, appId) {
   var appVersion = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
 
-  var deviceInfo = { appId: appId, appVersion: appVersion };
+  var deviceInfo = { appId: appId, appVersion: appVersion, sdkVersion: common.SDK_VERSION };
 
   if (deviceId) {
     deviceInfo.deviceId = deviceId;
   }
 
-  if ((0, _util.canDeterminePlatform)()) {
-    deviceInfo.platform = (0, _util.getPlatformName)();
-    deviceInfo.platformVersion = (0, _util.getPlatformVersion)();
+  var platform = (0, _util.getPlatform)();
+
+  if (platform) {
+    deviceInfo.platform = platform.name;
+    deviceInfo.platformVersion = platform.version;
   }
 
   return deviceInfo;

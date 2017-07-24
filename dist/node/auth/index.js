@@ -168,7 +168,7 @@ var Auth = function () {
   }, {
     key: 'getDeviceId',
     value: function getDeviceId() {
-      return this.get()['deviceId'];
+      return this.storage.get(common.DEVICE_ID_KEY);
     }
   }, {
     key: 'getAccessToken',
@@ -187,6 +187,12 @@ var Auth = function () {
         var rt = json.refreshToken;
         delete json.refreshToken;
         this.storage.set(common.REFRESH_TOKEN_KEY, rt);
+      }
+
+      if (json && json.deviceId) {
+        var deviceId = json.deviceId;
+        delete json.deviceId;
+        this.storage.set(common.DEVICE_ID_KEY, deviceId);
       }
 
       this.storage.set(common.USER_AUTH_KEY, JSON.stringify(json));
