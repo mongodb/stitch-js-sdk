@@ -3,6 +3,10 @@
   "name": "test_app",
   "domainId": { "$oid": "5847118763fca6ebdddb451f" },
   "ownerId": { "$oid": "5847e04963fca6fd08904c94" },
+  "admin": {
+	  "authSource":"local",
+	  "staticDir":"static"
+  },
   "services": {
     "mdb1": {
       "type": "mongodb",

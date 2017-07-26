@@ -6,7 +6,7 @@ import ServiceRegistry from './services';
 import * as common from './common';
 import ExtJSONModule from 'mongodb-extjson';
 import queryString from 'query-string';
-import { deprecate } from './util';
+import { deprecate, collectMetadata } from './util';
 import {
   StitchError,
   ErrInvalidSession,
@@ -206,10 +206,14 @@ class StitchClient {
       }
       responseEncoder = options.encoder;
     }
+    if (options.finalizer && typeof options.finalizer !== 'function') {
+      throw new Error('finalizer option must be a function, but "' + typeof (options.finalizer) + '" was provided');
+    }
 
     return this._do('/pipeline', 'POST', { body: responseEncoder(stages) })
       .then(response => response.text())
-      .then(body => responseDecoder(body));
+      .then(body => responseDecoder(body))
+      .then(collectMetadata(options.finalizer));
   }
 
   _do(resource, method, options) {

@@ -1,6 +1,40 @@
 import * as platform from 'detect-browser';
 import * as base64 from 'Base64';
 
+const RESULT_METADATA_KEY = '_stitch_metadata';
+
+/**
+ * Utility which creates a function that extracts metadata
+ * from the server in the response to a pipeline request,
+ * and attaches it to the final result after the finalizer has been applied.
+ *
+ * @param {Function} [func] optional finalizer to transform the response data
+ */
+export const collectMetadata = (func) => {
+  const attachMetadata = metadata => (res) => {
+    if (typeof res === 'object' && !Object.prototype.hasOwnProperty.call(res, RESULT_METADATA_KEY)) {
+      Object.defineProperty(
+        res,
+        RESULT_METADATA_KEY,
+        {enumerable: false, configurable: false, writable: false, value: metadata}
+      );
+    }
+    return Promise.resolve(res);
+  };
+  const captureMetadata = (data) => {
+    let metadata = {};
+    if (data.warnings) {
+      // Metadata is not yet attached to result, grab any data that needs to be added.
+      metadata.warnings = data.warnings;
+    }
+    if (!func) {
+      return Promise.resolve(data).then(attachMetadata(metadata));
+    }
+    return Promise.resolve(data).then(func).then(attachMetadata(metadata));
+  };
+  return captureMetadata;
+};
+
 /**
  * Utility function for displaying deprecation notices
  *
@@ -58,19 +92,12 @@ function serviceResponse(service, stages, finalizer) {
   Object.defineProperties(stages, {
     then: {
       enumerable: false, writable: false, configurable: false,
-      value: (resolve, reject) => {
-        let result = client.executePipeline(Array.isArray(stages) ? stages : [ stages ]);
-        return (!!finalizer) ?
-          result.then(finalizer).then(resolve, reject) : result.then(resolve, reject);
-      }
+      value: (resolve, reject) =>
+        client.executePipeline(Array.isArray(stages) ? stages : [ stages ], {finalizer}).then(resolve, reject)
     },
     catch: {
       enumerable: false, writable: false, configurable: false,
-      value: (rejected) => {
-        let result = client.executePipeline(Array.isArray(stages) ? stages : [ stages ]);
-        return (!!finalizer) ?
-          result.then(finalizer).catch(rejected) : result.catch(rejected);
-      }
+      value: (rejected) => client.executePipeline(Array.isArray(stages) ? stages : [ stages ],  {finalizer}).catch(rejected)
     },
     withLet: {
       enumerable: false, writable: true, configurable: true,
