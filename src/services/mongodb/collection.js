@@ -105,6 +105,15 @@ class Collection {
   }
 
   /**
+   * Executes an aggregation pipeline.
+   * @param {Array} pipeline The aggregation pipeline.
+   * @returns {Array} The results of the aggregation.
+   */
+  aggregate(pipeline) {
+    return aggregateOp(this, pipeline);
+  }
+
+  /**
    * Gets the number of documents matching the filter.
    *
    * @param {Object} query The query used to match documents.
@@ -225,4 +234,18 @@ function findOp(self, query, options, finalizer) {
   }, finalizer);
 }
 
+function aggregateOp(self, pipeline, finalizer) {
+  finalizer = finalizer || ((response) => response.result);
+  const args = {
+    database: self.db.name,
+    collection: self.name,
+    pipeline: pipeline
+  };
+
+  return serviceResponse(self.db, {
+    service: self.db.service,
+    action: 'aggregate',
+    args: args
+  }, finalizer);
+}
 export default letMixin(Collection);

@@ -110,6 +110,18 @@ describe('MongoDBService', function() {
     });
   });
 
+  describe('aggregate', function() {
+    beforeEach(() => testSetup());
+    afterEach(() => test.cleanDatabase());
+
+    it('executes the pipeline', async function() {
+      await test.db.collection('documents').insertMany([{ a: 1 }, { a: 2 }]);
+      let response = await test.db.collection('documents').aggregate([{ '$match': { a: 1 }}]);
+      let results = stripObjectIds(response);
+      expect(results).toEqual([ { a: 1 } ]);
+    });
+  });
+
   describe('count', function() {
     beforeEach(() => testSetup());
     afterEach(() => test.cleanDatabase());
