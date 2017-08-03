@@ -119,7 +119,6 @@ tasks:
           display_name: Stitch NPM package
 
   - name: docs_dist
-    patchable: false
     depends_on:
       - name: run_tests
     commands:
@@ -150,8 +149,17 @@ tasks:
             export PATH=$HOME/bin:$PATH
             export AWS_ACCESS_KEY_ID=${sdks_aws_key}
             export AWS_SECRET_ACCESS_KEY=${sdks_aws_secret}
-            aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/${revision} --recursive --acl public-read
-            aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/${branch_name} --recursive --acl public-read
+            
+            if [ "${is_patch|}" = "true" ]; then
+                # Avoids clobbering docs from other patches or non-patch tasks under the same base commit.
+                aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/${version_id} --recursive --acl public-read
+            else
+                cd stitch-js-sdk 
+                export TAG_OR_REV="$(git describe --exact-match || echo ${revision})"
+                cd ..
+                aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/$TAG_OR_REV --recursive --acl public-read
+                aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/${branch_name} --recursive --acl public-read
+           fi
 
 buildvariants:
 - name: linux-64
