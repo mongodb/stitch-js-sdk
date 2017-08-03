@@ -14,8 +14,8 @@
     "dev": "webpack --progress --colors --watch --env dev",
     "docs": "jsdoc -r -c jsdoc.json -R README.md",
     "test": "jest",
-    "lint": "eslint source/ __tests__/",
-    "lintfix": "eslint --fix source/ __tests__/",
+    "lint": "eslint src/ test/",
+    "lintfix": "eslint --fix src/ test/",
     "publish-docs": "npm run docs && gh-pages -d docs"
   },
   "jest": {
