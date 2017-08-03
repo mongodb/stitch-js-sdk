@@ -3226,8 +3226,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var _errors = __webpack_require__(2);
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 exports.default = {
   /**
    * Filters its input documents and outputs only those documents that match
@@ -3343,15 +3341,9 @@ exports.default = {
    * @returns {Object}
    */
   namedPipeline: function namedPipeline(name, args) {
-    var namedPipelineVar = 'namedPipelineOutput';
     return {
-      action: 'literal',
-      args: {
-        items: ['%%vars.' + namedPipelineVar]
-      },
-      let: _defineProperty({}, namedPipelineVar, {
-        '%pipeline': { name: name, args: args }
-      })
+      action: 'namedPipeline',
+      args: { name: name, args: args }
     };
   }
 };
@@ -3404,8 +3396,6 @@ var _errors = __webpack_require__(2);
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3605,15 +3595,9 @@ var StitchClient = function () {
     value: function executeNamedPipeline(name, args) {
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-      var namedPipelineVar = 'namedPipelineOutput';
       var namedPipelineStages = [{
-        action: 'literal',
-        args: {
-          items: ['%%vars.' + namedPipelineVar]
-        },
-        let: _defineProperty({}, namedPipelineVar, {
-          '%pipeline': { name: name, args: args }
-        })
+        action: 'namedPipeline',
+        args: { name: name, args: args }
       }];
       return this.executePipeline(namedPipelineStages, options);
     }

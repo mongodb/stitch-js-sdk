@@ -115,17 +115,10 @@ export default {
    * @returns {Object}
    */
   namedPipeline: function(name, args) {
-    const namedPipelineVar = 'namedPipelineOutput';
     return {
-      action: 'literal',
-      args: {
-        items: [ `%%vars.${namedPipelineVar}` ]
-      },
-      let: {
-        [namedPipelineVar]: {
-          '%pipeline': { name, args }
-        }
-      }
+      service: '',
+      action: 'namedPipeline',
+      args: { name, args }
     };
   }
 };

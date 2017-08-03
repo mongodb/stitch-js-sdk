@@ -164,18 +164,11 @@ class StitchClient {
    * @param {Object} [options] Additional options to pass to the execution context.
    */
   executeNamedPipeline(name, args, options = {}) {
-    const namedPipelineVar = 'namedPipelineOutput';
     const namedPipelineStages = [
       {
-        action: 'literal',
-        args: {
-          items: [ `%%vars.${namedPipelineVar}` ]
-        },
-        let: {
-          [namedPipelineVar]: {
-            '%pipeline': { name, args }
-          }
-        }
+        service: '',
+        action: 'namedPipeline',
+        args: { name, args }
       }
     ];
     return this.executePipeline(namedPipelineStages, options);
