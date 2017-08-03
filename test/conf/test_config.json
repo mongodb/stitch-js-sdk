@@ -30,8 +30,8 @@
       },
       "oauth2/facebook": {
         "metadataFields": ["email", "name"],
-        "clientId": "1606022673025557",
-        "clientSecret": "e87609bf0bd18e3147970a0799a4c1f4",
+        "clientId": "CLIENT-ID",
+        "clientSecret": "CLIENT-SECRET",
         "redirectURIs":[
           "http://localhost:7080",
           "http://localhost:7080/",
