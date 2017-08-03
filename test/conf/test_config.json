@@ -18,9 +18,13 @@
     "authSource": "local",
     "authProviders": {
       "oauth2/google": {
+        "name": "oauth2/google",
+        "type": "oauth2/google",
         "metadataFields": ["email", "name"],
-        "clientId": "CLIENT-ID",
-        "clientSecret": "CLIENT-SECRET",
+        "config": {
+          "clientId": "CLIENT-ID",
+          "clientSecret": "CLIENT-SECRET"
+        },
         "redirectURIs":[
           "http://localhost:7080",
           "http://localhost:7080/",
@@ -29,9 +33,13 @@
         ]
       },
       "oauth2/facebook": {
+        "name": "oauth2/facebook",
+        "type": "oauth2/facebook",
         "metadataFields": ["email", "name"],
-        "clientId": "CLIENT-ID",
-        "clientSecret": "CLIENT-SECRET",
+        "config": {
+          "clientId": "CLIENT-ID",
+          "clientSecret": "CLIENT-SECRET"
+        },
         "redirectURIs":[
           "http://localhost:7080",
           "http://localhost:7080/",
@@ -40,9 +48,14 @@
         ]
       },
       "local/userpass": {
+        "name": "local/userpass",
+        "type": "local/userpass",
         "metadataFields": ["email", "name"]
       },
-      "api/key": {}
+      "api/key": {
+        "name": "api/key",
+        "type": "api/key"
+      }
     },
     "staticDir": "admin/static"
   },
