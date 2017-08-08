@@ -159,7 +159,7 @@ tasks:
                 cd ..
                 aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/$TAG_OR_REV --recursive --acl public-read
                 aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/${branch_name} --recursive --acl public-read
-           fi
+            fi
 
 buildvariants:
 - name: linux-64
