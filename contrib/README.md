@@ -9,7 +9,7 @@ npm run build
 
 # create a commit + tag for this npm version
 export PACKAGE_VERSION=`node -e 'console.log(require("./package.json").version)'`
-git commit -m "$PACKAGE_VERSION"
+git commit -a -m "$PACKAGE_VERSION"
 git tag "v$PACKAGE_VERSION"
 
 # make live
