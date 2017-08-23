@@ -171,7 +171,9 @@ class StitchClient {
         args: { name, args }
       }
     ];
-    return this.executePipeline(namedPipelineStages, options);
+    return this.executePipeline(namedPipelineStages, options).then(
+      res => res.result ? res.result[0] : null
+    );
   }
 
   /**
