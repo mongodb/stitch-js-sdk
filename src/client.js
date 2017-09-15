@@ -383,7 +383,8 @@ class Admin {
           create: (user) => this._post(`/groups/${groupId}/apps/${appID}/users`, user),
           user: (uid) => ({
             get: () => this._get(`/groups/${groupId}/apps/${appID}/users/${uid}`),
-            logout: () => this._put(`/groups/${groupId}/apps/${appID}/users/${uid}/logout`)
+            logout: () => this._put(`/groups/${groupId}/apps/${appID}/users/${uid}/logout`),
+            remove: () => this._delete(`/groups/${groupId}/apps/${appID}/users/${uid}`)
           })
         }),
 
