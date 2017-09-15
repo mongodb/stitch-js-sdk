@@ -27,13 +27,12 @@ function getDeviceInfo(deviceId, appId, appVersion = '') {
 
 function anonProvider(auth) {
   return {
-    login: (opts) => {
-      // reuse existing auth if present
-      const authData = auth.get();
-      if (authData.hasOwnProperty('accessToken')) {
-        return Promise.resolve(authData);
-      }
-
+    /**
+     * Login to a stitch application using anonymous authentication
+     *
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
+    authenticate: () => {
       const device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
       const fetchArgs = common.makeFetchArgs('GET');
       fetchArgs.cors = true;
@@ -53,10 +52,11 @@ function userPassProvider(auth) {
      *
      * @param {String} username the username to use for authentication
      * @param {String} password the password to use for authentication
-     * @returns {Promise}
+     * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    login: (username, password, opts) => {
+    authenticate: ({ username, password }) => {
       const device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+
       const fetchArgs = common.makeFetchArgs(
         'POST',
         JSON.stringify({ username, password, options: { device } })

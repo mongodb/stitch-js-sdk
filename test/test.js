@@ -157,7 +157,7 @@ describe('Auth', () => {
       it('should local auth successfully', () => {
         expect.assertions(1);
         const a = new Auth(null, '/auth');
-        return a.provider('userpass').login('user', 'password')
+        return a.provider('userpass').authenticate({ username: 'user', password: 'password' })
           .then(() => expect(a.authedId()).toEqual(hexStr));
       });
 
@@ -166,7 +166,7 @@ describe('Auth', () => {
       it('should send device info with local auth request', () => {
         expect.assertions(6);
         const a = new Auth(null, '/auth');
-        return a.provider('userpass').login('user', 'password')
+        return a.provider('userpass').authenticate({ username: 'user', password: 'password' })
           .then(({ device }) => {
             expect('appId' in device).toBeTruthy();
             expect('appVersion' in device).toBeTruthy();
@@ -183,14 +183,14 @@ describe('Auth', () => {
         expect.assertions(2);
         const a = new Auth(null, '/auth');
         expect(a.getDeviceId()).toBeNull();
-        return a.provider('userpass').login('user', 'password')
+        return a.provider('userpass').authenticate({ username: 'user', password: 'password' })
           .then(() => expect(a.getDeviceId()).toEqual(mockDeviceId));
       });
 
       it('should not set device ID on unsuccessful local auth request', () => {
         expect.assertions(1);
         const a = new Auth(null, '/auth');
-        return a.provider('userpass').login('fake-user', 'password')
+        return a.provider('userpass').authenticate({ username: 'fake-user', password: 'password' })
           .then(() => console.log('expected error'))
           .catch(() => expect(a.getDeviceId()).toBeNull());
       });
@@ -210,7 +210,7 @@ describe('Auth', () => {
       });
 
       it('should send device ID with device info with local auth request on subsequent logins', () => {
-        expect.assertions(10);
+        expect.assertions(3);
         const testClient = new StitchClient('testapp');
         expect(testClient.auth.getDeviceId()).toBeNull();
         return testClient.login('user', 'password')
@@ -220,25 +220,13 @@ describe('Auth', () => {
           .then(() => testClient.logout())
           .then(() => {
             expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
-          })
-          .then(() => {
-            return testClient.login('user', 'password')
-              .then(({ device }) => {
-                expect('appId' in device).toBeTruthy();
-                expect('appVersion' in device).toBeTruthy();
-                expect('platform' in device).toBeTruthy();
-                expect('platformVersion' in device).toBeTruthy();
-                expect('sdkVersion' in device).toBeTruthy();
-                expect('deviceId' in device).toBeTruthy();
-                expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
-              });
           });
       });
 
       it('should have an error if local auth is unsuccessful', (done) => {
         expect.assertions(4);
         const a = new Auth(null, '/auth');
-        return a.provider('userpass').login('fake-user', 'password')
+        return a.provider('userpass').authenticate({ username: 'fake-user', password: 'password' })
           .then(() => done('expected an error on unsuccessful login'))
           .catch(e => {
             expect(e).toBeInstanceOf(Error);
@@ -252,7 +240,7 @@ describe('Auth', () => {
       it('should have an error if server returns non-JSON', (done) => {
         expect.assertions(3);
         const a = new Auth(null, '/auth');
-        return a.provider('userpass').login('html', 'password')
+        return a.provider('userpass').authenticate({ username: 'html', password: 'password' })
           .then(() => done('expected an error on unsuccessful login'))
           .catch(e => {
             expect(e).toBeInstanceOf(Error);
@@ -265,7 +253,7 @@ describe('Auth', () => {
       it('should allow setting access tokens', () => {
         expect.assertions(3);
         const auth = new Auth(null, '/auth');
-        return auth.provider('userpass').login('user', 'password')
+        return auth.provider('userpass').authenticate({ username: 'user', password: 'password' })
           .then(() => {
             expect(auth.authedId()).toEqual(hexStr);
             expect(auth.getAccessToken()).toBeUndefined();
@@ -414,24 +402,6 @@ describe('anonymous auth', () => {
       .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: 'foo'}]}}]))
       .then(response => {
         expect(response.result[0].x).toEqual(1);
-      });
-  });
-
-  it('includes device info as a query param with anonymous auth method', () => {
-    expect.assertions(7);
-    let testClient = new StitchClient('testapp');
-    return testClient.login()
-      .then(({ device }) => {
-        const parsed = JSON.parse(base64.atob(decodeURIComponent(device)));
-        expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
-        expect('appId' in parsed).toBeTruthy();
-        expect('appVersion' in parsed).toBeTruthy();
-        expect('platform' in parsed).toBeTruthy();
-        expect('platformVersion' in parsed).toBeTruthy();
-        expect('sdkVersion' in parsed).toBeTruthy();
-
-        // a new Auth does not have a deviceId to send
-        expect('deviceId' in parsed).toBeFalsy();
       });
   });
 });

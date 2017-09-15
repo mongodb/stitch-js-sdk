@@ -31,8 +31,8 @@
     "query-string": "^4.3.4"
   },
   "devDependencies": {
-    "babel-core": "^6.24.1",
     "babel-cli": "^6.24.1",
+    "babel-core": "^6.24.1",
     "babel-eslint": "^7.2.3",
     "babel-jest": "^20.0.3",
     "babel-loader": "^7.0.0",

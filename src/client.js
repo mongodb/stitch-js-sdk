@@ -68,10 +68,10 @@ class StitchClient {
    */
   login(email, password, options = {}) {
     if (email === undefined || password === undefined) {
-      return this.auth.provider('anon').login(options);
+      return this.authenticate('anon', options);
     }
 
-    return this.auth.provider('userpass').login(email, password, options);
+    return this.authenticate('userpass', Object.assign({ username: email, password }, options));
   }
 
   /**
@@ -91,14 +91,23 @@ class StitchClient {
   }
 
   /**
-   * Starts an OAuth authorization flow by opening a popup window
+   * Submits an authentication request to the specified provider providing any
+   * included options (read: user data).  If auth data already exists and the
+   * existing auth data has an access token, then these credentials are returned.
    *
-   * @param {String} providerType the provider used for authentication (e.g. 'facebook', 'google')
-   * @param {Object} [options] additional authentication options (user data)
-   * @returns {Promise}
+   * @param {String} providerType the provider used for authentication (e.g. 'userpass', 'facebook', 'google')
+   * @param {Object} [options] additional authentication options
+   * @returns {Promise} which resolves to a String value: the authed userId
    */
-  authenticate(providerType, options) {
-    return this.auth.provider(providerType).authenticate(options);
+  authenticate(providerType, options = {}) {
+    // reuse existing auth if present
+    const existingAuthData = this.auth.get();
+    if (existingAuthData.hasOwnProperty('accessToken')) {
+      return Promise.resolve(existingAuthData.userId);
+    }
+
+    return this.auth.provider(providerType).authenticate(options)
+      .then(authData => authData.userId);
   }
 
   /**
@@ -284,7 +293,7 @@ class StitchClient {
   }
 
   anonymousAuth() {
-    return this.login();
+    return this.authenticate('anon');
   }
 }
 
