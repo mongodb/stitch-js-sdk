@@ -50,6 +50,18 @@ functions:
           cd stitch-js-sdk/test/bin
           echo "running stitch"
           go run $STITCH_PATH/cmd/server/main.go --configFile ../conf/test_config.json
+    - command: shell.exec
+      params:
+        script: |
+          counter=0
+          until $(curl --output /dev/null --silent --head --fail http://localhost:7080); do
+            echo "checking for API server to be up..."
+            sleep 1
+            let counter++
+            if [ $counter -gt 100 ]; then
+              exit 1
+            fi
+          done
 
 tasks:
   - name: run_tests
