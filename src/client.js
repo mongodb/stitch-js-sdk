@@ -30,10 +30,20 @@ class StitchClient {
 
     this.clientAppID = clientAppID;
 
-    this.appUrl = `${baseUrl}/api/public/v1.0`;
-    this.authUrl = `${baseUrl}/api/public/v1.0/auth`;
+    let publicAPIVersionSubpath = 'v1.0';
+    if (options && options.publicAPIVersionSubpath) {
+      publicAPIVersionSubpath = options.publicAPIVersionSubpath;
+    }
+
+    let clientAPIVersionSubpath = 'v1.0';
+    if (options && options.clientAPIVersionSubpath) {
+      clientAPIVersionSubpath = options.clientAPIVersionSubpath;
+    }
+
+    this.appUrl = `${baseUrl}/api/public/${publicAPIVersionSubpath}`;
+    this.authUrl = `${baseUrl}/api/public/${publicAPIVersionSubpath}/auth`;
     if (clientAppID) {
-      this.appUrl = `${baseUrl}/api/client/v1.0/app/${clientAppID}`;
+      this.appUrl = `${baseUrl}/api/client/${clientAPIVersionSubpath}/app/${clientAppID}`;
       this.authUrl = `${this.appUrl}/auth`;
     }
 
