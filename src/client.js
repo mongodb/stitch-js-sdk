@@ -552,6 +552,18 @@ class Admin {
             return {
               get: () => api._get(appUrl),
               remove: () => api._delete(appUrl),
+              pipelines: () => ({
+                list: () => api._get(`${appUrl}/pipelines`),
+                create: (data) => api._post( `${appUrl}/pipelines`, data),
+                pipeline: (pipelineId) => {
+                  const pipelineUrl = `${appUrl}/pipelines/${pipelineId}`;
+                  return {
+                    get: ()=> api._get(pipelineUrl),
+                    remove: ()=> api._delete(pipelineUrl),
+                    update: (data) => api._put(pipelineUrl, data)
+                  };
+                }
+              }),
               values: () => ({
                 list: () => api._get(`${appUrl}/values`),
                 create: (data) => api._post( `${appUrl}/values`, data),
@@ -581,7 +593,6 @@ class Admin {
               sandbox: TODOnotImplemented,
               authProviders: TODOnotImplemented,
               security: TODOnotImplemented,
-              pipelines: TODOnotImplemented,
               logs: TODOnotImplemented,
               apiKeys: TODOnotImplemented
             };
