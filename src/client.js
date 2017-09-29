@@ -347,7 +347,10 @@ class Admin {
         (data ?
           v2do(url, 'PUT', {body: JSON.stringify(data)})  :
           v2do(url, 'PUT')),
-      _patch: (url, options) => v2do(url, 'PATCH', options),
+      _patch: (url, data) =>
+        (data ?
+          v2do(url, 'PATCH', {body: JSON.stringify(data)})  :
+          v2do(url, 'PATCH')),
       _delete: (url)  => v2do(url, 'DELETE'),
       _post: (url, body) => v2do(url, 'POST', {body: JSON.stringify(body)})
     };
@@ -561,6 +564,18 @@ class Admin {
                   };
                 }
               }),
+              services: () => ({
+                list: () => api._get(`${appUrl}/services`),
+                create: (data) => api._post(`${appUrl}/services`, data),
+                service: (serviceId) => ({
+                  get: () => api._get(`${appUrl}/services/${serviceId}`),
+                  remove: () => api._delete(`${appUrl}/services/${serviceId}`),
+                  config: ()=> ({
+                    get: () => api._get(`${appUrl}/services/${serviceId}/config`),
+                    update: (data) => api._patch(`${appUrl}/services/${serviceId}/config`, data)
+                  })
+                })
+              }),
               pushNotifications: TODOnotImplemented,
               users: TODOnotImplemented,
               sandbox: TODOnotImplemented,
@@ -568,8 +583,7 @@ class Admin {
               security: TODOnotImplemented,
               pipelines: TODOnotImplemented,
               logs: TODOnotImplemented,
-              apiKeys: TODOnotImplemented,
-              services: TODOnotImplemented
+              apiKeys: TODOnotImplemented
             };
           }
         };
