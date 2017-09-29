@@ -15,6 +15,9 @@ import {
 
 const EJSON = new ExtJSONModule();
 
+const v1 = 1;
+const v2 = 2;
+
 /**
  * Create a new StitchClient instance.
  *
@@ -30,12 +33,28 @@ class StitchClient {
 
     this.clientAppID = clientAppID;
 
-    this.appUrl = `${baseUrl}/api/public/v1.0`;
-    this.authUrl = `${baseUrl}/api/public/v1.0/auth`;
-    if (clientAppID) {
-      this.appUrl = `${baseUrl}/api/client/v1.0/app/${clientAppID}`;
-      this.authUrl = `${this.appUrl}/auth`;
-    }
+    this.authUrl = (
+      clientAppID ?
+        `${baseUrl}/api/client/v1.0/app/${clientAppID}/auth` :
+        `${baseUrl}/api/public/v1.0/auth`
+    );
+
+    this.rootURLsByAPIVersion = {
+      [v1]: {
+        public: `${baseUrl}/api/public/v1.0`,
+        client: `${baseUrl}/api/client/v1.0`,
+        app: (clientAppID ?
+              `${baseUrl}/api/client/v1.0/app/${clientAppID}` :
+              `${baseUrl}/api/public/v1.0`)
+      },
+      [v2]: {
+        public: `${baseUrl}/api/public/v2.0`,
+        client: `${baseUrl}/api/client/v2.0`,
+        app: (clientAppID ?
+              `${baseUrl}/api/client/v2.0/app/${clientAppID}` :
+              `${baseUrl}/api/public/v2.0`)
+      }
+    };
 
     this.auth = new Auth(this, this.authUrl);
     this.auth.handleRedirect();
@@ -221,7 +240,8 @@ class StitchClient {
   _do(resource, method, options) {
     options = Object.assign({}, {
       refreshOnFailure: true,
-      useRefreshToken: false
+      useRefreshToken: false,
+      apiVersion: v1
     }, options);
 
     if (!options.noAuth) {
@@ -230,7 +250,8 @@ class StitchClient {
       }
     }
 
-    let url = `${this.appUrl}${resource}`;
+    const appURL = this.rootURLsByAPIVersion[options.apiVersion].app;
+    let url = `${appURL}${resource}`;
     let fetchArgs = common.makeFetchArgs(method, options.body);
 
     if (!!options.headers) {
@@ -307,38 +328,63 @@ class Admin {
     this.client = new StitchClient('', {baseUrl});
   }
 
+  get _v2() {
+    const v2do = (url, method, options) =>
+      this.client._do(
+        url,
+        method,
+        Object.assign({}, {apiVersion: v2}, options)
+      ).then(response => {
+        const contentHeader = response.headers.get('content-type') || '';
+        if (contentHeader.split(',').indexOf('application/json') >= 0) {
+          return response.json();
+        }
+        return response;
+      });
+    return {
+      _get: (url, queryParams) => v2do(url, 'GET', {queryParams}),
+      _put: (url, data) =>
+        (data ?
+          v2do(url, 'PUT', {body: JSON.stringify(data)})  :
+          v2do(url, 'PUT')),
+      _patch: (url, options) => v2do(url, 'PATCH', options),
+      _delete: (url)  => v2do(url, 'DELETE'),
+      _post: (url, body) => v2do(url, 'POST', {body: JSON.stringify(body)})
+    };
+  }
+
+  get _v1() {
+    const v1do = (url, method, options) =>
+      this.client._do(
+        url,
+        method,
+        Object.assign({}, {apiVersion: v1}, options)
+      ).then(response => response.json());
+    return {
+      _get: (url, queryParams) => v1do(url, 'GET', {queryParams}),
+      _put: (url, options) => v1do(url, 'PUT', options),
+      _delete: (url)  => v1do(url, 'DELETE'),
+      _post: (url, body) => v1do(url, 'POST', {body: JSON.stringify(body)})
+    };
+  }
+
   _do(url, method, options) {
     return this.client._do(url, method, options)
       .then(response => response.json());
   }
 
-  _get(url, queryParams) {
-    return this._do(url, 'GET', {queryParams});
-  }
-
-  _put(url, options) {
-    return this._do(url, 'PUT', options);
-  }
-
-  _delete(url) {
-    return this._do(url, 'DELETE');
-  }
-
-  _post(url, body) {
-    return this._do(url, 'POST', {body: JSON.stringify(body)});
-  }
-
   profile() {
+    const api = this._v1;
     let root = this;
     return {
       keys: () => ({
-        list: () => root._get('/profile/keys'),
-        create: (key) => root._post('/profile/keys'),
+        list: () => api._get('/profile/keys'),
+        create: (key) => api._post('/profile/keys'),
         apiKey: (keyId) => ({
-          get: () => root._get(`/profile/keys/${keyId}`),
-          remove: () => this._delete(`/profile/keys/${keyId}`),
-          enable: () => root._put(`/profile/keys/${keyId}/enable`),
-          disable: () => root._put(`/profile/keys/${keyId}/disable`)
+          get: () => api._get(`/profile/keys/${keyId}`),
+          remove: () => api._delete(`/profile/keys/${keyId}`),
+          enable: () => api._put(`/profile/keys/${keyId}/enable`),
+          disable: () => api._put(`/profile/keys/${keyId}/disable`)
         })
       })
     };
@@ -360,40 +406,40 @@ class Admin {
    *
    */
   apps(groupId) {
-    let root = this;
+    const api = this._v1;
     return {
-      list: () => root._get(`/groups/${groupId}/apps`),
+      list: () => api._get(`/groups/${groupId}/apps`),
       create: (data, options) => {
         let query = (options && options.defaults) ? '?defaults=true' : '';
-        return root._post(`/groups/${groupId}/apps` + query, data);
+        return api._post(`/groups/${groupId}/apps` + query, data);
       },
 
       app: (appID) => ({
-        get: () => root._get(`/groups/${groupId}/apps/${appID}`),
-        remove: () => root._delete(`/groups/${groupId}/apps/${appID}`),
-        replace: (doc) => root._put(`/groups/${groupId}/apps/${appID}`, {
+        get: () => api._get(`/groups/${groupId}/apps/${appID}`),
+        remove: () => api._delete(`/groups/${groupId}/apps/${appID}`),
+        replace: (doc) => api._put(`/groups/${groupId}/apps/${appID}`, {
           headers: { 'X-Stitch-Unsafe': appID },
           body: JSON.stringify(doc)
         }),
 
         messages: () => ({
-          list: (filter) =>  this._get(`/groups/${groupId}/apps/${appID}/push/messages`, filter),
-          create: (msg) =>  this._put(`/groups/${groupId}/apps/${appID}/push/messages`,  {body: JSON.stringify(msg)}),
+          list: (filter) =>  api._get(`/groups/${groupId}/apps/${appID}/push/messages`, filter),
+          create: (msg) =>  api._put(`/groups/${groupId}/apps/${appID}/push/messages`,  {body: JSON.stringify(msg)}),
           message: (id) => ({
-            get: () => this._get(`/groups/${groupId}/apps/${appID}/push/messages/${id}`),
-            remove: () => this._delete(`/groups/${groupId}/apps/${appID}/push/messages/${id}`),
-            setSaveType: type => this._post(`/groups/${groupId}/apps/${appID}/push/messages/${id}`, {type}),
-            update: msg => this._put(`/groups/${groupId}/apps/${appID}/push/messages/${id}`, {body: JSON.stringify(msg)})
+            get: () => api._get(`/groups/${groupId}/apps/${appID}/push/messages/${id}`),
+            remove: () => api._delete(`/groups/${groupId}/apps/${appID}/push/messages/${id}`),
+            setSaveType: type => api._post(`/groups/${groupId}/apps/${appID}/push/messages/${id}`, {type}),
+            update: msg => api._put(`/groups/${groupId}/apps/${appID}/push/messages/${id}`, {body: JSON.stringify(msg)})
           })
         }),
 
         users: () => ({
-          list: (filter) => this._get(`/groups/${groupId}/apps/${appID}/users`, filter),
-          create: (user) => this._post(`/groups/${groupId}/apps/${appID}/users`, user),
+          list: (filter) => api._get(`/groups/${groupId}/apps/${appID}/users`, filter),
+          create: (user) => api._post(`/groups/${groupId}/apps/${appID}/users`, user),
           user: (uid) => ({
-            get: () => this._get(`/groups/${groupId}/apps/${appID}/users/${uid}`),
-            logout: () => this._put(`/groups/${groupId}/apps/${appID}/users/${uid}/logout`),
-            remove: () => this._delete(`/groups/${groupId}/apps/${appID}/users/${uid}`)
+            get: () => api._get(`/groups/${groupId}/apps/${appID}/users/${uid}`),
+            logout: () => api._put(`/groups/${groupId}/apps/${appID}/users/${uid}/logout`),
+            remove: () => api._delete(`/groups/${groupId}/apps/${appID}/users/${uid}`)
           })
         }),
 
@@ -408,82 +454,127 @@ class Admin {
         }),
 
         authProviders: () => ({
-          create: (data) => this._post(`/groups/${groupId}/apps/${appID}/authProviders`, data),
-          list: () => this._get(`/groups/${groupId}/apps/${appID}/authProviders`),
+          create: (data) => api._post(`/groups/${groupId}/apps/${appID}/authProviders`, data),
+          list: () => api._get(`/groups/${groupId}/apps/${appID}/authProviders`),
           provider: (authType, authName) => ({
-            get: () => this._get(`/groups/${groupId}/apps/${appID}/authProviders/${authType}/${authName}`),
-            remove: () => this._delete(`/groups/${groupId}/apps/${appID}/authProviders/${authType}/${authName}`),
-            update: (data) => this._post(`/groups/${groupId}/apps/${appID}/authProviders/${authType}/${authName}`, data)
+            get: () => api._get(`/groups/${groupId}/apps/${appID}/authProviders/${authType}/${authName}`),
+            remove: () => api._delete(`/groups/${groupId}/apps/${appID}/authProviders/${authType}/${authName}`),
+            update: (data) => api._post(`/groups/${groupId}/apps/${appID}/authProviders/${authType}/${authName}`, data)
           })
         }),
         security: () => ({
           allowedRequestOrigins: () => ({
-            get: () => this._get(`/groups/${groupId}/apps/${appID}/security/allowedRequestOrigins`),
-            update: (data) => this._post(`/groups/${groupId}/apps/${appID}/security/allowedRequestOrigins`, data)
+            get: () => api._get(`/groups/${groupId}/apps/${appID}/security/allowedRequestOrigins`),
+            update: (data) => api._post(`/groups/${groupId}/apps/${appID}/security/allowedRequestOrigins`, data)
           })
         }),
         values: () => ({
-          list: () => this._get(`/groups/${groupId}/apps/${appID}/values`),
+          list: () => api._get(`/groups/${groupId}/apps/${appID}/values`),
           value: (varName) => ({
-            get: () => this._get(`/groups/${groupId}/apps/${appID}/values/${varName}`),
-            remove: () => this._delete(`/groups/${groupId}/apps/${appID}/values/${varName}`),
-            create: (data) => this._post(`/groups/${groupId}/apps/${appID}/values/${varName}`, data),
-            update: (data) => this._post(`/groups/${groupId}/apps/${appID}/values/${varName}`, data)
+            get: () => api._get(`/groups/${groupId}/apps/${appID}/values/${varName}`),
+            remove: () => api._delete(`/groups/${groupId}/apps/${appID}/values/${varName}`),
+            create: (data) => api._post(`/groups/${groupId}/apps/${appID}/values/${varName}`, data),
+            update: (data) => api._post(`/groups/${groupId}/apps/${appID}/values/${varName}`, data)
           })
         }),
         pipelines: () => ({
-          list: () => this._get(`/groups/${groupId}/apps/${appID}/pipelines`),
+          list: () => api._get(`/groups/${groupId}/apps/${appID}/pipelines`),
           pipeline: (varName) => ({
-            get: () => this._get(`/groups/${groupId}/apps/${appID}/pipelines/${varName}`),
-            remove: () => this._delete(`/groups/${groupId}/apps/${appID}/pipelines/${varName}`),
-            create: (data) => this._post(`/groups/${groupId}/apps/${appID}/pipelines/${varName}`, data),
-            update: (data) => this._post(`/groups/${groupId}/apps/${appID}/pipelines/${varName}`, data)
+            get: () => api._get(`/groups/${groupId}/apps/${appID}/pipelines/${varName}`),
+            remove: () => api._delete(`/groups/${groupId}/apps/${appID}/pipelines/${varName}`),
+            create: (data) => api._post(`/groups/${groupId}/apps/${appID}/pipelines/${varName}`, data),
+            update: (data) => api._post(`/groups/${groupId}/apps/${appID}/pipelines/${varName}`, data)
           })
         }),
         logs: () => ({
-          get: (filter) => this._get(`/groups/${groupId}/apps/${appID}/logs`, filter)
+          get: (filter) => api._get(`/groups/${groupId}/apps/${appID}/logs`, filter)
         }),
         apiKeys: () => ({
-          list: () => this._get(`/groups/${groupId}/apps/${appID}/keys`),
-          create: (data) => this._post(`/groups/${groupId}/apps/${appID}/keys`, data),
+          list: () => api._get(`/groups/${groupId}/apps/${appID}/keys`),
+          create: (data) => api._post(`/groups/${groupId}/apps/${appID}/keys`, data),
           apiKey: (key) => ({
-            get: () => this._get(`/groups/${groupId}/apps/${appID}/keys/${key}`),
-            remove: () => this._delete(`/groups/${groupId}/apps/${appID}/keys/${key}`),
-            enable: () => this._put(`/groups/${groupId}/apps/${appID}/keys/${key}/enable`),
-            disable: () => this._put(`/groups/${groupId}/apps/${appID}/keys/${key}/disable`)
+            get: () => api._get(`/groups/${groupId}/apps/${appID}/keys/${key}`),
+            remove: () => api._delete(`/groups/${groupId}/apps/${appID}/keys/${key}`),
+            enable: () => api._put(`/groups/${groupId}/apps/${appID}/keys/${key}/enable`),
+            disable: () => api._put(`/groups/${groupId}/apps/${appID}/keys/${key}/disable`)
           })
         }),
         services: () => ({
-          list: () => this._get(`/groups/${groupId}/apps/${appID}/services`),
-          create: (data) => this._post(`/groups/${groupId}/apps/${appID}/services`, data),
+          list: () => api._get(`/groups/${groupId}/apps/${appID}/services`),
+          create: (data) => api._post(`/groups/${groupId}/apps/${appID}/services`, data),
           service: (svc) => ({
-            get: () => this._get(`/groups/${groupId}/apps/${appID}/services/${svc}`),
-            update: (data) => this._post(`/groups/${groupId}/apps/${appID}/services/${svc}`, data),
-            remove: () => this._delete(`/groups/${groupId}/apps/${appID}/services/${svc}`),
-            setConfig: (data) => this._post(`/groups/${groupId}/apps/${appID}/services/${svc}/config`, data),
+            get: () => api._get(`/groups/${groupId}/apps/${appID}/services/${svc}`),
+            update: (data) => api._post(`/groups/${groupId}/apps/${appID}/services/${svc}`, data),
+            remove: () => api._delete(`/groups/${groupId}/apps/${appID}/services/${svc}`),
+            setConfig: (data) => api._post(`/groups/${groupId}/apps/${appID}/services/${svc}/config`, data),
 
             rules: () => ({
-              list: () => this._get(`/groups/${groupId}/apps/${appID}/services/${svc}/rules`),
-              create: (data) => this._post(`/groups/${groupId}/apps/${appID}/services/${svc}/rules`),
+              list: () => api._get(`/groups/${groupId}/apps/${appID}/services/${svc}/rules`),
+              create: (data) => api._post(`/groups/${groupId}/apps/${appID}/services/${svc}/rules`),
               rule: (ruleId) => ({
-                get: () => this._get(`/groups/${groupId}/apps/${appID}/services/${svc}/rules/${ruleId}`),
-                update: (data) => this._post(`/groups/${groupId}/apps/${appID}/services/${svc}/rules/${ruleId}`, data),
-                remove: () => this._delete(`/groups/${groupId}/apps/${appID}/services/${svc}/rules/${ruleId}`)
+                get: () => api._get(`/groups/${groupId}/apps/${appID}/services/${svc}/rules/${ruleId}`),
+                update: (data) => api._post(`/groups/${groupId}/apps/${appID}/services/${svc}/rules/${ruleId}`, data),
+                remove: () => api._delete(`/groups/${groupId}/apps/${appID}/services/${svc}/rules/${ruleId}`)
               })
             }),
 
             incomingWebhooks: () => ({
-              list: () => this._get(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks`),
-              create: (data) => this._post(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks`, data),
+              list: () => api._get(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks`),
+              create: (data) => api._post(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks`, data),
               incomingWebhook: (incomingWebhookId) => ({
-                get: () => this._get(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`),
-                update: (data) => this._post(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`, data),
-                remove: () => this._delete(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`)
+                get: () => api._get(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`),
+                update: (data) => api._post(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`, data),
+                remove: () => api._delete(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`)
               })
             })
           })
         })
       })
+    };
+  }
+
+  v2() {
+    const api = this._v2;
+    const TODOnotImplemented = ()=>  { throw new Error('Not yet implemented'); };
+    return {
+      apps: (groupId)  => {
+        const groupUrl = `/groups/${groupId}/apps`;
+        return {
+          list: () => api._get(groupUrl),
+          create: (data, options) => {
+            let query = (options && options.defaults) ? '?defaults=true' : '';
+            return api._post(groupUrl + query, data);
+          },
+          app: (appId) => {
+            const appUrl = `${groupUrl}/${appId}`;
+            return {
+              get: () => api._get(appUrl),
+              remove: () => api._delete(appUrl),
+              values: () => ({
+                list: () => api._get(`${appUrl}/values`),
+                create: (data) => api._post( `${appUrl}/values`, data),
+                value: (valueId) => {
+                  const valueUrl = `${appUrl}/values/${valueId}`;
+                  return {
+                    get: ()=> api._get(valueUrl),
+                    remove: ()=> api._delete(valueUrl),
+                    update: (data) => api._put(valueUrl, data)
+                  };
+                }
+              }),
+              pushNotifications: TODOnotImplemented,
+              users: TODOnotImplemented,
+              sandbox: TODOnotImplemented,
+              authProviders: TODOnotImplemented,
+              security: TODOnotImplemented,
+              pipelines: TODOnotImplemented,
+              logs: TODOnotImplemented,
+              apiKeys: TODOnotImplemented,
+              services: TODOnotImplemented
+            };
+          }
+        };
+      }
     };
   }
 

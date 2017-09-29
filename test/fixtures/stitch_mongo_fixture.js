@@ -34,7 +34,9 @@ export default class StitchMongoFixture {
     this.stitch = new StitchService;
   }
 
-  async setup() {
+  async setup(options) {
+    options = Object.assign({}, {createApp: true}, options);
+
     // setup mongo client and clear database
     this.mongo = await MongoClient.connect(this.options.uri);
     await this.clearDatabase();
@@ -53,6 +55,9 @@ export default class StitchMongoFixture {
     this.admin = new stitch.Admin('http://localhost:7080');
     await this.admin.client.authenticate('apiKey', userData.apiKey.key);
 
+    if (!options.createApp) {
+      return;
+    }
     const appConfig = EJSON.parse(fs.readFileSync(`${CONF_PATH}/test_app_config.json`, 'utf8'));
     const result = await this.admin.apps(userData.group.groupId).create(appConfig);
     const app = this.admin.apps(userData.group.groupId).app(result._id);
