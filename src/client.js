@@ -375,7 +375,6 @@ class Admin {
 
   profile() {
     const api = this._v1;
-    let root = this;
     return {
       keys: () => ({
         list: () => api._get('/profile/keys'),
