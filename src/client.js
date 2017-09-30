@@ -77,7 +77,7 @@ class StitchClient {
   }
 
   /**
-   * Login to stich instance, optionally providing a username and password. In
+   * Login to stitch instance, optionally providing a username and password. In
    * the event that these are omitted, anonymous authentication is used.
    *
    * @param {String} [email] the email address used for login
