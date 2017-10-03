@@ -41,9 +41,14 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var EJSON = new _mongodbExtjson2.default();
+
+var v1 = 1;
+var v2 = 2;
 
 /**
  * Create a new StitchClient instance.
@@ -54,7 +59,8 @@ var EJSON = new _mongodbExtjson2.default();
 
 var StitchClient = function () {
   function StitchClient(clientAppID, options) {
-    var _this = this;
+    var _rootURLsByAPIVersion,
+        _this = this;
 
     _classCallCheck(this, StitchClient);
 
@@ -65,12 +71,17 @@ var StitchClient = function () {
 
     this.clientAppID = clientAppID;
 
-    this.appUrl = baseUrl + '/api/public/v1.0';
-    this.authUrl = baseUrl + '/api/public/v1.0/auth';
-    if (clientAppID) {
-      this.appUrl = baseUrl + '/api/client/v1.0/app/' + clientAppID;
-      this.authUrl = this.appUrl + '/auth';
-    }
+    this.authUrl = clientAppID ? baseUrl + '/api/client/v1.0/app/' + clientAppID + '/auth' : baseUrl + '/api/public/v1.0/auth';
+
+    this.rootURLsByAPIVersion = (_rootURLsByAPIVersion = {}, _defineProperty(_rootURLsByAPIVersion, v1, {
+      public: baseUrl + '/api/public/v1.0',
+      client: baseUrl + '/api/client/v1.0',
+      app: clientAppID ? baseUrl + '/api/client/v1.0/app/' + clientAppID : baseUrl + '/api/public/v1.0'
+    }), _defineProperty(_rootURLsByAPIVersion, v2, {
+      public: baseUrl + '/api/public/v2.0',
+      client: baseUrl + '/api/client/v2.0',
+      app: clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID : baseUrl + '/api/public/v2.0'
+    }), _rootURLsByAPIVersion);
 
     this.auth = new _auth2.default(this, this.authUrl);
     this.auth.handleRedirect();
@@ -95,7 +106,7 @@ var StitchClient = function () {
   }
 
   /**
-   * Login to stich instance, optionally providing a username and password. In
+   * Login to stitch instance, optionally providing a username and password. In
    * the event that these are omitted, anonymous authentication is used.
    *
    * @param {String} [email] the email address used for login
@@ -312,7 +323,8 @@ var StitchClient = function () {
 
       options = Object.assign({}, {
         refreshOnFailure: true,
-        useRefreshToken: false
+        useRefreshToken: false,
+        apiVersion: v1
       }, options);
 
       if (!options.noAuth) {
@@ -321,7 +333,8 @@ var StitchClient = function () {
         }
       }
 
-      var url = '' + this.appUrl + resource;
+      var appURL = this.rootURLsByAPIVersion[options.apiVersion].app;
+      var url = '' + appURL + resource;
       var fetchArgs = common.makeFetchArgs(method, options.body);
 
       if (!!options.headers) {
@@ -409,53 +422,31 @@ var Admin = function () {
       });
     }
   }, {
-    key: '_get',
-    value: function _get(url, queryParams) {
-      return this._do(url, 'GET', { queryParams: queryParams });
-    }
-  }, {
-    key: '_put',
-    value: function _put(url, options) {
-      return this._do(url, 'PUT', options);
-    }
-  }, {
-    key: '_delete',
-    value: function _delete(url) {
-      return this._do(url, 'DELETE');
-    }
-  }, {
-    key: '_post',
-    value: function _post(url, body) {
-      return this._do(url, 'POST', { body: JSON.stringify(body) });
-    }
-  }, {
     key: 'profile',
     value: function profile() {
-      var _this4 = this;
-
-      var root = this;
+      var api = this._v1;
       return {
         keys: function keys() {
           return {
             list: function list() {
-              return root._get('/profile/keys');
+              return api._get('/profile/keys');
             },
             create: function create(key) {
-              return root._post('/profile/keys');
+              return api._post('/profile/keys');
             },
             apiKey: function apiKey(keyId) {
               return {
                 get: function get() {
-                  return root._get('/profile/keys/' + keyId);
+                  return api._get('/profile/keys/' + keyId);
                 },
                 remove: function remove() {
-                  return _this4._delete('/profile/keys/' + keyId);
+                  return api._delete('/profile/keys/' + keyId);
                 },
                 enable: function enable() {
-                  return root._put('/profile/keys/' + keyId + '/enable');
+                  return api._put('/profile/keys/' + keyId + '/enable');
                 },
                 disable: function disable() {
-                  return root._put('/profile/keys/' + keyId + '/disable');
+                  return api._put('/profile/keys/' + keyId + '/disable');
                 }
               };
             }
@@ -483,28 +474,28 @@ var Admin = function () {
   }, {
     key: 'apps',
     value: function apps(groupId) {
-      var _this5 = this;
+      var _this4 = this;
 
-      var root = this;
+      var api = this._v1;
       return {
         list: function list() {
-          return root._get('/groups/' + groupId + '/apps');
+          return api._get('/groups/' + groupId + '/apps');
         },
         create: function create(data, options) {
           var query = options && options.defaults ? '?defaults=true' : '';
-          return root._post('/groups/' + groupId + '/apps' + query, data);
+          return api._post('/groups/' + groupId + '/apps' + query, data);
         },
 
         app: function app(appID) {
           return {
             get: function get() {
-              return root._get('/groups/' + groupId + '/apps/' + appID);
+              return api._get('/groups/' + groupId + '/apps/' + appID);
             },
             remove: function remove() {
-              return root._delete('/groups/' + groupId + '/apps/' + appID);
+              return api._delete('/groups/' + groupId + '/apps/' + appID);
             },
             replace: function replace(doc) {
-              return root._put('/groups/' + groupId + '/apps/' + appID, {
+              return api._put('/groups/' + groupId + '/apps/' + appID, {
                 headers: { 'X-Stitch-Unsafe': appID },
                 body: JSON.stringify(doc)
               });
@@ -513,24 +504,24 @@ var Admin = function () {
             messages: function messages() {
               return {
                 list: function list(filter) {
-                  return _this5._get('/groups/' + groupId + '/apps/' + appID + '/push/messages', filter);
+                  return api._get('/groups/' + groupId + '/apps/' + appID + '/push/messages', filter);
                 },
                 create: function create(msg) {
-                  return _this5._put('/groups/' + groupId + '/apps/' + appID + '/push/messages', { body: JSON.stringify(msg) });
+                  return api._put('/groups/' + groupId + '/apps/' + appID + '/push/messages', { body: JSON.stringify(msg) });
                 },
                 message: function message(id) {
                   return {
                     get: function get() {
-                      return _this5._get('/groups/' + groupId + '/apps/' + appID + '/push/messages/' + id);
+                      return api._get('/groups/' + groupId + '/apps/' + appID + '/push/messages/' + id);
                     },
                     remove: function remove() {
-                      return _this5._delete('/groups/' + groupId + '/apps/' + appID + '/push/messages/' + id);
+                      return api._delete('/groups/' + groupId + '/apps/' + appID + '/push/messages/' + id);
                     },
                     setSaveType: function setSaveType(type) {
-                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/push/messages/' + id, { type: type });
+                      return api._post('/groups/' + groupId + '/apps/' + appID + '/push/messages/' + id, { type: type });
                     },
                     update: function update(msg) {
-                      return _this5._put('/groups/' + groupId + '/apps/' + appID + '/push/messages/' + id, { body: JSON.stringify(msg) });
+                      return api._put('/groups/' + groupId + '/apps/' + appID + '/push/messages/' + id, { body: JSON.stringify(msg) });
                     }
                   };
                 }
@@ -540,21 +531,21 @@ var Admin = function () {
             users: function users() {
               return {
                 list: function list(filter) {
-                  return _this5._get('/groups/' + groupId + '/apps/' + appID + '/users', filter);
+                  return api._get('/groups/' + groupId + '/apps/' + appID + '/users', filter);
                 },
                 create: function create(user) {
-                  return _this5._post('/groups/' + groupId + '/apps/' + appID + '/users', user);
+                  return api._post('/groups/' + groupId + '/apps/' + appID + '/users', user);
                 },
                 user: function user(uid) {
                   return {
                     get: function get() {
-                      return _this5._get('/groups/' + groupId + '/apps/' + appID + '/users/' + uid);
+                      return api._get('/groups/' + groupId + '/apps/' + appID + '/users/' + uid);
                     },
                     logout: function logout() {
-                      return _this5._put('/groups/' + groupId + '/apps/' + appID + '/users/' + uid + '/logout');
+                      return api._put('/groups/' + groupId + '/apps/' + appID + '/users/' + uid + '/logout');
                     },
                     remove: function remove() {
-                      return _this5._delete('/groups/' + groupId + '/apps/' + appID + '/users/' + uid);
+                      return api._delete('/groups/' + groupId + '/apps/' + appID + '/users/' + uid);
                     }
                   };
                 }
@@ -565,7 +556,7 @@ var Admin = function () {
               return {
                 executePipeline: function executePipeline(data, userId, options) {
                   var queryParams = Object.assign({}, options, { user_id: userId });
-                  return _this5._do('/groups/' + groupId + '/apps/' + appID + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: queryParams });
+                  return _this4._do('/groups/' + groupId + '/apps/' + appID + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: queryParams });
                 }
               };
             },
@@ -573,21 +564,21 @@ var Admin = function () {
             authProviders: function authProviders() {
               return {
                 create: function create(data) {
-                  return _this5._post('/groups/' + groupId + '/apps/' + appID + '/authProviders', data);
+                  return api._post('/groups/' + groupId + '/apps/' + appID + '/authProviders', data);
                 },
                 list: function list() {
-                  return _this5._get('/groups/' + groupId + '/apps/' + appID + '/authProviders');
+                  return api._get('/groups/' + groupId + '/apps/' + appID + '/authProviders');
                 },
                 provider: function provider(authType, authName) {
                   return {
                     get: function get() {
-                      return _this5._get('/groups/' + groupId + '/apps/' + appID + '/authProviders/' + authType + '/' + authName);
+                      return api._get('/groups/' + groupId + '/apps/' + appID + '/authProviders/' + authType + '/' + authName);
                     },
                     remove: function remove() {
-                      return _this5._delete('/groups/' + groupId + '/apps/' + appID + '/authProviders/' + authType + '/' + authName);
+                      return api._delete('/groups/' + groupId + '/apps/' + appID + '/authProviders/' + authType + '/' + authName);
                     },
                     update: function update(data) {
-                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/authProviders/' + authType + '/' + authName, data);
+                      return api._post('/groups/' + groupId + '/apps/' + appID + '/authProviders/' + authType + '/' + authName, data);
                     }
                   };
                 }
@@ -598,10 +589,10 @@ var Admin = function () {
                 allowedRequestOrigins: function allowedRequestOrigins() {
                   return {
                     get: function get() {
-                      return _this5._get('/groups/' + groupId + '/apps/' + appID + '/security/allowedRequestOrigins');
+                      return api._get('/groups/' + groupId + '/apps/' + appID + '/security/allowedRequestOrigins');
                     },
                     update: function update(data) {
-                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/security/allowedRequestOrigins', data);
+                      return api._post('/groups/' + groupId + '/apps/' + appID + '/security/allowedRequestOrigins', data);
                     }
                   };
                 }
@@ -610,21 +601,21 @@ var Admin = function () {
             values: function values() {
               return {
                 list: function list() {
-                  return _this5._get('/groups/' + groupId + '/apps/' + appID + '/values');
+                  return api._get('/groups/' + groupId + '/apps/' + appID + '/values');
                 },
                 value: function value(varName) {
                   return {
                     get: function get() {
-                      return _this5._get('/groups/' + groupId + '/apps/' + appID + '/values/' + varName);
+                      return api._get('/groups/' + groupId + '/apps/' + appID + '/values/' + varName);
                     },
                     remove: function remove() {
-                      return _this5._delete('/groups/' + groupId + '/apps/' + appID + '/values/' + varName);
+                      return api._delete('/groups/' + groupId + '/apps/' + appID + '/values/' + varName);
                     },
                     create: function create(data) {
-                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/values/' + varName, data);
+                      return api._post('/groups/' + groupId + '/apps/' + appID + '/values/' + varName, data);
                     },
                     update: function update(data) {
-                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/values/' + varName, data);
+                      return api._post('/groups/' + groupId + '/apps/' + appID + '/values/' + varName, data);
                     }
                   };
                 }
@@ -633,21 +624,21 @@ var Admin = function () {
             pipelines: function pipelines() {
               return {
                 list: function list() {
-                  return _this5._get('/groups/' + groupId + '/apps/' + appID + '/pipelines');
+                  return api._get('/groups/' + groupId + '/apps/' + appID + '/pipelines');
                 },
                 pipeline: function pipeline(varName) {
                   return {
                     get: function get() {
-                      return _this5._get('/groups/' + groupId + '/apps/' + appID + '/pipelines/' + varName);
+                      return api._get('/groups/' + groupId + '/apps/' + appID + '/pipelines/' + varName);
                     },
                     remove: function remove() {
-                      return _this5._delete('/groups/' + groupId + '/apps/' + appID + '/pipelines/' + varName);
+                      return api._delete('/groups/' + groupId + '/apps/' + appID + '/pipelines/' + varName);
                     },
                     create: function create(data) {
-                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/pipelines/' + varName, data);
+                      return api._post('/groups/' + groupId + '/apps/' + appID + '/pipelines/' + varName, data);
                     },
                     update: function update(data) {
-                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/pipelines/' + varName, data);
+                      return api._post('/groups/' + groupId + '/apps/' + appID + '/pipelines/' + varName, data);
                     }
                   };
                 }
@@ -656,31 +647,31 @@ var Admin = function () {
             logs: function logs() {
               return {
                 get: function get(filter) {
-                  return _this5._get('/groups/' + groupId + '/apps/' + appID + '/logs', filter);
+                  return api._get('/groups/' + groupId + '/apps/' + appID + '/logs', filter);
                 }
               };
             },
             apiKeys: function apiKeys() {
               return {
                 list: function list() {
-                  return _this5._get('/groups/' + groupId + '/apps/' + appID + '/keys');
+                  return api._get('/groups/' + groupId + '/apps/' + appID + '/keys');
                 },
                 create: function create(data) {
-                  return _this5._post('/groups/' + groupId + '/apps/' + appID + '/keys', data);
+                  return api._post('/groups/' + groupId + '/apps/' + appID + '/keys', data);
                 },
                 apiKey: function apiKey(key) {
                   return {
                     get: function get() {
-                      return _this5._get('/groups/' + groupId + '/apps/' + appID + '/keys/' + key);
+                      return api._get('/groups/' + groupId + '/apps/' + appID + '/keys/' + key);
                     },
                     remove: function remove() {
-                      return _this5._delete('/groups/' + groupId + '/apps/' + appID + '/keys/' + key);
+                      return api._delete('/groups/' + groupId + '/apps/' + appID + '/keys/' + key);
                     },
                     enable: function enable() {
-                      return _this5._put('/groups/' + groupId + '/apps/' + appID + '/keys/' + key + '/enable');
+                      return api._put('/groups/' + groupId + '/apps/' + appID + '/keys/' + key + '/enable');
                     },
                     disable: function disable() {
-                      return _this5._put('/groups/' + groupId + '/apps/' + appID + '/keys/' + key + '/disable');
+                      return api._put('/groups/' + groupId + '/apps/' + appID + '/keys/' + key + '/disable');
                     }
                   };
                 }
@@ -689,44 +680,44 @@ var Admin = function () {
             services: function services() {
               return {
                 list: function list() {
-                  return _this5._get('/groups/' + groupId + '/apps/' + appID + '/services');
+                  return api._get('/groups/' + groupId + '/apps/' + appID + '/services');
                 },
                 create: function create(data) {
-                  return _this5._post('/groups/' + groupId + '/apps/' + appID + '/services', data);
+                  return api._post('/groups/' + groupId + '/apps/' + appID + '/services', data);
                 },
                 service: function service(svc) {
                   return {
                     get: function get() {
-                      return _this5._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc);
+                      return api._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc);
                     },
                     update: function update(data) {
-                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc, data);
+                      return api._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc, data);
                     },
                     remove: function remove() {
-                      return _this5._delete('/groups/' + groupId + '/apps/' + appID + '/services/' + svc);
+                      return api._delete('/groups/' + groupId + '/apps/' + appID + '/services/' + svc);
                     },
                     setConfig: function setConfig(data) {
-                      return _this5._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/config', data);
+                      return api._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/config', data);
                     },
 
                     rules: function rules() {
                       return {
                         list: function list() {
-                          return _this5._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules');
+                          return api._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules');
                         },
                         create: function create(data) {
-                          return _this5._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules');
+                          return api._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules');
                         },
                         rule: function rule(ruleId) {
                           return {
                             get: function get() {
-                              return _this5._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules/' + ruleId);
+                              return api._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules/' + ruleId);
                             },
                             update: function update(data) {
-                              return _this5._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules/' + ruleId, data);
+                              return api._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules/' + ruleId, data);
                             },
                             remove: function remove() {
-                              return _this5._delete('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules/' + ruleId);
+                              return api._delete('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules/' + ruleId);
                             }
                           };
                         }
@@ -736,21 +727,21 @@ var Admin = function () {
                     incomingWebhooks: function incomingWebhooks() {
                       return {
                         list: function list() {
-                          return _this5._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks');
+                          return api._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks');
                         },
                         create: function create(data) {
-                          return _this5._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks', data);
+                          return api._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks', data);
                         },
                         incomingWebhook: function incomingWebhook(incomingWebhookId) {
                           return {
                             get: function get() {
-                              return _this5._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId);
+                              return api._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId);
                             },
                             update: function update(data) {
-                              return _this5._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId, data);
+                              return api._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId, data);
                             },
                             remove: function remove() {
-                              return _this5._delete('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId);
+                              return api._delete('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId);
                             }
                           };
                         }
@@ -765,27 +756,145 @@ var Admin = function () {
       };
     }
   }, {
+    key: 'v2',
+    value: function v2() {
+      var api = this._v2;
+      var TODOnotImplemented = function TODOnotImplemented() {
+        throw new Error('Not yet implemented');
+      };
+      return {
+        apps: function apps(groupId) {
+          var groupUrl = '/groups/' + groupId + '/apps';
+          return {
+            list: function list() {
+              return api._get(groupUrl);
+            },
+            create: function create(data, options) {
+              var query = options && options.defaults ? '?defaults=true' : '';
+              return api._post(groupUrl + query, data);
+            },
+            app: function app(appId) {
+              var appUrl = groupUrl + '/' + appId;
+              return {
+                get: function get() {
+                  return api._get(appUrl);
+                },
+                remove: function remove() {
+                  return api._delete(appUrl);
+                },
+                pipelines: function pipelines() {
+                  return {
+                    list: function list() {
+                      return api._get(appUrl + '/pipelines');
+                    },
+                    create: function create(data) {
+                      return api._post(appUrl + '/pipelines', data);
+                    },
+                    pipeline: function pipeline(pipelineId) {
+                      var pipelineUrl = appUrl + '/pipelines/' + pipelineId;
+                      return {
+                        get: function get() {
+                          return api._get(pipelineUrl);
+                        },
+                        remove: function remove() {
+                          return api._delete(pipelineUrl);
+                        },
+                        update: function update(data) {
+                          return api._put(pipelineUrl, data);
+                        }
+                      };
+                    }
+                  };
+                },
+                values: function values() {
+                  return {
+                    list: function list() {
+                      return api._get(appUrl + '/values');
+                    },
+                    create: function create(data) {
+                      return api._post(appUrl + '/values', data);
+                    },
+                    value: function value(valueId) {
+                      var valueUrl = appUrl + '/values/' + valueId;
+                      return {
+                        get: function get() {
+                          return api._get(valueUrl);
+                        },
+                        remove: function remove() {
+                          return api._delete(valueUrl);
+                        },
+                        update: function update(data) {
+                          return api._put(valueUrl, data);
+                        }
+                      };
+                    }
+                  };
+                },
+                services: function services() {
+                  return {
+                    list: function list() {
+                      return api._get(appUrl + '/services');
+                    },
+                    create: function create(data) {
+                      return api._post(appUrl + '/services', data);
+                    },
+                    service: function service(serviceId) {
+                      return {
+                        get: function get() {
+                          return api._get(appUrl + '/services/' + serviceId);
+                        },
+                        remove: function remove() {
+                          return api._delete(appUrl + '/services/' + serviceId);
+                        },
+                        config: function config() {
+                          return {
+                            get: function get() {
+                              return api._get(appUrl + '/services/' + serviceId + '/config');
+                            },
+                            update: function update(data) {
+                              return api._patch(appUrl + '/services/' + serviceId + '/config', data);
+                            }
+                          };
+                        }
+                      };
+                    }
+                  };
+                },
+                pushNotifications: TODOnotImplemented,
+                users: TODOnotImplemented,
+                dev: TODOnotImplemented,
+                authProviders: TODOnotImplemented,
+                security: TODOnotImplemented,
+                logs: TODOnotImplemented,
+                apiKeys: TODOnotImplemented
+              };
+            }
+          };
+        }
+      };
+    }
+  }, {
     key: '_admin',
     value: function _admin() {
-      var _this6 = this;
+      var _this5 = this;
 
       return {
         logs: function logs() {
           return {
             get: function get(filter) {
-              return _this6._do('/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter });
+              return _this5._do('/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter });
             }
           };
         },
         users: function users() {
           return {
             list: function list(filter) {
-              return _this6._do('/admin/users', 'GET', { useRefreshToken: true, queryParams: filter });
+              return _this5._do('/admin/users', 'GET', { useRefreshToken: true, queryParams: filter });
             },
             user: function user(uid) {
               return {
                 logout: function logout() {
-                  return _this6._do('/admin/users/' + uid + '/logout', 'PUT', { useRefreshToken: true });
+                  return _this5._do('/admin/users/' + uid + '/logout', 'PUT', { useRefreshToken: true });
                 }
               };
             }
@@ -807,6 +916,63 @@ var Admin = function () {
     key: '_stopImpersonation',
     value: function _stopImpersonation() {
       return this.client.auth.stopImpersonation();
+    }
+  }, {
+    key: '_v2',
+    get: function get() {
+      var _this6 = this;
+
+      var v2do = function v2do(url, method, options) {
+        return _this6.client._do(url, method, Object.assign({}, { apiVersion: v2 }, options)).then(function (response) {
+          var contentHeader = response.headers.get('content-type') || '';
+          if (contentHeader.split(',').indexOf('application/json') >= 0) {
+            return response.json();
+          }
+          return response;
+        });
+      };
+      return {
+        _get: function _get(url, queryParams) {
+          return v2do(url, 'GET', { queryParams: queryParams });
+        },
+        _put: function _put(url, data) {
+          return data ? v2do(url, 'PUT', { body: JSON.stringify(data) }) : v2do(url, 'PUT');
+        },
+        _patch: function _patch(url, data) {
+          return data ? v2do(url, 'PATCH', { body: JSON.stringify(data) }) : v2do(url, 'PATCH');
+        },
+        _delete: function _delete(url) {
+          return v2do(url, 'DELETE');
+        },
+        _post: function _post(url, body) {
+          return v2do(url, 'POST', { body: JSON.stringify(body) });
+        }
+      };
+    }
+  }, {
+    key: '_v1',
+    get: function get() {
+      var _this7 = this;
+
+      var v1do = function v1do(url, method, options) {
+        return _this7.client._do(url, method, Object.assign({}, { apiVersion: v1 }, options)).then(function (response) {
+          return response.json();
+        });
+      };
+      return {
+        _get: function _get(url, queryParams) {
+          return v1do(url, 'GET', { queryParams: queryParams });
+        },
+        _put: function _put(url, options) {
+          return v1do(url, 'PUT', options);
+        },
+        _delete: function _delete(url) {
+          return v1do(url, 'DELETE');
+        },
+        _post: function _post(url, body) {
+          return v1do(url, 'POST', { body: JSON.stringify(body) });
+        }
+      };
     }
   }]);
 
