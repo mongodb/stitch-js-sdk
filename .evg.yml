@@ -76,7 +76,7 @@ tasks:
             echo "running client tests"
             cd stitch-js-sdk
             npm install
-            npm test
+            npm test -- --runInBand # force serial execution
 
   - name: dist
     depends_on:

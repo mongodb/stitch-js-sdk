@@ -33,7 +33,7 @@ describe('Auth', () => {
 
   it('should return a promise for anonymous login with existing auth data', () => {
     window.fetch.resolves(mockApiResponse());
-    expect.assertions(1)
+    expect.assertions(1);
 
     let client = new StitchClient();
     client.auth.storage.set(common.USER_AUTH_KEY, mockAuthData());
@@ -51,7 +51,7 @@ describe('Auth', () => {
         deviceId: 'fake-device-id'
       }
     }));
-    expect.assertions(1)
+    expect.assertions(1);
 
     let client = new StitchClient();
 
@@ -61,7 +61,7 @@ describe('Auth', () => {
 
   it('should return a promise for login with only existing auth data userId', () => {
     window.fetch.resolves(mockApiResponse());
-    expect.assertions(1)
+    expect.assertions(1);
 
     let client = new StitchClient();
     client.auth.storage.set(common.USER_AUTH_KEY, mockAuthData());

@@ -5,7 +5,6 @@ import { StitchClient } from '../src/client';
 import { parseRedirectFragment, JSONTYPE, REFRESH_TOKEN_KEY, DEFAULT_STITCH_SERVER_URL } from '../src/common';
 import Auth from '../src/auth';
 import { mocks } from 'mock-browser';
-import * as base64 from 'Base64';
 
 const EJSON = require('mongodb-extjson');
 
