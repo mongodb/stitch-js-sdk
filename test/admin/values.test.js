@@ -1,6 +1,6 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
-import {getAuthenticatedClient} from './testutil';
+import {getAuthenticatedClient} from '../testutil';
 
 describe('Values V2', ()=>{
   let test = new StitchMongoFixture();
@@ -33,14 +33,14 @@ describe('Values V2', ()=>{
     expect(values[0]).toEqual(value);
   });
   it('fetching a value returns deep value data', async () => {
-    let value = await appValues.create({name: testValueName, value: '"foo"'});
+    let value = await appValues.create({name: testValueName, value: 'foo'});
     const deepValue = await appValues.value(value._id).get();
-    expect(deepValue.value).toEqual('"foo"');
+    expect(deepValue.value).toEqual('foo');
     delete deepValue.value;
     expect(value).toEqual(deepValue);
   });
   it('can update a value', async () => {
-    let value = await appValues.create({name: testValueName, value: '"foo"'});
+    let value = await appValues.create({name: testValueName, value: 'foo'});
     value.value = '"abcdefgh"';
     await appValues.value(value._id).update(value);
     const deepValue = await appValues.value(value._id).get();

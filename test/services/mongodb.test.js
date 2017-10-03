@@ -11,7 +11,9 @@ async function testSetup() {
 
 let test = new StitchMongoFixture;
 describe('MongoDBService', function() {
-  beforeAll(() => test.setup());
+  beforeAll(async () => {
+    await test.setup({createApp: true});
+  });
   afterAll(() => test.teardown());
 
   describe('insert', function() {

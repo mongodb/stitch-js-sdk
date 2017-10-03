@@ -1,7 +1,7 @@
 
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
-import {getAuthenticatedClient} from './testutil';
+import {getAuthenticatedClient} from '../testutil';
 
 describe('Pipelines V2', ()=>{
   let test = new StitchMongoFixture();

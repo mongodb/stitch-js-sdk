@@ -1,5 +1,5 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
-import {getAuthenticatedClient} from './testutil';
+import {getAuthenticatedClient} from '../testutil';
 
 
 describe('Apps V1', ()=>{

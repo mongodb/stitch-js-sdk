@@ -590,7 +590,7 @@ class Admin {
               }),
               pushNotifications: TODOnotImplemented,
               users: TODOnotImplemented,
-              sandbox: TODOnotImplemented,
+              dev: TODOnotImplemented,
               authProviders: TODOnotImplemented,
               security: TODOnotImplemented,
               logs: TODOnotImplemented,

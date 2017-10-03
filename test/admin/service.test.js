@@ -1,6 +1,6 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
-import {getAuthenticatedClient} from './testutil';
+import {getAuthenticatedClient} from '../testutil';
 
 describe('Services V2', ()=>{
   let test = new StitchMongoFixture();
@@ -30,6 +30,10 @@ describe('Services V2', ()=>{
     let svcs = await services.list();
     expect(svcs).toHaveLength(1);
     expect(svcs[0].name).toEqual(newSvc.name);
+  });
+  it('invalid create requests should fail', async () => {
+    await expect(services.create({name: 'testsvc', type: 'invalid-svc'})).rejects.toBeDefined();
+    await expect(services.create({name: 'bad#name', type: 'invalid-svc'})).rejects.toBeDefined();
   });
   it('fetching service should work', async () => {
     let newSvc = await services.create({name: 'testsvc', type: 'http'});
@@ -70,5 +74,12 @@ describe('Services V2', ()=>{
     });
     svcConfig = await services.service(newSvc._id).config().get();
     expect(svcConfig).toEqual({'region': 'us-west-1'});
+  });
+  it('updating with invalid config should fail', async () => {
+    let newSvc = await services.create({ name: 'testsvc', type: 'aws-ses', config: testConfig });
+    await expect(services.service(newSvc._id).config().update({
+      region: '',
+      secretAccessKey: ''
+    })).rejects.toBeDefined();
   });
 });
