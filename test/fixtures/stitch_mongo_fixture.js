@@ -101,13 +101,14 @@ export default class StitchMongoFixture {
 
   async _generateTestUser() {
     const rootId = new mongodb.ObjectId('000000000000000000000000');
+    const rootProviderId = new mongodb.ObjectId('000000000000000000000001');
     const apiKeyId = new mongodb.ObjectId();
     const userId = new mongodb.ObjectId().toHexString();
     const groupId = new mongodb.ObjectId().toHexString();
     let testUser = {
       userId: new mongodb.ObjectId().toHexString(),
       domainId: rootId,
-      identities: [ { id: apiKeyId.toHexString(), provider: 'api/key' } ],
+      identities: [ { id: apiKeyId.toHexString(), providerType: 'api-key', providerId: rootProviderId } ],
       roles: [{roleName: 'groupOwner', groupId: groupId}]
     };
 
