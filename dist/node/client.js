@@ -893,7 +893,13 @@ var Admin = function () {
                   };
                 },
                 security: TODOnotImplemented,
-                logs: TODOnotImplemented,
+                logs: function logs() {
+                  return {
+                    list: function list(filter) {
+                      return api._get(appUrl + '/logs', filter);
+                    }
+                  };
+                },
                 apiKeys: function apiKeys() {
                   return {
                     list: function list() {

@@ -301,7 +301,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "1.0.2";
+  version = "1.0.3";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -1337,8 +1337,8 @@ module.exports = Long;
 
 
 var base64 = __webpack_require__(26)
-var ieee754 = __webpack_require__(31)
-var isArray = __webpack_require__(32)
+var ieee754 = __webpack_require__(30)
+var isArray = __webpack_require__(31)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -3116,13 +3116,13 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(50)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(49)))
 
 /***/ }),
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ExtJSON = __webpack_require__(45);
+var ExtJSON = __webpack_require__(44);
 ExtJSON.BSON = __webpack_require__(6);
 
 module.exports = ExtJSON;
@@ -3135,19 +3135,19 @@ module.exports = ExtJSON;
 "use strict";
 
 
-var Binary = __webpack_require__(33);
-var Code = __webpack_require__(34);
-var DBRef = __webpack_require__(35);
-var Decimal128 = __webpack_require__(36);
-var Double = __webpack_require__(37);
-var Int32 = __webpack_require__(38);
+var Binary = __webpack_require__(32);
+var Code = __webpack_require__(33);
+var DBRef = __webpack_require__(34);
+var Decimal128 = __webpack_require__(35);
+var Double = __webpack_require__(36);
+var Int32 = __webpack_require__(37);
 var Long = __webpack_require__(3);
-var MaxKey = __webpack_require__(39);
-var MinKey = __webpack_require__(40);
-var ObjectID = __webpack_require__(41);
-var BSONRegExp = __webpack_require__(42);
-var Symbol = __webpack_require__(43);
-var Timestamp = __webpack_require__(44);
+var MaxKey = __webpack_require__(38);
+var MinKey = __webpack_require__(39);
+var ObjectID = __webpack_require__(40);
+var BSONRegExp = __webpack_require__(41);
+var Symbol = __webpack_require__(42);
+var Timestamp = __webpack_require__(43);
 
 module.exports = {
   Binary: Binary, Code: Code, DBRef: DBRef, Decimal128: Decimal128, Double: Double,
@@ -3368,7 +3368,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 
 
-__webpack_require__(30);
+__webpack_require__(29);
 
 var _auth = __webpack_require__(11);
 
@@ -3386,7 +3386,7 @@ var _mongodbExtjson = __webpack_require__(5);
 
 var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
-var _queryString = __webpack_require__(48);
+var _queryString = __webpack_require__(47);
 
 var _queryString2 = _interopRequireDefault(_queryString);
 
@@ -4250,7 +4250,13 @@ var Admin = function () {
                   };
                 },
                 security: TODOnotImplemented,
-                logs: TODOnotImplemented,
+                logs: function logs() {
+                  return {
+                    list: function list(filter) {
+                      return api._get(appUrl + '/logs', filter);
+                    }
+                  };
+                },
                 apiKeys: function apiKeys() {
                   return {
                     list: function list() {
@@ -6409,9 +6415,7 @@ module.exports = detectBrowser(agent);
 
 /***/ }),
 /* 28 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var detectOS = __webpack_require__(29);
+/***/ (function(module, exports) {
 
 module.exports = function detectBrowser(userAgentString) {
   if (!userAgentString) return null;
@@ -6419,13 +6423,9 @@ module.exports = function detectBrowser(userAgentString) {
   var browsers = [
     [ 'edge', /Edge\/([0-9\._]+)/ ],
     [ 'yandexbrowser', /YaBrowser\/([0-9\._]+)/ ],
-    [ 'vivaldi', /Vivaldi\/([0-9\.]+)/ ],
-    [ 'kakaotalk', /KAKAOTALK\s([0-9\.]+)/ ],
     [ 'chrome', /(?!Chrom.*OPR)Chrom(?:e|ium)\/([0-9\.]+)(:?\s|$)/ ],
-    [ 'phantomjs', /PhantomJS\/([0-9\.]+)(:?\s|$)/ ],
     [ 'crios', /CriOS\/([0-9\.]+)(:?\s|$)/ ],
     [ 'firefox', /Firefox\/([0-9\.]+)(?:\s|$)/ ],
-    [ 'fxios', /FxiOS\/([0-9\.]+)/ ],
     [ 'opera', /Opera\/([0-9\.]+)(?:\s|$)/ ],
     [ 'opera', /OPR\/([0-9\.]+)(:?\s|$)$/ ],
     [ 'ie', /Trident\/7\.0.*rv\:([0-9\.]+).*\).*Gecko$/ ],
@@ -6448,8 +6448,7 @@ module.exports = function detectBrowser(userAgentString) {
 
           return {
               name: rule[0],
-              version: version.join('.'),
-              os: detectOS(userAgentString)
+              version: version.join('.')
           };
       }
   }).filter(Boolean).shift();
@@ -6458,137 +6457,19 @@ module.exports = function detectBrowser(userAgentString) {
 
 /***/ }),
 /* 29 */
-/***/ (function(module, exports) {
-
-module.exports = function detectOS(userAgentString) {
-  var operatingSystems = [
-    {
-      name: 'iOS',
-      rule: /iP(hone|od|ad)/
-    },
-    {
-      name: 'Android OS',
-      rule: /Android/
-    },
-    {
-      name: 'BlackBerry OS',
-      rule: /BlackBerry|BB10/
-    },
-    {
-      name: 'Windows Mobile',
-      rule: /IEMobile/
-    },
-    {
-      name: 'Amazon OS',
-      rule: /Kindle/
-    },
-    {
-      name: 'Windows 3.11',
-      rule: /Win16/
-    },
-    {
-      name: 'Windows 95',
-      rule: /(Windows 95)|(Win95)|(Windows_95)/
-    },
-    {
-      name: 'Windows 98',
-      rule: /(Windows 98)|(Win98)/
-    },
-    {
-      name: 'Windows 2000',
-      rule: /(Windows NT 5.0)|(Windows 2000)/
-    },
-    {
-      name: 'Windows XP',
-      rule: /(Windows NT 5.1)|(Windows XP)/
-    },
-    {
-      name: 'Windows Server 2003',
-      rule: /(Windows NT 5.2)/
-    },
-    {
-      name: 'Windows Vista',
-      rule: /(Windows NT 6.0)/
-    },
-    {
-      name: 'Windows 7',
-      rule: /(Windows NT 6.1)/
-    },
-    {
-      name: 'Windows 8',
-      rule: /(Windows NT 6.2)/
-    },
-    {
-      name: 'Windows 8.1',
-      rule: /(Windows NT 6.3)/
-    },
-    {
-      name: 'Windows 10',
-      rule: /(Windows NT 10.0)/
-    },
-    {
-      name: 'Windows ME',
-      rule: /Windows ME/
-    },
-    {
-      name: 'Open BSD',
-      rule: /OpenBSD/
-    },
-    {
-      name: 'Sun OS',
-      rule: /SunOS/
-    },
-    {
-      name: 'Linux',
-      rule: /(Linux)|(X11)/
-    },
-    {
-      name: 'Mac OS',
-      rule: /(Mac_PowerPC)|(Macintosh)/
-    },
-    {
-      name: 'QNX',
-      rule: /QNX/
-    },
-    {
-      name: 'BeOS',
-      rule: /BeOS/
-    },
-    {
-      name: 'OS/2',
-      rule: /OS\/2/
-    },
-    {
-      name: 'Search Bot',
-      rule: /(nuhk)|(Googlebot)|(Yammybot)|(Openbot)|(Slurp)|(MSNBot)|(Ask Jeeves\/Teoma)|(ia_archiver)/
-    }
-  ];
-
-  var detected = operatingSystems.filter(function (os) {
-    if (userAgentString.match(os.rule)) {
-      return true;
-    }
-  });
-
-  return detected && detected[0] ? detected[0].name : null;
-};
-
-
-/***/ }),
-/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // the whatwg-fetch polyfill installs the fetch() function
 // on the global object (window or self)
 //
 // Return that as the export for use in Webpack, Browserify etc.
-__webpack_require__(51);
+__webpack_require__(50);
 var globalObj = typeof self !== 'undefined' && self || this;
 module.exports = globalObj.fetch.bind(globalObj);
 
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -6678,7 +6559,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -6689,7 +6570,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6979,7 +6860,7 @@ module.exports = Binary;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7014,7 +6895,7 @@ module.exports = Code;
 
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7059,7 +6940,7 @@ module.exports = DBRef;
 
 
 /***/ }),
-/* 36 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7781,7 +7662,7 @@ module.exports = Decimal128;
 
 
 /***/ }),
-/* 37 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7824,7 +7705,7 @@ module.exports = Double;
 
 
 /***/ }),
-/* 38 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7867,7 +7748,7 @@ module.exports = Int32;
 
 
 /***/ }),
-/* 39 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7896,7 +7777,7 @@ module.exports = MaxKey;
 
 
 /***/ }),
-/* 40 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7925,7 +7806,7 @@ module.exports = MinKey;
 
 
 /***/ }),
-/* 41 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8253,10 +8134,10 @@ ObjectID.index = ~~(Math.random() * 0xFFFFFF);
 
 module.exports = ObjectID;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(46)))
 
 /***/ }),
-/* 42 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8304,7 +8185,7 @@ module.exports = BSONRegExp;
 
 
 /***/ }),
-/* 43 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8350,7 +8231,7 @@ module.exports = Symbol;
 
 
 /***/ }),
-/* 44 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8439,7 +8320,7 @@ module.exports = Timestamp;
 
 
 /***/ }),
-/* 45 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8721,7 +8602,7 @@ module.exports = ExtJSON;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
 
 /***/ }),
-/* 46 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8818,7 +8699,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 47 */
+/* 46 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -9008,13 +8889,13 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 48 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var strictUriEncode = __webpack_require__(49);
-var objectAssign = __webpack_require__(46);
+var strictUriEncode = __webpack_require__(48);
+var objectAssign = __webpack_require__(45);
 
 function encoderForArrayFormat(opts) {
 	switch (opts.arrayFormat) {
@@ -9220,7 +9101,7 @@ exports.stringify = function (obj, opts) {
 
 
 /***/ }),
-/* 49 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9233,7 +9114,7 @@ module.exports = function (str) {
 
 
 /***/ }),
-/* 50 */
+/* 49 */
 /***/ (function(module, exports) {
 
 var g;
@@ -9260,7 +9141,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 51 */
+/* 50 */
 /***/ (function(module, exports) {
 
 (function(self) {
