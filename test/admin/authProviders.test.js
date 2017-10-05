@@ -34,7 +34,7 @@ describe('Auth Providers V2', ()=>{
     let newProvider = await authProviders.create({type: 'local-userpass', config: validConfig});
     expect(newProvider.type).toEqual('local-userpass');
     expect(newProvider.name).toEqual('local-userpass');
-    expect(newProvider.config).toEqual(undefined);
+    expect(newProvider.config).toBeUndefined();
     let providers = await authProviders.list();
     expect(providers).toHaveLength(1);
     expect(providers[0].type).toEqual(newProvider.type);
@@ -52,6 +52,8 @@ describe('Auth Providers V2', ()=>{
   it('enabling auth provider should work', async () => {
     let newAuthProvider = await authProviders.create({type: 'local-userpass', config: validConfig, disabled: true});
     expect(newAuthProvider.type).toEqual('local-userpass');
+    // getting the auth provider should fail because we don't return disabled users
+    await expect(authProviders.authProvider(newAuthProvider._id).get()).rejects.toBeDefined();
     await authProviders.authProvider(newAuthProvider._id).enable();
     let provider = await authProviders.authProvider(newAuthProvider._id).get();
     expect(provider.type).toEqual(provider.type);
@@ -60,7 +62,10 @@ describe('Auth Providers V2', ()=>{
   it('disabling auth provider should work', async () => {
     let newAuthProvider = await authProviders.create({type: 'local-userpass', config: validConfig, disabled: false});
     expect(newAuthProvider.type).toEqual('local-userpass');
+    let provider = await authProviders.authProvider(newAuthProvider._id).get();
+    expect(provider.disabled).toEqual(false);
     await authProviders.authProvider(newAuthProvider._id).disable();
+    // getting the auth provider should fail because we don't return disabled users
     await expect(authProviders.authProvider(newAuthProvider._id).get()).rejects.toBeDefined();
   });
   it('deleting an auth provider should work', async () => {
