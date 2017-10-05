@@ -1,9 +1,12 @@
+/** @module auth  */
 import * as common from '../common';
 import { getPlatform, uriEncodeObject } from '../util';
 
 /**
  * Create the device info for this client.
  *
+ * @memberof module:auth
+ * @method getDeviceInfo
  * @param {String} appId The app ID for this client
  * @param {String} appVersion The version of the app
  * @returns {Object} The device info object
@@ -25,11 +28,16 @@ function getDeviceInfo(deviceId, appId, appVersion = '') {
   return deviceInfo;
 }
 
+/** 
+ * @namespace
+ */
 function anonProvider(auth) {
   return {
     /**
      * Login to a stitch application using anonymous authentication
      *
+     * @memberof anonProvider
+     * @instance
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: () => {
@@ -45,11 +53,14 @@ function anonProvider(auth) {
   };
 }
 
+/** @namespace */
 function userPassProvider(auth) {
   return {
     /**
      * Login to a stitch application using username and password authentication
      *
+     * @memberof userPassProvider
+     * @instance
      * @param {String} username the username to use for authentication
      * @param {String} password the password to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
@@ -71,7 +82,8 @@ function userPassProvider(auth) {
 
     /**
      * Completes the confirmation workflow from the stitch server
-     *
+     * @memberof userPassProvider
+     * @instance
      * @param {String} tokenId the tokenId provided by the stitch server
      * @param {String} token the token provided by the stitch server
      * @returns {Promise}
@@ -88,7 +100,9 @@ function userPassProvider(auth) {
     /**
      * Request that the stitch server send another email confirmation
      * for account creation.
-     *
+     * 
+     * @memberof userPassProvider
+     * @instance
      * @param {String} email the email to send a confirmation email for
      * @returns {Promise}
      */
@@ -104,6 +118,8 @@ function userPassProvider(auth) {
     /**
      * Sends a password reset request to the stitch server
      *
+     * @memberof userPassProvider
+     * @instance
      * @param {String} email the email of the account to reset the password for
      * @returns {Promise}
      */
@@ -120,6 +136,8 @@ function userPassProvider(auth) {
      * Use information returned from the stitch server to complete the password
      * reset flow for a given email account, providing a new password for the account.
      *
+     * @memberof userPassProvider
+     * @instance
      * @param {String} tokenId the tokenId provided by the stitch server
      * @param {String} token the token provided by the stitch server
      * @param {String} password the new password requested for this account
@@ -141,6 +159,8 @@ function userPassProvider(auth) {
      * token and tokenId that must be returned to the server using emailConfirm()
      * to activate the account.
      *
+     * @memberof userPassProvider
+     * @instance
      * @param {String} email the requested email for the account
      * @param {String} password the requested password for the account
      * @returns {Promise}
@@ -156,8 +176,17 @@ function userPassProvider(auth) {
   };
 }
 
+/** @namespace */
 function apiKeyProvider(auth) {
   return {
+    /**
+     * Login to a stitch application using an api key
+     *
+     * @memberof apiKeyProvider
+     * @instance
+     * @param {String} key the key for authentication
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
     authenticate: key => {
       const device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
       const fetchArgs = common.makeFetchArgs(
@@ -206,8 +235,17 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
   return result;
 }
 
+/** @namespace */
 function googleProvider(auth) {
   return {
+    /**
+     * Login to a stitch application using google authentication
+     *
+     * @memberof googleProvider
+     * @instance
+     * @param {Object} data the redirectUrl data to use for authentication
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
     authenticate: data => {
       const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
       window.location.replace(getOAuthLoginURL(auth, 'google', redirectUrl));
@@ -216,8 +254,17 @@ function googleProvider(auth) {
   };
 }
 
+/** @namespace */
 function facebookProvider(auth) {
   return {
+     /**
+     * Login to a stitch application using facebook authentication
+     *
+     * @memberof facebookProvider
+     * @instance
+     * @param {Object} data the redirectUrl data to use for authentication
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
     authenticate: data => {
       const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
       window.location.replace(getOAuthLoginURL(auth, 'facebook', redirectUrl));
@@ -226,8 +273,17 @@ function facebookProvider(auth) {
   };
 }
 
+/** @namespace */
 function mongodbCloudProvider(auth) {
   return {
+    /**
+     * Login to a stitch application using mongodb cloud authentication
+     *
+     * @memberof mongodbCloudProvider
+     * @instance
+     * @param {Object} data the username, apiKey, cors, and cookie data to use for authentication
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
     authenticate: data => {
       const { username, apiKey, cors, cookie } = data;
       const options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
