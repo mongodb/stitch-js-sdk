@@ -863,10 +863,63 @@ var Admin = function () {
                 pushNotifications: TODOnotImplemented,
                 users: TODOnotImplemented,
                 dev: TODOnotImplemented,
-                authProviders: TODOnotImplemented,
+                authProviders: function authProviders() {
+                  return {
+                    list: function list() {
+                      return api._get(appUrl + '/auth_providers');
+                    },
+                    create: function create(data) {
+                      return api._post(appUrl + '/auth_providers', data);
+                    },
+                    authProvider: function authProvider(providerId) {
+                      return {
+                        get: function get() {
+                          return api._get(appUrl + '/auth_providers/' + providerId);
+                        },
+                        update: function update(data) {
+                          return api._patch(appUrl + '/auth_providers/' + providerId, data);
+                        },
+                        enable: function enable() {
+                          return api._put(appUrl + '/auth_providers/' + providerId + '/enable');
+                        },
+                        disable: function disable() {
+                          return api._put(appUrl + '/auth_providers/' + providerId + '/disable');
+                        },
+                        remove: function remove() {
+                          return api._delete(appUrl + '/auth_providers/' + providerId);
+                        }
+                      };
+                    }
+                  };
+                },
                 security: TODOnotImplemented,
                 logs: TODOnotImplemented,
-                apiKeys: TODOnotImplemented
+                apiKeys: function apiKeys() {
+                  return {
+                    list: function list() {
+                      return api._get(appUrl + '/api_keys');
+                    },
+                    create: function create(data) {
+                      return api._post(appUrl + '/api_keys', data);
+                    },
+                    apiKey: function apiKey(apiKeyId) {
+                      return {
+                        get: function get() {
+                          return api._get(appUrl + '/api_keys/' + apiKeyId);
+                        },
+                        remove: function remove() {
+                          return api._delete(appUrl + '/api_keys/' + apiKeyId);
+                        },
+                        enable: function enable() {
+                          return api._put(appUrl + '/api_keys/' + apiKeyId + '/enable');
+                        },
+                        disable: function disable() {
+                          return api._put(appUrl + '/api_keys/' + apiKeyId + '/disable');
+                        }
+                      };
+                    }
+                  };
+                }
               };
             }
           };
