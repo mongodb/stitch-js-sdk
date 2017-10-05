@@ -593,7 +593,9 @@ class Admin {
               dev: TODOnotImplemented,
               authProviders: TODOnotImplemented,
               security: TODOnotImplemented,
-              logs: TODOnotImplemented,
+              logs: () => ({
+                list: (filter) => api._get(`${appUrl}/logs`, filter)
+              }),
               apiKeys: () => ({
                 list: () => api._get(`${appUrl}/api_keys`),
                 create: (data) => api._post(`${appUrl}/api_keys`, data),
