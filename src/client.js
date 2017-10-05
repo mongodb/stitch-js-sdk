@@ -594,7 +594,16 @@ class Admin {
               authProviders: TODOnotImplemented,
               security: TODOnotImplemented,
               logs: TODOnotImplemented,
-              apiKeys: TODOnotImplemented
+              apiKeys: () => ({
+                list: () => api._get(`${appUrl}/api_keys`),
+                create: (data) => api._post(`${appUrl}/api_keys`, data),
+                apiKey: (apiKeyId) => ({
+                  get: () => api._get(`${appUrl}/api_keys/${apiKeyId}`),
+                  remove: () => api._delete(`${appUrl}/api_keys/${apiKeyId}`),
+                  enable: () => api._put(`${appUrl}/api_keys/${apiKeyId}/enable`),
+                  disable: () => api._put(`${appUrl}/api_keys/${apiKeyId}/disable`)
+                })
+              })
             };
           }
         };

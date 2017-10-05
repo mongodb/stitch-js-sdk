@@ -17,9 +17,9 @@
     },
     "authSource": "local",
     "authProviders": {
-      "oauth2/google": {
-        "name": "oauth2/google",
-        "type": "oauth2/google",
+      "oauth2-google": {
+        "name": "oauth2-google",
+        "type": "oauth2-google",
         "metadataFields": ["email", "name"],
         "config": {
           "clientId": "CLIENT-ID",
@@ -32,14 +32,14 @@
           "http://localhost:8001/"
         ]
       },
-      "local/userpass": {
-        "name": "local/userpass",
-        "type": "local/userpass",
+      "local-userpass": {
+        "name": "local-userpass",
+        "type": "local-userpass",
         "metadataFields": ["email", "name"]
       },
-      "api/key": {
-        "name": "api/key",
-        "type": "api/key"
+      "api-key": {
+        "name": "api-key",
+        "type": "api-key"
       }
     },
     "staticDir": "admin/static"
