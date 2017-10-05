@@ -591,7 +591,17 @@ class Admin {
               pushNotifications: TODOnotImplemented,
               users: TODOnotImplemented,
               dev: TODOnotImplemented,
-              authProviders: TODOnotImplemented,
+              authProviders: () => ({
+                list: () => api._get(`${appUrl}/auth_providers`),
+                create: (data) => api._post(`${appUrl}/auth_providers`, data),
+                authProvider: (providerId) => ({
+                  get: () => api._get(`${appUrl}/auth_providers/${providerId}`),
+                  update: (data) => api._patch(`${appUrl}/auth_providers/${providerId}`, data),
+                  enable: () => api._put(`${appUrl}/auth_providers/${providerId}/enable`),
+                  disable: () => api._put(`${appUrl}/auth_providers/${providerId}/disable`),
+                  remove: () => api._delete(`${appUrl}/auth_providers/${providerId}`)
+                })
+              }),
               security: TODOnotImplemented,
               logs: TODOnotImplemented,
               apiKeys: TODOnotImplemented
