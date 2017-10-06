@@ -1,4 +1,3 @@
-
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
 import {getAuthenticatedClient} from '../testutil';

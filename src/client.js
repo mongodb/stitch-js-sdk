@@ -345,14 +345,17 @@ class Admin {
       _get: (url, queryParams) => v2do(url, 'GET', {queryParams}),
       _put: (url, data) =>
         (data ?
-          v2do(url, 'PUT', {body: JSON.stringify(data)})  :
+          v2do(url, 'PUT', {body: JSON.stringify(data)}) :
           v2do(url, 'PUT')),
       _patch: (url, data) =>
         (data ?
-          v2do(url, 'PATCH', {body: JSON.stringify(data)})  :
+          v2do(url, 'PATCH', {body: JSON.stringify(data)}) :
           v2do(url, 'PATCH')),
       _delete: (url)  => v2do(url, 'DELETE'),
-      _post: (url, body) => v2do(url, 'POST', {body: JSON.stringify(body)})
+      _post: (url, body, queryParams) =>
+        (queryParams ?
+          v2do(url, 'POST', { body: JSON.stringify(body), queryParams }) :
+          v2do(url, 'POST', { body: JSON.stringify(body) }))
     };
   }
 
@@ -625,7 +628,14 @@ class Admin {
                   remove: () => api._delete(`${appUrl}/users/${uid}`)
                 })
               }),
-              dev: TODOnotImplemented,
+              dev: () => ({
+                executePipeline: (body, userId, options) => {
+                  return api._post(
+                    `${appUrl}/dev/pipeline`,
+                    body,
+                    Object.assign({}, options, { user_id: userId }));
+                }
+              }),
               authProviders: () => ({
                 list: () => api._get(`${appUrl}/auth_providers`),
                 create: (data) => api._post(`${appUrl}/auth_providers`, data),
