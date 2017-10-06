@@ -589,7 +589,15 @@ class Admin {
                 })
               }),
               pushNotifications: TODOnotImplemented,
-              users: TODOnotImplemented,
+              users: () => ({
+                list: (filter) => api._get(`${appUrl}/users`, filter),
+                create: (user) => api._post(`${appUrl}/users`, user),
+                user: (uid) => ({
+                  get: () => api._get(`${appUrl}/users/${uid}`),
+                  logout: () => api._put(`${appUrl}/users/${uid}/logout`),
+                  remove: () => api._delete(`${appUrl}/users/${uid}`)
+                })
+              }),
               dev: TODOnotImplemented,
               authProviders: () => ({
                 list: () => api._get(`${appUrl}/auth_providers`),
