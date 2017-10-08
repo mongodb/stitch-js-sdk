@@ -585,7 +585,34 @@ class Admin {
                   config: ()=> ({
                     get: () => api._get(`${appUrl}/services/${serviceId}/config`),
                     update: (data) => api._patch(`${appUrl}/services/${serviceId}/config`, data)
+                  }),
+
+                  rules: () => ({
+                    list: () => api._get(`${appUrl}/services/${serviceId}/rules`),
+                    create: (data) => api._post(`${appUrl}/services/${serviceId}/rules`, data),
+                    rule: (ruleId) => {
+                      const ruleUrl = `${appUrl}/services/${serviceId}/rules/${ruleId}`;
+                      return {
+                        get: () => api._get(ruleUrl),
+                        update: (data) => api._put(ruleUrl, data),
+                        remove: () => api._delete(ruleUrl)
+                      };
+                    }
+                  }),
+
+                  incomingWebhooks: () => ({
+                    list: () => api._get(`${appUrl}/services/${serviceId}/incomingWebhooks`),
+                    create: (data) => api._post(`${appUrl}/services/${serviceId}/incomingWebhooks`, data),
+                    incomingWebhook: (incomingWebhookId) => {
+                      const webhookUrl = `${appUrl}/services/${serviceId}/incomingWebhooks/${incomingWebhookId}`;
+                      return {
+                        get: () => api._get(webhookUrl),
+                        update: (data) => api._put(webhookUrl, data),
+                        remove: () => api._delete(webhookUrl)
+                      };
+                    }
                   })
+
                 })
               }),
               pushNotifications: TODOnotImplemented,

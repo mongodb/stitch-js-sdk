@@ -82,4 +82,37 @@ describe('Services V2', ()=>{
       secretAccessKey: ''
     })).rejects.toBeDefined();
   });
+
+  it('listing rules for a service should work', async ()=> {
+    let newSvc = await services.create({ name: 'testsvc', type: 'aws-ses', config: testConfig });
+    let rules = await services.service(newSvc._id).rules().list();
+    expect(rules).toEqual([]);
+  });
+
+  const testRule = { name: 'foo', actions: ['send'], when: {} };
+  it('creating rule should work', async ()=> {
+    let newSvc = await services.create({ name: 'testsvc', type: 'aws-ses', config: testConfig });
+    let rules = await services.service(newSvc._id).rules().list();
+    expect(rules).toEqual([]);
+    let newRule = await services.service(newSvc._id).rules().create(testRule);
+    rules = await services.service(newSvc._id).rules().list();
+    expect(rules).toHaveLength(1);
+    expect(rules[0]._id).toEqual(newRule._id);
+    expect(rules[0].name).toEqual(newRule.name);
+  });
+  it('fetching rule should work', async ()=> {
+    let newSvc = await services.create({ name: 'testsvc', type: 'aws-ses', config: testConfig });
+    let newRule = await services.service(newSvc._id).rules().create(testRule);
+    let fetchedRule = await services.service(newSvc._id).rules().rule(newRule._id).get();
+    expect(fetchedRule._id).toEqual(newRule._id);
+    expect(fetchedRule.name).toEqual(newRule.name);
+  });
+  it('updating rule should work', async ()=> {
+    let newSvc = await services.create({ name: 'testsvc', type: 'aws-ses', config: testConfig });
+    let newRule = await services.service(newSvc._id).rules().create(testRule);
+    let updatedRule = Object.assign({}, testRule, {_id: newRule._id}, {when: {x: 'y'}});
+    await services.service(newSvc._id).rules().rule(newRule._id).update(updatedRule);
+    let fetchedRule = await services.service(newSvc._id).rules().rule(newRule._id).get();
+    expect(fetchedRule).toEqual(Object.assign({}, newRule, updatedRule));
+  });
 });
