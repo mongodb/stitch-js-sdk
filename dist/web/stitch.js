@@ -4212,7 +4212,58 @@ var Admin = function () {
                               return api._patch(appUrl + '/services/' + serviceId + '/config', data);
                             }
                           };
+                        },
+
+                        rules: function rules() {
+                          return {
+                            list: function list() {
+                              return api._get(appUrl + '/services/' + serviceId + '/rules');
+                            },
+                            create: function create(data) {
+                              return api._post(appUrl + '/services/' + serviceId + '/rules', data);
+                            },
+                            rule: function rule(ruleId) {
+                              var ruleUrl = appUrl + '/services/' + serviceId + '/rules/' + ruleId;
+                              return {
+                                get: function get() {
+                                  return api._get(ruleUrl);
+                                },
+                                update: function update(data) {
+                                  return api._put(ruleUrl, data);
+                                },
+                                remove: function remove() {
+                                  return api._delete(ruleUrl);
+                                }
+                              };
+                            }
+                          };
+                        },
+
+                        incomingWebhooks: function incomingWebhooks() {
+                          return {
+                            list: function list() {
+                              return api._get(appUrl + '/services/' + serviceId + '/incomingWebhooks');
+                            },
+                            create: function create(data) {
+                              return api._post(appUrl + '/services/' + serviceId + '/incomingWebhooks', data);
+                            },
+                            incomingWebhook: function incomingWebhook(incomingWebhookId) {
+                              var webhookUrl = appUrl + '/services/' + serviceId + '/incomingWebhooks/' + incomingWebhookId;
+                              return {
+                                get: function get() {
+                                  return api._get(webhookUrl);
+                                },
+                                update: function update(data) {
+                                  return api._put(webhookUrl, data);
+                                },
+                                remove: function remove() {
+                                  return api._delete(webhookUrl);
+                                }
+                              };
+                            }
+                          };
                         }
+
                       };
                     }
                   };
@@ -6423,9 +6474,12 @@ module.exports = function detectBrowser(userAgentString) {
   var browsers = [
     [ 'edge', /Edge\/([0-9\._]+)/ ],
     [ 'yandexbrowser', /YaBrowser\/([0-9\._]+)/ ],
+    [ 'vivaldi', /Vivaldi\/([0-9\.]+)/ ],
+    [ 'kakaotalk', /KAKAOTALK\s([0-9\.]+)/ ],
     [ 'chrome', /(?!Chrom.*OPR)Chrom(?:e|ium)\/([0-9\.]+)(:?\s|$)/ ],
     [ 'crios', /CriOS\/([0-9\.]+)(:?\s|$)/ ],
     [ 'firefox', /Firefox\/([0-9\.]+)(?:\s|$)/ ],
+    [ 'fxios', /FxiOS\/([0-9\.]+)/ ],
     [ 'opera', /Opera\/([0-9\.]+)(?:\s|$)/ ],
     [ 'opera', /OPR\/([0-9\.]+)(:?\s|$)$/ ],
     [ 'ie', /Trident\/7\.0.*rv\:([0-9\.]+).*\).*Gecko$/ ],
