@@ -1,8 +1,8 @@
-const StitchMongoFixture = require("../fixtures/stitch_mongo_fixture");
+const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
-import { getAuthenticatedClient } from "../testutil";
+import { getAuthenticatedClient } from '../testutil';
 
-describe("API Keys V2", () => {
+describe('API Keys V2', () => {
   let test = new StitchMongoFixture();
   let apiKeys;
   let app;
@@ -13,7 +13,7 @@ describe("API Keys V2", () => {
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
     test.groupId = test.userData.group.groupId;
     apps = await adminClient.v2().apps(test.groupId);
-    app = await apps.create({ name: "testname" });
+    app = await apps.create({ name: 'testname' });
     apiKeys = adminClient
       .v2()
       .apps(test.groupId)
@@ -33,42 +33,42 @@ describe("API Keys V2", () => {
     await apps.app(app._id).remove();
   });
 
-  it("listing api keys should return empty list", async () => {
+  it('listing api keys should return empty list', async () => {
     expect.assertions(1);
 
     let keys = await apiKeys.list();
     expect(keys).toEqual([]);
   });
 
-  it("creating api keys should work", async () => {
+  it('creating api keys should work', async () => {
     expect.assertions(3);
 
-    let newKey = await apiKeys.create({ name: "apiKey" });
-    expect(newKey.name).toEqual("apiKey");
+    let newKey = await apiKeys.create({ name: 'apiKey' });
+    expect(newKey.name).toEqual('apiKey');
     let keys = await apiKeys.list();
     expect(keys).toHaveLength(1);
     expect(keys[0].name).toEqual(newKey.name);
   });
 
-  it("invalid create requests should fail", async () => {
+  it('invalid create requests should fail', async () => {
     expect.assertions(1);
 
-    await expect(apiKeys.create({ name: "" })).rejects.toBeDefined();
+    await expect(apiKeys.create({ name: '' })).rejects.toBeDefined();
   });
 
-  it("fetching api key should work", async () => {
+  it('fetching api key should work', async () => {
     expect.assertions(2);
 
-    let newKey = await apiKeys.create({ name: "apiKey" });
-    expect(newKey.name).toEqual("apiKey");
+    let newKey = await apiKeys.create({ name: 'apiKey' });
+    expect(newKey.name).toEqual('apiKey');
     let key = await apiKeys.apiKey(newKey._id).get();
     expect(key.name).toEqual(newKey.name);
   });
 
-  it("deleting api key should work", async () => {
+  it('deleting api key should work', async () => {
     expect.assertions(2);
 
-    let newKey = await apiKeys.create({ name: "apiKey" });
+    let newKey = await apiKeys.create({ name: 'apiKey' });
     let keys = await apiKeys.list();
     expect(keys).toHaveLength(1);
     await apiKeys.apiKey(newKey._id).remove();
@@ -76,10 +76,10 @@ describe("API Keys V2", () => {
     expect(keys).toHaveLength(0);
   });
 
-  it("enabling/disabling api key should work", async () => {
+  it('enabling/disabling api key should work', async () => {
     expect.assertions(3);
 
-    let key = await apiKeys.create({ name: "apiKey" });
+    let key = await apiKeys.create({ name: 'apiKey' });
     expect(key.disabled).toEqual(false);
     await apiKeys.apiKey(key._id).disable();
     key = await apiKeys.apiKey(key._id).get();
