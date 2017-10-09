@@ -48,7 +48,7 @@ describe('Pipelines V2', ()=>{
     delete deepPipeline.pipeline;
     delete deepPipeline.output;
     delete deepPipeline.private;
-    delete deepPipeline.skipRules;
+    delete deepPipeline.skip_rules;
     expect(pipeline).toEqual(deepPipeline);
   });
   it('can update a pipeline', async () => {
