@@ -912,7 +912,29 @@ var Admin = function () {
                   };
                 },
                 pushNotifications: TODOnotImplemented,
-                users: TODOnotImplemented,
+                users: function users() {
+                  return {
+                    list: function list(filter) {
+                      return api._get(appUrl + '/users', filter);
+                    },
+                    create: function create(user) {
+                      return api._post(appUrl + '/users', user);
+                    },
+                    user: function user(uid) {
+                      return {
+                        get: function get() {
+                          return api._get(appUrl + '/users/' + uid);
+                        },
+                        logout: function logout() {
+                          return api._put(appUrl + '/users/' + uid + '/logout');
+                        },
+                        remove: function remove() {
+                          return api._delete(appUrl + '/users/' + uid);
+                        }
+                      };
+                    }
+                  };
+                },
                 dev: TODOnotImplemented,
                 authProviders: function authProviders() {
                   return {

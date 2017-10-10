@@ -301,7 +301,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "1.0.6";
+  version = "1.0.8";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -4269,7 +4269,29 @@ var Admin = function () {
                   };
                 },
                 pushNotifications: TODOnotImplemented,
-                users: TODOnotImplemented,
+                users: function users() {
+                  return {
+                    list: function list(filter) {
+                      return api._get(appUrl + '/users', filter);
+                    },
+                    create: function create(user) {
+                      return api._post(appUrl + '/users', user);
+                    },
+                    user: function user(uid) {
+                      return {
+                        get: function get() {
+                          return api._get(appUrl + '/users/' + uid);
+                        },
+                        logout: function logout() {
+                          return api._put(appUrl + '/users/' + uid + '/logout');
+                        },
+                        remove: function remove() {
+                          return api._delete(appUrl + '/users/' + uid);
+                        }
+                      };
+                    }
+                  };
+                },
                 dev: TODOnotImplemented,
                 authProviders: function authProviders() {
                   return {
