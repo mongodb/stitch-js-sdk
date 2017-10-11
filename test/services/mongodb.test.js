@@ -44,101 +44,115 @@ describe('MongoDBService', function() {
   });
   afterAll(() => test.teardown());
 
-  beforeEach(async () => {
+  beforeEach(async (done) => {
     testService = await testSetup(test);
     db = testService.db(TEST_DB);
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000 * 30;
+    done();
   });
 
-  it('should correctly insert a single document', async function() {
+  it('should correctly insert a single document', async done => {
     let response = await db.collection(TESTNS1).insertOne({ a: 1 });
     expect(response.insertedIds).toHaveLength(1);
+    done();
   });
 
-  it('should correctly insert a many documents', async function() {
+  it('should correctly insert many documents', async done => {
     let response = await db.collection(TESTNS1).insertMany([{}, {}, {}]);
     expect(response.insertedIds).toHaveLength(3);
+    done();
   });
 
-  it('should add oids to docs without them', async function() {
+  it('should add oids to docs without them', async done => {
     let request = db.collection(TESTNS1).insertMany([{}, {}, {}]);
     let items = request[0].args.items;
     items.map(item => expect(item).toHaveProperty('_id'));
+    done();
   });
 
-  it('should update a single document', async function() {
+  it('should update a single document', async (done)=> {
     let response = await db.collection(TESTNS1).insertMany([ { a: 1 }, { a: 1 } ]);
     response = await db.collection(TESTNS1).updateOne({ a: 1 }, { a: 2 });
     let results = stripObjectIds(response.result);
     expect(results).toHaveLength(1);
     expect(results).toEqual([ { a: 2 } ]);
+    done();
 
-      // TODO: reenable when BAAS-89 is complete
-      // expect(response.matchedCount).toEqual(1);
-      // expect(response.modifiedCount).toEqual(1);
-      // expect(response.upsertedId).toBeNull();
+    // TODO: reenable when BAAS-89 is complete
+    // expect(response.matchedCount).toEqual(1);
+    // expect(response.modifiedCount).toEqual(1);
+    // expect(response.upsertedId).toBeNull();
   });
 
-  it('should update multiple documents', async function() {
+  it('should update multiple documents', async done => {
     let response = await db.collection(TESTNS1).insertMany([ { a: 1 }, { a: 1 } ]);
     response = await db.collection(TESTNS1).updateMany({ a: 1 }, { a: 2 });
     let results = stripObjectIds(response.result);
     expect(results).toHaveLength(2);
     expect(results).toEqual([ { a: 2 }, { a: 2 } ]);
+    done();
 
-      // TODO: reenable when BAAS-89 is complete
-      // expect(response.matchedCount).toEqual(2);
-      // expect(response.modifiedCount).toEqual(2);
-      // expect(response.upsertedId).toBeNull();
+    // TODO: reenable when BAAS-89 is complete
+    // expect(response.matchedCount).toEqual(2);
+    // expect(response.modifiedCount).toEqual(2);
+    // expect(response.upsertedId).toBeNull();
   });
 
-  it('should delete a single document', async function() {
+  it('should delete a single document', async done => {
     let response = await db.collection(TESTNS1).insertOne({ a: 1 });
     response = await db.collection(TESTNS1).deleteOne({ _id: response.insertedIds[0] });
     expect(response.deletedCount).toEqual(1);
+    done();
   });
 
 
-  it('should delete multiple documents', async function() {
+  it('should delete multiple documents', async done => {
     let response = await db.collection(TESTNS1).insertMany([{ a: 1 }, { a: 1 }, { a: 1 }]);
     response = await db.collection(TESTNS1).deleteMany({ a: 1 });
     expect(response.deletedCount).toEqual(3);
+    done();
   });
 
-  it('should find documents', async function() {
+  it('should find documents', async done => {
     await db.collection(TESTNS1).insertOne({ a: 1 });
     let response = await db.collection(TESTNS1).find();
     let results = stripObjectIds(response);
     expect(results).toEqual([ { a: 1 } ]);
+    done();
   });
 
-  it('should find documents with a query', async function() {
+  it('should find documents with a query', async done => {
     await db.collection(TESTNS1).insertMany([ { a: 1 }, { b: 1 } ]);
     let response = await db.collection(TESTNS1).find({ a: 1 });
     let results = stripObjectIds(response);
     expect(results).toEqual([ { a: 1 } ]);
+    done();
   });
 
-  it('should find documents using projection', async function() {
+  it('should find documents using projection', async done => {
     await db.collection(TESTNS1).insertOne({ a: 'a', b: 'b', c: 'c' });
     let response = await db.collection(TESTNS1).find({}, { projection: { a: 1 }});
     let results = stripObjectIds(response);
     expect(results).toEqual([ { a: 'a' } ]);
+    done();
   });
 
-  it('executes the pipeline', async function() {
+  it('executes the pipeline', async done => {
     await db.collection(TESTNS1).insertMany([{ a: 1 }, { a: 2 }]);
     let response = await db.collection(TESTNS1).aggregate([{ '$match': { a: 1 }}]);
     let results = stripObjectIds(response);
     expect(results).toEqual([ { a: 1 } ]);
+    done();
   });
 
-  it('should count documents', async function() {
+  it('should count documents', async done => {
     await db.collection(TESTNS1).insertMany([ {}, {}, {}, {}, {} ]);
     let response = await db.collection(TESTNS1).count();
     expect(response).toEqual(5);
+    done();
   });
 
-  it('should allow for composed database actions', async function() {
+  it('should allow for composed database actions', async done => {
     let docs = db.collection(TESTNS1);
     let docs2 = db.collection(TESTNS2);
 
@@ -149,27 +163,23 @@ describe('MongoDBService', function() {
 
     expect(response.result).toBeInstanceOf(Array);
     expect(response.result).toHaveLength(5);
+    done();
   });
 
-  describe('warnings', function() {
-    beforeEach(async () => {
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000 * 30;
-    });
+  it('should receive warning when result size exceeds limit', async (done) => {
+    const numDocs = 20000;
+    const stepSize = 1000;
+    let testDocs = [...Array(numDocs).keys()].map(x => ({_id: x}));
 
-    it('should count documents', async function() {
-      const numDocs = 20000;
-      const stepSize = 1000;
-      let testDocs = [...Array(numDocs).keys()].map(x => ({_id: x}));
+    for (let i = 0; i < testDocs.length; i += stepSize ) {
+      await db.collection(TESTNS1).insertMany(testDocs.slice(i, i + stepSize));
+    }
 
-      for (let i = 0; i < testDocs.length; i += stepSize ) {
-        await db.collection(TESTNS1).insertMany(testDocs.slice(i, i + stepSize));
-      }
-
-      let response = await db.collection(TESTNS1).find({});
-      expect(response.length).toBe(10001);
-      expect(response._stitch_metadata.warnings).toEqual(
-        ['output array size limit of 10000 exceeded']
-      );
-    });
+    let response = await db.collection(TESTNS1).find({});
+    expect(response.length).toBe(10001);
+    expect(response._stitch_metadata.warnings).toEqual(
+      ['output array size limit of 10000 exceeded']
+    );
+    done();
   });
 });
