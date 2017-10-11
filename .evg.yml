@@ -28,6 +28,19 @@ functions:
           ./bin/mongo --nodb --eval 'assert.soon(function(x){try{var d = new Mongo("localhost:26000"); return true}catch(e){return false}}, "timed out connecting")'
           echo "mongod is up."
 
+  "set_github_build_status":
+    - command: shell.exec
+      params:
+        silent: true
+        script: |
+          status_url=`curl -X POST -d "{}" -H "Content-Type: application/json" "${stitch_evg_hook_url}?secret=${stitch_evg_secret}&versionId=${version_id}"`
+          if [ "$status_url" = "null" ]; then
+            exit 0
+          fi
+          status_url=`sed -e 's/^"//' -e 's/"$//' <<<"$status_url"`
+          state=`cat commit_state`
+          curl -X POST -H "Content-Type: application/json" $status_url -d "{\"state\": \"$state\", \"target_url\": \"https://evergreen.mongodb.com/build/${build_id}\", \"context\": \"continuous-integration/evergreen-ci/${build_variant}\"}"
+
   "setup_stitch":
     - command: shell.exec
       params:
@@ -64,6 +77,45 @@ functions:
           done
 
 tasks:
+  - name: github_pull_request_start
+    priority: 100
+    commands:
+      - command: shell.exec
+        params:
+          script: |
+            if ! [ "${is_patch}" = "true" ]; then
+              exit 0
+            fi
+            echo pending > commit_state
+      - func: "set_github_build_status"
+
+  - name: github_pull_request_end
+    depends_on:
+      - name: github_pull_request_start
+      - name: run_tests
+        status: "*"
+        variant: linux-64
+      - name: dist
+        status: "*"
+        variant: linux-64
+    commands:
+      - command: shell.exec
+        params:
+          silent: true
+          script: |
+            if ! [ "${is_patch}" = "true" ]; then
+              exit 0
+            fi
+            curl -H "Auth-Username: ${evg_rest_user}" -H "Api-Key: ${evg_rest_api_key}"  https://evergreen.mongodb.org/rest/v1/builds/${build_id} | python -c "import sys, json; tasks = json.load(sys.stdin)['tasks']; sys.exit(0) if all(tasks[task]['status'] == 'success' or task == 'github_pull_request_end'  for task in tasks) else sys.exit(1)"
+            if [ $? -eq 0 ]; then
+              state="success"
+            else
+              state="failure"
+            fi
+            echo $state > commit_state
+      - func: "set_github_build_status"
+
+
   - name: run_tests
     commands:
       - func: "fetch_source"
@@ -181,6 +233,8 @@ buildvariants:
   expansions:
     mongodb_url: http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.4.tgz
   tasks:
+    - name: github_pull_request_start
     - name: run_tests
     - name: dist
     - name: docs_dist
+    - name: github_pull_request_end
