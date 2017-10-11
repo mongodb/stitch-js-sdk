@@ -935,7 +935,13 @@ var Admin = function () {
                     }
                   };
                 },
-                dev: TODOnotImplemented,
+                dev: function dev() {
+                  return {
+                    executePipeline: function executePipeline(body, userId, options) {
+                      return api._post(appUrl + '/dev/pipeline', body, Object.assign({}, options, { user_id: userId }));
+                    }
+                  };
+                },
                 authProviders: function authProviders() {
                   return {
                     list: function list() {
@@ -1076,8 +1082,8 @@ var Admin = function () {
         _delete: function _delete(url) {
           return v2do(url, 'DELETE');
         },
-        _post: function _post(url, body) {
-          return v2do(url, 'POST', { body: JSON.stringify(body) });
+        _post: function _post(url, body, queryParams) {
+          return queryParams ? v2do(url, 'POST', { body: JSON.stringify(body), queryParams: queryParams }) : v2do(url, 'POST', { body: JSON.stringify(body) });
         }
       };
     }
