@@ -18,14 +18,14 @@ functions:
           cd mongodb-*
           echo "starting mongod..."
           mkdir db_files
-          ./bin/mongod --dbpath ./db_files --port 27017 &
+          ./bin/mongod --dbpath ./db_files --port 26000 &
           echo "waiting for mongod to start up"
     - command: shell.exec
       params:
         script: |
           set -e
           cd mongodb-*
-          ./bin/mongo --nodb --eval 'assert.soon(function(x){try{var d = new Mongo("localhost:27017"); return true}catch(e){return false}}, "timed out connecting")'
+          ./bin/mongo --nodb --eval 'assert.soon(function(x){try{var d = new Mongo("localhost:26000"); return true}catch(e){return false}}, "timed out connecting")'
           echo "mongod is up."
 
   "setup_stitch":
@@ -49,12 +49,12 @@ functions:
           export STITCH_PATH=$GOPATH/src/github.com/10gen/stitch
           cd stitch-js-sdk/test/bin
           echo "running stitch"
-          go run $STITCH_PATH/cmd/server/main.go --configFile ../conf/test_config.json
+          go run $STITCH_PATH/cmd/server/main.go --configFile $STITCH_PATH/etc/conf/test_config.json
     - command: shell.exec
       params:
         script: |
           counter=0
-          until $(curl --output /dev/null --silent --head --fail http://localhost:7080); do
+          until $(curl --output /dev/null --silent --head --fail http://localhost:9090); do
             echo "checking for API server to be up..."
             sleep 1
             let counter++
@@ -76,7 +76,7 @@ tasks:
             echo "running client tests"
             cd stitch-js-sdk
             npm install
-            npm test -- --runInBand # force serial execution
+            npm test
 
   - name: dist
     depends_on:

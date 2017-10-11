@@ -28,7 +28,7 @@ function getDeviceInfo(deviceId, appId, appVersion = '') {
   return deviceInfo;
 }
 
-/** 
+/**
  * @namespace
  */
 function anonProvider(auth) {
@@ -100,7 +100,7 @@ function userPassProvider(auth) {
     /**
      * Request that the stitch server send another email confirmation
      * for account creation.
-     * 
+     *
      * @memberof userPassProvider
      * @instance
      * @param {String} email the email to send a confirmation email for

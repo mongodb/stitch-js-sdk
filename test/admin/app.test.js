@@ -48,7 +48,6 @@ describe('Apps V2', ()=>{
     test.groupId = test.userData.group.groupId;
     apiV2 = adminClient.v2();
   });
-  afterEach(() => test.cleanDatabase());
 
   it('listing apps should return empty list', async () => {
     let apps = await apiV2.apps(test.groupId).list();

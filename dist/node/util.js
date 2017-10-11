@@ -19,11 +19,14 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 var RESULT_METADATA_KEY = '_stitch_metadata';
 
+/** @namespace util */
+
 /**
  * Utility which creates a function that extracts metadata
  * from the server in the response to a pipeline request,
  * and attaches it to the final result after the finalizer has been applied.
  *
+ * @memberof util
  * @param {Function} [func] optional finalizer to transform the response data
  */
 var collectMetadata = exports.collectMetadata = function collectMetadata(func) {
@@ -52,6 +55,7 @@ var collectMetadata = exports.collectMetadata = function collectMetadata(func) {
 /**
  * Utility function for displaying deprecation notices
  *
+ * @memberof util
  * @param {Function} fn the function to deprecate
  * @param {String} msg the message to display to the user regarding deprecation
  */
@@ -80,6 +84,7 @@ function deprecate(fn, msg) {
  * API for calling helper methods (single-stage pipelines) and
  * pipeline building.
  *
+ * @memberof util
  * @param {Object} service the service to execute the stages on
  * @param {Array} stages the pipeline stages to execute
  * @param {Function} [finalizer] optional function to call on the result of the response
@@ -151,6 +156,7 @@ function serviceResponse(service, stages, finalizer) {
  * Mixin that allows a definition of an optional `let` stage for
  * services is mixes in with.
  *
+ * @memberof util
  * @param {*} Type the service to mixin
  */
 function letMixin(Type) {
@@ -168,6 +174,7 @@ function letMixin(Type) {
 /**
  * Utility function to get the platform.
  *
+ * @memberof util
  * @returns {Object} An object of the form {name: ..., version: ...}, or null
  */
 function getPlatform() {
@@ -179,6 +186,7 @@ function getPlatform() {
  * inserted in a URI. The object is first stringified, then encoded in base64,
  * and finally encoded via the builtin encodeURIComponent function.
  *
+ * @memberof util
  * @param {Object} obj The object to encode
  * @returns {String} The encoded object
  */

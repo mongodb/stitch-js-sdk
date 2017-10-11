@@ -102,11 +102,14 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 var RESULT_METADATA_KEY = '_stitch_metadata';
 
+/** @namespace util */
+
 /**
  * Utility which creates a function that extracts metadata
  * from the server in the response to a pipeline request,
  * and attaches it to the final result after the finalizer has been applied.
  *
+ * @memberof util
  * @param {Function} [func] optional finalizer to transform the response data
  */
 var collectMetadata = exports.collectMetadata = function collectMetadata(func) {
@@ -135,6 +138,7 @@ var collectMetadata = exports.collectMetadata = function collectMetadata(func) {
 /**
  * Utility function for displaying deprecation notices
  *
+ * @memberof util
  * @param {Function} fn the function to deprecate
  * @param {String} msg the message to display to the user regarding deprecation
  */
@@ -163,6 +167,7 @@ function deprecate(fn, msg) {
  * API for calling helper methods (single-stage pipelines) and
  * pipeline building.
  *
+ * @memberof util
  * @param {Object} service the service to execute the stages on
  * @param {Array} stages the pipeline stages to execute
  * @param {Function} [finalizer] optional function to call on the result of the response
@@ -234,6 +239,7 @@ function serviceResponse(service, stages, finalizer) {
  * Mixin that allows a definition of an optional `let` stage for
  * services is mixes in with.
  *
+ * @memberof util
  * @param {*} Type the service to mixin
  */
 function letMixin(Type) {
@@ -251,6 +257,7 @@ function letMixin(Type) {
 /**
  * Utility function to get the platform.
  *
+ * @memberof util
  * @returns {Object} An object of the form {name: ..., version: ...}, or null
  */
 function getPlatform() {
@@ -262,6 +269,7 @@ function getPlatform() {
  * inserted in a URI. The object is first stringified, then encoded in base64,
  * and finally encoded via the builtin encodeURIComponent function.
  *
+ * @memberof util
  * @param {Object} obj The object to encode
  * @returns {String} The encoded object
  */
@@ -1337,8 +1345,8 @@ module.exports = Long;
 
 
 var base64 = __webpack_require__(26)
-var ieee754 = __webpack_require__(30)
-var isArray = __webpack_require__(31)
+var ieee754 = __webpack_require__(31)
+var isArray = __webpack_require__(32)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -3116,13 +3124,13 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(49)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(50)))
 
 /***/ }),
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ExtJSON = __webpack_require__(44);
+var ExtJSON = __webpack_require__(45);
 ExtJSON.BSON = __webpack_require__(6);
 
 module.exports = ExtJSON;
@@ -3135,19 +3143,19 @@ module.exports = ExtJSON;
 "use strict";
 
 
-var Binary = __webpack_require__(32);
-var Code = __webpack_require__(33);
-var DBRef = __webpack_require__(34);
-var Decimal128 = __webpack_require__(35);
-var Double = __webpack_require__(36);
-var Int32 = __webpack_require__(37);
+var Binary = __webpack_require__(33);
+var Code = __webpack_require__(34);
+var DBRef = __webpack_require__(35);
+var Decimal128 = __webpack_require__(36);
+var Double = __webpack_require__(37);
+var Int32 = __webpack_require__(38);
 var Long = __webpack_require__(3);
-var MaxKey = __webpack_require__(38);
-var MinKey = __webpack_require__(39);
-var ObjectID = __webpack_require__(40);
-var BSONRegExp = __webpack_require__(41);
-var Symbol = __webpack_require__(42);
-var Timestamp = __webpack_require__(43);
+var MaxKey = __webpack_require__(39);
+var MinKey = __webpack_require__(40);
+var ObjectID = __webpack_require__(41);
+var BSONRegExp = __webpack_require__(42);
+var Symbol = __webpack_require__(43);
+var Timestamp = __webpack_require__(44);
 
 module.exports = {
   Binary: Binary, Code: Code, DBRef: DBRef, Decimal128: Decimal128, Double: Double,
@@ -3368,7 +3376,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 
 
-__webpack_require__(29);
+__webpack_require__(30);
 
 var _auth = __webpack_require__(11);
 
@@ -3386,7 +3394,7 @@ var _mongodbExtjson = __webpack_require__(5);
 
 var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
-var _queryString = __webpack_require__(47);
+var _queryString = __webpack_require__(48);
 
 var _queryString2 = _interopRequireDefault(_queryString);
 
@@ -4874,10 +4882,13 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 /**
  * Create the device info for this client.
  *
+ * @memberof module:auth
+ * @method getDeviceInfo
  * @param {String} appId The app ID for this client
  * @param {String} appVersion The version of the app
  * @returns {Object} The device info object
  */
+/** @module auth  */
 function getDeviceInfo(deviceId, appId) {
   var appVersion = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
 
@@ -4897,11 +4908,16 @@ function getDeviceInfo(deviceId, appId) {
   return deviceInfo;
 }
 
+/**
+ * @namespace
+ */
 function anonProvider(auth) {
   return {
     /**
      * Login to a stitch application using anonymous authentication
      *
+     * @memberof anonProvider
+     * @instance
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: function authenticate() {
@@ -4918,11 +4934,14 @@ function anonProvider(auth) {
   };
 }
 
+/** @namespace */
 function userPassProvider(auth) {
   return {
     /**
      * Login to a stitch application using username and password authentication
      *
+     * @memberof userPassProvider
+     * @instance
      * @param {String} username the username to use for authentication
      * @param {String} password the password to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
@@ -4945,7 +4964,8 @@ function userPassProvider(auth) {
 
     /**
      * Completes the confirmation workflow from the stitch server
-     *
+     * @memberof userPassProvider
+     * @instance
      * @param {String} tokenId the tokenId provided by the stitch server
      * @param {String} token the token provided by the stitch server
      * @returns {Promise}
@@ -4963,6 +4983,8 @@ function userPassProvider(auth) {
      * Request that the stitch server send another email confirmation
      * for account creation.
      *
+     * @memberof userPassProvider
+     * @instance
      * @param {String} email the email to send a confirmation email for
      * @returns {Promise}
      */
@@ -4978,6 +5000,8 @@ function userPassProvider(auth) {
     /**
      * Sends a password reset request to the stitch server
      *
+     * @memberof userPassProvider
+     * @instance
      * @param {String} email the email of the account to reset the password for
      * @returns {Promise}
      */
@@ -4994,6 +5018,8 @@ function userPassProvider(auth) {
      * Use information returned from the stitch server to complete the password
      * reset flow for a given email account, providing a new password for the account.
      *
+     * @memberof userPassProvider
+     * @instance
      * @param {String} tokenId the tokenId provided by the stitch server
      * @param {String} token the token provided by the stitch server
      * @param {String} password the new password requested for this account
@@ -5013,6 +5039,8 @@ function userPassProvider(auth) {
      * token and tokenId that must be returned to the server using emailConfirm()
      * to activate the account.
      *
+     * @memberof userPassProvider
+     * @instance
      * @param {String} email the requested email for the account
      * @param {String} password the requested password for the account
      * @returns {Promise}
@@ -5028,8 +5056,17 @@ function userPassProvider(auth) {
   };
 }
 
+/** @namespace */
 function apiKeyProvider(auth) {
   return {
+    /**
+     * Login to a stitch application using an api key
+     *
+     * @memberof apiKeyProvider
+     * @instance
+     * @param {String} key the key for authentication
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
     authenticate: function authenticate(key) {
       var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ 'key': key, 'options': { device: device } }));
@@ -5076,8 +5113,17 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
   return result;
 }
 
+/** @namespace */
 function googleProvider(auth) {
   return {
+    /**
+     * Login to a stitch application using google authentication
+     *
+     * @memberof googleProvider
+     * @instance
+     * @param {Object} data the redirectUrl data to use for authentication
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
     authenticate: function authenticate(data) {
       var redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
       window.location.replace(getOAuthLoginURL(auth, 'google', redirectUrl));
@@ -5086,8 +5132,17 @@ function googleProvider(auth) {
   };
 }
 
+/** @namespace */
 function facebookProvider(auth) {
   return {
+    /**
+    * Login to a stitch application using facebook authentication
+    *
+    * @memberof facebookProvider
+    * @instance
+    * @param {Object} data the redirectUrl data to use for authentication
+    * @returns {Promise} a promise that resolves when authentication succeeds.
+    */
     authenticate: function authenticate(data) {
       var redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
       window.location.replace(getOAuthLoginURL(auth, 'facebook', redirectUrl));
@@ -5096,8 +5151,17 @@ function facebookProvider(auth) {
   };
 }
 
+/** @namespace */
 function mongodbCloudProvider(auth) {
   return {
+    /**
+     * Login to a stitch application using mongodb cloud authentication
+     *
+     * @memberof mongodbCloudProvider
+     * @instance
+     * @param {Object} data the username, apiKey, cors, and cookie data to use for authentication
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
     authenticate: function authenticate(data) {
       var username = data.username,
           apiKey = data.apiKey,
@@ -6494,7 +6558,9 @@ module.exports = detectBrowser(agent);
 
 /***/ }),
 /* 28 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
+
+var detectOS = __webpack_require__(29);
 
 module.exports = function detectBrowser(userAgentString) {
   if (!userAgentString) return null;
@@ -6502,9 +6568,13 @@ module.exports = function detectBrowser(userAgentString) {
   var browsers = [
     [ 'edge', /Edge\/([0-9\._]+)/ ],
     [ 'yandexbrowser', /YaBrowser\/([0-9\._]+)/ ],
+    [ 'vivaldi', /Vivaldi\/([0-9\.]+)/ ],
+    [ 'kakaotalk', /KAKAOTALK\s([0-9\.]+)/ ],
     [ 'chrome', /(?!Chrom.*OPR)Chrom(?:e|ium)\/([0-9\.]+)(:?\s|$)/ ],
+    [ 'phantomjs', /PhantomJS\/([0-9\.]+)(:?\s|$)/ ],
     [ 'crios', /CriOS\/([0-9\.]+)(:?\s|$)/ ],
     [ 'firefox', /Firefox\/([0-9\.]+)(?:\s|$)/ ],
+    [ 'fxios', /FxiOS\/([0-9\.]+)/ ],
     [ 'opera', /Opera\/([0-9\.]+)(?:\s|$)/ ],
     [ 'opera', /OPR\/([0-9\.]+)(:?\s|$)$/ ],
     [ 'ie', /Trident\/7\.0.*rv\:([0-9\.]+).*\).*Gecko$/ ],
@@ -6527,7 +6597,8 @@ module.exports = function detectBrowser(userAgentString) {
 
           return {
               name: rule[0],
-              version: version.join('.')
+              version: version.join('.'),
+              os: detectOS(userAgentString)
           };
       }
   }).filter(Boolean).shift();
@@ -6536,19 +6607,137 @@ module.exports = function detectBrowser(userAgentString) {
 
 /***/ }),
 /* 29 */
+/***/ (function(module, exports) {
+
+module.exports = function detectOS(userAgentString) {
+  var operatingSystems = [
+    {
+      name: 'iOS',
+      rule: /iP(hone|od|ad)/
+    },
+    {
+      name: 'Android OS',
+      rule: /Android/
+    },
+    {
+      name: 'BlackBerry OS',
+      rule: /BlackBerry|BB10/
+    },
+    {
+      name: 'Windows Mobile',
+      rule: /IEMobile/
+    },
+    {
+      name: 'Amazon OS',
+      rule: /Kindle/
+    },
+    {
+      name: 'Windows 3.11',
+      rule: /Win16/
+    },
+    {
+      name: 'Windows 95',
+      rule: /(Windows 95)|(Win95)|(Windows_95)/
+    },
+    {
+      name: 'Windows 98',
+      rule: /(Windows 98)|(Win98)/
+    },
+    {
+      name: 'Windows 2000',
+      rule: /(Windows NT 5.0)|(Windows 2000)/
+    },
+    {
+      name: 'Windows XP',
+      rule: /(Windows NT 5.1)|(Windows XP)/
+    },
+    {
+      name: 'Windows Server 2003',
+      rule: /(Windows NT 5.2)/
+    },
+    {
+      name: 'Windows Vista',
+      rule: /(Windows NT 6.0)/
+    },
+    {
+      name: 'Windows 7',
+      rule: /(Windows NT 6.1)/
+    },
+    {
+      name: 'Windows 8',
+      rule: /(Windows NT 6.2)/
+    },
+    {
+      name: 'Windows 8.1',
+      rule: /(Windows NT 6.3)/
+    },
+    {
+      name: 'Windows 10',
+      rule: /(Windows NT 10.0)/
+    },
+    {
+      name: 'Windows ME',
+      rule: /Windows ME/
+    },
+    {
+      name: 'Open BSD',
+      rule: /OpenBSD/
+    },
+    {
+      name: 'Sun OS',
+      rule: /SunOS/
+    },
+    {
+      name: 'Linux',
+      rule: /(Linux)|(X11)/
+    },
+    {
+      name: 'Mac OS',
+      rule: /(Mac_PowerPC)|(Macintosh)/
+    },
+    {
+      name: 'QNX',
+      rule: /QNX/
+    },
+    {
+      name: 'BeOS',
+      rule: /BeOS/
+    },
+    {
+      name: 'OS/2',
+      rule: /OS\/2/
+    },
+    {
+      name: 'Search Bot',
+      rule: /(nuhk)|(Googlebot)|(Yammybot)|(Openbot)|(Slurp)|(MSNBot)|(Ask Jeeves\/Teoma)|(ia_archiver)/
+    }
+  ];
+
+  var detected = operatingSystems.filter(function (os) {
+    if (userAgentString.match(os.rule)) {
+      return true;
+    }
+  });
+
+  return detected && detected[0] ? detected[0].name : null;
+};
+
+
+/***/ }),
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // the whatwg-fetch polyfill installs the fetch() function
 // on the global object (window or self)
 //
 // Return that as the export for use in Webpack, Browserify etc.
-__webpack_require__(50);
+__webpack_require__(51);
 var globalObj = typeof self !== 'undefined' && self || this;
 module.exports = globalObj.fetch.bind(globalObj);
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -6638,7 +6827,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -6649,7 +6838,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6939,7 +7128,7 @@ module.exports = Binary;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6974,7 +7163,7 @@ module.exports = Code;
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7019,7 +7208,7 @@ module.exports = DBRef;
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7741,7 +7930,7 @@ module.exports = Decimal128;
 
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7784,7 +7973,7 @@ module.exports = Double;
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7827,7 +8016,7 @@ module.exports = Int32;
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7856,7 +8045,7 @@ module.exports = MaxKey;
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7885,7 +8074,7 @@ module.exports = MinKey;
 
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8213,10 +8402,10 @@ ObjectID.index = ~~(Math.random() * 0xFFFFFF);
 
 module.exports = ObjectID;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(46)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8264,7 +8453,7 @@ module.exports = BSONRegExp;
 
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8310,7 +8499,7 @@ module.exports = Symbol;
 
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8399,7 +8588,7 @@ module.exports = Timestamp;
 
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8681,7 +8870,7 @@ module.exports = ExtJSON;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8778,7 +8967,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -8968,13 +9157,13 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var strictUriEncode = __webpack_require__(48);
-var objectAssign = __webpack_require__(45);
+var strictUriEncode = __webpack_require__(49);
+var objectAssign = __webpack_require__(46);
 
 function encoderForArrayFormat(opts) {
 	switch (opts.arrayFormat) {
@@ -9180,7 +9369,7 @@ exports.stringify = function (obj, opts) {
 
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9193,7 +9382,7 @@ module.exports = function (str) {
 
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports) {
 
 var g;
@@ -9220,7 +9409,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports) {
 
 (function(self) {
@@ -9243,28 +9432,6 @@ module.exports = g;
     })(),
     formData: 'FormData' in self,
     arrayBuffer: 'ArrayBuffer' in self
-  }
-
-  if (support.arrayBuffer) {
-    var viewClasses = [
-      '[object Int8Array]',
-      '[object Uint8Array]',
-      '[object Uint8ClampedArray]',
-      '[object Int16Array]',
-      '[object Uint16Array]',
-      '[object Int32Array]',
-      '[object Uint32Array]',
-      '[object Float32Array]',
-      '[object Float64Array]'
-    ]
-
-    var isDataView = function(obj) {
-      return obj && DataView.prototype.isPrototypeOf(obj)
-    }
-
-    var isArrayBufferView = ArrayBuffer.isView || function(obj) {
-      return obj && viewClasses.indexOf(Object.prototype.toString.call(obj)) > -1
-    }
   }
 
   function normalizeName(name) {
@@ -9309,10 +9476,7 @@ module.exports = g;
       headers.forEach(function(value, name) {
         this.append(name, value)
       }, this)
-    } else if (Array.isArray(headers)) {
-      headers.forEach(function(header) {
-        this.append(header[0], header[1])
-      }, this)
+
     } else if (headers) {
       Object.getOwnPropertyNames(headers).forEach(function(name) {
         this.append(name, headers[name])
@@ -9323,8 +9487,12 @@ module.exports = g;
   Headers.prototype.append = function(name, value) {
     name = normalizeName(name)
     value = normalizeValue(value)
-    var oldValue = this.map[name]
-    this.map[name] = oldValue ? oldValue+','+value : value
+    var list = this.map[name]
+    if (!list) {
+      list = []
+      this.map[name] = list
+    }
+    list.push(value)
   }
 
   Headers.prototype['delete'] = function(name) {
@@ -9332,8 +9500,12 @@ module.exports = g;
   }
 
   Headers.prototype.get = function(name) {
-    name = normalizeName(name)
-    return this.has(name) ? this.map[name] : null
+    var values = this.map[normalizeName(name)]
+    return values ? values[0] : null
+  }
+
+  Headers.prototype.getAll = function(name) {
+    return this.map[normalizeName(name)] || []
   }
 
   Headers.prototype.has = function(name) {
@@ -9341,15 +9513,15 @@ module.exports = g;
   }
 
   Headers.prototype.set = function(name, value) {
-    this.map[normalizeName(name)] = normalizeValue(value)
+    this.map[normalizeName(name)] = [normalizeValue(value)]
   }
 
   Headers.prototype.forEach = function(callback, thisArg) {
-    for (var name in this.map) {
-      if (this.map.hasOwnProperty(name)) {
-        callback.call(thisArg, this.map[name], name, this)
-      }
-    }
+    Object.getOwnPropertyNames(this.map).forEach(function(name) {
+      this.map[name].forEach(function(value) {
+        callback.call(thisArg, value, name, this)
+      }, this)
+    }, this)
   }
 
   Headers.prototype.keys = function() {
@@ -9394,36 +9566,14 @@ module.exports = g;
 
   function readBlobAsArrayBuffer(blob) {
     var reader = new FileReader()
-    var promise = fileReaderReady(reader)
     reader.readAsArrayBuffer(blob)
-    return promise
+    return fileReaderReady(reader)
   }
 
   function readBlobAsText(blob) {
     var reader = new FileReader()
-    var promise = fileReaderReady(reader)
     reader.readAsText(blob)
-    return promise
-  }
-
-  function readArrayBufferAsText(buf) {
-    var view = new Uint8Array(buf)
-    var chars = new Array(view.length)
-
-    for (var i = 0; i < view.length; i++) {
-      chars[i] = String.fromCharCode(view[i])
-    }
-    return chars.join('')
-  }
-
-  function bufferClone(buf) {
-    if (buf.slice) {
-      return buf.slice(0)
-    } else {
-      var view = new Uint8Array(buf.byteLength)
-      view.set(new Uint8Array(buf))
-      return view.buffer
-    }
+    return fileReaderReady(reader)
   }
 
   function Body() {
@@ -9431,9 +9581,7 @@ module.exports = g;
 
     this._initBody = function(body) {
       this._bodyInit = body
-      if (!body) {
-        this._bodyText = ''
-      } else if (typeof body === 'string') {
+      if (typeof body === 'string') {
         this._bodyText = body
       } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
         this._bodyBlob = body
@@ -9441,12 +9589,11 @@ module.exports = g;
         this._bodyFormData = body
       } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
         this._bodyText = body.toString()
-      } else if (support.arrayBuffer && support.blob && isDataView(body)) {
-        this._bodyArrayBuffer = bufferClone(body.buffer)
-        // IE 10-11 can't handle a DataView body.
-        this._bodyInit = new Blob([this._bodyArrayBuffer])
-      } else if (support.arrayBuffer && (ArrayBuffer.prototype.isPrototypeOf(body) || isArrayBufferView(body))) {
-        this._bodyArrayBuffer = bufferClone(body)
+      } else if (!body) {
+        this._bodyText = ''
+      } else if (support.arrayBuffer && ArrayBuffer.prototype.isPrototypeOf(body)) {
+        // Only support ArrayBuffers for POST method.
+        // Receiving ArrayBuffers happens via Blobs, instead.
       } else {
         throw new Error('unsupported BodyInit type')
       }
@@ -9471,8 +9618,6 @@ module.exports = g;
 
         if (this._bodyBlob) {
           return Promise.resolve(this._bodyBlob)
-        } else if (this._bodyArrayBuffer) {
-          return Promise.resolve(new Blob([this._bodyArrayBuffer]))
         } else if (this._bodyFormData) {
           throw new Error('could not read FormData body as blob')
         } else {
@@ -9481,28 +9626,27 @@ module.exports = g;
       }
 
       this.arrayBuffer = function() {
-        if (this._bodyArrayBuffer) {
-          return consumed(this) || Promise.resolve(this._bodyArrayBuffer)
+        return this.blob().then(readBlobAsArrayBuffer)
+      }
+
+      this.text = function() {
+        var rejected = consumed(this)
+        if (rejected) {
+          return rejected
+        }
+
+        if (this._bodyBlob) {
+          return readBlobAsText(this._bodyBlob)
+        } else if (this._bodyFormData) {
+          throw new Error('could not read FormData body as text')
         } else {
-          return this.blob().then(readBlobAsArrayBuffer)
+          return Promise.resolve(this._bodyText)
         }
       }
-    }
-
-    this.text = function() {
-      var rejected = consumed(this)
-      if (rejected) {
-        return rejected
-      }
-
-      if (this._bodyBlob) {
-        return readBlobAsText(this._bodyBlob)
-      } else if (this._bodyArrayBuffer) {
-        return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer))
-      } else if (this._bodyFormData) {
-        throw new Error('could not read FormData body as text')
-      } else {
-        return Promise.resolve(this._bodyText)
+    } else {
+      this.text = function() {
+        var rejected = consumed(this)
+        return rejected ? rejected : Promise.resolve(this._bodyText)
       }
     }
 
@@ -9530,8 +9674,7 @@ module.exports = g;
   function Request(input, options) {
     options = options || {}
     var body = options.body
-
-    if (input instanceof Request) {
+    if (Request.prototype.isPrototypeOf(input)) {
       if (input.bodyUsed) {
         throw new TypeError('Already read')
       }
@@ -9542,12 +9685,12 @@ module.exports = g;
       }
       this.method = input.method
       this.mode = input.mode
-      if (!body && input._bodyInit != null) {
+      if (!body) {
         body = input._bodyInit
         input.bodyUsed = true
       }
     } else {
-      this.url = String(input)
+      this.url = input
     }
 
     this.credentials = options.credentials || this.credentials || 'omit'
@@ -9565,7 +9708,7 @@ module.exports = g;
   }
 
   Request.prototype.clone = function() {
-    return new Request(this, { body: this._bodyInit })
+    return new Request(this)
   }
 
   function decode(body) {
@@ -9581,17 +9724,16 @@ module.exports = g;
     return form
   }
 
-  function parseHeaders(rawHeaders) {
-    var headers = new Headers()
-    rawHeaders.split(/\r?\n/).forEach(function(line) {
-      var parts = line.split(':')
-      var key = parts.shift().trim()
-      if (key) {
-        var value = parts.join(':').trim()
-        headers.append(key, value)
-      }
+  function headers(xhr) {
+    var head = new Headers()
+    var pairs = (xhr.getAllResponseHeaders() || '').trim().split('\n')
+    pairs.forEach(function(header) {
+      var split = header.trim().split(':')
+      var key = split.shift().trim()
+      var value = split.join(':').trim()
+      head.append(key, value)
     })
-    return headers
+    return head
   }
 
   Body.call(Request.prototype)
@@ -9602,10 +9744,10 @@ module.exports = g;
     }
 
     this.type = 'default'
-    this.status = 'status' in options ? options.status : 200
+    this.status = options.status
     this.ok = this.status >= 200 && this.status < 300
-    this.statusText = 'statusText' in options ? options.statusText : 'OK'
-    this.headers = new Headers(options.headers)
+    this.statusText = options.statusText
+    this.headers = options.headers instanceof Headers ? options.headers : new Headers(options.headers)
     this.url = options.url || ''
     this._initBody(bodyInit)
   }
@@ -9643,16 +9785,35 @@ module.exports = g;
 
   self.fetch = function(input, init) {
     return new Promise(function(resolve, reject) {
-      var request = new Request(input, init)
+      var request
+      if (Request.prototype.isPrototypeOf(input) && !init) {
+        request = input
+      } else {
+        request = new Request(input, init)
+      }
+
       var xhr = new XMLHttpRequest()
+
+      function responseURL() {
+        if ('responseURL' in xhr) {
+          return xhr.responseURL
+        }
+
+        // Avoid security warnings on getResponseHeader when not allowed by CORS
+        if (/^X-Request-URL:/m.test(xhr.getAllResponseHeaders())) {
+          return xhr.getResponseHeader('X-Request-URL')
+        }
+
+        return
+      }
 
       xhr.onload = function() {
         var options = {
           status: xhr.status,
           statusText: xhr.statusText,
-          headers: parseHeaders(xhr.getAllResponseHeaders() || '')
+          headers: headers(xhr),
+          url: responseURL()
         }
-        options.url = 'responseURL' in xhr ? xhr.responseURL : options.headers.get('X-Request-URL')
         var body = 'response' in xhr ? xhr.response : xhr.responseText
         resolve(new Response(body, options))
       }
