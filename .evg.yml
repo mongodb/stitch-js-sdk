@@ -62,7 +62,7 @@ functions:
           export STITCH_PATH=$GOPATH/src/github.com/10gen/stitch
           cd stitch-js-sdk/test/bin
           echo "running stitch"
-          go run $STITCH_PATH/cmd/server/main.go --configFile $STITCH_PATH/etc/conf/test_config.json
+          go run $STITCH_PATH/cmd/server/main.go --configFile $STITCH_PATH/etc/configs/test_config.json
     - command: shell.exec
       params:
         script: |
