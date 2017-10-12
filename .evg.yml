@@ -131,8 +131,6 @@ tasks:
             npm test
 
   - name: dist
-    depends_on:
-      - name: run_tests
     commands:
       - func: "fetch_source"
       - command: shell.exec
