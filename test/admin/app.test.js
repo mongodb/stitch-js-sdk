@@ -5,7 +5,7 @@ import {getAuthenticatedClient} from '../testutil';
 describe('Apps V1', ()=>{
   let test = new StitchMongoFixture();
   let apiV1;
-  beforeAll(() => test.setup({createApp: false}));
+  beforeAll(() => test.setup());
   afterAll(() => test.teardown());
   beforeEach(async () =>{
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
@@ -41,7 +41,7 @@ describe('Apps V1', ()=>{
 describe('Apps V2', ()=>{
   let test = new StitchMongoFixture();
   let apiV2;
-  beforeAll(() => test.setup({createApp: false}));
+  beforeAll(() => test.setup());
   afterAll(() => test.teardown());
   beforeEach(async () =>{
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);

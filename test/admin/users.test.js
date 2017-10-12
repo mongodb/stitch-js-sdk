@@ -5,7 +5,7 @@ import {getAuthenticatedClient} from '../testutil';
 describe('Users V2', ()=>{
   let test = new StitchMongoFixture();
   let appUsers;
-  beforeAll(() => test.setup({createApp: false}));
+  beforeAll(() => test.setup());
   afterAll(() => test.teardown());
   beforeEach(async () =>{
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);

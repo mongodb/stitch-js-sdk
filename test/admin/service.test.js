@@ -7,7 +7,7 @@ describe('Services V2', ()=>{
   let services;
   let app;
   let apps;
-  beforeAll(() => test.setup({createApp: false}));
+  beforeAll(() => test.setup());
   afterAll(() => test.teardown());
   beforeEach(async () =>{
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);

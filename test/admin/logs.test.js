@@ -7,7 +7,7 @@ describe('App Logs V2', () => {
   let app;
   let apps;
   let logs;
-  beforeAll(() => test.setup({ createApp: false }));
+  beforeAll(() => test.setup());
   afterAll(() => test.teardown());
   beforeEach(async () => {
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
