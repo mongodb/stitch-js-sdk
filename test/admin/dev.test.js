@@ -11,15 +11,15 @@ async function createTestPipeline(appPipelines) {
         service: '',
         action: 'literal',
         args: {
-          items: "%%vars.data"
+          items: '%%vars.data'
         },
         let: {
-          data: "%%args.vals"
+          data: '%%args.vals'
         }
       }
     ],
     parameters: [
-      { name: "vals", "required": true }
+      { name: 'vals', 'required': true }
     ],
     output: 'array'
   };
@@ -30,7 +30,7 @@ async function createTestPipeline(appPipelines) {
   expect(pipelines).toHaveLength(1);
 }
 
-async function createAppUser(users, { email = "dude.mcgee@doofus.net", password = "doofus123" } = {}) {
+async function createAppUser(users, { email = 'dude.mcgee@doofus.net', password = 'doofus123' } = {}) {
   const user = await users.create({ email, password });
   expect(user.data.email).toEqual(email);
   return user;
@@ -46,8 +46,8 @@ async function createUserPassProvider(authProviders) {
       resetPasswordSubject: 'password subject'
     }
   });
-  expect(provider.type).toEqual("local-userpass");
-  return provider
+  expect(provider.type).toEqual('local-userpass');
+  return provider;
 }
 
 describe('Dev V2', () => {
@@ -76,7 +76,7 @@ describe('Dev V2', () => {
     await apps.app(app._id).remove();
   });
 
-  it("Supports executing the pipeline", async () => {
+  it('Supports executing the pipeline', async () => {
     const { result } = await dev.executePipeline([
       {
         service: '',
@@ -91,9 +91,9 @@ describe('Dev V2', () => {
     ], user._id);
 
     expect(result[0]).toEqual([
-        { "$numberDouble": "1" },
-        { "$numberDouble": "2" },
-        { "$numberDouble": "3" }
+        { '$numberDouble': '1' },
+        { '$numberDouble': '2' },
+        { '$numberDouble': '3' }
     ]);
   });
 });

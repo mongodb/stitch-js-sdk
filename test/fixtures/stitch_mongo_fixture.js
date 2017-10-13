@@ -1,7 +1,7 @@
 const stitch = require('../../src/client');
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
-const { TEST_APP_DB, DEFAULT_URI, DEFAULT_SERVER_URL } = require('../constants');
+const { DEFAULT_URI, DEFAULT_SERVER_URL } = require('../constants');
 const crypto = require('crypto');
 
 const randomString = (length) => {
