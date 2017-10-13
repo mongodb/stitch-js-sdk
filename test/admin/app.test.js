@@ -5,7 +5,7 @@ import {getAuthenticatedClient} from '../testutil';
 describe('Apps V1', ()=>{
   let test = new StitchMongoFixture();
   let apiV1;
-  beforeAll(() => test.setup({createApp: false}));
+  beforeAll(() => test.setup());
   afterAll(() => test.teardown());
   beforeEach(async () =>{
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
@@ -41,14 +41,13 @@ describe('Apps V1', ()=>{
 describe('Apps V2', ()=>{
   let test = new StitchMongoFixture();
   let apiV2;
-  beforeAll(() => test.setup({createApp: false}));
+  beforeAll(() => test.setup());
   afterAll(() => test.teardown());
   beforeEach(async () =>{
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
     test.groupId = test.userData.group.groupId;
     apiV2 = adminClient.v2();
   });
-  afterEach(() => test.cleanDatabase());
 
   it('listing apps should return empty list', async () => {
     let apps = await apiV2.apps(test.groupId).list();

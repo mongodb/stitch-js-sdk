@@ -57,7 +57,7 @@ describe('Dev V2', () => {
   let user;
   let dev;
 
-  beforeAll(() => test.setup({ createApp: false }));
+  beforeAll(() => test.setup());
   afterAll(() => test.teardown());
 
   beforeEach(async () => {

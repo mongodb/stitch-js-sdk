@@ -6,7 +6,7 @@ describe('Values V2', ()=>{
   let test = new StitchMongoFixture();
   let apps;
   let app;
-  beforeAll(() => test.setup({createApp: false}));
+  beforeAll(() => test.setup());
   afterAll(() => test.teardown());
   beforeEach(async () =>{
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);

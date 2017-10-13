@@ -1,11 +1,7 @@
-const StitchService = require('./stitch_service');
 const stitch = require('../../src/client');
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
-const ExtJSON = require('mongodb-extjson');
-const fs = require('fs');
-const { CONF_PATH, DEFAULT_URI } = require('./constants');
-const EJSON = new ExtJSON(mongodb);
+const { TEST_APP_DB, DEFAULT_URI, DEFAULT_SERVER_URL } = require('../constants');
 const crypto = require('crypto');
 
 const randomString = (length) => {
@@ -25,81 +21,46 @@ const hashValue = (key, salt) => {
   });
 };
 
-export default class StitchMongoFixture {
+export default class StitchFixture {
   constructor(options) {
     options = options || {};
-    options.uri = options.uri || DEFAULT_URI;
-
+    options.mongoUri = options.mongoUri || DEFAULT_URI;
+    options.baseUrl = options.baseUrl || DEFAULT_SERVER_URL;
     this.options = options;
-    this.stitch = new StitchService;
+    this.testNamespaces = [];
   }
 
-  async setup(options) {
-    options = Object.assign({}, {createApp: true}, options);
+  async setup() {
+    this.mongo = await MongoClient.connect(this.options.mongoUri);
 
-    // setup mongo client and clear database
-    this.mongo = await MongoClient.connect(this.options.uri);
-    await this.clearDatabase();
-
-    // populate the app databases with sample data
-    let userData = await this._generateTestUser();
+    // bootstrap auth database with a root user
+    let userData = await this._generateTestRootUser();
     await this.mongo.db('auth').collection('users').insert(userData.user);
     await this.mongo.db('auth').collection('apiKeys').insert(userData.apiKey);
     await this.mongo.db('auth').collection('groups').insert(userData.group);
     this.userData = userData;
 
-    // start the local Stitch service
-    await this.stitch.setup();
-
-    // create an app `test_app`, and authorize a user
-    this.admin = new stitch.Admin('http://localhost:7080');
+    this.admin = new stitch.Admin(this.options.baseUrl);
     await this.admin.client.authenticate('apiKey', userData.apiKey.key);
-
-    if (!options.createApp) {
-      return;
-    }
-    const appConfig = EJSON.parse(fs.readFileSync(`${CONF_PATH}/test_app_config.json`, 'utf8'));
-    const result = await this.admin.apps(userData.group.groupId).create(appConfig);
-    const app = this.admin.apps(userData.group.groupId).app(result._id);
-    this.clientAppId = result.clientAppId;
-    await app.authProviders().provider('api', 'key').update({});
-    this.appKey = await app.apiKeys().create({ name: 'app-key' });
-
-    await app.services().create({name: 'mdb1', type: 'mongodb'});
-    const mdb1Svc = app.services().service('mdb1');
-    const mdb1 = appConfig.services.mdb1;
-    await mdb1Svc.setConfig(mdb1.config);
-
-    const rule1Key = '5873a33f772e2e08ce645b9a';
-    const rule2Key = '5873a33f772e2e08ce645b9b';
-
-    const rule1 = await mdb1Svc.rules().create(mdb1.rules[rule1Key]);
-    mdb1.rules[rule1Key]._id = rule1._id;
-    await mdb1Svc.rules().rule(rule1._id).update(mdb1.rules[rule1Key]);
-
-    const rule2 = await mdb1Svc.rules().create(mdb1.rules[rule2Key]);
-    mdb1.rules[rule2Key]._id = rule2._id;
-    await mdb1Svc.rules().rule(rule2._id).update(mdb1.rules[rule2Key]);
+    return;
   }
 
   async teardown() {
-    // await this.clearDatabase();
     await this.mongo.close();
-    await this.stitch.teardown();
   }
 
-  async clearDatabase() {
-    // Drop the app databases
-    await this.mongo.db('app').dropDatabase({ w: 1 });
-    await this.mongo.db('test').dropDatabase({ w: 1 });
-    await this.mongo.db('auth').dropDatabase({ w: 1 });
+  registerTestNamespace(db, collection) {
+    this.testNamespaces.push({db, collection});
   }
 
-  async cleanDatabase() {
-    await this.mongo.db('test').collection('documents').remove();
+  async cleanTestNamespaces() {
+    this.testNamespaces.forEach(async (ns) => {
+      await this.mongo.db(ns.db).collection(ns.collection).remove();
+    });
+    this.testNamespaces = [];
   }
 
-  async _generateTestUser() {
+  async _generateTestRootUser() {
     const rootId = new mongodb.ObjectId('000000000000000000000000');
     const rootProviderId = new mongodb.ObjectId('000000000000000000000001');
     const apiKeyId = new mongodb.ObjectId();

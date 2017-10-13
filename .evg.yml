@@ -18,15 +18,28 @@ functions:
           cd mongodb-*
           echo "starting mongod..."
           mkdir db_files
-          ./bin/mongod --dbpath ./db_files --port 27017 &
+          ./bin/mongod --dbpath ./db_files --port 26000 &
           echo "waiting for mongod to start up"
     - command: shell.exec
       params:
         script: |
           set -e
           cd mongodb-*
-          ./bin/mongo --nodb --eval 'assert.soon(function(x){try{var d = new Mongo("localhost:27017"); return true}catch(e){return false}}, "timed out connecting")'
+          ./bin/mongo --nodb --eval 'assert.soon(function(x){try{var d = new Mongo("localhost:26000"); return true}catch(e){return false}}, "timed out connecting")'
           echo "mongod is up."
+
+  "set_github_build_status":
+    - command: shell.exec
+      params:
+        silent: true
+        script: |
+          status_url=`curl -X POST -d "{}" -H "Content-Type: application/json" "${stitch_evg_hook_url}?secret=${stitch_evg_secret}&versionId=${version_id}"`
+          if [ "$status_url" = "null" ]; then
+            exit 0
+          fi
+          status_url=`sed -e 's/^"//' -e 's/"$//' <<<"$status_url"`
+          state=`cat commit_state`
+          curl -X POST -H "Content-Type: application/json" $status_url -d "{\"state\": \"$state\", \"target_url\": \"https://evergreen.mongodb.com/build/${build_id}\", \"context\": \"continuous-integration/evergreen-ci/${build_variant}\"}"
 
   "setup_stitch":
     - command: shell.exec
@@ -49,12 +62,12 @@ functions:
           export STITCH_PATH=$GOPATH/src/github.com/10gen/stitch
           cd stitch-js-sdk/test/bin
           echo "running stitch"
-          go run $STITCH_PATH/cmd/server/main.go --configFile ../conf/test_config.json
+          go run $STITCH_PATH/cmd/server/main.go --configFile $STITCH_PATH/etc/configs/test_config.json
     - command: shell.exec
       params:
         script: |
           counter=0
-          until $(curl --output /dev/null --silent --head --fail http://localhost:7080); do
+          until $(curl --output /dev/null --silent --head --fail http://localhost:9090); do
             echo "checking for API server to be up..."
             sleep 1
             let counter++
@@ -64,6 +77,45 @@ functions:
           done
 
 tasks:
+  - name: github_pull_request_start
+    priority: 100
+    commands:
+      - command: shell.exec
+        params:
+          script: |
+            if ! [ "${is_patch}" = "true" ]; then
+              exit 0
+            fi
+            echo pending > commit_state
+      - func: "set_github_build_status"
+
+  - name: github_pull_request_end
+    depends_on:
+      - name: github_pull_request_start
+      - name: run_tests
+        status: "*"
+        variant: linux-64
+      - name: dist
+        status: "*"
+        variant: linux-64
+    commands:
+      - command: shell.exec
+        params:
+          silent: true
+          script: |
+            if ! [ "${is_patch}" = "true" ]; then
+              exit 0
+            fi
+            curl -H "Auth-Username: ${evg_rest_user}" -H "Api-Key: ${evg_rest_api_key}"  https://evergreen.mongodb.org/rest/v1/builds/${build_id} | python -c "import sys, json; tasks = json.load(sys.stdin)['tasks']; sys.exit(0) if all(tasks[task]['status'] == 'success' or task == 'github_pull_request_end'  for task in tasks) else sys.exit(1)"
+            if [ $? -eq 0 ]; then
+              state="success"
+            else
+              state="failure"
+            fi
+            echo $state > commit_state
+      - func: "set_github_build_status"
+
+
   - name: run_tests
     commands:
       - func: "fetch_source"
@@ -76,11 +128,9 @@ tasks:
             echo "running client tests"
             cd stitch-js-sdk
             npm install
-            npm test -- --runInBand # force serial execution
+            npm test
 
   - name: dist
-    depends_on:
-      - name: run_tests
     commands:
       - func: "fetch_source"
       - command: shell.exec
@@ -181,6 +231,8 @@ buildvariants:
   expansions:
     mongodb_url: http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.4.tgz
   tasks:
+    - name: github_pull_request_start
     - name: run_tests
     - name: dist
     - name: docs_dist
+    - name: github_pull_request_end
