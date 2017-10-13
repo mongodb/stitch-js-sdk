@@ -618,7 +618,16 @@ class Admin {
 
                 })
               }),
-              pushNotifications: TODOnotImplemented,
+              pushNotifications: () => ({
+                list: (type) => api._get(`${appUrl}/push/notifications`, { type }),
+                create: (data) => api._post(`${appUrl}/push/notifications`, data),
+                pushNotification: (messageId) => ({
+                  get: () => api._get(`${appUrl}/push/notifications/${messageId}`),
+                  update: (data) => api._put(`${appUrl}/push/notifications/${messageId}`, data),
+                  setType: (type) => api._put(`${appUrl}/push/notifications/${messageId}/type`, { type }),
+                  remove: () => api._delete(`${appUrl}/push/notifications/${messageId}`)
+                })
+              }),
               users: () => ({
                 list: (filter) => api._get(`${appUrl}/users`, filter),
                 create: (user) => api._post(`${appUrl}/users`, user),
