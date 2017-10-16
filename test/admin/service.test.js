@@ -52,7 +52,7 @@ describe('Services V2', ()=>{
   it('fetching service config should work', async () => {
     let newSvc = await services.create({ name: 'testsvc', type: 'aws-ses', config: testConfig });
     let svcConfig = await services.service(newSvc._id).config().get();
-    expect(svcConfig).toEqual({'region': 'us-east-1'});
+    expect(svcConfig).toEqual({'accessKeyId': 'testAccessKeyId', 'region': 'us-east-1'});
   });
 
   const testConfig = {
@@ -64,7 +64,7 @@ describe('Services V2', ()=>{
   it('fetching service config should work', async () => {
     let newSvc = await services.create({ name: 'testsvc', type: 'aws-ses', config: testConfig });
     let svcConfig = await services.service(newSvc._id).config().get();
-    expect(svcConfig).toEqual({'region': 'us-east-1'});
+    expect(svcConfig).toEqual({'accessKeyId': 'testAccessKeyId', 'region': 'us-east-1'});
   });
   it('updating service config should work', async () => {
     let newSvc = await services.create({ name: 'testsvc', type: 'aws-ses', config: testConfig });
@@ -73,7 +73,7 @@ describe('Services V2', ()=>{
       secretAccessKey: 'testkeyupdated'
     });
     svcConfig = await services.service(newSvc._id).config().get();
-    expect(svcConfig).toEqual({'region': 'us-west-1'});
+    expect(svcConfig).toEqual({'accessKeyId': 'testAccessKeyId', 'region': 'us-west-1'});
   });
   it('updating with invalid config should fail', async () => {
     let newSvc = await services.create({ name: 'testsvc', type: 'aws-ses', config: testConfig });
