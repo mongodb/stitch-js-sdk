@@ -309,7 +309,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "1.0.9";
+  version = "1.0.10";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -1345,8 +1345,8 @@ module.exports = Long;
 
 
 var base64 = __webpack_require__(26)
-var ieee754 = __webpack_require__(31)
-var isArray = __webpack_require__(32)
+var ieee754 = __webpack_require__(30)
+var isArray = __webpack_require__(31)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -3124,13 +3124,13 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(50)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(49)))
 
 /***/ }),
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ExtJSON = __webpack_require__(45);
+var ExtJSON = __webpack_require__(44);
 ExtJSON.BSON = __webpack_require__(6);
 
 module.exports = ExtJSON;
@@ -3143,19 +3143,19 @@ module.exports = ExtJSON;
 "use strict";
 
 
-var Binary = __webpack_require__(33);
-var Code = __webpack_require__(34);
-var DBRef = __webpack_require__(35);
-var Decimal128 = __webpack_require__(36);
-var Double = __webpack_require__(37);
-var Int32 = __webpack_require__(38);
+var Binary = __webpack_require__(32);
+var Code = __webpack_require__(33);
+var DBRef = __webpack_require__(34);
+var Decimal128 = __webpack_require__(35);
+var Double = __webpack_require__(36);
+var Int32 = __webpack_require__(37);
 var Long = __webpack_require__(3);
-var MaxKey = __webpack_require__(39);
-var MinKey = __webpack_require__(40);
-var ObjectID = __webpack_require__(41);
-var BSONRegExp = __webpack_require__(42);
-var Symbol = __webpack_require__(43);
-var Timestamp = __webpack_require__(44);
+var MaxKey = __webpack_require__(38);
+var MinKey = __webpack_require__(39);
+var ObjectID = __webpack_require__(40);
+var BSONRegExp = __webpack_require__(41);
+var Symbol = __webpack_require__(42);
+var Timestamp = __webpack_require__(43);
 
 module.exports = {
   Binary: Binary, Code: Code, DBRef: DBRef, Decimal128: Decimal128, Double: Double,
@@ -3376,7 +3376,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 
 
-__webpack_require__(30);
+__webpack_require__(29);
 
 var _auth = __webpack_require__(11);
 
@@ -3394,7 +3394,7 @@ var _mongodbExtjson = __webpack_require__(5);
 
 var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
-var _queryString = __webpack_require__(48);
+var _queryString = __webpack_require__(47);
 
 var _queryString2 = _interopRequireDefault(_queryString);
 
@@ -4276,7 +4276,32 @@ var Admin = function () {
                     }
                   };
                 },
-                pushNotifications: TODOnotImplemented,
+                pushNotifications: function pushNotifications() {
+                  return {
+                    list: function list(type) {
+                      return api._get(appUrl + '/push/notifications', { type: type });
+                    },
+                    create: function create(data) {
+                      return api._post(appUrl + '/push/notifications', data);
+                    },
+                    pushNotification: function pushNotification(messageId) {
+                      return {
+                        get: function get() {
+                          return api._get(appUrl + '/push/notifications/' + messageId);
+                        },
+                        update: function update(data) {
+                          return api._put(appUrl + '/push/notifications/' + messageId, data);
+                        },
+                        setType: function setType(type) {
+                          return api._put(appUrl + '/push/notifications/' + messageId + '/type', { type: type });
+                        },
+                        remove: function remove() {
+                          return api._delete(appUrl + '/push/notifications/' + messageId);
+                        }
+                      };
+                    }
+                  };
+                },
                 users: function users() {
                   return {
                     list: function list(filter) {
@@ -6558,9 +6583,7 @@ module.exports = detectBrowser(agent);
 
 /***/ }),
 /* 28 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var detectOS = __webpack_require__(29);
+/***/ (function(module, exports) {
 
 module.exports = function detectBrowser(userAgentString) {
   if (!userAgentString) return null;
@@ -6597,8 +6620,7 @@ module.exports = function detectBrowser(userAgentString) {
 
           return {
               name: rule[0],
-              version: version.join('.'),
-              os: detectOS(userAgentString)
+              version: version.join('.')
           };
       }
   }).filter(Boolean).shift();
@@ -6607,137 +6629,19 @@ module.exports = function detectBrowser(userAgentString) {
 
 /***/ }),
 /* 29 */
-/***/ (function(module, exports) {
-
-module.exports = function detectOS(userAgentString) {
-  var operatingSystems = [
-    {
-      name: 'iOS',
-      rule: /iP(hone|od|ad)/
-    },
-    {
-      name: 'Android OS',
-      rule: /Android/
-    },
-    {
-      name: 'BlackBerry OS',
-      rule: /BlackBerry|BB10/
-    },
-    {
-      name: 'Windows Mobile',
-      rule: /IEMobile/
-    },
-    {
-      name: 'Amazon OS',
-      rule: /Kindle/
-    },
-    {
-      name: 'Windows 3.11',
-      rule: /Win16/
-    },
-    {
-      name: 'Windows 95',
-      rule: /(Windows 95)|(Win95)|(Windows_95)/
-    },
-    {
-      name: 'Windows 98',
-      rule: /(Windows 98)|(Win98)/
-    },
-    {
-      name: 'Windows 2000',
-      rule: /(Windows NT 5.0)|(Windows 2000)/
-    },
-    {
-      name: 'Windows XP',
-      rule: /(Windows NT 5.1)|(Windows XP)/
-    },
-    {
-      name: 'Windows Server 2003',
-      rule: /(Windows NT 5.2)/
-    },
-    {
-      name: 'Windows Vista',
-      rule: /(Windows NT 6.0)/
-    },
-    {
-      name: 'Windows 7',
-      rule: /(Windows NT 6.1)/
-    },
-    {
-      name: 'Windows 8',
-      rule: /(Windows NT 6.2)/
-    },
-    {
-      name: 'Windows 8.1',
-      rule: /(Windows NT 6.3)/
-    },
-    {
-      name: 'Windows 10',
-      rule: /(Windows NT 10.0)/
-    },
-    {
-      name: 'Windows ME',
-      rule: /Windows ME/
-    },
-    {
-      name: 'Open BSD',
-      rule: /OpenBSD/
-    },
-    {
-      name: 'Sun OS',
-      rule: /SunOS/
-    },
-    {
-      name: 'Linux',
-      rule: /(Linux)|(X11)/
-    },
-    {
-      name: 'Mac OS',
-      rule: /(Mac_PowerPC)|(Macintosh)/
-    },
-    {
-      name: 'QNX',
-      rule: /QNX/
-    },
-    {
-      name: 'BeOS',
-      rule: /BeOS/
-    },
-    {
-      name: 'OS/2',
-      rule: /OS\/2/
-    },
-    {
-      name: 'Search Bot',
-      rule: /(nuhk)|(Googlebot)|(Yammybot)|(Openbot)|(Slurp)|(MSNBot)|(Ask Jeeves\/Teoma)|(ia_archiver)/
-    }
-  ];
-
-  var detected = operatingSystems.filter(function (os) {
-    if (userAgentString.match(os.rule)) {
-      return true;
-    }
-  });
-
-  return detected && detected[0] ? detected[0].name : null;
-};
-
-
-/***/ }),
-/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // the whatwg-fetch polyfill installs the fetch() function
 // on the global object (window or self)
 //
 // Return that as the export for use in Webpack, Browserify etc.
-__webpack_require__(51);
+__webpack_require__(50);
 var globalObj = typeof self !== 'undefined' && self || this;
 module.exports = globalObj.fetch.bind(globalObj);
 
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -6827,7 +6731,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -6838,7 +6742,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7128,7 +7032,7 @@ module.exports = Binary;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7163,7 +7067,7 @@ module.exports = Code;
 
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7208,7 +7112,7 @@ module.exports = DBRef;
 
 
 /***/ }),
-/* 36 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7930,7 +7834,7 @@ module.exports = Decimal128;
 
 
 /***/ }),
-/* 37 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7973,7 +7877,7 @@ module.exports = Double;
 
 
 /***/ }),
-/* 38 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8016,7 +7920,7 @@ module.exports = Int32;
 
 
 /***/ }),
-/* 39 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8045,7 +7949,7 @@ module.exports = MaxKey;
 
 
 /***/ }),
-/* 40 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8074,7 +7978,7 @@ module.exports = MinKey;
 
 
 /***/ }),
-/* 41 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8402,10 +8306,10 @@ ObjectID.index = ~~(Math.random() * 0xFFFFFF);
 
 module.exports = ObjectID;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(46)))
 
 /***/ }),
-/* 42 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8453,7 +8357,7 @@ module.exports = BSONRegExp;
 
 
 /***/ }),
-/* 43 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8499,7 +8403,7 @@ module.exports = Symbol;
 
 
 /***/ }),
-/* 44 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8588,7 +8492,7 @@ module.exports = Timestamp;
 
 
 /***/ }),
-/* 45 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8870,7 +8774,7 @@ module.exports = ExtJSON;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
 
 /***/ }),
-/* 46 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8967,7 +8871,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 47 */
+/* 46 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -9157,13 +9061,13 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 48 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var strictUriEncode = __webpack_require__(49);
-var objectAssign = __webpack_require__(46);
+var strictUriEncode = __webpack_require__(48);
+var objectAssign = __webpack_require__(45);
 
 function encoderForArrayFormat(opts) {
 	switch (opts.arrayFormat) {
@@ -9369,7 +9273,7 @@ exports.stringify = function (obj, opts) {
 
 
 /***/ }),
-/* 49 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9382,7 +9286,7 @@ module.exports = function (str) {
 
 
 /***/ }),
-/* 50 */
+/* 49 */
 /***/ (function(module, exports) {
 
 var g;
@@ -9409,7 +9313,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 51 */
+/* 50 */
 /***/ (function(module, exports) {
 
 (function(self) {
@@ -9432,6 +9336,28 @@ module.exports = g;
     })(),
     formData: 'FormData' in self,
     arrayBuffer: 'ArrayBuffer' in self
+  }
+
+  if (support.arrayBuffer) {
+    var viewClasses = [
+      '[object Int8Array]',
+      '[object Uint8Array]',
+      '[object Uint8ClampedArray]',
+      '[object Int16Array]',
+      '[object Uint16Array]',
+      '[object Int32Array]',
+      '[object Uint32Array]',
+      '[object Float32Array]',
+      '[object Float64Array]'
+    ]
+
+    var isDataView = function(obj) {
+      return obj && DataView.prototype.isPrototypeOf(obj)
+    }
+
+    var isArrayBufferView = ArrayBuffer.isView || function(obj) {
+      return obj && viewClasses.indexOf(Object.prototype.toString.call(obj)) > -1
+    }
   }
 
   function normalizeName(name) {
@@ -9476,7 +9402,10 @@ module.exports = g;
       headers.forEach(function(value, name) {
         this.append(name, value)
       }, this)
-
+    } else if (Array.isArray(headers)) {
+      headers.forEach(function(header) {
+        this.append(header[0], header[1])
+      }, this)
     } else if (headers) {
       Object.getOwnPropertyNames(headers).forEach(function(name) {
         this.append(name, headers[name])
@@ -9487,12 +9416,8 @@ module.exports = g;
   Headers.prototype.append = function(name, value) {
     name = normalizeName(name)
     value = normalizeValue(value)
-    var list = this.map[name]
-    if (!list) {
-      list = []
-      this.map[name] = list
-    }
-    list.push(value)
+    var oldValue = this.map[name]
+    this.map[name] = oldValue ? oldValue+','+value : value
   }
 
   Headers.prototype['delete'] = function(name) {
@@ -9500,12 +9425,8 @@ module.exports = g;
   }
 
   Headers.prototype.get = function(name) {
-    var values = this.map[normalizeName(name)]
-    return values ? values[0] : null
-  }
-
-  Headers.prototype.getAll = function(name) {
-    return this.map[normalizeName(name)] || []
+    name = normalizeName(name)
+    return this.has(name) ? this.map[name] : null
   }
 
   Headers.prototype.has = function(name) {
@@ -9513,15 +9434,15 @@ module.exports = g;
   }
 
   Headers.prototype.set = function(name, value) {
-    this.map[normalizeName(name)] = [normalizeValue(value)]
+    this.map[normalizeName(name)] = normalizeValue(value)
   }
 
   Headers.prototype.forEach = function(callback, thisArg) {
-    Object.getOwnPropertyNames(this.map).forEach(function(name) {
-      this.map[name].forEach(function(value) {
-        callback.call(thisArg, value, name, this)
-      }, this)
-    }, this)
+    for (var name in this.map) {
+      if (this.map.hasOwnProperty(name)) {
+        callback.call(thisArg, this.map[name], name, this)
+      }
+    }
   }
 
   Headers.prototype.keys = function() {
@@ -9566,14 +9487,36 @@ module.exports = g;
 
   function readBlobAsArrayBuffer(blob) {
     var reader = new FileReader()
+    var promise = fileReaderReady(reader)
     reader.readAsArrayBuffer(blob)
-    return fileReaderReady(reader)
+    return promise
   }
 
   function readBlobAsText(blob) {
     var reader = new FileReader()
+    var promise = fileReaderReady(reader)
     reader.readAsText(blob)
-    return fileReaderReady(reader)
+    return promise
+  }
+
+  function readArrayBufferAsText(buf) {
+    var view = new Uint8Array(buf)
+    var chars = new Array(view.length)
+
+    for (var i = 0; i < view.length; i++) {
+      chars[i] = String.fromCharCode(view[i])
+    }
+    return chars.join('')
+  }
+
+  function bufferClone(buf) {
+    if (buf.slice) {
+      return buf.slice(0)
+    } else {
+      var view = new Uint8Array(buf.byteLength)
+      view.set(new Uint8Array(buf))
+      return view.buffer
+    }
   }
 
   function Body() {
@@ -9581,7 +9524,9 @@ module.exports = g;
 
     this._initBody = function(body) {
       this._bodyInit = body
-      if (typeof body === 'string') {
+      if (!body) {
+        this._bodyText = ''
+      } else if (typeof body === 'string') {
         this._bodyText = body
       } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
         this._bodyBlob = body
@@ -9589,11 +9534,12 @@ module.exports = g;
         this._bodyFormData = body
       } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
         this._bodyText = body.toString()
-      } else if (!body) {
-        this._bodyText = ''
-      } else if (support.arrayBuffer && ArrayBuffer.prototype.isPrototypeOf(body)) {
-        // Only support ArrayBuffers for POST method.
-        // Receiving ArrayBuffers happens via Blobs, instead.
+      } else if (support.arrayBuffer && support.blob && isDataView(body)) {
+        this._bodyArrayBuffer = bufferClone(body.buffer)
+        // IE 10-11 can't handle a DataView body.
+        this._bodyInit = new Blob([this._bodyArrayBuffer])
+      } else if (support.arrayBuffer && (ArrayBuffer.prototype.isPrototypeOf(body) || isArrayBufferView(body))) {
+        this._bodyArrayBuffer = bufferClone(body)
       } else {
         throw new Error('unsupported BodyInit type')
       }
@@ -9618,6 +9564,8 @@ module.exports = g;
 
         if (this._bodyBlob) {
           return Promise.resolve(this._bodyBlob)
+        } else if (this._bodyArrayBuffer) {
+          return Promise.resolve(new Blob([this._bodyArrayBuffer]))
         } else if (this._bodyFormData) {
           throw new Error('could not read FormData body as blob')
         } else {
@@ -9626,27 +9574,28 @@ module.exports = g;
       }
 
       this.arrayBuffer = function() {
-        return this.blob().then(readBlobAsArrayBuffer)
-      }
-
-      this.text = function() {
-        var rejected = consumed(this)
-        if (rejected) {
-          return rejected
-        }
-
-        if (this._bodyBlob) {
-          return readBlobAsText(this._bodyBlob)
-        } else if (this._bodyFormData) {
-          throw new Error('could not read FormData body as text')
+        if (this._bodyArrayBuffer) {
+          return consumed(this) || Promise.resolve(this._bodyArrayBuffer)
         } else {
-          return Promise.resolve(this._bodyText)
+          return this.blob().then(readBlobAsArrayBuffer)
         }
       }
-    } else {
-      this.text = function() {
-        var rejected = consumed(this)
-        return rejected ? rejected : Promise.resolve(this._bodyText)
+    }
+
+    this.text = function() {
+      var rejected = consumed(this)
+      if (rejected) {
+        return rejected
+      }
+
+      if (this._bodyBlob) {
+        return readBlobAsText(this._bodyBlob)
+      } else if (this._bodyArrayBuffer) {
+        return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer))
+      } else if (this._bodyFormData) {
+        throw new Error('could not read FormData body as text')
+      } else {
+        return Promise.resolve(this._bodyText)
       }
     }
 
@@ -9674,7 +9623,8 @@ module.exports = g;
   function Request(input, options) {
     options = options || {}
     var body = options.body
-    if (Request.prototype.isPrototypeOf(input)) {
+
+    if (input instanceof Request) {
       if (input.bodyUsed) {
         throw new TypeError('Already read')
       }
@@ -9685,12 +9635,12 @@ module.exports = g;
       }
       this.method = input.method
       this.mode = input.mode
-      if (!body) {
+      if (!body && input._bodyInit != null) {
         body = input._bodyInit
         input.bodyUsed = true
       }
     } else {
-      this.url = input
+      this.url = String(input)
     }
 
     this.credentials = options.credentials || this.credentials || 'omit'
@@ -9708,7 +9658,7 @@ module.exports = g;
   }
 
   Request.prototype.clone = function() {
-    return new Request(this)
+    return new Request(this, { body: this._bodyInit })
   }
 
   function decode(body) {
@@ -9724,16 +9674,17 @@ module.exports = g;
     return form
   }
 
-  function headers(xhr) {
-    var head = new Headers()
-    var pairs = (xhr.getAllResponseHeaders() || '').trim().split('\n')
-    pairs.forEach(function(header) {
-      var split = header.trim().split(':')
-      var key = split.shift().trim()
-      var value = split.join(':').trim()
-      head.append(key, value)
+  function parseHeaders(rawHeaders) {
+    var headers = new Headers()
+    rawHeaders.split(/\r?\n/).forEach(function(line) {
+      var parts = line.split(':')
+      var key = parts.shift().trim()
+      if (key) {
+        var value = parts.join(':').trim()
+        headers.append(key, value)
+      }
     })
-    return head
+    return headers
   }
 
   Body.call(Request.prototype)
@@ -9744,10 +9695,10 @@ module.exports = g;
     }
 
     this.type = 'default'
-    this.status = options.status
+    this.status = 'status' in options ? options.status : 200
     this.ok = this.status >= 200 && this.status < 300
-    this.statusText = options.statusText
-    this.headers = options.headers instanceof Headers ? options.headers : new Headers(options.headers)
+    this.statusText = 'statusText' in options ? options.statusText : 'OK'
+    this.headers = new Headers(options.headers)
     this.url = options.url || ''
     this._initBody(bodyInit)
   }
@@ -9785,35 +9736,16 @@ module.exports = g;
 
   self.fetch = function(input, init) {
     return new Promise(function(resolve, reject) {
-      var request
-      if (Request.prototype.isPrototypeOf(input) && !init) {
-        request = input
-      } else {
-        request = new Request(input, init)
-      }
-
+      var request = new Request(input, init)
       var xhr = new XMLHttpRequest()
-
-      function responseURL() {
-        if ('responseURL' in xhr) {
-          return xhr.responseURL
-        }
-
-        // Avoid security warnings on getResponseHeader when not allowed by CORS
-        if (/^X-Request-URL:/m.test(xhr.getAllResponseHeaders())) {
-          return xhr.getResponseHeader('X-Request-URL')
-        }
-
-        return
-      }
 
       xhr.onload = function() {
         var options = {
           status: xhr.status,
           statusText: xhr.statusText,
-          headers: headers(xhr),
-          url: responseURL()
+          headers: parseHeaders(xhr.getAllResponseHeaders() || '')
         }
+        options.url = 'responseURL' in xhr ? xhr.responseURL : options.headers.get('X-Request-URL')
         var body = 'response' in xhr ? xhr.response : xhr.responseText
         resolve(new Response(body, options))
       }

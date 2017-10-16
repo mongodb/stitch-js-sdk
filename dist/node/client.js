@@ -911,7 +911,32 @@ var Admin = function () {
                     }
                   };
                 },
-                pushNotifications: TODOnotImplemented,
+                pushNotifications: function pushNotifications() {
+                  return {
+                    list: function list(type) {
+                      return api._get(appUrl + '/push/notifications', { type: type });
+                    },
+                    create: function create(data) {
+                      return api._post(appUrl + '/push/notifications', data);
+                    },
+                    pushNotification: function pushNotification(messageId) {
+                      return {
+                        get: function get() {
+                          return api._get(appUrl + '/push/notifications/' + messageId);
+                        },
+                        update: function update(data) {
+                          return api._put(appUrl + '/push/notifications/' + messageId, data);
+                        },
+                        setType: function setType(type) {
+                          return api._put(appUrl + '/push/notifications/' + messageId + '/type', { type: type });
+                        },
+                        remove: function remove() {
+                          return api._delete(appUrl + '/push/notifications/' + messageId);
+                        }
+                      };
+                    }
+                  };
+                },
                 users: function users() {
                   return {
                     list: function list(filter) {
