@@ -1,4 +1,4 @@
-const stitch = require('../../src/client');
+const Admin = require('../../src/admin');
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
 const { DEFAULT_URI, DEFAULT_SERVER_URL } = require('../constants');
@@ -40,8 +40,8 @@ export default class StitchFixture {
     await this.mongo.db('auth').collection('groups').insert(userData.group);
     this.userData = userData;
 
-    this.admin = new stitch.Admin(this.options.baseUrl);
-    await this.admin.client.authenticate('apiKey', userData.apiKey.key);
+    this.admin = new Admin(this.options.baseUrl);
+    await this.admin.authenticate('apiKey', userData.apiKey.key);
     return;
   }
 

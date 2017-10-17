@@ -32,10 +32,7 @@ export default class Auth {
       return this.refreshImpersonation(this.client);
     }
 
-    const requestOptions = { refreshOnFailure: false, useRefreshToken: true };
-    return this.client._do('/auth/newAccessToken', 'POST', requestOptions)
-      .then(response => response.json())
-      .then(json => this.setAccessToken(json.accessToken));
+    return this.client.doSessionPost().then(json => this.setAccessToken(json.accessToken));
   }
 
   pageRootUrl() {
@@ -51,6 +48,10 @@ export default class Auth {
 
   error() {
     return this._error;
+  }
+
+  isClient() {
+    return !!this.client && (this.client.type === common.CLIENT_TYPE);
   }
 
   handleRedirect() {
@@ -161,7 +162,7 @@ export default class Auth {
   }
 
   getAccessToken() {
-    return this.get()['accessToken'];
+    return this.get()['accessToken'] || this.get()['access_token'];
   }
 
   getRefreshToken() {
@@ -169,15 +170,17 @@ export default class Auth {
   }
 
   set(json) {
-    if (json && json.refreshToken) {
-      let rt = json.refreshToken;
+    if (json && (json.refreshToken || json.refresh_token)) {
+      let rt = json.refreshToken || json.refresh_token;
       delete json.refreshToken;
+      delete json.refresh_token;
       this.storage.set(common.REFRESH_TOKEN_KEY, rt);
     }
 
-    if (json && json.deviceId) {
-      const deviceId = json.deviceId;
+    if (json && (json.deviceId || json.refresh_token)) {
+      const deviceId = json.deviceId || json.device_id;
       delete json.deviceId;
+      delete json.device_id;
       this.storage.set(common.DEVICE_ID_KEY, deviceId);
     }
 
@@ -203,11 +206,12 @@ export default class Auth {
 
   authedId() {
     const authData = this.get();
+
     if (authData.user) {
       return authData.user._id;
     }
 
-    return authData.userId;
+    return authData.userId || authData.user_id;
   }
 
   isImpersonatingUser() {

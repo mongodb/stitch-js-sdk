@@ -55,6 +55,9 @@ function anonProvider(auth) {
 
 /** @namespace */
 function userPassProvider(auth) {
+  const providerRoute = auth.isClient() ? 'local/userpass' : 'providers/local-userpass';
+  const loginRoute = auth.isClient() ? 'local/userpass' : `${providerRoute}/login`;
+
   return {
     /**
      * Login to a stitch application using username and password authentication
@@ -74,7 +77,7 @@ function userPassProvider(auth) {
       );
       fetchArgs.cors = true;
 
-      return fetch(`${auth.rootUrl}/local/userpass`, fetchArgs)
+      return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json));
@@ -92,7 +95,7 @@ function userPassProvider(auth) {
       const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId, token }));
       fetchArgs.cors = true;
 
-      return fetch(`${auth.rootUrl}/local/userpass/confirm`, fetchArgs)
+      return fetch(`${auth.rootUrl}/${providerRoute}/confirm`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json());
     },
@@ -110,7 +113,7 @@ function userPassProvider(auth) {
       const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email }));
       fetchArgs.cors = true;
 
-      return fetch(`${auth.rootUrl}/local/userpass/confirm/send`, fetchArgs)
+      return fetch(`${auth.rootUrl}/${providerRoute}/confirm/send`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json());
     },
@@ -127,7 +130,7 @@ function userPassProvider(auth) {
       const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email }));
       fetchArgs.cors = true;
 
-      return fetch(`${auth.rootUrl}/local/userpass/reset/send`, fetchArgs)
+      return fetch(`${auth.rootUrl}/${providerRoute}/reset/send`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json());
     },
@@ -148,7 +151,7 @@ function userPassProvider(auth) {
         common.makeFetchArgs('POST', JSON.stringify({ tokenId, token, password }));
       fetchArgs.cors = true;
 
-      return fetch(`${auth.rootUrl}/local/userpass/reset`, fetchArgs)
+      return fetch(`${auth.rootUrl}/${providerRoute}/reset`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json());
     },
@@ -169,7 +172,7 @@ function userPassProvider(auth) {
       const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email, password }));
       fetchArgs.cors = true;
 
-      return fetch(`${auth.rootUrl}/local/userpass/register`, fetchArgs)
+      return fetch(`${auth.rootUrl}/${providerRoute}/register`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json());
     }
@@ -178,6 +181,8 @@ function userPassProvider(auth) {
 
 /** @namespace */
 function apiKeyProvider(auth) {
+  const loginRoute = auth.isClient() ? 'api/key' : 'providers/api-key/login';
+
   return {
     /**
      * Login to a stitch application using an api key
@@ -195,7 +200,7 @@ function apiKeyProvider(auth) {
       );
       fetchArgs.cors = true;
 
-      return fetch(`${auth.rootUrl}/api/key`, fetchArgs)
+      return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json));
@@ -275,6 +280,8 @@ function facebookProvider(auth) {
 
 /** @namespace */
 function mongodbCloudProvider(auth) {
+  const loginRoute = auth.isClient() ? 'mongodb/cloud' : 'providers/mongodb-cloud/login';
+
   return {
     /**
      * Login to a stitch application using mongodb cloud authentication
@@ -295,7 +302,7 @@ function mongodbCloudProvider(auth) {
       fetchArgs.cors = true;  // TODO: shouldn't this use the passed in `cors` value?
       fetchArgs.credentials = 'include';
 
-      let url = `${auth.rootUrl}/mongodb/cloud`;
+      let url = `${auth.rootUrl}/${loginRoute}`;
       if (options.cookie) {
         return fetch(url + '?cookie=true', fetchArgs)
           .then(common.checkStatus);
