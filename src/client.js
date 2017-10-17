@@ -18,6 +18,7 @@ const EJSON = new ExtJSONModule();
 
 const v1 = 1;
 const v2 = 2;
+const v3 = 3;
 
 /**
  * Create a new StitchClient instance.
@@ -56,6 +57,13 @@ export default class StitchClient {
         app: (clientAppID ?
               `${baseUrl}/api/client/v2.0/app/${clientAppID}` :
               `${baseUrl}/api/public/v2.0`)
+      },
+      [v3]: {
+        public: `${baseUrl}/api/public/v3.0`,
+        client: `${baseUrl}/api/client/v3.0`,
+        app: (clientAppID ?
+              `${baseUrl}/api/client/v3.0/app/${clientAppID}` :
+              `${baseUrl}/api/public/v3.0`)
       }
     };
 

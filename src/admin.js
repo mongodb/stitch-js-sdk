@@ -7,6 +7,7 @@ import { ADMIN_CLIENT_CODEC } from './auth/common';
 
 const v1 = 1;
 const v2 = 2;
+const v3 = 3;
 
 export default class Admin extends StitchClient {
   constructor(baseUrl) {
@@ -15,6 +16,38 @@ export default class Admin extends StitchClient {
 
   get type() {
     return ADMIN_CLIENT_TYPE;
+  }
+
+  get _v3() {
+    const v3do = (url, method, options) =>
+      super._do(
+        url,
+        method,
+        Object.assign({}, {apiVersion: v3}, options)
+      ).then(response => {
+        const contentHeader = response.headers.get('content-type') || '';
+        if (contentHeader.split(',').indexOf('application/json') >= 0) {
+          return response.json();
+        }
+        return response;
+      });
+
+    return {
+      _get: (url, queryParams) => v3do(url, 'GET', {queryParams}),
+      _put: (url, data) =>
+        (data ?
+          v3do(url, 'PUT', {body: JSON.stringify(data)}) :
+          v3do(url, 'PUT')),
+      _patch: (url, data) =>
+        (data ?
+          v3do(url, 'PATCH', {body: JSON.stringify(data)}) :
+          v3do(url, 'PATCH')),
+      _delete: (url)  => v3do(url, 'DELETE'),
+      _post: (url, body, queryParams) =>
+        (queryParams ?
+          v3do(url, 'POST', { body: JSON.stringify(body), queryParams }) :
+          v3do(url, 'POST', { body: JSON.stringify(body) }))
+    };
   }
 
   get _v2() {
@@ -263,6 +296,7 @@ export default class Admin extends StitchClient {
 
   v2() {
     const api = this._v2;
+    const apiV3 = this._v3; // exists solely for function endpoints
     return {
       apps: (groupId)  => {
         const groupUrl = `/groups/${groupId}/apps`;
@@ -395,6 +429,17 @@ export default class Admin extends StitchClient {
                   remove: () => api._delete(`${appUrl}/api_keys/${apiKeyId}`),
                   enable: () => api._put(`${appUrl}/api_keys/${apiKeyId}/enable`),
                   disable: () => api._put(`${appUrl}/api_keys/${apiKeyId}/disable`)
+                })
+              }),
+              // Function endpoints are the only endpoints that are different between v2 and v3
+              // Take note that this branch leverages `apiV3` for hitting function endpoints
+              functions: () => ({
+                list: () => apiV3._get(`${appUrl}/functions`),
+                create: (data) => apiV3._post(`${appUrl}/functions`, data),
+                function: (functionId) => ({
+                  get: () => apiV3._get(`${appUrl}/functions/${functionId}`),
+                  update: (data) => apiV3._put(`${appUrl}/functions/${functionId}`, data),
+                  remove: () => apiV3._delete(`${appUrl}/functions/${functionId}`)
                 })
               })
             };
