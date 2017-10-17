@@ -248,6 +248,14 @@ class StitchClient {
       if (!this.authedId()) {
         return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
       }
+
+      // If local access token is expired, proactively get a new one
+      if (!options.useRefreshToken && this.auth.isAccessTokenExpired()) {
+        return this.auth.refreshToken().then(() => {
+          options.refreshOnFailure = false;
+          return this._do(resource, method, options);
+        });
+      }
     }
 
     const appURL = this.rootURLsByAPIVersion[options.apiVersion].app;

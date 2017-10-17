@@ -533,6 +533,100 @@ describe('login/logout', () => {
   }
 });
 
+describe('proactive token refresh', () => {
+  // access token with 5138-Nov-16 expiration
+  const testUnexpiredAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdC1hY2Nlc3MtdG9rZW4iLCJleHAiOjEwMDAwMDAwMDAwMH0.KMAoJOX8Dh9wvt-XzrUN_W6fnypsPrlu4e-AOyqSAGw';
+
+  // acesss token with 1970-Jan-01 expiration
+  const testExpiredAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdC1hY2Nlc3MtdG9rZW4iLCJleHAiOjF9.7tOdF0LXC_2iQMjNfZvQwwfLNiEj-dd0VT0adP5bpjo';
+
+  let validAccessTokens = [testUnexpiredAccessToken];
+  let count = 0;
+  let refreshCount = 0;
+
+  beforeEach(() => {
+    fetchMock.restore();
+
+    fetchMock.post(PIPELINE_URL, (url, opts) => {
+      const providedToken = opts.headers['Authorization'].split(' ')[1];
+      if (validAccessTokens.indexOf(providedToken) >= 0) {
+        // provided access token is valid
+        return {result: [{x: ++count}]};
+      }
+
+      throw new Error('invalid session would have been returned from server.');
+    });
+
+    count = 0;
+    refreshCount = 0;
+
+    fetchMock.post(NEW_ACCESSTOKEN_URL, (url, opts) => {
+      ++refreshCount;
+      return {accessToken: testUnexpiredAccessToken};
+    });
+  });
+
+  it('proactively fetches a new access token if the locally stored token is expired', () => {
+    expect.assertions(5);
+
+    fetchMock.post(LOCALAUTH_URL, {
+      userId: hexStr,
+      refreshToken: 'refresh-token',
+      accessToken: testExpiredAccessToken
+    });
+
+    let testClient = new StitchClient('testapp');
+    return testClient.login('user', 'password')
+      .then(() => {
+        // make sure we are starting with the expired access token
+        expect(testClient.auth.getAccessToken()).toEqual(testExpiredAccessToken);
+        return testClient.executePipeline([{action: 'literal', args: {items: [{x: 'foo'}]}}]);
+      })
+      .then(response => {
+        // token was expired, though it should yield the response we expect without throwing InvalidSession
+        expect(response.result[0].x).toEqual(1);
+      })
+      .then(() => {
+        // make sure token was updated
+        expect(refreshCount).toEqual(1);
+        expect(testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
+      })
+      .then(() => {
+        testClient.auth.storage.clear();
+        expect(testClient.authedId()).toBeFalsy();
+      });
+  });
+
+  it('does not fetch a new access token if the locally stored token is not expired/expiring', () => {
+    expect.assertions(5);
+
+    fetchMock.post(LOCALAUTH_URL, {
+      userId: hexStr,
+      refreshToken: 'refresh-token',
+      accessToken: testUnexpiredAccessToken
+    });
+
+    let testClient = new StitchClient('testapp');
+    return testClient.login('user', 'password')
+      .then(() => {
+        // make sure we are starting with the unexpired access token
+        expect(testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
+        return testClient.executePipeline([{action: 'literal', args: {items: [{x: 'foo'}]}}]);
+      })
+      .then(response => {
+        expect(response.result[0].x).toEqual(1);
+      })
+      .then(() => {
+        // make sure token was not updated
+        expect(refreshCount).toEqual(0);
+        expect(testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
+      })
+      .then(() => {
+        testClient.auth.storage.clear();
+        expect(testClient.authedId()).toBeFalsy();
+      });
+  });
+});
 
 describe('client options', () => {
   beforeEach(() => {
