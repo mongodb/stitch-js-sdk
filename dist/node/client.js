@@ -913,8 +913,8 @@ var Admin = function () {
                 },
                 pushNotifications: function pushNotifications() {
                   return {
-                    list: function list(type) {
-                      return api._get(appUrl + '/push/notifications', { type: type });
+                    list: function list(filter) {
+                      return api._get(appUrl + '/push/notifications', filter);
                     },
                     create: function create(data) {
                       return api._post(appUrl + '/push/notifications', data);
