@@ -619,7 +619,7 @@ class Admin {
                 })
               }),
               pushNotifications: () => ({
-                list: (type) => api._get(`${appUrl}/push/notifications`, { type }),
+                list: (filter) => api._get(`${appUrl}/push/notifications`, filter),
                 create: (data) => api._post(`${appUrl}/push/notifications`, data),
                 pushNotification: (messageId) => ({
                   get: () => api._get(`${appUrl}/push/notifications/${messageId}`),

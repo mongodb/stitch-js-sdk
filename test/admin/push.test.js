@@ -34,24 +34,24 @@ describe('Push Notifications V2', () => {
   };
 
   it('listing draft push notifications should return empty list', async () => {
-    let notifications = await pushNotifications.list(DRAFT_TYPE);
+    let notifications = await pushNotifications.list({ type: DRAFT_TYPE });
     expect(notifications).toHaveLength(0);
   });
 
   it('listing sent push notifications should return empty list', async () => {
-    let notifications = await pushNotifications.list(SENT_TYPE);
+    let notifications = await pushNotifications.list({ type: SENT_TYPE });
     expect(notifications).toHaveLength(0);
   });
 
   it('listing invalid push notifications should fail', async () => {
-    await expect(pushNotifications.list('invalid')).rejects.toBeDefined();
+    await expect(pushNotifications.list({ type: 'invalid' })).rejects.toBeDefined();
   });
 
   it('creating push notifications should work', async () => {
     let newNotification = await pushNotifications.create(testNotification);
     expect(newNotification.type).toEqual(DRAFT_TYPE);
 
-    let notifications = await pushNotifications.list(DRAFT_TYPE);
+    let notifications = await pushNotifications.list({ type: DRAFT_TYPE });
     expect(notifications).toHaveLength(1);
     expect(notifications[0].type).toEqual(DRAFT_TYPE);
   });
@@ -86,10 +86,10 @@ describe('Push Notifications V2', () => {
 
   it('deleting push notification should work', async () => {
     let newNotification = await pushNotifications.create(testNotification);
-    let notifications = await pushNotifications.list(DRAFT_TYPE);
+    let notifications = await pushNotifications.list({ type: DRAFT_TYPE });
     expect(notifications).toHaveLength(1);
     await pushNotifications.pushNotification(newNotification._id).remove();
-    notifications = await pushNotifications.list(DRAFT_TYPE);
+    notifications = await pushNotifications.list({ type: DRAFT_TYPE });
     expect(notifications).toHaveLength(0);
   });
 });
