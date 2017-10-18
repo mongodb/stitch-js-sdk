@@ -5,6 +5,8 @@ import { createProviders } from './providers';
 import { StitchError } from '../errors';
 import * as common from '../common';
 
+const jwtDecode = require('jwt-decode');
+
 export default class Auth {
   constructor(client, rootUrl, options) {
     options = Object.assign({}, {
@@ -137,6 +139,25 @@ export default class Auth {
 
   getDeviceId() {
     return this.storage.get(common.DEVICE_ID_KEY);
+  }
+
+  // Returns true if the access token is expired or is going to expire within 'withinSeconds' seconds,
+  // according to current system time. This threshold is 10 seconds by default to account for latency and clock drift.
+  // Returns false if the access token exists and is not expired nor expiring within 'withinSeconds' seconds.
+  // Returns undefined if the access token doesn't exist, is malformed, or does not have an 'exp' field.
+  isAccessTokenExpired(withinSeconds = 10) {
+    let token = this.getAccessToken();
+    if (token) {
+      try {
+        let decodedToken = jwtDecode(token);
+        if (decodedToken && decodedToken.exp) {
+          return Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
+        }
+      } catch (e) {
+        return undefined;
+      }
+    }
+    return undefined;
   }
 
   getAccessToken() {
