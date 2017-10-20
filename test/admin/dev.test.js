@@ -91,9 +91,9 @@ describe('Dev V2', () => {
     ], user._id);
 
     expect(result[0]).toEqual([
-        { '$numberDouble': '1' },
-        { '$numberDouble': '2' },
-        { '$numberDouble': '3' }
+        { '$numberInt': '1' },
+        { '$numberInt': '2' },
+        { '$numberInt': '3' }
     ]);
   });
 });

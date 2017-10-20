@@ -1,7 +1,7 @@
 /* global expect, it, describe, global, afterEach, beforeEach, afterAll, beforeAll, require, Buffer, Promise */
 const fetchMock = require('fetch-mock');
 const URL = require('url-parse');
-import { StitchClient } from '../src/client';
+import StitchClient from '../src/client';
 import { parseRedirectFragment, JSONTYPE, REFRESH_TOKEN_KEY, DEFAULT_STITCH_SERVER_URL } from '../src/common';
 import Auth from '../src/auth';
 import { mocks } from 'mock-browser';
@@ -130,6 +130,7 @@ describe('Auth', () => {
       beforeEach(() => {
         envConfig.setup();
         fetchMock.post('/auth/local/userpass', checkLogin);
+        fetchMock.post('/auth/providers/local-userpass/login', checkLogin);
         fetchMock.post(DEFAULT_STITCH_SERVER_URL + '/api/client/v1.0/app/testapp/auth/local/userpass', checkLogin);
         fetchMock.delete(DEFAULT_STITCH_SERVER_URL + '/api/client/v1.0/app/testapp/auth', {});
       });

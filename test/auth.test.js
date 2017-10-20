@@ -1,5 +1,5 @@
 import sinon from 'sinon';
-import { StitchClient } from '../src/client';
+import StitchClient from '../src/client';
 import * as common from '../src/common';
 
 function mockAuthData() {

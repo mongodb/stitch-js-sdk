@@ -11,7 +11,8 @@ async function testSetup(fixture) {
   await fixture.cleanTestNamespaces();
   const newApp = await fixture.admin.v2().apps(fixture.userData.group.groupId).create({name: 'test'});
   const app = fixture.admin.v2().apps(fixture.userData.group.groupId).app(newApp._id);
-  await app.authProviders().create({name: 'api-key', type: 'api-key', disabled: false});
+  const providers = await app.authProviders().list();
+  await app.authProviders().authProvider(providers[0]._id).enable();
   const newKey = await app.apiKeys().create({name: 'test'});
   const client = new stitch.StitchClient(newApp.client_app_id, {baseUrl: fixture.options.baseUrl});
   await client.authenticate('apiKey', newKey.key);

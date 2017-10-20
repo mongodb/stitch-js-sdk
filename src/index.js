@@ -1,4 +1,5 @@
-import { StitchClient, Admin } from './client';
+import StitchClient from './client';
+import Admin from './admin';
 import builtins from './builtins';
 
 export {
