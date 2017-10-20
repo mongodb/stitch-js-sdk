@@ -179,7 +179,7 @@ describe('Auth', () => {
           });
       });
 
-      it('should set device ID on successful local auth request', () => {
+      it.only('should set device ID on successful local auth request', () => {
         expect.assertions(2);
         const a = new Auth(null, '/auth');
         expect(a.getDeviceId()).toBeNull();

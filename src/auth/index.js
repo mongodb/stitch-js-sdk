@@ -7,6 +7,27 @@ import * as common from '../common';
 
 const jwtDecode = require('jwt-decode');
 
+const DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS = 10;
+
+const ACCESS_TOKEN_FIELD = 'accessToken';
+const REFRESH_TOKEN_FIELD = 'refreshToken';
+const DEVICE_ID_FIELD = 'deviceId';
+const USER_ID_FIELD = 'userId';
+
+const clientJSONFields = {
+  [ACCESS_TOKEN_FIELD]: 'accessToken',
+  [REFRESH_TOKEN_FIELD]: 'refreshToken',
+  [DEVICE_ID_FIELD]: 'deviceId',
+  [USER_ID_FIELD]: 'userId'
+};
+
+const adminJSONFields = {
+  [ACCESS_TOKEN_FIELD]: 'access_token',
+  [REFRESH_TOKEN_FIELD]: 'refresh_token',
+  [DEVICE_ID_FIELD]: 'device_id',
+  [USER_ID_FIELD]: 'user_id'
+};
+
 export default class Auth {
   constructor(client, rootUrl, options) {
     options = Object.assign({}, {
@@ -17,6 +38,12 @@ export default class Auth {
     this.rootUrl = rootUrl;
     this.storage = createStorage(options.storageType);
     this.providers = createProviders(this);
+
+    if (this.isClient()) {
+      this.jsonFields = clientJSONFields;
+    } else {
+      this.jsonFields = adminJSONFields;
+    }
   }
 
   provider(name) {
@@ -32,18 +59,11 @@ export default class Auth {
       return this.refreshImpersonation(this.client);
     }
 
-    return this.client.doSessionPost().then(json => this.setAccessToken(json.accessToken));
+    return this.client.doSessionPost().then(this.set);
   }
 
   pageRootUrl() {
     return [window.location.protocol, '//', window.location.host, window.location.pathname].join('');
-  }
-
-  setAccessToken(token) {
-    let currAuth = this.get();
-    currAuth.accessToken = token;
-    currAuth.refreshToken = this.storage.get(common.REFRESH_TOKEN_KEY);
-    this.set(currAuth);
   }
 
   error() {
@@ -51,7 +71,10 @@ export default class Auth {
   }
 
   isClient() {
-    return !!this.client && (this.client.type === common.CLIENT_TYPE);
+    if (!this.client) {
+      return true; // Handle the case where Auth is constructed with null
+    }
+    return this.client.type === common.CLIENT_TYPE;
   }
 
   handleRedirect() {
@@ -142,27 +165,29 @@ export default class Auth {
     return this.storage.get(common.DEVICE_ID_KEY);
   }
 
-  // Returns true if the access token is expired or is going to expire within 'withinSeconds' seconds,
-  // according to current system time. This threshold is 10 seconds by default to account for latency and clock drift.
-  // Returns false if the access token exists and is not expired nor expiring within 'withinSeconds' seconds.
-  // Returns undefined if the access token doesn't exist, is malformed, or does not have an 'exp' field.
-  isAccessTokenExpired(withinSeconds = 10) {
+  // Returns whether or not the access token is expired or is going to expire within 'withinSeconds'
+  // seconds, according to current system time. Returns false if the token is malformed in any way. 
+  isAccessTokenExpired(withinSeconds = DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS) {
     let token = this.getAccessToken();
-    if (token) {
-      try {
-        let decodedToken = jwtDecode(token);
-        if (decodedToken && decodedToken.exp) {
-          return Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
-        }
-      } catch (e) {
+    if (!token) {
+      return false;
+    }
+
+    let decodedToken;
+    try {
+      decodedToken = jwtDecode(token);
+      if (!decodedToken) {
         return false;
       }
+    } catch (e) {
+      return false;
     }
-    return false;
+    
+    return decodedToken.exp && Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
   }
 
   getAccessToken() {
-    return this.get()['accessToken'] || this.get()['access_token'];
+    return this.get()[this.jsonFields[ACCESS_TOKEN_FIELD]];
   }
 
   getRefreshToken() {
@@ -170,17 +195,19 @@ export default class Auth {
   }
 
   set(json) {
-    if (json && (json.refreshToken || json.refresh_token)) {
-      let rt = json.refreshToken || json.refresh_token;
-      delete json.refreshToken;
-      delete json.refresh_token;
+    if (!json) {
+      return json;
+    }
+
+    if (json[this.jsonFields[REFRESH_TOKEN_FIELD]]) {
+      let rt = json[this.jsonFields[REFRESH_TOKEN_FIELD]];
+      delete json[this.jsonFields[REFRESH_TOKEN_FIELD]];
       this.storage.set(common.REFRESH_TOKEN_KEY, rt);
     }
 
-    if (json && (json.deviceId || json.refresh_token)) {
-      const deviceId = json.deviceId || json.device_id;
-      delete json.deviceId;
-      delete json.device_id;
+    if (json[this.jsonFields[DEVICE_ID_FIELD]]) {
+      const deviceId = json[this.jsonFields[DEVICE_ID_FIELD]];
+      delete json[this.jsonFields[DEVICE_ID_FIELD]];
       this.storage.set(common.DEVICE_ID_KEY, deviceId);
     }
 
@@ -205,13 +232,7 @@ export default class Auth {
   }
 
   authedId() {
-    const authData = this.get();
-
-    if (authData.user) {
-      return authData.user._id;
-    }
-
-    return authData.userId || authData.user_id;
+    return this.get()[this.jsonFields[USER_ID_FIELD]];
   }
 
   isImpersonatingUser() {
@@ -222,10 +243,7 @@ export default class Auth {
     let userId = this.storage.get(common.IMPERSONATION_USER_KEY);
     return client._do(`/admin/users/${userId}/impersonate`, 'POST', { refreshOnFailure: false, useRefreshToken: true })
       .then(response => response.json())
-      .then(json => {
-        json.refreshToken = this.storage.get(common.REFRESH_TOKEN_KEY);
-        this.set(json);
-      })
+      .then(this.set)
       .catch(e => {
         this.stopImpersonation();
         throw e;  // rethrow
@@ -245,7 +263,7 @@ export default class Auth {
     this.storage.set(common.IMPERSONATION_USER_KEY, userId);
 
     let realUserAuth = JSON.parse(this.storage.get(common.USER_AUTH_KEY));
-    realUserAuth.refreshToken = this.storage.get(common.REFRESH_TOKEN_KEY);
+    realUserAuth[this.jsonFields[REFRESH_TOKEN_FIELD]] = this.storage.get(common.REFRESH_TOKEN_KEY);
     this.storage.set(common.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
     return this.refreshImpersonation(client);
   }
