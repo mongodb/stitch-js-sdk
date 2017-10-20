@@ -193,10 +193,10 @@ var Auth = function () {
             return Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
           }
         } catch (e) {
-          return undefined;
+          return false;
         }
       }
-      return undefined;
+      return false;
     }
   }, {
     key: 'getAccessToken',

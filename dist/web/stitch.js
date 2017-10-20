@@ -311,7 +311,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "1.1.1";
+  version = "1.1.2";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -4930,10 +4930,10 @@ var Auth = function () {
             return Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
           }
         } catch (e) {
-          return undefined;
+          return false;
         }
       }
-      return undefined;
+      return false;
     }
   }, {
     key: 'getAccessToken',
