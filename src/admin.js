@@ -2,18 +2,19 @@
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 import 'fetch-everywhere';
 import StitchClient from './client';
-import ADMIN_TYPE from './common';
+import ADMIN_CLIENT_TYPE from './common';
+import { ADMIN_CLIENT_CODEC } from './auth/common';
 
 const v1 = 1;
 const v2 = 2;
 
 export default class Admin extends StitchClient {
   constructor(baseUrl) {
-    super('', {baseUrl});
+    super('', {baseUrl, authCodec: ADMIN_CLIENT_CODEC});
   }
 
   get type() {
-    return ADMIN_TYPE;
+    return ADMIN_CLIENT_TYPE;
   }
 
   get _v2() {

@@ -2,7 +2,8 @@
 const fetchMock = require('fetch-mock');
 const URL = require('url-parse');
 import StitchClient from '../src/client';
-import { parseRedirectFragment, JSONTYPE, REFRESH_TOKEN_KEY, DEFAULT_STITCH_SERVER_URL } from '../src/common';
+import { JSONTYPE, DEFAULT_STITCH_SERVER_URL } from '../src/common';
+import { parseRedirectFragment, REFRESH_TOKEN_KEY } from '../src/auth/common';
 import Auth from '../src/auth';
 import { mocks } from 'mock-browser';
 
@@ -99,9 +100,11 @@ describe('Redirect fragment parsing', () => {
 
 describe('Auth', () => {
   const validUsernames = ['user'];
+  let capturedDevice;
   const checkLogin = (url, opts) => {
     const args = JSON.parse(opts.body);
 
+    capturedDevice = args.options.device;
     if (validUsernames.indexOf(args.username) >= 0) {
       return {
         userId: hexStr,
@@ -126,32 +129,34 @@ describe('Auth', () => {
     };
   };
   for (const envConfig of envConfigs) {
-    describe(envConfig.name, () => {
+    describe(envConfig.name, () => { // eslint-disable-line
       beforeEach(() => {
         envConfig.setup();
         fetchMock.post('/auth/local/userpass', checkLogin);
         fetchMock.post('/auth/providers/local-userpass/login', checkLogin);
         fetchMock.post(DEFAULT_STITCH_SERVER_URL + '/api/client/v1.0/app/testapp/auth/local/userpass', checkLogin);
         fetchMock.delete(DEFAULT_STITCH_SERVER_URL + '/api/client/v1.0/app/testapp/auth', {});
+        capturedDevice = undefined;
       });
 
       afterEach(() => {
         envConfig.teardown();
         fetchMock.restore();
+        capturedDevice = undefined;
       });
 
       it('get() set() clear() authedId() should work', () => {
         expect.assertions(4);
         const a = new Auth(null, '/auth');
-        expect(a.get()).toEqual({});
+        expect(a._get()).toEqual({});
 
-        const testUser = {'foo': 'bar', 'biz': 'baz', 'userId': hexStr};
+        const testUser = {'accessToken': 'bar', 'userId': hexStr};
         a.set(testUser);
-        expect(a.get()).toEqual(testUser);
+        expect(a._get()).toEqual(testUser);
         expect(a.authedId()).toEqual(hexStr);
 
         a.clear();
-        expect(a.get()).toEqual({});
+        expect(a._get()).toEqual({});
       });
 
       it('should local auth successfully', () => {
@@ -161,21 +166,19 @@ describe('Auth', () => {
           .then(() => expect(a.authedId()).toEqual(hexStr));
       });
 
-      // the mock API response just forwards the request body along, so we can
-      // inspect the device in this test to ensure the expected fields are sent
       it('should send device info with local auth request', () => {
         expect.assertions(6);
         const a = new Auth(null, '/auth');
         return a.provider('userpass').authenticate({ username: 'user', password: 'password' })
-          .then(({ device }) => {
-            expect('appId' in device).toBeTruthy();
-            expect('appVersion' in device).toBeTruthy();
-            expect('platform' in device).toBeTruthy();
-            expect('platformVersion' in device).toBeTruthy();
-            expect('sdkVersion' in device).toBeTruthy();
+          .then(() => {
+            expect('appId' in capturedDevice).toBeTruthy();
+            expect('appVersion' in capturedDevice).toBeTruthy();
+            expect('platform' in capturedDevice).toBeTruthy();
+            expect('platformVersion' in capturedDevice).toBeTruthy();
+            expect('sdkVersion' in capturedDevice).toBeTruthy();
 
             // a new Auth does not have a deviceId to send
-            expect('deviceId' in device).toBeFalsy();
+            expect('deviceId' in capturedDevice).toBeFalsy();
           });
       });
 
@@ -257,7 +260,7 @@ describe('Auth', () => {
           .then(() => {
             expect(auth.authedId()).toEqual(hexStr);
             expect(auth.getAccessToken()).toBeUndefined();
-            auth.setAccessToken('foo');
+            auth.set({'accessToken': 'foo'});
             expect(auth.getAccessToken()).toEqual('foo');
           });
       });
