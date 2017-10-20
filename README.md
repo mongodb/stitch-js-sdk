@@ -11,7 +11,7 @@ To transpile to pure JS, run `npm run build` which places the output into `dist/
 
 Construct a simple app-wide client:
 ```
-import { StitchClient } from 'stitch';
+import { StitchClient } from 'mongodb-stitch';
 let appId = 'sample-app-ovmyj';
 let stitchClient = new StitchClient(appId);
 ```
