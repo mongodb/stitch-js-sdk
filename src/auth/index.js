@@ -155,10 +155,10 @@ export default class Auth {
           return Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
         }
       } catch (e) {
-        return undefined;
+        return false;
       }
     }
-    return undefined;
+    return false;
   }
 
   getAccessToken() {
