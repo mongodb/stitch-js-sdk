@@ -72,3 +72,4 @@ var S3Service = function () {
 }();
 
 exports.default = (0, _util.letMixin)(S3Service);
+module.exports = exports['default'];

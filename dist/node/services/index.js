@@ -48,3 +48,4 @@ exports.default = {
   'slack': _slack_service2.default,
   'twilio': _twilio_service2.default
 };
+module.exports = exports['default'];

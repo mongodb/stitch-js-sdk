@@ -437,9 +437,6 @@ var Admin = function (_StitchClient) {
     key: 'v2',
     value: function v2() {
       var api = this._v2;
-      var TODOnotImplemented = function TODOnotImplemented() {
-        throw new Error('Not yet implemented');
-      };
       return {
         apps: function apps(groupId) {
           var groupUrl = '/groups/' + groupId + '/apps';
@@ -563,13 +560,13 @@ var Admin = function (_StitchClient) {
                         incomingWebhooks: function incomingWebhooks() {
                           return {
                             list: function list() {
-                              return api._get(appUrl + '/services/' + serviceId + '/incomingWebhooks');
+                              return api._get(appUrl + '/services/' + serviceId + '/incoming_webhooks');
                             },
                             create: function create(data) {
-                              return api._post(appUrl + '/services/' + serviceId + '/incomingWebhooks', data);
+                              return api._post(appUrl + '/services/' + serviceId + '/incoming_webhooks', data);
                             },
                             incomingWebhook: function incomingWebhook(incomingWebhookId) {
-                              var webhookUrl = appUrl + '/services/' + serviceId + '/incomingWebhooks/' + incomingWebhookId;
+                              var webhookUrl = appUrl + '/services/' + serviceId + '/incoming_webhooks/' + incomingWebhookId;
                               return {
                                 get: function get() {
                                   return api._get(webhookUrl);
@@ -674,7 +671,20 @@ var Admin = function (_StitchClient) {
                     }
                   };
                 },
-                security: TODOnotImplemented,
+                security: function security() {
+                  return {
+                    allowedRequestOrigins: function allowedRequestOrigins() {
+                      return {
+                        get: function get() {
+                          return api._get(appUrl + '/security/allowed_request_origins');
+                        },
+                        update: function update(data) {
+                          return api._post(appUrl + '/security/allowed_request_origins', data);
+                        }
+                      };
+                    }
+                  };
+                },
                 logs: function logs() {
                   return {
                     list: function list(filter) {
@@ -826,3 +836,4 @@ var Admin = function (_StitchClient) {
 }(_client2.default);
 
 exports.default = Admin;
+module.exports = exports['default'];

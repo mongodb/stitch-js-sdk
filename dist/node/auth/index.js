@@ -325,3 +325,4 @@ var Auth = function () {
 }();
 
 exports.default = Auth;
+module.exports = exports['default'];

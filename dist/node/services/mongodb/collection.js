@@ -328,3 +328,4 @@ function aggregateOp(self, pipeline, finalizer) {
   }, finalizer);
 }
 exports.default = (0, _util.letMixin)(Collection);
+module.exports = exports['default'];

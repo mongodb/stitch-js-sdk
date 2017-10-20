@@ -265,7 +265,6 @@ export default class Admin extends StitchClient {
 
   v2() {
     const api = this._v2;
-    const TODOnotImplemented = ()=>  { throw new Error('Not yet implemented'); };
     return {
       apps: (groupId)  => {
         const groupUrl = `/groups/${groupId}/apps`;
@@ -329,10 +328,10 @@ export default class Admin extends StitchClient {
                   }),
 
                   incomingWebhooks: () => ({
-                    list: () => api._get(`${appUrl}/services/${serviceId}/incomingWebhooks`),
-                    create: (data) => api._post(`${appUrl}/services/${serviceId}/incomingWebhooks`, data),
+                    list: () => api._get(`${appUrl}/services/${serviceId}/incoming_webhooks`),
+                    create: (data) => api._post(`${appUrl}/services/${serviceId}/incoming_webhooks`, data),
                     incomingWebhook: (incomingWebhookId) => {
-                      const webhookUrl = `${appUrl}/services/${serviceId}/incomingWebhooks/${incomingWebhookId}`;
+                      const webhookUrl = `${appUrl}/services/${serviceId}/incoming_webhooks/${incomingWebhookId}`;
                       return {
                         get: () => api._get(webhookUrl),
                         update: (data) => api._put(webhookUrl, data),
@@ -381,7 +380,12 @@ export default class Admin extends StitchClient {
                   remove: () => api._delete(`${appUrl}/auth_providers/${providerId}`)
                 })
               }),
-              security: TODOnotImplemented,
+              security: () => ({
+                allowedRequestOrigins: () => ({
+                  get: () => api._get(`${appUrl}/security/allowed_request_origins`),
+                  update: (data) => api._post(`${appUrl}/security/allowed_request_origins`, data)
+                })
+              }),
               logs: () => ({
                 list: (filter) => api._get(`${appUrl}/logs`, filter)
               }),
