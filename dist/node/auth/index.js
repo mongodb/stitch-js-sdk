@@ -20,6 +20,8 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var jwtDecode = require('jwt-decode');
+
 var Auth = function () {
   function Auth(client, rootUrl, options) {
     _classCallCheck(this, Auth);
@@ -52,10 +54,7 @@ var Auth = function () {
         return this.refreshImpersonation(this.client);
       }
 
-      var requestOptions = { refreshOnFailure: false, useRefreshToken: true };
-      return this.client._do('/auth/newAccessToken', 'POST', requestOptions).then(function (response) {
-        return response.json();
-      }).then(function (json) {
+      return this.client.doSessionPost().then(function (json) {
         return _this.setAccessToken(json.accessToken);
       });
     }
@@ -76,6 +75,11 @@ var Auth = function () {
     key: 'error',
     value: function error() {
       return this._error;
+    }
+  }, {
+    key: 'isClient',
+    value: function isClient() {
+      return !!this.client && this.client.type === common.CLIENT_TYPE;
     }
   }, {
     key: 'handleRedirect',
@@ -170,10 +174,34 @@ var Auth = function () {
     value: function getDeviceId() {
       return this.storage.get(common.DEVICE_ID_KEY);
     }
+
+    // Returns true if the access token is expired or is going to expire within 'withinSeconds' seconds,
+    // according to current system time. This threshold is 10 seconds by default to account for latency and clock drift.
+    // Returns false if the access token exists and is not expired nor expiring within 'withinSeconds' seconds.
+    // Returns undefined if the access token doesn't exist, is malformed, or does not have an 'exp' field.
+
+  }, {
+    key: 'isAccessTokenExpired',
+    value: function isAccessTokenExpired() {
+      var withinSeconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 10;
+
+      var token = this.getAccessToken();
+      if (token) {
+        try {
+          var decodedToken = jwtDecode(token);
+          if (decodedToken && decodedToken.exp) {
+            return Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
+          }
+        } catch (e) {
+          return undefined;
+        }
+      }
+      return undefined;
+    }
   }, {
     key: 'getAccessToken',
     value: function getAccessToken() {
-      return this.get()['accessToken'];
+      return this.get()['accessToken'] || this.get()['access_token'];
     }
   }, {
     key: 'getRefreshToken',
@@ -183,15 +211,17 @@ var Auth = function () {
   }, {
     key: 'set',
     value: function set(json) {
-      if (json && json.refreshToken) {
-        var rt = json.refreshToken;
+      if (json && (json.refreshToken || json.refresh_token)) {
+        var rt = json.refreshToken || json.refresh_token;
         delete json.refreshToken;
+        delete json.refresh_token;
         this.storage.set(common.REFRESH_TOKEN_KEY, rt);
       }
 
-      if (json && json.deviceId) {
-        var deviceId = json.deviceId;
+      if (json && (json.deviceId || json.refresh_token)) {
+        var deviceId = json.deviceId || json.device_id;
         delete json.deviceId;
+        delete json.device_id;
         this.storage.set(common.DEVICE_ID_KEY, deviceId);
       }
 
@@ -219,11 +249,12 @@ var Auth = function () {
     key: 'authedId',
     value: function authedId() {
       var authData = this.get();
+
       if (authData.user) {
         return authData.user._id;
       }
 
-      return authData.userId;
+      return authData.userId || authData.user_id;
     }
   }, {
     key: 'isImpersonatingUser',

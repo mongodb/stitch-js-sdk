@@ -14,12 +14,14 @@ var IMPERSONATION_ACTIVE_KEY = exports.IMPERSONATION_ACTIVE_KEY = '_stitch_imper
 var IMPERSONATION_USER_KEY = exports.IMPERSONATION_USER_KEY = '_stitch_impers_user';
 var IMPERSONATION_REAL_USER_AUTH_KEY = exports.IMPERSONATION_REAL_USER_AUTH_KEY = '_stitch_impers_real_ua';
 var USER_AUTH_COOKIE_NAME = exports.USER_AUTH_COOKIE_NAME = 'stitch_ua';
+var CLIENT_TYPE = exports.CLIENT_TYPE = 'client';
+var ADMIN_TYPE = exports.ADMIN_TYPE = 'admin';
 var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://stitch.mongodb.com';
 
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
-if (typeof "1.0.11" !== 'undefined') {
-  version = "1.0.11";
+if (typeof "1.1.0" !== 'undefined') {
+  version = "1.1.0";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
