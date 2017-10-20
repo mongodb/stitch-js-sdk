@@ -261,7 +261,7 @@ export default class StitchClient {
         return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
       }
 
-      // If local access token is expired, proactively get a new one
+      // If access token is expired, proactively get a new one
       if (!options.useRefreshToken && this.auth.isAccessTokenExpired()) {
         return this.auth.refreshToken().then(() => {
           options.refreshOnFailure = false;
