@@ -16,13 +16,15 @@ var _auth = require('./auth');
 
 var _auth2 = _interopRequireDefault(_auth);
 
+var _common = require('./auth/common');
+
 var _services = require('./services');
 
 var _services2 = _interopRequireDefault(_services);
 
-var _common = require('./common');
+var _common2 = require('./common');
 
-var common = _interopRequireWildcard(_common);
+var common = _interopRequireWildcard(_common2);
 
 var _mongodbExtjson = require('mongodb-extjson');
 
@@ -82,7 +84,11 @@ var StitchClient = function () {
       app: clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID : baseUrl + '/api/public/v2.0'
     }), _rootURLsByAPIVersion);
 
-    this.auth = new _auth2.default(this, this.authUrl);
+    var authOptions = { codec: _common.APP_CLIENT_CODEC };
+    if (options && options.authCodec) {
+      authOptions.codec = options.authCodec;
+    }
+    this.auth = new _auth2.default(this, this.authUrl, authOptions);
     this.auth.handleRedirect();
     this.auth.handleCookie();
 
@@ -106,6 +112,7 @@ var StitchClient = function () {
 
   _createClass(StitchClient, [{
     key: 'login',
+
 
     /**
      * Login to stitch instance, optionally providing a username and password. In
@@ -160,6 +167,8 @@ var StitchClient = function () {
   }, {
     key: 'authenticate',
     value: function authenticate(providerType) {
+      var _this2 = this;
+
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       // reuse existing auth if present
@@ -167,8 +176,8 @@ var StitchClient = function () {
         return Promise.resolve(this.auth.authedId());
       }
 
-      return this.auth.provider(providerType).authenticate(options).then(function (authData) {
-        return authData.userId;
+      return this.auth.provider(providerType).authenticate(options).then(function () {
+        return _this2.auth.authedId();
       });
     }
 
@@ -181,10 +190,10 @@ var StitchClient = function () {
   }, {
     key: 'logout',
     value: function logout() {
-      var _this2 = this;
+      var _this3 = this;
 
       return this._do('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function () {
-        return _this2.auth.clear();
+        return _this3.auth.clear();
       });
     }
 
@@ -329,7 +338,7 @@ var StitchClient = function () {
   }, {
     key: '_do',
     value: function _do(resource, method, options) {
-      var _this3 = this;
+      var _this4 = this;
 
       options = Object.assign({}, {
         refreshOnFailure: true,
@@ -342,11 +351,11 @@ var StitchClient = function () {
           return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
         }
 
-        // If local access token is expired, proactively get a new one
+        // If access token is expired, proactively get a new one
         if (!options.useRefreshToken && this.auth.isAccessTokenExpired()) {
           return this.auth.refreshToken().then(function () {
             options.refreshOnFailure = false;
-            return _this3._do(resource, method, options);
+            return _this4._do(resource, method, options);
           });
         }
       }
@@ -379,16 +388,16 @@ var StitchClient = function () {
             // Only want to try refreshing token when there's an invalid session
             if ('errorCode' in json && json.errorCode === _errors.ErrInvalidSession) {
               if (!options.refreshOnFailure) {
-                _this3.auth.clear();
+                _this4.auth.clear();
                 var _error = new _errors.StitchError(json.error, json.errorCode);
                 _error.response = response;
                 _error.json = json;
                 throw _error;
               }
 
-              return _this3.auth.refreshToken().then(function () {
+              return _this4.auth.refreshToken().then(function () {
                 options.refreshOnFailure = false;
-                return _this3._do(resource, method, options);
+                return _this4._do(resource, method, options);
               });
             }
 
@@ -420,7 +429,7 @@ var StitchClient = function () {
   }, {
     key: 'type',
     get: function get() {
-      return common.CLIENT_TYPE;
+      return common.APP_CLIENT_TYPE;
     }
   }]);
 

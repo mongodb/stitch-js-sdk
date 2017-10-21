@@ -12,9 +12,13 @@ var _providers = require('./providers');
 
 var _errors = require('../errors');
 
-var _common = require('../common');
+var _common = require('./common');
 
-var common = _interopRequireWildcard(_common);
+var authCommon = _interopRequireWildcard(_common);
+
+var _common2 = require('../common');
+
+var common = _interopRequireWildcard(_common2);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -27,11 +31,13 @@ var Auth = function () {
     _classCallCheck(this, Auth);
 
     options = Object.assign({}, {
-      storageType: 'localStorage'
+      storageType: 'localStorage',
+      codec: authCommon.APP_CLIENT_CODEC
     }, options);
 
     this.client = client;
     this.rootUrl = rootUrl;
+    this.codec = options.codec;
     this.storage = (0, _storage.createStorage)(options.storageType);
     this.providers = (0, _providers.createProviders)(this);
   }
@@ -55,7 +61,7 @@ var Auth = function () {
       }
 
       return this.client.doSessionPost().then(function (json) {
-        return _this.setAccessToken(json.accessToken);
+        return _this.set(json);
       });
     }
   }, {
@@ -64,22 +70,17 @@ var Auth = function () {
       return [window.location.protocol, '//', window.location.host, window.location.pathname].join('');
     }
   }, {
-    key: 'setAccessToken',
-    value: function setAccessToken(token) {
-      var currAuth = this.get();
-      currAuth.accessToken = token;
-      currAuth.refreshToken = this.storage.get(common.REFRESH_TOKEN_KEY);
-      this.set(currAuth);
-    }
-  }, {
     key: 'error',
     value: function error() {
       return this._error;
     }
   }, {
-    key: 'isClient',
-    value: function isClient() {
-      return !!this.client && this.client.type === common.CLIENT_TYPE;
+    key: 'isAppClient',
+    value: function isAppClient() {
+      if (!this.client) {
+        return true; // Handle the case where Auth is constructed with null
+      }
+      return this.client.type === common.APP_CLIENT_TYPE;
     }
   }, {
     key: 'handleRedirect',
@@ -93,9 +94,9 @@ var Auth = function () {
         return;
       }
 
-      var ourState = this.storage.get(common.STATE_KEY);
+      var ourState = this.storage.get(authCommon.STATE_KEY);
       var redirectFragment = window.location.hash.substring(1);
-      var redirectState = common.parseRedirectFragment(redirectFragment, ourState);
+      var redirectState = authCommon.parseRedirectFragment(redirectFragment, ourState);
       if (redirectState.lastError) {
         console.error('StitchClient: error from redirect: ' + redirectState.lastError);
         this._error = redirectState.lastError;
@@ -107,7 +108,7 @@ var Auth = function () {
         return;
       }
 
-      this.storage.remove(common.STATE_KEY);
+      this.storage.remove(authCommon.STATE_KEY);
       if (!redirectState.stateValid) {
         console.error('StitchClient: state values did not match!');
         window.history.replaceState(null, '', this.pageRootUrl());
@@ -152,86 +153,103 @@ var Auth = function () {
         return;
       }
 
-      var uaCookie = this.getCookie(common.USER_AUTH_COOKIE_NAME);
+      var uaCookie = this.getCookie(authCommon.USER_AUTH_COOKIE_NAME);
       if (!uaCookie) {
         return;
       }
 
-      document.cookie = common.USER_AUTH_COOKIE_NAME + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-      var userAuth = common.unmarshallUserAuth(uaCookie);
+      document.cookie = authCommon.USER_AUTH_COOKIE_NAME + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+      var userAuth = authCommon.unmarshallUserAuth(uaCookie);
       this.set(userAuth);
       window.history.replaceState(null, '', this.pageRootUrl());
     }
   }, {
     key: 'clear',
     value: function clear() {
-      this.storage.remove(common.USER_AUTH_KEY);
-      this.storage.remove(common.REFRESH_TOKEN_KEY);
+      this.storage.remove(authCommon.USER_AUTH_KEY);
+      this.storage.remove(authCommon.REFRESH_TOKEN_KEY);
       this.clearImpersonation();
     }
   }, {
     key: 'getDeviceId',
     value: function getDeviceId() {
-      return this.storage.get(common.DEVICE_ID_KEY);
+      return this.storage.get(authCommon.DEVICE_ID_KEY);
     }
 
-    // Returns true if the access token is expired or is going to expire within 'withinSeconds' seconds,
-    // according to current system time. This threshold is 10 seconds by default to account for latency and clock drift.
-    // Returns false if the access token exists and is not expired nor expiring within 'withinSeconds' seconds.
-    // Returns undefined if the access token doesn't exist, is malformed, or does not have an 'exp' field.
+    // Returns whether or not the access token is expired or is going to expire within 'withinSeconds'
+    // seconds, according to current system time. Returns false if the token is malformed in any way.
 
   }, {
     key: 'isAccessTokenExpired',
     value: function isAccessTokenExpired() {
-      var withinSeconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 10;
+      var withinSeconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : authCommon.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS;
 
       var token = this.getAccessToken();
-      if (token) {
-        try {
-          var decodedToken = jwtDecode(token);
-          if (decodedToken && decodedToken.exp) {
-            return Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
-          }
-        } catch (e) {
-          return false;
-        }
+      if (!token) {
+        return false;
       }
-      return false;
+
+      var decodedToken = void 0;
+      try {
+        decodedToken = jwtDecode(token);
+      } catch (e) {
+        return false;
+      }
+
+      if (!decodedToken) {
+        return false;
+      }
+
+      return decodedToken.exp && Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
     }
   }, {
     key: 'getAccessToken',
     value: function getAccessToken() {
-      return this.get()['accessToken'] || this.get()['access_token'];
+      return this._get().accessToken;
     }
   }, {
     key: 'getRefreshToken',
     value: function getRefreshToken() {
-      return this.storage.get(common.REFRESH_TOKEN_KEY);
+      return this.storage.get(authCommon.REFRESH_TOKEN_KEY);
     }
   }, {
     key: 'set',
     value: function set(json) {
-      if (json && (json.refreshToken || json.refresh_token)) {
-        var rt = json.refreshToken || json.refresh_token;
-        delete json.refreshToken;
-        delete json.refresh_token;
-        this.storage.set(common.REFRESH_TOKEN_KEY, rt);
+      if (!json) {
+        return;
       }
 
-      if (json && (json.deviceId || json.refresh_token)) {
-        var deviceId = json.deviceId || json.device_id;
-        delete json.deviceId;
-        delete json.device_id;
-        this.storage.set(common.DEVICE_ID_KEY, deviceId);
+      if (json[this.codec.refreshToken]) {
+        var rt = json[this.codec.refreshToken];
+        delete json[this.codec.refreshToken];
+        this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
       }
 
-      this.storage.set(common.USER_AUTH_KEY, JSON.stringify(json));
-      return json;
+      if (json[this.codec.deviceId]) {
+        var deviceId = json[this.codec.deviceId];
+        delete json[this.codec.deviceId];
+        this.storage.set(authCommon.DEVICE_ID_KEY, deviceId);
+      }
+
+      // Merge in new fields with old fields. Typically the first json value
+      // is complete with every field inside a user auth, but subsequent requests
+      // do not include everything. This merging behavior is safe so long as json
+      // value responses with absent fields do not indicate that the field should
+      // be unset.
+      var newUserAuth = {};
+      if (json[this.codec.accessToken]) {
+        newUserAuth.accessToken = json[this.codec.accessToken];
+      }
+      if (json[this.codec.userId]) {
+        newUserAuth.userId = json[this.codec.userId];
+      }
+      newUserAuth = Object.assign(this._get(), newUserAuth);
+      this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
     }
   }, {
-    key: 'get',
-    value: function get() {
-      var data = this.storage.get(common.USER_AUTH_KEY);
+    key: '_get',
+    value: function _get() {
+      var data = this.storage.get(authCommon.USER_AUTH_KEY);
       if (!data) {
         return {};
       }
@@ -248,30 +266,23 @@ var Auth = function () {
   }, {
     key: 'authedId',
     value: function authedId() {
-      var authData = this.get();
-
-      if (authData.user) {
-        return authData.user._id;
-      }
-
-      return authData.userId || authData.user_id;
+      return this._get().userId;
     }
   }, {
     key: 'isImpersonatingUser',
     value: function isImpersonatingUser() {
-      return this.storage.get(common.IMPERSONATION_ACTIVE_KEY) === 'true';
+      return this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY) === 'true';
     }
   }, {
     key: 'refreshImpersonation',
     value: function refreshImpersonation(client) {
       var _this2 = this;
 
-      var userId = this.storage.get(common.IMPERSONATION_USER_KEY);
+      var userId = this.storage.get(authCommon.IMPERSONATION_USER_KEY);
       return client._do('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
         return response.json();
       }).then(function (json) {
-        json.refreshToken = _this2.storage.get(common.REFRESH_TOKEN_KEY);
-        _this2.set(json);
+        return _this2.set(json);
       }).catch(function (e) {
         _this2.stopImpersonation();
         throw e; // rethrow
@@ -280,7 +291,7 @@ var Auth = function () {
   }, {
     key: 'startImpersonation',
     value: function startImpersonation(client, userId) {
-      if (this.get() === null) {
+      if (!this.authedId()) {
         return Promise.reject(new _errors.StitchError('Must auth first'));
       }
 
@@ -288,12 +299,11 @@ var Auth = function () {
         return Promise.reject(new _errors.StitchError('Already impersonating a user'));
       }
 
-      this.storage.set(common.IMPERSONATION_ACTIVE_KEY, 'true');
-      this.storage.set(common.IMPERSONATION_USER_KEY, userId);
+      this.storage.set(authCommon.IMPERSONATION_ACTIVE_KEY, 'true');
+      this.storage.set(authCommon.IMPERSONATION_USER_KEY, userId);
 
-      var realUserAuth = JSON.parse(this.storage.get(common.USER_AUTH_KEY));
-      realUserAuth.refreshToken = this.storage.get(common.REFRESH_TOKEN_KEY);
-      this.storage.set(common.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
+      var realUserAuth = JSON.parse(this.storage.get(authCommon.USER_AUTH_KEY));
+      this.storage.set(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
       return this.refreshImpersonation(client);
     }
   }, {
@@ -306,7 +316,7 @@ var Auth = function () {
       }
 
       return new Promise(function (resolve, reject) {
-        var realUserAuth = JSON.parse(_this3.storage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY));
+        var realUserAuth = JSON.parse(_this3.storage.get(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY));
         _this3.set(realUserAuth);
         _this3.clearImpersonation();
         resolve();
@@ -315,9 +325,9 @@ var Auth = function () {
   }, {
     key: 'clearImpersonation',
     value: function clearImpersonation() {
-      this.storage.remove(common.IMPERSONATION_ACTIVE_KEY);
-      this.storage.remove(common.IMPERSONATION_USER_KEY);
-      this.storage.remove(common.IMPERSONATION_REAL_USER_AUTH_KEY);
+      this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY);
+      this.storage.remove(authCommon.IMPERSONATION_USER_KEY);
+      this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
     }
   }]);
 

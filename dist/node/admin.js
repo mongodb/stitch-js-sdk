@@ -18,6 +18,8 @@ var _common = require('./common');
 
 var _common2 = _interopRequireDefault(_common);
 
+var _common3 = require('./auth/common');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -37,7 +39,7 @@ var Admin = function (_StitchClient) {
   function Admin(baseUrl) {
     _classCallCheck(this, Admin);
 
-    return _possibleConstructorReturn(this, (Admin.__proto__ || Object.getPrototypeOf(Admin)).call(this, '', { baseUrl: baseUrl }));
+    return _possibleConstructorReturn(this, (Admin.__proto__ || Object.getPrototypeOf(Admin)).call(this, '', { baseUrl: baseUrl, authCodec: _common3.ADMIN_CLIENT_CODEC }));
   }
 
   _createClass(Admin, [{

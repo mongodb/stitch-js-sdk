@@ -70,8 +70,8 @@ function anonProvider(auth) {
 
 /** @namespace */
 function userPassProvider(auth) {
-  var providerRoute = auth.isClient() ? 'local/userpass' : 'providers/local-userpass';
-  var loginRoute = auth.isClient() ? 'local/userpass' : providerRoute + '/login';
+  var providerRoute = auth.isAppClient() ? 'local/userpass' : 'providers/local-userpass';
+  var loginRoute = auth.isAppClient() ? 'local/userpass' : providerRoute + '/login';
 
   return {
     /**
@@ -195,7 +195,7 @@ function userPassProvider(auth) {
 
 /** @namespace */
 function apiKeyProvider(auth) {
-  var loginRoute = auth.isClient() ? 'api/key' : 'providers/api-key/login';
+  var loginRoute = auth.isAppClient() ? 'api/key' : 'providers/api-key/login';
 
   return {
     /**
@@ -292,7 +292,7 @@ function facebookProvider(auth) {
 
 /** @namespace */
 function mongodbCloudProvider(auth) {
-  var loginRoute = auth.isClient() ? 'mongodb/cloud' : 'providers/mongodb-cloud/login';
+  var loginRoute = auth.isAppClient() ? 'mongodb/cloud' : 'providers/mongodb-cloud/login';
 
   return {
     /**

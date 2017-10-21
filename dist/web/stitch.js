@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 16);
+/******/ 	return __webpack_require__(__webpack_require__.s = 17);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -90,11 +90,11 @@ exports.uriEncodeObject = exports.getPlatform = exports.letMixin = exports.servi
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-var _detectBrowser = __webpack_require__(29);
+var _detectBrowser = __webpack_require__(30);
 
 var platform = _interopRequireWildcard(_detectBrowser);
 
-var _Base = __webpack_require__(12);
+var _Base = __webpack_require__(13);
 
 var base64 = _interopRequireWildcard(_Base);
 
@@ -294,24 +294,14 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var JSONTYPE = exports.JSONTYPE = 'application/json';
-var USER_AUTH_KEY = exports.USER_AUTH_KEY = '_stitch_ua';
-var REFRESH_TOKEN_KEY = exports.REFRESH_TOKEN_KEY = '_stitch_rt';
-var DEVICE_ID_KEY = exports.DEVICE_ID_KEY = '_stitch_did';
-var STATE_KEY = exports.STATE_KEY = '_stitch_state';
-var STITCH_ERROR_KEY = exports.STITCH_ERROR_KEY = '_stitch_error';
-var STITCH_LINK_KEY = exports.STITCH_LINK_KEY = '_stitch_link';
-var IMPERSONATION_ACTIVE_KEY = exports.IMPERSONATION_ACTIVE_KEY = '_stitch_impers_active';
-var IMPERSONATION_USER_KEY = exports.IMPERSONATION_USER_KEY = '_stitch_impers_user';
-var IMPERSONATION_REAL_USER_AUTH_KEY = exports.IMPERSONATION_REAL_USER_AUTH_KEY = '_stitch_impers_real_ua';
-var USER_AUTH_COOKIE_NAME = exports.USER_AUTH_COOKIE_NAME = 'stitch_ua';
-var CLIENT_TYPE = exports.CLIENT_TYPE = 'client';
-var ADMIN_TYPE = exports.ADMIN_TYPE = 'admin';
+var APP_CLIENT_TYPE = exports.APP_CLIENT_TYPE = 'app';
+var ADMIN_CLIENT_TYPE = exports.ADMIN_CLIENT_TYPE = 'admin';
 var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://stitch.mongodb.com';
 
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "1.1.2";
+  version = "1.1.3";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -348,22 +338,40 @@ var makeFetchArgs = exports.makeFetchArgs = function makeFetchArgs(method, body)
   return init;
 };
 
-var marshallUserAuth = exports.marshallUserAuth = function marshallUserAuth(data) {
-  return data.accessToken + '$' + data.refreshToken + '$' + data.userId + '$' + data.deviceId;
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var USER_AUTH_KEY = exports.USER_AUTH_KEY = '_stitch_ua';
+var REFRESH_TOKEN_KEY = exports.REFRESH_TOKEN_KEY = '_stitch_rt';
+var DEVICE_ID_KEY = exports.DEVICE_ID_KEY = '_stitch_did';
+var STATE_KEY = exports.STATE_KEY = '_stitch_state';
+var IMPERSONATION_ACTIVE_KEY = exports.IMPERSONATION_ACTIVE_KEY = '_stitch_impers_active';
+var IMPERSONATION_USER_KEY = exports.IMPERSONATION_USER_KEY = '_stitch_impers_user';
+var IMPERSONATION_REAL_USER_AUTH_KEY = exports.IMPERSONATION_REAL_USER_AUTH_KEY = '_stitch_impers_real_ua';
+var USER_AUTH_COOKIE_NAME = exports.USER_AUTH_COOKIE_NAME = 'stitch_ua';
+var STITCH_ERROR_KEY = exports.STITCH_ERROR_KEY = '_stitch_error';
+var STITCH_LINK_KEY = exports.STITCH_LINK_KEY = '_stitch_link';
+var DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS = exports.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS = 10;
+
+var APP_CLIENT_CODEC = exports.APP_CLIENT_CODEC = {
+  'accessToken': 'accessToken',
+  'refreshToken': 'refreshToken',
+  'deviceId': 'deviceId',
+  'userId': 'userId'
 };
 
-var unmarshallUserAuth = exports.unmarshallUserAuth = function unmarshallUserAuth(data) {
-  var parts = data.split('$');
-  if (parts.length !== 4) {
-    throw new RangeError('invalid user auth data provided: ' + data);
-  }
-
-  return {
-    accessToken: parts[0],
-    refreshToken: parts[1],
-    userId: parts[2],
-    deviceId: parts[3]
-  };
+var ADMIN_CLIENT_CODEC = exports.ADMIN_CLIENT_CODEC = {
+  'accessToken': 'access_token',
+  'refreshToken': 'refresh_token',
+  'deviceId': 'device_id',
+  'userId': 'user_id'
 };
 
 var parseRedirectFragment = exports.parseRedirectFragment = function parseRedirectFragment(fragment, ourState) {
@@ -413,8 +421,22 @@ var parseRedirectFragment = exports.parseRedirectFragment = function parseRedire
   return result;
 };
 
+var unmarshallUserAuth = exports.unmarshallUserAuth = function unmarshallUserAuth(data) {
+  var parts = data.split('$');
+  if (parts.length !== 4) {
+    throw new RangeError('invalid user auth data provided: ' + data);
+  }
+
+  return {
+    accessToken: parts[0],
+    refreshToken: parts[1],
+    userId: parts[2],
+    deviceId: parts[3]
+  };
+};
+
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -474,7 +496,7 @@ exports.ErrInvalidSession = ErrInvalidSession;
 exports.ErrUnauthorized = ErrUnauthorized;
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1332,7 +1354,7 @@ module.exports = Long;
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1348,31 +1370,33 @@ var _createClass = function () { function defineProperties(target, props) { for 
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 
 
-__webpack_require__(6);
+__webpack_require__(7);
 
-var _auth = __webpack_require__(13);
+var _auth = __webpack_require__(14);
 
 var _auth2 = _interopRequireDefault(_auth);
 
-var _services = __webpack_require__(21);
+var _common = __webpack_require__(2);
+
+var _services = __webpack_require__(22);
 
 var _services2 = _interopRequireDefault(_services);
 
-var _common = __webpack_require__(1);
+var _common2 = __webpack_require__(1);
 
-var common = _interopRequireWildcard(_common);
+var common = _interopRequireWildcard(_common2);
 
-var _mongodbExtjson = __webpack_require__(7);
+var _mongodbExtjson = __webpack_require__(8);
 
 var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
-var _queryString = __webpack_require__(52);
+var _queryString = __webpack_require__(53);
 
 var _queryString2 = _interopRequireDefault(_queryString);
 
 var _util = __webpack_require__(0);
 
-var _errors = __webpack_require__(2);
+var _errors = __webpack_require__(3);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -1420,7 +1444,11 @@ var StitchClient = function () {
       app: clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID : baseUrl + '/api/public/v2.0'
     }), _rootURLsByAPIVersion);
 
-    this.auth = new _auth2.default(this, this.authUrl);
+    var authOptions = { codec: _common.APP_CLIENT_CODEC };
+    if (options && options.authCodec) {
+      authOptions.codec = options.authCodec;
+    }
+    this.auth = new _auth2.default(this, this.authUrl, authOptions);
     this.auth.handleRedirect();
     this.auth.handleCookie();
 
@@ -1444,6 +1472,7 @@ var StitchClient = function () {
 
   _createClass(StitchClient, [{
     key: 'login',
+
 
     /**
      * Login to stitch instance, optionally providing a username and password. In
@@ -1498,6 +1527,8 @@ var StitchClient = function () {
   }, {
     key: 'authenticate',
     value: function authenticate(providerType) {
+      var _this2 = this;
+
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       // reuse existing auth if present
@@ -1505,8 +1536,8 @@ var StitchClient = function () {
         return Promise.resolve(this.auth.authedId());
       }
 
-      return this.auth.provider(providerType).authenticate(options).then(function (authData) {
-        return authData.userId;
+      return this.auth.provider(providerType).authenticate(options).then(function () {
+        return _this2.auth.authedId();
       });
     }
 
@@ -1519,10 +1550,10 @@ var StitchClient = function () {
   }, {
     key: 'logout',
     value: function logout() {
-      var _this2 = this;
+      var _this3 = this;
 
       return this._do('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function () {
-        return _this2.auth.clear();
+        return _this3.auth.clear();
       });
     }
 
@@ -1667,7 +1698,7 @@ var StitchClient = function () {
   }, {
     key: '_do',
     value: function _do(resource, method, options) {
-      var _this3 = this;
+      var _this4 = this;
 
       options = Object.assign({}, {
         refreshOnFailure: true,
@@ -1680,11 +1711,11 @@ var StitchClient = function () {
           return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
         }
 
-        // If local access token is expired, proactively get a new one
+        // If access token is expired, proactively get a new one
         if (!options.useRefreshToken && this.auth.isAccessTokenExpired()) {
           return this.auth.refreshToken().then(function () {
             options.refreshOnFailure = false;
-            return _this3._do(resource, method, options);
+            return _this4._do(resource, method, options);
           });
         }
       }
@@ -1717,16 +1748,16 @@ var StitchClient = function () {
             // Only want to try refreshing token when there's an invalid session
             if ('errorCode' in json && json.errorCode === _errors.ErrInvalidSession) {
               if (!options.refreshOnFailure) {
-                _this3.auth.clear();
+                _this4.auth.clear();
                 var _error = new _errors.StitchError(json.error, json.errorCode);
                 _error.response = response;
                 _error.json = json;
                 throw _error;
               }
 
-              return _this3.auth.refreshToken().then(function () {
+              return _this4.auth.refreshToken().then(function () {
                 options.refreshOnFailure = false;
-                return _this3._do(resource, method, options);
+                return _this4._do(resource, method, options);
               });
             }
 
@@ -1758,7 +1789,7 @@ var StitchClient = function () {
   }, {
     key: 'type',
     get: function get() {
-      return common.CLIENT_TYPE;
+      return common.APP_CLIENT_TYPE;
     }
   }]);
 
@@ -1773,7 +1804,7 @@ StitchClient.prototype.anonymousAuth = (0, _util.deprecate)(StitchClient.prototy
 module.exports = exports['default'];
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1787,9 +1818,9 @@ module.exports = exports['default'];
 
 
 
-var base64 = __webpack_require__(28)
-var ieee754 = __webpack_require__(32)
-var isArray = __webpack_require__(33)
+var base64 = __webpack_require__(29)
+var ieee754 = __webpack_require__(33)
+var isArray = __webpack_require__(34)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -3567,51 +3598,51 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(54)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(55)))
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // the whatwg-fetch polyfill installs the fetch() function
 // on the global object (window or self)
 //
 // Return that as the export for use in Webpack, Browserify etc.
-__webpack_require__(55);
+__webpack_require__(56);
 var globalObj = typeof self !== 'undefined' && self || this;
 module.exports = globalObj.fetch.bind(globalObj);
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var ExtJSON = __webpack_require__(49);
-ExtJSON.BSON = __webpack_require__(8);
-
-module.exports = ExtJSON;
 
 
 /***/ }),
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var ExtJSON = __webpack_require__(50);
+ExtJSON.BSON = __webpack_require__(9);
+
+module.exports = ExtJSON;
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
 "use strict";
 
 
-var Binary = __webpack_require__(37);
-var Code = __webpack_require__(38);
-var DBRef = __webpack_require__(39);
-var Decimal128 = __webpack_require__(40);
-var Double = __webpack_require__(41);
-var Int32 = __webpack_require__(42);
-var Long = __webpack_require__(3);
-var MaxKey = __webpack_require__(43);
-var MinKey = __webpack_require__(44);
-var ObjectID = __webpack_require__(45);
-var BSONRegExp = __webpack_require__(46);
-var Symbol = __webpack_require__(47);
-var Timestamp = __webpack_require__(48);
+var Binary = __webpack_require__(38);
+var Code = __webpack_require__(39);
+var DBRef = __webpack_require__(40);
+var Decimal128 = __webpack_require__(41);
+var Double = __webpack_require__(42);
+var Int32 = __webpack_require__(43);
+var Long = __webpack_require__(4);
+var MaxKey = __webpack_require__(44);
+var MinKey = __webpack_require__(45);
+var ObjectID = __webpack_require__(46);
+var BSONRegExp = __webpack_require__(47);
+var Symbol = __webpack_require__(48);
+var Timestamp = __webpack_require__(49);
 
 module.exports = {
   Binary: Binary, Code: Code, DBRef: DBRef, Decimal128: Decimal128, Double: Double,
@@ -3621,7 +3652,7 @@ module.exports = {
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3678,7 +3709,7 @@ module.exports = {
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3692,15 +3723,17 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-__webpack_require__(6);
+__webpack_require__(7);
 
-var _client = __webpack_require__(4);
+var _client = __webpack_require__(5);
 
 var _client2 = _interopRequireDefault(_client);
 
 var _common = __webpack_require__(1);
 
 var _common2 = _interopRequireDefault(_common);
+
+var _common3 = __webpack_require__(2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3721,7 +3754,7 @@ var Admin = function (_StitchClient) {
   function Admin(baseUrl) {
     _classCallCheck(this, Admin);
 
-    return _possibleConstructorReturn(this, (Admin.__proto__ || Object.getPrototypeOf(Admin)).call(this, '', { baseUrl: baseUrl }));
+    return _possibleConstructorReturn(this, (Admin.__proto__ || Object.getPrototypeOf(Admin)).call(this, '', { baseUrl: baseUrl, authCodec: _common3.ADMIN_CLIENT_CODEC }));
   }
 
   _createClass(Admin, [{
@@ -4523,7 +4556,7 @@ exports.default = Admin;
 module.exports = exports['default'];
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4533,7 +4566,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _errors = __webpack_require__(2);
+var _errors = __webpack_require__(3);
 
 exports.default = {
   /**
@@ -4660,7 +4693,7 @@ exports.default = {
 module.exports = exports['default'];
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function () {
@@ -4731,7 +4764,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4743,32 +4776,38 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, document, fetch */
 
-var _storage = __webpack_require__(15);
+var _storage = __webpack_require__(16);
 
-var _providers = __webpack_require__(14);
+var _providers = __webpack_require__(15);
 
-var _errors = __webpack_require__(2);
+var _errors = __webpack_require__(3);
 
-var _common = __webpack_require__(1);
+var _common = __webpack_require__(2);
 
-var common = _interopRequireWildcard(_common);
+var authCommon = _interopRequireWildcard(_common);
+
+var _common2 = __webpack_require__(1);
+
+var common = _interopRequireWildcard(_common2);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var jwtDecode = __webpack_require__(36);
+var jwtDecode = __webpack_require__(37);
 
 var Auth = function () {
   function Auth(client, rootUrl, options) {
     _classCallCheck(this, Auth);
 
     options = Object.assign({}, {
-      storageType: 'localStorage'
+      storageType: 'localStorage',
+      codec: authCommon.APP_CLIENT_CODEC
     }, options);
 
     this.client = client;
     this.rootUrl = rootUrl;
+    this.codec = options.codec;
     this.storage = (0, _storage.createStorage)(options.storageType);
     this.providers = (0, _providers.createProviders)(this);
   }
@@ -4792,7 +4831,7 @@ var Auth = function () {
       }
 
       return this.client.doSessionPost().then(function (json) {
-        return _this.setAccessToken(json.accessToken);
+        return _this.set(json);
       });
     }
   }, {
@@ -4801,22 +4840,17 @@ var Auth = function () {
       return [window.location.protocol, '//', window.location.host, window.location.pathname].join('');
     }
   }, {
-    key: 'setAccessToken',
-    value: function setAccessToken(token) {
-      var currAuth = this.get();
-      currAuth.accessToken = token;
-      currAuth.refreshToken = this.storage.get(common.REFRESH_TOKEN_KEY);
-      this.set(currAuth);
-    }
-  }, {
     key: 'error',
     value: function error() {
       return this._error;
     }
   }, {
-    key: 'isClient',
-    value: function isClient() {
-      return !!this.client && this.client.type === common.CLIENT_TYPE;
+    key: 'isAppClient',
+    value: function isAppClient() {
+      if (!this.client) {
+        return true; // Handle the case where Auth is constructed with null
+      }
+      return this.client.type === common.APP_CLIENT_TYPE;
     }
   }, {
     key: 'handleRedirect',
@@ -4830,9 +4864,9 @@ var Auth = function () {
         return;
       }
 
-      var ourState = this.storage.get(common.STATE_KEY);
+      var ourState = this.storage.get(authCommon.STATE_KEY);
       var redirectFragment = window.location.hash.substring(1);
-      var redirectState = common.parseRedirectFragment(redirectFragment, ourState);
+      var redirectState = authCommon.parseRedirectFragment(redirectFragment, ourState);
       if (redirectState.lastError) {
         console.error('StitchClient: error from redirect: ' + redirectState.lastError);
         this._error = redirectState.lastError;
@@ -4844,7 +4878,7 @@ var Auth = function () {
         return;
       }
 
-      this.storage.remove(common.STATE_KEY);
+      this.storage.remove(authCommon.STATE_KEY);
       if (!redirectState.stateValid) {
         console.error('StitchClient: state values did not match!');
         window.history.replaceState(null, '', this.pageRootUrl());
@@ -4889,86 +4923,103 @@ var Auth = function () {
         return;
       }
 
-      var uaCookie = this.getCookie(common.USER_AUTH_COOKIE_NAME);
+      var uaCookie = this.getCookie(authCommon.USER_AUTH_COOKIE_NAME);
       if (!uaCookie) {
         return;
       }
 
-      document.cookie = common.USER_AUTH_COOKIE_NAME + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-      var userAuth = common.unmarshallUserAuth(uaCookie);
+      document.cookie = authCommon.USER_AUTH_COOKIE_NAME + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+      var userAuth = authCommon.unmarshallUserAuth(uaCookie);
       this.set(userAuth);
       window.history.replaceState(null, '', this.pageRootUrl());
     }
   }, {
     key: 'clear',
     value: function clear() {
-      this.storage.remove(common.USER_AUTH_KEY);
-      this.storage.remove(common.REFRESH_TOKEN_KEY);
+      this.storage.remove(authCommon.USER_AUTH_KEY);
+      this.storage.remove(authCommon.REFRESH_TOKEN_KEY);
       this.clearImpersonation();
     }
   }, {
     key: 'getDeviceId',
     value: function getDeviceId() {
-      return this.storage.get(common.DEVICE_ID_KEY);
+      return this.storage.get(authCommon.DEVICE_ID_KEY);
     }
 
-    // Returns true if the access token is expired or is going to expire within 'withinSeconds' seconds,
-    // according to current system time. This threshold is 10 seconds by default to account for latency and clock drift.
-    // Returns false if the access token exists and is not expired nor expiring within 'withinSeconds' seconds.
-    // Returns undefined if the access token doesn't exist, is malformed, or does not have an 'exp' field.
+    // Returns whether or not the access token is expired or is going to expire within 'withinSeconds'
+    // seconds, according to current system time. Returns false if the token is malformed in any way.
 
   }, {
     key: 'isAccessTokenExpired',
     value: function isAccessTokenExpired() {
-      var withinSeconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 10;
+      var withinSeconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : authCommon.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS;
 
       var token = this.getAccessToken();
-      if (token) {
-        try {
-          var decodedToken = jwtDecode(token);
-          if (decodedToken && decodedToken.exp) {
-            return Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
-          }
-        } catch (e) {
-          return false;
-        }
+      if (!token) {
+        return false;
       }
-      return false;
+
+      var decodedToken = void 0;
+      try {
+        decodedToken = jwtDecode(token);
+      } catch (e) {
+        return false;
+      }
+
+      if (!decodedToken) {
+        return false;
+      }
+
+      return decodedToken.exp && Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
     }
   }, {
     key: 'getAccessToken',
     value: function getAccessToken() {
-      return this.get()['accessToken'] || this.get()['access_token'];
+      return this._get().accessToken;
     }
   }, {
     key: 'getRefreshToken',
     value: function getRefreshToken() {
-      return this.storage.get(common.REFRESH_TOKEN_KEY);
+      return this.storage.get(authCommon.REFRESH_TOKEN_KEY);
     }
   }, {
     key: 'set',
     value: function set(json) {
-      if (json && (json.refreshToken || json.refresh_token)) {
-        var rt = json.refreshToken || json.refresh_token;
-        delete json.refreshToken;
-        delete json.refresh_token;
-        this.storage.set(common.REFRESH_TOKEN_KEY, rt);
+      if (!json) {
+        return;
       }
 
-      if (json && (json.deviceId || json.refresh_token)) {
-        var deviceId = json.deviceId || json.device_id;
-        delete json.deviceId;
-        delete json.device_id;
-        this.storage.set(common.DEVICE_ID_KEY, deviceId);
+      if (json[this.codec.refreshToken]) {
+        var rt = json[this.codec.refreshToken];
+        delete json[this.codec.refreshToken];
+        this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
       }
 
-      this.storage.set(common.USER_AUTH_KEY, JSON.stringify(json));
-      return json;
+      if (json[this.codec.deviceId]) {
+        var deviceId = json[this.codec.deviceId];
+        delete json[this.codec.deviceId];
+        this.storage.set(authCommon.DEVICE_ID_KEY, deviceId);
+      }
+
+      // Merge in new fields with old fields. Typically the first json value
+      // is complete with every field inside a user auth, but subsequent requests
+      // do not include everything. This merging behavior is safe so long as json
+      // value responses with absent fields do not indicate that the field should
+      // be unset.
+      var newUserAuth = {};
+      if (json[this.codec.accessToken]) {
+        newUserAuth.accessToken = json[this.codec.accessToken];
+      }
+      if (json[this.codec.userId]) {
+        newUserAuth.userId = json[this.codec.userId];
+      }
+      newUserAuth = Object.assign(this._get(), newUserAuth);
+      this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
     }
   }, {
-    key: 'get',
-    value: function get() {
-      var data = this.storage.get(common.USER_AUTH_KEY);
+    key: '_get',
+    value: function _get() {
+      var data = this.storage.get(authCommon.USER_AUTH_KEY);
       if (!data) {
         return {};
       }
@@ -4985,30 +5036,23 @@ var Auth = function () {
   }, {
     key: 'authedId',
     value: function authedId() {
-      var authData = this.get();
-
-      if (authData.user) {
-        return authData.user._id;
-      }
-
-      return authData.userId || authData.user_id;
+      return this._get().userId;
     }
   }, {
     key: 'isImpersonatingUser',
     value: function isImpersonatingUser() {
-      return this.storage.get(common.IMPERSONATION_ACTIVE_KEY) === 'true';
+      return this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY) === 'true';
     }
   }, {
     key: 'refreshImpersonation',
     value: function refreshImpersonation(client) {
       var _this2 = this;
 
-      var userId = this.storage.get(common.IMPERSONATION_USER_KEY);
+      var userId = this.storage.get(authCommon.IMPERSONATION_USER_KEY);
       return client._do('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
         return response.json();
       }).then(function (json) {
-        json.refreshToken = _this2.storage.get(common.REFRESH_TOKEN_KEY);
-        _this2.set(json);
+        return _this2.set(json);
       }).catch(function (e) {
         _this2.stopImpersonation();
         throw e; // rethrow
@@ -5017,7 +5061,7 @@ var Auth = function () {
   }, {
     key: 'startImpersonation',
     value: function startImpersonation(client, userId) {
-      if (this.get() === null) {
+      if (!this.authedId()) {
         return Promise.reject(new _errors.StitchError('Must auth first'));
       }
 
@@ -5025,12 +5069,11 @@ var Auth = function () {
         return Promise.reject(new _errors.StitchError('Already impersonating a user'));
       }
 
-      this.storage.set(common.IMPERSONATION_ACTIVE_KEY, 'true');
-      this.storage.set(common.IMPERSONATION_USER_KEY, userId);
+      this.storage.set(authCommon.IMPERSONATION_ACTIVE_KEY, 'true');
+      this.storage.set(authCommon.IMPERSONATION_USER_KEY, userId);
 
-      var realUserAuth = JSON.parse(this.storage.get(common.USER_AUTH_KEY));
-      realUserAuth.refreshToken = this.storage.get(common.REFRESH_TOKEN_KEY);
-      this.storage.set(common.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
+      var realUserAuth = JSON.parse(this.storage.get(authCommon.USER_AUTH_KEY));
+      this.storage.set(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
       return this.refreshImpersonation(client);
     }
   }, {
@@ -5043,7 +5086,7 @@ var Auth = function () {
       }
 
       return new Promise(function (resolve, reject) {
-        var realUserAuth = JSON.parse(_this3.storage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY));
+        var realUserAuth = JSON.parse(_this3.storage.get(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY));
         _this3.set(realUserAuth);
         _this3.clearImpersonation();
         resolve();
@@ -5052,9 +5095,9 @@ var Auth = function () {
   }, {
     key: 'clearImpersonation',
     value: function clearImpersonation() {
-      this.storage.remove(common.IMPERSONATION_ACTIVE_KEY);
-      this.storage.remove(common.IMPERSONATION_USER_KEY);
-      this.storage.remove(common.IMPERSONATION_REAL_USER_AUTH_KEY);
+      this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY);
+      this.storage.remove(authCommon.IMPERSONATION_USER_KEY);
+      this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
     }
   }]);
 
@@ -5065,7 +5108,7 @@ exports.default = Auth;
 module.exports = exports['default'];
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5141,8 +5184,8 @@ function anonProvider(auth) {
 
 /** @namespace */
 function userPassProvider(auth) {
-  var providerRoute = auth.isClient() ? 'local/userpass' : 'providers/local-userpass';
-  var loginRoute = auth.isClient() ? 'local/userpass' : providerRoute + '/login';
+  var providerRoute = auth.isAppClient() ? 'local/userpass' : 'providers/local-userpass';
+  var loginRoute = auth.isAppClient() ? 'local/userpass' : providerRoute + '/login';
 
   return {
     /**
@@ -5266,7 +5309,7 @@ function userPassProvider(auth) {
 
 /** @namespace */
 function apiKeyProvider(auth) {
-  var loginRoute = auth.isClient() ? 'api/key' : 'providers/api-key/login';
+  var loginRoute = auth.isAppClient() ? 'api/key' : 'providers/api-key/login';
 
   return {
     /**
@@ -5363,7 +5406,7 @@ function facebookProvider(auth) {
 
 /** @namespace */
 function mongodbCloudProvider(auth) {
-  var loginRoute = auth.isClient() ? 'mongodb/cloud' : 'providers/mongodb-cloud/login';
+  var loginRoute = auth.isAppClient() ? 'mongodb/cloud' : 'providers/mongodb-cloud/login';
 
   return {
     /**
@@ -5417,7 +5460,7 @@ function createProviders(auth) {
 exports.createProviders = createProviders;
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5516,7 +5559,7 @@ function createStorage(type) {
 }
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5527,15 +5570,15 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.builtins = exports.Admin = exports.StitchClient = undefined;
 
-var _client = __webpack_require__(4);
+var _client = __webpack_require__(5);
 
 var _client2 = _interopRequireDefault(_client);
 
-var _admin = __webpack_require__(10);
+var _admin = __webpack_require__(11);
 
 var _admin2 = _interopRequireDefault(_admin);
 
-var _builtins = __webpack_require__(11);
+var _builtins = __webpack_require__(12);
 
 var _builtins2 = _interopRequireDefault(_builtins);
 
@@ -5546,7 +5589,7 @@ exports.Admin = _admin2.default;
 exports.builtins = _builtins2.default;
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5627,7 +5670,7 @@ exports.default = (0, _util.letMixin)(S3Service);
 module.exports = exports['default'];
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5687,7 +5730,7 @@ exports.default = (0, _util.letMixin)(SESService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5756,7 +5799,7 @@ exports.default = (0, _util.letMixin)(SQSService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5923,7 +5966,7 @@ exports.default = (0, _util.letMixin)(HTTPService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5933,35 +5976,35 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _s3_service = __webpack_require__(17);
+var _s3_service = __webpack_require__(18);
 
 var _s3_service2 = _interopRequireDefault(_s3_service);
 
-var _ses_service = __webpack_require__(18);
+var _ses_service = __webpack_require__(19);
 
 var _ses_service2 = _interopRequireDefault(_ses_service);
 
-var _sqs_service = __webpack_require__(19);
+var _sqs_service = __webpack_require__(20);
 
 var _sqs_service2 = _interopRequireDefault(_sqs_service);
 
-var _http_service = __webpack_require__(20);
+var _http_service = __webpack_require__(21);
 
 var _http_service2 = _interopRequireDefault(_http_service);
 
-var _mongodb_service = __webpack_require__(24);
+var _mongodb_service = __webpack_require__(25);
 
 var _mongodb_service2 = _interopRequireDefault(_mongodb_service);
 
-var _pubnub_service = __webpack_require__(25);
+var _pubnub_service = __webpack_require__(26);
 
 var _pubnub_service2 = _interopRequireDefault(_pubnub_service);
 
-var _slack_service = __webpack_require__(26);
+var _slack_service = __webpack_require__(27);
 
 var _slack_service2 = _interopRequireDefault(_slack_service);
 
-var _twilio_service = __webpack_require__(27);
+var _twilio_service = __webpack_require__(28);
 
 var _twilio_service2 = _interopRequireDefault(_twilio_service);
 
@@ -5980,7 +6023,7 @@ exports.default = {
 module.exports = exports['default'];
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5994,7 +6037,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _util = __webpack_require__(0);
 
-var _mongodbExtjson = __webpack_require__(7);
+var _mongodbExtjson = __webpack_require__(8);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -6317,7 +6360,7 @@ exports.default = (0, _util.letMixin)(Collection);
 module.exports = exports['default'];
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6329,7 +6372,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _collection = __webpack_require__(22);
+var _collection = __webpack_require__(23);
 
 var _collection2 = _interopRequireDefault(_collection);
 
@@ -6384,7 +6427,7 @@ exports.default = DB;
 module.exports = exports['default'];
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6396,7 +6439,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _db = __webpack_require__(23);
+var _db = __webpack_require__(24);
 
 var _db2 = _interopRequireDefault(_db);
 
@@ -6451,7 +6494,7 @@ exports.default = MongoDBService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6509,7 +6552,7 @@ exports.default = (0, _util.letMixin)(PubnubService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6580,7 +6623,7 @@ exports.default = (0, _util.letMixin)(SlackService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6639,7 +6682,7 @@ exports.default = (0, _util.letMixin)(TwilioService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6760,10 +6803,10 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var detectBrowser = __webpack_require__(30);
+var detectBrowser = __webpack_require__(31);
 
 var agent;
 
@@ -6775,10 +6818,10 @@ module.exports = detectBrowser(agent);
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var detectOS = __webpack_require__(31);
+var detectOS = __webpack_require__(32);
 
 module.exports = function detectBrowser(userAgentString) {
   if (!userAgentString) return null;
@@ -6824,7 +6867,7 @@ module.exports = function detectBrowser(userAgentString) {
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports) {
 
 module.exports = function detectOS(userAgentString) {
@@ -6942,7 +6985,7 @@ module.exports = function detectOS(userAgentString) {
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -7032,7 +7075,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -7043,7 +7086,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports) {
 
 /**
@@ -7087,10 +7130,10 @@ module.exports = typeof window !== 'undefined' && window.atob && window.atob.bin
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var atob = __webpack_require__(34);
+var atob = __webpack_require__(35);
 
 function b64DecodeUnicode(str) {
   return decodeURIComponent(atob(str).replace(/(.)/g, function (m, p) {
@@ -7126,13 +7169,13 @@ module.exports = function(str) {
 
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var base64_url_decode = __webpack_require__(35);
+var base64_url_decode = __webpack_require__(36);
 
 function InvalidTokenError(message) {
   this.message = message;
@@ -7159,13 +7202,13 @@ module.exports.InvalidTokenError = InvalidTokenError;
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(Buffer) {
 
-var btoa = __webpack_require__(9).btoa;
+var btoa = __webpack_require__(10).btoa;
 
 /**
  * Module dependencies.
@@ -7446,10 +7489,10 @@ Binary.SUBTYPE_USER_DEFINED = 128;
 
 module.exports = Binary;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).Buffer))
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7484,7 +7527,7 @@ module.exports = Code;
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7529,13 +7572,13 @@ module.exports = DBRef;
 
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Long = __webpack_require__(3);
+var Long = __webpack_require__(4);
 var Buffer = (typeof Buffer !== 'undefined') ? Buffer : Uint8Array;
 
 var PARSE_STRING_REGEXP = /^(\+|\-)?(\d+|(\d*\.\d*))?(E|e)?([\-\+])?(\d+)?$/;
@@ -8251,7 +8294,7 @@ module.exports = Decimal128;
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8294,7 +8337,7 @@ module.exports = Double;
 
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8337,7 +8380,7 @@ module.exports = Int32;
 
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8366,7 +8409,7 @@ module.exports = MaxKey;
 
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8395,7 +8438,7 @@ module.exports = MinKey;
 
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8723,10 +8766,10 @@ ObjectID.index = ~~(Math.random() * 0xFFFFFF);
 
 module.exports = ObjectID;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(51)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(52)))
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8774,7 +8817,7 @@ module.exports = BSONRegExp;
 
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8820,13 +8863,13 @@ module.exports = Symbol;
 
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Long = __webpack_require__(3);
+var Long = __webpack_require__(4);
 
 /**
  * @class
@@ -8909,14 +8952,14 @@ module.exports = Timestamp;
 
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(Buffer) {
 
-var bsonModule = __webpack_require__(8)
-var atob = __webpack_require__(9).atob;
+var bsonModule = __webpack_require__(9)
+var atob = __webpack_require__(10).atob;
 var bufferConstructor = null;
 
 if (typeof Buffer !== 'undefined') {
@@ -9188,10 +9231,10 @@ function serializeDocument(doc) {
 // Export the Extended BSON
 module.exports = ExtJSON;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).Buffer))
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9288,7 +9331,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -9478,13 +9521,13 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var strictUriEncode = __webpack_require__(53);
-var objectAssign = __webpack_require__(50);
+var strictUriEncode = __webpack_require__(54);
+var objectAssign = __webpack_require__(51);
 
 function encoderForArrayFormat(opts) {
 	switch (opts.arrayFormat) {
@@ -9690,7 +9733,7 @@ exports.stringify = function (obj, opts) {
 
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9703,7 +9746,7 @@ module.exports = function (str) {
 
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports) {
 
 var g;
@@ -9730,7 +9773,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports) {
 
 (function(self) {
