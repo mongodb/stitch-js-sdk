@@ -63,11 +63,6 @@ export default class Admin extends StitchClient {
     };
   }
 
-  _do(url, method, options) {
-    return super._do(url, method, options)
-      .then(response => response.json());
-  }
-
   profile() {
     const api = this._v1;
     return {
@@ -109,7 +104,8 @@ export default class Admin extends StitchClient {
    * @returns {Promise}
    */
   getAuthProviders() {
-    return this._do('/auth/providers', 'GET', { noAuth: true, apiVersion: v2 });
+    return super._do('/auth/providers', 'GET', { noAuth: true, apiVersion: v2 })
+      .then(response => response.json());
   }
 
   /**
@@ -118,7 +114,8 @@ export default class Admin extends StitchClient {
    * @returns {Promise}
    */
   doSessionPost() {
-    return this._do('/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v2 });
+    return super._do('/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v2 })
+      .then(response => response.json());
   }
 
   /* Examples of how to access admin API with this client:
@@ -177,7 +174,7 @@ export default class Admin extends StitchClient {
         sandbox: () => ({
           executePipeline: (data, userId, options) => {
             const queryParams = Object.assign({}, options, {user_id: userId});
-            return this._do(
+            return super._do(
               `/groups/${groupId}/apps/${appID}/sandbox/pipeline`,
               'POST',
               {body: JSON.stringify(data), queryParams});
@@ -410,12 +407,12 @@ export default class Admin extends StitchClient {
   _admin() {
     return {
       logs: () => ({
-        get: (filter) => this._do('/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter })
+        get: (filter) => super._do('/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter })
       }),
       users: () => ({
-        list: (filter) => this._do('/admin/users', 'GET', { useRefreshToken: true, queryParams: filter }),
+        list: (filter) => super._do('/admin/users', 'GET', { useRefreshToken: true, queryParams: filter }),
         user: (uid) => ({
-          logout: () => this._do(`/admin/users/${uid}/logout`, 'PUT', { useRefreshToken: true })
+          logout: () => super._do(`/admin/users/${uid}/logout`, 'PUT', { useRefreshToken: true })
         })
       })
     };

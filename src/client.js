@@ -44,6 +44,7 @@ export default class StitchClient {
       [v1]: {
         public: `${baseUrl}/api/public/v1.0`,
         client: `${baseUrl}/api/client/v1.0`,
+        private: `${baseUrl}/api/private/v1.0`,
         app: (clientAppID ?
               `${baseUrl}/api/client/v1.0/app/${clientAppID}` :
               `${baseUrl}/api/public/v1.0`)
@@ -51,6 +52,7 @@ export default class StitchClient {
       [v2]: {
         public: `${baseUrl}/api/public/v2.0`,
         client: `${baseUrl}/api/client/v2.0`,
+        private: `${baseUrl}/api/private/v2.0`,
         app: (clientAppID ?
               `${baseUrl}/api/client/v2.0/app/${clientAppID}` :
               `${baseUrl}/api/public/v2.0`)
@@ -259,7 +261,8 @@ export default class StitchClient {
     options = Object.assign({}, {
       refreshOnFailure: true,
       useRefreshToken: false,
-      apiVersion: v1
+      apiVersion: v1,
+      apiType: 'app'
     }, options);
 
     if (!options.noAuth) {
@@ -276,7 +279,7 @@ export default class StitchClient {
       }
     }
 
-    const appURL = this.rootURLsByAPIVersion[options.apiVersion].app;
+    const appURL = this.rootURLsByAPIVersion[options.apiVersion][options.apiType];
     let url = `${appURL}${resource}`;
     let fetchArgs = common.makeFetchArgs(method, options.body);
 
