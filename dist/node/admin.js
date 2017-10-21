@@ -43,13 +43,6 @@ var Admin = function (_StitchClient) {
   }
 
   _createClass(Admin, [{
-    key: '_do',
-    value: function _do(url, method, options) {
-      return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', this).call(this, url, method, options).then(function (response) {
-        return response.json();
-      });
-    }
-  }, {
     key: 'profile',
     value: function profile() {
       var api = this._v1;
@@ -120,7 +113,9 @@ var Admin = function (_StitchClient) {
   }, {
     key: 'getAuthProviders',
     value: function getAuthProviders() {
-      return this._do('/auth/providers', 'GET', { noAuth: true, apiVersion: v2 });
+      return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', this).call(this, '/auth/providers', 'GET', { noAuth: true, apiVersion: v2 }).then(function (response) {
+        return response.json();
+      });
     }
 
     /**
@@ -132,7 +127,9 @@ var Admin = function (_StitchClient) {
   }, {
     key: 'doSessionPost',
     value: function doSessionPost() {
-      return this._do('/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v2 });
+      return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', this).call(this, '/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v2 }).then(function (response) {
+        return response.json();
+      });
     }
 
     /* Examples of how to access admin API with this client:
@@ -236,7 +233,7 @@ var Admin = function (_StitchClient) {
               return {
                 executePipeline: function executePipeline(data, userId, options) {
                   var queryParams = Object.assign({}, options, { user_id: userId });
-                  return _this3._do('/groups/' + groupId + '/apps/' + appID + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: queryParams });
+                  return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this3).call(_this3, '/groups/' + groupId + '/apps/' + appID + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: queryParams });
                 }
               };
             },
@@ -735,19 +732,19 @@ var Admin = function (_StitchClient) {
         logs: function logs() {
           return {
             get: function get(filter) {
-              return _this4._do('/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter });
+              return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this4).call(_this4, '/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter });
             }
           };
         },
         users: function users() {
           return {
             list: function list(filter) {
-              return _this4._do('/admin/users', 'GET', { useRefreshToken: true, queryParams: filter });
+              return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this4).call(_this4, '/admin/users', 'GET', { useRefreshToken: true, queryParams: filter });
             },
             user: function user(uid) {
               return {
                 logout: function logout() {
-                  return _this4._do('/admin/users/' + uid + '/logout', 'PUT', { useRefreshToken: true });
+                  return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this4).call(_this4, '/admin/users/' + uid + '/logout', 'PUT', { useRefreshToken: true });
                 }
               };
             }
