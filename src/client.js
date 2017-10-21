@@ -2,6 +2,7 @@
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 import 'fetch-everywhere';
 import Auth from './auth';
+import { APP_CLIENT_CODEC } from './auth/common';
 import ServiceRegistry from './services';
 import * as common from './common';
 import ExtJSONModule from 'mongodb-extjson';
@@ -56,7 +57,11 @@ export default class StitchClient {
       }
     };
 
-    this.auth = new Auth(this, this.authUrl);
+    const authOptions = {codec: APP_CLIENT_CODEC};
+    if (options && options.authCodec) {
+      authOptions.codec = options.authCodec;
+    }
+    this.auth = new Auth(this, this.authUrl, authOptions);
     this.auth.handleRedirect();
     this.auth.handleCookie();
 
@@ -77,8 +82,9 @@ export default class StitchClient {
   }
 
   get type() {
-    return common.CLIENT_TYPE;
+    return common.APP_CLIENT_TYPE;
   }
+
   /**
    * Login to stitch instance, optionally providing a username and password. In
    * the event that these are omitted, anonymous authentication is used.
@@ -128,7 +134,7 @@ export default class StitchClient {
     }
 
     return this.auth.provider(providerType).authenticate(options)
-      .then(authData => authData.userId);
+      .then(() => this.auth.authedId());
   }
 
   /**
@@ -261,7 +267,7 @@ export default class StitchClient {
         return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
       }
 
-      // If local access token is expired, proactively get a new one
+      // If access token is expired, proactively get a new one
       if (!options.useRefreshToken && this.auth.isAccessTokenExpired()) {
         return this.auth.refreshToken().then(() => {
           options.refreshOnFailure = false;
