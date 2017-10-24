@@ -1,5 +1,6 @@
 /** @module auth  */
 import * as common from '../common';
+import * as authCommon from './common';
 import { getPlatform, uriEncodeObject } from '../util';
 
 /**
@@ -232,7 +233,7 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
   }
 
   const state = generateState();
-  auth.storage.set(common.STATE_KEY, state);
+  auth.storage.set(authCommon.STATE_KEY, state);
 
   const device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
