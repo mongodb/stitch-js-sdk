@@ -293,61 +293,6 @@ exports.uriEncodeObject = uriEncodeObject;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var JSONTYPE = exports.JSONTYPE = 'application/json';
-var APP_CLIENT_TYPE = exports.APP_CLIENT_TYPE = 'app';
-var ADMIN_CLIENT_TYPE = exports.ADMIN_CLIENT_TYPE = 'admin';
-var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://stitch.mongodb.com';
-
-// VERSION is substituted with the package.json version number at build time
-var version = 'unknown';
-if (true) {
-  version = "1.1.6";
-}
-var SDK_VERSION = exports.SDK_VERSION = version;
-
-var checkStatus = exports.checkStatus = function checkStatus(response) {
-  if (response.status >= 200 && response.status < 300) {
-    return response;
-  }
-
-  var error = new Error(response.statusText);
-  error.response = response;
-
-  // set error to statusText by default; this will be overwritten when (and if)
-  // the response is successfully parsed into json below
-  error.error = response.statusText;
-
-  return response.json().catch(function () {
-    return Promise.reject(error);
-  }).then(function (json) {
-    return Promise.reject(Object.assign(error, json));
-  });
-};
-
-var makeFetchArgs = exports.makeFetchArgs = function makeFetchArgs(method, body) {
-  var init = {
-    method: method,
-    headers: { 'Accept': JSONTYPE, 'Content-Type': JSONTYPE }
-  };
-
-  if (body) {
-    init.body = body;
-  }
-
-  init.cors = true;
-  return init;
-};
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 var USER_AUTH_KEY = exports.USER_AUTH_KEY = '_stitch_ua';
 var REFRESH_TOKEN_KEY = exports.REFRESH_TOKEN_KEY = '_stitch_rt';
 var DEVICE_ID_KEY = exports.DEVICE_ID_KEY = '_stitch_did';
@@ -433,6 +378,61 @@ var unmarshallUserAuth = exports.unmarshallUserAuth = function unmarshallUserAut
     userId: parts[2],
     deviceId: parts[3]
   };
+};
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var JSONTYPE = exports.JSONTYPE = 'application/json';
+var APP_CLIENT_TYPE = exports.APP_CLIENT_TYPE = 'app';
+var ADMIN_CLIENT_TYPE = exports.ADMIN_CLIENT_TYPE = 'admin';
+var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://stitch.mongodb.com';
+
+// VERSION is substituted with the package.json version number at build time
+var version = 'unknown';
+if (true) {
+  version = "1.1.7";
+}
+var SDK_VERSION = exports.SDK_VERSION = version;
+
+var checkStatus = exports.checkStatus = function checkStatus(response) {
+  if (response.status >= 200 && response.status < 300) {
+    return response;
+  }
+
+  var error = new Error(response.statusText);
+  error.response = response;
+
+  // set error to statusText by default; this will be overwritten when (and if)
+  // the response is successfully parsed into json below
+  error.error = response.statusText;
+
+  return response.json().catch(function () {
+    return Promise.reject(error);
+  }).then(function (json) {
+    return Promise.reject(Object.assign(error, json));
+  });
+};
+
+var makeFetchArgs = exports.makeFetchArgs = function makeFetchArgs(method, body) {
+  var init = {
+    method: method,
+    headers: { 'Accept': JSONTYPE, 'Content-Type': JSONTYPE }
+  };
+
+  if (body) {
+    init.body = body;
+  }
+
+  init.cors = true;
+  return init;
 };
 
 /***/ }),
@@ -1376,13 +1376,13 @@ var _auth = __webpack_require__(14);
 
 var _auth2 = _interopRequireDefault(_auth);
 
-var _common = __webpack_require__(2);
+var _common = __webpack_require__(1);
 
 var _services = __webpack_require__(22);
 
 var _services2 = _interopRequireDefault(_services);
 
-var _common2 = __webpack_require__(1);
+var _common2 = __webpack_require__(2);
 
 var common = _interopRequireWildcard(_common2);
 
@@ -3732,11 +3732,11 @@ var _client = __webpack_require__(5);
 
 var _client2 = _interopRequireDefault(_client);
 
-var _common = __webpack_require__(1);
+var _common = __webpack_require__(2);
 
 var _common2 = _interopRequireDefault(_common);
 
-var _common3 = __webpack_require__(2);
+var _common3 = __webpack_require__(1);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4782,11 +4782,11 @@ var _providers = __webpack_require__(15);
 
 var _errors = __webpack_require__(3);
 
-var _common = __webpack_require__(2);
+var _common = __webpack_require__(1);
 
 var authCommon = _interopRequireWildcard(_common);
 
-var _common2 = __webpack_require__(1);
+var _common2 = __webpack_require__(2);
 
 var common = _interopRequireWildcard(_common2);
 
@@ -5119,9 +5119,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.createProviders = undefined;
 
-var _common = __webpack_require__(1);
+var _common = __webpack_require__(2);
 
 var common = _interopRequireWildcard(_common);
+
+var _common2 = __webpack_require__(1);
+
+var authCommon = _interopRequireWildcard(_common2);
 
 var _util = __webpack_require__(0);
 
@@ -5136,7 +5140,6 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
  * @param {String} appVersion The version of the app
  * @returns {Object} The device info object
  */
-/** @module auth  */
 function getDeviceInfo(deviceId, appId) {
   var appVersion = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
 
@@ -5159,6 +5162,7 @@ function getDeviceInfo(deviceId, appId) {
 /**
  * @namespace
  */
+/** @module auth  */
 function anonProvider(auth) {
   return {
     /**
@@ -5358,7 +5362,7 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
   }
 
   var state = generateState();
-  auth.storage.set(common.STATE_KEY, state);
+  auth.storage.set(authCommon.STATE_KEY, state);
 
   var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 

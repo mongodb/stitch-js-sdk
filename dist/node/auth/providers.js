@@ -9,6 +9,10 @@ var _common = require('../common');
 
 var common = _interopRequireWildcard(_common);
 
+var _common2 = require('./common');
+
+var authCommon = _interopRequireWildcard(_common2);
+
 var _util = require('../util');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -22,7 +26,6 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
  * @param {String} appVersion The version of the app
  * @returns {Object} The device info object
  */
-/** @module auth  */
 function getDeviceInfo(deviceId, appId) {
   var appVersion = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
 
@@ -45,6 +48,7 @@ function getDeviceInfo(deviceId, appId) {
 /**
  * @namespace
  */
+/** @module auth  */
 function anonProvider(auth) {
   return {
     /**
@@ -244,7 +248,7 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
   }
 
   var state = generateState();
-  auth.storage.set(common.STATE_KEY, state);
+  auth.storage.set(authCommon.STATE_KEY, state);
 
   var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
