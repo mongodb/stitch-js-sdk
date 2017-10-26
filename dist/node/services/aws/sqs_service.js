@@ -60,3 +60,4 @@ var SQSService = function () {
 }();
 
 exports.default = (0, _util.letMixin)(SQSService);
+module.exports = exports['default'];

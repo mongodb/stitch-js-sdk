@@ -62,3 +62,4 @@ var SlackService = function () {
 }();
 
 exports.default = (0, _util.letMixin)(SlackService);
+module.exports = exports['default'];

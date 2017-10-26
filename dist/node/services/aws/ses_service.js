@@ -51,3 +51,4 @@ var SESService = function () {
 }();
 
 exports.default = (0, _util.letMixin)(SESService);
+module.exports = exports['default'];

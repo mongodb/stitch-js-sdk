@@ -49,3 +49,4 @@ var PubnubService = function () {
 }();
 
 exports.default = (0, _util.letMixin)(PubnubService);
+module.exports = exports['default'];

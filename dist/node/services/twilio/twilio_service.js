@@ -50,3 +50,4 @@ var TwilioService = function () {
 }();
 
 exports.default = (0, _util.letMixin)(TwilioService);
+module.exports = exports['default'];

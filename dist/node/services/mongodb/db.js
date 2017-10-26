@@ -58,3 +58,4 @@ var DB = function () {
 DB.prototype.getCollection = (0, _util.deprecate)(DB.prototype.collection, 'use `collection` instead of `getCollection`');
 
 exports.default = DB;
+module.exports = exports['default'];

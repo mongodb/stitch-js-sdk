@@ -13,6 +13,6 @@ git commit -a -m "$PACKAGE_VERSION"
 git tag "v$PACKAGE_VERSION"
 
 # make live
-git push && git push --tags
+git push upstream && git push upstream --tags
 npm publish
 ```

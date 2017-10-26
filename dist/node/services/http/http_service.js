@@ -158,3 +158,4 @@ function buildResponse(action, service, args) {
 }
 
 exports.default = (0, _util.letMixin)(HTTPService);
+module.exports = exports['default'];

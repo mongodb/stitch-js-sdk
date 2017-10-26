@@ -1,8 +1,9 @@
 /* global expect, it, describe, global, afterEach, beforeEach, afterAll, beforeAll, require, Buffer, Promise */
 const fetchMock = require('fetch-mock');
 const URL = require('url-parse');
-import { StitchClient } from '../src/client';
-import { parseRedirectFragment, JSONTYPE, REFRESH_TOKEN_KEY, DEFAULT_STITCH_SERVER_URL } from '../src/common';
+import StitchClient from '../src/client';
+import { JSONTYPE, DEFAULT_STITCH_SERVER_URL } from '../src/common';
+import { REFRESH_TOKEN_KEY } from '../src/auth/common';
 import Auth from '../src/auth';
 import { mocks } from 'mock-browser';
 
@@ -54,32 +55,33 @@ describe('Redirect fragment parsing', () => {
     ).join('&')
   );
 
+  const a = new Auth(null, '/auth');
   it('should detect valid states', () => {
-    let result = parseRedirectFragment(makeFragment({'_stitch_state': 'state_XYZ'}), 'state_XYZ');
+    let result = a.parseRedirectFragment(makeFragment({'_stitch_state': 'state_XYZ'}), 'state_XYZ');
     expect(result.stateValid).toBe(true);
     expect(result.found).toBe(true);
     expect(result.lastError).toBe(null);
   });
 
   it('should detect invalid states', () => {
-    let result = parseRedirectFragment(makeFragment({'_stitch_state': 'state_XYZ'}), 'state_ABC');
+    let result = a.parseRedirectFragment(makeFragment({'_stitch_state': 'state_XYZ'}), 'state_ABC');
     expect(result.stateValid).toBe(false);
     expect(result.lastError).toBe(null);
   });
 
   it('should detect errors', () => {
-    let result = parseRedirectFragment(makeFragment({'_stitch_error': 'hello world'}), 'state_ABC');
+    let result = a.parseRedirectFragment(makeFragment({'_stitch_error': 'hello world'}), 'state_ABC');
     expect(result.lastError).toEqual('hello world');
     expect(result.stateValid).toBe(false);
   });
 
   it('should detect if no items found', () => {
-    let result = parseRedirectFragment(makeFragment({'foo': 'bar'}), 'state_ABC');
+    let result = a.parseRedirectFragment(makeFragment({'foo': 'bar'}), 'state_ABC');
     expect(result.found).toBe(false);
   });
 
   it('should handle ua redirects', () => {
-    let result = parseRedirectFragment(makeFragment({'_stitch_ua': 'somejwt$anotherjwt$userid$deviceid'}), 'state_ABC');
+    let result = a.parseRedirectFragment(makeFragment({'_stitch_ua': 'somejwt$anotherjwt$userid$deviceid'}), 'state_ABC');
     expect(result.found).toBe(true);
     expect(result.ua).toEqual({
       accessToken: 'somejwt',
@@ -90,7 +92,7 @@ describe('Redirect fragment parsing', () => {
   });
 
   it('should gracefully handle invalid ua data', () => {
-    let result = parseRedirectFragment(makeFragment({'_stitch_ua': 'invalid'}), 'state_ABC');
+    let result = a.parseRedirectFragment(makeFragment({'_stitch_ua': 'invalid'}), 'state_ABC');
     expect(result.found).toBe(false);
     expect(result.ua).toBeNull();
     expect(result.lastError).toBeTruthy();
@@ -99,9 +101,11 @@ describe('Redirect fragment parsing', () => {
 
 describe('Auth', () => {
   const validUsernames = ['user'];
+  let capturedDevice;
   const checkLogin = (url, opts) => {
     const args = JSON.parse(opts.body);
 
+    capturedDevice = args.options.device;
     if (validUsernames.indexOf(args.username) >= 0) {
       return {
         userId: hexStr,
@@ -126,31 +130,34 @@ describe('Auth', () => {
     };
   };
   for (const envConfig of envConfigs) {
-    describe(envConfig.name, () => {
+    describe(envConfig.name, () => { // eslint-disable-line
       beforeEach(() => {
         envConfig.setup();
         fetchMock.post('/auth/local/userpass', checkLogin);
+        fetchMock.post('/auth/providers/local-userpass/login', checkLogin);
         fetchMock.post(DEFAULT_STITCH_SERVER_URL + '/api/client/v1.0/app/testapp/auth/local/userpass', checkLogin);
         fetchMock.delete(DEFAULT_STITCH_SERVER_URL + '/api/client/v1.0/app/testapp/auth', {});
+        capturedDevice = undefined;
       });
 
       afterEach(() => {
         envConfig.teardown();
         fetchMock.restore();
+        capturedDevice = undefined;
       });
 
       it('get() set() clear() authedId() should work', () => {
         expect.assertions(4);
         const a = new Auth(null, '/auth');
-        expect(a.get()).toEqual({});
+        expect(a._get()).toEqual({});
 
-        const testUser = {'foo': 'bar', 'biz': 'baz', 'userId': hexStr};
+        const testUser = {'accessToken': 'bar', 'userId': hexStr};
         a.set(testUser);
-        expect(a.get()).toEqual(testUser);
+        expect(a._get()).toEqual(testUser);
         expect(a.authedId()).toEqual(hexStr);
 
         a.clear();
-        expect(a.get()).toEqual({});
+        expect(a._get()).toEqual({});
       });
 
       it('should local auth successfully', () => {
@@ -160,21 +167,19 @@ describe('Auth', () => {
           .then(() => expect(a.authedId()).toEqual(hexStr));
       });
 
-      // the mock API response just forwards the request body along, so we can
-      // inspect the device in this test to ensure the expected fields are sent
       it('should send device info with local auth request', () => {
         expect.assertions(6);
         const a = new Auth(null, '/auth');
         return a.provider('userpass').authenticate({ username: 'user', password: 'password' })
-          .then(({ device }) => {
-            expect('appId' in device).toBeTruthy();
-            expect('appVersion' in device).toBeTruthy();
-            expect('platform' in device).toBeTruthy();
-            expect('platformVersion' in device).toBeTruthy();
-            expect('sdkVersion' in device).toBeTruthy();
+          .then(() => {
+            expect('appId' in capturedDevice).toBeTruthy();
+            expect('appVersion' in capturedDevice).toBeTruthy();
+            expect('platform' in capturedDevice).toBeTruthy();
+            expect('platformVersion' in capturedDevice).toBeTruthy();
+            expect('sdkVersion' in capturedDevice).toBeTruthy();
 
             // a new Auth does not have a deviceId to send
-            expect('deviceId' in device).toBeFalsy();
+            expect('deviceId' in capturedDevice).toBeFalsy();
           });
       });
 
@@ -256,7 +261,7 @@ describe('Auth', () => {
           .then(() => {
             expect(auth.authedId()).toEqual(hexStr);
             expect(auth.getAccessToken()).toBeUndefined();
-            auth.setAccessToken('foo');
+            auth.set({'accessToken': 'foo'});
             expect(auth.getAccessToken()).toEqual('foo');
           });
       });
@@ -533,6 +538,100 @@ describe('login/logout', () => {
   }
 });
 
+describe('proactive token refresh', () => {
+  // access token with 5138-Nov-16 expiration
+  const testUnexpiredAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdC1hY2Nlc3MtdG9rZW4iLCJleHAiOjEwMDAwMDAwMDAwMH0.KMAoJOX8Dh9wvt-XzrUN_W6fnypsPrlu4e-AOyqSAGw';
+
+  // acesss token with 1970-Jan-01 expiration
+  const testExpiredAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdC1hY2Nlc3MtdG9rZW4iLCJleHAiOjF9.7tOdF0LXC_2iQMjNfZvQwwfLNiEj-dd0VT0adP5bpjo';
+
+  let validAccessTokens = [testUnexpiredAccessToken];
+  let count = 0;
+  let refreshCount = 0;
+
+  beforeEach(() => {
+    fetchMock.restore();
+
+    fetchMock.post(PIPELINE_URL, (url, opts) => {
+      const providedToken = opts.headers['Authorization'].split(' ')[1];
+      if (validAccessTokens.indexOf(providedToken) >= 0) {
+        // provided access token is valid
+        return {result: [{x: ++count}]};
+      }
+
+      throw new Error('invalid session would have been returned from server.');
+    });
+
+    count = 0;
+    refreshCount = 0;
+
+    fetchMock.post(NEW_ACCESSTOKEN_URL, (url, opts) => {
+      ++refreshCount;
+      return {accessToken: testUnexpiredAccessToken};
+    });
+  });
+
+  it('proactively fetches a new access token if the locally stored token is expired', () => {
+    expect.assertions(5);
+
+    fetchMock.post(LOCALAUTH_URL, {
+      userId: hexStr,
+      refreshToken: 'refresh-token',
+      accessToken: testExpiredAccessToken
+    });
+
+    let testClient = new StitchClient('testapp');
+    return testClient.login('user', 'password')
+      .then(() => {
+        // make sure we are starting with the expired access token
+        expect(testClient.auth.getAccessToken()).toEqual(testExpiredAccessToken);
+        return testClient.executePipeline([{action: 'literal', args: {items: [{x: 'foo'}]}}]);
+      })
+      .then(response => {
+        // token was expired, though it should yield the response we expect without throwing InvalidSession
+        expect(response.result[0].x).toEqual(1);
+      })
+      .then(() => {
+        // make sure token was updated
+        expect(refreshCount).toEqual(1);
+        expect(testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
+      })
+      .then(() => {
+        testClient.auth.storage.clear();
+        expect(testClient.authedId()).toBeFalsy();
+      });
+  });
+
+  it('does not fetch a new access token if the locally stored token is not expired/expiring', () => {
+    expect.assertions(5);
+
+    fetchMock.post(LOCALAUTH_URL, {
+      userId: hexStr,
+      refreshToken: 'refresh-token',
+      accessToken: testUnexpiredAccessToken
+    });
+
+    let testClient = new StitchClient('testapp');
+    return testClient.login('user', 'password')
+      .then(() => {
+        // make sure we are starting with the unexpired access token
+        expect(testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
+        return testClient.executePipeline([{action: 'literal', args: {items: [{x: 'foo'}]}}]);
+      })
+      .then(response => {
+        expect(response.result[0].x).toEqual(1);
+      })
+      .then(() => {
+        // make sure token was not updated
+        expect(refreshCount).toEqual(0);
+        expect(testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
+      })
+      .then(() => {
+        testClient.auth.storage.clear();
+        expect(testClient.authedId()).toBeFalsy();
+      });
+  });
+});
 
 describe('client options', () => {
   beforeEach(() => {

@@ -2,6 +2,7 @@
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 import 'fetch-everywhere';
 import Auth from './auth';
+import { APP_CLIENT_CODEC } from './auth/common';
 import ServiceRegistry from './services';
 import * as common from './common';
 import ExtJSONModule from 'mongodb-extjson';
@@ -25,7 +26,7 @@ const v3 = 3;
  * @class
  * @return {StitchClient} a StitchClient instance.
  */
-class StitchClient {
+export default class StitchClient {
   constructor(clientAppID, options) {
     let baseUrl = common.DEFAULT_STITCH_SERVER_URL;
     if (options && options.baseUrl) {
@@ -37,13 +38,14 @@ class StitchClient {
     this.authUrl = (
       clientAppID ?
         `${baseUrl}/api/client/v1.0/app/${clientAppID}/auth` :
-        `${baseUrl}/api/public/v1.0/auth`
+        `${baseUrl}/api/public/v2.0/auth`
     );
 
     this.rootURLsByAPIVersion = {
       [v1]: {
         public: `${baseUrl}/api/public/v1.0`,
         client: `${baseUrl}/api/client/v1.0`,
+        private: `${baseUrl}/api/private/v1.0`,
         app: (clientAppID ?
               `${baseUrl}/api/client/v1.0/app/${clientAppID}` :
               `${baseUrl}/api/public/v1.0`)
@@ -51,6 +53,7 @@ class StitchClient {
       [v2]: {
         public: `${baseUrl}/api/public/v2.0`,
         client: `${baseUrl}/api/client/v2.0`,
+        private: `${baseUrl}/api/private/v2.0`,
         app: (clientAppID ?
               `${baseUrl}/api/client/v2.0/app/${clientAppID}` :
               `${baseUrl}/api/public/v2.0`)
@@ -64,7 +67,11 @@ class StitchClient {
       }
     };
 
-    this.auth = new Auth(this, this.authUrl);
+    const authOptions = {codec: APP_CLIENT_CODEC};
+    if (options && options.authCodec) {
+      authOptions.codec = options.authCodec;
+    }
+    this.auth = new Auth(this, this.authUrl, authOptions);
     this.auth.handleRedirect();
     this.auth.handleCookie();
 
@@ -82,6 +89,10 @@ class StitchClient {
       deprecate(this.authManager.localAuth, 'use `client.login` instead of `client.authManager.localAuth`');
     this.authManager.mongodbCloudAuth =
       deprecate(this.authManager.mongodbCloudAuth, 'use `client.authenticate("mongodbCloud", opts)` instead of `client.authManager.mongodbCloudAuth`');
+  }
+
+  get type() {
+    return common.APP_CLIENT_TYPE;
   }
 
   /**
@@ -128,13 +139,12 @@ class StitchClient {
    */
   authenticate(providerType, options = {}) {
     // reuse existing auth if present
-    const existingAuthData = this.auth.get();
-    if (existingAuthData.hasOwnProperty('accessToken')) {
-      return Promise.resolve(existingAuthData.userId);
+    if (this.auth.getAccessToken()) {
+      return Promise.resolve(this.auth.authedId());
     }
 
     return this.auth.provider(providerType).authenticate(options)
-      .then(authData => authData.userId);
+      .then(() => this.auth.authedId());
   }
 
   /**
@@ -163,7 +173,6 @@ class StitchClient {
     return this._do('/auth/me', 'GET')
       .then(response => response.json());
   }
-
   /**
    *  @return {String} Returns the currently authed user's ID.
    */
@@ -245,20 +254,40 @@ class StitchClient {
       .then(collectMetadata(options.finalizer));
   }
 
+  /**
+   * Returns an access token for the user
+   *
+   * @returns {Promise}
+   */
+
+  doSessionPost() {
+    return this._do('/auth/newAccessToken', 'POST', { refreshOnFailure: false, useRefreshToken: true })
+      .then(response => response.json());
+  }
+
   _do(resource, method, options) {
     options = Object.assign({}, {
       refreshOnFailure: true,
       useRefreshToken: false,
-      apiVersion: v1
+      apiVersion: v1,
+      apiType: 'app'
     }, options);
 
     if (!options.noAuth) {
       if (!this.authedId()) {
         return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
       }
+
+      // If access token is expired, proactively get a new one
+      if (!options.useRefreshToken && this.auth.isAccessTokenExpired()) {
+        return this.auth.refreshToken().then(() => {
+          options.refreshOnFailure = false;
+          return this._do(resource, method, options);
+        });
+      }
     }
 
-    const appURL = this.rootURLsByAPIVersion[options.apiVersion].app;
+    const appURL = this.rootURLsByAPIVersion[options.apiVersion][options.apiType];
     let url = `${appURL}${resource}`;
     let fetchArgs = common.makeFetchArgs(method, options.body);
 
@@ -330,433 +359,3 @@ StitchClient.prototype.authWithOAuth =
   deprecate(StitchClient.prototype.authWithOAuth, 'use `authenticate` instead of `authWithOAuth`');
 StitchClient.prototype.anonymousAuth =
   deprecate(StitchClient.prototype.anonymousAuth, 'use `login()` instead of `anonymousAuth`');
-
-class Admin {
-  constructor(baseUrl) {
-    this.client = new StitchClient('', {baseUrl});
-  }
-
-  get _v3() {
-    const v3do = (url, method, options) =>
-      this.client._do(
-        url,
-        method,
-        Object.assign({}, {apiVersion: v3}, options)
-      ).then(response => {
-        const contentHeader = response.headers.get('content-type') || '';
-        if (contentHeader.split(',').indexOf('application/json') >= 0) {
-          return response.json();
-        }
-        return response;
-      });
-
-    return {
-      _get: (url, queryParams) => v3do(url, 'GET', {queryParams}),
-      _put: (url, data) =>
-        (data ?
-          v3do(url, 'PUT', {body: JSON.stringify(data)}) :
-          v3do(url, 'PUT')),
-      _patch: (url, data) =>
-        (data ?
-          v3do(url, 'PATCH', {body: JSON.stringify(data)}) :
-          v3do(url, 'PATCH')),
-      _delete: (url)  => v3do(url, 'DELETE'),
-      _post: (url, body, queryParams) =>
-        (queryParams ?
-          v3do(url, 'POST', { body: JSON.stringify(body), queryParams }) :
-          v3do(url, 'POST', { body: JSON.stringify(body) }))
-    };
-  }
-
-  get _v2() {
-    const v2do = (url, method, options) =>
-      this.client._do(
-        url,
-        method,
-        Object.assign({}, {apiVersion: v2}, options)
-      ).then(response => {
-        const contentHeader = response.headers.get('content-type') || '';
-        if (contentHeader.split(',').indexOf('application/json') >= 0) {
-          return response.json();
-        }
-        return response;
-      });
-    return {
-      _get: (url, queryParams) => v2do(url, 'GET', {queryParams}),
-      _put: (url, data) =>
-        (data ?
-          v2do(url, 'PUT', {body: JSON.stringify(data)}) :
-          v2do(url, 'PUT')),
-      _patch: (url, data) =>
-        (data ?
-          v2do(url, 'PATCH', {body: JSON.stringify(data)}) :
-          v2do(url, 'PATCH')),
-      _delete: (url)  => v2do(url, 'DELETE'),
-      _post: (url, body, queryParams) =>
-        (queryParams ?
-          v2do(url, 'POST', { body: JSON.stringify(body), queryParams }) :
-          v2do(url, 'POST', { body: JSON.stringify(body) }))
-    };
-  }
-
-  get _v1() {
-    const v1do = (url, method, options) =>
-      this.client._do(
-        url,
-        method,
-        Object.assign({}, {apiVersion: v1}, options)
-      ).then(response => response.json());
-    return {
-      _get: (url, queryParams) => v1do(url, 'GET', {queryParams}),
-      _put: (url, options) => v1do(url, 'PUT', options),
-      _delete: (url)  => v1do(url, 'DELETE'),
-      _post: (url, body) => v1do(url, 'POST', {body: JSON.stringify(body)})
-    };
-  }
-
-  _do(url, method, options) {
-    return this.client._do(url, method, options)
-      .then(response => response.json());
-  }
-
-  profile() {
-    const api = this._v1;
-    return {
-      keys: () => ({
-        list: () => api._get('/profile/keys'),
-        create: (key) => api._post('/profile/keys'),
-        apiKey: (keyId) => ({
-          get: () => api._get(`/profile/keys/${keyId}`),
-          remove: () => api._delete(`/profile/keys/${keyId}`),
-          enable: () => api._put(`/profile/keys/${keyId}/enable`),
-          disable: () => api._put(`/profile/keys/${keyId}/disable`)
-        })
-      })
-    };
-  }
-
-  /* Examples of how to access admin API with this client:
-   *
-   * List all apps
-   *    a.apps('580e6d055b199c221fcb821c').list()
-   *
-   * Fetch app under name 'planner'
-   *    a.apps('580e6d055b199c221fcb821c').app('planner').get()
-   *
-   * List services under the app 'planner'
-   *    a.apps('580e6d055b199c221fcb821c').app('planner').services().list()
-   *
-   * Delete a rule by ID
-   *    a.apps('580e6d055b199c221fcb821c').app('planner').services().service('mdb1').rules().rule('580e6d055b199c221fcb821d').remove()
-   *
-   */
-  apps(groupId) {
-    const api = this._v1;
-    return {
-      list: () => api._get(`/groups/${groupId}/apps`),
-      create: (data, options) => {
-        let query = (options && options.defaults) ? '?defaults=true' : '';
-        return api._post(`/groups/${groupId}/apps` + query, data);
-      },
-
-      app: (appID) => ({
-        get: () => api._get(`/groups/${groupId}/apps/${appID}`),
-        remove: () => api._delete(`/groups/${groupId}/apps/${appID}`),
-        replace: (doc) => api._put(`/groups/${groupId}/apps/${appID}`, {
-          headers: { 'X-Stitch-Unsafe': appID },
-          body: JSON.stringify(doc)
-        }),
-
-        messages: () => ({
-          list: (filter) =>  api._get(`/groups/${groupId}/apps/${appID}/push/messages`, filter),
-          create: (msg) =>  api._put(`/groups/${groupId}/apps/${appID}/push/messages`,  {body: JSON.stringify(msg)}),
-          message: (id) => ({
-            get: () => api._get(`/groups/${groupId}/apps/${appID}/push/messages/${id}`),
-            remove: () => api._delete(`/groups/${groupId}/apps/${appID}/push/messages/${id}`),
-            setSaveType: type => api._post(`/groups/${groupId}/apps/${appID}/push/messages/${id}`, {type}),
-            update: msg => api._put(`/groups/${groupId}/apps/${appID}/push/messages/${id}`, {body: JSON.stringify(msg)})
-          })
-        }),
-
-        users: () => ({
-          list: (filter) => api._get(`/groups/${groupId}/apps/${appID}/users`, filter),
-          create: (user) => api._post(`/groups/${groupId}/apps/${appID}/users`, user),
-          user: (uid) => ({
-            get: () => api._get(`/groups/${groupId}/apps/${appID}/users/${uid}`),
-            logout: () => api._put(`/groups/${groupId}/apps/${appID}/users/${uid}/logout`),
-            remove: () => api._delete(`/groups/${groupId}/apps/${appID}/users/${uid}`)
-          })
-        }),
-
-        sandbox: () => ({
-          executePipeline: (data, userId, options) => {
-            const queryParams = Object.assign({}, options, {user_id: userId});
-            return this._do(
-              `/groups/${groupId}/apps/${appID}/sandbox/pipeline`,
-              'POST',
-              {body: JSON.stringify(data), queryParams});
-          }
-        }),
-
-        authProviders: () => ({
-          create: (data) => api._post(`/groups/${groupId}/apps/${appID}/authProviders`, data),
-          list: () => api._get(`/groups/${groupId}/apps/${appID}/authProviders`),
-          provider: (authType, authName) => ({
-            get: () => api._get(`/groups/${groupId}/apps/${appID}/authProviders/${authType}/${authName}`),
-            remove: () => api._delete(`/groups/${groupId}/apps/${appID}/authProviders/${authType}/${authName}`),
-            update: (data) => api._post(`/groups/${groupId}/apps/${appID}/authProviders/${authType}/${authName}`, data)
-          })
-        }),
-        security: () => ({
-          allowedRequestOrigins: () => ({
-            get: () => api._get(`/groups/${groupId}/apps/${appID}/security/allowedRequestOrigins`),
-            update: (data) => api._post(`/groups/${groupId}/apps/${appID}/security/allowedRequestOrigins`, data)
-          })
-        }),
-        values: () => ({
-          list: () => api._get(`/groups/${groupId}/apps/${appID}/values`),
-          value: (varName) => ({
-            get: () => api._get(`/groups/${groupId}/apps/${appID}/values/${varName}`),
-            remove: () => api._delete(`/groups/${groupId}/apps/${appID}/values/${varName}`),
-            create: (data) => api._post(`/groups/${groupId}/apps/${appID}/values/${varName}`, data),
-            update: (data) => api._post(`/groups/${groupId}/apps/${appID}/values/${varName}`, data)
-          })
-        }),
-        pipelines: () => ({
-          list: () => api._get(`/groups/${groupId}/apps/${appID}/pipelines`),
-          pipeline: (varName) => ({
-            get: () => api._get(`/groups/${groupId}/apps/${appID}/pipelines/${varName}`),
-            remove: () => api._delete(`/groups/${groupId}/apps/${appID}/pipelines/${varName}`),
-            create: (data) => api._post(`/groups/${groupId}/apps/${appID}/pipelines/${varName}`, data),
-            update: (data) => api._post(`/groups/${groupId}/apps/${appID}/pipelines/${varName}`, data)
-          })
-        }),
-        logs: () => ({
-          get: (filter) => api._get(`/groups/${groupId}/apps/${appID}/logs`, filter)
-        }),
-        apiKeys: () => ({
-          list: () => api._get(`/groups/${groupId}/apps/${appID}/keys`),
-          create: (data) => api._post(`/groups/${groupId}/apps/${appID}/keys`, data),
-          apiKey: (key) => ({
-            get: () => api._get(`/groups/${groupId}/apps/${appID}/keys/${key}`),
-            remove: () => api._delete(`/groups/${groupId}/apps/${appID}/keys/${key}`),
-            enable: () => api._put(`/groups/${groupId}/apps/${appID}/keys/${key}/enable`),
-            disable: () => api._put(`/groups/${groupId}/apps/${appID}/keys/${key}/disable`)
-          })
-        }),
-        services: () => ({
-          list: () => api._get(`/groups/${groupId}/apps/${appID}/services`),
-          create: (data) => api._post(`/groups/${groupId}/apps/${appID}/services`, data),
-          service: (svc) => ({
-            get: () => api._get(`/groups/${groupId}/apps/${appID}/services/${svc}`),
-            update: (data) => api._post(`/groups/${groupId}/apps/${appID}/services/${svc}`, data),
-            remove: () => api._delete(`/groups/${groupId}/apps/${appID}/services/${svc}`),
-            setConfig: (data) => api._post(`/groups/${groupId}/apps/${appID}/services/${svc}/config`, data),
-
-            rules: () => ({
-              list: () => api._get(`/groups/${groupId}/apps/${appID}/services/${svc}/rules`),
-              create: (data) => api._post(`/groups/${groupId}/apps/${appID}/services/${svc}/rules`),
-              rule: (ruleId) => ({
-                get: () => api._get(`/groups/${groupId}/apps/${appID}/services/${svc}/rules/${ruleId}`),
-                update: (data) => api._post(`/groups/${groupId}/apps/${appID}/services/${svc}/rules/${ruleId}`, data),
-                remove: () => api._delete(`/groups/${groupId}/apps/${appID}/services/${svc}/rules/${ruleId}`)
-              })
-            }),
-
-            incomingWebhooks: () => ({
-              list: () => api._get(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks`),
-              create: (data) => api._post(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks`, data),
-              incomingWebhook: (incomingWebhookId) => ({
-                get: () => api._get(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`),
-                update: (data) => api._post(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`, data),
-                remove: () => api._delete(`/groups/${groupId}/apps/${appID}/services/${svc}/incomingWebhooks/${incomingWebhookId}`)
-              })
-            })
-          })
-        })
-      })
-    };
-  }
-
-  v2() {
-    const api = this._v2;
-    const apiV3 = this._v3; // exists solely for function endpoints
-    const TODOnotImplemented = ()=>  { throw new Error('Not yet implemented'); };
-    return {
-      apps: (groupId)  => {
-        const groupUrl = `/groups/${groupId}/apps`;
-        return {
-          list: () => api._get(groupUrl),
-          create: (data, options) => {
-            let query = (options && options.defaults) ? '?defaults=true' : '';
-            return api._post(groupUrl + query, data);
-          },
-          app: (appId) => {
-            const appUrl = `${groupUrl}/${appId}`;
-            return {
-              get: () => api._get(appUrl),
-              remove: () => api._delete(appUrl),
-              pipelines: () => ({
-                list: () => api._get(`${appUrl}/pipelines`),
-                create: (data) => api._post( `${appUrl}/pipelines`, data),
-                pipeline: (pipelineId) => {
-                  const pipelineUrl = `${appUrl}/pipelines/${pipelineId}`;
-                  return {
-                    get: ()=> api._get(pipelineUrl),
-                    remove: ()=> api._delete(pipelineUrl),
-                    update: (data) => api._put(pipelineUrl, data)
-                  };
-                }
-              }),
-              values: () => ({
-                list: () => api._get(`${appUrl}/values`),
-                create: (data) => api._post( `${appUrl}/values`, data),
-                value: (valueId) => {
-                  const valueUrl = `${appUrl}/values/${valueId}`;
-                  return {
-                    get: ()=> api._get(valueUrl),
-                    remove: ()=> api._delete(valueUrl),
-                    update: (data) => api._put(valueUrl, data)
-                  };
-                }
-              }),
-              services: () => ({
-                list: () => api._get(`${appUrl}/services`),
-                create: (data) => api._post(`${appUrl}/services`, data),
-                service: (serviceId) => ({
-                  get: () => api._get(`${appUrl}/services/${serviceId}`),
-                  remove: () => api._delete(`${appUrl}/services/${serviceId}`),
-                  config: ()=> ({
-                    get: () => api._get(`${appUrl}/services/${serviceId}/config`),
-                    update: (data) => api._patch(`${appUrl}/services/${serviceId}/config`, data)
-                  }),
-
-                  rules: () => ({
-                    list: () => api._get(`${appUrl}/services/${serviceId}/rules`),
-                    create: (data) => api._post(`${appUrl}/services/${serviceId}/rules`, data),
-                    rule: (ruleId) => {
-                      const ruleUrl = `${appUrl}/services/${serviceId}/rules/${ruleId}`;
-                      return {
-                        get: () => api._get(ruleUrl),
-                        update: (data) => api._put(ruleUrl, data),
-                        remove: () => api._delete(ruleUrl)
-                      };
-                    }
-                  }),
-
-                  incomingWebhooks: () => ({
-                    list: () => api._get(`${appUrl}/services/${serviceId}/incomingWebhooks`),
-                    create: (data) => api._post(`${appUrl}/services/${serviceId}/incomingWebhooks`, data),
-                    incomingWebhook: (incomingWebhookId) => {
-                      const webhookUrl = `${appUrl}/services/${serviceId}/incomingWebhooks/${incomingWebhookId}`;
-                      return {
-                        get: () => api._get(webhookUrl),
-                        update: (data) => api._put(webhookUrl, data),
-                        remove: () => api._delete(webhookUrl)
-                      };
-                    }
-                  })
-
-                })
-              }),
-              pushNotifications: () => ({
-                list: (filter) => api._get(`${appUrl}/push/notifications`, filter),
-                create: (data) => api._post(`${appUrl}/push/notifications`, data),
-                pushNotification: (messageId) => ({
-                  get: () => api._get(`${appUrl}/push/notifications/${messageId}`),
-                  update: (data) => api._put(`${appUrl}/push/notifications/${messageId}`, data),
-                  setType: (type) => api._put(`${appUrl}/push/notifications/${messageId}/type`, { type }),
-                  remove: () => api._delete(`${appUrl}/push/notifications/${messageId}`)
-                })
-              }),
-              users: () => ({
-                list: (filter) => api._get(`${appUrl}/users`, filter),
-                create: (user) => api._post(`${appUrl}/users`, user),
-                user: (uid) => ({
-                  get: () => api._get(`${appUrl}/users/${uid}`),
-                  logout: () => api._put(`${appUrl}/users/${uid}/logout`),
-                  remove: () => api._delete(`${appUrl}/users/${uid}`)
-                })
-              }),
-              dev: () => ({
-                executePipeline: (body, userId, options) => {
-                  return api._post(
-                    `${appUrl}/dev/pipeline`,
-                    body,
-                    Object.assign({}, options, { user_id: userId }));
-                }
-              }),
-              authProviders: () => ({
-                list: () => api._get(`${appUrl}/auth_providers`),
-                create: (data) => api._post(`${appUrl}/auth_providers`, data),
-                authProvider: (providerId) => ({
-                  get: () => api._get(`${appUrl}/auth_providers/${providerId}`),
-                  update: (data) => api._patch(`${appUrl}/auth_providers/${providerId}`, data),
-                  enable: () => api._put(`${appUrl}/auth_providers/${providerId}/enable`),
-                  disable: () => api._put(`${appUrl}/auth_providers/${providerId}/disable`),
-                  remove: () => api._delete(`${appUrl}/auth_providers/${providerId}`)
-                })
-              }),
-              security: TODOnotImplemented,
-              logs: () => ({
-                list: (filter) => api._get(`${appUrl}/logs`, filter)
-              }),
-              apiKeys: () => ({
-                list: () => api._get(`${appUrl}/api_keys`),
-                create: (data) => api._post(`${appUrl}/api_keys`, data),
-                apiKey: (apiKeyId) => ({
-                  get: () => api._get(`${appUrl}/api_keys/${apiKeyId}`),
-                  remove: () => api._delete(`${appUrl}/api_keys/${apiKeyId}`),
-                  enable: () => api._put(`${appUrl}/api_keys/${apiKeyId}/enable`),
-                  disable: () => api._put(`${appUrl}/api_keys/${apiKeyId}/disable`)
-                })
-              }),
-              // Function endpoints are the only endpoints that are different between v2 and v3
-              // Take note that this branch leverages `apiV3` for hitting function endpoints
-              functions: () => ({
-                list: () => apiV3._get(`${appUrl}/functions`),
-                create: (data) => apiV3._post(`${appUrl}/functions`, data),
-                function: (functionId) => ({
-                  get: () => apiV3._get(`${appUrl}/functions/${functionId}`),
-                  update: (data) => apiV3._put(`${appUrl}/functions/${functionId}`, data),
-                  remove: () => apiV3._delete(`${appUrl}/functions/${functionId}`)
-                })
-              })
-            };
-          }
-        };
-      }
-    };
-  }
-
-  _admin() {
-    return {
-      logs: () => ({
-        get: (filter) => this._do('/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter })
-      }),
-      users: () => ({
-        list: (filter) => this._do('/admin/users', 'GET', { useRefreshToken: true, queryParams: filter }),
-        user: (uid) => ({
-          logout: () => this._do(`/admin/users/${uid}/logout`, 'PUT', { useRefreshToken: true })
-        })
-      })
-    };
-  }
-
-  _isImpersonatingUser() {
-    return this.client.auth.isImpersonatingUser();
-  }
-
-  _startImpersonation(userId) {
-    return this.client.auth.startImpersonation(this.client, userId);
-  }
-
-  _stopImpersonation() {
-    return this.client.auth.stopImpersonation();
-  }
-}
-
-export {
-  StitchClient,
-  Admin
-};

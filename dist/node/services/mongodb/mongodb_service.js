@@ -58,3 +58,4 @@ var MongoDBService = function () {
 MongoDBService.prototype.getDB = MongoDBService.prototype.getDb = (0, _util.deprecate)(MongoDBService.prototype.db, 'use `db` instead of `getDB`');
 
 exports.default = MongoDBService;
+module.exports = exports['default'];

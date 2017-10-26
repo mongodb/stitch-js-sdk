@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 14);
+/******/ 	return __webpack_require__(__webpack_require__.s = 17);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -90,11 +90,11 @@ exports.uriEncodeObject = exports.getPlatform = exports.letMixin = exports.servi
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-var _detectBrowser = __webpack_require__(27);
+var _detectBrowser = __webpack_require__(30);
 
 var platform = _interopRequireWildcard(_detectBrowser);
 
-var _Base = __webpack_require__(10);
+var _Base = __webpack_require__(13);
 
 var base64 = _interopRequireWildcard(_Base);
 
@@ -293,23 +293,51 @@ exports.uriEncodeObject = uriEncodeObject;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var JSONTYPE = exports.JSONTYPE = 'application/json';
 var USER_AUTH_KEY = exports.USER_AUTH_KEY = '_stitch_ua';
 var REFRESH_TOKEN_KEY = exports.REFRESH_TOKEN_KEY = '_stitch_rt';
 var DEVICE_ID_KEY = exports.DEVICE_ID_KEY = '_stitch_did';
 var STATE_KEY = exports.STATE_KEY = '_stitch_state';
-var STITCH_ERROR_KEY = exports.STITCH_ERROR_KEY = '_stitch_error';
-var STITCH_LINK_KEY = exports.STITCH_LINK_KEY = '_stitch_link';
 var IMPERSONATION_ACTIVE_KEY = exports.IMPERSONATION_ACTIVE_KEY = '_stitch_impers_active';
 var IMPERSONATION_USER_KEY = exports.IMPERSONATION_USER_KEY = '_stitch_impers_user';
 var IMPERSONATION_REAL_USER_AUTH_KEY = exports.IMPERSONATION_REAL_USER_AUTH_KEY = '_stitch_impers_real_ua';
 var USER_AUTH_COOKIE_NAME = exports.USER_AUTH_COOKIE_NAME = 'stitch_ua';
+var STITCH_ERROR_KEY = exports.STITCH_ERROR_KEY = '_stitch_error';
+var STITCH_LINK_KEY = exports.STITCH_LINK_KEY = '_stitch_link';
+var DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS = exports.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS = 10;
+
+var APP_CLIENT_CODEC = exports.APP_CLIENT_CODEC = {
+  'accessToken': 'accessToken',
+  'refreshToken': 'refreshToken',
+  'deviceId': 'deviceId',
+  'userId': 'userId'
+};
+
+var ADMIN_CLIENT_CODEC = exports.ADMIN_CLIENT_CODEC = {
+  'accessToken': 'access_token',
+  'refreshToken': 'refresh_token',
+  'deviceId': 'device_id',
+  'userId': 'user_id'
+};
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var JSONTYPE = exports.JSONTYPE = 'application/json';
+var APP_CLIENT_TYPE = exports.APP_CLIENT_TYPE = 'app';
+var ADMIN_CLIENT_TYPE = exports.ADMIN_CLIENT_TYPE = 'admin';
 var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://stitch.mongodb.com';
 
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "1.0.11";
+  version = "1.1.8";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -346,73 +374,8 @@ var makeFetchArgs = exports.makeFetchArgs = function makeFetchArgs(method, body)
   return init;
 };
 
-var marshallUserAuth = exports.marshallUserAuth = function marshallUserAuth(data) {
-  return data.accessToken + '$' + data.refreshToken + '$' + data.userId + '$' + data.deviceId;
-};
-
-var unmarshallUserAuth = exports.unmarshallUserAuth = function unmarshallUserAuth(data) {
-  var parts = data.split('$');
-  if (parts.length !== 4) {
-    throw new RangeError('invalid user auth data provided: ' + data);
-  }
-
-  return {
-    accessToken: parts[0],
-    refreshToken: parts[1],
-    userId: parts[2],
-    deviceId: parts[3]
-  };
-};
-
-var parseRedirectFragment = exports.parseRedirectFragment = function parseRedirectFragment(fragment, ourState) {
-  // After being redirected from oauth, the URL will look like:
-  // https://todo.examples.stitch.mongodb.com/#_stitch_state=...&_stitch_ua=...
-  // This function parses out stitch-specific tokens from the fragment and
-  // builds an object describing the result.
-  var vars = fragment.split('&');
-  var result = { ua: null, found: false, stateValid: false, lastError: null };
-  var shouldBreak = false;
-  for (var i = 0; i < vars.length; ++i) {
-    var pairParts = vars[i].split('=');
-    var pairKey = decodeURIComponent(pairParts[0]);
-    switch (pairKey) {
-      case STITCH_ERROR_KEY:
-        result.lastError = decodeURIComponent(pairParts[1]);
-        result.found = true;
-        shouldBreak = true;
-        break;
-      case USER_AUTH_KEY:
-        try {
-          result.ua = unmarshallUserAuth(decodeURIComponent(pairParts[1]));
-          result.found = true;
-        } catch (e) {
-          result.lastError = e;
-        }
-        continue;
-      case STITCH_LINK_KEY:
-        result.found = true;
-        continue;
-      case STATE_KEY:
-        result.found = true;
-        var theirState = decodeURIComponent(pairParts[1]);
-        if (ourState && ourState === theirState) {
-          result.stateValid = true;
-        }
-        continue;
-      default:
-        continue;
-    }
-
-    if (shouldBreak) {
-      break;
-    }
-  }
-
-  return result;
-};
-
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -472,7 +435,7 @@ exports.ErrInvalidSession = ErrInvalidSession;
 exports.ErrUnauthorized = ErrUnauthorized;
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1330,7 +1293,460 @@ module.exports = Long;
 
 
 /***/ }),
-/* 4 */
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, fetch */
+/* eslint no-labels: ['error', { 'allowLoop': true }] */
+
+
+__webpack_require__(7);
+
+var _auth = __webpack_require__(14);
+
+var _auth2 = _interopRequireDefault(_auth);
+
+var _common = __webpack_require__(1);
+
+var _services = __webpack_require__(22);
+
+var _services2 = _interopRequireDefault(_services);
+
+var _common2 = __webpack_require__(2);
+
+var common = _interopRequireWildcard(_common2);
+
+var _mongodbExtjson = __webpack_require__(8);
+
+var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
+
+var _queryString = __webpack_require__(53);
+
+var _queryString2 = _interopRequireDefault(_queryString);
+
+var _util = __webpack_require__(0);
+
+var _errors = __webpack_require__(3);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var EJSON = new _mongodbExtjson2.default();
+
+var v1 = 1;
+var v2 = 2;
+
+/**
+ * Create a new StitchClient instance.
+ *
+ * @class
+ * @return {StitchClient} a StitchClient instance.
+ */
+
+var StitchClient = function () {
+  function StitchClient(clientAppID, options) {
+    var _rootURLsByAPIVersion,
+        _this = this;
+
+    _classCallCheck(this, StitchClient);
+
+    var baseUrl = common.DEFAULT_STITCH_SERVER_URL;
+    if (options && options.baseUrl) {
+      baseUrl = options.baseUrl;
+    }
+
+    this.clientAppID = clientAppID;
+
+    this.authUrl = clientAppID ? baseUrl + '/api/client/v1.0/app/' + clientAppID + '/auth' : baseUrl + '/api/public/v2.0/auth';
+
+    this.rootURLsByAPIVersion = (_rootURLsByAPIVersion = {}, _defineProperty(_rootURLsByAPIVersion, v1, {
+      public: baseUrl + '/api/public/v1.0',
+      client: baseUrl + '/api/client/v1.0',
+      private: baseUrl + '/api/private/v1.0',
+      app: clientAppID ? baseUrl + '/api/client/v1.0/app/' + clientAppID : baseUrl + '/api/public/v1.0'
+    }), _defineProperty(_rootURLsByAPIVersion, v2, {
+      public: baseUrl + '/api/public/v2.0',
+      client: baseUrl + '/api/client/v2.0',
+      private: baseUrl + '/api/private/v2.0',
+      app: clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID : baseUrl + '/api/public/v2.0'
+    }), _rootURLsByAPIVersion);
+
+    var authOptions = { codec: _common.APP_CLIENT_CODEC };
+    if (options && options.authCodec) {
+      authOptions.codec = options.authCodec;
+    }
+    this.auth = new _auth2.default(this, this.authUrl, authOptions);
+    this.auth.handleRedirect();
+    this.auth.handleCookie();
+
+    // deprecated API
+    this.authManager = {
+      apiKeyAuth: function apiKeyAuth(key) {
+        return _this.authenticate('apiKey', key);
+      },
+      localAuth: function localAuth(email, password) {
+        return _this.login(email, password);
+      },
+      mongodbCloudAuth: function mongodbCloudAuth(username, apiKey, opts) {
+        return _this.authenticate('mongodbCloud', Object.assign({ username: username, apiKey: apiKey }, opts));
+      }
+    };
+
+    this.authManager.apiKeyAuth = (0, _util.deprecate)(this.authManager.apiKeyAuth, 'use `client.authenticate("apiKey", "key")` instead of `client.authManager.apiKey`');
+    this.authManager.localAuth = (0, _util.deprecate)(this.authManager.localAuth, 'use `client.login` instead of `client.authManager.localAuth`');
+    this.authManager.mongodbCloudAuth = (0, _util.deprecate)(this.authManager.mongodbCloudAuth, 'use `client.authenticate("mongodbCloud", opts)` instead of `client.authManager.mongodbCloudAuth`');
+  }
+
+  _createClass(StitchClient, [{
+    key: 'login',
+
+
+    /**
+     * Login to stitch instance, optionally providing a username and password. In
+     * the event that these are omitted, anonymous authentication is used.
+     *
+     * @param {String} [email] the email address used for login
+     * @param {String} [password] the password for the provided email address
+     * @param {Object} [options] additional authentication options
+     * @returns {Promise}
+     */
+    value: function login(email, password) {
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+      if (email === undefined || password === undefined) {
+        return this.authenticate('anon', options);
+      }
+
+      return this.authenticate('userpass', Object.assign({ username: email, password: password }, options));
+    }
+
+    /**
+     * Send a request to the server indicating the provided email would like
+     * to sign up for an account. This will trigger a confirmation email containing
+     * a token which must be used with the `emailConfirm` method of the `userpass`
+     * auth provider in order to complete registration. The user will not be able
+     * to log in until that flow has been completed.
+     *
+     * @param {String} email the email used to sign up for the app
+     * @param {String} password the password used to sign up for the app
+     * @param {Object} [options] additional authentication options
+     * @returns {Promise}
+     */
+
+  }, {
+    key: 'register',
+    value: function register(email, password) {
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+      return this.auth.provider('userpass').register(email, password, options);
+    }
+
+    /**
+     * Submits an authentication request to the specified provider providing any
+     * included options (read: user data).  If auth data already exists and the
+     * existing auth data has an access token, then these credentials are returned.
+     *
+     * @param {String} providerType the provider used for authentication (e.g. 'userpass', 'facebook', 'google')
+     * @param {Object} [options] additional authentication options
+     * @returns {Promise} which resolves to a String value: the authed userId
+     */
+
+  }, {
+    key: 'authenticate',
+    value: function authenticate(providerType) {
+      var _this2 = this;
+
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+      // reuse existing auth if present
+      if (this.auth.getAccessToken()) {
+        return Promise.resolve(this.auth.authedId());
+      }
+
+      return this.auth.provider(providerType).authenticate(options).then(function () {
+        return _this2.auth.authedId();
+      });
+    }
+
+    /**
+     * Ends the session for the current user.
+     *
+     * @returns {Promise}
+     */
+
+  }, {
+    key: 'logout',
+    value: function logout() {
+      var _this3 = this;
+
+      return this._do('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function () {
+        return _this3.auth.clear();
+      });
+    }
+
+    /**
+     * @return {*} Returns any error from the Stitch authentication system.
+     */
+
+  }, {
+    key: 'authError',
+    value: function authError() {
+      return this.auth.error();
+    }
+
+    /**
+     * Returns profile information for the currently logged in user
+     *
+     * @returns {Promise}
+     */
+
+  }, {
+    key: 'userProfile',
+    value: function userProfile() {
+      return this._do('/auth/me', 'GET').then(function (response) {
+        return response.json();
+      });
+    }
+    /**
+     *  @return {String} Returns the currently authed user's ID.
+     */
+
+  }, {
+    key: 'authedId',
+    value: function authedId() {
+      return this.auth.authedId();
+    }
+
+    /**
+     * Factory method for accessing Stitch services.
+     *
+     * @method
+     * @param {String} type The service type [mongodb, {String}]
+     * @param {String} name The service name.
+     * @return {Object} returns a named service.
+     */
+
+  }, {
+    key: 'service',
+    value: function service(type, name) {
+      if (this.constructor !== StitchClient) {
+        throw new _errors.StitchError('`service` is a factory method, do not use `new`');
+      }
+
+      if (!_services2.default.hasOwnProperty(type)) {
+        throw new _errors.StitchError('Invalid service type specified: ' + type);
+      }
+
+      var ServiceType = _services2.default[type];
+      return new ServiceType(this, name);
+    }
+
+    /**
+     * Executes a named pipeline.
+     *
+     * @param {String} name Name of the named pipeline to execute.
+     * @param {Object} args Arguments to the named pipeline to execute.
+     * @param {Object} [options] Additional options to pass to the execution context.
+     */
+
+  }, {
+    key: 'executeNamedPipeline',
+    value: function executeNamedPipeline(name, args) {
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+      var namedPipelineStages = [{
+        service: '',
+        action: 'namedPipeline',
+        args: { name: name, args: args }
+      }];
+      return this.executePipeline(namedPipelineStages, options);
+    }
+
+    /**
+     * Executes a service pipeline.
+     *
+     * @param {Array} stages Stages to process.
+     * @param {Object} [options] Additional options to pass to the execution context.
+     */
+
+  }, {
+    key: 'executePipeline',
+    value: function executePipeline(stages) {
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+      var responseDecoder = function responseDecoder(d) {
+        return EJSON.parse(d, { strict: false });
+      };
+      var responseEncoder = function responseEncoder(d) {
+        return EJSON.stringify(d);
+      };
+      stages = Array.isArray(stages) ? stages : [stages];
+      stages = stages.reduce(function (acc, stage) {
+        return acc.concat(stage);
+      }, []);
+
+      if (options.decoder) {
+        if (typeof options.decoder !== 'function') {
+          throw new Error('decoder option must be a function, but "' + _typeof(options.decoder) + '" was provided');
+        }
+        responseDecoder = options.decoder;
+      }
+
+      if (options.encoder) {
+        if (typeof options.encoder !== 'function') {
+          throw new Error('encoder option must be a function, but "' + _typeof(options.encoder) + '" was provided');
+        }
+        responseEncoder = options.encoder;
+      }
+      if (options.finalizer && typeof options.finalizer !== 'function') {
+        throw new Error('finalizer option must be a function, but "' + _typeof(options.finalizer) + '" was provided');
+      }
+
+      return this._do('/pipeline', 'POST', { body: responseEncoder(stages) }).then(function (response) {
+        return response.text();
+      }).then(function (body) {
+        return responseDecoder(body);
+      }).then((0, _util.collectMetadata)(options.finalizer));
+    }
+
+    /**
+     * Returns an access token for the user
+     *
+     * @returns {Promise}
+     */
+
+  }, {
+    key: 'doSessionPost',
+    value: function doSessionPost() {
+      return this._do('/auth/newAccessToken', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
+        return response.json();
+      });
+    }
+  }, {
+    key: '_do',
+    value: function _do(resource, method, options) {
+      var _this4 = this;
+
+      options = Object.assign({}, {
+        refreshOnFailure: true,
+        useRefreshToken: false,
+        apiVersion: v1,
+        apiType: 'app'
+      }, options);
+
+      if (!options.noAuth) {
+        if (!this.authedId()) {
+          return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
+        }
+
+        // If access token is expired, proactively get a new one
+        if (!options.useRefreshToken && this.auth.isAccessTokenExpired()) {
+          return this.auth.refreshToken().then(function () {
+            options.refreshOnFailure = false;
+            return _this4._do(resource, method, options);
+          });
+        }
+      }
+
+      var appURL = this.rootURLsByAPIVersion[options.apiVersion][options.apiType];
+      var url = '' + appURL + resource;
+      var fetchArgs = common.makeFetchArgs(method, options.body);
+
+      if (!!options.headers) {
+        Object.assign(fetchArgs.headers, options.headers);
+      }
+
+      if (!options.noAuth) {
+        var token = options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
+        fetchArgs.headers.Authorization = 'Bearer ' + token;
+      }
+
+      if (options.queryParams) {
+        url = url + '?' + _queryString2.default.stringify(options.queryParams);
+      }
+
+      return fetch(url, fetchArgs).then(function (response) {
+        // Okay: passthrough
+        if (response.status >= 200 && response.status < 300) {
+          return Promise.resolve(response);
+        }
+
+        if (response.headers.get('Content-Type') === common.JSONTYPE) {
+          return response.json().then(function (json) {
+            // Only want to try refreshing token when there's an invalid session
+            if ('errorCode' in json && json.errorCode === _errors.ErrInvalidSession) {
+              if (!options.refreshOnFailure) {
+                _this4.auth.clear();
+                var _error = new _errors.StitchError(json.error, json.errorCode);
+                _error.response = response;
+                _error.json = json;
+                throw _error;
+              }
+
+              return _this4.auth.refreshToken().then(function () {
+                options.refreshOnFailure = false;
+                return _this4._do(resource, method, options);
+              });
+            }
+
+            var error = new _errors.StitchError(json.error, json.errorCode);
+            error.response = response;
+            error.json = json;
+            return Promise.reject(error);
+          });
+        }
+
+        var error = new Error(response.statusText);
+        error.response = response;
+        return Promise.reject(error);
+      });
+    }
+
+    // Deprecated API
+
+  }, {
+    key: 'authWithOAuth',
+    value: function authWithOAuth(providerType, redirectUrl) {
+      return this.auth.provider(providerType).authenticate({ redirectUrl: redirectUrl });
+    }
+  }, {
+    key: 'anonymousAuth',
+    value: function anonymousAuth() {
+      return this.authenticate('anon');
+    }
+  }, {
+    key: 'type',
+    get: function get() {
+      return common.APP_CLIENT_TYPE;
+    }
+  }]);
+
+  return StitchClient;
+}();
+
+exports.default = StitchClient;
+
+
+StitchClient.prototype.authWithOAuth = (0, _util.deprecate)(StitchClient.prototype.authWithOAuth, 'use `authenticate` instead of `authWithOAuth`');
+StitchClient.prototype.anonymousAuth = (0, _util.deprecate)(StitchClient.prototype.anonymousAuth, 'use `login()` instead of `anonymousAuth`');
+module.exports = exports['default'];
+
+/***/ }),
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1344,9 +1760,9 @@ module.exports = Long;
 
 
 
-var base64 = __webpack_require__(26)
-var ieee754 = __webpack_require__(31)
-var isArray = __webpack_require__(32)
+var base64 = __webpack_require__(29)
+var ieee754 = __webpack_require__(33)
+var isArray = __webpack_require__(34)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -3124,38 +3540,51 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(50)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(55)))
 
 /***/ }),
-/* 5 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ExtJSON = __webpack_require__(45);
-ExtJSON.BSON = __webpack_require__(6);
+// the whatwg-fetch polyfill installs the fetch() function
+// on the global object (window or self)
+//
+// Return that as the export for use in Webpack, Browserify etc.
+__webpack_require__(56);
+var globalObj = typeof self !== 'undefined' && self || this;
+module.exports = globalObj.fetch.bind(globalObj);
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var ExtJSON = __webpack_require__(50);
+ExtJSON.BSON = __webpack_require__(9);
 
 module.exports = ExtJSON;
 
 
 /***/ }),
-/* 6 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Binary = __webpack_require__(33);
-var Code = __webpack_require__(34);
-var DBRef = __webpack_require__(35);
-var Decimal128 = __webpack_require__(36);
-var Double = __webpack_require__(37);
-var Int32 = __webpack_require__(38);
-var Long = __webpack_require__(3);
-var MaxKey = __webpack_require__(39);
-var MinKey = __webpack_require__(40);
-var ObjectID = __webpack_require__(41);
-var BSONRegExp = __webpack_require__(42);
-var Symbol = __webpack_require__(43);
-var Timestamp = __webpack_require__(44);
+var Binary = __webpack_require__(38);
+var Code = __webpack_require__(39);
+var DBRef = __webpack_require__(40);
+var Decimal128 = __webpack_require__(41);
+var Double = __webpack_require__(42);
+var Int32 = __webpack_require__(43);
+var Long = __webpack_require__(4);
+var MaxKey = __webpack_require__(44);
+var MinKey = __webpack_require__(45);
+var ObjectID = __webpack_require__(46);
+var BSONRegExp = __webpack_require__(47);
+var Symbol = __webpack_require__(48);
+var Timestamp = __webpack_require__(49);
 
 module.exports = {
   Binary: Binary, Code: Code, DBRef: DBRef, Decimal128: Decimal128, Double: Double,
@@ -3165,7 +3594,7 @@ module.exports = {
 
 
 /***/ }),
-/* 7 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3222,7 +3651,7 @@ module.exports = {
 
 
 /***/ }),
-/* 8 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3232,561 +3661,45 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _errors = __webpack_require__(2);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-exports.default = {
-  /**
-   * Filters its input documents and outputs only those documents that match
-   * its query filter condition.
-   *
-   * The match action cannot be in the first stage of a pipeline. The stage
-   * preceding the match action stage must output documents; for example, a
-   * built-in action literal stage.
-   *
-   * @param {Object} expression Query filter against which to compare each incoming document.
-   *                   Specify the filter as a JSON document. Filter expression can
-   *                   include MongoDB query expressions as well as variables ($$vars)
-   *                   defined in the stage.
-   * @return {Object}
-   */
-  match: function match(expression) {
-    return { service: '', action: 'match', args: { expression: expression } };
-  },
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-  /**
-   * Explicitly defines the documents to output from the stage.
-   *
-   * You can only use the literal action in the first stage of a pipeline.
-   *
-   * @param {Array|Object} items Documents to output. Documents can reference
-   *                       variables ($$vars) defined in the stage.
-   * @return {Object}
-   */
-  literal: function literal(items) {
-    items = Array.isArray(items) ? items : [items];
-    return { service: '', action: 'literal', args: { items: items } };
-  },
+__webpack_require__(7);
 
-  /**
-   * Determines which fields to include or exclude in the output documents.
-   *
-   * The project action cannot be in the first stage of a pipeline. The stage
-   * preceding the project action stage must output documents; for example, a
-   * built-in action literal stage.
-   *
-   * @param {Object} projection A document that specifies field inclusions or field
-   *                   exclusions. A projection document cannot specify both
-   *                   field inclusions and field exclusions.
-   * @returns {Object}
-   */
-  project: function project(projection) {
-    return { service: '', action: 'project', args: { projection: projection } };
-  },
+var _client = __webpack_require__(5);
 
-  /**
-   * Does nothing and outputs nothing. A null action stage may be useful as a
-   * final stage for pipelines that do not need to return anything to the client.
-   *
-   * The null action stage ignores input to its stage as well its own arguments, if specified.
-   * @returns {Object}
-   */
-  null: function _null() {
-    return { service: '', action: 'null', args: {} };
-  },
+var _client2 = _interopRequireDefault(_client);
 
-  /**
-   * Decodes base64 or hexadecimal encoded data and outputs as binary data stream.
-   *
-   * You can only use the binary action in the first stage of a pipeline.
-   *
-   * @param {String} encoding the encoding format of data argument, one of ["hex", "base64"]
-   * @param {String} data encoded data string to decode and pass on as binary data.
-   * @returns {Object}
-   */
-  binary: function binary(encoding, data) {
-    if (encoding !== 'hex' && encoding !== 'base64') {
-      throw new _errors.StitchError('invalid encoding specified: ' + encoding);
-    }
+var _common = __webpack_require__(2);
 
-    return { service: '', action: 'binary', args: { encoding: encoding, data: data } };
-  },
+var _common2 = _interopRequireDefault(_common);
 
-  /**
-   * Encodes incoming binary data into specified format and outputs a document with
-   * the field data which holds the encoded string.
-   *
-   * The encode action cannot be in the first stage of a pipeline. The stage preceding
-   * the encode action stage must output a stream of binary data.
-   *
-   * @param {String} encoding encoding format for outgoing data, one of: ["hex", "base64"]
-   * @returns {Object}
-   */
-  encode: function encode(encoding) {
-    if (encoding !== 'hex' && encoding !== 'base64') {
-      throw new _errors.StitchError('invalid encoding specified: ' + encoding);
-    }
-
-    return { service: '', action: 'encode', args: { encoding: encoding } };
-  },
-
-  /**
-   * Reads a binary input stream and outputs a string.
-   *
-   * The reader action cannot be in the first stage of a pipeline. The stage preceding
-   * the encode action stage must output a stream of binary data.
-   *
-   * @returns {Object}
-   */
-  reader: function reader() {
-    return { service: '', action: 'reader', args: {} };
-  },
-
-  /**
-   * Constructs the stages needed to execute a named pipeline
-   *
-   * @param {String} name name of the named pipeline to execute
-   * @param {String|Object} [args] optional arguments to pass to the execution
-   * @returns {Object}
-   */
-  namedPipeline: function namedPipeline(name, args) {
-    return {
-      service: '',
-      action: 'namedPipeline',
-      args: { name: name, args: args }
-    };
-  }
-};
-module.exports = exports['default'];
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Admin = exports.StitchClient = undefined;
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, fetch */
-/* eslint no-labels: ['error', { 'allowLoop': true }] */
-
-
-__webpack_require__(30);
-
-var _auth = __webpack_require__(11);
-
-var _auth2 = _interopRequireDefault(_auth);
-
-var _services = __webpack_require__(19);
-
-var _services2 = _interopRequireDefault(_services);
-
-var _common = __webpack_require__(1);
-
-var common = _interopRequireWildcard(_common);
-
-var _mongodbExtjson = __webpack_require__(5);
-
-var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
-
-var _queryString = __webpack_require__(48);
-
-var _queryString2 = _interopRequireDefault(_queryString);
-
-var _util = __webpack_require__(0);
-
-var _errors = __webpack_require__(2);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+var _common3 = __webpack_require__(1);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var EJSON = new _mongodbExtjson2.default();
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /* global window, fetch */
+/* eslint no-labels: ['error', { 'allowLoop': true }] */
+
 
 var v1 = 1;
 var v2 = 2;
 
-/**
- * Create a new StitchClient instance.
- *
- * @class
- * @return {StitchClient} a StitchClient instance.
- */
+var Admin = function (_StitchClient) {
+  _inherits(Admin, _StitchClient);
 
-var StitchClient = function () {
-  function StitchClient(clientAppID, options) {
-    var _rootURLsByAPIVersion,
-        _this = this;
-
-    _classCallCheck(this, StitchClient);
-
-    var baseUrl = common.DEFAULT_STITCH_SERVER_URL;
-    if (options && options.baseUrl) {
-      baseUrl = options.baseUrl;
-    }
-
-    this.clientAppID = clientAppID;
-
-    this.authUrl = clientAppID ? baseUrl + '/api/client/v1.0/app/' + clientAppID + '/auth' : baseUrl + '/api/public/v1.0/auth';
-
-    this.rootURLsByAPIVersion = (_rootURLsByAPIVersion = {}, _defineProperty(_rootURLsByAPIVersion, v1, {
-      public: baseUrl + '/api/public/v1.0',
-      client: baseUrl + '/api/client/v1.0',
-      app: clientAppID ? baseUrl + '/api/client/v1.0/app/' + clientAppID : baseUrl + '/api/public/v1.0'
-    }), _defineProperty(_rootURLsByAPIVersion, v2, {
-      public: baseUrl + '/api/public/v2.0',
-      client: baseUrl + '/api/client/v2.0',
-      app: clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID : baseUrl + '/api/public/v2.0'
-    }), _rootURLsByAPIVersion);
-
-    this.auth = new _auth2.default(this, this.authUrl);
-    this.auth.handleRedirect();
-    this.auth.handleCookie();
-
-    // deprecated API
-    this.authManager = {
-      apiKeyAuth: function apiKeyAuth(key) {
-        return _this.authenticate('apiKey', key);
-      },
-      localAuth: function localAuth(email, password) {
-        return _this.login(email, password);
-      },
-      mongodbCloudAuth: function mongodbCloudAuth(username, apiKey, opts) {
-        return _this.authenticate('mongodbCloud', Object.assign({ username: username, apiKey: apiKey }, opts));
-      }
-    };
-
-    this.authManager.apiKeyAuth = (0, _util.deprecate)(this.authManager.apiKeyAuth, 'use `client.authenticate("apiKey", "key")` instead of `client.authManager.apiKey`');
-    this.authManager.localAuth = (0, _util.deprecate)(this.authManager.localAuth, 'use `client.login` instead of `client.authManager.localAuth`');
-    this.authManager.mongodbCloudAuth = (0, _util.deprecate)(this.authManager.mongodbCloudAuth, 'use `client.authenticate("mongodbCloud", opts)` instead of `client.authManager.mongodbCloudAuth`');
-  }
-
-  /**
-   * Login to stitch instance, optionally providing a username and password. In
-   * the event that these are omitted, anonymous authentication is used.
-   *
-   * @param {String} [email] the email address used for login
-   * @param {String} [password] the password for the provided email address
-   * @param {Object} [options] additional authentication options
-   * @returns {Promise}
-   */
-
-
-  _createClass(StitchClient, [{
-    key: 'login',
-    value: function login(email, password) {
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-      if (email === undefined || password === undefined) {
-        return this.authenticate('anon', options);
-      }
-
-      return this.authenticate('userpass', Object.assign({ username: email, password: password }, options));
-    }
-
-    /**
-     * Send a request to the server indicating the provided email would like
-     * to sign up for an account. This will trigger a confirmation email containing
-     * a token which must be used with the `emailConfirm` method of the `userpass`
-     * auth provider in order to complete registration. The user will not be able
-     * to log in until that flow has been completed.
-     *
-     * @param {String} email the email used to sign up for the app
-     * @param {String} password the password used to sign up for the app
-     * @param {Object} [options] additional authentication options
-     * @returns {Promise}
-     */
-
-  }, {
-    key: 'register',
-    value: function register(email, password) {
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-      return this.auth.provider('userpass').register(email, password, options);
-    }
-
-    /**
-     * Submits an authentication request to the specified provider providing any
-     * included options (read: user data).  If auth data already exists and the
-     * existing auth data has an access token, then these credentials are returned.
-     *
-     * @param {String} providerType the provider used for authentication (e.g. 'userpass', 'facebook', 'google')
-     * @param {Object} [options] additional authentication options
-     * @returns {Promise} which resolves to a String value: the authed userId
-     */
-
-  }, {
-    key: 'authenticate',
-    value: function authenticate(providerType) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      // reuse existing auth if present
-      var existingAuthData = this.auth.get();
-      if (existingAuthData.hasOwnProperty('accessToken')) {
-        return Promise.resolve(existingAuthData.userId);
-      }
-
-      return this.auth.provider(providerType).authenticate(options).then(function (authData) {
-        return authData.userId;
-      });
-    }
-
-    /**
-     * Ends the session for the current user.
-     *
-     * @returns {Promise}
-     */
-
-  }, {
-    key: 'logout',
-    value: function logout() {
-      var _this2 = this;
-
-      return this._do('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function () {
-        return _this2.auth.clear();
-      });
-    }
-
-    /**
-     * @return {*} Returns any error from the Stitch authentication system.
-     */
-
-  }, {
-    key: 'authError',
-    value: function authError() {
-      return this.auth.error();
-    }
-
-    /**
-     * Returns profile information for the currently logged in user
-     *
-     * @returns {Promise}
-     */
-
-  }, {
-    key: 'userProfile',
-    value: function userProfile() {
-      return this._do('/auth/me', 'GET').then(function (response) {
-        return response.json();
-      });
-    }
-
-    /**
-     *  @return {String} Returns the currently authed user's ID.
-     */
-
-  }, {
-    key: 'authedId',
-    value: function authedId() {
-      return this.auth.authedId();
-    }
-
-    /**
-     * Factory method for accessing Stitch services.
-     *
-     * @method
-     * @param {String} type The service type [mongodb, {String}]
-     * @param {String} name The service name.
-     * @return {Object} returns a named service.
-     */
-
-  }, {
-    key: 'service',
-    value: function service(type, name) {
-      if (this.constructor !== StitchClient) {
-        throw new _errors.StitchError('`service` is a factory method, do not use `new`');
-      }
-
-      if (!_services2.default.hasOwnProperty(type)) {
-        throw new _errors.StitchError('Invalid service type specified: ' + type);
-      }
-
-      var ServiceType = _services2.default[type];
-      return new ServiceType(this, name);
-    }
-
-    /**
-     * Executes a named pipeline.
-     *
-     * @param {String} name Name of the named pipeline to execute.
-     * @param {Object} args Arguments to the named pipeline to execute.
-     * @param {Object} [options] Additional options to pass to the execution context.
-     */
-
-  }, {
-    key: 'executeNamedPipeline',
-    value: function executeNamedPipeline(name, args) {
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-      var namedPipelineStages = [{
-        service: '',
-        action: 'namedPipeline',
-        args: { name: name, args: args }
-      }];
-      return this.executePipeline(namedPipelineStages, options);
-    }
-
-    /**
-     * Executes a service pipeline.
-     *
-     * @param {Array} stages Stages to process.
-     * @param {Object} [options] Additional options to pass to the execution context.
-     */
-
-  }, {
-    key: 'executePipeline',
-    value: function executePipeline(stages) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      var responseDecoder = function responseDecoder(d) {
-        return EJSON.parse(d, { strict: false });
-      };
-      var responseEncoder = function responseEncoder(d) {
-        return EJSON.stringify(d);
-      };
-      stages = Array.isArray(stages) ? stages : [stages];
-      stages = stages.reduce(function (acc, stage) {
-        return acc.concat(stage);
-      }, []);
-
-      if (options.decoder) {
-        if (typeof options.decoder !== 'function') {
-          throw new Error('decoder option must be a function, but "' + _typeof(options.decoder) + '" was provided');
-        }
-        responseDecoder = options.decoder;
-      }
-
-      if (options.encoder) {
-        if (typeof options.encoder !== 'function') {
-          throw new Error('encoder option must be a function, but "' + _typeof(options.encoder) + '" was provided');
-        }
-        responseEncoder = options.encoder;
-      }
-      if (options.finalizer && typeof options.finalizer !== 'function') {
-        throw new Error('finalizer option must be a function, but "' + _typeof(options.finalizer) + '" was provided');
-      }
-
-      return this._do('/pipeline', 'POST', { body: responseEncoder(stages) }).then(function (response) {
-        return response.text();
-      }).then(function (body) {
-        return responseDecoder(body);
-      }).then((0, _util.collectMetadata)(options.finalizer));
-    }
-  }, {
-    key: '_do',
-    value: function _do(resource, method, options) {
-      var _this3 = this;
-
-      options = Object.assign({}, {
-        refreshOnFailure: true,
-        useRefreshToken: false,
-        apiVersion: v1
-      }, options);
-
-      if (!options.noAuth) {
-        if (!this.authedId()) {
-          return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
-        }
-      }
-
-      var appURL = this.rootURLsByAPIVersion[options.apiVersion].app;
-      var url = '' + appURL + resource;
-      var fetchArgs = common.makeFetchArgs(method, options.body);
-
-      if (!!options.headers) {
-        Object.assign(fetchArgs.headers, options.headers);
-      }
-
-      if (!options.noAuth) {
-        var token = options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
-        fetchArgs.headers.Authorization = 'Bearer ' + token;
-      }
-
-      if (options.queryParams) {
-        url = url + '?' + _queryString2.default.stringify(options.queryParams);
-      }
-
-      return fetch(url, fetchArgs).then(function (response) {
-        // Okay: passthrough
-        if (response.status >= 200 && response.status < 300) {
-          return Promise.resolve(response);
-        }
-
-        if (response.headers.get('Content-Type') === common.JSONTYPE) {
-          return response.json().then(function (json) {
-            // Only want to try refreshing token when there's an invalid session
-            if ('errorCode' in json && json.errorCode === _errors.ErrInvalidSession) {
-              if (!options.refreshOnFailure) {
-                _this3.auth.clear();
-                var _error = new _errors.StitchError(json.error, json.errorCode);
-                _error.response = response;
-                _error.json = json;
-                throw _error;
-              }
-
-              return _this3.auth.refreshToken().then(function () {
-                options.refreshOnFailure = false;
-                return _this3._do(resource, method, options);
-              });
-            }
-
-            var error = new _errors.StitchError(json.error, json.errorCode);
-            error.response = response;
-            error.json = json;
-            return Promise.reject(error);
-          });
-        }
-
-        var error = new Error(response.statusText);
-        error.response = response;
-        return Promise.reject(error);
-      });
-    }
-
-    // Deprecated API
-
-  }, {
-    key: 'authWithOAuth',
-    value: function authWithOAuth(providerType, redirectUrl) {
-      return this.auth.provider(providerType).authenticate({ redirectUrl: redirectUrl });
-    }
-  }, {
-    key: 'anonymousAuth',
-    value: function anonymousAuth() {
-      return this.authenticate('anon');
-    }
-  }]);
-
-  return StitchClient;
-}();
-
-StitchClient.prototype.authWithOAuth = (0, _util.deprecate)(StitchClient.prototype.authWithOAuth, 'use `authenticate` instead of `authWithOAuth`');
-StitchClient.prototype.anonymousAuth = (0, _util.deprecate)(StitchClient.prototype.anonymousAuth, 'use `login()` instead of `anonymousAuth`');
-
-var Admin = function () {
   function Admin(baseUrl) {
     _classCallCheck(this, Admin);
 
-    this.client = new StitchClient('', { baseUrl: baseUrl });
+    return _possibleConstructorReturn(this, (Admin.__proto__ || Object.getPrototypeOf(Admin)).call(this, '', { baseUrl: baseUrl, authCodec: _common3.ADMIN_CLIENT_CODEC }));
   }
 
   _createClass(Admin, [{
-    key: '_do',
-    value: function _do(url, method, options) {
-      return this.client._do(url, method, options).then(function (response) {
-        return response.json();
-      });
-    }
-  }, {
     key: 'profile',
     value: function profile() {
       var api = this._v1;
@@ -3820,6 +3733,62 @@ var Admin = function () {
       };
     }
 
+    /**
+     * Ends the session for the current user.
+     *
+     * @returns {Promise}
+     */
+
+  }, {
+    key: 'logout',
+    value: function logout() {
+      var _this2 = this;
+
+      return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', this).call(this, '/auth/session', 'DELETE', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v2 }).then(function () {
+        return _this2.auth.clear();
+      });
+    }
+
+    /**
+     * Returns profile information for the currently logged in user
+     *
+     * @returns {Promise}
+     */
+
+  }, {
+    key: 'userProfile',
+    value: function userProfile() {
+      return this._v2._get('/auth/profile');
+    }
+
+    /**
+     * Returns available providers for the currently logged in admin
+     *
+     * @returns {Promise}
+     */
+
+  }, {
+    key: 'getAuthProviders',
+    value: function getAuthProviders() {
+      return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', this).call(this, '/auth/providers', 'GET', { noAuth: true, apiVersion: v2 }).then(function (response) {
+        return response.json();
+      });
+    }
+
+    /**
+     * Returns an access token for the user
+     *
+     * @returns {Promise}
+     */
+
+  }, {
+    key: 'doSessionPost',
+    value: function doSessionPost() {
+      return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', this).call(this, '/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v2 }).then(function (response) {
+        return response.json();
+      });
+    }
+
     /* Examples of how to access admin API with this client:
      *
      * List all apps
@@ -3839,7 +3808,7 @@ var Admin = function () {
   }, {
     key: 'apps',
     value: function apps(groupId) {
-      var _this4 = this;
+      var _this3 = this;
 
       var api = this._v1;
       return {
@@ -3921,7 +3890,7 @@ var Admin = function () {
               return {
                 executePipeline: function executePipeline(data, userId, options) {
                   var queryParams = Object.assign({}, options, { user_id: userId });
-                  return _this4._do('/groups/' + groupId + '/apps/' + appID + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: queryParams });
+                  return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this3).call(_this3, '/groups/' + groupId + '/apps/' + appID + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: queryParams });
                 }
               };
             },
@@ -4124,9 +4093,6 @@ var Admin = function () {
     key: 'v2',
     value: function v2() {
       var api = this._v2;
-      var TODOnotImplemented = function TODOnotImplemented() {
-        throw new Error('Not yet implemented');
-      };
       return {
         apps: function apps(groupId) {
           var groupUrl = '/groups/' + groupId + '/apps';
@@ -4250,13 +4216,13 @@ var Admin = function () {
                         incomingWebhooks: function incomingWebhooks() {
                           return {
                             list: function list() {
-                              return api._get(appUrl + '/services/' + serviceId + '/incomingWebhooks');
+                              return api._get(appUrl + '/services/' + serviceId + '/incoming_webhooks');
                             },
                             create: function create(data) {
-                              return api._post(appUrl + '/services/' + serviceId + '/incomingWebhooks', data);
+                              return api._post(appUrl + '/services/' + serviceId + '/incoming_webhooks', data);
                             },
                             incomingWebhook: function incomingWebhook(incomingWebhookId) {
-                              var webhookUrl = appUrl + '/services/' + serviceId + '/incomingWebhooks/' + incomingWebhookId;
+                              var webhookUrl = appUrl + '/services/' + serviceId + '/incoming_webhooks/' + incomingWebhookId;
                               return {
                                 get: function get() {
                                   return api._get(webhookUrl);
@@ -4361,7 +4327,20 @@ var Admin = function () {
                     }
                   };
                 },
-                security: TODOnotImplemented,
+                security: function security() {
+                  return {
+                    allowedRequestOrigins: function allowedRequestOrigins() {
+                      return {
+                        get: function get() {
+                          return api._get(appUrl + '/security/allowed_request_origins');
+                        },
+                        update: function update(data) {
+                          return api._post(appUrl + '/security/allowed_request_origins', data);
+                        }
+                      };
+                    }
+                  };
+                },
                 logs: function logs() {
                   return {
                     list: function list(filter) {
@@ -4404,25 +4383,25 @@ var Admin = function () {
   }, {
     key: '_admin',
     value: function _admin() {
-      var _this5 = this;
+      var _this4 = this;
 
       return {
         logs: function logs() {
           return {
             get: function get(filter) {
-              return _this5._do('/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter });
+              return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this4).call(_this4, '/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter });
             }
           };
         },
         users: function users() {
           return {
             list: function list(filter) {
-              return _this5._do('/admin/users', 'GET', { useRefreshToken: true, queryParams: filter });
+              return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this4).call(_this4, '/admin/users', 'GET', { useRefreshToken: true, queryParams: filter });
             },
             user: function user(uid) {
               return {
                 logout: function logout() {
-                  return _this5._do('/admin/users/' + uid + '/logout', 'PUT', { useRefreshToken: true });
+                  return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this4).call(_this4, '/admin/users/' + uid + '/logout', 'PUT', { useRefreshToken: true });
                 }
               };
             }
@@ -4433,25 +4412,30 @@ var Admin = function () {
   }, {
     key: '_isImpersonatingUser',
     value: function _isImpersonatingUser() {
-      return this.client.auth.isImpersonatingUser();
+      return this.auth.isImpersonatingUser();
     }
   }, {
     key: '_startImpersonation',
     value: function _startImpersonation(userId) {
-      return this.client.auth.startImpersonation(this.client, userId);
+      return this.auth.startImpersonation(this, userId);
     }
   }, {
     key: '_stopImpersonation',
     value: function _stopImpersonation() {
-      return this.client.auth.stopImpersonation();
+      return this.auth.stopImpersonation();
+    }
+  }, {
+    key: 'type',
+    get: function get() {
+      return _common2.default;
     }
   }, {
     key: '_v2',
     get: function get() {
-      var _this6 = this;
+      var _this5 = this;
 
       var v2do = function v2do(url, method, options) {
-        return _this6.client._do(url, method, Object.assign({}, { apiVersion: v2 }, options)).then(function (response) {
+        return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this5).call(_this5, url, method, Object.assign({}, { apiVersion: v2 }, options)).then(function (response) {
           var contentHeader = response.headers.get('content-type') || '';
           if (contentHeader.split(',').indexOf('application/json') >= 0) {
             return response.json();
@@ -4480,10 +4464,10 @@ var Admin = function () {
   }, {
     key: '_v1',
     get: function get() {
-      var _this7 = this;
+      var _this6 = this;
 
       var v1do = function v1do(url, method, options) {
-        return _this7.client._do(url, method, Object.assign({}, { apiVersion: v1 }, options)).then(function (response) {
+        return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this6).call(_this6, url, method, Object.assign({}, { apiVersion: v1 }, options)).then(function (response) {
           return response.json();
         });
       };
@@ -4505,13 +4489,150 @@ var Admin = function () {
   }]);
 
   return Admin;
-}();
+}(_client2.default);
 
-exports.StitchClient = StitchClient;
-exports.Admin = Admin;
+exports.default = Admin;
+module.exports = exports['default'];
 
 /***/ }),
-/* 10 */
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _errors = __webpack_require__(3);
+
+exports.default = {
+  /**
+   * Filters its input documents and outputs only those documents that match
+   * its query filter condition.
+   *
+   * The match action cannot be in the first stage of a pipeline. The stage
+   * preceding the match action stage must output documents; for example, a
+   * built-in action literal stage.
+   *
+   * @param {Object} expression Query filter against which to compare each incoming document.
+   *                   Specify the filter as a JSON document. Filter expression can
+   *                   include MongoDB query expressions as well as variables ($$vars)
+   *                   defined in the stage.
+   * @return {Object}
+   */
+  match: function match(expression) {
+    return { service: '', action: 'match', args: { expression: expression } };
+  },
+
+  /**
+   * Explicitly defines the documents to output from the stage.
+   *
+   * You can only use the literal action in the first stage of a pipeline.
+   *
+   * @param {Array|Object} items Documents to output. Documents can reference
+   *                       variables ($$vars) defined in the stage.
+   * @return {Object}
+   */
+  literal: function literal(items) {
+    items = Array.isArray(items) ? items : [items];
+    return { service: '', action: 'literal', args: { items: items } };
+  },
+
+  /**
+   * Determines which fields to include or exclude in the output documents.
+   *
+   * The project action cannot be in the first stage of a pipeline. The stage
+   * preceding the project action stage must output documents; for example, a
+   * built-in action literal stage.
+   *
+   * @param {Object} projection A document that specifies field inclusions or field
+   *                   exclusions. A projection document cannot specify both
+   *                   field inclusions and field exclusions.
+   * @returns {Object}
+   */
+  project: function project(projection) {
+    return { service: '', action: 'project', args: { projection: projection } };
+  },
+
+  /**
+   * Does nothing and outputs nothing. A null action stage may be useful as a
+   * final stage for pipelines that do not need to return anything to the client.
+   *
+   * The null action stage ignores input to its stage as well its own arguments, if specified.
+   * @returns {Object}
+   */
+  null: function _null() {
+    return { service: '', action: 'null', args: {} };
+  },
+
+  /**
+   * Decodes base64 or hexadecimal encoded data and outputs as binary data stream.
+   *
+   * You can only use the binary action in the first stage of a pipeline.
+   *
+   * @param {String} encoding the encoding format of data argument, one of ["hex", "base64"]
+   * @param {String} data encoded data string to decode and pass on as binary data.
+   * @returns {Object}
+   */
+  binary: function binary(encoding, data) {
+    if (encoding !== 'hex' && encoding !== 'base64') {
+      throw new _errors.StitchError('invalid encoding specified: ' + encoding);
+    }
+
+    return { service: '', action: 'binary', args: { encoding: encoding, data: data } };
+  },
+
+  /**
+   * Encodes incoming binary data into specified format and outputs a document with
+   * the field data which holds the encoded string.
+   *
+   * The encode action cannot be in the first stage of a pipeline. The stage preceding
+   * the encode action stage must output a stream of binary data.
+   *
+   * @param {String} encoding encoding format for outgoing data, one of: ["hex", "base64"]
+   * @returns {Object}
+   */
+  encode: function encode(encoding) {
+    if (encoding !== 'hex' && encoding !== 'base64') {
+      throw new _errors.StitchError('invalid encoding specified: ' + encoding);
+    }
+
+    return { service: '', action: 'encode', args: { encoding: encoding } };
+  },
+
+  /**
+   * Reads a binary input stream and outputs a string.
+   *
+   * The reader action cannot be in the first stage of a pipeline. The stage preceding
+   * the encode action stage must output a stream of binary data.
+   *
+   * @returns {Object}
+   */
+  reader: function reader() {
+    return { service: '', action: 'reader', args: {} };
+  },
+
+  /**
+   * Constructs the stages needed to execute a named pipeline
+   *
+   * @param {String} name name of the named pipeline to execute
+   * @param {String|Object} [args] optional arguments to pass to the execution
+   * @returns {Object}
+   */
+  namedPipeline: function namedPipeline(name, args) {
+    return {
+      service: '',
+      action: 'namedPipeline',
+      args: { name: name, args: args }
+    };
+  }
+};
+module.exports = exports['default'];
+
+/***/ }),
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function () {
@@ -4582,7 +4703,7 @@ exports.Admin = Admin;
 
 
 /***/ }),
-/* 11 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4594,30 +4715,42 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, document, fetch */
 
-var _storage = __webpack_require__(13);
+var _storage = __webpack_require__(16);
 
-var _providers = __webpack_require__(12);
+var _providers = __webpack_require__(15);
 
-var _errors = __webpack_require__(2);
+var _errors = __webpack_require__(3);
 
 var _common = __webpack_require__(1);
 
-var common = _interopRequireWildcard(_common);
+var authCommon = _interopRequireWildcard(_common);
+
+var _common2 = __webpack_require__(2);
+
+var common = _interopRequireWildcard(_common2);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var jwtDecode = __webpack_require__(37);
+
+var EMBEDDED_USER_AUTH_DATA_PARTS = 4;
 
 var Auth = function () {
   function Auth(client, rootUrl, options) {
     _classCallCheck(this, Auth);
 
     options = Object.assign({}, {
-      storageType: 'localStorage'
+      storageType: 'localStorage',
+      codec: authCommon.APP_CLIENT_CODEC
     }, options);
 
     this.client = client;
     this.rootUrl = rootUrl;
+    this.codec = options.codec;
     this.storage = (0, _storage.createStorage)(options.storageType);
     this.providers = (0, _providers.createProviders)(this);
   }
@@ -4640,11 +4773,8 @@ var Auth = function () {
         return this.refreshImpersonation(this.client);
       }
 
-      var requestOptions = { refreshOnFailure: false, useRefreshToken: true };
-      return this.client._do('/auth/newAccessToken', 'POST', requestOptions).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return _this.setAccessToken(json.accessToken);
+      return this.client.doSessionPost().then(function (json) {
+        return _this.set(json);
       });
     }
   }, {
@@ -4653,17 +4783,17 @@ var Auth = function () {
       return [window.location.protocol, '//', window.location.host, window.location.pathname].join('');
     }
   }, {
-    key: 'setAccessToken',
-    value: function setAccessToken(token) {
-      var currAuth = this.get();
-      currAuth.accessToken = token;
-      currAuth.refreshToken = this.storage.get(common.REFRESH_TOKEN_KEY);
-      this.set(currAuth);
-    }
-  }, {
     key: 'error',
     value: function error() {
       return this._error;
+    }
+  }, {
+    key: 'isAppClient',
+    value: function isAppClient() {
+      if (!this.client) {
+        return true; // Handle the case where Auth is constructed with null
+      }
+      return this.client.type === common.APP_CLIENT_TYPE;
     }
   }, {
     key: 'handleRedirect',
@@ -4677,9 +4807,9 @@ var Auth = function () {
         return;
       }
 
-      var ourState = this.storage.get(common.STATE_KEY);
+      var ourState = this.storage.get(authCommon.STATE_KEY);
       var redirectFragment = window.location.hash.substring(1);
-      var redirectState = common.parseRedirectFragment(redirectFragment, ourState);
+      var redirectState = this.parseRedirectFragment(redirectFragment, ourState);
       if (redirectState.lastError) {
         console.error('StitchClient: error from redirect: ' + redirectState.lastError);
         this._error = redirectState.lastError;
@@ -4691,7 +4821,7 @@ var Auth = function () {
         return;
       }
 
-      this.storage.remove(common.STATE_KEY);
+      this.storage.remove(authCommon.STATE_KEY);
       if (!redirectState.stateValid) {
         console.error('StitchClient: state values did not match!');
         window.history.replaceState(null, '', this.pageRootUrl());
@@ -4736,60 +4866,103 @@ var Auth = function () {
         return;
       }
 
-      var uaCookie = this.getCookie(common.USER_AUTH_COOKIE_NAME);
+      var uaCookie = this.getCookie(authCommon.USER_AUTH_COOKIE_NAME);
       if (!uaCookie) {
         return;
       }
 
-      document.cookie = common.USER_AUTH_COOKIE_NAME + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-      var userAuth = common.unmarshallUserAuth(uaCookie);
+      document.cookie = authCommon.USER_AUTH_COOKIE_NAME + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+      var userAuth = this.unmarshallUserAuth(uaCookie);
       this.set(userAuth);
       window.history.replaceState(null, '', this.pageRootUrl());
     }
   }, {
     key: 'clear',
     value: function clear() {
-      this.storage.remove(common.USER_AUTH_KEY);
-      this.storage.remove(common.REFRESH_TOKEN_KEY);
+      this.storage.remove(authCommon.USER_AUTH_KEY);
+      this.storage.remove(authCommon.REFRESH_TOKEN_KEY);
       this.clearImpersonation();
     }
   }, {
     key: 'getDeviceId',
     value: function getDeviceId() {
-      return this.storage.get(common.DEVICE_ID_KEY);
+      return this.storage.get(authCommon.DEVICE_ID_KEY);
+    }
+
+    // Returns whether or not the access token is expired or is going to expire within 'withinSeconds'
+    // seconds, according to current system time. Returns false if the token is malformed in any way.
+
+  }, {
+    key: 'isAccessTokenExpired',
+    value: function isAccessTokenExpired() {
+      var withinSeconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : authCommon.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS;
+
+      var token = this.getAccessToken();
+      if (!token) {
+        return false;
+      }
+
+      var decodedToken = void 0;
+      try {
+        decodedToken = jwtDecode(token);
+      } catch (e) {
+        return false;
+      }
+
+      if (!decodedToken) {
+        return false;
+      }
+
+      return decodedToken.exp && Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
     }
   }, {
     key: 'getAccessToken',
     value: function getAccessToken() {
-      return this.get()['accessToken'];
+      return this._get().accessToken;
     }
   }, {
     key: 'getRefreshToken',
     value: function getRefreshToken() {
-      return this.storage.get(common.REFRESH_TOKEN_KEY);
+      return this.storage.get(authCommon.REFRESH_TOKEN_KEY);
     }
   }, {
     key: 'set',
     value: function set(json) {
-      if (json && json.refreshToken) {
-        var rt = json.refreshToken;
-        delete json.refreshToken;
-        this.storage.set(common.REFRESH_TOKEN_KEY, rt);
+      if (!json) {
+        return;
       }
 
-      if (json && json.deviceId) {
-        var deviceId = json.deviceId;
-        delete json.deviceId;
-        this.storage.set(common.DEVICE_ID_KEY, deviceId);
+      if (json[this.codec.refreshToken]) {
+        var rt = json[this.codec.refreshToken];
+        delete json[this.codec.refreshToken];
+        this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
       }
 
-      this.storage.set(common.USER_AUTH_KEY, JSON.stringify(json));
-      return json;
+      if (json[this.codec.deviceId]) {
+        var deviceId = json[this.codec.deviceId];
+        delete json[this.codec.deviceId];
+        this.storage.set(authCommon.DEVICE_ID_KEY, deviceId);
+      }
+
+      // Merge in new fields with old fields. Typically the first json value
+      // is complete with every field inside a user auth, but subsequent requests
+      // do not include everything. This merging behavior is safe so long as json
+      // value responses with absent fields do not indicate that the field should
+      // be unset.
+      var newUserAuth = {};
+      if (json[this.codec.accessToken]) {
+        newUserAuth.accessToken = json[this.codec.accessToken];
+      }
+      if (json[this.codec.userId]) {
+        newUserAuth.userId = json[this.codec.userId];
+      }
+      newUserAuth = Object.assign(this._get(), newUserAuth);
+      this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
     }
   }, {
-    key: 'get',
-    value: function get() {
-      var data = this.storage.get(common.USER_AUTH_KEY);
+    key: '_get',
+    value: function _get() {
+      var data = this.storage.get(authCommon.USER_AUTH_KEY);
       if (!data) {
         return {};
       }
@@ -4806,29 +4979,23 @@ var Auth = function () {
   }, {
     key: 'authedId',
     value: function authedId() {
-      var authData = this.get();
-      if (authData.user) {
-        return authData.user._id;
-      }
-
-      return authData.userId;
+      return this._get().userId;
     }
   }, {
     key: 'isImpersonatingUser',
     value: function isImpersonatingUser() {
-      return this.storage.get(common.IMPERSONATION_ACTIVE_KEY) === 'true';
+      return this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY) === 'true';
     }
   }, {
     key: 'refreshImpersonation',
     value: function refreshImpersonation(client) {
       var _this2 = this;
 
-      var userId = this.storage.get(common.IMPERSONATION_USER_KEY);
+      var userId = this.storage.get(authCommon.IMPERSONATION_USER_KEY);
       return client._do('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
         return response.json();
       }).then(function (json) {
-        json.refreshToken = _this2.storage.get(common.REFRESH_TOKEN_KEY);
-        _this2.set(json);
+        return _this2.set(json);
       }).catch(function (e) {
         _this2.stopImpersonation();
         throw e; // rethrow
@@ -4837,7 +5004,7 @@ var Auth = function () {
   }, {
     key: 'startImpersonation',
     value: function startImpersonation(client, userId) {
-      if (this.get() === null) {
+      if (!this.authedId()) {
         return Promise.reject(new _errors.StitchError('Must auth first'));
       }
 
@@ -4845,12 +5012,11 @@ var Auth = function () {
         return Promise.reject(new _errors.StitchError('Already impersonating a user'));
       }
 
-      this.storage.set(common.IMPERSONATION_ACTIVE_KEY, 'true');
-      this.storage.set(common.IMPERSONATION_USER_KEY, userId);
+      this.storage.set(authCommon.IMPERSONATION_ACTIVE_KEY, 'true');
+      this.storage.set(authCommon.IMPERSONATION_USER_KEY, userId);
 
-      var realUserAuth = JSON.parse(this.storage.get(common.USER_AUTH_KEY));
-      realUserAuth.refreshToken = this.storage.get(common.REFRESH_TOKEN_KEY);
-      this.storage.set(common.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
+      var realUserAuth = JSON.parse(this.storage.get(authCommon.USER_AUTH_KEY));
+      this.storage.set(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
       return this.refreshImpersonation(client);
     }
   }, {
@@ -4863,7 +5029,7 @@ var Auth = function () {
       }
 
       return new Promise(function (resolve, reject) {
-        var realUserAuth = JSON.parse(_this3.storage.get(common.IMPERSONATION_REAL_USER_AUTH_KEY));
+        var realUserAuth = JSON.parse(_this3.storage.get(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY));
         _this3.set(realUserAuth);
         _this3.clearImpersonation();
         resolve();
@@ -4872,9 +5038,65 @@ var Auth = function () {
   }, {
     key: 'clearImpersonation',
     value: function clearImpersonation() {
-      this.storage.remove(common.IMPERSONATION_ACTIVE_KEY);
-      this.storage.remove(common.IMPERSONATION_USER_KEY);
-      this.storage.remove(common.IMPERSONATION_REAL_USER_AUTH_KEY);
+      this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY);
+      this.storage.remove(authCommon.IMPERSONATION_USER_KEY);
+      this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
+    }
+  }, {
+    key: 'parseRedirectFragment',
+    value: function parseRedirectFragment(fragment, ourState) {
+      // After being redirected from oauth, the URL will look like:
+      // https://todo.examples.stitch.mongodb.com/#_stitch_state=...&_stitch_ua=...
+      // This function parses out stitch-specific tokens from the fragment and
+      // builds an object describing the result.
+      var vars = fragment.split('&');
+      var result = { ua: null, found: false, stateValid: false, lastError: null };
+      var shouldBreak = false;
+      for (var i = 0; i < vars.length && !shouldBreak; ++i) {
+        var pairParts = vars[i].split('=');
+        var pairKey = decodeURIComponent(pairParts[0]);
+        switch (pairKey) {
+          case authCommon.STITCH_ERROR_KEY:
+            result.lastError = decodeURIComponent(pairParts[1]);
+            result.found = true;
+            shouldBreak = true;
+            break;
+          case authCommon.USER_AUTH_KEY:
+            try {
+              result.ua = this.unmarshallUserAuth(decodeURIComponent(pairParts[1]));
+              result.found = true;
+            } catch (e) {
+              result.lastError = e;
+            }
+            continue;
+          case authCommon.STITCH_LINK_KEY:
+            result.found = true;
+            continue;
+          case authCommon.STATE_KEY:
+            result.found = true;
+            var theirState = decodeURIComponent(pairParts[1]);
+            if (ourState && ourState === theirState) {
+              result.stateValid = true;
+            }
+            continue;
+          default:
+            continue;
+        }
+      }
+
+      return result;
+    }
+  }, {
+    key: 'unmarshallUserAuth',
+    value: function unmarshallUserAuth(data) {
+      var _ref;
+
+      var parts = data.split('$');
+      if (parts.length !== EMBEDDED_USER_AUTH_DATA_PARTS) {
+        throw new RangeError('invalid user auth data provided: ' + data);
+      }
+
+      return _ref = {}, _defineProperty(_ref, this.codec.accessToken, parts[0]), _defineProperty(_ref, this.codec.refreshToken, parts[1]), _defineProperty(_ref, this.codec.userId, parts[2]), _defineProperty(_ref, this.codec.deviceId, parts[3]), _ref;
     }
   }]);
 
@@ -4885,7 +5107,7 @@ exports.default = Auth;
 module.exports = exports['default'];
 
 /***/ }),
-/* 12 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4896,9 +5118,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.createProviders = undefined;
 
-var _common = __webpack_require__(1);
+var _common = __webpack_require__(2);
 
 var common = _interopRequireWildcard(_common);
+
+var _common2 = __webpack_require__(1);
+
+var authCommon = _interopRequireWildcard(_common2);
 
 var _util = __webpack_require__(0);
 
@@ -4913,7 +5139,6 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
  * @param {String} appVersion The version of the app
  * @returns {Object} The device info object
  */
-/** @module auth  */
 function getDeviceInfo(deviceId, appId) {
   var appVersion = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
 
@@ -4936,6 +5161,7 @@ function getDeviceInfo(deviceId, appId) {
 /**
  * @namespace
  */
+/** @module auth  */
 function anonProvider(auth) {
   return {
     /**
@@ -4961,6 +5187,9 @@ function anonProvider(auth) {
 
 /** @namespace */
 function userPassProvider(auth) {
+  var providerRoute = auth.isAppClient() ? 'local/userpass' : 'providers/local-userpass';
+  var loginRoute = auth.isAppClient() ? 'local/userpass' : providerRoute + '/login';
+
   return {
     /**
      * Login to a stitch application using username and password authentication
@@ -4980,7 +5209,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password, options: { device: device } }));
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/local/userpass', fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -4999,7 +5228,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token }));
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/local/userpass/confirm', fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/' + providerRoute + '/confirm', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       });
     },
@@ -5017,7 +5246,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/local/userpass/confirm/send', fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/' + providerRoute + '/confirm/send', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       });
     },
@@ -5034,7 +5263,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/local/userpass/reset/send', fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/' + providerRoute + '/reset/send', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       });
     },
@@ -5054,7 +5283,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token, password: password }));
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/local/userpass/reset', fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/' + providerRoute + '/reset', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       });
     },
@@ -5074,7 +5303,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email, password: password }));
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/local/userpass/register', fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/' + providerRoute + '/register', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       });
     }
@@ -5083,6 +5312,8 @@ function userPassProvider(auth) {
 
 /** @namespace */
 function apiKeyProvider(auth) {
+  var loginRoute = auth.isAppClient() ? 'api/key' : 'providers/api-key/login';
+
   return {
     /**
      * Login to a stitch application using an api key
@@ -5097,7 +5328,7 @@ function apiKeyProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ 'key': key, 'options': { device: device } }));
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/api/key', fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -5130,7 +5361,7 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
   }
 
   var state = generateState();
-  auth.storage.set(common.STATE_KEY, state);
+  auth.storage.set(authCommon.STATE_KEY, state);
 
   var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
@@ -5178,6 +5409,8 @@ function facebookProvider(auth) {
 
 /** @namespace */
 function mongodbCloudProvider(auth) {
+  var loginRoute = auth.isAppClient() ? 'mongodb/cloud' : 'providers/mongodb-cloud/login';
+
   return {
     /**
      * Login to a stitch application using mongodb cloud authentication
@@ -5199,7 +5432,7 @@ function mongodbCloudProvider(auth) {
       fetchArgs.cors = true; // TODO: shouldn't this use the passed in `cors` value?
       fetchArgs.credentials = 'include';
 
-      var url = auth.rootUrl + '/mongodb/cloud';
+      var url = auth.rootUrl + '/' + loginRoute;
       if (options.cookie) {
         return fetch(url + '?cookie=true', fetchArgs).then(common.checkStatus);
       }
@@ -5230,7 +5463,7 @@ function createProviders(auth) {
 exports.createProviders = createProviders;
 
 /***/ }),
-/* 13 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5329,7 +5562,7 @@ function createStorage(type) {
 }
 
 /***/ }),
-/* 14 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5340,20 +5573,26 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.builtins = exports.Admin = exports.StitchClient = undefined;
 
-var _client = __webpack_require__(9);
+var _client = __webpack_require__(5);
 
-var _builtins = __webpack_require__(8);
+var _client2 = _interopRequireDefault(_client);
+
+var _admin = __webpack_require__(11);
+
+var _admin2 = _interopRequireDefault(_admin);
+
+var _builtins = __webpack_require__(12);
 
 var _builtins2 = _interopRequireDefault(_builtins);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.StitchClient = _client.StitchClient;
-exports.Admin = _client.Admin;
+exports.StitchClient = _client2.default;
+exports.Admin = _admin2.default;
 exports.builtins = _builtins2.default;
 
 /***/ }),
-/* 15 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5434,7 +5673,7 @@ exports.default = (0, _util.letMixin)(S3Service);
 module.exports = exports['default'];
 
 /***/ }),
-/* 16 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5494,7 +5733,7 @@ exports.default = (0, _util.letMixin)(SESService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 17 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5563,7 +5802,7 @@ exports.default = (0, _util.letMixin)(SQSService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 18 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5730,7 +5969,7 @@ exports.default = (0, _util.letMixin)(HTTPService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 19 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5740,35 +5979,35 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _s3_service = __webpack_require__(15);
+var _s3_service = __webpack_require__(18);
 
 var _s3_service2 = _interopRequireDefault(_s3_service);
 
-var _ses_service = __webpack_require__(16);
+var _ses_service = __webpack_require__(19);
 
 var _ses_service2 = _interopRequireDefault(_ses_service);
 
-var _sqs_service = __webpack_require__(17);
+var _sqs_service = __webpack_require__(20);
 
 var _sqs_service2 = _interopRequireDefault(_sqs_service);
 
-var _http_service = __webpack_require__(18);
+var _http_service = __webpack_require__(21);
 
 var _http_service2 = _interopRequireDefault(_http_service);
 
-var _mongodb_service = __webpack_require__(22);
+var _mongodb_service = __webpack_require__(25);
 
 var _mongodb_service2 = _interopRequireDefault(_mongodb_service);
 
-var _pubnub_service = __webpack_require__(23);
+var _pubnub_service = __webpack_require__(26);
 
 var _pubnub_service2 = _interopRequireDefault(_pubnub_service);
 
-var _slack_service = __webpack_require__(24);
+var _slack_service = __webpack_require__(27);
 
 var _slack_service2 = _interopRequireDefault(_slack_service);
 
-var _twilio_service = __webpack_require__(25);
+var _twilio_service = __webpack_require__(28);
 
 var _twilio_service2 = _interopRequireDefault(_twilio_service);
 
@@ -5787,7 +6026,7 @@ exports.default = {
 module.exports = exports['default'];
 
 /***/ }),
-/* 20 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5801,7 +6040,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _util = __webpack_require__(0);
 
-var _mongodbExtjson = __webpack_require__(5);
+var _mongodbExtjson = __webpack_require__(8);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -6124,7 +6363,7 @@ exports.default = (0, _util.letMixin)(Collection);
 module.exports = exports['default'];
 
 /***/ }),
-/* 21 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6136,7 +6375,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _collection = __webpack_require__(20);
+var _collection = __webpack_require__(23);
 
 var _collection2 = _interopRequireDefault(_collection);
 
@@ -6191,7 +6430,7 @@ exports.default = DB;
 module.exports = exports['default'];
 
 /***/ }),
-/* 22 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6203,7 +6442,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _db = __webpack_require__(21);
+var _db = __webpack_require__(24);
 
 var _db2 = _interopRequireDefault(_db);
 
@@ -6258,7 +6497,7 @@ exports.default = MongoDBService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 23 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6316,7 +6555,7 @@ exports.default = (0, _util.letMixin)(PubnubService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 24 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6387,7 +6626,7 @@ exports.default = (0, _util.letMixin)(SlackService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 25 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6446,7 +6685,7 @@ exports.default = (0, _util.letMixin)(TwilioService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 26 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6567,10 +6806,10 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 27 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var detectBrowser = __webpack_require__(28);
+var detectBrowser = __webpack_require__(31);
 
 var agent;
 
@@ -6582,10 +6821,10 @@ module.exports = detectBrowser(agent);
 
 
 /***/ }),
-/* 28 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var detectOS = __webpack_require__(29);
+var detectOS = __webpack_require__(32);
 
 module.exports = function detectBrowser(userAgentString) {
   if (!userAgentString) return null;
@@ -6631,7 +6870,7 @@ module.exports = function detectBrowser(userAgentString) {
 
 
 /***/ }),
-/* 29 */
+/* 32 */
 /***/ (function(module, exports) {
 
 module.exports = function detectOS(userAgentString) {
@@ -6749,20 +6988,7 @@ module.exports = function detectOS(userAgentString) {
 
 
 /***/ }),
-/* 30 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// the whatwg-fetch polyfill installs the fetch() function
-// on the global object (window or self)
-//
-// Return that as the export for use in Webpack, Browserify etc.
-__webpack_require__(51);
-var globalObj = typeof self !== 'undefined' && self || this;
-module.exports = globalObj.fetch.bind(globalObj);
-
-
-/***/ }),
-/* 31 */
+/* 33 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -6852,7 +7078,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 32 */
+/* 34 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -6863,13 +7089,129 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 33 */
+/* 35 */
+/***/ (function(module, exports) {
+
+/**
+ * The code was extracted from:
+ * https://github.com/davidchambers/Base64.js
+ */
+
+var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+
+function InvalidCharacterError(message) {
+  this.message = message;
+}
+
+InvalidCharacterError.prototype = new Error();
+InvalidCharacterError.prototype.name = 'InvalidCharacterError';
+
+function polyfill (input) {
+  var str = String(input).replace(/=+$/, '');
+  if (str.length % 4 == 1) {
+    throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
+  }
+  for (
+    // initialize result and counters
+    var bc = 0, bs, buffer, idx = 0, output = '';
+    // get next character
+    buffer = str.charAt(idx++);
+    // character found in table? initialize bit storage and add its ascii value;
+    ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
+      // and if not first of each 4 characters,
+      // convert the first 8 bits to one ascii character
+      bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
+  ) {
+    // try to find character in table (0-63, not found => -1)
+    buffer = chars.indexOf(buffer);
+  }
+  return output;
+}
+
+
+module.exports = typeof window !== 'undefined' && window.atob && window.atob.bind(window) || polyfill;
+
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var atob = __webpack_require__(35);
+
+function b64DecodeUnicode(str) {
+  return decodeURIComponent(atob(str).replace(/(.)/g, function (m, p) {
+    var code = p.charCodeAt(0).toString(16).toUpperCase();
+    if (code.length < 2) {
+      code = '0' + code;
+    }
+    return '%' + code;
+  }));
+}
+
+module.exports = function(str) {
+  var output = str.replace(/-/g, "+").replace(/_/g, "/");
+  switch (output.length % 4) {
+    case 0:
+      break;
+    case 2:
+      output += "==";
+      break;
+    case 3:
+      output += "=";
+      break;
+    default:
+      throw "Illegal base64url string!";
+  }
+
+  try{
+    return b64DecodeUnicode(output);
+  } catch (err) {
+    return atob(output);
+  }
+};
+
+
+/***/ }),
+/* 37 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var base64_url_decode = __webpack_require__(36);
+
+function InvalidTokenError(message) {
+  this.message = message;
+}
+
+InvalidTokenError.prototype = new Error();
+InvalidTokenError.prototype.name = 'InvalidTokenError';
+
+module.exports = function (token,options) {
+  if (typeof token !== 'string') {
+    throw new InvalidTokenError('Invalid token specified');
+  }
+
+  options = options || {};
+  var pos = options.header === true ? 0 : 1;
+  try {
+    return JSON.parse(base64_url_decode(token.split('.')[pos]));
+  } catch (e) {
+    throw new InvalidTokenError('Invalid token specified: ' + e.message);
+  }
+};
+
+module.exports.InvalidTokenError = InvalidTokenError;
+
+
+/***/ }),
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(Buffer) {
 
-var btoa = __webpack_require__(7).btoa;
+var btoa = __webpack_require__(10).btoa;
 
 /**
  * Module dependencies.
@@ -7150,10 +7492,10 @@ Binary.SUBTYPE_USER_DEFINED = 128;
 
 module.exports = Binary;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).Buffer))
 
 /***/ }),
-/* 34 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7188,7 +7530,7 @@ module.exports = Code;
 
 
 /***/ }),
-/* 35 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7233,13 +7575,13 @@ module.exports = DBRef;
 
 
 /***/ }),
-/* 36 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Long = __webpack_require__(3);
+var Long = __webpack_require__(4);
 var Buffer = (typeof Buffer !== 'undefined') ? Buffer : Uint8Array;
 
 var PARSE_STRING_REGEXP = /^(\+|\-)?(\d+|(\d*\.\d*))?(E|e)?([\-\+])?(\d+)?$/;
@@ -7955,7 +8297,7 @@ module.exports = Decimal128;
 
 
 /***/ }),
-/* 37 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7998,7 +8340,7 @@ module.exports = Double;
 
 
 /***/ }),
-/* 38 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8041,7 +8383,7 @@ module.exports = Int32;
 
 
 /***/ }),
-/* 39 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8070,7 +8412,7 @@ module.exports = MaxKey;
 
 
 /***/ }),
-/* 40 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8099,7 +8441,7 @@ module.exports = MinKey;
 
 
 /***/ }),
-/* 41 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8427,10 +8769,10 @@ ObjectID.index = ~~(Math.random() * 0xFFFFFF);
 
 module.exports = ObjectID;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(52)))
 
 /***/ }),
-/* 42 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8478,7 +8820,7 @@ module.exports = BSONRegExp;
 
 
 /***/ }),
-/* 43 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8524,13 +8866,13 @@ module.exports = Symbol;
 
 
 /***/ }),
-/* 44 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Long = __webpack_require__(3);
+var Long = __webpack_require__(4);
 
 /**
  * @class
@@ -8613,14 +8955,14 @@ module.exports = Timestamp;
 
 
 /***/ }),
-/* 45 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(Buffer) {
 
-var bsonModule = __webpack_require__(6)
-var atob = __webpack_require__(7).atob;
+var bsonModule = __webpack_require__(9)
+var atob = __webpack_require__(10).atob;
 var bufferConstructor = null;
 
 if (typeof Buffer !== 'undefined') {
@@ -8892,10 +9234,10 @@ function serializeDocument(doc) {
 // Export the Extended BSON
 module.exports = ExtJSON;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).Buffer))
 
 /***/ }),
-/* 46 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8992,7 +9334,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 47 */
+/* 52 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -9182,13 +9524,13 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 48 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var strictUriEncode = __webpack_require__(49);
-var objectAssign = __webpack_require__(46);
+var strictUriEncode = __webpack_require__(54);
+var objectAssign = __webpack_require__(51);
 
 function encoderForArrayFormat(opts) {
 	switch (opts.arrayFormat) {
@@ -9394,7 +9736,7 @@ exports.stringify = function (obj, opts) {
 
 
 /***/ }),
-/* 49 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9407,7 +9749,7 @@ module.exports = function (str) {
 
 
 /***/ }),
-/* 50 */
+/* 55 */
 /***/ (function(module, exports) {
 
 var g;
@@ -9434,7 +9776,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 51 */
+/* 56 */
 /***/ (function(module, exports) {
 
 (function(self) {

@@ -9,6 +9,10 @@ var _common = require('../common');
 
 var common = _interopRequireWildcard(_common);
 
+var _common2 = require('./common');
+
+var authCommon = _interopRequireWildcard(_common2);
+
 var _util = require('../util');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -22,7 +26,6 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
  * @param {String} appVersion The version of the app
  * @returns {Object} The device info object
  */
-/** @module auth  */
 function getDeviceInfo(deviceId, appId) {
   var appVersion = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
 
@@ -45,6 +48,7 @@ function getDeviceInfo(deviceId, appId) {
 /**
  * @namespace
  */
+/** @module auth  */
 function anonProvider(auth) {
   return {
     /**
@@ -70,6 +74,9 @@ function anonProvider(auth) {
 
 /** @namespace */
 function userPassProvider(auth) {
+  var providerRoute = auth.isAppClient() ? 'local/userpass' : 'providers/local-userpass';
+  var loginRoute = auth.isAppClient() ? 'local/userpass' : providerRoute + '/login';
+
   return {
     /**
      * Login to a stitch application using username and password authentication
@@ -89,7 +96,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password, options: { device: device } }));
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/local/userpass', fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -108,7 +115,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token }));
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/local/userpass/confirm', fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/' + providerRoute + '/confirm', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       });
     },
@@ -126,7 +133,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/local/userpass/confirm/send', fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/' + providerRoute + '/confirm/send', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       });
     },
@@ -143,7 +150,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/local/userpass/reset/send', fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/' + providerRoute + '/reset/send', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       });
     },
@@ -163,7 +170,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token, password: password }));
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/local/userpass/reset', fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/' + providerRoute + '/reset', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       });
     },
@@ -183,7 +190,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email, password: password }));
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/local/userpass/register', fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/' + providerRoute + '/register', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       });
     }
@@ -192,6 +199,8 @@ function userPassProvider(auth) {
 
 /** @namespace */
 function apiKeyProvider(auth) {
+  var loginRoute = auth.isAppClient() ? 'api/key' : 'providers/api-key/login';
+
   return {
     /**
      * Login to a stitch application using an api key
@@ -206,7 +215,7 @@ function apiKeyProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ 'key': key, 'options': { device: device } }));
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/api/key', fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -239,7 +248,7 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
   }
 
   var state = generateState();
-  auth.storage.set(common.STATE_KEY, state);
+  auth.storage.set(authCommon.STATE_KEY, state);
 
   var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
@@ -287,6 +296,8 @@ function facebookProvider(auth) {
 
 /** @namespace */
 function mongodbCloudProvider(auth) {
+  var loginRoute = auth.isAppClient() ? 'mongodb/cloud' : 'providers/mongodb-cloud/login';
+
   return {
     /**
      * Login to a stitch application using mongodb cloud authentication
@@ -308,7 +319,7 @@ function mongodbCloudProvider(auth) {
       fetchArgs.cors = true; // TODO: shouldn't this use the passed in `cors` value?
       fetchArgs.credentials = 'include';
 
-      var url = auth.rootUrl + '/mongodb/cloud';
+      var url = auth.rootUrl + '/' + loginRoute;
       if (options.cookie) {
         return fetch(url + '?cookie=true', fetchArgs).then(common.checkStatus);
       }
