@@ -3,7 +3,7 @@ const fetchMock = require('fetch-mock');
 const URL = require('url-parse');
 import StitchClient from '../src/client';
 import { JSONTYPE, DEFAULT_STITCH_SERVER_URL } from '../src/common';
-import { parseRedirectFragment, REFRESH_TOKEN_KEY } from '../src/auth/common';
+import { REFRESH_TOKEN_KEY } from '../src/auth/common';
 import Auth from '../src/auth';
 import { mocks } from 'mock-browser';
 
@@ -55,32 +55,33 @@ describe('Redirect fragment parsing', () => {
     ).join('&')
   );
 
+  const a = new Auth(null, '/auth');
   it('should detect valid states', () => {
-    let result = parseRedirectFragment(makeFragment({'_stitch_state': 'state_XYZ'}), 'state_XYZ');
+    let result = a.parseRedirectFragment(makeFragment({'_stitch_state': 'state_XYZ'}), 'state_XYZ');
     expect(result.stateValid).toBe(true);
     expect(result.found).toBe(true);
     expect(result.lastError).toBe(null);
   });
 
   it('should detect invalid states', () => {
-    let result = parseRedirectFragment(makeFragment({'_stitch_state': 'state_XYZ'}), 'state_ABC');
+    let result = a.parseRedirectFragment(makeFragment({'_stitch_state': 'state_XYZ'}), 'state_ABC');
     expect(result.stateValid).toBe(false);
     expect(result.lastError).toBe(null);
   });
 
   it('should detect errors', () => {
-    let result = parseRedirectFragment(makeFragment({'_stitch_error': 'hello world'}), 'state_ABC');
+    let result = a.parseRedirectFragment(makeFragment({'_stitch_error': 'hello world'}), 'state_ABC');
     expect(result.lastError).toEqual('hello world');
     expect(result.stateValid).toBe(false);
   });
 
   it('should detect if no items found', () => {
-    let result = parseRedirectFragment(makeFragment({'foo': 'bar'}), 'state_ABC');
+    let result = a.parseRedirectFragment(makeFragment({'foo': 'bar'}), 'state_ABC');
     expect(result.found).toBe(false);
   });
 
   it('should handle ua redirects', () => {
-    let result = parseRedirectFragment(makeFragment({'_stitch_ua': 'somejwt$anotherjwt$userid$deviceid'}), 'state_ABC');
+    let result = a.parseRedirectFragment(makeFragment({'_stitch_ua': 'somejwt$anotherjwt$userid$deviceid'}), 'state_ABC');
     expect(result.found).toBe(true);
     expect(result.ua).toEqual({
       accessToken: 'somejwt',
@@ -91,7 +92,7 @@ describe('Redirect fragment parsing', () => {
   });
 
   it('should gracefully handle invalid ua data', () => {
-    let result = parseRedirectFragment(makeFragment({'_stitch_ua': 'invalid'}), 'state_ABC');
+    let result = a.parseRedirectFragment(makeFragment({'_stitch_ua': 'invalid'}), 'state_ABC');
     expect(result.found).toBe(false);
     expect(result.ua).toBeNull();
     expect(result.lastError).toBeTruthy();
