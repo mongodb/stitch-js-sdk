@@ -22,9 +22,13 @@ var common = _interopRequireWildcard(_common2);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var jwtDecode = require('jwt-decode');
+
+var EMBEDDED_USER_AUTH_DATA_PARTS = 4;
 
 var Auth = function () {
   function Auth(client, rootUrl, options) {
@@ -96,7 +100,7 @@ var Auth = function () {
 
       var ourState = this.storage.get(authCommon.STATE_KEY);
       var redirectFragment = window.location.hash.substring(1);
-      var redirectState = authCommon.parseRedirectFragment(redirectFragment, ourState);
+      var redirectState = this.parseRedirectFragment(redirectFragment, ourState);
       if (redirectState.lastError) {
         console.error('StitchClient: error from redirect: ' + redirectState.lastError);
         this._error = redirectState.lastError;
@@ -159,7 +163,7 @@ var Auth = function () {
       }
 
       document.cookie = authCommon.USER_AUTH_COOKIE_NAME + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-      var userAuth = authCommon.unmarshallUserAuth(uaCookie);
+      var userAuth = this.unmarshallUserAuth(uaCookie);
       this.set(userAuth);
       window.history.replaceState(null, '', this.pageRootUrl());
     }
@@ -328,6 +332,62 @@ var Auth = function () {
       this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY);
       this.storage.remove(authCommon.IMPERSONATION_USER_KEY);
       this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
+    }
+  }, {
+    key: 'parseRedirectFragment',
+    value: function parseRedirectFragment(fragment, ourState) {
+      // After being redirected from oauth, the URL will look like:
+      // https://todo.examples.stitch.mongodb.com/#_stitch_state=...&_stitch_ua=...
+      // This function parses out stitch-specific tokens from the fragment and
+      // builds an object describing the result.
+      var vars = fragment.split('&');
+      var result = { ua: null, found: false, stateValid: false, lastError: null };
+      var shouldBreak = false;
+      for (var i = 0; i < vars.length && !shouldBreak; ++i) {
+        var pairParts = vars[i].split('=');
+        var pairKey = decodeURIComponent(pairParts[0]);
+        switch (pairKey) {
+          case authCommon.STITCH_ERROR_KEY:
+            result.lastError = decodeURIComponent(pairParts[1]);
+            result.found = true;
+            shouldBreak = true;
+            break;
+          case authCommon.USER_AUTH_KEY:
+            try {
+              result.ua = this.unmarshallUserAuth(decodeURIComponent(pairParts[1]));
+              result.found = true;
+            } catch (e) {
+              result.lastError = e;
+            }
+            continue;
+          case authCommon.STITCH_LINK_KEY:
+            result.found = true;
+            continue;
+          case authCommon.STATE_KEY:
+            result.found = true;
+            var theirState = decodeURIComponent(pairParts[1]);
+            if (ourState && ourState === theirState) {
+              result.stateValid = true;
+            }
+            continue;
+          default:
+            continue;
+        }
+      }
+
+      return result;
+    }
+  }, {
+    key: 'unmarshallUserAuth',
+    value: function unmarshallUserAuth(data) {
+      var _ref;
+
+      var parts = data.split('$');
+      if (parts.length !== EMBEDDED_USER_AUTH_DATA_PARTS) {
+        throw new RangeError('invalid user auth data provided: ' + data);
+      }
+
+      return _ref = {}, _defineProperty(_ref, this.codec.accessToken, parts[0]), _defineProperty(_ref, this.codec.refreshToken, parts[1]), _defineProperty(_ref, this.codec.userId, parts[2]), _defineProperty(_ref, this.codec.deviceId, parts[3]), _ref;
     }
   }]);
 
