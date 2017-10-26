@@ -234,5 +234,5 @@ buildvariants:
     - name: github_pull_request_start
     - name: run_tests
     - name: dist
-    - name: docs_dist
+      #- name: docs_dist
     - name: github_pull_request_end
