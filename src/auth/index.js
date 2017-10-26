@@ -8,6 +8,8 @@ import * as common from '../common';
 
 const jwtDecode = require('jwt-decode');
 
+const EMBEDDED_USER_AUTH_DATA_PARTS = 4;
+
 export default class Auth {
   constructor(client, rootUrl, options) {
     options = Object.assign({}, {
@@ -65,7 +67,7 @@ export default class Auth {
 
     let ourState = this.storage.get(authCommon.STATE_KEY);
     let redirectFragment = window.location.hash.substring(1);
-    const redirectState = authCommon.parseRedirectFragment(redirectFragment, ourState);
+    const redirectState = this.parseRedirectFragment(redirectFragment, ourState);
     if (redirectState.lastError) {
       console.error(`StitchClient: error from redirect: ${redirectState.lastError}`);
       this._error = redirectState.lastError;
@@ -126,7 +128,7 @@ export default class Auth {
     }
 
     document.cookie = `${authCommon.USER_AUTH_COOKIE_NAME}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
-    const userAuth = authCommon.unmarshallUserAuth(uaCookie);
+    const userAuth = this.unmarshallUserAuth(uaCookie);
     this.set(userAuth);
     window.history.replaceState(null, '', this.pageRootUrl());
   }
@@ -274,4 +276,61 @@ export default class Auth {
     this.storage.remove(authCommon.IMPERSONATION_USER_KEY);
     this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
   }
+
+  parseRedirectFragment(fragment, ourState) {
+    // After being redirected from oauth, the URL will look like:
+    // https://todo.examples.stitch.mongodb.com/#_stitch_state=...&_stitch_ua=...
+    // This function parses out stitch-specific tokens from the fragment and
+    // builds an object describing the result.
+    const vars = fragment.split('&');
+    const result = { ua: null, found: false, stateValid: false, lastError: null };
+    let shouldBreak = false;
+    for (let i = 0; i < vars.length && !shouldBreak; ++i) {
+      const pairParts = vars[i].split('=');
+      const pairKey = decodeURIComponent(pairParts[0]);
+      switch (pairKey) {
+      case authCommon.STITCH_ERROR_KEY:
+        result.lastError = decodeURIComponent(pairParts[1]);
+        result.found = true;
+        shouldBreak = true;
+        break;
+      case authCommon.USER_AUTH_KEY:
+        try {
+          result.ua = this.unmarshallUserAuth(decodeURIComponent(pairParts[1]));
+          result.found = true;
+        } catch (e) {
+          result.lastError = e;
+        }
+        continue;
+      case authCommon.STITCH_LINK_KEY:
+        result.found = true;
+        continue;
+      case authCommon.STATE_KEY:
+        result.found = true;
+        let theirState = decodeURIComponent(pairParts[1]);
+        if (ourState && ourState === theirState) {
+          result.stateValid = true;
+        }
+        continue;
+      default: continue;
+      }
+    }
+
+    return result;
+  }
+
+  unmarshallUserAuth(data) {
+    let parts = data.split('$');
+    if (parts.length !== EMBEDDED_USER_AUTH_DATA_PARTS) {
+      throw new RangeError('invalid user auth data provided: ' + data);
+    }
+
+    return {
+      [this.codec.accessToken]: parts[0],
+      [this.codec.refreshToken]: parts[1],
+      [this.codec.userId]: parts[2],
+      [this.codec.deviceId]: parts[3]
+    };
+  }
+
 }
