@@ -18,6 +18,38 @@ export default class Admin extends StitchClient {
     return ADMIN_CLIENT_TYPE;
   }
 
+  get _v3() {
+    const v3do = (url, method, options) =>
+      super._do(
+        url,
+        method,
+        Object.assign({}, {apiVersion: v3}, options)
+      ).then(response => {
+        const contentHeader = response.headers.get('content-type') || '';
+        if (contentHeader.split(',').indexOf('application/json') >= 0) {
+          return response.json();
+        }
+        return response;
+      });
+
+    return {
+      _get: (url, queryParams) => v3do(url, 'GET', {queryParams}),
+      _put: (url, data) =>
+        (data ?
+          v3do(url, 'PUT', {body: JSON.stringify(data)}) :
+          v3do(url, 'PUT')),
+      _patch: (url, data) =>
+        (data ?
+          v3do(url, 'PATCH', {body: JSON.stringify(data)}) :
+          v3do(url, 'PATCH')),
+      _delete: (url)  => v3do(url, 'DELETE'),
+      _post: (url, body, queryParams) =>
+        (queryParams ?
+          v3do(url, 'POST', { body: JSON.stringify(body), queryParams }) :
+          v3do(url, 'POST', { body: JSON.stringify(body) }))
+    };
+  }
+
   get _v2() {
     const v2do = (url, method, options) =>
       super._do(
