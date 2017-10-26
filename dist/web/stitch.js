@@ -1349,6 +1349,7 @@ var EJSON = new _mongodbExtjson2.default();
 
 var v1 = 1;
 var v2 = 2;
+var v3 = 3;
 
 /**
  * Create a new StitchClient instance.
@@ -1383,6 +1384,10 @@ var StitchClient = function () {
       client: baseUrl + '/api/client/v2.0',
       private: baseUrl + '/api/private/v2.0',
       app: clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID : baseUrl + '/api/public/v2.0'
+    }), _defineProperty(_rootURLsByAPIVersion, v3, {
+      public: baseUrl + '/api/public/v3.0',
+      client: baseUrl + '/api/client/v3.0',
+      app: clientAppID ? baseUrl + '/api/client/v3.0/app/' + clientAppID : baseUrl + '/api/public/v3.0'
     }), _rootURLsByAPIVersion);
 
     var authOptions = { codec: _common.APP_CLIENT_CODEC };
@@ -3689,6 +3694,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var v1 = 1;
 var v2 = 2;
+var v3 = 3;
 
 var Admin = function (_StitchClient) {
   _inherits(Admin, _StitchClient);
@@ -4093,6 +4099,7 @@ var Admin = function (_StitchClient) {
     key: 'v2',
     value: function v2() {
       var api = this._v2;
+      var apiV3 = this._v3; // exists solely for function endpoints
       return {
         apps: function apps(groupId) {
           var groupUrl = '/groups/' + groupId + '/apps';
@@ -4373,6 +4380,31 @@ var Admin = function (_StitchClient) {
                       };
                     }
                   };
+                },
+                // Function endpoints are the only endpoints that are different between v2 and v3
+                // Take note that this branch leverages `apiV3` for hitting function endpoints
+                functions: function functions() {
+                  return {
+                    list: function list() {
+                      return apiV3._get(appUrl + '/functions');
+                    },
+                    create: function create(data) {
+                      return apiV3._post(appUrl + '/functions', data);
+                    },
+                    function: function _function(functionId) {
+                      return {
+                        get: function get() {
+                          return apiV3._get(appUrl + '/functions/' + functionId);
+                        },
+                        update: function update(data) {
+                          return apiV3._put(appUrl + '/functions/' + functionId, data);
+                        },
+                        remove: function remove() {
+                          return apiV3._delete(appUrl + '/functions/' + functionId);
+                        }
+                      };
+                    }
+                  };
                 }
               };
             }
@@ -4462,12 +4494,45 @@ var Admin = function (_StitchClient) {
       };
     }
   }, {
-    key: '_v1',
+    key: '_v3',
     get: function get() {
       var _this6 = this;
 
+      var v3do = function v3do(url, method, options) {
+        return _this6.client._do(url, method, Object.assign({}, { apiVersion: v3 }, options)).then(function (response) {
+          var contentHeader = response.headers.get('content-type') || '';
+          if (contentHeader.split(',').indexOf('application/json') >= 0) {
+            return response.json();
+          }
+          return response;
+        });
+      };
+
+      return {
+        _get: function _get(url, queryParams) {
+          return v3do(url, 'GET', { queryParams: queryParams });
+        },
+        _put: function _put(url, data) {
+          return data ? v3do(url, 'PUT', { body: JSON.stringify(data) }) : v3do(url, 'PUT');
+        },
+        _patch: function _patch(url, data) {
+          return data ? v3do(url, 'PATCH', { body: JSON.stringify(data) }) : v3do(url, 'PATCH');
+        },
+        _delete: function _delete(url) {
+          return v3do(url, 'DELETE');
+        },
+        _post: function _post(url, body, queryParams) {
+          return queryParams ? v3do(url, 'POST', { body: JSON.stringify(body), queryParams: queryParams }) : v3do(url, 'POST', { body: JSON.stringify(body) });
+        }
+      };
+    }
+  }, {
+    key: '_v1',
+    get: function get() {
+      var _this7 = this;
+
       var v1do = function v1do(url, method, options) {
-        return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this6).call(_this6, url, method, Object.assign({}, { apiVersion: v1 }, options)).then(function (response) {
+        return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this7).call(_this7, url, method, Object.assign({}, { apiVersion: v1 }, options)).then(function (response) {
           return response.json();
         });
       };
@@ -9801,28 +9866,6 @@ module.exports = g;
     arrayBuffer: 'ArrayBuffer' in self
   }
 
-  if (support.arrayBuffer) {
-    var viewClasses = [
-      '[object Int8Array]',
-      '[object Uint8Array]',
-      '[object Uint8ClampedArray]',
-      '[object Int16Array]',
-      '[object Uint16Array]',
-      '[object Int32Array]',
-      '[object Uint32Array]',
-      '[object Float32Array]',
-      '[object Float64Array]'
-    ]
-
-    var isDataView = function(obj) {
-      return obj && DataView.prototype.isPrototypeOf(obj)
-    }
-
-    var isArrayBufferView = ArrayBuffer.isView || function(obj) {
-      return obj && viewClasses.indexOf(Object.prototype.toString.call(obj)) > -1
-    }
-  }
-
   function normalizeName(name) {
     if (typeof name !== 'string') {
       name = String(name)
@@ -9865,10 +9908,7 @@ module.exports = g;
       headers.forEach(function(value, name) {
         this.append(name, value)
       }, this)
-    } else if (Array.isArray(headers)) {
-      headers.forEach(function(header) {
-        this.append(header[0], header[1])
-      }, this)
+
     } else if (headers) {
       Object.getOwnPropertyNames(headers).forEach(function(name) {
         this.append(name, headers[name])
@@ -9879,8 +9919,12 @@ module.exports = g;
   Headers.prototype.append = function(name, value) {
     name = normalizeName(name)
     value = normalizeValue(value)
-    var oldValue = this.map[name]
-    this.map[name] = oldValue ? oldValue+','+value : value
+    var list = this.map[name]
+    if (!list) {
+      list = []
+      this.map[name] = list
+    }
+    list.push(value)
   }
 
   Headers.prototype['delete'] = function(name) {
@@ -9888,8 +9932,12 @@ module.exports = g;
   }
 
   Headers.prototype.get = function(name) {
-    name = normalizeName(name)
-    return this.has(name) ? this.map[name] : null
+    var values = this.map[normalizeName(name)]
+    return values ? values[0] : null
+  }
+
+  Headers.prototype.getAll = function(name) {
+    return this.map[normalizeName(name)] || []
   }
 
   Headers.prototype.has = function(name) {
@@ -9897,15 +9945,15 @@ module.exports = g;
   }
 
   Headers.prototype.set = function(name, value) {
-    this.map[normalizeName(name)] = normalizeValue(value)
+    this.map[normalizeName(name)] = [normalizeValue(value)]
   }
 
   Headers.prototype.forEach = function(callback, thisArg) {
-    for (var name in this.map) {
-      if (this.map.hasOwnProperty(name)) {
-        callback.call(thisArg, this.map[name], name, this)
-      }
-    }
+    Object.getOwnPropertyNames(this.map).forEach(function(name) {
+      this.map[name].forEach(function(value) {
+        callback.call(thisArg, value, name, this)
+      }, this)
+    }, this)
   }
 
   Headers.prototype.keys = function() {
@@ -9950,36 +9998,14 @@ module.exports = g;
 
   function readBlobAsArrayBuffer(blob) {
     var reader = new FileReader()
-    var promise = fileReaderReady(reader)
     reader.readAsArrayBuffer(blob)
-    return promise
+    return fileReaderReady(reader)
   }
 
   function readBlobAsText(blob) {
     var reader = new FileReader()
-    var promise = fileReaderReady(reader)
     reader.readAsText(blob)
-    return promise
-  }
-
-  function readArrayBufferAsText(buf) {
-    var view = new Uint8Array(buf)
-    var chars = new Array(view.length)
-
-    for (var i = 0; i < view.length; i++) {
-      chars[i] = String.fromCharCode(view[i])
-    }
-    return chars.join('')
-  }
-
-  function bufferClone(buf) {
-    if (buf.slice) {
-      return buf.slice(0)
-    } else {
-      var view = new Uint8Array(buf.byteLength)
-      view.set(new Uint8Array(buf))
-      return view.buffer
-    }
+    return fileReaderReady(reader)
   }
 
   function Body() {
@@ -9987,9 +10013,7 @@ module.exports = g;
 
     this._initBody = function(body) {
       this._bodyInit = body
-      if (!body) {
-        this._bodyText = ''
-      } else if (typeof body === 'string') {
+      if (typeof body === 'string') {
         this._bodyText = body
       } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
         this._bodyBlob = body
@@ -9997,12 +10021,11 @@ module.exports = g;
         this._bodyFormData = body
       } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
         this._bodyText = body.toString()
-      } else if (support.arrayBuffer && support.blob && isDataView(body)) {
-        this._bodyArrayBuffer = bufferClone(body.buffer)
-        // IE 10-11 can't handle a DataView body.
-        this._bodyInit = new Blob([this._bodyArrayBuffer])
-      } else if (support.arrayBuffer && (ArrayBuffer.prototype.isPrototypeOf(body) || isArrayBufferView(body))) {
-        this._bodyArrayBuffer = bufferClone(body)
+      } else if (!body) {
+        this._bodyText = ''
+      } else if (support.arrayBuffer && ArrayBuffer.prototype.isPrototypeOf(body)) {
+        // Only support ArrayBuffers for POST method.
+        // Receiving ArrayBuffers happens via Blobs, instead.
       } else {
         throw new Error('unsupported BodyInit type')
       }
@@ -10027,8 +10050,6 @@ module.exports = g;
 
         if (this._bodyBlob) {
           return Promise.resolve(this._bodyBlob)
-        } else if (this._bodyArrayBuffer) {
-          return Promise.resolve(new Blob([this._bodyArrayBuffer]))
         } else if (this._bodyFormData) {
           throw new Error('could not read FormData body as blob')
         } else {
@@ -10037,28 +10058,27 @@ module.exports = g;
       }
 
       this.arrayBuffer = function() {
-        if (this._bodyArrayBuffer) {
-          return consumed(this) || Promise.resolve(this._bodyArrayBuffer)
+        return this.blob().then(readBlobAsArrayBuffer)
+      }
+
+      this.text = function() {
+        var rejected = consumed(this)
+        if (rejected) {
+          return rejected
+        }
+
+        if (this._bodyBlob) {
+          return readBlobAsText(this._bodyBlob)
+        } else if (this._bodyFormData) {
+          throw new Error('could not read FormData body as text')
         } else {
-          return this.blob().then(readBlobAsArrayBuffer)
+          return Promise.resolve(this._bodyText)
         }
       }
-    }
-
-    this.text = function() {
-      var rejected = consumed(this)
-      if (rejected) {
-        return rejected
-      }
-
-      if (this._bodyBlob) {
-        return readBlobAsText(this._bodyBlob)
-      } else if (this._bodyArrayBuffer) {
-        return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer))
-      } else if (this._bodyFormData) {
-        throw new Error('could not read FormData body as text')
-      } else {
-        return Promise.resolve(this._bodyText)
+    } else {
+      this.text = function() {
+        var rejected = consumed(this)
+        return rejected ? rejected : Promise.resolve(this._bodyText)
       }
     }
 
@@ -10086,8 +10106,7 @@ module.exports = g;
   function Request(input, options) {
     options = options || {}
     var body = options.body
-
-    if (input instanceof Request) {
+    if (Request.prototype.isPrototypeOf(input)) {
       if (input.bodyUsed) {
         throw new TypeError('Already read')
       }
@@ -10098,12 +10117,12 @@ module.exports = g;
       }
       this.method = input.method
       this.mode = input.mode
-      if (!body && input._bodyInit != null) {
+      if (!body) {
         body = input._bodyInit
         input.bodyUsed = true
       }
     } else {
-      this.url = String(input)
+      this.url = input
     }
 
     this.credentials = options.credentials || this.credentials || 'omit'
@@ -10121,7 +10140,7 @@ module.exports = g;
   }
 
   Request.prototype.clone = function() {
-    return new Request(this, { body: this._bodyInit })
+    return new Request(this)
   }
 
   function decode(body) {
@@ -10137,17 +10156,16 @@ module.exports = g;
     return form
   }
 
-  function parseHeaders(rawHeaders) {
-    var headers = new Headers()
-    rawHeaders.split(/\r?\n/).forEach(function(line) {
-      var parts = line.split(':')
-      var key = parts.shift().trim()
-      if (key) {
-        var value = parts.join(':').trim()
-        headers.append(key, value)
-      }
+  function headers(xhr) {
+    var head = new Headers()
+    var pairs = (xhr.getAllResponseHeaders() || '').trim().split('\n')
+    pairs.forEach(function(header) {
+      var split = header.trim().split(':')
+      var key = split.shift().trim()
+      var value = split.join(':').trim()
+      head.append(key, value)
     })
-    return headers
+    return head
   }
 
   Body.call(Request.prototype)
@@ -10158,10 +10176,10 @@ module.exports = g;
     }
 
     this.type = 'default'
-    this.status = 'status' in options ? options.status : 200
+    this.status = options.status
     this.ok = this.status >= 200 && this.status < 300
-    this.statusText = 'statusText' in options ? options.statusText : 'OK'
-    this.headers = new Headers(options.headers)
+    this.statusText = options.statusText
+    this.headers = options.headers instanceof Headers ? options.headers : new Headers(options.headers)
     this.url = options.url || ''
     this._initBody(bodyInit)
   }
@@ -10199,16 +10217,35 @@ module.exports = g;
 
   self.fetch = function(input, init) {
     return new Promise(function(resolve, reject) {
-      var request = new Request(input, init)
+      var request
+      if (Request.prototype.isPrototypeOf(input) && !init) {
+        request = input
+      } else {
+        request = new Request(input, init)
+      }
+
       var xhr = new XMLHttpRequest()
+
+      function responseURL() {
+        if ('responseURL' in xhr) {
+          return xhr.responseURL
+        }
+
+        // Avoid security warnings on getResponseHeader when not allowed by CORS
+        if (/^X-Request-URL:/m.test(xhr.getAllResponseHeaders())) {
+          return xhr.getResponseHeader('X-Request-URL')
+        }
+
+        return
+      }
 
       xhr.onload = function() {
         var options = {
           status: xhr.status,
           statusText: xhr.statusText,
-          headers: parseHeaders(xhr.getAllResponseHeaders() || '')
+          headers: headers(xhr),
+          url: responseURL()
         }
-        options.url = 'responseURL' in xhr ? xhr.responseURL : options.headers.get('X-Request-URL')
         var body = 'response' in xhr ? xhr.response : xhr.responseText
         resolve(new Response(body, options))
       }

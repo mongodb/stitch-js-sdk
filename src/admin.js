@@ -51,7 +51,7 @@ export default class Admin extends StitchClient {
 
   get _v3() {
     const v3do = (url, method, options) =>
-       this.client._do(
+       super._do(
          url,
          method,
          Object.assign({}, {apiVersion: v3}, options)

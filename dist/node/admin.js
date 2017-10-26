@@ -32,6 +32,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var v1 = 1;
 var v2 = 2;
+var v3 = 3;
 
 var Admin = function (_StitchClient) {
   _inherits(Admin, _StitchClient);
@@ -436,6 +437,7 @@ var Admin = function (_StitchClient) {
     key: 'v2',
     value: function v2() {
       var api = this._v2;
+      var apiV3 = this._v3; // exists solely for function endpoints
       return {
         apps: function apps(groupId) {
           var groupUrl = '/groups/' + groupId + '/apps';
@@ -716,6 +718,31 @@ var Admin = function (_StitchClient) {
                       };
                     }
                   };
+                },
+                // Function endpoints are the only endpoints that are different between v2 and v3
+                // Take note that this branch leverages `apiV3` for hitting function endpoints
+                functions: function functions() {
+                  return {
+                    list: function list() {
+                      return apiV3._get(appUrl + '/functions');
+                    },
+                    create: function create(data) {
+                      return apiV3._post(appUrl + '/functions', data);
+                    },
+                    function: function _function(functionId) {
+                      return {
+                        get: function get() {
+                          return apiV3._get(appUrl + '/functions/' + functionId);
+                        },
+                        update: function update(data) {
+                          return apiV3._put(appUrl + '/functions/' + functionId, data);
+                        },
+                        remove: function remove() {
+                          return apiV3._delete(appUrl + '/functions/' + functionId);
+                        }
+                      };
+                    }
+                  };
                 }
               };
             }
@@ -805,12 +832,45 @@ var Admin = function (_StitchClient) {
       };
     }
   }, {
-    key: '_v1',
+    key: '_v3',
     get: function get() {
       var _this6 = this;
 
+      var v3do = function v3do(url, method, options) {
+        return _this6.client._do(url, method, Object.assign({}, { apiVersion: v3 }, options)).then(function (response) {
+          var contentHeader = response.headers.get('content-type') || '';
+          if (contentHeader.split(',').indexOf('application/json') >= 0) {
+            return response.json();
+          }
+          return response;
+        });
+      };
+
+      return {
+        _get: function _get(url, queryParams) {
+          return v3do(url, 'GET', { queryParams: queryParams });
+        },
+        _put: function _put(url, data) {
+          return data ? v3do(url, 'PUT', { body: JSON.stringify(data) }) : v3do(url, 'PUT');
+        },
+        _patch: function _patch(url, data) {
+          return data ? v3do(url, 'PATCH', { body: JSON.stringify(data) }) : v3do(url, 'PATCH');
+        },
+        _delete: function _delete(url) {
+          return v3do(url, 'DELETE');
+        },
+        _post: function _post(url, body, queryParams) {
+          return queryParams ? v3do(url, 'POST', { body: JSON.stringify(body), queryParams: queryParams }) : v3do(url, 'POST', { body: JSON.stringify(body) });
+        }
+      };
+    }
+  }, {
+    key: '_v1',
+    get: function get() {
+      var _this7 = this;
+
       var v1do = function v1do(url, method, options) {
-        return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this6).call(_this6, url, method, Object.assign({}, { apiVersion: v1 }, options)).then(function (response) {
+        return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this7).call(_this7, url, method, Object.assign({}, { apiVersion: v1 }, options)).then(function (response) {
           return response.json();
         });
       };

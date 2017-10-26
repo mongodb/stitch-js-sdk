@@ -50,6 +50,7 @@ var EJSON = new _mongodbExtjson2.default();
 
 var v1 = 1;
 var v2 = 2;
+var v3 = 3;
 
 /**
  * Create a new StitchClient instance.
@@ -84,6 +85,10 @@ var StitchClient = function () {
       client: baseUrl + '/api/client/v2.0',
       private: baseUrl + '/api/private/v2.0',
       app: clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID : baseUrl + '/api/public/v2.0'
+    }), _defineProperty(_rootURLsByAPIVersion, v3, {
+      public: baseUrl + '/api/public/v3.0',
+      client: baseUrl + '/api/client/v3.0',
+      app: clientAppID ? baseUrl + '/api/client/v3.0/app/' + clientAppID : baseUrl + '/api/public/v3.0'
     }), _rootURLsByAPIVersion);
 
     var authOptions = { codec: _common.APP_CLIENT_CODEC };
