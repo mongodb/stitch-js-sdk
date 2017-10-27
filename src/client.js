@@ -271,8 +271,7 @@ export default class StitchClient {
 
     return this._do('/function', 'POST', { body: responseEncoder(functionJson) })
       .then(response => response.text())
-      .then(body => responseDecoder(body))
-      .then(collectMetadata());
+      .then(body => responseDecoder(body));
   }
 
   /**

@@ -739,7 +739,7 @@ describe('function execution', () => {
         beforeAll(() => {
           fetchMock.restore();
           fetchMock.post(LOCALAUTH_URL, {userId: '5899445b275d3ebe8f2ab8a6'});
-          fetchMock.post(FUNCTION_URL, (name, arg1, arg2) => {
+          fetchMock.post(FUNCTION_URL, () => {
             return JSON.stringify({result: [{x: {'$oid': hexStr}}]});
           });
         });
@@ -758,7 +758,7 @@ describe('function execution', () => {
         beforeAll(() => {
           fetchMock.restore();
           fetchMock.post(LOCALAUTH_URL, {userId: hexStr});
-          fetchMock.post(FUNCTION_URL, (name, arg1, arg2) => {
+          fetchMock.post(FUNCTION_URL, (name, arg1) => {
             requestArg = arg1;
             return {result: [{x: {'$oid': hexStr}}]};
           });
@@ -766,11 +766,10 @@ describe('function execution', () => {
 
         it('should encode objects to extended json for outgoing function request body', () => {
           expect.assertions(1);
-          let requestBodyExtJSON = {name: 'testfunc', arguments: [{x: {'$oid': hexStr}}, 'hello']};
           let testClient = new StitchClient('testapp', {baseUrl: ''});
           return testClient.login('user', 'password')
             .then(() => testClient.executeFunction('testfunc', {x: new ejson.bson.ObjectID(hexStr)}, 'hello'))
-            .then(response => expect(JSON.parse(requestArg.body)).toEqual(requestBodyExtJSON));
+            .then(response => expect(JSON.parse(requestArg.body)).toEqual({name: 'testfunc', arguments: [{x: {'$oid': hexStr}}, 'hello']}));
         });
       });
 
