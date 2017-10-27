@@ -255,6 +255,26 @@ export default class StitchClient {
   }
 
   /**
+   * Executes a function.
+   *
+   * @param {String} name The name of the function.
+   * @param {Object} [args] Arguments to pass to the function.
+   */
+  executeFunction(name, ...args) {
+    let responseDecoder = (d) => EJSON.parse(d, { strict: false });
+    let responseEncoder = (d) => EJSON.stringify(d);
+
+    const functionJson = {
+      name,
+      arguments: args
+    };
+
+    return this._do('/function', 'POST', { body: responseEncoder(functionJson) })
+      .then(response => response.text())
+      .then(body => responseDecoder(body));
+  }
+
+  /**
    * Returns an access token for the user
    *
    * @returns {Promise}

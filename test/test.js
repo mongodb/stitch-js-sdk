@@ -13,6 +13,7 @@ const ANON_AUTH_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/au
 const APIKEY_AUTH_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/auth/api/key';
 const LOCALAUTH_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/auth/local/userpass';
 const PIPELINE_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/pipeline';
+const FUNCTION_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/function';
 const NEW_ACCESSTOKEN_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/auth/newAccessToken';
 const BASEAUTH_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/auth';
 const ejson = new EJSON();
@@ -723,6 +724,77 @@ describe('pipeline execution', () => {
           return testClient.login('user', 'password')
             .then(a => testClient.executePipeline([requestBodyObj]))
             .then(response => expect(JSON.parse(requestOpts.body)).toEqual([requestBodyExtJSON]));
+        });
+      });
+    });
+  }
+});
+
+describe('function execution', () => {
+  for (const envConfig of envConfigs) {
+    describe(envConfig.name, () => {
+      beforeAll(envConfig.setup);
+      afterAll(envConfig.teardown);
+      describe(envConfig.name + ' extended json decode (incoming)', () => {
+        beforeAll(() => {
+          fetchMock.restore();
+          fetchMock.post(LOCALAUTH_URL, {userId: '5899445b275d3ebe8f2ab8a6'});
+          fetchMock.post(FUNCTION_URL, () => {
+            return JSON.stringify({result: [{x: {'$oid': hexStr}}]});
+          });
+        });
+
+        it('should decode extended json from function responses', () => {
+          expect.assertions(1);
+          let testClient = new StitchClient('testapp');
+          return testClient.login('user', 'password')
+            .then(() => testClient.executeFunction('testfunc', {items: [{x: {'oid': hexStr}}]}, 'hello'))
+            .then((response) => expect(response.result[0].x).toEqual(new ejson.bson.ObjectID(hexStr)));
+        });
+      });
+
+      describe('extended json encode (outgoing)', () => {
+        let requestArg;
+        beforeAll(() => {
+          fetchMock.restore();
+          fetchMock.post(LOCALAUTH_URL, {userId: hexStr});
+          fetchMock.post(FUNCTION_URL, (name, arg1) => {
+            requestArg = arg1;
+            return {result: [{x: {'$oid': hexStr}}]};
+          });
+        });
+
+        it('should encode objects to extended json for outgoing function request body', () => {
+          expect.assertions(1);
+          let testClient = new StitchClient('testapp', {baseUrl: ''});
+          return testClient.login('user', 'password')
+            .then(() => testClient.executeFunction('testfunc', {x: new ejson.bson.ObjectID(hexStr)}, 'hello'))
+            .then(response => expect(JSON.parse(requestArg.body)).toEqual({name: 'testfunc', arguments: [{x: {'$oid': hexStr}}, 'hello']}));
+        });
+      });
+
+      describe('non 2xx is returned', () => {
+        beforeAll(() => {
+          fetchMock.restore();
+          fetchMock.post(LOCALAUTH_URL, {userId: hexStr});
+          fetchMock.post(FUNCTION_URL, (name, arg1, arg2) => {
+            return {
+              body: {error: 'bad request'},
+              headers: { 'Content-Type': JSONTYPE },
+              status: 400
+            };
+          });
+        });
+
+        it('promise should be rejected', () => {
+          expect.assertions(2);
+          let testClient = new StitchClient('testapp', {baseUrl: ''});
+          return testClient.login('user', 'password')
+            .then(() => testClient.executeFunction('testfunc', {x: new ejson.bson.ObjectID(hexStr)}, 'hello'))
+            .catch(e => {
+              expect(e).toBeInstanceOf(Error);
+              expect(e.response.status).toBe(400);
+            });
         });
       });
     });
