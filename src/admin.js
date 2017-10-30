@@ -431,6 +431,12 @@ export default class Admin extends StitchClient {
                     `${appUrl}/dev/pipeline`,
                     body,
                     Object.assign({}, options, { user_id: userId }));
+                },
+                executeFunction: (userId, name = '', ...args) => {
+                  return apiV3._post(
+                    `${appUrl}/dev/function`,
+                    {name, 'arguments': args},
+                    { user_id: userId });
                 }
               }),
               authProviders: () => ({
