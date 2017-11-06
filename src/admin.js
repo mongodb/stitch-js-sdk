@@ -242,7 +242,7 @@ export default class Admin extends StitchClient {
             return super._do(
               `/groups/${groupId}/apps/${appID}/sandbox/pipeline`,
               'POST',
-              {body: JSON.stringify(data), queryParams});
+              {body: JSON.stringify(data), queryParams, apiVersion: v1});
           }
         }),
 

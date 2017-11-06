@@ -46,7 +46,7 @@ function anonProvider(auth) {
       const fetchArgs = common.makeFetchArgs('GET');
       fetchArgs.cors = true;
 
-      return fetch(`${auth.rootUrl}/anon/user?device=${uriEncodeObject(device)}`, fetchArgs)
+      return fetch(`${auth.rootUrl}/providers/anon-user/login?device=${uriEncodeObject(device)}`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json));
@@ -56,8 +56,8 @@ function anonProvider(auth) {
 
 /** @namespace */
 function userPassProvider(auth) {
-  const providerRoute = auth.isAppClient() ? 'local/userpass' : 'providers/local-userpass';
-  const loginRoute = auth.isAppClient() ? 'local/userpass' : `${providerRoute}/login`;
+  const providerRoute = auth.isAppClient() ? 'providers/local-userpass' : 'providers/local-userpass';
+  const loginRoute = auth.isAppClient() ? `${providerRoute}/login` : `${providerRoute}/login`;
 
   return {
     /**
@@ -182,7 +182,7 @@ function userPassProvider(auth) {
 
 /** @namespace */
 function apiKeyProvider(auth) {
-  const loginRoute = auth.isAppClient() ? 'api/key' : 'providers/api-key/login';
+  const loginRoute = auth.isAppClient() ? 'providers/api-key/login' : 'providers/api-key/login';
 
   return {
     /**
@@ -237,7 +237,7 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
 
   const device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
-  const result = `${auth.rootUrl}/oauth2/${providerName}?redirect=${encodeURI(redirectUrl)}&state=${state}&device=${uriEncodeObject(device)}`;
+  const result = `${auth.rootUrl}/oauth2-${providerName}?redirect=${encodeURI(redirectUrl)}&state=${state}&device=${uriEncodeObject(device)}`;
   return result;
 }
 
@@ -281,7 +281,7 @@ function facebookProvider(auth) {
 
 /** @namespace */
 function mongodbCloudProvider(auth) {
-  const loginRoute = auth.isAppClient() ? 'mongodb/cloud' : 'providers/mongodb-cloud/login';
+  const loginRoute = auth.isAppClient() ? 'providers/mongodb-cloud/login' : 'providers/mongodb-cloud/login';
 
   return {
     /**

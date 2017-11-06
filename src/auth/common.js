@@ -11,10 +11,10 @@ export const STITCH_LINK_KEY = '_stitch_link';
 export const DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS = 10;
 
 export const APP_CLIENT_CODEC = {
-  'accessToken': 'accessToken',
-  'refreshToken': 'refreshToken',
-  'deviceId': 'deviceId',
-  'userId': 'userId'
+  'accessToken': 'access_token',
+  'refreshToken': 'refresh_token',
+  'deviceId': 'device_id',
+  'userId': 'user_id'
 };
 
 export  const ADMIN_CLIENT_CODEC = {

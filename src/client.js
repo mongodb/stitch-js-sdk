@@ -7,7 +7,7 @@ import ServiceRegistry from './services';
 import * as common from './common';
 import ExtJSONModule from 'mongodb-extjson';
 import queryString from 'query-string';
-import { deprecate, collectMetadata } from './util';
+import { deprecate } from './util';
 import {
   StitchError,
   ErrInvalidSession,
@@ -37,8 +37,8 @@ export default class StitchClient {
 
     this.authUrl = (
       clientAppID ?
-        `${baseUrl}/api/client/v1.0/app/${clientAppID}/auth` :
-        `${baseUrl}/api/public/v2.0/auth`
+        `${baseUrl}/api/client/v2.0/app/${clientAppID}/auth` :
+        `${baseUrl}/api/admin/v3.0/auth`
     );
 
     this.rootURLsByAPIVersion = {
@@ -63,7 +63,7 @@ export default class StitchClient {
         client: `${baseUrl}/api/client/v3.0`,
         app: (clientAppID ?
               `${baseUrl}/api/client/v3.0/app/${clientAppID}` :
-              `${baseUrl}/api/public/v3.0`)
+              `${baseUrl}/api/admin/v3.0`)
       }
     };
 
@@ -153,7 +153,7 @@ export default class StitchClient {
    * @returns {Promise}
    */
   logout() {
-    return this._do('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true })
+    return this._do('/auth/session', 'DELETE', { refreshOnFailure: false, useRefreshToken: true })
       .then(() => this.auth.clear());
   }
 
@@ -202,59 +202,6 @@ export default class StitchClient {
   }
 
   /**
-   * Executes a named pipeline.
-   *
-   * @param {String} name Name of the named pipeline to execute.
-   * @param {Object} args Arguments to the named pipeline to execute.
-   * @param {Object} [options] Additional options to pass to the execution context.
-   */
-  executeNamedPipeline(name, args, options = {}) {
-    const namedPipelineStages = [
-      {
-        service: '',
-        action: 'namedPipeline',
-        args: { name, args }
-      }
-    ];
-    return this.executePipeline(namedPipelineStages, options);
-  }
-
-  /**
-   * Executes a service pipeline.
-   *
-   * @param {Array} stages Stages to process.
-   * @param {Object} [options] Additional options to pass to the execution context.
-   */
-  executePipeline(stages, options = {}) {
-    let responseDecoder = (d) => EJSON.parse(d, { strict: false });
-    let responseEncoder = (d) => EJSON.stringify(d);
-    stages = Array.isArray(stages) ? stages : [ stages ];
-    stages = stages.reduce((acc, stage) => acc.concat(stage), []);
-
-    if (options.decoder) {
-      if ((typeof options.decoder) !== 'function') {
-        throw new Error('decoder option must be a function, but "' + typeof (options.decoder) + '" was provided');
-      }
-      responseDecoder = options.decoder;
-    }
-
-    if (options.encoder) {
-      if ((typeof options.encoder) !== 'function') {
-        throw new Error('encoder option must be a function, but "' + typeof (options.encoder) + '" was provided');
-      }
-      responseEncoder = options.encoder;
-    }
-    if (options.finalizer && typeof options.finalizer !== 'function') {
-      throw new Error('finalizer option must be a function, but "' + typeof (options.finalizer) + '" was provided');
-    }
-
-    return this._do('/pipeline', 'POST', { body: responseEncoder(stages) })
-      .then(response => response.text())
-      .then(body => responseDecoder(body))
-      .then(collectMetadata(options.finalizer));
-  }
-
-  /**
    * Executes a function.
    *
    * @param {String} name The name of the function.
@@ -269,7 +216,7 @@ export default class StitchClient {
       arguments: args
     };
 
-    return this._do('/function', 'POST', { body: responseEncoder(functionJson) })
+    return this._do('/functions/call', 'POST', { body: responseEncoder(functionJson) })
       .then(response => response.text())
       .then(body => responseDecoder(body));
   }
@@ -281,7 +228,7 @@ export default class StitchClient {
    */
 
   doSessionPost() {
-    return this._do('/auth/newAccessToken', 'POST', { refreshOnFailure: false, useRefreshToken: true })
+    return this._do('/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true })
       .then(response => response.json());
   }
 
@@ -289,7 +236,7 @@ export default class StitchClient {
     options = Object.assign({}, {
       refreshOnFailure: true,
       useRefreshToken: false,
-      apiVersion: v1,
+      apiVersion: v2,
       apiType: 'app'
     }, options);
 

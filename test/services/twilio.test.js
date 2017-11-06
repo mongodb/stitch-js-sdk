@@ -8,7 +8,7 @@ TestFixture.prototype.setup = function() {
 };
 
 const test = new TestFixture();
-describe('TwilioService', function() {
+describe.skip('TwilioService', function() {
   describe('substages', () => {
     beforeEach(() => test.setup());
 

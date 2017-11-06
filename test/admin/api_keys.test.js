@@ -21,13 +21,19 @@ describe('API Keys V2', () => {
       .apiKeys();
 
     // enable api key auth provider
-    // TODO: update this to use `apps.app(app._id).authProviders...` once V2 is ready
-    await adminClient
+    let providers = await adminClient
+      .v2()
       .apps(test.groupId)
       .app(app._id)
       .authProviders()
-      .provider('api', 'key')
-      .update({});
+      .list();
+    await adminClient
+      .v2()
+      .apps(test.groupId)
+      .app(app._id)
+      .authProviders()
+      .authProvider(providers[0]._id)
+      .enable();
   });
   afterEach(async () => {
     await apps.app(app._id).remove();

@@ -8,7 +8,7 @@ TestFixture.prototype.setup = function() {
 };
 
 const test = new TestFixture();
-describe('SlackService', function() {
+describe.skip('SlackService', function() {
   describe('substages', () => {
     beforeEach(() => test.setup());
 

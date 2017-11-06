@@ -8,7 +8,7 @@ TestFixture.prototype.setup = function() {
 };
 
 const test = new TestFixture();
-describe('S3Service', function() {
+describe.skip('S3Service', function() {
   describe('substages', () => {
     beforeEach(() => test.setup());
 
