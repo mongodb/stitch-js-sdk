@@ -56,6 +56,8 @@ function anonProvider(auth) {
 
 /** @namespace */
 function userPassProvider(auth) {
+  // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
+  // the client is for the admin or client API.
   const providerRoute = auth.isAppClient() ? 'providers/local-userpass' : 'providers/local-userpass';
   const loginRoute = auth.isAppClient() ? `${providerRoute}/login` : `${providerRoute}/login`;
 
@@ -182,6 +184,8 @@ function userPassProvider(auth) {
 
 /** @namespace */
 function apiKeyProvider(auth) {
+  // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
+  // the client is for the admin or client API.
   const loginRoute = auth.isAppClient() ? 'providers/api-key/login' : 'providers/api-key/login';
 
   return {
@@ -281,6 +285,8 @@ function facebookProvider(auth) {
 
 /** @namespace */
 function mongodbCloudProvider(auth) {
+  // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
+  // the client is for the admin or client API.
   const loginRoute = auth.isAppClient() ? 'providers/mongodb-cloud/login' : 'providers/mongodb-cloud/login';
 
   return {

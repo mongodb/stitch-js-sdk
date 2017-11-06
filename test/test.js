@@ -301,7 +301,7 @@ describe('http error responses', () => {
     it('should return a StitchError instance with the error and errorCode extracted', (done) => {
       const testClient = new StitchClient('testapp');
       return testClient.login('user', 'password')
-        .then(() => testClient.executeFunction('testfunc', {items: [{x: {'oid': hexStr}}]}, 'hello'))
+        .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
         .catch(e => {
           // This is actually a StitchError, but because there are quirks with
           // transpiling a class that subclasses Error, we can only really
@@ -345,7 +345,7 @@ describe('anonymous auth', () => {
         expect(testClient.auth.getAccessToken()).toEqual('test-access-token');
         expect(testClient.authedId()).toEqual(hexStr);
       })
-      .then(() => testClient.executeFunction('testfunc', {items: [{x: {'oid': hexStr}}]}, 'hello'))
+      .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
       .then((response) => expect(response.x).toEqual(1));
   });
 });
@@ -591,7 +591,7 @@ describe('client options', () => {
     expect.assertions(1);
     return testClient.login('user', 'password')
       .then(() => {
-        return testClient.executeFunction('testfunc', {items: [{x: {'oid': hexStr}}]}, 'hello');
+        return testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello');
       })
       .then((response) => {
         expect(response.x).toEqual(new ejson.bson.ObjectID(hexStr));
@@ -601,7 +601,7 @@ describe('client options', () => {
   it('returns a rejected promise if trying to execute a pipeline without auth', (done) => {
     let testClient = new StitchClient('testapp');
     testClient.logout()
-      .then(() => testClient.executeFunction('testfunc', {items: [{x: {'oid': hexStr}}]}, 'hello'))
+      .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
       .then(() => {
         done(new Error('Error should have been triggered, but was not'));
       })
@@ -629,7 +629,7 @@ describe('function execution', () => {
           expect.assertions(1);
           let testClient = new StitchClient('testapp');
           return testClient.login('user', 'password')
-            .then(() => testClient.executeFunction('testfunc', {items: [{x: {'oid': hexStr}}]}, 'hello'))
+            .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
             .then((response) => expect(response.x).toEqual(new ejson.bson.ObjectID(hexStr)));
         });
       });
