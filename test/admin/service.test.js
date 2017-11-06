@@ -54,6 +54,13 @@ describe('Services V2', ()=>{
     let svcConfig = await services.service(newSvc._id).config().get();
     expect(svcConfig).toEqual({'accessKeyId': 'testAccessKeyId', 'region': 'us-east-1'});
   });
+  it('running a service command should work', async () => {
+    let newSvc = await services.create({ name: 'testsvc', type: 'mongodb', config: {uri: 'mongodb://localhost:26000'}})
+    let dbNames = await services.service(newSvc._id).runCommand("list_databases", {})
+    let collNames = await services.service(newSvc._id).runCommand("list_collections", {database_name: "$this-db-doesnt-exist"})
+    expect(dbNames).toBeTruthy()
+    expect(collNames).toHaveLength(0)
+  })
 
   const testConfig = {
     'region': 'us-east-1',
