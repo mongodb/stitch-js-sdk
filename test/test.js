@@ -6,8 +6,7 @@ import { JSONTYPE, DEFAULT_STITCH_SERVER_URL } from '../src/common';
 import { REFRESH_TOKEN_KEY } from '../src/auth/common';
 import Auth from '../src/auth';
 import { mocks } from 'mock-browser';
-
-const EJSON = require('mongodb-extjson');
+import ExtJSON from 'mongodb-extjson';
 
 const ANON_AUTH_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/auth/anon/user';
 const APIKEY_AUTH_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/auth/api/key';
@@ -15,7 +14,6 @@ const LOCALAUTH_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/au
 const PIPELINE_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/pipeline';
 const NEW_ACCESSTOKEN_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/auth/newAccessToken';
 const BASEAUTH_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/auth';
-const ejson = new EJSON();
 
 const MockBrowser = mocks.MockBrowser;
 global.Buffer = global.Buffer || require('buffer').Buffer;
@@ -199,7 +197,7 @@ describe('Auth', () => {
           .catch(() => expect(a.getDeviceId()).toBeNull());
       });
 
-      it('should not clear device id on logout', async () => {
+      it('should not clear device id on logout', async() => {
         expect.assertions(3);
         const testClient = new StitchClient('testapp');
         expect(testClient.auth.getDeviceId()).toBeNull();
@@ -299,13 +297,13 @@ describe('request metadata', () => {
       expect.assertions(1);
       const testClient = new StitchClient('testapp');
       return testClient.login('user', 'password')
-      .then(() =>
-        testClient.executePipeline(sampleStages)
-      ).then(response => {
-        expect(response._stitch_metadata).toEqual({warnings: ['danger will robinson']});
-      }).catch(
-        err => console.error('error', err)
-      );
+        .then(() =>
+          testClient.executePipeline(sampleStages)
+        ).then(response => {
+          expect(response._stitch_metadata).toEqual({warnings: ['danger will robinson']});
+        }).catch(
+          err => console.error('error', err)
+        );
     });
 
     it('attaches warnings to response with updateOne (no finalizer)', ()=>{
@@ -314,13 +312,13 @@ describe('request metadata', () => {
       let service = testClient.service('mongodb', 'mdb1');
       let db = service.db('test');
       return testClient.login('user', 'password')
-      .then(() =>
-        db.collection('test').updateOne({})
-      ).then(response => {
-        expect(response._stitch_metadata).toEqual({warnings: ['danger will robinson']});
-      }).catch(
-        err => console.error('error', err)
-      );
+        .then(() =>
+          db.collection('test').updateOne({})
+        ).then(response => {
+          expect(response._stitch_metadata).toEqual({warnings: ['danger will robinson']});
+        }).catch(
+          err => console.error('error', err)
+        );
     });
 
     it('attaches warnings to response with find() (finalizer)', ()=>{
@@ -329,13 +327,13 @@ describe('request metadata', () => {
       let service = testClient.service('mongodb', 'mdb1');
       let db = service.db('test');
       return testClient.login('user', 'password')
-      .then(() =>
-        db.collection('test').find({})
-      ).then(response => {
-        expect(response._stitch_metadata).toEqual({warnings: ['danger will robinson']});
-      }).catch(
-        err => console.error('error', err)
-      );
+        .then(() =>
+          db.collection('test').find({})
+        ).then(response => {
+          expect(response._stitch_metadata).toEqual({warnings: ['danger will robinson']});
+        }).catch(
+          err => console.error('error', err)
+        );
     });
   });
 });
@@ -652,7 +650,7 @@ describe('client options', () => {
         return testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}]);
       })
       .then((response) => {
-        expect(response.result[0].x).toEqual(new ejson.bson.ObjectID(hexStr));
+        expect(response.result[0].x).toEqual(new ExtJSON.BSON.ObjectID(hexStr));
       });
   });
 
@@ -690,7 +688,7 @@ describe('pipeline execution', () => {
           return testClient.login('user', 'password')
             .then(() =>
               testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}]))
-            .then((response) => expect(response.result[0].x).toEqual(new ejson.bson.ObjectID(hexStr)));
+            .then((response) => expect(response.result[0].x).toEqual(new ExtJSON.BSON.ObjectID(hexStr)));
         });
 
         it('should allow overriding the decoder implementation', () => {
@@ -717,7 +715,7 @@ describe('pipeline execution', () => {
 
         it('should encode objects to extended json for outgoing pipeline request body', () => {
           expect.assertions(1);
-          let requestBodyObj = {action: 'literal', args: {items: [{x: new ejson.bson.ObjectID(hexStr)}]}};
+          let requestBodyObj = {action: 'literal', args: {items: [{x: new ExtJSON.BSON.ObjectID(hexStr)}]}};
           let requestBodyExtJSON = {action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}};
           let testClient = new StitchClient('testapp', {baseUrl: ''});
           return testClient.login('user', 'password')

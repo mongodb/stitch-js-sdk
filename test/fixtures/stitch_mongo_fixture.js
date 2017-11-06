@@ -54,7 +54,7 @@ export default class StitchFixture {
   }
 
   async cleanTestNamespaces() {
-    this.testNamespaces.forEach(async (ns) => {
+    this.testNamespaces.forEach(async(ns) => {
       await this.mongo.db(ns.db).collection(ns.collection).remove();
     });
     this.testNamespaces = [];
