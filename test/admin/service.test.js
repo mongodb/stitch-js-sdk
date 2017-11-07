@@ -88,7 +88,6 @@ describe('Services V2', ()=>{
 
     let clientSvcObj = client.service('mongodb', 'testsvc');
     let db = clientSvcObj.db(TEST_DB);
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000 * 30;
 
     // Insert documents in these two test collections
     let response1 = await db.collection(TESTNS1).insertOne({ a: 1 });
