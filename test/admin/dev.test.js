@@ -144,7 +144,7 @@ describe('Dev Function', () => {
       23,
     );
 
-    expect(result.sum).toEqual({'$numberInt': '800'});
-    expect(result.userId).toEqual(user._id);
+    expect(result.result.sum).toEqual({'$numberInt': '800'});
+    expect(result.result.userId).toEqual(user._id);
   });
 });
