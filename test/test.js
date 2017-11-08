@@ -9,13 +9,11 @@ import { mocks } from 'mock-browser';
 
 const EJSON = require('mongodb-extjson');
 
-const ANON_AUTH_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/auth/anon/user';
-const APIKEY_AUTH_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/auth/api/key';
-const LOCALAUTH_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/auth/local/userpass';
-const PIPELINE_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/pipeline';
-const FUNCTION_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/function';
-const NEW_ACCESSTOKEN_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/auth/newAccessToken';
-const BASEAUTH_URL = 'https://stitch.mongodb.com/api/client/v1.0/app/testapp/auth';
+const ANON_AUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/anon-user/login';
+const APIKEY_AUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/api-key/login';
+const LOCALAUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/local-userpass/login';
+const FUNCTION_CALL_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/functions/call';
+const SESSION_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/session';
 const ejson = new EJSON();
 
 const MockBrowser = mocks.MockBrowser;
@@ -85,10 +83,10 @@ describe('Redirect fragment parsing', () => {
     let result = a.parseRedirectFragment(makeFragment({'_stitch_ua': 'somejwt$anotherjwt$userid$deviceid'}), 'state_ABC');
     expect(result.found).toBe(true);
     expect(result.ua).toEqual({
-      accessToken: 'somejwt',
-      refreshToken: 'anotherjwt',
-      userId: 'userid',
-      deviceId: 'deviceid'
+      access_token: 'somejwt',
+      refresh_token: 'anotherjwt',
+      user_id: 'userid',
+      device_id: 'deviceid'
     });
   });
 
@@ -109,8 +107,8 @@ describe('Auth', () => {
     capturedDevice = args.options.device;
     if (validUsernames.indexOf(args.username) >= 0) {
       return {
-        userId: hexStr,
-        deviceId: mockDeviceId,
+        user_id: hexStr,
+        device_id: mockDeviceId,
         device: args.options.device
       };
     }
@@ -134,10 +132,9 @@ describe('Auth', () => {
     describe(envConfig.name, () => { // eslint-disable-line
       beforeEach(() => {
         envConfig.setup();
-        fetchMock.post('/auth/local/userpass', checkLogin);
         fetchMock.post('/auth/providers/local-userpass/login', checkLogin);
-        fetchMock.post(DEFAULT_STITCH_SERVER_URL + '/api/client/v1.0/app/testapp/auth/local/userpass', checkLogin);
-        fetchMock.delete(DEFAULT_STITCH_SERVER_URL + '/api/client/v1.0/app/testapp/auth', {});
+        fetchMock.post(DEFAULT_STITCH_SERVER_URL + '/api/client/v2.0/app/testapp/auth/providers/local-userpass/login', checkLogin);
+        fetchMock.delete(SESSION_URL, {});
         capturedDevice = undefined;
       });
 
@@ -152,9 +149,9 @@ describe('Auth', () => {
         const a = new Auth(null, '/auth');
         expect(a._get()).toEqual({});
 
-        const testUser = {'accessToken': 'bar', 'userId': hexStr};
+        const testUser = {'access_token': 'bar', 'user_id': hexStr};
         a.set(testUser);
-        expect(a._get()).toEqual(testUser);
+        expect(a._get()).toEqual({'accessToken': 'bar', 'userId': hexStr});
         expect(a.authedId()).toEqual(hexStr);
 
         a.clear();
@@ -262,7 +259,7 @@ describe('Auth', () => {
           .then(() => {
             expect(auth.authedId()).toEqual(hexStr);
             expect(auth.getAccessToken()).toBeUndefined();
-            auth.set({'accessToken': 'foo'});
+            auth.set({'access_token': 'foo'});
             expect(auth.getAccessToken()).toEqual('foo');
           });
       });
@@ -285,82 +282,26 @@ describe('Auth', () => {
   }
 });
 
-describe('request metadata', () => {
-  const sampleStages = [{action: 'literal', args: {items: [{x: 5}]}}];
-  describe('warnings in response metadata', () => {
-    beforeEach(()=>{
-      fetchMock.restore();
-      fetchMock.post(LOCALAUTH_URL, {userId: hexStr});
-      fetchMock.post(PIPELINE_URL, (url, opts) => {
-        return { result: [{x: 1}], warnings: [ 'danger will robinson' ] };
-      });
-    });
-
-    it('attaches warnings to response', ()=>{
-      expect.assertions(1);
-      const testClient = new StitchClient('testapp');
-      return testClient.login('user', 'password')
-      .then(() =>
-        testClient.executePipeline(sampleStages)
-      ).then(response => {
-        expect(response._stitch_metadata).toEqual({warnings: ['danger will robinson']});
-      }).catch(
-        err => console.error('error', err)
-      );
-    });
-
-    it('attaches warnings to response with updateOne (no finalizer)', ()=>{
-      expect.assertions(1);
-      const testClient = new StitchClient('testapp');
-      let service = testClient.service('mongodb', 'mdb1');
-      let db = service.db('test');
-      return testClient.login('user', 'password')
-      .then(() =>
-        db.collection('test').updateOne({})
-      ).then(response => {
-        expect(response._stitch_metadata).toEqual({warnings: ['danger will robinson']});
-      }).catch(
-        err => console.error('error', err)
-      );
-    });
-
-    it('attaches warnings to response with find() (finalizer)', ()=>{
-      expect.assertions(1);
-      const testClient = new StitchClient('testapp');
-      let service = testClient.service('mongodb', 'mdb1');
-      let db = service.db('test');
-      return testClient.login('user', 'password')
-      .then(() =>
-        db.collection('test').find({})
-      ).then(response => {
-        expect(response._stitch_metadata).toEqual({warnings: ['danger will robinson']});
-      }).catch(
-        err => console.error('error', err)
-      );
-    });
-  });
-});
-
 describe('http error responses', () => {
   const testErrMsg = 'test: bad request';
   const testErrCode = 'TestBadRequest';
   describe('JSON error responses are handled correctly', () => {
     beforeEach(() => {
       fetchMock.restore();
-      fetchMock.post(PIPELINE_URL, () =>
+      fetchMock.post(FUNCTION_CALL_URL, () =>
         ({
           body: {error: testErrMsg, errorCode: testErrCode},
           headers: { 'Content-Type': JSONTYPE },
           status: 400
         })
       );
-      fetchMock.post(LOCALAUTH_URL, {userId: hexStr});
+      fetchMock.post(LOCALAUTH_URL, {user_id: hexStr});
     });
 
     it('should return a StitchError instance with the error and errorCode extracted', (done) => {
       const testClient = new StitchClient('testapp');
       return testClient.login('user', 'password')
-        .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: 5}]}}]))
+        .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
         .catch(e => {
           // This is actually a StitchError, but because there are quirks with
           // transpiling a class that subclasses Error, we can only really
@@ -383,16 +324,16 @@ describe('anonymous auth', () => {
       const device = parsed.query ? parsed.query.device : null;
 
       return {
-        userId: hexStr,
-        deviceId: mockDeviceId,
-        accessToken: 'test-access-token',
-        refreshToken: 'test-refresh-token',
+        user_id: hexStr,
+        device_id: mockDeviceId,
+        access_token: 'test-access-token',
+        refresh_token: 'test-refresh-token',
         device: device
       };
     });
 
-    fetchMock.post(PIPELINE_URL, (url, opts) => {
-      return {result: [{x: ++count}]};
+    fetchMock.post(FUNCTION_CALL_URL, () => {
+      return JSON.stringify({x: ++count});
     });
   });
 
@@ -404,10 +345,8 @@ describe('anonymous auth', () => {
         expect(testClient.auth.getAccessToken()).toEqual('test-access-token');
         expect(testClient.authedId()).toEqual(hexStr);
       })
-      .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: 'foo'}]}}]))
-      .then(response => {
-        expect(response.result[0].x).toEqual(1);
-      });
+      .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
+      .then((response) => expect(response.x).toEqual(1));
   });
 });
 
@@ -419,7 +358,7 @@ describe('api key auth/logout', () => {
     fetchMock.post(APIKEY_AUTH_URL, (url, opts) => {
       if (validAPIKeys.indexOf(JSON.parse(opts.body).key) >= 0) {
         return {
-          userId: hexStr
+          user_id: hexStr
         };
       }
 
@@ -430,8 +369,8 @@ describe('api key auth/logout', () => {
       };
     });
 
-    fetchMock.post(PIPELINE_URL, (url, opts) => {
-      return {result: [{x: ++count}]};
+    fetchMock.post(FUNCTION_CALL_URL, () => {
+      return JSON.stringify({x: ++count});
     });
   });
 
@@ -440,9 +379,9 @@ describe('api key auth/logout', () => {
     let testClient = new StitchClient('testapp');
     return testClient.authenticate('apiKey', 'valid-api-key')
       .then(() => expect(testClient.authedId()).toEqual(hexStr))
-      .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: 'foo'}]}}]))
+      .then(() => testClient.executeFunction('testfunc', {items: [{x: 1}]}, 'hello'))
       .then(response => {
-        expect(response.result[0].x).toEqual(1);
+        expect(response.x).toEqual(1);
       });
   });
 
@@ -472,16 +411,16 @@ describe('login/logout', () => {
       beforeEach(() => {
         fetchMock.restore();
         fetchMock.post(LOCALAUTH_URL, {
-          userId: hexStr,
-          refreshToken: testOriginalRefreshToken,
-          accessToken: testOriginalAccessToken
+          user_id: hexStr,
+          refresh_token: testOriginalRefreshToken,
+          access_token: testOriginalAccessToken
         });
 
-        fetchMock.post(PIPELINE_URL, (url, opts) => {
+        fetchMock.post(FUNCTION_CALL_URL, (url, opts) => {
           const providedToken = opts.headers['Authorization'].split(' ')[1];
           if (validAccessTokens.indexOf(providedToken) >= 0) {
             // provided access token is valid
-            return {result: [{x: ++count}]};
+            return {x: ++count};
           }
 
           return {
@@ -491,10 +430,10 @@ describe('login/logout', () => {
           };
         });
 
-        fetchMock.post(NEW_ACCESSTOKEN_URL, (url, opts) => {
+        fetchMock.post(SESSION_URL, (url, opts) => {
           let accessToken = Math.random().toString(36).substring(7);
           validAccessTokens.push(accessToken);
-          return {accessToken};
+          return {access_token: accessToken};
         });
       });
 
@@ -514,18 +453,18 @@ describe('login/logout', () => {
         expect.assertions(4);
         let testClient = new StitchClient('testapp');
         return testClient.login('user', 'password')
-          .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: 'foo'}]}}]))
+          .then(() => testClient.executeFunction('testfunc', {items: [{x: 1}]}, 'hello'))
           .then(response => {
             // first request (token is still valid) should yield the response we expect
-            expect(response.result[0].x).toEqual(1);
+            expect(response.x).toEqual(1);
           })
           .then(() => {
             // invalidate the access token. This forces the client to exchange for a new one.
             validAccessTokens = [];
-            return testClient.executePipeline([{action: 'literal', args: {items: [{y: 1000}]}}]);
+            return testClient.executeFunction('testfunc', {items: [{x: 1}]}, 'hello');
           })
           .then(response => {
-            expect(response.result[0].x).toEqual(2);
+            expect(response.x).toEqual(2);
           })
           .then(() => {
             expect(testClient.auth.getAccessToken()).toEqual(validAccessTokens[0]);
@@ -553,11 +492,11 @@ describe('proactive token refresh', () => {
   beforeEach(() => {
     fetchMock.restore();
 
-    fetchMock.post(PIPELINE_URL, (url, opts) => {
+    fetchMock.post(FUNCTION_CALL_URL, (url, opts) => {
       const providedToken = opts.headers['Authorization'].split(' ')[1];
       if (validAccessTokens.indexOf(providedToken) >= 0) {
         // provided access token is valid
-        return {result: [{x: ++count}]};
+        return JSON.stringify({x: ++count});
       }
 
       throw new Error('invalid session would have been returned from server.');
@@ -566,9 +505,9 @@ describe('proactive token refresh', () => {
     count = 0;
     refreshCount = 0;
 
-    fetchMock.post(NEW_ACCESSTOKEN_URL, (url, opts) => {
+    fetchMock.post(SESSION_URL, (url, opts) => {
       ++refreshCount;
-      return {accessToken: testUnexpiredAccessToken};
+      return {access_token: testUnexpiredAccessToken};
     });
   });
 
@@ -576,9 +515,9 @@ describe('proactive token refresh', () => {
     expect.assertions(5);
 
     fetchMock.post(LOCALAUTH_URL, {
-      userId: hexStr,
-      refreshToken: 'refresh-token',
-      accessToken: testExpiredAccessToken
+      user_id: hexStr,
+      refresh_token: 'refresh-token',
+      access_token: testExpiredAccessToken
     });
 
     let testClient = new StitchClient('testapp');
@@ -586,11 +525,11 @@ describe('proactive token refresh', () => {
       .then(() => {
         // make sure we are starting with the expired access token
         expect(testClient.auth.getAccessToken()).toEqual(testExpiredAccessToken);
-        return testClient.executePipeline([{action: 'literal', args: {items: [{x: 'foo'}]}}]);
+        return testClient.executeFunction('testfunc', {items: [{x: 1}]}, 'hello');
       })
       .then(response => {
         // token was expired, though it should yield the response we expect without throwing InvalidSession
-        expect(response.result[0].x).toEqual(1);
+        expect(response.x).toEqual(1);
       })
       .then(() => {
         // make sure token was updated
@@ -607,9 +546,9 @@ describe('proactive token refresh', () => {
     expect.assertions(5);
 
     fetchMock.post(LOCALAUTH_URL, {
-      userId: hexStr,
-      refreshToken: 'refresh-token',
-      accessToken: testUnexpiredAccessToken
+      user_id: hexStr,
+      refresh_token: 'refresh-token',
+      access_token: testUnexpiredAccessToken
     });
 
     let testClient = new StitchClient('testapp');
@@ -617,10 +556,10 @@ describe('proactive token refresh', () => {
       .then(() => {
         // make sure we are starting with the unexpired access token
         expect(testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
-        return testClient.executePipeline([{action: 'literal', args: {items: [{x: 'foo'}]}}]);
+        return testClient.executeFunction('testfunc', {items: [{x: 1}]}, 'hello');
       })
       .then(response => {
-        expect(response.result[0].x).toEqual(1);
+        expect(response.x).toEqual(1);
       })
       .then(() => {
         // make sure token was not updated
@@ -637,12 +576,14 @@ describe('proactive token refresh', () => {
 describe('client options', () => {
   beforeEach(() => {
     fetchMock.restore();
-    fetchMock.post('https://stitch2.mongodb.com/api/client/v1.0/app/testapp/auth/local/userpass', {userId: hexStr});
-    fetchMock.post('https://stitch2.mongodb.com/api/client/v1.0/app/testapp/pipeline', (url, opts) => {
-      return {result: [{x: {'$oid': hexStr}}]};
+    fetchMock.post('https://stitch2.mongodb.com/api/client/v2.0/app/testapp/auth/providers/local-userpass/login', {user_id: hexStr});
+    fetchMock.post('https://stitch2.mongodb.com/api/client/v2.0/app/testapp/functions/call', (url, opts) => {
+      return {x: {'$oid': hexStr}};
     });
-    fetchMock.delete(BASEAUTH_URL, {});
-    fetchMock.post(PIPELINE_URL, {result: [{x: {'$oid': hexStr}}]});
+    fetchMock.delete(SESSION_URL, {});
+    fetchMock.post(FUNCTION_CALL_URL, () => {
+      return JSON.stringify({x: {'$oid': hexStr}});
+    });
   });
 
   it('allows overriding the base url', () => {
@@ -650,17 +591,17 @@ describe('client options', () => {
     expect.assertions(1);
     return testClient.login('user', 'password')
       .then(() => {
-        return testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}]);
+        return testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello');
       })
       .then((response) => {
-        expect(response.result[0].x).toEqual(new ejson.bson.ObjectID(hexStr));
+        expect(response.x).toEqual(new ejson.bson.ObjectID(hexStr));
       });
   });
 
   it('returns a rejected promise if trying to execute a pipeline without auth', (done) => {
     let testClient = new StitchClient('testapp');
     testClient.logout()
-      .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}]))
+      .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
       .then(() => {
         done(new Error('Error should have been triggered, but was not'));
       })
@@ -668,66 +609,6 @@ describe('client options', () => {
         done();
       });
   });
-});
-
-describe('pipeline execution', () => {
-  for (const envConfig of envConfigs) {
-    describe(envConfig.name, () => {
-      beforeAll(envConfig.setup);
-      afterAll(envConfig.teardown);
-      describe(envConfig.name + ' extended json decode (incoming)', () => {
-        beforeAll(() => {
-          fetchMock.restore();
-          fetchMock.post(LOCALAUTH_URL, {userId: '5899445b275d3ebe8f2ab8a6'});
-          fetchMock.post(PIPELINE_URL, (url, opts) => {
-            let out = JSON.stringify({result: [{x: {'$oid': hexStr}}]});
-            return out;
-          });
-        });
-
-        it('should decode extended json from pipeline responses', () => {
-          expect.assertions(1);
-          let testClient = new StitchClient('testapp');
-          return testClient.login('user', 'password')
-            .then(() =>
-              testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}]))
-            .then((response) => expect(response.result[0].x).toEqual(new ejson.bson.ObjectID(hexStr)));
-        });
-
-        it('should allow overriding the decoder implementation', () => {
-          expect.assertions(1);
-          let testClient = new StitchClient('testapp');
-          return testClient.login('user', 'password')
-            .then(() => testClient.executePipeline([{action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}}], {decoder: JSON.parse}))
-            .then((response) => expect(response.result[0].x).toEqual({'$oid': hexStr}));
-        });
-      });
-
-      describe('extended json encode (outgoing)', () => {
-        let requestOpts;
-        beforeAll(() => {
-          fetchMock.restore();
-          fetchMock.post(LOCALAUTH_URL, {userId: hexStr});
-          fetchMock.post(PIPELINE_URL, (url, opts) => {
-            // TODO there should be a better way to capture request payload for
-            // using in an assertion without doing this.
-            requestOpts = opts;
-            return {result: [{x: {'$oid': hexStr}}]};
-          });
-        });
-
-        it('should encode objects to extended json for outgoing pipeline request body', () => {
-          expect.assertions(1);
-          let requestBodyObj = {action: 'literal', args: {items: [{x: new ejson.bson.ObjectID(hexStr)}]}};
-          let requestBodyExtJSON = {action: 'literal', args: {items: [{x: {'$oid': hexStr}}]}};
-          let testClient = new StitchClient('testapp', {baseUrl: ''});
-          return testClient.login('user', 'password')
-            .then(a => testClient.executePipeline([requestBodyObj]))
-            .then(response => expect(JSON.parse(requestOpts.body)).toEqual([requestBodyExtJSON]));
-        });
-      });
-    });
-  }
 });
 
 describe('function execution', () => {
@@ -738,9 +619,9 @@ describe('function execution', () => {
       describe(envConfig.name + ' extended json decode (incoming)', () => {
         beforeAll(() => {
           fetchMock.restore();
-          fetchMock.post(LOCALAUTH_URL, {userId: '5899445b275d3ebe8f2ab8a6'});
-          fetchMock.post(FUNCTION_URL, () => {
-            return JSON.stringify({result: [{x: {'$oid': hexStr}}]});
+          fetchMock.post(LOCALAUTH_URL, {user_id: '5899445b275d3ebe8f2ab8a6'});
+          fetchMock.post(FUNCTION_CALL_URL, () => {
+            return JSON.stringify({x: {'$oid': hexStr}});
           });
         });
 
@@ -748,8 +629,8 @@ describe('function execution', () => {
           expect.assertions(1);
           let testClient = new StitchClient('testapp');
           return testClient.login('user', 'password')
-            .then(() => testClient.executeFunction('testfunc', {items: [{x: {'oid': hexStr}}]}, 'hello'))
-            .then((response) => expect(response.result[0].x).toEqual(new ejson.bson.ObjectID(hexStr)));
+            .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
+            .then((response) => expect(response.x).toEqual(new ejson.bson.ObjectID(hexStr)));
         });
       });
 
@@ -757,10 +638,10 @@ describe('function execution', () => {
         let requestArg;
         beforeAll(() => {
           fetchMock.restore();
-          fetchMock.post(LOCALAUTH_URL, {userId: hexStr});
-          fetchMock.post(FUNCTION_URL, (name, arg1) => {
+          fetchMock.post(LOCALAUTH_URL, {user_id: hexStr});
+          fetchMock.post(FUNCTION_CALL_URL, (name, arg1) => {
             requestArg = arg1;
-            return {result: [{x: {'$oid': hexStr}}]};
+            return {x: {'$oid': hexStr}};
           });
         });
 
@@ -776,8 +657,8 @@ describe('function execution', () => {
       describe('non 2xx is returned', () => {
         beforeAll(() => {
           fetchMock.restore();
-          fetchMock.post(LOCALAUTH_URL, {userId: hexStr});
-          fetchMock.post(FUNCTION_URL, (name, arg1, arg2) => {
+          fetchMock.post(LOCALAUTH_URL, {user_id: hexStr});
+          fetchMock.post(FUNCTION_CALL_URL, (name, arg1, arg2) => {
             return {
               body: {error: 'bad request'},
               headers: { 'Content-Type': JSONTYPE },

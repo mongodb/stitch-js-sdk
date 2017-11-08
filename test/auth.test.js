@@ -45,10 +45,10 @@ describe('Auth', () => {
   it('should return a promise for login with only new auth data userId', () => {
     window.fetch.resolves(mockApiResponse({
       body: {
-        accessToken: 'fake-access-token',
-        refreshToken: 'fake-refresh-token',
-        userId: 'fake-user-id',
-        deviceId: 'fake-device-id'
+        access_token: 'fake-access-token',
+        refresh_token: 'fake-refresh-token',
+        user_id: 'fake-user-id',
+        device_id: 'fake-device-id'
       }
     }));
     expect.assertions(1);

@@ -36,7 +36,7 @@ async function testSetup(fixture) {
 }
 
 let test = new StitchMongoFixture;
-describe('MongoDBService', function() {
+describe.skip('MongoDBService', function() {
   let testService;
   let db;
 
