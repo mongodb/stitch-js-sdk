@@ -2,7 +2,7 @@ const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 import {getAuthenticatedClient} from '../testutil';
 
 
-describe('Users V2', ()=>{
+describe('Users', ()=>{
   let test = new StitchMongoFixture();
   let appUsers;
   beforeAll(() => test.setup());
@@ -10,11 +10,10 @@ describe('Users V2', ()=>{
   beforeEach(async () =>{
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
     test.groupId = test.userData.group.groupId;
-    let apiV2 = adminClient.v2();
-    let apps = await apiV2.apps(test.groupId);
+    let apps = await adminClient.apps(test.groupId);
     let app = await apps.create({name: 'testname'});
-    appUsers = adminClient.v2().apps(test.groupId).app(app._id).users();
-    let authProviders = adminClient.v2().apps(test.groupId).app(app._id).authProviders();
+    appUsers = adminClient.apps(test.groupId).app(app._id).users();
+    let authProviders = adminClient.apps(test.groupId).app(app._id).authProviders();
     let newProvider = await authProviders.create({type: 'local-userpass', config: {
       emailConfirmationUrl: 'http://emailConfirmURL.com',
       resetPasswordUrl: 'http://resetPasswordURL.com',

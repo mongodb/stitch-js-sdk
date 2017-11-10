@@ -2,7 +2,7 @@ const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
 import { getAuthenticatedClient } from '../testutil';
 
-describe('Functions V3', () => {
+describe('Functions', () => {
   let test = new StitchMongoFixture();
   let functions;
   let app;
@@ -12,10 +12,9 @@ describe('Functions V3', () => {
   beforeEach(async () => {
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
     test.groupId = test.userData.group.groupId;
-    apps = await adminClient.v2().apps(test.groupId);
+    apps = await adminClient.apps(test.groupId);
     app = await apps.create({ name: 'testname' });
     functions = adminClient
-      .v2()
       .apps(test.groupId)
       .app(app._id)
       .functions();
@@ -25,11 +24,11 @@ describe('Functions V3', () => {
   });
 
   const FUNC_NAME = 'myFunction';
-  const FUNC_SOURCE = 'return "hello world!";';
+  const FUNC_SOURCE = 'exports = function(){ return "hello world!"; }';
   const createTestFunction = () => ({ name: FUNC_NAME, source: FUNC_SOURCE });
 
   const FUNC_UPDATED_NAME = 'myFunction';
-  const FUNC_UPDATED_SOURCE = 'return "!dlrow olleh";';
+  const FUNC_UPDATED_SOURCE = 'exports = function(){ return "!dlrow olleh"; }';
   const createUpdatedFunction = () => ({ name: FUNC_UPDATED_NAME, source: FUNC_UPDATED_SOURCE });
 
   it('listing functions should return an empty list', async () => {

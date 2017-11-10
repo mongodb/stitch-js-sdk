@@ -2,7 +2,11 @@ const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
 import {getAuthenticatedClient} from '../testutil';
 
-describe('Pipelines V2', ()=>{
+// the below tests are only supported in the deprecated v2 api
+// once the ability to query for both named pipelines and incoming webhooks with pipelines
+// is no longer needed, this can be removed.
+
+describe('Pipelines (V2)', ()=>{
   let test = new StitchMongoFixture();
   let apps;
   let app;

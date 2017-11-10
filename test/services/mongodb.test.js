@@ -9,8 +9,8 @@ let stripObjectIds = (data) => data.map(d => { delete d._id; return d; });
 
 async function testSetup(fixture) {
   await fixture.cleanTestNamespaces();
-  const newApp = await fixture.admin.v2().apps(fixture.userData.group.groupId).create({name: 'test'});
-  const app = fixture.admin.v2().apps(fixture.userData.group.groupId).app(newApp._id);
+  const newApp = await fixture.admin.apps(fixture.userData.group.groupId).create({name: 'test'});
+  const app = fixture.admin.apps(fixture.userData.group.groupId).app(newApp._id);
   const providers = await app.authProviders().list();
   await app.authProviders().authProvider(providers[0]._id).enable();
   const newKey = await app.apiKeys().create({name: 'test'});
