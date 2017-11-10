@@ -2,7 +2,7 @@ const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
 import { getAuthenticatedClient } from '../testutil';
 
-describe('Push Notifications V2', () => {
+describe('Push Notifications', () => {
   let test = new StitchMongoFixture();
   let pushNotifications;
   let app;
@@ -12,10 +12,9 @@ describe('Push Notifications V2', () => {
   beforeEach(async () => {
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
     test.groupId = test.userData.group.groupId;
-    apps = await adminClient.v2().apps(test.groupId);
+    apps = await adminClient.apps(test.groupId);
     app = await apps.create({ name: 'testname' });
     pushNotifications = adminClient
-      .v2()
       .apps(test.groupId)
       .app(app._id)
       .pushNotifications();
@@ -30,7 +29,7 @@ describe('Push Notifications V2', () => {
     type: DRAFT_TYPE,
     message: 'this is a test notification.',
     label: 'test',
-    topic: 'v2'
+    topic: 'notifications'
   };
 
   it('listing draft push notifications should return empty list', async () => {

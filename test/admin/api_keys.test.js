@@ -2,7 +2,7 @@ const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
 import { getAuthenticatedClient } from '../testutil';
 
-describe('API Keys V2', () => {
+describe('API Keys', () => {
   let test = new StitchMongoFixture();
   let apiKeys;
   let app;
@@ -12,23 +12,20 @@ describe('API Keys V2', () => {
   beforeEach(async () => {
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
     test.groupId = test.userData.group.groupId;
-    apps = await adminClient.v2().apps(test.groupId);
+    apps = await adminClient.apps(test.groupId);
     app = await apps.create({ name: 'testname' });
     apiKeys = adminClient
-      .v2()
       .apps(test.groupId)
       .app(app._id)
       .apiKeys();
 
     // enable api key auth provider
     let providers = await adminClient
-      .v2()
       .apps(test.groupId)
       .app(app._id)
       .authProviders()
       .list();
     await adminClient
-      .v2()
       .apps(test.groupId)
       .app(app._id)
       .authProviders()
