@@ -90,7 +90,7 @@ exports.uriEncodeObject = exports.getPlatform = exports.letMixin = exports.servi
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-var _detectBrowser = __webpack_require__(30);
+var _detectBrowser = __webpack_require__(27);
 
 var platform = _interopRequireWildcard(_detectBrowser);
 
@@ -337,7 +337,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "1.1.9";
+  version = "1.2.0";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -1317,7 +1317,7 @@ var _auth2 = _interopRequireDefault(_auth);
 
 var _common = __webpack_require__(1);
 
-var _services = __webpack_require__(22);
+var _services = __webpack_require__(21);
 
 var _services2 = _interopRequireDefault(_services);
 
@@ -1329,7 +1329,7 @@ var _mongodbExtjson = __webpack_require__(8);
 
 var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
-var _queryString = __webpack_require__(53);
+var _queryString = __webpack_require__(50);
 
 var _queryString2 = _interopRequireDefault(_queryString);
 
@@ -1760,9 +1760,9 @@ module.exports = exports['default'];
 
 
 
-var base64 = __webpack_require__(29)
-var ieee754 = __webpack_require__(33)
-var isArray = __webpack_require__(34)
+var base64 = __webpack_require__(26)
+var ieee754 = __webpack_require__(30)
+var isArray = __webpack_require__(31)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -3540,7 +3540,7 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(55)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(52)))
 
 /***/ }),
 /* 7 */
@@ -3550,7 +3550,7 @@ function isnan (val) {
 // on the global object (window or self)
 //
 // Return that as the export for use in Webpack, Browserify etc.
-__webpack_require__(56);
+__webpack_require__(53);
 var globalObj = typeof self !== 'undefined' && self || this;
 module.exports = globalObj.fetch.bind(globalObj);
 
@@ -3559,7 +3559,7 @@ module.exports = globalObj.fetch.bind(globalObj);
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ExtJSON = __webpack_require__(50);
+var ExtJSON = __webpack_require__(47);
 ExtJSON.BSON = __webpack_require__(9);
 
 module.exports = ExtJSON;
@@ -3572,19 +3572,19 @@ module.exports = ExtJSON;
 "use strict";
 
 
-var Binary = __webpack_require__(38);
-var Code = __webpack_require__(39);
-var DBRef = __webpack_require__(40);
-var Decimal128 = __webpack_require__(41);
-var Double = __webpack_require__(42);
-var Int32 = __webpack_require__(43);
+var Binary = __webpack_require__(35);
+var Code = __webpack_require__(36);
+var DBRef = __webpack_require__(37);
+var Decimal128 = __webpack_require__(38);
+var Double = __webpack_require__(39);
+var Int32 = __webpack_require__(40);
 var Long = __webpack_require__(4);
-var MaxKey = __webpack_require__(44);
-var MinKey = __webpack_require__(45);
-var ObjectID = __webpack_require__(46);
-var BSONRegExp = __webpack_require__(47);
-var Symbol = __webpack_require__(48);
-var Timestamp = __webpack_require__(49);
+var MaxKey = __webpack_require__(41);
+var MinKey = __webpack_require__(42);
+var ObjectID = __webpack_require__(43);
+var BSONRegExp = __webpack_require__(44);
+var Symbol = __webpack_require__(45);
+var Timestamp = __webpack_require__(46);
 
 module.exports = {
   Binary: Binary, Code: Code, DBRef: DBRef, Decimal128: Decimal128, Double: Double,
@@ -4738,7 +4738,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var jwtDecode = __webpack_require__(37);
+var jwtDecode = __webpack_require__(34);
 
 var EMBEDDED_USER_AUTH_DATA_PARTS = 4;
 
@@ -5753,75 +5753,6 @@ var _util = __webpack_require__(0);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
- * Convenience wrapper for AWS SQS (not meant to be instantiated directly).
- *
- * @class
- * @return {SQSService} a SQSService instance.
- */
-var SQSService = function () {
-  function SQSService(client, serviceName) {
-    _classCallCheck(this, SQSService);
-
-    this.client = client;
-    this.serviceName = serviceName;
-  }
-
-  /**
-   * Send a message of the output of previous stage to queue
-   *
-   * @return {Promise}
-   */
-
-
-  _createClass(SQSService, [{
-    key: 'send',
-    value: function send() {
-      return (0, _util.serviceResponse)(this, {
-        service: this.serviceName,
-        action: 'send'
-      });
-    }
-
-    /**
-     * Receive a message from queue
-     *
-     * @return {Promise}
-     */
-
-  }, {
-    key: 'receive',
-    value: function receive() {
-      return (0, _util.serviceResponse)(this, {
-        service: this.serviceName,
-        action: 'receive'
-      });
-    }
-  }]);
-
-  return SQSService;
-}();
-
-exports.default = (0, _util.letMixin)(SQSService);
-module.exports = exports['default'];
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _util = __webpack_require__(0);
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
  * Convenience wrapper for HTTP service (not meant to be instantiated directly).
  *
  * @class
@@ -5972,7 +5903,7 @@ exports.default = (0, _util.letMixin)(HTTPService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5990,27 +5921,15 @@ var _ses_service = __webpack_require__(19);
 
 var _ses_service2 = _interopRequireDefault(_ses_service);
 
-var _sqs_service = __webpack_require__(20);
-
-var _sqs_service2 = _interopRequireDefault(_sqs_service);
-
-var _http_service = __webpack_require__(21);
+var _http_service = __webpack_require__(20);
 
 var _http_service2 = _interopRequireDefault(_http_service);
 
-var _mongodb_service = __webpack_require__(25);
+var _mongodb_service = __webpack_require__(24);
 
 var _mongodb_service2 = _interopRequireDefault(_mongodb_service);
 
-var _pubnub_service = __webpack_require__(26);
-
-var _pubnub_service2 = _interopRequireDefault(_pubnub_service);
-
-var _slack_service = __webpack_require__(27);
-
-var _slack_service2 = _interopRequireDefault(_slack_service);
-
-var _twilio_service = __webpack_require__(28);
+var _twilio_service = __webpack_require__(25);
 
 var _twilio_service2 = _interopRequireDefault(_twilio_service);
 
@@ -6019,17 +5938,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = {
   'aws/s3': _s3_service2.default,
   'aws/ses': _ses_service2.default,
-  'aws/sqs': _sqs_service2.default,
   'http': _http_service2.default,
   'mongodb': _mongodb_service2.default,
-  'pubnub': _pubnub_service2.default,
-  'slack': _slack_service2.default,
   'twilio': _twilio_service2.default
 };
 module.exports = exports['default'];
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6366,7 +6282,7 @@ exports.default = (0, _util.letMixin)(Collection);
 module.exports = exports['default'];
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6378,7 +6294,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _collection = __webpack_require__(23);
+var _collection = __webpack_require__(22);
 
 var _collection2 = _interopRequireDefault(_collection);
 
@@ -6433,7 +6349,7 @@ exports.default = DB;
 module.exports = exports['default'];
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6445,7 +6361,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _db = __webpack_require__(24);
+var _db = __webpack_require__(23);
 
 var _db2 = _interopRequireDefault(_db);
 
@@ -6500,136 +6416,7 @@ exports.default = MongoDBService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _util = __webpack_require__(0);
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Convenience wrapper around Pubnub API (not meant to be instantiated directly).
- *
- * @class
- * @return {PubnubService} a PubnubService instance.
- */
-var PubnubService = function () {
-  function PubnubService(stitchClient, serviceName) {
-    _classCallCheck(this, PubnubService);
-
-    this.client = stitchClient;
-    this.serviceName = serviceName;
-  }
-
-  /**
-   * Publish a message to a channel
-   *
-   * @method
-   * @param {String} channel the channel to publish to
-   * @param {String} message the message to publish
-   * @return {Promise}
-   */
-
-
-  _createClass(PubnubService, [{
-    key: 'publish',
-    value: function publish(channel, message) {
-      return (0, _util.serviceResponse)(this, {
-        service: this.serviceName,
-        action: 'publish',
-        args: { channel: channel, message: message }
-      });
-    }
-  }]);
-
-  return PubnubService;
-}();
-
-exports.default = (0, _util.letMixin)(PubnubService);
-module.exports = exports['default'];
-
-/***/ }),
-/* 27 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _util = __webpack_require__(0);
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Convenience wrapper around Slack API (not meant to be instantiated directly).
- *
- * @class
- * @return {SlackService} a SlackService instance.
- */
-var SlackService = function () {
-  function SlackService(stitchClient, serviceName) {
-    _classCallCheck(this, SlackService);
-
-    this.client = stitchClient;
-    this.serviceName = serviceName;
-  }
-
-  /**
-   * Post a message to a channel
-   *
-   * @method
-   * @param {String} channel the channel to post to
-   * @param {String} text the text to post
-   * @param {Object} [options]
-   * @param {String} [options.username] the username to post as
-   * @param {String} [options.iconUrl] url to icon of user
-   * @param {String} [options.iconEmoji] an icon
-   * @param {String[]} [options.attachments] a list of attachments for the message
-   * @return {Promise}
-   */
-
-
-  _createClass(SlackService, [{
-    key: 'post',
-    value: function post(channel, text) {
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-      var args = { channel: channel, text: text };
-      if (!!options.username) args.username = options.username;
-      if (!!options.iconUrl) args.iconUrl = options.iconUrl;
-      if (!!options.iconEmoji) args.iconEmoji = options.iconEmoji;
-      if (!!options.attachments) args.attachments = options.attachments;
-
-      return (0, _util.serviceResponse)(this, {
-        service: this.serviceName,
-        action: 'publish',
-        args: args
-      });
-    }
-  }]);
-
-  return SlackService;
-}();
-
-exports.default = (0, _util.letMixin)(SlackService);
-module.exports = exports['default'];
-
-/***/ }),
-/* 28 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6688,7 +6475,7 @@ exports.default = (0, _util.letMixin)(TwilioService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 29 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6809,10 +6596,10 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 30 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var detectBrowser = __webpack_require__(31);
+var detectBrowser = __webpack_require__(28);
 
 var agent;
 
@@ -6824,10 +6611,10 @@ module.exports = detectBrowser(agent);
 
 
 /***/ }),
-/* 31 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var detectOS = __webpack_require__(32);
+var detectOS = __webpack_require__(29);
 
 module.exports = function detectBrowser(userAgentString) {
   if (!userAgentString) return null;
@@ -6873,7 +6660,7 @@ module.exports = function detectBrowser(userAgentString) {
 
 
 /***/ }),
-/* 32 */
+/* 29 */
 /***/ (function(module, exports) {
 
 module.exports = function detectOS(userAgentString) {
@@ -6991,7 +6778,7 @@ module.exports = function detectOS(userAgentString) {
 
 
 /***/ }),
-/* 33 */
+/* 30 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -7081,7 +6868,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 34 */
+/* 31 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -7092,7 +6879,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 35 */
+/* 32 */
 /***/ (function(module, exports) {
 
 /**
@@ -7136,10 +6923,10 @@ module.exports = typeof window !== 'undefined' && window.atob && window.atob.bin
 
 
 /***/ }),
-/* 36 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var atob = __webpack_require__(35);
+var atob = __webpack_require__(32);
 
 function b64DecodeUnicode(str) {
   return decodeURIComponent(atob(str).replace(/(.)/g, function (m, p) {
@@ -7175,13 +6962,13 @@ module.exports = function(str) {
 
 
 /***/ }),
-/* 37 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var base64_url_decode = __webpack_require__(36);
+var base64_url_decode = __webpack_require__(33);
 
 function InvalidTokenError(message) {
   this.message = message;
@@ -7208,7 +6995,7 @@ module.exports.InvalidTokenError = InvalidTokenError;
 
 
 /***/ }),
-/* 38 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7498,7 +7285,7 @@ module.exports = Binary;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).Buffer))
 
 /***/ }),
-/* 39 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7533,7 +7320,7 @@ module.exports = Code;
 
 
 /***/ }),
-/* 40 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7578,7 +7365,7 @@ module.exports = DBRef;
 
 
 /***/ }),
-/* 41 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8300,7 +8087,7 @@ module.exports = Decimal128;
 
 
 /***/ }),
-/* 42 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8343,7 +8130,7 @@ module.exports = Double;
 
 
 /***/ }),
-/* 43 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8386,7 +8173,7 @@ module.exports = Int32;
 
 
 /***/ }),
-/* 44 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8415,7 +8202,7 @@ module.exports = MaxKey;
 
 
 /***/ }),
-/* 45 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8444,7 +8231,7 @@ module.exports = MinKey;
 
 
 /***/ }),
-/* 46 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8772,10 +8559,10 @@ ObjectID.index = ~~(Math.random() * 0xFFFFFF);
 
 module.exports = ObjectID;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(52)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(49)))
 
 /***/ }),
-/* 47 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8823,7 +8610,7 @@ module.exports = BSONRegExp;
 
 
 /***/ }),
-/* 48 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8869,7 +8656,7 @@ module.exports = Symbol;
 
 
 /***/ }),
-/* 49 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8958,7 +8745,7 @@ module.exports = Timestamp;
 
 
 /***/ }),
-/* 50 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9240,7 +9027,7 @@ module.exports = ExtJSON;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).Buffer))
 
 /***/ }),
-/* 51 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9337,7 +9124,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 52 */
+/* 49 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -9527,13 +9314,13 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 53 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var strictUriEncode = __webpack_require__(54);
-var objectAssign = __webpack_require__(51);
+var strictUriEncode = __webpack_require__(51);
+var objectAssign = __webpack_require__(48);
 
 function encoderForArrayFormat(opts) {
 	switch (opts.arrayFormat) {
@@ -9739,7 +9526,7 @@ exports.stringify = function (obj, opts) {
 
 
 /***/ }),
-/* 54 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9752,7 +9539,7 @@ module.exports = function (str) {
 
 
 /***/ }),
-/* 55 */
+/* 52 */
 /***/ (function(module, exports) {
 
 var g;
@@ -9779,7 +9566,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 56 */
+/* 53 */
 /***/ (function(module, exports) {
 
 (function(self) {
