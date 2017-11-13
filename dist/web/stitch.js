@@ -337,7 +337,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "1.1.8";
+  version = "1.1.9";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -4176,6 +4176,9 @@ var Admin = function (_StitchClient) {
                         },
                         remove: function remove() {
                           return api._delete(appUrl + '/services/' + serviceId);
+                        },
+                        runCommand: function runCommand(commandName, data) {
+                          return api._post(appUrl + '/services/' + serviceId + '/commands/' + commandName, data);
                         },
                         config: function config() {
                           return {

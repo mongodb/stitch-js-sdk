@@ -520,6 +520,9 @@ var Admin = function (_StitchClient) {
                         remove: function remove() {
                           return api._delete(appUrl + '/services/' + serviceId);
                         },
+                        runCommand: function runCommand(commandName, data) {
+                          return api._post(appUrl + '/services/' + serviceId + '/commands/' + commandName, data);
+                        },
                         config: function config() {
                           return {
                             get: function get() {
