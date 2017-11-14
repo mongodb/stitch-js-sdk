@@ -68,7 +68,7 @@ describe('Dev Function', () => {
       23,
     );
 
-    expect(result.result.sum).toEqual({'$numberInt': '800'});
+    expect(result.result.sum).toEqual({'$numberDouble': '800'});
     expect(result.result.userId).toEqual(user._id);
   });
 });
