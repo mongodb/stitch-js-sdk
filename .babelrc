@@ -6,11 +6,12 @@
         "node": "6"
       },
       "useBuiltins": "usage",
-    }]
+    }],
   ],
   "plugins": [
     "transform-async-to-generator",
     "babel-plugin-add-module-exports",
-    "version-transform"
+    "version-transform",
+    ["babel-plugin-transform-builtin-extend", { globals: ["Error"] }]
   ]
 }

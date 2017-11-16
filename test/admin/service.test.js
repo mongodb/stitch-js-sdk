@@ -1,4 +1,9 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
+const stitch = require('../../src');
+
+const TEST_DB = 'mongosvccommandtest';
+const TESTNS1 = 'documents';
+const TESTNS2 = 'documents2';
 
 import {getAuthenticatedClient} from '../testutil';
 
@@ -53,6 +58,57 @@ describe('Services', ()=>{
     let newSvc = await services.create({ name: 'testsvc', type: 'aws-ses', config: testConfig });
     let svcConfig = await services.service(newSvc._id).config().get();
     expect(svcConfig).toEqual({'accessKeyId': 'testAccessKeyId', 'region': 'us-east-1'});
+  });
+  it('running service commands should work', async () => {
+    // Set up auth and a mongodb service so we can insert some test documents.
+    let appObj = test.admin.v2().apps(test.userData.group.groupId).app(app._id);
+    let providers = await appObj.authProviders().list();
+    await appObj.authProviders().authProvider(providers[0]._id).enable();
+    let newKey = await appObj.apiKeys().create({name: 'test'});
+    let client = new stitch.StitchClient(app.client_app_id, {baseUrl: test.options.baseUrl});
+    await client.authenticate('apiKey', newKey.key);
+    let newSvc = await services.create({ name: 'testsvc', type: 'mongodb', config: {uri: 'mongodb://localhost:26000'}});
+
+    // Create rules so we can insert documents into two new collections.
+    let mongoSvcObj = services.service(newSvc._id);
+    let testRuleConfig = {
+      read: {'%%true': true},
+      write: {'%%true': true},
+      valid: {'%%true': true},
+      fields: {_id: {}, a: {}, b: {}, c: {} }
+    };
+    await mongoSvcObj.rules().create(
+      Object.assign({}, testRuleConfig, {name: 'testRule', namespace: `${TEST_DB}.${TESTNS1}`})
+    );
+    await mongoSvcObj.rules().create(
+      Object.assign({}, testRuleConfig, {name: 'testRule2', namespace: `${TEST_DB}.${TESTNS2}`})
+    );
+    test.registerTestNamespace(TEST_DB, TESTNS1);
+    test.registerTestNamespace(TEST_DB, TESTNS2);
+
+    let clientSvcObj = client.service('mongodb', 'testsvc');
+    let db = clientSvcObj.db(TEST_DB);
+
+    // Insert documents in these two test collections
+    let response1 = await db.collection(TESTNS1).insertOne({ a: 1 });
+    let response2 = await db.collection(TESTNS2).insertOne({ a: 1 });
+
+    expect(response1.insertedIds).toHaveLength(1);
+    expect(response2.insertedIds).toHaveLength(1);
+
+    // Verify that these collections exist, and verify that the mongodb service commands work as expected
+    let dbNames = await mongoSvcObj.runCommand('list_databases', {});
+    expect(dbNames).toContain(TEST_DB);
+    expect(dbNames).not.toContain('admin');
+    expect(dbNames).not.toContain('local');
+
+    let collNames = await mongoSvcObj.runCommand('list_collections', {database_name: TEST_DB});
+    expect(collNames).toHaveLength(2);
+    expect(collNames).toContain(TESTNS1);
+    expect(collNames).toContain(TESTNS2);
+
+    let collNamesEmpty = await mongoSvcObj.runCommand('list_collections', {database_name: '$this-db-doesnt-exist'});
+    expect(collNamesEmpty).toHaveLength(0);
   });
 
   const testConfig = {

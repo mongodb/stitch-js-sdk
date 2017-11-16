@@ -16,10 +16,10 @@ var STITCH_LINK_KEY = exports.STITCH_LINK_KEY = '_stitch_link';
 var DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS = exports.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS = 10;
 
 var APP_CLIENT_CODEC = exports.APP_CLIENT_CODEC = {
-  'accessToken': 'accessToken',
-  'refreshToken': 'refreshToken',
-  'deviceId': 'deviceId',
-  'userId': 'userId'
+  'accessToken': 'access_token',
+  'refreshToken': 'refresh_token',
+  'deviceId': 'device_id',
+  'userId': 'user_id'
 };
 
 var ADMIN_CLIENT_CODEC = exports.ADMIN_CLIENT_CODEC = {
