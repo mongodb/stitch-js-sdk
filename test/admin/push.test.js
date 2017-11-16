@@ -23,47 +23,47 @@ describe('Push Notifications', () => {
     await apps.app(app._id).remove();
   });
 
-  const DRAFT_TYPE = 'draft';
-  const SENT_TYPE = 'sent';
+  const MSG_STATE_DRAFT = 'draft';
+  const MSG_STATE_SENT = 'sent';
   const testNotification = {
-    type: DRAFT_TYPE,
+    state: MSG_STATE_DRAFT,
     message: 'this is a test notification.',
     label: 'test',
     topic: 'notifications'
   };
 
   it('listing draft push notifications should return empty list', async () => {
-    let notifications = await pushNotifications.list({ type: DRAFT_TYPE });
+    let notifications = await pushNotifications.list({ state: MSG_STATE_DRAFT });
     expect(notifications).toHaveLength(0);
   });
 
   it('listing sent push notifications should return empty list', async () => {
-    let notifications = await pushNotifications.list({ type: SENT_TYPE });
+    let notifications = await pushNotifications.list({ state: MSG_STATE_SENT });
     expect(notifications).toHaveLength(0);
   });
 
   it('listing invalid push notifications should fail', async () => {
-    await expect(pushNotifications.list({ type: 'invalid' })).rejects.toBeDefined();
+    await expect(pushNotifications.list({ state: 'invalid' })).rejects.toBeDefined();
   });
 
   it('creating push notifications should work', async () => {
     let newNotification = await pushNotifications.create(testNotification);
-    expect(newNotification.type).toEqual(DRAFT_TYPE);
+    expect(newNotification.state).toEqual(MSG_STATE_DRAFT);
 
-    let notifications = await pushNotifications.list({ type: DRAFT_TYPE });
+    let notifications = await pushNotifications.list({ state: MSG_STATE_DRAFT });
     expect(notifications).toHaveLength(1);
-    expect(notifications[0].type).toEqual(DRAFT_TYPE);
+    expect(notifications[0].state).toEqual(MSG_STATE_DRAFT);
   });
 
   it('invalid create requests should fail', async () => {
-    await expect(pushNotifications.create({ type: '' })).rejects.toBeDefined();
+    await expect(pushNotifications.create({ state: '' })).rejects.toBeDefined();
   });
 
   it('fetching push notification should work', async () => {
     let newNotification = await pushNotifications.create(testNotification);
-    expect(newNotification.type).toEqual(DRAFT_TYPE);
+    expect(newNotification.state).toEqual(MSG_STATE_DRAFT);
     let notification = await pushNotifications.pushNotification(newNotification._id).get();
-    expect(notification.type).toEqual(newNotification.type);
+    expect(notification.state).toEqual(newNotification.state);
   });
 
   it('updating push notification should work', async () => {
@@ -75,20 +75,12 @@ describe('Push Notifications', () => {
     expect(updatedNotification.message).toEqual('updated');
   });
 
-  it('updating push notification type should work', async () => {
-    let newNotification = await pushNotifications.create(testNotification);
-    expect(newNotification.type).toEqual(DRAFT_TYPE);
-    await pushNotifications.pushNotification(newNotification._id).setType(SENT_TYPE);
-    let updatedNotification = await pushNotifications.pushNotification(newNotification._id).get();
-    expect(updatedNotification.type).toEqual(SENT_TYPE);
-  });
-
   it('deleting push notification should work', async () => {
     let newNotification = await pushNotifications.create(testNotification);
-    let notifications = await pushNotifications.list({ type: DRAFT_TYPE });
+    let notifications = await pushNotifications.list({ state: MSG_STATE_DRAFT });
     expect(notifications).toHaveLength(1);
     await pushNotifications.pushNotification(newNotification._id).remove();
-    notifications = await pushNotifications.list({ type: DRAFT_TYPE });
+    notifications = await pushNotifications.list({ state: MSG_STATE_DRAFT });
     expect(notifications).toHaveLength(0);
   });
 });
