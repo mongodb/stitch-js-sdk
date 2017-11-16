@@ -90,7 +90,7 @@ exports.uriEncodeObject = exports.getPlatform = exports.letMixin = exports.servi
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-var _detectBrowser = __webpack_require__(30);
+var _detectBrowser = __webpack_require__(27);
 
 var platform = _interopRequireWildcard(_detectBrowser);
 
@@ -306,10 +306,10 @@ var STITCH_LINK_KEY = exports.STITCH_LINK_KEY = '_stitch_link';
 var DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS = exports.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS = 10;
 
 var APP_CLIENT_CODEC = exports.APP_CLIENT_CODEC = {
-  'accessToken': 'accessToken',
-  'refreshToken': 'refreshToken',
-  'deviceId': 'deviceId',
-  'userId': 'userId'
+  'accessToken': 'access_token',
+  'refreshToken': 'refresh_token',
+  'deviceId': 'device_id',
+  'userId': 'user_id'
 };
 
 var ADMIN_CLIENT_CODEC = exports.ADMIN_CLIENT_CODEC = {
@@ -337,7 +337,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "1.1.8";
+  version = "1.2.0";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -391,6 +391,31 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+function _extendableBuiltin(cls) {
+  function ExtendableBuiltin() {
+    var instance = Reflect.construct(cls, Array.from(arguments));
+    Object.setPrototypeOf(instance, Object.getPrototypeOf(this));
+    return instance;
+  }
+
+  ExtendableBuiltin.prototype = Object.create(cls.prototype, {
+    constructor: {
+      value: cls,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+
+  if (Object.setPrototypeOf) {
+    Object.setPrototypeOf(ExtendableBuiltin, cls);
+  } else {
+    ExtendableBuiltin.__proto__ = cls;
+  }
+
+  return ExtendableBuiltin;
+}
+
 /**
  * Creates a new StitchError
  *
@@ -400,8 +425,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * @param {Object} code The error code.
  * @return {StitchError} A StitchError instance.
  */
-var StitchError = function (_Error) {
-  _inherits(StitchError, _Error);
+var StitchError = function (_extendableBuiltin2) {
+  _inherits(StitchError, _extendableBuiltin2);
 
   function StitchError(message, code) {
     _classCallCheck(this, StitchError);
@@ -423,7 +448,7 @@ var StitchError = function (_Error) {
   }
 
   return StitchError;
-}(Error);
+}(_extendableBuiltin(Error));
 
 var ErrAuthProviderNotFound = 'AuthProviderNotFound';
 var ErrInvalidSession = 'InvalidSession';
@@ -1303,8 +1328,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, fetch */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 
@@ -1317,7 +1340,7 @@ var _auth2 = _interopRequireDefault(_auth);
 
 var _common = __webpack_require__(1);
 
-var _services = __webpack_require__(22);
+var _services = __webpack_require__(21);
 
 var _services2 = _interopRequireDefault(_services);
 
@@ -1329,7 +1352,7 @@ var _mongodbExtjson = __webpack_require__(8);
 
 var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
-var _queryString = __webpack_require__(53);
+var _queryString = __webpack_require__(49);
 
 var _queryString2 = _interopRequireDefault(_queryString);
 
@@ -1372,7 +1395,7 @@ var StitchClient = function () {
 
     this.clientAppID = clientAppID;
 
-    this.authUrl = clientAppID ? baseUrl + '/api/client/v1.0/app/' + clientAppID + '/auth' : baseUrl + '/api/public/v2.0/auth';
+    this.authUrl = clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID + '/auth' : baseUrl + '/api/admin/v3.0/auth';
 
     this.rootURLsByAPIVersion = (_rootURLsByAPIVersion = {}, _defineProperty(_rootURLsByAPIVersion, v1, {
       public: baseUrl + '/api/public/v1.0',
@@ -1387,7 +1410,7 @@ var StitchClient = function () {
     }), _defineProperty(_rootURLsByAPIVersion, v3, {
       public: baseUrl + '/api/public/v3.0',
       client: baseUrl + '/api/client/v3.0',
-      app: clientAppID ? baseUrl + '/api/client/v3.0/app/' + clientAppID : baseUrl + '/api/public/v3.0'
+      app: clientAppID ? baseUrl + '/api/client/v3.0/app/' + clientAppID : baseUrl + '/api/admin/v3.0'
     }), _rootURLsByAPIVersion);
 
     var authOptions = { codec: _common.APP_CLIENT_CODEC };
@@ -1498,7 +1521,7 @@ var StitchClient = function () {
     value: function logout() {
       var _this3 = this;
 
-      return this._do('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function () {
+      return this._do('/auth/session', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function () {
         return _this3.auth.clear();
       });
     }
@@ -1561,37 +1584,18 @@ var StitchClient = function () {
     }
 
     /**
-     * Executes a named pipeline.
+     * Executes a function.
      *
-     * @param {String} name Name of the named pipeline to execute.
-     * @param {Object} args Arguments to the named pipeline to execute.
-     * @param {Object} [options] Additional options to pass to the execution context.
+     * @param {String} name The name of the function.
+     * @param {Object} [args] Arguments to pass to the function.
      */
 
   }, {
-    key: 'executeNamedPipeline',
-    value: function executeNamedPipeline(name, args) {
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-      var namedPipelineStages = [{
-        service: '',
-        action: 'namedPipeline',
-        args: { name: name, args: args }
-      }];
-      return this.executePipeline(namedPipelineStages, options);
-    }
-
-    /**
-     * Executes a service pipeline.
-     *
-     * @param {Array} stages Stages to process.
-     * @param {Object} [options] Additional options to pass to the execution context.
-     */
-
-  }, {
-    key: 'executePipeline',
-    value: function executePipeline(stages) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    key: 'executeFunction',
+    value: function executeFunction(name) {
+      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
 
       var responseDecoder = function responseDecoder(d) {
         return EJSON.parse(d, { strict: false });
@@ -1599,33 +1603,17 @@ var StitchClient = function () {
       var responseEncoder = function responseEncoder(d) {
         return EJSON.stringify(d);
       };
-      stages = Array.isArray(stages) ? stages : [stages];
-      stages = stages.reduce(function (acc, stage) {
-        return acc.concat(stage);
-      }, []);
 
-      if (options.decoder) {
-        if (typeof options.decoder !== 'function') {
-          throw new Error('decoder option must be a function, but "' + _typeof(options.decoder) + '" was provided');
-        }
-        responseDecoder = options.decoder;
-      }
+      var functionJson = {
+        name: name,
+        arguments: args
+      };
 
-      if (options.encoder) {
-        if (typeof options.encoder !== 'function') {
-          throw new Error('encoder option must be a function, but "' + _typeof(options.encoder) + '" was provided');
-        }
-        responseEncoder = options.encoder;
-      }
-      if (options.finalizer && typeof options.finalizer !== 'function') {
-        throw new Error('finalizer option must be a function, but "' + _typeof(options.finalizer) + '" was provided');
-      }
-
-      return this._do('/pipeline', 'POST', { body: responseEncoder(stages) }).then(function (response) {
+      return this._do('/functions/call', 'POST', { body: responseEncoder(functionJson) }).then(function (response) {
         return response.text();
       }).then(function (body) {
         return responseDecoder(body);
-      }).then((0, _util.collectMetadata)(options.finalizer));
+      });
     }
 
     /**
@@ -1637,7 +1625,7 @@ var StitchClient = function () {
   }, {
     key: 'doSessionPost',
     value: function doSessionPost() {
-      return this._do('/auth/newAccessToken', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
+      return this._do('/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
         return response.json();
       });
     }
@@ -1649,7 +1637,7 @@ var StitchClient = function () {
       options = Object.assign({}, {
         refreshOnFailure: true,
         useRefreshToken: false,
-        apiVersion: v1,
+        apiVersion: v2,
         apiType: 'app'
       }, options);
 
@@ -1765,9 +1753,9 @@ module.exports = exports['default'];
 
 
 
-var base64 = __webpack_require__(29)
-var ieee754 = __webpack_require__(33)
-var isArray = __webpack_require__(34)
+var base64 = __webpack_require__(26)
+var ieee754 = __webpack_require__(29)
+var isArray = __webpack_require__(30)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -3545,7 +3533,7 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(55)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(51)))
 
 /***/ }),
 /* 7 */
@@ -3555,7 +3543,7 @@ function isnan (val) {
 // on the global object (window or self)
 //
 // Return that as the export for use in Webpack, Browserify etc.
-__webpack_require__(56);
+__webpack_require__(52);
 var globalObj = typeof self !== 'undefined' && self || this;
 module.exports = globalObj.fetch.bind(globalObj);
 
@@ -3564,7 +3552,7 @@ module.exports = globalObj.fetch.bind(globalObj);
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ExtJSON = __webpack_require__(50);
+var ExtJSON = __webpack_require__(46);
 ExtJSON.BSON = __webpack_require__(9);
 
 module.exports = ExtJSON;
@@ -3577,19 +3565,19 @@ module.exports = ExtJSON;
 "use strict";
 
 
-var Binary = __webpack_require__(38);
-var Code = __webpack_require__(39);
-var DBRef = __webpack_require__(40);
-var Decimal128 = __webpack_require__(41);
-var Double = __webpack_require__(42);
-var Int32 = __webpack_require__(43);
+var Binary = __webpack_require__(34);
+var Code = __webpack_require__(35);
+var DBRef = __webpack_require__(36);
+var Decimal128 = __webpack_require__(37);
+var Double = __webpack_require__(38);
+var Int32 = __webpack_require__(39);
 var Long = __webpack_require__(4);
-var MaxKey = __webpack_require__(44);
-var MinKey = __webpack_require__(45);
-var ObjectID = __webpack_require__(46);
-var BSONRegExp = __webpack_require__(47);
-var Symbol = __webpack_require__(48);
-var Timestamp = __webpack_require__(49);
+var MaxKey = __webpack_require__(40);
+var MinKey = __webpack_require__(41);
+var ObjectID = __webpack_require__(42);
+var BSONRegExp = __webpack_require__(43);
+var Symbol = __webpack_require__(44);
+var Timestamp = __webpack_require__(45);
 
 module.exports = {
   Binary: Binary, Code: Code, DBRef: DBRef, Decimal128: Decimal128, Double: Double,
@@ -3692,7 +3680,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 
 
-var v1 = 1;
 var v2 = 2;
 var v3 = 3;
 
@@ -3706,51 +3693,18 @@ var Admin = function (_StitchClient) {
   }
 
   _createClass(Admin, [{
-    key: 'profile',
-    value: function profile() {
-      var api = this._v1;
-      return {
-        keys: function keys() {
-          return {
-            list: function list() {
-              return api._get('/profile/keys');
-            },
-            create: function create(key) {
-              return api._post('/profile/keys');
-            },
-            apiKey: function apiKey(keyId) {
-              return {
-                get: function get() {
-                  return api._get('/profile/keys/' + keyId);
-                },
-                remove: function remove() {
-                  return api._delete('/profile/keys/' + keyId);
-                },
-                enable: function enable() {
-                  return api._put('/profile/keys/' + keyId + '/enable');
-                },
-                disable: function disable() {
-                  return api._put('/profile/keys/' + keyId + '/disable');
-                }
-              };
-            }
-          };
-        }
-      };
-    }
+    key: 'logout',
+
 
     /**
      * Ends the session for the current user.
      *
      * @returns {Promise}
      */
-
-  }, {
-    key: 'logout',
     value: function logout() {
       var _this2 = this;
 
-      return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', this).call(this, '/auth/session', 'DELETE', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v2 }).then(function () {
+      return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', this).call(this, '/auth/session', 'DELETE', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v3 }).then(function () {
         return _this2.auth.clear();
       });
     }
@@ -3764,7 +3718,7 @@ var Admin = function (_StitchClient) {
   }, {
     key: 'userProfile',
     value: function userProfile() {
-      return this._v2._get('/auth/profile');
+      return this._v3._get('/auth/profile');
     }
 
     /**
@@ -3776,7 +3730,7 @@ var Admin = function (_StitchClient) {
   }, {
     key: 'getAuthProviders',
     value: function getAuthProviders() {
-      return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', this).call(this, '/auth/providers', 'GET', { noAuth: true, apiVersion: v2 }).then(function (response) {
+      return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', this).call(this, '/auth/providers', 'GET', { noAuth: true, apiVersion: v3 }).then(function (response) {
         return response.json();
       });
     }
@@ -3790,7 +3744,7 @@ var Admin = function (_StitchClient) {
   }, {
     key: 'doSessionPost',
     value: function doSessionPost() {
-      return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', this).call(this, '/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v2 }).then(function (response) {
+      return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', this).call(this, '/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v3 }).then(function (response) {
         return response.json();
       });
     }
@@ -3814,250 +3768,98 @@ var Admin = function (_StitchClient) {
   }, {
     key: 'apps',
     value: function apps(groupId) {
-      var _this3 = this;
-
-      var api = this._v1;
+      var api = this._v3;
+      var groupUrl = '/groups/' + groupId + '/apps';
       return {
         list: function list() {
-          return api._get('/groups/' + groupId + '/apps');
+          return api._get(groupUrl);
         },
         create: function create(data, options) {
           var query = options && options.defaults ? '?defaults=true' : '';
-          return api._post('/groups/' + groupId + '/apps' + query, data);
+          return api._post(groupUrl + query, data);
         },
 
-        app: function app(appID) {
+        app: function app(appId) {
+          var appUrl = groupUrl + '/' + appId;
           return {
             get: function get() {
-              return api._get('/groups/' + groupId + '/apps/' + appID);
+              return api._get(appUrl);
             },
             remove: function remove() {
-              return api._delete('/groups/' + groupId + '/apps/' + appID);
-            },
-            replace: function replace(doc) {
-              return api._put('/groups/' + groupId + '/apps/' + appID, {
-                headers: { 'X-Stitch-Unsafe': appID },
-                body: JSON.stringify(doc)
-              });
+              return api._delete(appUrl);
             },
 
-            messages: function messages() {
-              return {
-                list: function list(filter) {
-                  return api._get('/groups/' + groupId + '/apps/' + appID + '/push/messages', filter);
-                },
-                create: function create(msg) {
-                  return api._put('/groups/' + groupId + '/apps/' + appID + '/push/messages', { body: JSON.stringify(msg) });
-                },
-                message: function message(id) {
-                  return {
-                    get: function get() {
-                      return api._get('/groups/' + groupId + '/apps/' + appID + '/push/messages/' + id);
-                    },
-                    remove: function remove() {
-                      return api._delete('/groups/' + groupId + '/apps/' + appID + '/push/messages/' + id);
-                    },
-                    setSaveType: function setSaveType(type) {
-                      return api._post('/groups/' + groupId + '/apps/' + appID + '/push/messages/' + id, { type: type });
-                    },
-                    update: function update(msg) {
-                      return api._put('/groups/' + groupId + '/apps/' + appID + '/push/messages/' + id, { body: JSON.stringify(msg) });
-                    }
-                  };
-                }
-              };
-            },
-
-            users: function users() {
-              return {
-                list: function list(filter) {
-                  return api._get('/groups/' + groupId + '/apps/' + appID + '/users', filter);
-                },
-                create: function create(user) {
-                  return api._post('/groups/' + groupId + '/apps/' + appID + '/users', user);
-                },
-                user: function user(uid) {
-                  return {
-                    get: function get() {
-                      return api._get('/groups/' + groupId + '/apps/' + appID + '/users/' + uid);
-                    },
-                    logout: function logout() {
-                      return api._put('/groups/' + groupId + '/apps/' + appID + '/users/' + uid + '/logout');
-                    },
-                    remove: function remove() {
-                      return api._delete('/groups/' + groupId + '/apps/' + appID + '/users/' + uid);
-                    }
-                  };
-                }
-              };
-            },
-
-            sandbox: function sandbox() {
-              return {
-                executePipeline: function executePipeline(data, userId, options) {
-                  var queryParams = Object.assign({}, options, { user_id: userId });
-                  return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this3).call(_this3, '/groups/' + groupId + '/apps/' + appID + '/sandbox/pipeline', 'POST', { body: JSON.stringify(data), queryParams: queryParams });
-                }
-              };
-            },
-
-            authProviders: function authProviders() {
-              return {
-                create: function create(data) {
-                  return api._post('/groups/' + groupId + '/apps/' + appID + '/authProviders', data);
-                },
-                list: function list() {
-                  return api._get('/groups/' + groupId + '/apps/' + appID + '/authProviders');
-                },
-                provider: function provider(authType, authName) {
-                  return {
-                    get: function get() {
-                      return api._get('/groups/' + groupId + '/apps/' + appID + '/authProviders/' + authType + '/' + authName);
-                    },
-                    remove: function remove() {
-                      return api._delete('/groups/' + groupId + '/apps/' + appID + '/authProviders/' + authType + '/' + authName);
-                    },
-                    update: function update(data) {
-                      return api._post('/groups/' + groupId + '/apps/' + appID + '/authProviders/' + authType + '/' + authName, data);
-                    }
-                  };
-                }
-              };
-            },
-            security: function security() {
-              return {
-                allowedRequestOrigins: function allowedRequestOrigins() {
-                  return {
-                    get: function get() {
-                      return api._get('/groups/' + groupId + '/apps/' + appID + '/security/allowedRequestOrigins');
-                    },
-                    update: function update(data) {
-                      return api._post('/groups/' + groupId + '/apps/' + appID + '/security/allowedRequestOrigins', data);
-                    }
-                  };
-                }
-              };
-            },
             values: function values() {
               return {
                 list: function list() {
-                  return api._get('/groups/' + groupId + '/apps/' + appID + '/values');
-                },
-                value: function value(varName) {
-                  return {
-                    get: function get() {
-                      return api._get('/groups/' + groupId + '/apps/' + appID + '/values/' + varName);
-                    },
-                    remove: function remove() {
-                      return api._delete('/groups/' + groupId + '/apps/' + appID + '/values/' + varName);
-                    },
-                    create: function create(data) {
-                      return api._post('/groups/' + groupId + '/apps/' + appID + '/values/' + varName, data);
-                    },
-                    update: function update(data) {
-                      return api._post('/groups/' + groupId + '/apps/' + appID + '/values/' + varName, data);
-                    }
-                  };
-                }
-              };
-            },
-            pipelines: function pipelines() {
-              return {
-                list: function list() {
-                  return api._get('/groups/' + groupId + '/apps/' + appID + '/pipelines');
-                },
-                pipeline: function pipeline(varName) {
-                  return {
-                    get: function get() {
-                      return api._get('/groups/' + groupId + '/apps/' + appID + '/pipelines/' + varName);
-                    },
-                    remove: function remove() {
-                      return api._delete('/groups/' + groupId + '/apps/' + appID + '/pipelines/' + varName);
-                    },
-                    create: function create(data) {
-                      return api._post('/groups/' + groupId + '/apps/' + appID + '/pipelines/' + varName, data);
-                    },
-                    update: function update(data) {
-                      return api._post('/groups/' + groupId + '/apps/' + appID + '/pipelines/' + varName, data);
-                    }
-                  };
-                }
-              };
-            },
-            logs: function logs() {
-              return {
-                get: function get(filter) {
-                  return api._get('/groups/' + groupId + '/apps/' + appID + '/logs', filter);
-                }
-              };
-            },
-            apiKeys: function apiKeys() {
-              return {
-                list: function list() {
-                  return api._get('/groups/' + groupId + '/apps/' + appID + '/keys');
+                  return api._get(appUrl + '/values');
                 },
                 create: function create(data) {
-                  return api._post('/groups/' + groupId + '/apps/' + appID + '/keys', data);
+                  return api._post(appUrl + '/values', data);
                 },
-                apiKey: function apiKey(key) {
+                value: function value(valueId) {
+                  var valueUrl = appUrl + '/values/' + valueId;
                   return {
                     get: function get() {
-                      return api._get('/groups/' + groupId + '/apps/' + appID + '/keys/' + key);
+                      return api._get(valueUrl);
                     },
                     remove: function remove() {
-                      return api._delete('/groups/' + groupId + '/apps/' + appID + '/keys/' + key);
+                      return api._delete(valueUrl);
                     },
-                    enable: function enable() {
-                      return api._put('/groups/' + groupId + '/apps/' + appID + '/keys/' + key + '/enable');
-                    },
-                    disable: function disable() {
-                      return api._put('/groups/' + groupId + '/apps/' + appID + '/keys/' + key + '/disable');
+                    update: function update(data) {
+                      return api._put(valueUrl, data);
                     }
                   };
                 }
               };
             },
+
             services: function services() {
               return {
                 list: function list() {
-                  return api._get('/groups/' + groupId + '/apps/' + appID + '/services');
+                  return api._get(appUrl + '/services');
                 },
                 create: function create(data) {
-                  return api._post('/groups/' + groupId + '/apps/' + appID + '/services', data);
+                  return api._post(appUrl + '/services', data);
                 },
-                service: function service(svc) {
+                service: function service(serviceId) {
                   return {
                     get: function get() {
-                      return api._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc);
-                    },
-                    update: function update(data) {
-                      return api._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc, data);
+                      return api._get(appUrl + '/services/' + serviceId);
                     },
                     remove: function remove() {
-                      return api._delete('/groups/' + groupId + '/apps/' + appID + '/services/' + svc);
+                      return api._delete(appUrl + '/services/' + serviceId);
                     },
-                    setConfig: function setConfig(data) {
-                      return api._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/config', data);
+                    config: function config() {
+                      return {
+                        get: function get() {
+                          return api._get(appUrl + '/services/' + serviceId + '/config');
+                        },
+                        update: function update(data) {
+                          return api._patch(appUrl + '/services/' + serviceId + '/config', data);
+                        }
+                      };
                     },
 
                     rules: function rules() {
                       return {
                         list: function list() {
-                          return api._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules');
+                          return api._get(appUrl + '/services/' + serviceId + '/rules');
                         },
                         create: function create(data) {
-                          return api._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules');
+                          return api._post(appUrl + '/services/' + serviceId + '/rules', data);
                         },
                         rule: function rule(ruleId) {
+                          var ruleUrl = appUrl + '/services/' + serviceId + '/rules/' + ruleId;
                           return {
                             get: function get() {
-                              return api._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules/' + ruleId);
+                              return api._get(ruleUrl);
                             },
                             update: function update(data) {
-                              return api._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules/' + ruleId, data);
+                              return api._put(ruleUrl, data);
                             },
                             remove: function remove() {
-                              return api._delete('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/rules/' + ruleId);
+                              return api._delete(ruleUrl);
                             }
                           };
                         }
@@ -4067,25 +3869,195 @@ var Admin = function (_StitchClient) {
                     incomingWebhooks: function incomingWebhooks() {
                       return {
                         list: function list() {
-                          return api._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks');
+                          return api._get(appUrl + '/services/' + serviceId + '/incoming_webhooks');
                         },
                         create: function create(data) {
-                          return api._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks', data);
+                          return api._post(appUrl + '/services/' + serviceId + '/incoming_webhooks', data);
                         },
                         incomingWebhook: function incomingWebhook(incomingWebhookId) {
+                          var webhookUrl = appUrl + '/services/' + serviceId + '/incoming_webhooks/' + incomingWebhookId;
                           return {
                             get: function get() {
-                              return api._get('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId);
+                              return api._get(webhookUrl);
                             },
                             update: function update(data) {
-                              return api._post('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId, data);
+                              return api._put(webhookUrl, data);
                             },
                             remove: function remove() {
-                              return api._delete('/groups/' + groupId + '/apps/' + appID + '/services/' + svc + '/incomingWebhooks/' + incomingWebhookId);
+                              return api._delete(webhookUrl);
                             }
                           };
                         }
                       };
+                    }
+                  };
+                }
+              };
+            },
+
+            pushNotifications: function pushNotifications() {
+              return {
+                list: function list(filter) {
+                  return api._get(appUrl + '/push/notifications', filter);
+                },
+                create: function create(data) {
+                  return api._post(appUrl + '/push/notifications', data);
+                },
+                pushNotification: function pushNotification(messageId) {
+                  return {
+                    get: function get() {
+                      return api._get(appUrl + '/push/notifications/' + messageId);
+                    },
+                    update: function update(data) {
+                      return api._put(appUrl + '/push/notifications/' + messageId, data);
+                    },
+                    setType: function setType(type) {
+                      return api._put(appUrl + '/push/notifications/' + messageId + '/type', { type: type });
+                    },
+                    remove: function remove() {
+                      return api._delete(appUrl + '/push/notifications/' + messageId);
+                    }
+                  };
+                }
+              };
+            },
+
+            users: function users() {
+              return {
+                list: function list(filter) {
+                  return api._get(appUrl + '/users', filter);
+                },
+                create: function create(user) {
+                  return api._post(appUrl + '/users', user);
+                },
+                user: function user(uid) {
+                  return {
+                    get: function get() {
+                      return api._get(appUrl + '/users/' + uid);
+                    },
+                    logout: function logout() {
+                      return api._put(appUrl + '/users/' + uid + '/logout');
+                    },
+                    remove: function remove() {
+                      return api._delete(appUrl + '/users/' + uid);
+                    }
+                  };
+                }
+              };
+            },
+
+            dev: function dev() {
+              return {
+                executeFunction: function executeFunction(userId) {
+                  for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+                    args[_key - 2] = arguments[_key];
+                  }
+
+                  var name = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+
+                  return api._post(appUrl + '/dev/function', { name: name, 'arguments': args }, { user_id: userId });
+                }
+              };
+            },
+
+            authProviders: function authProviders() {
+              return {
+                list: function list() {
+                  return api._get(appUrl + '/auth_providers');
+                },
+                create: function create(data) {
+                  return api._post(appUrl + '/auth_providers', data);
+                },
+                authProvider: function authProvider(providerId) {
+                  return {
+                    get: function get() {
+                      return api._get(appUrl + '/auth_providers/' + providerId);
+                    },
+                    update: function update(data) {
+                      return api._patch(appUrl + '/auth_providers/' + providerId, data);
+                    },
+                    enable: function enable() {
+                      return api._put(appUrl + '/auth_providers/' + providerId + '/enable');
+                    },
+                    disable: function disable() {
+                      return api._put(appUrl + '/auth_providers/' + providerId + '/disable');
+                    },
+                    remove: function remove() {
+                      return api._delete(appUrl + '/auth_providers/' + providerId);
+                    }
+                  };
+                }
+              };
+            },
+
+            security: function security() {
+              return {
+                allowedRequestOrigins: function allowedRequestOrigins() {
+                  return {
+                    get: function get() {
+                      return api._get(appUrl + '/security/allowed_request_origins');
+                    },
+                    update: function update(data) {
+                      return api._post(appUrl + '/security/allowed_request_origins', data);
+                    }
+                  };
+                }
+              };
+            },
+
+            logs: function logs() {
+              return {
+                list: function list(filter) {
+                  return api._get(appUrl + '/logs', filter);
+                }
+              };
+            },
+
+            apiKeys: function apiKeys() {
+              return {
+                list: function list() {
+                  return api._get(appUrl + '/api_keys');
+                },
+                create: function create(data) {
+                  return api._post(appUrl + '/api_keys', data);
+                },
+                apiKey: function apiKey(apiKeyId) {
+                  return {
+                    get: function get() {
+                      return api._get(appUrl + '/api_keys/' + apiKeyId);
+                    },
+                    remove: function remove() {
+                      return api._delete(appUrl + '/api_keys/' + apiKeyId);
+                    },
+                    enable: function enable() {
+                      return api._put(appUrl + '/api_keys/' + apiKeyId + '/enable');
+                    },
+                    disable: function disable() {
+                      return api._put(appUrl + '/api_keys/' + apiKeyId + '/disable');
+                    }
+                  };
+                }
+              };
+            },
+
+            functions: function functions() {
+              return {
+                list: function list() {
+                  return api._get(appUrl + '/functions');
+                },
+                create: function create(data) {
+                  return api._post(appUrl + '/functions', data);
+                },
+                function: function _function(functionId) {
+                  return {
+                    get: function get() {
+                      return api._get(appUrl + '/functions/' + functionId);
+                    },
+                    update: function update(data) {
+                      return api._put(appUrl + '/functions/' + functionId, data);
+                    },
+                    remove: function remove() {
+                      return api._delete(appUrl + '/functions/' + functionId);
                     }
                   };
                 }
@@ -4099,8 +4071,8 @@ var Admin = function (_StitchClient) {
     key: 'v2',
     value: function v2() {
       var api = this._v2;
-      var apiV3 = this._v3; // exists solely for function endpoints
       return {
+
         apps: function apps(groupId) {
           var groupUrl = '/groups/' + groupId + '/apps';
           return {
@@ -4111,6 +4083,7 @@ var Admin = function (_StitchClient) {
               var query = options && options.defaults ? '?defaults=true' : '';
               return api._post(groupUrl + query, data);
             },
+
             app: function app(appId) {
               var appUrl = groupUrl + '/' + appId;
               return {
@@ -4120,6 +4093,7 @@ var Admin = function (_StitchClient) {
                 remove: function remove() {
                   return api._delete(appUrl);
                 },
+
                 pipelines: function pipelines() {
                   return {
                     list: function list() {
@@ -4144,6 +4118,7 @@ var Admin = function (_StitchClient) {
                     }
                   };
                 },
+
                 values: function values() {
                   return {
                     list: function list() {
@@ -4168,6 +4143,7 @@ var Admin = function (_StitchClient) {
                     }
                   };
                 },
+
                 services: function services() {
                   return {
                     list: function list() {
@@ -4183,6 +4159,9 @@ var Admin = function (_StitchClient) {
                         },
                         remove: function remove() {
                           return api._delete(appUrl + '/services/' + serviceId);
+                        },
+                        runCommand: function runCommand(commandName, data) {
+                          return api._post(appUrl + '/services/' + serviceId + '/commands/' + commandName, data);
                         },
                         config: function config() {
                           return {
@@ -4249,6 +4228,7 @@ var Admin = function (_StitchClient) {
                     }
                   };
                 },
+
                 pushNotifications: function pushNotifications() {
                   return {
                     list: function list(filter) {
@@ -4275,6 +4255,7 @@ var Admin = function (_StitchClient) {
                     }
                   };
                 },
+
                 users: function users() {
                   return {
                     list: function list(filter) {
@@ -4298,6 +4279,7 @@ var Admin = function (_StitchClient) {
                     }
                   };
                 },
+
                 dev: function dev() {
                   return {
                     executePipeline: function executePipeline(body, userId, options) {
@@ -4305,6 +4287,7 @@ var Admin = function (_StitchClient) {
                     }
                   };
                 },
+
                 authProviders: function authProviders() {
                   return {
                     list: function list() {
@@ -4334,6 +4317,7 @@ var Admin = function (_StitchClient) {
                     }
                   };
                 },
+
                 security: function security() {
                   return {
                     allowedRequestOrigins: function allowedRequestOrigins() {
@@ -4348,6 +4332,7 @@ var Admin = function (_StitchClient) {
                     }
                   };
                 },
+
                 logs: function logs() {
                   return {
                     list: function list(filter) {
@@ -4355,6 +4340,7 @@ var Admin = function (_StitchClient) {
                     }
                   };
                 },
+
                 apiKeys: function apiKeys() {
                   return {
                     list: function list() {
@@ -4380,31 +4366,6 @@ var Admin = function (_StitchClient) {
                       };
                     }
                   };
-                },
-                // Function endpoints are the only endpoints that are different between v2 and v3
-                // Take note that this branch leverages `apiV3` for hitting function endpoints
-                functions: function functions() {
-                  return {
-                    list: function list() {
-                      return apiV3._get(appUrl + '/functions');
-                    },
-                    create: function create(data) {
-                      return apiV3._post(appUrl + '/functions', data);
-                    },
-                    function: function _function(functionId) {
-                      return {
-                        get: function get() {
-                          return apiV3._get(appUrl + '/functions/' + functionId);
-                        },
-                        update: function update(data) {
-                          return apiV3._put(appUrl + '/functions/' + functionId, data);
-                        },
-                        remove: function remove() {
-                          return apiV3._delete(appUrl + '/functions/' + functionId);
-                        }
-                      };
-                    }
-                  };
                 }
               };
             }
@@ -4415,25 +4376,25 @@ var Admin = function (_StitchClient) {
   }, {
     key: '_admin',
     value: function _admin() {
-      var _this4 = this;
+      var _this3 = this;
 
       return {
         logs: function logs() {
           return {
             get: function get(filter) {
-              return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this4).call(_this4, '/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter });
+              return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this3).call(_this3, '/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter });
             }
           };
         },
         users: function users() {
           return {
             list: function list(filter) {
-              return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this4).call(_this4, '/admin/users', 'GET', { useRefreshToken: true, queryParams: filter });
+              return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this3).call(_this3, '/admin/users', 'GET', { useRefreshToken: true, queryParams: filter });
             },
             user: function user(uid) {
               return {
                 logout: function logout() {
-                  return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this4).call(_this4, '/admin/users/' + uid + '/logout', 'PUT', { useRefreshToken: true });
+                  return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this3).call(_this3, '/admin/users/' + uid + '/logout', 'PUT', { useRefreshToken: true });
                 }
               };
             }
@@ -4462,44 +4423,12 @@ var Admin = function (_StitchClient) {
       return _common2.default;
     }
   }, {
-    key: '_v2',
-    get: function get() {
-      var _this5 = this;
-
-      var v2do = function v2do(url, method, options) {
-        return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this5).call(_this5, url, method, Object.assign({}, { apiVersion: v2 }, options)).then(function (response) {
-          var contentHeader = response.headers.get('content-type') || '';
-          if (contentHeader.split(',').indexOf('application/json') >= 0) {
-            return response.json();
-          }
-          return response;
-        });
-      };
-      return {
-        _get: function _get(url, queryParams) {
-          return v2do(url, 'GET', { queryParams: queryParams });
-        },
-        _put: function _put(url, data) {
-          return data ? v2do(url, 'PUT', { body: JSON.stringify(data) }) : v2do(url, 'PUT');
-        },
-        _patch: function _patch(url, data) {
-          return data ? v2do(url, 'PATCH', { body: JSON.stringify(data) }) : v2do(url, 'PATCH');
-        },
-        _delete: function _delete(url) {
-          return v2do(url, 'DELETE');
-        },
-        _post: function _post(url, body, queryParams) {
-          return queryParams ? v2do(url, 'POST', { body: JSON.stringify(body), queryParams: queryParams }) : v2do(url, 'POST', { body: JSON.stringify(body) });
-        }
-      };
-    }
-  }, {
     key: '_v3',
     get: function get() {
-      var _this6 = this;
+      var _this4 = this;
 
       var v3do = function v3do(url, method, options) {
-        return _this6.client._do(url, method, Object.assign({}, { apiVersion: v3 }, options)).then(function (response) {
+        return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this4).call(_this4, url, method, Object.assign({}, { apiVersion: v3 }, options)).then(function (response) {
           var contentHeader = response.headers.get('content-type') || '';
           if (contentHeader.split(',').indexOf('application/json') >= 0) {
             return response.json();
@@ -4527,27 +4456,35 @@ var Admin = function (_StitchClient) {
       };
     }
   }, {
-    key: '_v1',
+    key: '_v2',
     get: function get() {
-      var _this7 = this;
+      var _this5 = this;
 
-      var v1do = function v1do(url, method, options) {
-        return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this7).call(_this7, url, method, Object.assign({}, { apiVersion: v1 }, options)).then(function (response) {
-          return response.json();
+      var v2do = function v2do(url, method, options) {
+        return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this5).call(_this5, url, method, Object.assign({}, { apiVersion: v2 }, options)).then(function (response) {
+          var contentHeader = response.headers.get('content-type') || '';
+          if (contentHeader.split(',').indexOf('application/json') >= 0) {
+            return response.json();
+          }
+          return response;
         });
       };
+
       return {
         _get: function _get(url, queryParams) {
-          return v1do(url, 'GET', { queryParams: queryParams });
+          return v2do(url, 'GET', { queryParams: queryParams });
         },
-        _put: function _put(url, options) {
-          return v1do(url, 'PUT', options);
+        _put: function _put(url, data) {
+          return data ? v2do(url, 'PUT', { body: JSON.stringify(data) }) : v2do(url, 'PUT');
+        },
+        _patch: function _patch(url, data) {
+          return data ? v2do(url, 'PATCH', { body: JSON.stringify(data) }) : v2do(url, 'PATCH');
         },
         _delete: function _delete(url) {
-          return v1do(url, 'DELETE');
+          return v2do(url, 'DELETE');
         },
-        _post: function _post(url, body) {
-          return v1do(url, 'POST', { body: JSON.stringify(body) });
+        _post: function _post(url, body, queryParams) {
+          return queryParams ? v2do(url, 'POST', { body: JSON.stringify(body), queryParams: queryParams }) : v2do(url, 'POST', { body: JSON.stringify(body) });
         }
       };
     }
@@ -4800,7 +4737,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var jwtDecode = __webpack_require__(37);
+var jwtDecode = __webpack_require__(33);
 
 var EMBEDDED_USER_AUTH_DATA_PARTS = 4;
 
@@ -5241,7 +5178,7 @@ function anonProvider(auth) {
       var fetchArgs = common.makeFetchArgs('GET');
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/anon/user?device=' + (0, _util.uriEncodeObject)(device), fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/providers/anon-user/login?device=' + (0, _util.uriEncodeObject)(device), fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -5252,8 +5189,10 @@ function anonProvider(auth) {
 
 /** @namespace */
 function userPassProvider(auth) {
-  var providerRoute = auth.isAppClient() ? 'local/userpass' : 'providers/local-userpass';
-  var loginRoute = auth.isAppClient() ? 'local/userpass' : providerRoute + '/login';
+  // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
+  // the client is for the admin or client API.
+  var providerRoute = auth.isAppClient() ? 'providers/local-userpass' : 'providers/local-userpass';
+  var loginRoute = auth.isAppClient() ? providerRoute + '/login' : providerRoute + '/login';
 
   return {
     /**
@@ -5377,7 +5316,9 @@ function userPassProvider(auth) {
 
 /** @namespace */
 function apiKeyProvider(auth) {
-  var loginRoute = auth.isAppClient() ? 'api/key' : 'providers/api-key/login';
+  // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
+  // the client is for the admin or client API.
+  var loginRoute = auth.isAppClient() ? 'providers/api-key/login' : 'providers/api-key/login';
 
   return {
     /**
@@ -5430,7 +5371,7 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
 
   var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
-  var result = auth.rootUrl + '/oauth2/' + providerName + '?redirect=' + encodeURI(redirectUrl) + '&state=' + state + '&device=' + (0, _util.uriEncodeObject)(device);
+  var result = auth.rootUrl + '/oauth2-' + providerName + '?redirect=' + encodeURI(redirectUrl) + '&state=' + state + '&device=' + (0, _util.uriEncodeObject)(device);
   return result;
 }
 
@@ -5474,7 +5415,9 @@ function facebookProvider(auth) {
 
 /** @namespace */
 function mongodbCloudProvider(auth) {
-  var loginRoute = auth.isAppClient() ? 'mongodb/cloud' : 'providers/mongodb-cloud/login';
+  // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
+  // the client is for the admin or client API.
+  var loginRoute = auth.isAppClient() ? 'providers/mongodb-cloud/login' : 'providers/mongodb-cloud/login';
 
   return {
     /**
@@ -5815,75 +5758,6 @@ var _util = __webpack_require__(0);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
- * Convenience wrapper for AWS SQS (not meant to be instantiated directly).
- *
- * @class
- * @return {SQSService} a SQSService instance.
- */
-var SQSService = function () {
-  function SQSService(client, serviceName) {
-    _classCallCheck(this, SQSService);
-
-    this.client = client;
-    this.serviceName = serviceName;
-  }
-
-  /**
-   * Send a message of the output of previous stage to queue
-   *
-   * @return {Promise}
-   */
-
-
-  _createClass(SQSService, [{
-    key: 'send',
-    value: function send() {
-      return (0, _util.serviceResponse)(this, {
-        service: this.serviceName,
-        action: 'send'
-      });
-    }
-
-    /**
-     * Receive a message from queue
-     *
-     * @return {Promise}
-     */
-
-  }, {
-    key: 'receive',
-    value: function receive() {
-      return (0, _util.serviceResponse)(this, {
-        service: this.serviceName,
-        action: 'receive'
-      });
-    }
-  }]);
-
-  return SQSService;
-}();
-
-exports.default = (0, _util.letMixin)(SQSService);
-module.exports = exports['default'];
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _util = __webpack_require__(0);
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
  * Convenience wrapper for HTTP service (not meant to be instantiated directly).
  *
  * @class
@@ -6034,7 +5908,7 @@ exports.default = (0, _util.letMixin)(HTTPService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6052,27 +5926,15 @@ var _ses_service = __webpack_require__(19);
 
 var _ses_service2 = _interopRequireDefault(_ses_service);
 
-var _sqs_service = __webpack_require__(20);
-
-var _sqs_service2 = _interopRequireDefault(_sqs_service);
-
-var _http_service = __webpack_require__(21);
+var _http_service = __webpack_require__(20);
 
 var _http_service2 = _interopRequireDefault(_http_service);
 
-var _mongodb_service = __webpack_require__(25);
+var _mongodb_service = __webpack_require__(24);
 
 var _mongodb_service2 = _interopRequireDefault(_mongodb_service);
 
-var _pubnub_service = __webpack_require__(26);
-
-var _pubnub_service2 = _interopRequireDefault(_pubnub_service);
-
-var _slack_service = __webpack_require__(27);
-
-var _slack_service2 = _interopRequireDefault(_slack_service);
-
-var _twilio_service = __webpack_require__(28);
+var _twilio_service = __webpack_require__(25);
 
 var _twilio_service2 = _interopRequireDefault(_twilio_service);
 
@@ -6081,17 +5943,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = {
   'aws/s3': _s3_service2.default,
   'aws/ses': _ses_service2.default,
-  'aws/sqs': _sqs_service2.default,
   'http': _http_service2.default,
   'mongodb': _mongodb_service2.default,
-  'pubnub': _pubnub_service2.default,
-  'slack': _slack_service2.default,
   'twilio': _twilio_service2.default
 };
 module.exports = exports['default'];
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6428,7 +6287,7 @@ exports.default = (0, _util.letMixin)(Collection);
 module.exports = exports['default'];
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6440,7 +6299,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _collection = __webpack_require__(23);
+var _collection = __webpack_require__(22);
 
 var _collection2 = _interopRequireDefault(_collection);
 
@@ -6495,7 +6354,7 @@ exports.default = DB;
 module.exports = exports['default'];
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6507,7 +6366,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _db = __webpack_require__(24);
+var _db = __webpack_require__(23);
 
 var _db2 = _interopRequireDefault(_db);
 
@@ -6562,136 +6421,7 @@ exports.default = MongoDBService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _util = __webpack_require__(0);
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Convenience wrapper around Pubnub API (not meant to be instantiated directly).
- *
- * @class
- * @return {PubnubService} a PubnubService instance.
- */
-var PubnubService = function () {
-  function PubnubService(stitchClient, serviceName) {
-    _classCallCheck(this, PubnubService);
-
-    this.client = stitchClient;
-    this.serviceName = serviceName;
-  }
-
-  /**
-   * Publish a message to a channel
-   *
-   * @method
-   * @param {String} channel the channel to publish to
-   * @param {String} message the message to publish
-   * @return {Promise}
-   */
-
-
-  _createClass(PubnubService, [{
-    key: 'publish',
-    value: function publish(channel, message) {
-      return (0, _util.serviceResponse)(this, {
-        service: this.serviceName,
-        action: 'publish',
-        args: { channel: channel, message: message }
-      });
-    }
-  }]);
-
-  return PubnubService;
-}();
-
-exports.default = (0, _util.letMixin)(PubnubService);
-module.exports = exports['default'];
-
-/***/ }),
-/* 27 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _util = __webpack_require__(0);
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Convenience wrapper around Slack API (not meant to be instantiated directly).
- *
- * @class
- * @return {SlackService} a SlackService instance.
- */
-var SlackService = function () {
-  function SlackService(stitchClient, serviceName) {
-    _classCallCheck(this, SlackService);
-
-    this.client = stitchClient;
-    this.serviceName = serviceName;
-  }
-
-  /**
-   * Post a message to a channel
-   *
-   * @method
-   * @param {String} channel the channel to post to
-   * @param {String} text the text to post
-   * @param {Object} [options]
-   * @param {String} [options.username] the username to post as
-   * @param {String} [options.iconUrl] url to icon of user
-   * @param {String} [options.iconEmoji] an icon
-   * @param {String[]} [options.attachments] a list of attachments for the message
-   * @return {Promise}
-   */
-
-
-  _createClass(SlackService, [{
-    key: 'post',
-    value: function post(channel, text) {
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-      var args = { channel: channel, text: text };
-      if (!!options.username) args.username = options.username;
-      if (!!options.iconUrl) args.iconUrl = options.iconUrl;
-      if (!!options.iconEmoji) args.iconEmoji = options.iconEmoji;
-      if (!!options.attachments) args.attachments = options.attachments;
-
-      return (0, _util.serviceResponse)(this, {
-        service: this.serviceName,
-        action: 'publish',
-        args: args
-      });
-    }
-  }]);
-
-  return SlackService;
-}();
-
-exports.default = (0, _util.letMixin)(SlackService);
-module.exports = exports['default'];
-
-/***/ }),
-/* 28 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6750,7 +6480,7 @@ exports.default = (0, _util.letMixin)(TwilioService);
 module.exports = exports['default'];
 
 /***/ }),
-/* 29 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6871,10 +6601,10 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 30 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var detectBrowser = __webpack_require__(31);
+var detectBrowser = __webpack_require__(28);
 
 var agent;
 
@@ -6886,10 +6616,8 @@ module.exports = detectBrowser(agent);
 
 
 /***/ }),
-/* 31 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var detectOS = __webpack_require__(32);
+/* 28 */
+/***/ (function(module, exports) {
 
 module.exports = function detectBrowser(userAgentString) {
   if (!userAgentString) return null;
@@ -6897,13 +6625,9 @@ module.exports = function detectBrowser(userAgentString) {
   var browsers = [
     [ 'edge', /Edge\/([0-9\._]+)/ ],
     [ 'yandexbrowser', /YaBrowser\/([0-9\._]+)/ ],
-    [ 'vivaldi', /Vivaldi\/([0-9\.]+)/ ],
-    [ 'kakaotalk', /KAKAOTALK\s([0-9\.]+)/ ],
     [ 'chrome', /(?!Chrom.*OPR)Chrom(?:e|ium)\/([0-9\.]+)(:?\s|$)/ ],
-    [ 'phantomjs', /PhantomJS\/([0-9\.]+)(:?\s|$)/ ],
     [ 'crios', /CriOS\/([0-9\.]+)(:?\s|$)/ ],
     [ 'firefox', /Firefox\/([0-9\.]+)(?:\s|$)/ ],
-    [ 'fxios', /FxiOS\/([0-9\.]+)/ ],
     [ 'opera', /Opera\/([0-9\.]+)(?:\s|$)/ ],
     [ 'opera', /OPR\/([0-9\.]+)(:?\s|$)$/ ],
     [ 'ie', /Trident\/7\.0.*rv\:([0-9\.]+).*\).*Gecko$/ ],
@@ -6926,8 +6650,7 @@ module.exports = function detectBrowser(userAgentString) {
 
           return {
               name: rule[0],
-              version: version.join('.'),
-              os: detectOS(userAgentString)
+              version: version.join('.')
           };
       }
   }).filter(Boolean).shift();
@@ -6935,125 +6658,7 @@ module.exports = function detectBrowser(userAgentString) {
 
 
 /***/ }),
-/* 32 */
-/***/ (function(module, exports) {
-
-module.exports = function detectOS(userAgentString) {
-  var operatingSystems = [
-    {
-      name: 'iOS',
-      rule: /iP(hone|od|ad)/
-    },
-    {
-      name: 'Android OS',
-      rule: /Android/
-    },
-    {
-      name: 'BlackBerry OS',
-      rule: /BlackBerry|BB10/
-    },
-    {
-      name: 'Windows Mobile',
-      rule: /IEMobile/
-    },
-    {
-      name: 'Amazon OS',
-      rule: /Kindle/
-    },
-    {
-      name: 'Windows 3.11',
-      rule: /Win16/
-    },
-    {
-      name: 'Windows 95',
-      rule: /(Windows 95)|(Win95)|(Windows_95)/
-    },
-    {
-      name: 'Windows 98',
-      rule: /(Windows 98)|(Win98)/
-    },
-    {
-      name: 'Windows 2000',
-      rule: /(Windows NT 5.0)|(Windows 2000)/
-    },
-    {
-      name: 'Windows XP',
-      rule: /(Windows NT 5.1)|(Windows XP)/
-    },
-    {
-      name: 'Windows Server 2003',
-      rule: /(Windows NT 5.2)/
-    },
-    {
-      name: 'Windows Vista',
-      rule: /(Windows NT 6.0)/
-    },
-    {
-      name: 'Windows 7',
-      rule: /(Windows NT 6.1)/
-    },
-    {
-      name: 'Windows 8',
-      rule: /(Windows NT 6.2)/
-    },
-    {
-      name: 'Windows 8.1',
-      rule: /(Windows NT 6.3)/
-    },
-    {
-      name: 'Windows 10',
-      rule: /(Windows NT 10.0)/
-    },
-    {
-      name: 'Windows ME',
-      rule: /Windows ME/
-    },
-    {
-      name: 'Open BSD',
-      rule: /OpenBSD/
-    },
-    {
-      name: 'Sun OS',
-      rule: /SunOS/
-    },
-    {
-      name: 'Linux',
-      rule: /(Linux)|(X11)/
-    },
-    {
-      name: 'Mac OS',
-      rule: /(Mac_PowerPC)|(Macintosh)/
-    },
-    {
-      name: 'QNX',
-      rule: /QNX/
-    },
-    {
-      name: 'BeOS',
-      rule: /BeOS/
-    },
-    {
-      name: 'OS/2',
-      rule: /OS\/2/
-    },
-    {
-      name: 'Search Bot',
-      rule: /(nuhk)|(Googlebot)|(Yammybot)|(Openbot)|(Slurp)|(MSNBot)|(Ask Jeeves\/Teoma)|(ia_archiver)/
-    }
-  ];
-
-  var detected = operatingSystems.filter(function (os) {
-    if (userAgentString.match(os.rule)) {
-      return true;
-    }
-  });
-
-  return detected && detected[0] ? detected[0].name : null;
-};
-
-
-/***/ }),
-/* 33 */
+/* 29 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -7143,7 +6748,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 34 */
+/* 30 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -7154,7 +6759,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 35 */
+/* 31 */
 /***/ (function(module, exports) {
 
 /**
@@ -7198,10 +6803,10 @@ module.exports = typeof window !== 'undefined' && window.atob && window.atob.bin
 
 
 /***/ }),
-/* 36 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var atob = __webpack_require__(35);
+var atob = __webpack_require__(31);
 
 function b64DecodeUnicode(str) {
   return decodeURIComponent(atob(str).replace(/(.)/g, function (m, p) {
@@ -7237,13 +6842,13 @@ module.exports = function(str) {
 
 
 /***/ }),
-/* 37 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var base64_url_decode = __webpack_require__(36);
+var base64_url_decode = __webpack_require__(32);
 
 function InvalidTokenError(message) {
   this.message = message;
@@ -7270,7 +6875,7 @@ module.exports.InvalidTokenError = InvalidTokenError;
 
 
 /***/ }),
-/* 38 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7560,7 +7165,7 @@ module.exports = Binary;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).Buffer))
 
 /***/ }),
-/* 39 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7595,7 +7200,7 @@ module.exports = Code;
 
 
 /***/ }),
-/* 40 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7640,7 +7245,7 @@ module.exports = DBRef;
 
 
 /***/ }),
-/* 41 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8362,7 +7967,7 @@ module.exports = Decimal128;
 
 
 /***/ }),
-/* 42 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8405,7 +8010,7 @@ module.exports = Double;
 
 
 /***/ }),
-/* 43 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8448,7 +8053,7 @@ module.exports = Int32;
 
 
 /***/ }),
-/* 44 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8477,7 +8082,7 @@ module.exports = MaxKey;
 
 
 /***/ }),
-/* 45 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8506,7 +8111,7 @@ module.exports = MinKey;
 
 
 /***/ }),
-/* 46 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8834,10 +8439,10 @@ ObjectID.index = ~~(Math.random() * 0xFFFFFF);
 
 module.exports = ObjectID;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(52)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(48)))
 
 /***/ }),
-/* 47 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8885,7 +8490,7 @@ module.exports = BSONRegExp;
 
 
 /***/ }),
-/* 48 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8931,7 +8536,7 @@ module.exports = Symbol;
 
 
 /***/ }),
-/* 49 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9020,7 +8625,7 @@ module.exports = Timestamp;
 
 
 /***/ }),
-/* 50 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9302,7 +8907,7 @@ module.exports = ExtJSON;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).Buffer))
 
 /***/ }),
-/* 51 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9399,7 +9004,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 52 */
+/* 48 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -9589,13 +9194,13 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 53 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var strictUriEncode = __webpack_require__(54);
-var objectAssign = __webpack_require__(51);
+var strictUriEncode = __webpack_require__(50);
+var objectAssign = __webpack_require__(47);
 
 function encoderForArrayFormat(opts) {
 	switch (opts.arrayFormat) {
@@ -9801,7 +9406,7 @@ exports.stringify = function (obj, opts) {
 
 
 /***/ }),
-/* 54 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9814,7 +9419,7 @@ module.exports = function (str) {
 
 
 /***/ }),
-/* 55 */
+/* 51 */
 /***/ (function(module, exports) {
 
 var g;
@@ -9841,7 +9446,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 56 */
+/* 52 */
 /***/ (function(module, exports) {
 
 (function(self) {
@@ -9864,6 +9469,28 @@ module.exports = g;
     })(),
     formData: 'FormData' in self,
     arrayBuffer: 'ArrayBuffer' in self
+  }
+
+  if (support.arrayBuffer) {
+    var viewClasses = [
+      '[object Int8Array]',
+      '[object Uint8Array]',
+      '[object Uint8ClampedArray]',
+      '[object Int16Array]',
+      '[object Uint16Array]',
+      '[object Int32Array]',
+      '[object Uint32Array]',
+      '[object Float32Array]',
+      '[object Float64Array]'
+    ]
+
+    var isDataView = function(obj) {
+      return obj && DataView.prototype.isPrototypeOf(obj)
+    }
+
+    var isArrayBufferView = ArrayBuffer.isView || function(obj) {
+      return obj && viewClasses.indexOf(Object.prototype.toString.call(obj)) > -1
+    }
   }
 
   function normalizeName(name) {
@@ -9908,7 +9535,10 @@ module.exports = g;
       headers.forEach(function(value, name) {
         this.append(name, value)
       }, this)
-
+    } else if (Array.isArray(headers)) {
+      headers.forEach(function(header) {
+        this.append(header[0], header[1])
+      }, this)
     } else if (headers) {
       Object.getOwnPropertyNames(headers).forEach(function(name) {
         this.append(name, headers[name])
@@ -9919,12 +9549,8 @@ module.exports = g;
   Headers.prototype.append = function(name, value) {
     name = normalizeName(name)
     value = normalizeValue(value)
-    var list = this.map[name]
-    if (!list) {
-      list = []
-      this.map[name] = list
-    }
-    list.push(value)
+    var oldValue = this.map[name]
+    this.map[name] = oldValue ? oldValue+','+value : value
   }
 
   Headers.prototype['delete'] = function(name) {
@@ -9932,12 +9558,8 @@ module.exports = g;
   }
 
   Headers.prototype.get = function(name) {
-    var values = this.map[normalizeName(name)]
-    return values ? values[0] : null
-  }
-
-  Headers.prototype.getAll = function(name) {
-    return this.map[normalizeName(name)] || []
+    name = normalizeName(name)
+    return this.has(name) ? this.map[name] : null
   }
 
   Headers.prototype.has = function(name) {
@@ -9945,15 +9567,15 @@ module.exports = g;
   }
 
   Headers.prototype.set = function(name, value) {
-    this.map[normalizeName(name)] = [normalizeValue(value)]
+    this.map[normalizeName(name)] = normalizeValue(value)
   }
 
   Headers.prototype.forEach = function(callback, thisArg) {
-    Object.getOwnPropertyNames(this.map).forEach(function(name) {
-      this.map[name].forEach(function(value) {
-        callback.call(thisArg, value, name, this)
-      }, this)
-    }, this)
+    for (var name in this.map) {
+      if (this.map.hasOwnProperty(name)) {
+        callback.call(thisArg, this.map[name], name, this)
+      }
+    }
   }
 
   Headers.prototype.keys = function() {
@@ -9998,14 +9620,36 @@ module.exports = g;
 
   function readBlobAsArrayBuffer(blob) {
     var reader = new FileReader()
+    var promise = fileReaderReady(reader)
     reader.readAsArrayBuffer(blob)
-    return fileReaderReady(reader)
+    return promise
   }
 
   function readBlobAsText(blob) {
     var reader = new FileReader()
+    var promise = fileReaderReady(reader)
     reader.readAsText(blob)
-    return fileReaderReady(reader)
+    return promise
+  }
+
+  function readArrayBufferAsText(buf) {
+    var view = new Uint8Array(buf)
+    var chars = new Array(view.length)
+
+    for (var i = 0; i < view.length; i++) {
+      chars[i] = String.fromCharCode(view[i])
+    }
+    return chars.join('')
+  }
+
+  function bufferClone(buf) {
+    if (buf.slice) {
+      return buf.slice(0)
+    } else {
+      var view = new Uint8Array(buf.byteLength)
+      view.set(new Uint8Array(buf))
+      return view.buffer
+    }
   }
 
   function Body() {
@@ -10013,7 +9657,9 @@ module.exports = g;
 
     this._initBody = function(body) {
       this._bodyInit = body
-      if (typeof body === 'string') {
+      if (!body) {
+        this._bodyText = ''
+      } else if (typeof body === 'string') {
         this._bodyText = body
       } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
         this._bodyBlob = body
@@ -10021,11 +9667,12 @@ module.exports = g;
         this._bodyFormData = body
       } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
         this._bodyText = body.toString()
-      } else if (!body) {
-        this._bodyText = ''
-      } else if (support.arrayBuffer && ArrayBuffer.prototype.isPrototypeOf(body)) {
-        // Only support ArrayBuffers for POST method.
-        // Receiving ArrayBuffers happens via Blobs, instead.
+      } else if (support.arrayBuffer && support.blob && isDataView(body)) {
+        this._bodyArrayBuffer = bufferClone(body.buffer)
+        // IE 10-11 can't handle a DataView body.
+        this._bodyInit = new Blob([this._bodyArrayBuffer])
+      } else if (support.arrayBuffer && (ArrayBuffer.prototype.isPrototypeOf(body) || isArrayBufferView(body))) {
+        this._bodyArrayBuffer = bufferClone(body)
       } else {
         throw new Error('unsupported BodyInit type')
       }
@@ -10050,6 +9697,8 @@ module.exports = g;
 
         if (this._bodyBlob) {
           return Promise.resolve(this._bodyBlob)
+        } else if (this._bodyArrayBuffer) {
+          return Promise.resolve(new Blob([this._bodyArrayBuffer]))
         } else if (this._bodyFormData) {
           throw new Error('could not read FormData body as blob')
         } else {
@@ -10058,27 +9707,28 @@ module.exports = g;
       }
 
       this.arrayBuffer = function() {
-        return this.blob().then(readBlobAsArrayBuffer)
-      }
-
-      this.text = function() {
-        var rejected = consumed(this)
-        if (rejected) {
-          return rejected
-        }
-
-        if (this._bodyBlob) {
-          return readBlobAsText(this._bodyBlob)
-        } else if (this._bodyFormData) {
-          throw new Error('could not read FormData body as text')
+        if (this._bodyArrayBuffer) {
+          return consumed(this) || Promise.resolve(this._bodyArrayBuffer)
         } else {
-          return Promise.resolve(this._bodyText)
+          return this.blob().then(readBlobAsArrayBuffer)
         }
       }
-    } else {
-      this.text = function() {
-        var rejected = consumed(this)
-        return rejected ? rejected : Promise.resolve(this._bodyText)
+    }
+
+    this.text = function() {
+      var rejected = consumed(this)
+      if (rejected) {
+        return rejected
+      }
+
+      if (this._bodyBlob) {
+        return readBlobAsText(this._bodyBlob)
+      } else if (this._bodyArrayBuffer) {
+        return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer))
+      } else if (this._bodyFormData) {
+        throw new Error('could not read FormData body as text')
+      } else {
+        return Promise.resolve(this._bodyText)
       }
     }
 
@@ -10106,7 +9756,8 @@ module.exports = g;
   function Request(input, options) {
     options = options || {}
     var body = options.body
-    if (Request.prototype.isPrototypeOf(input)) {
+
+    if (input instanceof Request) {
       if (input.bodyUsed) {
         throw new TypeError('Already read')
       }
@@ -10117,12 +9768,12 @@ module.exports = g;
       }
       this.method = input.method
       this.mode = input.mode
-      if (!body) {
+      if (!body && input._bodyInit != null) {
         body = input._bodyInit
         input.bodyUsed = true
       }
     } else {
-      this.url = input
+      this.url = String(input)
     }
 
     this.credentials = options.credentials || this.credentials || 'omit'
@@ -10140,7 +9791,7 @@ module.exports = g;
   }
 
   Request.prototype.clone = function() {
-    return new Request(this)
+    return new Request(this, { body: this._bodyInit })
   }
 
   function decode(body) {
@@ -10156,16 +9807,17 @@ module.exports = g;
     return form
   }
 
-  function headers(xhr) {
-    var head = new Headers()
-    var pairs = (xhr.getAllResponseHeaders() || '').trim().split('\n')
-    pairs.forEach(function(header) {
-      var split = header.trim().split(':')
-      var key = split.shift().trim()
-      var value = split.join(':').trim()
-      head.append(key, value)
+  function parseHeaders(rawHeaders) {
+    var headers = new Headers()
+    rawHeaders.split(/\r?\n/).forEach(function(line) {
+      var parts = line.split(':')
+      var key = parts.shift().trim()
+      if (key) {
+        var value = parts.join(':').trim()
+        headers.append(key, value)
+      }
     })
-    return head
+    return headers
   }
 
   Body.call(Request.prototype)
@@ -10176,10 +9828,10 @@ module.exports = g;
     }
 
     this.type = 'default'
-    this.status = options.status
+    this.status = 'status' in options ? options.status : 200
     this.ok = this.status >= 200 && this.status < 300
-    this.statusText = options.statusText
-    this.headers = options.headers instanceof Headers ? options.headers : new Headers(options.headers)
+    this.statusText = 'statusText' in options ? options.statusText : 'OK'
+    this.headers = new Headers(options.headers)
     this.url = options.url || ''
     this._initBody(bodyInit)
   }
@@ -10217,35 +9869,16 @@ module.exports = g;
 
   self.fetch = function(input, init) {
     return new Promise(function(resolve, reject) {
-      var request
-      if (Request.prototype.isPrototypeOf(input) && !init) {
-        request = input
-      } else {
-        request = new Request(input, init)
-      }
-
+      var request = new Request(input, init)
       var xhr = new XMLHttpRequest()
-
-      function responseURL() {
-        if ('responseURL' in xhr) {
-          return xhr.responseURL
-        }
-
-        // Avoid security warnings on getResponseHeader when not allowed by CORS
-        if (/^X-Request-URL:/m.test(xhr.getAllResponseHeaders())) {
-          return xhr.getResponseHeader('X-Request-URL')
-        }
-
-        return
-      }
 
       xhr.onload = function() {
         var options = {
           status: xhr.status,
           statusText: xhr.statusText,
-          headers: headers(xhr),
-          url: responseURL()
+          headers: parseHeaders(xhr.getAllResponseHeaders() || '')
         }
+        options.url = 'responseURL' in xhr ? xhr.responseURL : options.headers.get('X-Request-URL')
         var body = 'response' in xhr ? xhr.response : xhr.responseText
         resolve(new Response(body, options))
       }

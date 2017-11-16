@@ -63,7 +63,7 @@ function anonProvider(auth) {
       var fetchArgs = common.makeFetchArgs('GET');
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/anon/user?device=' + (0, _util.uriEncodeObject)(device), fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/providers/anon-user/login?device=' + (0, _util.uriEncodeObject)(device), fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -74,8 +74,10 @@ function anonProvider(auth) {
 
 /** @namespace */
 function userPassProvider(auth) {
-  var providerRoute = auth.isAppClient() ? 'local/userpass' : 'providers/local-userpass';
-  var loginRoute = auth.isAppClient() ? 'local/userpass' : providerRoute + '/login';
+  // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
+  // the client is for the admin or client API.
+  var providerRoute = auth.isAppClient() ? 'providers/local-userpass' : 'providers/local-userpass';
+  var loginRoute = auth.isAppClient() ? providerRoute + '/login' : providerRoute + '/login';
 
   return {
     /**
@@ -199,7 +201,9 @@ function userPassProvider(auth) {
 
 /** @namespace */
 function apiKeyProvider(auth) {
-  var loginRoute = auth.isAppClient() ? 'api/key' : 'providers/api-key/login';
+  // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
+  // the client is for the admin or client API.
+  var loginRoute = auth.isAppClient() ? 'providers/api-key/login' : 'providers/api-key/login';
 
   return {
     /**
@@ -252,7 +256,7 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
 
   var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
-  var result = auth.rootUrl + '/oauth2/' + providerName + '?redirect=' + encodeURI(redirectUrl) + '&state=' + state + '&device=' + (0, _util.uriEncodeObject)(device);
+  var result = auth.rootUrl + '/oauth2-' + providerName + '?redirect=' + encodeURI(redirectUrl) + '&state=' + state + '&device=' + (0, _util.uriEncodeObject)(device);
   return result;
 }
 
@@ -296,7 +300,9 @@ function facebookProvider(auth) {
 
 /** @namespace */
 function mongodbCloudProvider(auth) {
-  var loginRoute = auth.isAppClient() ? 'mongodb/cloud' : 'providers/mongodb-cloud/login';
+  // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
+  // the client is for the admin or client API.
+  var loginRoute = auth.isAppClient() ? 'providers/mongodb-cloud/login' : 'providers/mongodb-cloud/login';
 
   return {
     /**

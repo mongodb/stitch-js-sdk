@@ -332,7 +332,7 @@ export default class Admin extends StitchClient {
                 service: (serviceId) => ({
                   get: () => api._get(`${appUrl}/services/${serviceId}`),
                   remove: () => api._delete(`${appUrl}/services/${serviceId}`),
-
+                  runCommand: (commandName, data) => api._post(`${appUrl}/services/${serviceId}/commands/${commandName}`, data),
                   config: ()=> ({
                     get: () => api._get(`${appUrl}/services/${serviceId}/config`),
                     update: (data) => api._patch(`${appUrl}/services/${serviceId}/config`, data)
