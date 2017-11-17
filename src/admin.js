@@ -224,11 +224,17 @@ export default class Admin extends StitchClient {
             })
           }),
 
-          dev: () => ({
+          debug: () => ({
             executeFunction: (userId, name = '', ...args) => {
               return api._post(
-                `${appUrl}/dev/function`,
+                `${appUrl}/debug/execute_function`,
                 {name, 'arguments': args},
+                { user_id: userId });
+            },
+            executeFunctionSource: (userId, source = '', evalSource = '') => {
+              return api._post(
+                `${appUrl}/debug/execute_function_source`,
+                {source, 'eval_source': evalSource},
                 { user_id: userId });
             }
           }),
