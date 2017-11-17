@@ -209,8 +209,8 @@ export default class Admin extends StitchClient {
             pushNotification: (messageId) => ({
               get: () => api._get(`${appUrl}/push/notifications/${messageId}`),
               update: (data) => api._put(`${appUrl}/push/notifications/${messageId}`, data),
-              setType: (type) => api._put(`${appUrl}/push/notifications/${messageId}/type`, { type }),
-              remove: () => api._delete(`${appUrl}/push/notifications/${messageId}`)
+              remove: () => api._delete(`${appUrl}/push/notifications/${messageId}`),
+              send: () => api._post(`${appUrl}/push/notifications/${messageId}/send`)
             })
           }),
 
