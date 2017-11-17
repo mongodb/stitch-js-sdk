@@ -1,4 +1,4 @@
-import { deprecate, serviceResponse, letMixin } from '../../util';
+import { deprecate, serviceResponse } from '../../util';
 import { BSON } from 'mongodb-extjson';
 const { ObjectID } = BSON;
 
@@ -143,83 +143,27 @@ Collection.prototype.upsert =
 
 // private
 function insertOp(self, docs, options) {
-  let stages = [];
+  docs = Array.isArray(docs) ? docs : [ docs ];
 
-  // there may be no docs, when building for chained pipeline stages in
-  // which case the source is considered to be the previous stage
-  if (docs) {
-    docs = Array.isArray(docs) ? docs : [ docs ];
-
-    // add ObjectIds to docs that have none
-    docs = docs.map(doc => {
-      if (doc._id === undefined || doc._id === null) doc._id = new ObjectID();
-      return doc;
-    });
-
-    stages.push({
-      action: 'literal',
-      args: {
-        items: docs
-      }
-    });
-  }
-
-  stages.push({
-    service: self.db.service,
-    action: 'insert',
-    args: {
-      database: self.db.name,
-      collection: self.name
-    }
+  // add ObjectIds to docs that have none
+  docs = docs.map(doc => {
+    if (doc._id === undefined || doc._id === null) doc._id = new ObjectID();
+    return doc;
   });
 
-  return serviceResponse(self.db, stages, response => {
-    return {
-      insertedIds: response.result.map(doc => doc._id)
-    };
-  });
+  return buildResponse('insert', self, buildArgs(self, { items: docs }));
 }
 
 function deleteOp(self, query, options) {
-  const args = Object.assign({
-    database: self.db.name,
-    collection: self.name,
-    query: query
-  }, options);
-
-  return serviceResponse(self.db, {
-    service: self.db.service,
-    action: 'delete',
-    args: args
-  }, response => {
-    return {
-      deletedCount: response.result[0].removed
-    };
-  });
+  return buildResponse('delete', self, buildArgs(self, { query }, options));
 }
 
 function updateOp(self, query, update, options) {
-  const args = Object.assign({
-    database: self.db.name,
-    collection: self.name,
-    query: query,
-    update: update
-  }, options);
-
-  return serviceResponse(self.db, {
-    service: self.db.service,
-    action: 'update',
-    args: args
-  });
+  return buildResponse('update', self, buildArgs(self, { query, update }, options));
 }
 
-function findOp(self, query, options, finalizer) {
-  finalizer = finalizer || ((response) => response.result);
-  const args = Object.assign({
-    database: self.db.name,
-    collection: self.name,
-    query: query
-  }, options);
+function findOp(self, query, options) {
+  const args = buildArgs(self, { query }, options);
 
   // legacy argument naming
   if (args.projection) {
@@ -227,25 +171,28 @@ function findOp(self, query, options, finalizer) {
     delete args.projection;
   }
 
-  return serviceResponse(self.db, {
-    service: self.db.service,
-    action: 'find',
-    args: args
-  }, finalizer);
+  return buildResponse('find', self, args);
 }
 
-function aggregateOp(self, pipeline, finalizer) {
-  finalizer = finalizer || ((response) => response.result);
-  const args = {
-    database: self.db.name,
-    collection: self.name,
-    pipeline: pipeline
-  };
-
-  return serviceResponse(self.db, {
-    service: self.db.service,
-    action: 'aggregate',
-    args: args
-  }, finalizer);
+function aggregateOp(self, pipeline) {
+  return buildResponse('aggregate', self, buildArgs(self, { pipeline }));
 }
-export default letMixin(Collection);
+
+function buildArgs(self, args, options) {
+  const { db: { name: database }, name: collection } = self;
+
+  return Object.assign(
+    { database, collection },
+    args,
+    (options ? options : {}) );
+}
+
+function buildResponse(action, self, args) {
+  return serviceResponse(self.db, {
+    serviceName: self.db.service,
+    action,
+    args
+  });
+}
+
+export default Collection;

@@ -1,6 +1,14 @@
+const stitch = require('../../src');
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
+import * as constants from '../constants';
 import { getAuthenticatedClient } from '../testutil';
+
+async function createStitchClient(appClientId, { username = 'dude.mcgee@doofus.net', password = 'doofus123' } = {}) {
+  const client = new stitch.StitchClient(appClientId, { baseUrl: constants.DEFAULT_SERVER_URL });
+  await client.authenticate('userpass', { username, password });
+  return client;
+}
 
 async function createAppUser(users, { email = 'dude.mcgee@doofus.net', password = 'doofus123' } = {}) {
   const user = await users.create({ email, password });
@@ -39,21 +47,22 @@ describe('Dev Function', () => {
   let apps;
   let app;
   let user;
-  let dev;
+  let client;
 
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
 
   beforeEach(async () => {
-    let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
+    const adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
     test.groupId = test.userData.group.groupId;
     apps = await adminClient.apps(test.groupId);
     app = await apps.create({ name: 'testname' });
-    dev = adminClient.apps(test.groupId).app(app._id).dev();
 
     await createTestFunction(adminClient.apps(test.groupId).app(app._id).functions());
     await createUserPassProvider(adminClient.apps(test.groupId).app(app._id).authProviders());
     user = await createAppUser(adminClient.apps(test.groupId).app(app._id).users());
+
+    client = await createStitchClient(app.client_app_id);
   });
 
   afterEach(async () => {
@@ -61,15 +70,14 @@ describe('Dev Function', () => {
   });
 
   it('Supports executing the function', async () => {
-    const result = await dev.executeFunction(
-      user._id,
+    const result = await client.executeFunction(
       FUNC_NAME,
       777,
       23,
     );
 
-    expect(result.result.sum).toEqual({'$numberDouble': '800'});
-    expect(result.result.userId).toEqual(user._id);
+    expect(result.sum).toEqual(800);
+    expect(result.userId).toEqual(user._id);
   });
 });
 

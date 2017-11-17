@@ -1,4 +1,4 @@
-import { serviceResponse, letMixin } from '../../util';
+import { serviceResponse } from '../../util';
 
 /**
  * Create a new TwilioService instance (not meant to be instantiated directly).
@@ -23,11 +23,10 @@ class TwilioService {
    */
   send(from, to, body) {
     return serviceResponse(this, {
-      service: this.serviceName,
       action: 'send',
       args: { from, to, body }
     });
   }
 }
 
-export default letMixin(TwilioService);
+export default TwilioService;

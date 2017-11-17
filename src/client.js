@@ -208,15 +208,32 @@ export default class StitchClient {
    * @param {Object} [args] Arguments to pass to the function.
    */
   executeFunction(name, ...args) {
+    return this._doFunctionCall({
+      name,
+      arguments: args
+    });
+  }
+
+  /**
+   * Executes a service.
+   *
+   * @param {String} service The name of the service.
+   * @param {String} action The name of the service action.
+   * @param {Object} [args] Arguments to pass to the service action.
+   */
+  executeServiceFunction(service, action, ...args) {
+    return this._doFunctionCall({
+      service,
+      name: action,
+      arguments: args
+    });
+  }
+
+  _doFunctionCall(request) {
     let responseDecoder = (d) => EJSON.parse(d, { strict: false });
     let responseEncoder = (d) => EJSON.stringify(d);
 
-    const functionJson = {
-      name,
-      arguments: args
-    };
-
-    return this._do('/functions/call', 'POST', { body: responseEncoder(functionJson) })
+    return this._do('/functions/call', 'POST', { body: responseEncoder(request) })
       .then(response => response.text())
       .then(body => responseDecoder(body));
   }
@@ -226,7 +243,6 @@ export default class StitchClient {
    *
    * @returns {Promise}
    */
-
   doSessionPost() {
     return this._do('/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true })
       .then(response => response.json());

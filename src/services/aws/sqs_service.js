@@ -1,4 +1,4 @@
-import { serviceResponse, letMixin } from '../../util';
+import { serviceResponse } from '../../util';
 
 /**
  * Convenience wrapper for AWS SQS (not meant to be instantiated directly).
@@ -18,10 +18,7 @@ class SQSService {
    * @return {Promise}
    */
   send() {
-    return serviceResponse(this, {
-      service: this.serviceName,
-      action: 'send'
-    });
+    return serviceResponse(this, { action: 'send' });
   }
 
   /**
@@ -30,11 +27,8 @@ class SQSService {
    * @return {Promise}
    */
   receive() {
-    return serviceResponse(this, {
-      service: this.serviceName,
-      action: 'receive'
-    });
+    return serviceResponse(this, { action: 'receive' });
   }
 }
 
-export default letMixin(SQSService);
+export default SQSService;

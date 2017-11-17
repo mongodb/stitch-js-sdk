@@ -1,4 +1,4 @@
-import { serviceResponse, letMixin } from '../../util';
+import { serviceResponse } from '../../util';
 
 /**
  * Convenience wrapper around Slack API (not meant to be instantiated directly).
@@ -33,11 +33,10 @@ class SlackService {
     if (!!options.attachments) args.attachments = options.attachments;
 
     return serviceResponse(this, {
-      service: this.serviceName,
       action: 'publish',
       args: args
     });
   }
 }
 
-export default letMixin(SlackService);
+export default SlackService;

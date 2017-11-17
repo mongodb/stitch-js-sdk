@@ -1,4 +1,4 @@
-import { serviceResponse, letMixin } from '../../util';
+import { serviceResponse } from '../../util';
 
 /**
  * Convenience wrapper around AWS SES service (not meant to be instantiated directly).
@@ -24,11 +24,10 @@ class SESService {
    */
   send(from, to, subject, body) {
     return serviceResponse(this, {
-      service: this.serviceName,
       action: 'send',
       args: { from, to, subject, body }
     });
   }
 }
 
-export default letMixin(SESService);
+export default SESService;

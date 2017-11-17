@@ -6,6 +6,7 @@ const RESULT_METADATA_KEY = '_stitch_metadata';
 /** @namespace util */
 
 /**
+ * TODO: maybe remove me?
  * Utility which creates a function that extracts metadata
  * from the server in the response to a pipeline request,
  * and attaches it to the final result after the finalizer has been applied.
@@ -65,93 +66,22 @@ function deprecate(fn, msg) {
 }
 
 /**
- * Utility method for converting the rest response from services
- * into composable `thenables`. This allows us to use the same
- * API for calling helper methods (single-stage pipelines) and
- * pipeline building.
+ * Utility method executing a service action as a function call.
  *
  * @memberof util
- * @param {Object} service the service to execute the stages on
- * @param {Array} stages the pipeline stages to execute
- * @param {Function} [finalizer] optional function to call on the result of the response
+ * @param {Object} service the service to execute the action on
+ * @param {String} action the service action to execute
+ * @param {Array} args the arguments to supply to the service action invocation
+ * @returns {Promise} the API response from the executed service action
  */
-function serviceResponse(service, stages, finalizer) {
-  if (service && !service.client) {
+function serviceResponse(service, { serviceName = service.serviceName, action, args }) {
+  const { client } = service;
+
+  if (!client) {
     throw new Error('Service has no client');
   }
 
-  if (finalizer && typeof finalizer !== 'function') {
-    throw new Error('Service response finalizer must be a function');
-  }
-
-  if (service.hasOwnProperty('__let__')) {
-    if (Array.isArray(stages)) {
-      // @todo: what do we do here?
-      console.warn('`let` not yet supported on an array of stages');
-    } else {
-      stages.let = service.__let__;
-    }
-  }
-
-  const client = service.client;
-  Object.defineProperties(stages, {
-    then: {
-      enumerable: false, writable: false, configurable: false,
-      value: (resolve, reject) =>
-        client.executePipeline(Array.isArray(stages) ? stages : [ stages ], {finalizer}).then(resolve, reject)
-    },
-    catch: {
-      enumerable: false, writable: false, configurable: false,
-      value: (rejected) => client.executePipeline(Array.isArray(stages) ? stages : [ stages ],  {finalizer}).catch(rejected)
-    },
-    withLet: {
-      enumerable: false, writable: true, configurable: true,
-      value: (expr) => {
-        if (Array.isArray(stages)) {
-          // @todo: what do we do here?
-          console.warn('`let` not yet supported on an array of stages');
-        } else {
-          stages.let = expr;
-        }
-
-        return stages;
-      }
-    },
-    withPost: {
-      enumerable: false, writable: true, configurable: true,
-      value: (options) => {
-        if (Array.isArray(stages)) {
-          // @todo: what do we do here?
-          console.warn('`post` not yet supported on an array of stages');
-        } else {
-          stages.post = options;
-        }
-
-        return stages;
-      }
-    }
-  });
-
-  return stages;
-}
-
-/**
- * Mixin that allows a definition of an optional `let` stage for
- * services is mixes in with.
- *
- * @memberof util
- * @param {*} Type the service to mixin
- */
-function letMixin(Type) {
-  Type.prototype.let = function(options) {
-    Object.defineProperty(this, '__let__', {
-      enumerable: false, configurable: false, writable: false, value: options
-    });
-
-    return this;
-  };
-
-  return Type;
+  return client.executeServiceFunction(serviceName, action, args);
 }
 
 /**
@@ -180,7 +110,6 @@ function uriEncodeObject(obj) {
 export {
   deprecate,
   serviceResponse,
-  letMixin,
   getPlatform,
   uriEncodeObject
 };

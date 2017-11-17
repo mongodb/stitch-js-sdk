@@ -1,4 +1,4 @@
-import { serviceResponse, letMixin } from '../../util';
+import { serviceResponse } from '../../util';
 
 /**
  * Convenience wrapper around Pubnub API (not meant to be instantiated directly).
@@ -22,11 +22,10 @@ class PubnubService {
    */
   publish(channel, message) {
     return serviceResponse(this, {
-      service: this.serviceName,
       action: 'publish',
       args: { channel, message }
     });
   }
 }
 
-export default letMixin(PubnubService);
+export default PubnubService;
