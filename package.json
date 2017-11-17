@@ -29,7 +29,7 @@
     "detect-browser": "^1.7.0",
     "fetch-everywhere": "^1.0.5",
     "jwt-decode": "^2.2.0",
-    "mongodb-extjson": "^1.0.5",
+    "mongodb-extjson": "mongodb-js/mongodb-extjson#39850337ee1ce485dc93dbcd1de50ea49c90a5ef",
     "query-string": "^4.3.4"
   },
   "devDependencies": {
@@ -43,7 +43,7 @@
     "babel-plugin-transform-builtin-extend": "^1.1.2",
     "babel-preset-env": "^1.6.1",
     "conventional-changelog-cli": "^1.3.1",
-    "eslint": "^3.19.0",
+    "eslint": "^4.7.2",
     "eslint-loader": "^1.7.1",
     "fetch-mock": "^5.10.1",
     "gh-pages": "^1.0.0",

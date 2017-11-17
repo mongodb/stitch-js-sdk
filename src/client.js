@@ -5,7 +5,7 @@ import Auth from './auth';
 import { APP_CLIENT_CODEC } from './auth/common';
 import ServiceRegistry from './services';
 import * as common from './common';
-import ExtJSONModule from 'mongodb-extjson';
+import ExtJSON from 'mongodb-extjson';
 import queryString from 'query-string';
 import { deprecate, collectMetadata } from './util';
 import {
@@ -13,8 +13,6 @@ import {
   ErrInvalidSession,
   ErrUnauthorized
 } from './errors';
-
-const EJSON = new ExtJSONModule();
 
 const v1 = 1;
 const v2 = 2;
@@ -46,16 +44,16 @@ export default class StitchClient {
         client: `${baseUrl}/api/client/v1.0`,
         private: `${baseUrl}/api/private/v1.0`,
         app: (clientAppID ?
-              `${baseUrl}/api/client/v1.0/app/${clientAppID}` :
-              `${baseUrl}/api/public/v1.0`)
+          `${baseUrl}/api/client/v1.0/app/${clientAppID}` :
+          `${baseUrl}/api/public/v1.0`)
       },
       [v2]: {
         public: `${baseUrl}/api/public/v2.0`,
         client: `${baseUrl}/api/client/v2.0`,
         private: `${baseUrl}/api/private/v2.0`,
         app: (clientAppID ?
-              `${baseUrl}/api/client/v2.0/app/${clientAppID}` :
-              `${baseUrl}/api/public/v2.0`)
+          `${baseUrl}/api/client/v2.0/app/${clientAppID}` :
+          `${baseUrl}/api/public/v2.0`)
       }
     };
 
@@ -218,8 +216,8 @@ export default class StitchClient {
    * @param {Object} [options] Additional options to pass to the execution context.
    */
   executePipeline(stages, options = {}) {
-    let responseDecoder = (d) => EJSON.parse(d, { strict: false });
-    let responseEncoder = (d) => EJSON.stringify(d);
+    let responseDecoder = (d) => ExtJSON.parse(d, { strict: false });
+    let responseEncoder = (d) => ExtJSON.stringify(d);
     stages = Array.isArray(stages) ? stages : [ stages ];
     stages = stages.reduce((acc, stage) => acc.concat(stage), []);
 

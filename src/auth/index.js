@@ -332,5 +332,4 @@ export default class Auth {
       [this.codec.deviceId]: parts[3]
     };
   }
-
 }

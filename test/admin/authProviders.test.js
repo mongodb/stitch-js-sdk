@@ -15,24 +15,24 @@ describe('Auth Providers V2', ()=>{
   };
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
-  beforeEach(async () =>{
+  beforeEach(async() =>{
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
     test.groupId = test.userData.group.groupId;
     apps = await adminClient.v2().apps(test.groupId);
     app = await apps.create({name: 'testname'});
     authProviders = adminClient.v2().apps(test.groupId).app(app._id).authProviders();
   });
-  afterEach(async () => {
+  afterEach(async() => {
     await apps.app(app._id).remove();
   });
 
-  it('listing auth providers should return list', async () => {
+  it('listing auth providers should return list', async() => {
     let providers = await authProviders.list();
     expect(providers.length).toEqual(1);
     expect(providers[0].name).toEqual('api-key');
     expect(providers[0].type).toEqual('api-key');
   });
-  it('creating auth provider should work', async () => {
+  it('creating auth provider should work', async() => {
     let newProvider = await authProviders.create({type: 'local-userpass', config: validConfig});
     expect(newProvider.type).toEqual('local-userpass');
     expect(newProvider.name).toEqual('local-userpass');
@@ -42,17 +42,17 @@ describe('Auth Providers V2', ()=>{
     expect(providers[0].type).toEqual('api-key');
     expect(providers[1].type).toEqual(newProvider.type);
   });
-  it('invalid create requests should fail', async () => {
+  it('invalid create requests should fail', async() => {
     await expect(authProviders.create({type: 'local-userpass'})).rejects.toBeDefined();
     await expect(authProviders.create({type: 'bad#type'})).rejects.toBeDefined();
   });
-  it('fetching auth provider should work', async () => {
+  it('fetching auth provider should work', async() => {
     let newAuthProvider = await authProviders.create({type: 'local-userpass', config: validConfig});
     expect(newAuthProvider.type).toEqual('local-userpass');
     let provider = await authProviders.authProvider(newAuthProvider._id).get();
     expect(provider.type).toEqual(provider.type);
   });
-  it('enabling auth provider should work', async () => {
+  it('enabling auth provider should work', async() => {
     let newAuthProvider = await authProviders.create({type: 'local-userpass', config: validConfig, disabled: true});
     expect(newAuthProvider.type).toEqual('local-userpass');
     let fetchedProvider = await authProviders.authProvider(newAuthProvider._id).get();
@@ -62,7 +62,7 @@ describe('Auth Providers V2', ()=>{
     expect(provider.type).toEqual(provider.type);
     expect(provider.disabled).toEqual(false);
   });
-  it('disabling auth provider should work', async () => {
+  it('disabling auth provider should work', async() => {
     let newAuthProvider = await authProviders.create({type: 'local-userpass', config: validConfig, disabled: false});
     expect(newAuthProvider.type).toEqual('local-userpass');
     let provider = await authProviders.authProvider(newAuthProvider._id).get();
@@ -71,7 +71,7 @@ describe('Auth Providers V2', ()=>{
     provider = await authProviders.authProvider(newAuthProvider._id).get();
     expect(provider.disabled).toEqual(true);
   });
-  it('deleting an auth provider should work', async () => {
+  it('deleting an auth provider should work', async() => {
     let newAuthProvider = await authProviders.create({type: 'local-userpass', config: validConfig});
     let providers = await authProviders.list();
     expect(providers).toHaveLength(2);
@@ -80,13 +80,13 @@ describe('Auth Providers V2', ()=>{
     providers = await authProviders.list();
     expect(providers).toHaveLength(1);
   });
-  it('deleting an auth provider should fail if the auth provider is still enabled', async () => {
+  it('deleting an auth provider should fail if the auth provider is still enabled', async() => {
     let newAuthProvider = await authProviders.create({type: 'local-userpass', config: validConfig});
     let providers = await authProviders.list();
     expect(providers).toHaveLength(2);
     await expect(authProviders.authProvider(newAuthProvider._id).remove()).rejects.toBeDefined();
   });
-  it('updating auth provider should work', async () => {
+  it('updating auth provider should work', async() => {
     let newAuthProvider = await authProviders.create({type: 'local-userpass', config: validConfig});
     await authProviders.authProvider(newAuthProvider._id).update({
       config: {
