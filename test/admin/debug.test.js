@@ -34,12 +34,12 @@ async function createTestFunction(functions) {
   expect(funcs[0].name).toEqual(FUNC_NAME);
 }
 
-describe('Dev Function', () => {
+describe('Debugging functions', () => {
   let test = new StitchMongoFixture();
   let apps;
   let app;
   let user;
-  let dev;
+  let debug;
 
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
@@ -49,7 +49,7 @@ describe('Dev Function', () => {
     test.groupId = test.userData.group.groupId;
     apps = await adminClient.apps(test.groupId);
     app = await apps.create({ name: 'testname' });
-    dev = adminClient.apps(test.groupId).app(app._id).dev();
+    debug = adminClient.apps(test.groupId).app(app._id).debug();
 
     await createTestFunction(adminClient.apps(test.groupId).app(app._id).functions());
     await createUserPassProvider(adminClient.apps(test.groupId).app(app._id).authProviders());
@@ -60,8 +60,8 @@ describe('Dev Function', () => {
     await apps.app(app._id).remove();
   });
 
-  it('Supports executing the function', async () => {
-    const result = await dev.executeFunction(
+  it('Supports executing a saved function with arguments', async () => {
+    const result = await debug.executeFunction(
       user._id,
       FUNC_NAME,
       777,
@@ -69,6 +69,17 @@ describe('Dev Function', () => {
     );
 
     expect(result.result.sum).toEqual({'$numberDouble': '800'});
+    expect(result.result.userId).toEqual(user._id);
+  });
+
+  it('Supports executing a function source with an eval script', async () => {
+    const result = await debug.executeFunctionSource(
+      user._id,
+      `exports = function(arg1, arg2) { return {sum: 800 + arg1 + arg2, userId: context.user.id } }`,
+      `exports(1,5)`,
+    );
+
+    expect(result.result.sum).toEqual({'$numberDouble': '806'});
     expect(result.result.userId).toEqual(user._id);
   });
 });
