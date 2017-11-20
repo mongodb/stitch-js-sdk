@@ -8,45 +8,45 @@ describe('Values', ()=>{
   let app;
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
-  beforeEach(async () =>{
+  beforeEach(async() =>{
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
     test.groupId = test.userData.group.groupId;
     apps = await adminClient.apps(test.groupId);
     app = await apps.create({name: 'testname'});
     appValues = adminClient.apps(test.groupId).app(app._id).values();
   });
-  afterEach(async () => {
+  afterEach(async() => {
     await apps.app(app._id).remove();
   });
 
   let appValues;
   const testValueName = 'testvaluename';
-  it('listing values should return empty list', async () => {
+  it('listing values should return empty list', async() => {
     let values = await appValues.list();
     expect(values).toEqual([]);
   });
-  it('creating value should make it appear in list', async () => {
+  it('creating value should make it appear in list', async() => {
     let value = await appValues.create({name: testValueName});
     expect(value.name).toEqual(testValueName);
     let values = await appValues.list();
     expect(values).toHaveLength(1);
     expect(values[0]).toEqual(value);
   });
-  it('fetching a value returns deep value data', async () => {
+  it('fetching a value returns deep value data', async() => {
     let value = await appValues.create({name: testValueName, value: 'foo'});
     const deepValue = await appValues.value(value._id).get();
     expect(deepValue.value).toEqual('foo');
     delete deepValue.value;
     expect(value).toEqual(deepValue);
   });
-  it('can update a value', async () => {
+  it('can update a value', async() => {
     let value = await appValues.create({name: testValueName, value: 'foo'});
     value.value = '"abcdefgh"';
     await appValues.value(value._id).update(value);
     const deepValue = await appValues.value(value._id).get();
     expect(deepValue.value).toEqual('"abcdefgh"');
   });
-  it('can delete a value', async () => {
+  it('can delete a value', async() => {
     let value = await appValues.create({name: testValueName});
     expect(value.name).toEqual(testValueName);
     let values = await appValues.list();

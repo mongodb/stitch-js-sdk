@@ -126,7 +126,7 @@ describe('Dev Pipeline (V2)', () => {
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
 
-  beforeEach(async () => {
+  beforeEach(async() => {
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
     test.groupId = test.userData.group.groupId;
     apps = await adminClient.v2().apps(test.groupId);
@@ -138,11 +138,11 @@ describe('Dev Pipeline (V2)', () => {
     user = await createAppUser(adminClient.v2().apps(test.groupId).app(app._id).users());
   });
 
-  afterEach(async () => {
+  afterEach(async() => {
     await apps.app(app._id).remove();
   });
 
-  it('Supports executing the pipeline', async () => {
+  it('Supports executing the pipeline', async() => {
     const { result } = await dev.executePipeline([
       {
         service: '',
@@ -157,9 +157,9 @@ describe('Dev Pipeline (V2)', () => {
     ], user._id);
 
     expect(result[0]).toEqual([
-        { '$numberInt': '1' },
-        { '$numberInt': '2' },
-        { '$numberInt': '3' }
+      { '$numberInt': '1' },
+      { '$numberInt': '2' },
+      { '$numberInt': '3' }
     ]);
   });
 });

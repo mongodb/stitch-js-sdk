@@ -6,15 +6,13 @@ import { JSONTYPE, DEFAULT_STITCH_SERVER_URL } from '../src/common';
 import { REFRESH_TOKEN_KEY } from '../src/auth/common';
 import Auth from '../src/auth';
 import { mocks } from 'mock-browser';
-
-const EJSON = require('mongodb-extjson');
+import ExtJSON from 'mongodb-extjson';
 
 const ANON_AUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/anon-user/login';
 const APIKEY_AUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/api-key/login';
 const LOCALAUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/local-userpass/login';
 const FUNCTION_CALL_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/functions/call';
 const SESSION_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/session';
-const ejson = new EJSON();
 
 const MockBrowser = mocks.MockBrowser;
 global.Buffer = global.Buffer || require('buffer').Buffer;
@@ -197,7 +195,7 @@ describe('Auth', () => {
           .catch(() => expect(a.getDeviceId()).toBeNull());
       });
 
-      it('should not clear device id on logout', async () => {
+      it('should not clear device id on logout', async() => {
         expect.assertions(3);
         const testClient = new StitchClient('testapp');
         expect(testClient.auth.getDeviceId()).toBeNull();
@@ -594,7 +592,7 @@ describe('client options', () => {
         return testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello');
       })
       .then((response) => {
-        expect(response.x).toEqual(new ejson.bson.ObjectID(hexStr));
+        expect(response.x).toEqual(new ExtJSON.BSON.ObjectID(hexStr));
       });
   });
 
@@ -630,7 +628,7 @@ describe('function execution', () => {
           let testClient = new StitchClient('testapp');
           return testClient.login('user', 'password')
             .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
-            .then((response) => expect(response.x).toEqual(new ejson.bson.ObjectID(hexStr)));
+            .then((response) => expect(response.x).toEqual(new ExtJSON.BSON.ObjectID(hexStr)));
         });
       });
 
@@ -649,7 +647,7 @@ describe('function execution', () => {
           expect.assertions(1);
           let testClient = new StitchClient('testapp', {baseUrl: ''});
           return testClient.login('user', 'password')
-            .then(() => testClient.executeFunction('testfunc', {x: new ejson.bson.ObjectID(hexStr)}, 'hello'))
+            .then(() => testClient.executeFunction('testfunc', {x: new ExtJSON.BSON.ObjectID(hexStr)}, 'hello'))
             .then(response => expect(JSON.parse(requestArg.body)).toEqual({name: 'testfunc', arguments: [{x: {'$oid': hexStr}}, 'hello']}));
         });
       });
@@ -671,7 +669,7 @@ describe('function execution', () => {
           expect.assertions(2);
           let testClient = new StitchClient('testapp', {baseUrl: ''});
           return testClient.login('user', 'password')
-            .then(() => testClient.executeFunction('testfunc', {x: new ejson.bson.ObjectID(hexStr)}, 'hello'))
+            .then(() => testClient.executeFunction('testfunc', {x: new ExtJSON.BSON.ObjectID(hexStr)}, 'hello'))
             .catch(e => {
               expect(e).toBeInstanceOf(Error);
               expect(e.response.status).toBe(400);

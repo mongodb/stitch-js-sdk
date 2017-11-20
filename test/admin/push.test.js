@@ -9,7 +9,7 @@ describe('Push Notifications', () => {
   let apps;
   beforeAll(() => test.setup({ createApp: false }));
   afterAll(() => test.teardown());
-  beforeEach(async () => {
+  beforeEach(async() => {
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
     test.groupId = test.userData.group.groupId;
     apps = await adminClient.apps(test.groupId);
@@ -19,7 +19,7 @@ describe('Push Notifications', () => {
       .app(app._id)
       .pushNotifications();
   });
-  afterEach(async () => {
+  afterEach(async() => {
     await apps.app(app._id).remove();
   });
 
@@ -46,7 +46,7 @@ describe('Push Notifications', () => {
     await expect(pushNotifications.list({ state: 'invalid' })).rejects.toBeDefined();
   });
 
-  it('creating push notifications should work', async () => {
+  it('creating push notifications should work', async() => {
     let newNotification = await pushNotifications.create(testNotification);
     expect(newNotification.state).toEqual(MSG_STATE_DRAFT);
 
@@ -59,14 +59,14 @@ describe('Push Notifications', () => {
     await expect(pushNotifications.create({ state: '' })).rejects.toBeDefined();
   });
 
-  it('fetching push notification should work', async () => {
+  it('fetching push notification should work', async() => {
     let newNotification = await pushNotifications.create(testNotification);
     expect(newNotification.state).toEqual(MSG_STATE_DRAFT);
     let notification = await pushNotifications.pushNotification(newNotification._id).get();
     expect(notification.state).toEqual(newNotification.state);
   });
 
-  it('updating push notification should work', async () => {
+  it('updating push notification should work', async() => {
     let newNotification = await pushNotifications.create(testNotification);
     expect(newNotification.message).toEqual(testNotification.message);
     newNotification.message = 'updated';

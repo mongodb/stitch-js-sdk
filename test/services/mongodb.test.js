@@ -40,12 +40,12 @@ describe.skip('MongoDBService', function() {
   let testService;
   let db;
 
-  beforeAll(async () => {
+  beforeAll(async() => {
     await test.setup();
   });
   afterAll(() => test.teardown());
 
-  beforeEach(async (done) => {
+  beforeEach(async(done) => {
     testService = await testSetup(test);
     db = testService.db(TEST_DB);
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000 * 30;
@@ -71,7 +71,7 @@ describe.skip('MongoDBService', function() {
     done();
   });
 
-  it('should update a single document', async (done)=> {
+  it('should update a single document', async(done)=> {
     let response = await db.collection(TESTNS1).insertMany([ { a: 1 }, { a: 1 } ]);
     response = await db.collection(TESTNS1).updateOne({ a: 1 }, { a: 2 });
     let results = stripObjectIds(response.result);
@@ -167,7 +167,7 @@ describe.skip('MongoDBService', function() {
     done();
   });
 
-  it('should receive warning when result size exceeds limit', async (done) => {
+  it('should receive warning when result size exceeds limit', async(done) => {
     const numDocs = 20000;
     const stepSize = 1000;
     let testDocs = [...Array(numDocs).keys()].map(x => ({_id: x}));

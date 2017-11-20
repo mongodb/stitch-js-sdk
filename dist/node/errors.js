@@ -10,6 +10,31 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+function _extendableBuiltin(cls) {
+  function ExtendableBuiltin() {
+    var instance = Reflect.construct(cls, Array.from(arguments));
+    Object.setPrototypeOf(instance, Object.getPrototypeOf(this));
+    return instance;
+  }
+
+  ExtendableBuiltin.prototype = Object.create(cls.prototype, {
+    constructor: {
+      value: cls,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+
+  if (Object.setPrototypeOf) {
+    Object.setPrototypeOf(ExtendableBuiltin, cls);
+  } else {
+    ExtendableBuiltin.__proto__ = cls;
+  }
+
+  return ExtendableBuiltin;
+}
+
 /**
  * Creates a new StitchError
  *
@@ -19,8 +44,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * @param {Object} code The error code.
  * @return {StitchError} A StitchError instance.
  */
-var StitchError = function (_Error) {
-  _inherits(StitchError, _Error);
+var StitchError = function (_extendableBuiltin2) {
+  _inherits(StitchError, _extendableBuiltin2);
 
   function StitchError(message, code) {
     _classCallCheck(this, StitchError);
@@ -42,7 +67,7 @@ var StitchError = function (_Error) {
   }
 
   return StitchError;
-}(Error);
+}(_extendableBuiltin(Error));
 
 var ErrAuthProviderNotFound = 'AuthProviderNotFound';
 var ErrInvalidSession = 'InvalidSession';

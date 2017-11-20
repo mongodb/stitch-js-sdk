@@ -267,7 +267,7 @@ function googleProvider(auth) {
 /** @namespace */
 function facebookProvider(auth) {
   return {
-     /**
+    /**
      * Login to a stitch application using facebook authentication
      *
      * @memberof facebookProvider

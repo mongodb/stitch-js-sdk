@@ -4,8 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, fetch */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 
@@ -46,8 +44,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var EJSON = new _mongodbExtjson2.default();
-
 var v1 = 1;
 var v2 = 2;
 var v3 = 3;
@@ -73,7 +69,7 @@ var StitchClient = function () {
 
     this.clientAppID = clientAppID;
 
-    this.authUrl = clientAppID ? baseUrl + '/api/client/v1.0/app/' + clientAppID + '/auth' : baseUrl + '/api/public/v2.0/auth';
+    this.authUrl = clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID + '/auth' : baseUrl + '/api/admin/v3.0/auth';
 
     this.rootURLsByAPIVersion = (_rootURLsByAPIVersion = {}, _defineProperty(_rootURLsByAPIVersion, v1, {
       public: baseUrl + '/api/public/v1.0',
@@ -88,7 +84,7 @@ var StitchClient = function () {
     }), _defineProperty(_rootURLsByAPIVersion, v3, {
       public: baseUrl + '/api/public/v3.0',
       client: baseUrl + '/api/client/v3.0',
-      app: clientAppID ? baseUrl + '/api/client/v3.0/app/' + clientAppID : baseUrl + '/api/public/v3.0'
+      app: clientAppID ? baseUrl + '/api/client/v3.0/app/' + clientAppID : baseUrl + '/api/admin/v3.0'
     }), _rootURLsByAPIVersion);
 
     var authOptions = { codec: _common.APP_CLIENT_CODEC };
@@ -199,7 +195,7 @@ var StitchClient = function () {
     value: function logout() {
       var _this3 = this;
 
-      return this._do('/auth', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function () {
+      return this._do('/auth/session', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function () {
         return _this3.auth.clear();
       });
     }
@@ -262,71 +258,36 @@ var StitchClient = function () {
     }
 
     /**
-     * Executes a named pipeline.
+     * Executes a function.
      *
-     * @param {String} name Name of the named pipeline to execute.
-     * @param {Object} args Arguments to the named pipeline to execute.
-     * @param {Object} [options] Additional options to pass to the execution context.
+     * @param {String} name The name of the function.
+     * @param {Object} [args] Arguments to pass to the function.
      */
 
   }, {
-    key: 'executeNamedPipeline',
-    value: function executeNamedPipeline(name, args) {
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-      var namedPipelineStages = [{
-        service: '',
-        action: 'namedPipeline',
-        args: { name: name, args: args }
-      }];
-      return this.executePipeline(namedPipelineStages, options);
-    }
-
-    /**
-     * Executes a service pipeline.
-     *
-     * @param {Array} stages Stages to process.
-     * @param {Object} [options] Additional options to pass to the execution context.
-     */
-
-  }, {
-    key: 'executePipeline',
-    value: function executePipeline(stages) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    key: 'executeFunction',
+    value: function executeFunction(name) {
+      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
 
       var responseDecoder = function responseDecoder(d) {
-        return EJSON.parse(d, { strict: false });
+        return _mongodbExtjson2.default.parse(d, { strict: false });
       };
       var responseEncoder = function responseEncoder(d) {
-        return EJSON.stringify(d);
+        return _mongodbExtjson2.default.stringify(d);
       };
-      stages = Array.isArray(stages) ? stages : [stages];
-      stages = stages.reduce(function (acc, stage) {
-        return acc.concat(stage);
-      }, []);
 
-      if (options.decoder) {
-        if (typeof options.decoder !== 'function') {
-          throw new Error('decoder option must be a function, but "' + _typeof(options.decoder) + '" was provided');
-        }
-        responseDecoder = options.decoder;
-      }
+      var functionJson = {
+        name: name,
+        arguments: args
+      };
 
-      if (options.encoder) {
-        if (typeof options.encoder !== 'function') {
-          throw new Error('encoder option must be a function, but "' + _typeof(options.encoder) + '" was provided');
-        }
-        responseEncoder = options.encoder;
-      }
-      if (options.finalizer && typeof options.finalizer !== 'function') {
-        throw new Error('finalizer option must be a function, but "' + _typeof(options.finalizer) + '" was provided');
-      }
-
-      return this._do('/pipeline', 'POST', { body: responseEncoder(stages) }).then(function (response) {
+      return this._do('/functions/call', 'POST', { body: responseEncoder(functionJson) }).then(function (response) {
         return response.text();
       }).then(function (body) {
         return responseDecoder(body);
-      }).then((0, _util.collectMetadata)(options.finalizer));
+      });
     }
 
     /**
@@ -338,7 +299,7 @@ var StitchClient = function () {
   }, {
     key: 'doSessionPost',
     value: function doSessionPost() {
-      return this._do('/auth/newAccessToken', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
+      return this._do('/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
         return response.json();
       });
     }
@@ -350,7 +311,7 @@ var StitchClient = function () {
       options = Object.assign({}, {
         refreshOnFailure: true,
         useRefreshToken: false,
-        apiVersion: v1,
+        apiVersion: v2,
         apiType: 'app'
       }, options);
 

@@ -9,7 +9,7 @@ describe('API Keys', () => {
   let apps;
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
-  beforeEach(async () => {
+  beforeEach(async() => {
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
     test.groupId = test.userData.group.groupId;
     apps = await adminClient.apps(test.groupId);
@@ -32,18 +32,18 @@ describe('API Keys', () => {
       .authProvider(providers[0]._id)
       .enable();
   });
-  afterEach(async () => {
+  afterEach(async() => {
     await apps.app(app._id).remove();
   });
 
-  it('listing api keys should return empty list', async () => {
+  it('listing api keys should return empty list', async() => {
     expect.assertions(1);
 
     let keys = await apiKeys.list();
     expect(keys).toEqual([]);
   });
 
-  it('creating api keys should work', async () => {
+  it('creating api keys should work', async() => {
     expect.assertions(3);
 
     let newKey = await apiKeys.create({ name: 'apiKey' });
@@ -53,13 +53,13 @@ describe('API Keys', () => {
     expect(keys[0].name).toEqual(newKey.name);
   });
 
-  it('invalid create requests should fail', async () => {
+  it('invalid create requests should fail', async() => {
     expect.assertions(1);
 
     await expect(apiKeys.create({ name: '' })).rejects.toBeDefined();
   });
 
-  it('fetching api key should work', async () => {
+  it('fetching api key should work', async() => {
     expect.assertions(2);
 
     let newKey = await apiKeys.create({ name: 'apiKey' });
@@ -68,7 +68,7 @@ describe('API Keys', () => {
     expect(key.name).toEqual(newKey.name);
   });
 
-  it('deleting api key should work', async () => {
+  it('deleting api key should work', async() => {
     expect.assertions(2);
 
     let newKey = await apiKeys.create({ name: 'apiKey' });
@@ -79,7 +79,7 @@ describe('API Keys', () => {
     expect(keys).toHaveLength(0);
   });
 
-  it('enabling/disabling api key should work', async () => {
+  it('enabling/disabling api key should work', async() => {
     expect.assertions(3);
 
     let key = await apiKeys.create({ name: 'apiKey' });
