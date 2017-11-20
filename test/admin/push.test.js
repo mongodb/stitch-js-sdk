@@ -32,17 +32,17 @@ describe('Push Notifications', () => {
     topic: 'notifications'
   };
 
-  it('listing draft push notifications should return empty list', async () => {
+  it('listing draft push notifications should return empty list', async() => {
     let notifications = await pushNotifications.list({ state: MSG_STATE_DRAFT });
     expect(notifications).toHaveLength(0);
   });
 
-  it('listing sent push notifications should return empty list', async () => {
+  it('listing sent push notifications should return empty list', async() => {
     let notifications = await pushNotifications.list({ state: MSG_STATE_SENT });
     expect(notifications).toHaveLength(0);
   });
 
-  it('listing invalid push notifications should fail', async () => {
+  it('listing invalid push notifications should fail', async() => {
     await expect(pushNotifications.list({ state: 'invalid' })).rejects.toBeDefined();
   });
 
@@ -55,7 +55,7 @@ describe('Push Notifications', () => {
     expect(notifications[0].state).toEqual(MSG_STATE_DRAFT);
   });
 
-  it('invalid create requests should fail', async () => {
+  it('invalid create requests should fail', async() => {
     await expect(pushNotifications.create({ state: '' })).rejects.toBeDefined();
   });
 
@@ -75,7 +75,7 @@ describe('Push Notifications', () => {
     expect(updatedNotification.message).toEqual('updated');
   });
 
-  it('deleting push notification should work', async () => {
+  it('deleting push notification should work', async() => {
     let newNotification = await pushNotifications.create(testNotification);
     let notifications = await pushNotifications.list({ state: MSG_STATE_DRAFT });
     expect(notifications).toHaveLength(1);

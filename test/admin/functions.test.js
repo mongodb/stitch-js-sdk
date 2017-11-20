@@ -9,7 +9,7 @@ describe('Functions', () => {
   let apps;
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
-  beforeEach(async () => {
+  beforeEach(async() => {
     let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
     test.groupId = test.userData.group.groupId;
     apps = await adminClient.apps(test.groupId);
@@ -19,7 +19,7 @@ describe('Functions', () => {
       .app(app._id)
       .functions();
   });
-  afterEach(async () => {
+  afterEach(async() => {
     await apps.app(app._id).remove();
   });
 
@@ -31,12 +31,12 @@ describe('Functions', () => {
   const FUNC_UPDATED_SOURCE = 'exports = function(){ return "!dlrow olleh"; }';
   const createUpdatedFunction = () => ({ name: FUNC_UPDATED_NAME, source: FUNC_UPDATED_SOURCE });
 
-  it('listing functions should return an empty list', async () => {
+  it('listing functions should return an empty list', async() => {
     let funcs = await functions.list();
     expect(funcs).toHaveLength(0);
   });
 
-  it('creating functions should work', async () => {
+  it('creating functions should work', async() => {
     let func = await functions.create(createTestFunction());
     expect(func.name).toEqual(FUNC_NAME);
 
@@ -45,11 +45,11 @@ describe('Functions', () => {
     expect(funcs[0].name).toEqual(FUNC_NAME);
   });
 
-  it('invalid create requests should fail', async () => {
+  it('invalid create requests should fail', async() => {
     await expect(functions.create({ name: '' })).rejects.toBeDefined();
   });
 
-  it('fetching function should work', async () => {
+  it('fetching function should work', async() => {
     let newFunc = await functions.create(createTestFunction());
     expect(newFunc._id).toBeTruthy();
 
@@ -58,7 +58,7 @@ describe('Functions', () => {
     expect(func.source).toEqual(FUNC_SOURCE);
   });
 
-  it('deleting function should work', async () => {
+  it('deleting function should work', async() => {
     let func = await functions.create(createTestFunction());
     expect(func._id).toBeTruthy();
 
@@ -71,7 +71,7 @@ describe('Functions', () => {
     expect(funcs).toHaveLength(0);
   });
 
-  it('updating function should work', async () => {
+  it('updating function should work', async() => {
     let func = await functions.create(createTestFunction());
     expect(func._id).toBeTruthy();
 
