@@ -98,6 +98,9 @@ tasks:
       - name: dist
         status: "*"
         variant: linux-64
+      - name: check_import
+        status: "*"
+        variant: linux-64
     commands:
       - command: shell.exec
         params:
@@ -129,6 +132,28 @@ tasks:
             cd stitch-js-sdk
             npm install
             npm test
+
+  - name: check_import
+    commands:
+      - func: "fetch_source"
+      - command: shell.exec
+        params:
+          script: |
+            set -e
+            cd stitch-js-sdk
+            npm install
+            npm run build
+            npm run build-web
+            npm run build-web-dev
+            mkdir tmp
+            cd tmp
+            npm pack ../
+            mv mongodb-stitch-*.tgz mongodb-stitch.tgz
+            cd ../../
+            mkdir test_app
+            cd test_app
+            npm install --save ../stitch-js-sdk/tmp/mongodb-stitch.tgz
+            node -e 'process.on("unhandledRejection", err => { throw err }); const stitch = require("mongodb-stitch"); const client = new stitch.StitchClient("stitchtest-vsfmv"); client.login()'
 
   - name: dist
     commands:
@@ -183,6 +208,7 @@ tasks:
   - name: docs_dist
     depends_on:
       - name: run_tests
+      - name: check_import
     commands:
       - func: "fetch_source"
       - command: shell.exec
@@ -234,5 +260,6 @@ buildvariants:
     - name: github_pull_request_start
     - name: run_tests
     - name: dist
-      #- name: docs_dist
+    - name: check_import
+    - name: docs_dist
     - name: github_pull_request_end
