@@ -1,40 +1,27 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
-import { getAuthenticatedClient } from '../testutil';
+import { buildAdminTestHarness, extractTestFixtureDataPoints } from '../testutil';
 
 describe('API Keys', () => {
   let test = new StitchMongoFixture();
+  let th;
   let apiKeys;
-  let app;
-  let apps;
+
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
+
   beforeEach(async() => {
-    let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
-    test.groupId = test.userData.group.groupId;
-    apps = await adminClient.apps(test.groupId);
-    app = await apps.create({ name: 'testname' });
-    apiKeys = adminClient
-      .apps(test.groupId)
-      .app(app._id)
-      .apiKeys();
+    const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
+    th = await buildAdminTestHarness(true, apiKey, groupId, serverUrl);
+
+    apiKeys = th.app().apiKeys();
 
     // enable api key auth provider
-    let providers = await adminClient
-      .apps(test.groupId)
-      .app(app._id)
-      .authProviders()
-      .list();
-    await adminClient
-      .apps(test.groupId)
-      .app(app._id)
-      .authProviders()
-      .authProvider(providers[0]._id)
-      .enable();
+    let providers = await th.app().authProviders().list();
+    await th.app().authProviders().authProvider(providers[0]._id).enable();
   });
-  afterEach(async() => {
-    await apps.app(app._id).remove();
-  });
+
+  afterEach(async() => th.cleanup());
 
   it('listing api keys should return empty list', async() => {
     expect.assertions(1);

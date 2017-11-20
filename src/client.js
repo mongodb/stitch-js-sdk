@@ -203,18 +203,35 @@ export default class StitchClient {
    * Executes a function.
    *
    * @param {String} name The name of the function.
-   * @param {Object} [args] Arguments to pass to the function.
+   * @param {...*} args Arguments to pass to the function.
    */
   executeFunction(name, ...args) {
+    return this._doFunctionCall({
+      name,
+      arguments: args
+    });
+  }
+
+  /**
+   * Executes a service function.
+   *
+   * @param {String} service The name of the service.
+   * @param {String} action The name of the service action.
+   * @param {...*} args Arguments to pass to the service action.
+   */
+  executeServiceFunction(service, action, ...args) {
+    return this._doFunctionCall({
+      service,
+      name: action,
+      arguments: args
+    });
+  }
+
+  _doFunctionCall(request) {
     let responseDecoder = (d) => ExtJSON.parse(d, { strict: false });
     let responseEncoder = (d) => ExtJSON.stringify(d);
 
-    const functionJson = {
-      name,
-      arguments: args
-    };
-
-    return this._do('/functions/call', 'POST', { body: responseEncoder(functionJson) })
+    return this._do('/functions/call', 'POST', { body: responseEncoder(request) })
       .then(response => response.text())
       .then(body => responseDecoder(body));
   }
@@ -224,7 +241,6 @@ export default class StitchClient {
    *
    * @returns {Promise}
    */
-
   doSessionPost() {
     return this._do('/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true })
       .then(response => response.json());
@@ -281,10 +297,10 @@ export default class StitchClient {
           return response.json()
             .then((json) => {
               // Only want to try refreshing token when there's an invalid session
-              if ('errorCode' in json && json.errorCode === ErrInvalidSession) {
+              if ('error_code' in json && json.error_code === ErrInvalidSession) {
                 if (!options.refreshOnFailure) {
                   this.auth.clear();
-                  const error = new StitchError(json.error, json.errorCode);
+                  const error = new StitchError(json.error, json.error_code);
                   error.response = response;
                   error.json = json;
                   throw error;
@@ -297,7 +313,7 @@ export default class StitchClient {
                   });
               }
 
-              const error = new StitchError(json.error, json.errorCode);
+              const error = new StitchError(json.error, json.error_code);
               error.response = response;
               error.json = json;
               return Promise.reject(error);

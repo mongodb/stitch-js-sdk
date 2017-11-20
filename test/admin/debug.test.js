@@ -1,26 +1,6 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
-import { getAuthenticatedClient } from '../testutil';
-
-async function createAppUser(users, { email = 'dude.mcgee@doofus.net', password = 'doofus123' } = {}) {
-  const user = await users.create({ email, password });
-  expect(user.data.email).toEqual(email);
-  return user;
-}
-
-async function createUserPassProvider(authProviders) {
-  const provider = await authProviders.create({
-    type: 'local-userpass',
-    config: {
-      emailConfirmationUrl: 'http://emailConfirmURL.com',
-      resetPasswordUrl: 'http://resetPasswordURL.com',
-      confirmEmailSubject: 'email subject',
-      resetPasswordSubject: 'password subject'
-    }
-  });
-  expect(provider.type).toEqual('local-userpass');
-  return provider;
-}
+import { buildAdminTestHarness, extractTestFixtureDataPoints } from '../testutil';
 
 const FUNC_NAME = 'myFunction';
 const FUNC_SOURCE = 'exports = function(arg1, arg2){ return {sum: arg1 + arg2, userId: context.user.id}}';
@@ -36,51 +16,45 @@ async function createTestFunction(functions) {
 
 describe('Debugging functions', () => {
   let test = new StitchMongoFixture();
-  let apps;
-  let app;
-  let user;
+  let th;
   let debug;
 
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
 
   beforeEach(async() => {
-    let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
-    test.groupId = test.userData.group.groupId;
-    apps = await adminClient.apps(test.groupId);
-    app = await apps.create({ name: 'testname' });
-    debug = adminClient.apps(test.groupId).app(app._id).debug();
+    const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
+    th = await buildAdminTestHarness(true, apiKey, groupId, serverUrl);
+    await th.configureUserpass();
+    await th.createUser();
 
-    await createTestFunction(adminClient.apps(test.groupId).app(app._id).functions());
-    await createUserPassProvider(adminClient.apps(test.groupId).app(app._id).authProviders());
-    user = await createAppUser(adminClient.apps(test.groupId).app(app._id).users());
+    debug = th.app().debug();
+    await createTestFunction(th.app().functions());
   });
 
-  afterEach(async() => {
-    await apps.app(app._id).remove();
-  });
+  afterEach(async() => th.cleanup());
 
-  it('Supports executing a saved function with arguments', async() => {
+  it('Supports executing the function', async() => {
     const result = await debug.executeFunction(
-      user._id,
+      th.user._id,
       FUNC_NAME,
       777,
       23,
     );
 
     expect(result.result.sum).toEqual(800);
-    expect(result.result.userId).toEqual(user._id);
+    expect(result.result.userId).toEqual(th.user._id);
   });
 
   it('Supports executing a function source with an eval script', async() => {
     const result = await debug.executeFunctionSource(
-      user._id,
+      th.user._id,
       'exports = function(arg1, arg2) { return {sum: 800 + arg1 + arg2, userId: context.user.id } }',
       'exports(1,5)',
     );
 
     expect(result.result.sum).toEqual(806);
-    expect(result.result.userId).toEqual(user._id);
+    expect(result.result.userId).toEqual(th.user._id);
   });
 });
 
@@ -118,29 +92,29 @@ async function createTestPipeline(appPipelines) {
 
 describe('Dev Pipeline (V2)', () => {
   let test = new StitchMongoFixture();
-  let apps;
-  let app;
-  let user;
+  let th;
   let dev;
 
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
 
   beforeEach(async() => {
-    let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
-    test.groupId = test.userData.group.groupId;
-    apps = await adminClient.v2().apps(test.groupId);
-    app = await apps.create({ name: 'testname' });
-    dev = adminClient.v2().apps(test.groupId).app(app._id).dev();
+    const {
+      userData: {
+        apiKey: { key: apiKey },
+        group: { groupId }
+      },
+      options: { baseUrl: serverUrl }
+    } = test;
+    th = await buildAdminTestHarness(true, apiKey, groupId, serverUrl);
+    await th.configureUserpass();
+    await th.createUser();
 
-    await createTestPipeline(adminClient.v2().apps(test.groupId).app(app._id).pipelines());
-    await createUserPassProvider(adminClient.v2().apps(test.groupId).app(app._id).authProviders());
-    user = await createAppUser(adminClient.v2().apps(test.groupId).app(app._id).users());
+    dev = th.appV2().dev();
+    await createTestPipeline(th.appV2().pipelines());
   });
 
-  afterEach(async() => {
-    await apps.app(app._id).remove();
-  });
+  afterEach(async() => th.app().remove());
 
   it('Supports executing the pipeline', async() => {
     const { result } = await dev.executePipeline([
@@ -154,7 +128,7 @@ describe('Dev Pipeline (V2)', () => {
           }
         }
       }
-    ], user._id);
+    ], th.user._id);
 
     expect(result[0]).toEqual([
       { '$numberInt': '1' },

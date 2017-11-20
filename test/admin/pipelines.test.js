@@ -1,6 +1,6 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
-import {getAuthenticatedClient} from '../testutil';
+import { buildAdminTestHarness, extractTestFixtureDataPoints } from '../testutil';
 
 // the below tests are only supported in the deprecated v2 api
 // once the ability to query for both named pipelines and incoming webhooks with pipelines
@@ -8,20 +8,18 @@ import {getAuthenticatedClient} from '../testutil';
 
 describe('Pipelines (V2)', ()=>{
   let test = new StitchMongoFixture();
-  let apps;
-  let app;
+  let th;
+
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
-  beforeEach(async() =>{
-    let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
-    test.groupId = test.userData.group.groupId;
-    apps = await adminClient.v2().apps(test.groupId);
-    app = await apps.create({name: 'testname'});
-    appPipelines = adminClient.v2().apps(test.groupId).app(app._id).pipelines();
+
+  beforeEach(async() => {
+    const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
+    th = await buildAdminTestHarness(true, apiKey, groupId, serverUrl);
+    appPipelines = th.appV2().pipelines();
   });
-  afterEach(async() => {
-    await apps.app(app._id).remove();
-  });
+
+  afterEach(async() => th.cleanup());
 
   let appPipelines;
   const testPipelineName = 'testpipelinename';

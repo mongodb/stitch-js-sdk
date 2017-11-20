@@ -111,7 +111,7 @@ describe('Auth', () => {
       };
     }
 
-    let body = {error: 'unauthorized', errorCode: 'unauthorized'};
+    let body = {error: 'unauthorized', error_code: 'unauthorized'};
     let type = JSONTYPE;
     let status = 401;
     if (args.username === 'html') {
@@ -232,7 +232,7 @@ describe('Auth', () => {
             expect(e).toBeInstanceOf(Error);
             expect(e.response.status).toBe(401);
             expect(e.error).toBe('unauthorized');
-            expect(e.errorCode).toBe('unauthorized');
+            expect(e.error_code).toBe('unauthorized');
             done();
           });
       });
@@ -288,7 +288,7 @@ describe('http error responses', () => {
       fetchMock.restore();
       fetchMock.post(FUNCTION_CALL_URL, () =>
         ({
-          body: {error: testErrMsg, errorCode: testErrCode},
+          body: {error: testErrMsg, error_code: testErrCode},
           headers: { 'Content-Type': JSONTYPE },
           status: 400
         })
@@ -296,7 +296,7 @@ describe('http error responses', () => {
       fetchMock.post(LOCALAUTH_URL, {user_id: hexStr});
     });
 
-    it('should return a StitchError instance with the error and errorCode extracted', (done) => {
+    it('should return a StitchError instance with the error and error_code extracted', (done) => {
       const testClient = new StitchClient('testapp');
       return testClient.login('user', 'password')
         .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
@@ -361,7 +361,7 @@ describe('api key auth/logout', () => {
       }
 
       return {
-        body: {error: 'unauthorized', errorCode: 'unauthorized'},
+        body: {error: 'unauthorized', error_code: 'unauthorized'},
         headers: { 'Content-Type': JSONTYPE },
         status: 401
       };
@@ -422,7 +422,7 @@ describe('login/logout', () => {
           }
 
           return {
-            body: {error: 'invalid session', errorCode: 'InvalidSession'},
+            body: {error: 'invalid session', error_code: 'InvalidSession'},
             headers: { 'Content-Type': JSONTYPE },
             status: 401
           };

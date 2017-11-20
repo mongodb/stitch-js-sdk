@@ -1,4 +1,4 @@
-import { serviceResponse, letMixin } from '../../util';
+import { serviceResponse } from '../../util';
 
 /**
  * Convenience wrapper for HTTP service (not meant to be instantiated directly).
@@ -105,10 +105,9 @@ function buildArgs(urlOrOptions, options) {
 
 function buildResponse(action, service, args) {
   return serviceResponse(service, {
-    service: service.serviceName,
-    action: action,
-    args: args
+    action,
+    args
   });
 }
 
-export default letMixin(HTTPService);
+export default HTTPService;
