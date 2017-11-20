@@ -198,6 +198,17 @@ tasks:
         params:
           aws_key: ${sdks_aws_key}
           aws_secret: ${sdks_aws_secret}
+          local_file: stitch-js-sdk/dist/web/stitch.min.js.map
+          remote_file: js/library/${version_id}/stitch.min.js.map
+          bucket: stitch-sdks
+          permissions: public-read
+          content_type: application/javascript
+          display_name: Stitch Javascript Library for Web Source Map
+
+      - command: s3.put
+        params:
+          aws_key: ${sdks_aws_key}
+          aws_secret: ${sdks_aws_secret}
           local_file: stitch-js-sdk/tmp/mongodb-stitch.tgz
           remote_file: js/npm/${version_id}/stitch.tgz
           bucket: stitch-sdks
