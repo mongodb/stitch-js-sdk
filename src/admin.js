@@ -4,6 +4,7 @@ import 'fetch-everywhere';
 import StitchClient from './client';
 import ADMIN_CLIENT_TYPE from './common';
 import { ADMIN_CLIENT_CODEC } from './auth/common';
+import ExtJSON from 'mongodb-extjson';
 
 const v2 = 2;
 const v3 = 3;
@@ -26,7 +27,7 @@ export default class Admin extends StitchClient {
       ).then(response => {
         const contentHeader = response.headers.get('content-type') || '';
         if (contentHeader.split(',').indexOf('application/json') >= 0) {
-          return response.json();
+          return response.text().then(body => ExtJSON.parse(body, { strict: false }));
         }
         return response;
       });
