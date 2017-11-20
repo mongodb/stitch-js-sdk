@@ -20,6 +20,10 @@ var _common2 = _interopRequireDefault(_common);
 
 var _common3 = require('./auth/common');
 
+var _mongodbExtjson = require('mongodb-extjson');
+
+var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -790,7 +794,9 @@ var Admin = function (_StitchClient) {
         return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this4).call(_this4, url, method, Object.assign({}, { apiVersion: v3 }, options)).then(function (response) {
           var contentHeader = response.headers.get('content-type') || '';
           if (contentHeader.split(',').indexOf('application/json') >= 0) {
-            return response.json();
+            return response.text().then(function (body) {
+              return _mongodbExtjson2.default.parse(body, { strict: false });
+            });
           }
           return response;
         });

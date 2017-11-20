@@ -5861,6 +5861,17 @@ exports.ErrUnauthorized = ErrUnauthorized;
 "use strict";
 
 
+var ExtJSON = __webpack_require__(58);
+
+module.exports = ExtJSON;
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -5885,7 +5896,7 @@ var _common2 = __webpack_require__(16);
 
 var common = _interopRequireWildcard(_common2);
 
-var _mongodbExtjson = __webpack_require__(22);
+var _mongodbExtjson = __webpack_require__(20);
 
 var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
@@ -6274,7 +6285,7 @@ StitchClient.prototype.anonymousAuth = (0, _util.deprecate)(StitchClient.prototy
 module.exports = exports['default'];
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6408,17 +6419,6 @@ if (typeof global.Map !== 'undefined') {
   module.exports.Map = Map;
 }
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17)))
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var ExtJSON = __webpack_require__(58);
-
-module.exports = ExtJSON;
 
 /***/ }),
 /* 23 */
@@ -6640,7 +6640,7 @@ var _get = function get(object, property, receiver) { if (object === null) objec
 
 __webpack_require__(23);
 
-var _client = __webpack_require__(20);
+var _client = __webpack_require__(21);
 
 var _client2 = _interopRequireDefault(_client);
 
@@ -6649,6 +6649,10 @@ var _common = __webpack_require__(16);
 var _common2 = _interopRequireDefault(_common);
 
 var _common3 = __webpack_require__(15);
+
+var _mongodbExtjson = __webpack_require__(20);
+
+var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -7420,7 +7424,9 @@ var Admin = function (_StitchClient) {
         return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this4).call(_this4, url, method, Object.assign({}, { apiVersion: v3 }, options)).then(function (response) {
           var contentHeader = response.headers.get('content-type') || '';
           if (contentHeader.split(',').indexOf('application/json') >= 0) {
-            return response.json();
+            return response.text().then(function (body) {
+              return _mongodbExtjson2.default.parse(body, { strict: false });
+            });
           }
           return response;
         });
@@ -7702,7 +7708,7 @@ module.exports = exports['default'];
 
 var writeIEEE754 = __webpack_require__(2).writeIEEE754,
     readIEEE754 = __webpack_require__(2).readIEEE754,
-    Map = __webpack_require__(21),
+    Map = __webpack_require__(22),
     Long = __webpack_require__(3),
     Double = __webpack_require__(8),
     Timestamp = __webpack_require__(14),
@@ -8880,7 +8886,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 var writeIEEE754 = __webpack_require__(2).writeIEEE754,
     readIEEE754 = __webpack_require__(2).readIEEE754,
     Long = __webpack_require__(3).Long,
-    Map = __webpack_require__(21),
+    Map = __webpack_require__(22),
     Double = __webpack_require__(8).Double,
     Timestamp = __webpack_require__(14).Timestamp,
     ObjectID = __webpack_require__(11).ObjectID,
@@ -10753,7 +10759,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.builtins = exports.Admin = exports.StitchClient = undefined;
 
-var _client = __webpack_require__(20);
+var _client = __webpack_require__(21);
 
 var _client2 = _interopRequireDefault(_client);
 
@@ -11136,7 +11142,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _util = __webpack_require__(0);
 
-var _mongodbExtjson = __webpack_require__(22);
+var _mongodbExtjson = __webpack_require__(20);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
