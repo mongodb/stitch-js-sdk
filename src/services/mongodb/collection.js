@@ -1,6 +1,4 @@
-import { deprecate, serviceResponse, letMixin } from '../../util';
-import { BSON } from 'mongodb-extjson';
-const { ObjectID } = BSON;
+import { serviceResponse } from '../../util';
 
 /**
  * Create a new Collection instance (not meant to be instantiated directly).
@@ -19,11 +17,11 @@ class Collection {
    *
    * @method
    * @param {Object} doc The document to insert.
-   * @param {Object} [options] Additional options object.
    * @return {Promise<Object, Error>} a Promise for the operation.
    */
-  insertOne(doc, options = {}) {
-    return insertOp(this, doc, options);
+  insertOne(doc) {
+    const args = { document: doc };
+    return buildResponse('insertOne', this, buildArgs(this, args));
   }
 
   /**
@@ -31,11 +29,11 @@ class Collection {
    *
    * @method
    * @param {Array} docs The documents to insert.
-   * @param {Object} [options] Additional options object.
    * @return {Promise<Object, Error>} Returns a Promise for the operation.
    */
-  insertMany(docs, options = {}) {
-    return insertOp(this, docs, options);
+  insertMany(docs) {
+    const args = { documents: Array.isArray(docs) ? docs : [ docs ] };
+    return buildResponse('insertMany', this, buildArgs(this, args));
   }
 
   /**
@@ -43,11 +41,10 @@ class Collection {
    *
    * @method
    * @param {Object} query The query used to match a single document.
-   * @param {Object} [options] Additional options object.
    * @return {Promise<Object, Error>} Returns a Promise for the operation.
    */
-  deleteOne(query, options = {}) {
-    return deleteOp(this, query, Object.assign({}, options, { singleDoc: true }));
+  deleteOne(query) {
+    return buildResponse('deleteOne', this, buildArgs(this, { query }));
   }
 
   /**
@@ -55,11 +52,10 @@ class Collection {
    *
    * @method
    * @param {Object} query The query used to match the documents to delete.
-   * @param {Object} [options] Additional options object.
    * @return {Promise<Object, Error>} Returns a Promise for the operation.
    */
-  deleteMany(query, options = {}) {
-    return deleteOp(this, query, Object.assign({}, options, { singleDoc: false }));
+  deleteMany(query) {
+    return buildResponse('deleteMany', this, buildArgs(this, { query }));
   }
 
   /**
@@ -73,7 +69,7 @@ class Collection {
    * @return {Promise<Object, Error>} A Promise for the operation.
    */
   updateOne(query, update, options = {}) {
-    return updateOp(this, query, update, Object.assign({}, options, { multi: false }));
+    return updateOp(this, false, query, update, options);
   }
 
   /**
@@ -86,8 +82,8 @@ class Collection {
    * @param {Boolean} [options.upsert=false] Perform an upsert operation.
    * @return {Promise<Object, Error>} Returns a Promise for the operation.
    */
-  updateMany(query, update, options = {}) {
-    return updateOp(this, query, update, Object.assign({}, options, { multi: true }));
+  updateMany(query, update) {
+    return updateOp(this, true, query, update);
   }
 
   /**
@@ -95,17 +91,18 @@ class Collection {
    *
    * @method
    * @param {Object} query The query used to match documents.
-   * @param {Object} [options] Additional options object.
-   * @param {Object} [options.projection=null] The query document projection.
-   * @param {Number} [options.limit=null] The maximum number of documents to return.
-   * @return {Array} An array of documents.
+   * @param {Object} [project] The query document projection.
+   * @param {Object} [MongoQuery.sort] The query document sorting.
+   * @param {Number} [MongoQuery.limit] The maximum number of documents to return.
+   * @return {MongoQuery} A "thenable" object which allows for `limit` and `skip` parameters to be set.
    */
-  find(query, options = {}) {
-    return findOp(this, query, options);
+  find(query, project) {
+    return new MongoQuery(this, query, project);
   }
 
   /**
    * Executes an aggregation pipeline.
+   *
    * @param {Array} pipeline The aggregation pipeline.
    * @returns {Array} The results of the aggregation.
    */
@@ -117,135 +114,85 @@ class Collection {
    * Gets the number of documents matching the filter.
    *
    * @param {Object} query The query used to match documents.
-   * @param {Object} options Additional find options.
+   * @param {Object} options Additional count options.
    * @param {Number} [options.limit=null] The maximum number of documents to return.
-   * @return {Number} An array of documents.
+   * @return {Number} The results of the count operation.
    */
   count(query, options = {}) {
-    return findOp(this, query, Object.assign({}, options, {
-      count: true
-    }), result => !!result.result ? result.result[0] : 0);
-  }
+    let outgoingOptions;
+    if (options.limit) {
+      outgoingOptions = { limit: options.limit };
+    }
 
-  // deprecated
-  insert(docs, options = {}) {
-    return insertOp(this, docs, options);
-  }
-
-  upsert(query, update, options = {}) {
-    return updateOp(this, query, update, Object.assign({}, options, { upsert: true }));
+    return buildResponse('count', this, buildArgs(this, { count: true, query }, outgoingOptions));
   }
 }
-
-// deprecated methods
-Collection.prototype.upsert =
-  deprecate(Collection.prototype.upsert, 'use `updateOne`/`updateMany` instead of `upsert`');
 
 // private
-function insertOp(self, docs, options) {
-  let stages = [];
 
-  // there may be no docs, when building for chained pipeline stages in
-  // which case the source is considered to be the previous stage
-  if (docs) {
-    docs = Array.isArray(docs) ? docs : [ docs ];
+function updateOp(service, isMulti, query, update, options = {}) {
+  const action = isMulti ? 'updateMany' : 'updateOne';
 
-    // add ObjectIds to docs that have none
-    docs = docs.map(doc => {
-      if (doc._id === undefined || doc._id === null) doc._id = new ObjectID();
-      return doc;
-    });
-
-    stages.push({
-      action: 'literal',
-      args: {
-        items: docs
-      }
-    });
+  let outgoingOptions;
+  if (!isMulti && options.upsert) {
+    outgoingOptions = { upsert: true };
   }
 
-  stages.push({
-    service: self.db.service,
-    action: 'insert',
-    args: {
-      database: self.db.name,
-      collection: self.name
-    }
-  });
+  return buildResponse(action, service, buildArgs(service, { query, update }, outgoingOptions));
+}
 
-  return serviceResponse(self.db, stages, response => {
-    return {
-      insertedIds: response.result.map(doc => doc._id)
-    };
+function findOp({ service, query, project, limit, sort }) {
+  return buildResponse('find', service, buildArgs(service, { query, project, limit, sort }));
+}
+
+function aggregateOp(service, pipeline) {
+  return buildResponse('aggregate', service, buildArgs(service, { pipeline }));
+}
+
+function buildArgs({ db: { name: database }, name: collection }, args, options = {}) {
+  return Object.assign(
+    { database, collection },
+    args,
+    options
+  );
+}
+
+function buildResponse(action, service, args) {
+  return serviceResponse(service.db, {
+    serviceName: service.db.service,
+    action,
+    args
   });
 }
 
-function deleteOp(self, query, options) {
-  const args = Object.assign({
-    database: self.db.name,
-    collection: self.name,
-    query: query
-  }, options);
+// mongo query (find) support
 
-  return serviceResponse(self.db, {
-    service: self.db.service,
-    action: 'delete',
-    args: args
-  }, response => {
-    return {
-      deletedCount: response.result[0].removed
-    };
-  });
-}
-
-function updateOp(self, query, update, options) {
-  const args = Object.assign({
-    database: self.db.name,
-    collection: self.name,
-    query: query,
-    update: update
-  }, options);
-
-  return serviceResponse(self.db, {
-    service: self.db.service,
-    action: 'update',
-    args: args
-  });
-}
-
-function findOp(self, query, options, finalizer) {
-  finalizer = finalizer || ((response) => response.result);
-  const args = Object.assign({
-    database: self.db.name,
-    collection: self.name,
-    query: query
-  }, options);
-
-  // legacy argument naming
-  if (args.projection) {
-    args.project = args.projection;
-    delete args.projection;
+function MongoQuery(service, query, project) {
+  if (this instanceof MongoQuery) {
+    this.service = service;
+    this.query = query;
+    this.project = project;
+    return this;
   }
-
-  return serviceResponse(self.db, {
-    service: self.db.service,
-    action: 'find',
-    args: args
-  }, finalizer);
+  return new MongoQuery(service, query, project);
 }
 
-function aggregateOp(self, pipeline, finalizer) {
-  finalizer = finalizer || ((response) => response.result);
-  const args = {
-    database: self.db.name,
-    collection: self.name,
-    pipeline: pipeline
-  };
+MongoQuery.prototype.limit = function(limit) {
+  this.limit = limit;
+  return this;
+};
 
-  return serviceResponse(self.db, {
-    service: self.db.service,
-    action: 'aggregate',
-    args: args
-  }, finalizer);
-}
-export default letMixin(Collection);
+MongoQuery.prototype.sort = function(sort) {
+  this.sort = sort;
+  return this;
+};
+
+MongoQuery.prototype.then = function(resolve) {
+  return findOp(this).then(resolve);
+};
+
+MongoQuery.prototype.catch = function(reject) {
+  return findOp(this).catch(reject);
+};
+
+export default Collection;

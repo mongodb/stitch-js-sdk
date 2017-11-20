@@ -5,25 +5,23 @@ const TEST_DB = 'mongosvccommandtest';
 const TESTNS1 = 'documents';
 const TESTNS2 = 'documents2';
 
-import {getAuthenticatedClient} from '../testutil';
+import { buildAdminTestHarness, extractTestFixtureDataPoints } from '../testutil';
 
 describe('Services', ()=>{
   let test = new StitchMongoFixture();
+  let th;
   let services;
-  let app;
-  let apps;
+
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
-  beforeEach(async() =>{
-    let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
-    test.groupId = test.userData.group.groupId;
-    apps = await adminClient.apps(test.groupId);
-    app = await apps.create({name: 'testname'});
-    services = adminClient.apps(test.groupId).app(app._id).services();
+
+  beforeEach(async() => {
+    const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
+    th = await buildAdminTestHarness(true, apiKey, groupId, serverUrl);
+    services = th.app().services();
   });
-  afterEach(async() => {
-    await apps.app(app._id).remove();
-  });
+
+  afterEach(async() => th.cleanup());
 
   it('listing services should return empty list', async() => {
     let svcs = await services.list();
@@ -61,11 +59,11 @@ describe('Services', ()=>{
   });
   it('running service commands should work', async() => {
     // Set up auth and a mongodb service so we can insert some test documents.
-    let appObj = test.admin.v2().apps(test.userData.group.groupId).app(app._id);
+    let appObj = test.admin.v2().apps(test.userData.group.groupId).app(th.testApp._id);
     let providers = await appObj.authProviders().list();
     await appObj.authProviders().authProvider(providers[0]._id).enable();
     let newKey = await appObj.apiKeys().create({name: 'test'});
-    let client = new stitch.StitchClient(app.client_app_id, {baseUrl: test.options.baseUrl});
+    let client = new stitch.StitchClient(th.testApp.client_app_id, {baseUrl: test.options.baseUrl});
     await client.authenticate('apiKey', newKey.key);
     let newSvc = await services.create({ name: 'testsvc', type: 'mongodb', config: {uri: 'mongodb://localhost:26000'}});
 

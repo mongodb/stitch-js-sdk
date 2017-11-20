@@ -1,4 +1,4 @@
-import { serviceResponse, letMixin } from '../../util';
+import { serviceResponse } from '../../util';
 
 /**
  * Convenience wrapper around AWS S3 service (not meant to be instantiated directly).
@@ -25,7 +25,6 @@ class S3Service {
    */
   put(bucket, key, acl, contentType) {
     return serviceResponse(this, {
-      service: this.serviceName,
       action: 'put',
       args: { bucket, key, acl, contentType }
     });
@@ -42,11 +41,10 @@ class S3Service {
    */
   signPolicy(bucket, key, acl, contentType) {
     return serviceResponse(this, {
-      service: this.serviceName,
       action: 'signPolicy',
       args: { bucket, key, acl, contentType }
     });
   }
 }
 
-export default letMixin(S3Service);
+export default S3Service;

@@ -1,29 +1,28 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
-import {getAuthenticatedClient} from '../testutil';
+
+import { buildAdminTestHarness, extractTestFixtureDataPoints } from '../testutil';
 
 
 describe('Users', ()=>{
   let test = new StitchMongoFixture();
+  let th;
   let appUsers;
+
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
-  beforeEach(async() =>{
-    let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
-    test.groupId = test.userData.group.groupId;
-    let apps = await adminClient.apps(test.groupId);
-    let app = await apps.create({name: 'testname'});
-    appUsers = adminClient.apps(test.groupId).app(app._id).users();
-    let authProviders = adminClient.apps(test.groupId).app(app._id).authProviders();
-    let newProvider = await authProviders.create({type: 'local-userpass', config: {
-      emailConfirmationUrl: 'http://emailConfirmURL.com',
-      resetPasswordUrl: 'http://resetPasswordURL.com',
-      confirmEmailSubject: 'email subject',
-      resetPasswordSubject: 'password subject'
-    }});
+
+  beforeEach(async() => {
+    const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
+    th = await buildAdminTestHarness(true, apiKey, groupId, serverUrl);
+    appUsers = th.app().users();
+
+    const newProvider = await th.configureUserpass();
     expect(newProvider.type).toEqual('local-userpass');
     expect(newProvider.name).toEqual('local-userpass');
     expect(newProvider.config).toBeUndefined();
   });
+
+  afterEach(async() => th.cleanup());
 
   it('listing apps should return empty list', async() => {
     let users = await appUsers.list();

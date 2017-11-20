@@ -1,25 +1,23 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
-import {getAuthenticatedClient} from '../testutil';
+import { buildAdminTestHarness, extractTestFixtureDataPoints } from '../testutil';
 
 describe('Values', ()=>{
   let test = new StitchMongoFixture();
-  let apps;
-  let app;
+  let th;
+  let appValues;
+
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
-  beforeEach(async() =>{
-    let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
-    test.groupId = test.userData.group.groupId;
-    apps = await adminClient.apps(test.groupId);
-    app = await apps.create({name: 'testname'});
-    appValues = adminClient.apps(test.groupId).app(app._id).values();
-  });
-  afterEach(async() => {
-    await apps.app(app._id).remove();
+
+  beforeEach(async() => {
+    const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
+    th = await buildAdminTestHarness(true, apiKey, groupId, serverUrl);
+    appValues = th.app().values();
   });
 
-  let appValues;
+  afterEach(async() => th.cleanup());
+
   const testValueName = 'testvaluename';
   it('listing values should return empty list', async() => {
     let values = await appValues.list();

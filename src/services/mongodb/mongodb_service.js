@@ -1,5 +1,4 @@
 import DB from './db';
-import { deprecate } from '../../util';
 
 /**
  * Create a new MongoDBService instance (not meant to be instantiated directly).
@@ -25,11 +24,6 @@ class MongoDBService {
     return new DB(this.stitchClient, this.serviceName, databaseName);
   }
 }
-
-// deprecated
-MongoDBService.prototype.getDB =
-MongoDBService.prototype.getDb =
-  deprecate(MongoDBService.prototype.db, 'use `db` instead of `getDB`');
 
 
 export default MongoDBService;

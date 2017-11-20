@@ -1,27 +1,22 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
-import { getAuthenticatedClient } from '../testutil';
+import { buildAdminTestHarness, extractTestFixtureDataPoints } from '../testutil';
 
 describe('Functions', () => {
   let test = new StitchMongoFixture();
+  let th;
   let functions;
-  let app;
-  let apps;
+
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
+
   beforeEach(async() => {
-    let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
-    test.groupId = test.userData.group.groupId;
-    apps = await adminClient.apps(test.groupId);
-    app = await apps.create({ name: 'testname' });
-    functions = adminClient
-      .apps(test.groupId)
-      .app(app._id)
-      .functions();
+    const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
+    th = await buildAdminTestHarness(true, apiKey, groupId, serverUrl);
+    functions = th.app().functions();
   });
-  afterEach(async() => {
-    await apps.app(app._id).remove();
-  });
+
+  afterEach(async() => th.cleanup());
 
   const FUNC_NAME = 'myFunction';
   const FUNC_SOURCE = 'exports = function(){ return "hello world!"; }';

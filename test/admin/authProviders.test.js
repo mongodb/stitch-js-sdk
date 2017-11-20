@@ -1,30 +1,29 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
-import {getAuthenticatedClient} from '../testutil';
+import { buildAdminTestHarness, extractTestFixtureDataPoints } from '../testutil';
+
+const validConfig = {
+  emailConfirmationUrl: 'http://emailConfirmURL.com',
+  resetPasswordUrl: 'http://resetPasswordURL.com',
+  confirmEmailSubject: 'email subject',
+  resetPasswordSubject: 'password subject'
+};
 
 describe('Auth Providers', ()=>{
   let test = new StitchMongoFixture();
+  let th;
   let authProviders;
-  let app;
-  let apps;
-  let validConfig = {
-    emailConfirmationUrl: 'http://emailConfirmURL.com',
-    resetPasswordUrl: 'http://resetPasswordURL.com',
-    confirmEmailSubject: 'email subject',
-    resetPasswordSubject: 'password subject'
-  };
+
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
-  beforeEach(async() =>{
-    let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
-    test.groupId = test.userData.group.groupId;
-    apps = await adminClient.apps(test.groupId);
-    app = await apps.create({name: 'testname'});
-    authProviders = adminClient.apps(test.groupId).app(app._id).authProviders();
+
+  beforeEach(async() => {
+    const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
+    th = await buildAdminTestHarness(true, apiKey, groupId, serverUrl);
+    authProviders = th.app().authProviders();
   });
-  afterEach(async() => {
-    await apps.app(app._id).remove();
-  });
+
+  afterEach(async() => th.cleanup());
 
   it('listing auth providers should return list', async() => {
     let providers = await authProviders.list();

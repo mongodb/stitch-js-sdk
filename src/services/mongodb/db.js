@@ -1,5 +1,4 @@
 import Collection from './collection';
-import { deprecate } from '../../util';
 
 /**
  * Create a new DB instance (not meant to be instantiated directly).
@@ -25,9 +24,5 @@ class DB {
     return new Collection(this, name, options);
   }
 }
-
-// deprecated
-DB.prototype.getCollection =
-  deprecate(DB.prototype.collection, 'use `collection` instead of `getCollection`');
 
 export default DB;

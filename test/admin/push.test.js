@@ -1,27 +1,22 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
-import { getAuthenticatedClient } from '../testutil';
+import { buildAdminTestHarness, extractTestFixtureDataPoints } from '../testutil';
 
 describe('Push Notifications', () => {
   let test = new StitchMongoFixture();
+  let th;
   let pushNotifications;
-  let app;
-  let apps;
+
   beforeAll(() => test.setup({ createApp: false }));
   afterAll(() => test.teardown());
+
   beforeEach(async() => {
-    let adminClient = await getAuthenticatedClient(test.userData.apiKey.key);
-    test.groupId = test.userData.group.groupId;
-    apps = await adminClient.apps(test.groupId);
-    app = await apps.create({ name: 'testname' });
-    pushNotifications = adminClient
-      .apps(test.groupId)
-      .app(app._id)
-      .pushNotifications();
+    const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
+    th = await buildAdminTestHarness(true, apiKey, groupId, serverUrl);
+    pushNotifications = th.app().pushNotifications();
   });
-  afterEach(async() => {
-    await apps.app(app._id).remove();
-  });
+
+  afterEach(async() => th.cleanup());
 
   const MSG_STATE_DRAFT = 'draft';
   const MSG_STATE_SENT = 'sent';
