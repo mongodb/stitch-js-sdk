@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.uriEncodeObject = exports.getPlatform = exports.letMixin = exports.serviceResponse = exports.deprecate = exports.collectMetadata = undefined;
+exports.uriEncodeObject = exports.getPlatform = exports.serviceResponse = exports.deprecate = exports.collectMetadata = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -79,96 +79,27 @@ function deprecate(fn, msg) {
 }
 
 /**
- * Utility method for converting the rest response from services
- * into composable `thenables`. This allows us to use the same
- * API for calling helper methods (single-stage pipelines) and
- * pipeline building.
+ * Utility method for executing a service action as a function call.
  *
  * @memberof util
- * @param {Object} service the service to execute the stages on
- * @param {Array} stages the pipeline stages to execute
- * @param {Function} [finalizer] optional function to call on the result of the response
+ * @param {Object} service the service to execute the action on
+ * @param {String} action the service action to execute
+ * @param {Array} args the arguments to supply to the service action invocation
+ * @returns {Promise} the API response from the executed service action
  */
-function serviceResponse(service, stages, finalizer) {
-  if (service && !service.client) {
+function serviceResponse(service, _ref) {
+  var _ref$serviceName = _ref.serviceName,
+      serviceName = _ref$serviceName === undefined ? service.serviceName : _ref$serviceName,
+      action = _ref.action,
+      args = _ref.args;
+  var client = service.client;
+
+
+  if (!client) {
     throw new Error('Service has no client');
   }
 
-  if (finalizer && typeof finalizer !== 'function') {
-    throw new Error('Service response finalizer must be a function');
-  }
-
-  if (service.hasOwnProperty('__let__')) {
-    if (Array.isArray(stages)) {
-      // @todo: what do we do here?
-      console.warn('`let` not yet supported on an array of stages');
-    } else {
-      stages.let = service.__let__;
-    }
-  }
-
-  var client = service.client;
-  Object.defineProperties(stages, {
-    then: {
-      enumerable: false, writable: false, configurable: false,
-      value: function value(resolve, reject) {
-        return client.executePipeline(Array.isArray(stages) ? stages : [stages], { finalizer: finalizer }).then(resolve, reject);
-      }
-    },
-    catch: {
-      enumerable: false, writable: false, configurable: false,
-      value: function value(rejected) {
-        return client.executePipeline(Array.isArray(stages) ? stages : [stages], { finalizer: finalizer }).catch(rejected);
-      }
-    },
-    withLet: {
-      enumerable: false, writable: true, configurable: true,
-      value: function value(expr) {
-        if (Array.isArray(stages)) {
-          // @todo: what do we do here?
-          console.warn('`let` not yet supported on an array of stages');
-        } else {
-          stages.let = expr;
-        }
-
-        return stages;
-      }
-    },
-    withPost: {
-      enumerable: false, writable: true, configurable: true,
-      value: function value(options) {
-        if (Array.isArray(stages)) {
-          // @todo: what do we do here?
-          console.warn('`post` not yet supported on an array of stages');
-        } else {
-          stages.post = options;
-        }
-
-        return stages;
-      }
-    }
-  });
-
-  return stages;
-}
-
-/**
- * Mixin that allows a definition of an optional `let` stage for
- * services is mixes in with.
- *
- * @memberof util
- * @param {*} Type the service to mixin
- */
-function letMixin(Type) {
-  Type.prototype.let = function (options) {
-    Object.defineProperty(this, '__let__', {
-      enumerable: false, configurable: false, writable: false, value: options
-    });
-
-    return this;
-  };
-
-  return Type;
+  return client.executeServiceFunction(serviceName, action, args);
 }
 
 /**
@@ -196,6 +127,5 @@ function uriEncodeObject(obj) {
 
 exports.deprecate = deprecate;
 exports.serviceResponse = serviceResponse;
-exports.letMixin = letMixin;
 exports.getPlatform = getPlatform;
 exports.uriEncodeObject = uriEncodeObject;

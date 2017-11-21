@@ -40,7 +40,6 @@ var SESService = function () {
     key: 'send',
     value: function send(from, to, subject, body) {
       return (0, _util.serviceResponse)(this, {
-        service: this.serviceName,
         action: 'send',
         args: { from: from, to: to, subject: subject, body: body }
       });
@@ -50,5 +49,5 @@ var SESService = function () {
   return SESService;
 }();
 
-exports.default = (0, _util.letMixin)(SESService);
+exports.default = SESService;
 module.exports = exports['default'];

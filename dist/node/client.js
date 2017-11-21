@@ -261,7 +261,7 @@ var StitchClient = function () {
      * Executes a function.
      *
      * @param {String} name The name of the function.
-     * @param {Object} [args] Arguments to pass to the function.
+     * @param {...*} args Arguments to pass to the function.
      */
 
   }, {
@@ -271,6 +271,36 @@ var StitchClient = function () {
         args[_key - 1] = arguments[_key];
       }
 
+      return this._doFunctionCall({
+        name: name,
+        arguments: args
+      });
+    }
+
+    /**
+     * Executes a service function.
+     *
+     * @param {String} service The name of the service.
+     * @param {String} action The name of the service action.
+     * @param {...*} args Arguments to pass to the service action.
+     */
+
+  }, {
+    key: 'executeServiceFunction',
+    value: function executeServiceFunction(service, action) {
+      for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
+        args[_key2 - 2] = arguments[_key2];
+      }
+
+      return this._doFunctionCall({
+        service: service,
+        name: action,
+        arguments: args
+      });
+    }
+  }, {
+    key: '_doFunctionCall',
+    value: function _doFunctionCall(request) {
       var responseDecoder = function responseDecoder(d) {
         return _mongodbExtjson2.default.parse(d, { strict: false });
       };
@@ -278,12 +308,7 @@ var StitchClient = function () {
         return _mongodbExtjson2.default.stringify(d);
       };
 
-      var functionJson = {
-        name: name,
-        arguments: args
-      };
-
-      return this._do('/functions/call', 'POST', { body: responseEncoder(functionJson) }).then(function (response) {
+      return this._do('/functions/call', 'POST', { body: responseEncoder(request) }).then(function (response) {
         return response.text();
       }).then(function (body) {
         return responseDecoder(body);
@@ -355,10 +380,10 @@ var StitchClient = function () {
         if (response.headers.get('Content-Type') === common.JSONTYPE) {
           return response.json().then(function (json) {
             // Only want to try refreshing token when there's an invalid session
-            if ('errorCode' in json && json.errorCode === _errors.ErrInvalidSession) {
+            if ('error_code' in json && json.error_code === _errors.ErrInvalidSession) {
               if (!options.refreshOnFailure) {
                 _this4.auth.clear();
-                var _error = new _errors.StitchError(json.error, json.errorCode);
+                var _error = new _errors.StitchError(json.error, json.error_code);
                 _error.response = response;
                 _error.json = json;
                 throw _error;
@@ -370,7 +395,7 @@ var StitchClient = function () {
               });
             }
 
-            var error = new _errors.StitchError(json.error, json.errorCode);
+            var error = new _errors.StitchError(json.error, json.error_code);
             error.response = response;
             error.json = json;
             return Promise.reject(error);

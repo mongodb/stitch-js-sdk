@@ -41,7 +41,6 @@ var S3Service = function () {
     key: 'put',
     value: function put(bucket, key, acl, contentType) {
       return (0, _util.serviceResponse)(this, {
-        service: this.serviceName,
         action: 'put',
         args: { bucket: bucket, key: key, acl: acl, contentType: contentType }
       });
@@ -61,7 +60,6 @@ var S3Service = function () {
     key: 'signPolicy',
     value: function signPolicy(bucket, key, acl, contentType) {
       return (0, _util.serviceResponse)(this, {
-        service: this.serviceName,
         action: 'signPolicy',
         args: { bucket: bucket, key: key, acl: acl, contentType: contentType }
       });
@@ -71,5 +69,5 @@ var S3Service = function () {
   return S3Service;
 }();
 
-exports.default = (0, _util.letMixin)(S3Service);
+exports.default = S3Service;
 module.exports = exports['default'];

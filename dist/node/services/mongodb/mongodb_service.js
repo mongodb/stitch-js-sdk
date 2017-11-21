@@ -10,8 +10,6 @@ var _db = require('./db');
 
 var _db2 = _interopRequireDefault(_db);
 
-var _util = require('../../util');
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -51,11 +49,6 @@ var MongoDBService = function () {
 
   return MongoDBService;
 }();
-
-// deprecated
-
-
-MongoDBService.prototype.getDB = MongoDBService.prototype.getDb = (0, _util.deprecate)(MongoDBService.prototype.db, 'use `db` instead of `getDB`');
 
 exports.default = MongoDBService;
 module.exports = exports['default'];

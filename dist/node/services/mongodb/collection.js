@@ -8,11 +8,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _util = require('../../util');
 
-var _mongodbExtjson = require('mongodb-extjson');
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var ObjectID = _mongodbExtjson.BSON.ObjectID;
 
 /**
  * Create a new Collection instance (not meant to be instantiated directly).
@@ -20,7 +16,6 @@ var ObjectID = _mongodbExtjson.BSON.ObjectID;
  * @class
  * @return {Collection} a Collection instance.
  */
-
 var Collection = function () {
   function Collection(db, name) {
     _classCallCheck(this, Collection);
@@ -34,7 +29,6 @@ var Collection = function () {
    *
    * @method
    * @param {Object} doc The document to insert.
-   * @param {Object} [options] Additional options object.
    * @return {Promise<Object, Error>} a Promise for the operation.
    */
 
@@ -42,9 +36,8 @@ var Collection = function () {
   _createClass(Collection, [{
     key: 'insertOne',
     value: function insertOne(doc) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      return insertOp(this, doc, options);
+      var args = { document: doc };
+      return buildResponse('insertOne', this, buildArgs(this, args));
     }
 
     /**
@@ -52,16 +45,14 @@ var Collection = function () {
      *
      * @method
      * @param {Array} docs The documents to insert.
-     * @param {Object} [options] Additional options object.
      * @return {Promise<Object, Error>} Returns a Promise for the operation.
      */
 
   }, {
     key: 'insertMany',
     value: function insertMany(docs) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      return insertOp(this, docs, options);
+      var args = { documents: Array.isArray(docs) ? docs : [docs] };
+      return buildResponse('insertMany', this, buildArgs(this, args));
     }
 
     /**
@@ -69,16 +60,13 @@ var Collection = function () {
      *
      * @method
      * @param {Object} query The query used to match a single document.
-     * @param {Object} [options] Additional options object.
      * @return {Promise<Object, Error>} Returns a Promise for the operation.
      */
 
   }, {
     key: 'deleteOne',
     value: function deleteOne(query) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      return deleteOp(this, query, Object.assign({}, options, { singleDoc: true }));
+      return buildResponse('deleteOne', this, buildArgs(this, { query: query }));
     }
 
     /**
@@ -86,16 +74,13 @@ var Collection = function () {
      *
      * @method
      * @param {Object} query The query used to match the documents to delete.
-     * @param {Object} [options] Additional options object.
      * @return {Promise<Object, Error>} Returns a Promise for the operation.
      */
 
   }, {
     key: 'deleteMany',
     value: function deleteMany(query) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      return deleteOp(this, query, Object.assign({}, options, { singleDoc: false }));
+      return buildResponse('deleteMany', this, buildArgs(this, { query: query }));
     }
 
     /**
@@ -114,7 +99,7 @@ var Collection = function () {
     value: function updateOne(query, update) {
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-      return updateOp(this, query, update, Object.assign({}, options, { multi: false }));
+      return updateOp(this, false, query, update, options);
     }
 
     /**
@@ -131,9 +116,7 @@ var Collection = function () {
   }, {
     key: 'updateMany',
     value: function updateMany(query, update) {
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-      return updateOp(this, query, update, Object.assign({}, options, { multi: true }));
+      return updateOp(this, true, query, update);
     }
 
     /**
@@ -141,22 +124,21 @@ var Collection = function () {
      *
      * @method
      * @param {Object} query The query used to match documents.
-     * @param {Object} [options] Additional options object.
-     * @param {Object} [options.projection=null] The query document projection.
-     * @param {Number} [options.limit=null] The maximum number of documents to return.
-     * @return {Array} An array of documents.
+     * @param {Object} [project] The query document projection.
+     * @param {Object} [MongoQuery.sort] The query document sorting.
+     * @param {Number} [MongoQuery.limit] The maximum number of documents to return.
+     * @return {MongoQuery} A "thenable" object which allows for `limit` and `skip` parameters to be set.
      */
 
   }, {
     key: 'find',
-    value: function find(query) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      return findOp(this, query, options);
+    value: function find(query, project) {
+      return new MongoQuery(this, query, project);
     }
 
     /**
      * Executes an aggregation pipeline.
+     *
      * @param {Array} pipeline The aggregation pipeline.
      * @returns {Array} The results of the aggregation.
      */
@@ -171,9 +153,9 @@ var Collection = function () {
      * Gets the number of documents matching the filter.
      *
      * @param {Object} query The query used to match documents.
-     * @param {Object} options Additional find options.
+     * @param {Object} options Additional count options.
      * @param {Number} [options.limit=null] The maximum number of documents to return.
-     * @return {Number} An array of documents.
+     * @return {Number} The results of the count operation.
      */
 
   }, {
@@ -181,151 +163,88 @@ var Collection = function () {
     value: function count(query) {
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-      return findOp(this, query, Object.assign({}, options, {
-        count: true
-      }), function (result) {
-        return !!result.result ? result.result[0] : 0;
-      });
-    }
+      var outgoingOptions = void 0;
+      if (options.limit) {
+        outgoingOptions = { limit: options.limit };
+      }
 
-    // deprecated
-
-  }, {
-    key: 'insert',
-    value: function insert(docs) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      return insertOp(this, docs, options);
-    }
-  }, {
-    key: 'upsert',
-    value: function upsert(query, update) {
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-      return updateOp(this, query, update, Object.assign({}, options, { upsert: true }));
+      return buildResponse('count', this, buildArgs(this, { count: true, query: query }, outgoingOptions));
     }
   }]);
 
   return Collection;
 }();
 
-// deprecated methods
-
-
-Collection.prototype.upsert = (0, _util.deprecate)(Collection.prototype.upsert, 'use `updateOne`/`updateMany` instead of `upsert`');
-
 // private
-function insertOp(self, docs, options) {
-  var stages = [];
 
-  // there may be no docs, when building for chained pipeline stages in
-  // which case the source is considered to be the previous stage
-  if (docs) {
-    docs = Array.isArray(docs) ? docs : [docs];
+function updateOp(service, isMulti, query, update) {
+  var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
 
-    // add ObjectIds to docs that have none
-    docs = docs.map(function (doc) {
-      if (doc._id === undefined || doc._id === null) doc._id = new ObjectID();
-      return doc;
-    });
+  var action = isMulti ? 'updateMany' : 'updateOne';
 
-    stages.push({
-      action: 'literal',
-      args: {
-        items: docs
-      }
-    });
+  var outgoingOptions = void 0;
+  if (!isMulti && options.upsert) {
+    outgoingOptions = { upsert: true };
   }
 
-  stages.push({
-    service: self.db.service,
-    action: 'insert',
-    args: {
-      database: self.db.name,
-      collection: self.name
-    }
-  });
-
-  return (0, _util.serviceResponse)(self.db, stages, function (response) {
-    return {
-      insertedIds: response.result.map(function (doc) {
-        return doc._id;
-      })
-    };
-  });
+  return buildResponse(action, service, buildArgs(service, { query: query, update: update }, outgoingOptions));
 }
 
-function deleteOp(self, query, options) {
-  var args = Object.assign({
-    database: self.db.name,
-    collection: self.name,
-    query: query
-  }, options);
+function findOp(_ref) {
+  var service = _ref.service,
+      query = _ref.query,
+      project = _ref.project,
+      limit = _ref.limit,
+      sort = _ref.sort;
 
-  return (0, _util.serviceResponse)(self.db, {
-    service: self.db.service,
-    action: 'delete',
-    args: args
-  }, function (response) {
-    return {
-      deletedCount: response.result[0].removed
-    };
-  });
+  return buildResponse('find', service, buildArgs(service, { query: query, project: project, limit: limit, sort: sort }));
 }
 
-function updateOp(self, query, update, options) {
-  var args = Object.assign({
-    database: self.db.name,
-    collection: self.name,
-    query: query,
-    update: update
-  }, options);
+function aggregateOp(service, pipeline) {
+  return buildResponse('aggregate', service, buildArgs(service, { pipeline: pipeline }));
+}
 
-  return (0, _util.serviceResponse)(self.db, {
-    service: self.db.service,
-    action: 'update',
+function buildArgs(_ref2, args) {
+  var database = _ref2.db.name,
+      collection = _ref2.name;
+  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+  return Object.assign({ database: database, collection: collection }, args, options);
+}
+
+function buildResponse(action, service, args) {
+  return (0, _util.serviceResponse)(service.db, {
+    serviceName: service.db.service,
+    action: action,
     args: args
   });
 }
 
-function findOp(self, query, options, finalizer) {
-  finalizer = finalizer || function (response) {
-    return response.result;
-  };
-  var args = Object.assign({
-    database: self.db.name,
-    collection: self.name,
-    query: query
-  }, options);
+// mongo query (find) support
 
-  // legacy argument naming
-  if (args.projection) {
-    args.project = args.projection;
-    delete args.projection;
+function MongoQuery(service, query, project) {
+  if (this instanceof MongoQuery) {
+    this.service = service;
+    this.query = query;
+    this.project = project;
+    return this;
   }
-
-  return (0, _util.serviceResponse)(self.db, {
-    service: self.db.service,
-    action: 'find',
-    args: args
-  }, finalizer);
+  return new MongoQuery(service, query, project);
 }
 
-function aggregateOp(self, pipeline, finalizer) {
-  finalizer = finalizer || function (response) {
-    return response.result;
-  };
-  var args = {
-    database: self.db.name,
-    collection: self.name,
-    pipeline: pipeline
-  };
+MongoQuery.prototype.limit = function (limit) {
+  this.limit = limit;
+  return this;
+};
 
-  return (0, _util.serviceResponse)(self.db, {
-    service: self.db.service,
-    action: 'aggregate',
-    args: args
-  }, finalizer);
-}
-exports.default = (0, _util.letMixin)(Collection);
+MongoQuery.prototype.sort = function (sort) {
+  this.sort = sort;
+  return this;
+};
+
+MongoQuery.prototype.execute = function (resolve) {
+  return findOp(this);
+};
+
+exports.default = Collection;
 module.exports = exports['default'];

@@ -10,8 +10,6 @@ var _collection = require('./collection');
 
 var _collection2 = _interopRequireDefault(_collection);
 
-var _util = require('../../util');
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -51,11 +49,6 @@ var DB = function () {
 
   return DB;
 }();
-
-// deprecated
-
-
-DB.prototype.getCollection = (0, _util.deprecate)(DB.prototype.collection, 'use `collection` instead of `getCollection`');
 
 exports.default = DB;
 module.exports = exports['default'];

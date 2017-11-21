@@ -151,11 +151,10 @@ function buildArgs(urlOrOptions, options) {
 
 function buildResponse(action, service, args) {
   return (0, _util.serviceResponse)(service, {
-    service: service.serviceName,
     action: action,
     args: args
   });
 }
 
-exports.default = (0, _util.letMixin)(HTTPService);
+exports.default = HTTPService;
 module.exports = exports['default'];

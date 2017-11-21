@@ -39,7 +39,6 @@ var TwilioService = function () {
     key: 'send',
     value: function send(from, to, body) {
       return (0, _util.serviceResponse)(this, {
-        service: this.serviceName,
         action: 'send',
         args: { from: from, to: to, body: body }
       });
@@ -49,5 +48,5 @@ var TwilioService = function () {
   return TwilioService;
 }();
 
-exports.default = (0, _util.letMixin)(TwilioService);
+exports.default = TwilioService;
 module.exports = exports['default'];
