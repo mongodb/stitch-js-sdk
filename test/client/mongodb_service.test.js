@@ -150,7 +150,7 @@ describe('Client API executing mongodb service functions', () => {
 
     await service.insertMany(testDocs);
 
-    const foundDocs = await service.find({ b: 'be' });
+    const foundDocs = await service.find({ b: 'be' }).limit(1000);
 
     expect(foundDocs).toHaveLength(1);
     expect(foundDocs[0]).toMatchObject(testDocs[3]);
@@ -166,7 +166,7 @@ describe('Client API executing mongodb service functions', () => {
 
     await service.insertMany(testDocs);
 
-    const foundDocs = await service.find({ d: 0 }, { c: 1 });
+    const foundDocs = await service.find({ d: 0 }, { c: 1 }).limit(10000);
 
     expect(foundDocs).toHaveLength(4);
     expect(foundDocs).toMatchObject([{ c: 'braves' }, { c: 'patriots' }, { c: 'chipper' }, { c: 'tom' }]);
@@ -200,7 +200,7 @@ describe('Client API executing mongodb service functions', () => {
     await service.insertMany(testDocs);
 
     const foundDocs = await service.find({ d: 0 })
-      .sort({ a: -1 });
+      .sort({ a: -1 }).limit(1000);
 
     expect(foundDocs).toHaveLength(4);
     expect(foundDocs).toMatchObject(testDocs.reverse());
