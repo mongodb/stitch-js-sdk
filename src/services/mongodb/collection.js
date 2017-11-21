@@ -187,12 +187,8 @@ MongoQuery.prototype.sort = function(sort) {
   return this;
 };
 
-MongoQuery.prototype.then = function(resolve) {
-  return findOp(this).then(resolve);
-};
-
-MongoQuery.prototype.catch = function(reject) {
-  return findOp(this).catch(reject);
+MongoQuery.prototype.execute = function(resolve) {
+  return findOp(this);
 };
 
 export default Collection;
