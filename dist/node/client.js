@@ -47,6 +47,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var v1 = 1;
 var v2 = 2;
 var v3 = 3;
+var API_TYPE_PUBLIC = 'public';
+var API_TYPE_PRIVATE = 'private';
+var API_TYPE_CLIENT = 'client';
+var API_TYPE_APP = 'app';
 
 /**
  * Create a new StitchClient instance.
@@ -57,7 +61,10 @@ var v3 = 3;
 
 var StitchClient = function () {
   function StitchClient(clientAppID, options) {
-    var _rootURLsByAPIVersion,
+    var _v,
+        _v2,
+        _v3,
+        _rootURLsByAPIVersion,
         _this = this;
 
     _classCallCheck(this, StitchClient);
@@ -71,21 +78,7 @@ var StitchClient = function () {
 
     this.authUrl = clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID + '/auth' : baseUrl + '/api/admin/v3.0/auth';
 
-    this.rootURLsByAPIVersion = (_rootURLsByAPIVersion = {}, _defineProperty(_rootURLsByAPIVersion, v1, {
-      public: baseUrl + '/api/public/v1.0',
-      client: baseUrl + '/api/client/v1.0',
-      private: baseUrl + '/api/private/v1.0',
-      app: clientAppID ? baseUrl + '/api/client/v1.0/app/' + clientAppID : baseUrl + '/api/public/v1.0'
-    }), _defineProperty(_rootURLsByAPIVersion, v2, {
-      public: baseUrl + '/api/public/v2.0',
-      client: baseUrl + '/api/client/v2.0',
-      private: baseUrl + '/api/private/v2.0',
-      app: clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID : baseUrl + '/api/public/v2.0'
-    }), _defineProperty(_rootURLsByAPIVersion, v3, {
-      public: baseUrl + '/api/public/v3.0',
-      client: baseUrl + '/api/client/v3.0',
-      app: clientAppID ? baseUrl + '/api/client/v3.0/app/' + clientAppID : baseUrl + '/api/admin/v3.0'
-    }), _rootURLsByAPIVersion);
+    this.rootURLsByAPIVersion = (_rootURLsByAPIVersion = {}, _defineProperty(_rootURLsByAPIVersion, v1, (_v = {}, _defineProperty(_v, API_TYPE_PUBLIC, baseUrl + '/api/public/v1.0'), _defineProperty(_v, API_TYPE_CLIENT, baseUrl + '/api/client/v1.0'), _defineProperty(_v, API_TYPE_PRIVATE, baseUrl + '/api/private/v1.0'), _defineProperty(_v, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v1.0/app/' + clientAppID : baseUrl + '/api/public/v1.0'), _v)), _defineProperty(_rootURLsByAPIVersion, v2, (_v2 = {}, _defineProperty(_v2, API_TYPE_PUBLIC, baseUrl + '/api/public/v2.0'), _defineProperty(_v2, API_TYPE_CLIENT, baseUrl + '/api/client/v2.0'), _defineProperty(_v2, API_TYPE_PRIVATE, baseUrl + '/api/private/v2.0'), _defineProperty(_v2, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID : baseUrl + '/api/public/v2.0'), _v2)), _defineProperty(_rootURLsByAPIVersion, v3, (_v3 = {}, _defineProperty(_v3, API_TYPE_PUBLIC, baseUrl + '/api/public/v3.0'), _defineProperty(_v3, API_TYPE_CLIENT, baseUrl + '/api/client/v3.0'), _defineProperty(_v3, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v3.0/app/' + clientAppID : baseUrl + '/api/admin/v3.0'), _v3)), _rootURLsByAPIVersion);
 
     var authOptions = { codec: _common.APP_CLIENT_CODEC };
     if (options && options.authCodec) {
@@ -195,7 +188,11 @@ var StitchClient = function () {
     value: function logout() {
       var _this3 = this;
 
-      return this._do('/auth/session', 'DELETE', { refreshOnFailure: false, useRefreshToken: true }).then(function () {
+      return this._do('/auth/session', 'DELETE', {
+        refreshOnFailure: false,
+        useRefreshToken: true,
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
+      }).then(function () {
         return _this3.auth.clear();
       });
     }
@@ -219,7 +216,7 @@ var StitchClient = function () {
   }, {
     key: 'userProfile',
     value: function userProfile() {
-      return this._do('/auth/me', 'GET').then(function (response) {
+      return this._do('/auth/profile', 'GET', { rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT] }).then(function (response) {
         return response.json();
       });
     }
@@ -324,7 +321,11 @@ var StitchClient = function () {
   }, {
     key: 'doSessionPost',
     value: function doSessionPost() {
-      return this._do('/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
+      return this._do('/auth/session', 'POST', {
+        refreshOnFailure: false,
+        useRefreshToken: true,
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
+      }).then(function (response) {
         return response.json();
       });
     }
@@ -337,7 +338,8 @@ var StitchClient = function () {
         refreshOnFailure: true,
         useRefreshToken: false,
         apiVersion: v2,
-        apiType: 'app'
+        apiType: API_TYPE_APP,
+        rootURL: undefined
       }, options);
 
       if (!options.noAuth) {
@@ -356,6 +358,9 @@ var StitchClient = function () {
 
       var appURL = this.rootURLsByAPIVersion[options.apiVersion][options.apiType];
       var url = '' + appURL + resource;
+      if (options.rootURL) {
+        url = '' + options.rootURL + resource;
+      }
       var fetchArgs = common.makeFetchArgs(method, options.body);
 
       if (!!options.headers) {
