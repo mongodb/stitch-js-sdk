@@ -3294,7 +3294,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "2.1.0";
+  version = "2.2.0";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -9458,7 +9458,7 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
 
   var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
-  var result = auth.rootUrl + '/oauth2-' + providerName + '?redirect=' + encodeURI(redirectUrl) + '&state=' + state + '&device=' + (0, _util.uriEncodeObject)(device);
+  var result = auth.rootUrl + '/providers/oauth2-' + providerName + '/login?redirect=' + encodeURI(redirectUrl) + '&state=' + state + '&device=' + (0, _util.uriEncodeObject)(device);
   return result;
 }
 
