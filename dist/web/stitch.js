@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 34);
+/******/ 	return __webpack_require__(__webpack_require__.s = 33);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -2023,7 +2023,7 @@ var _detectBrowser = __webpack_require__(59);
 
 var platform = _interopRequireWildcard(_detectBrowser);
 
-var _Base = __webpack_require__(26);
+var _Base = __webpack_require__(25);
 
 var base64 = _interopRequireWildcard(_Base);
 
@@ -4603,7 +4603,7 @@ Object.defineProperty(ObjectID.prototype, "generationTime", {
 module.exports = ObjectID;
 module.exports.ObjectID = ObjectID;
 module.exports.ObjectId = ObjectID;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer, __webpack_require__(24)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer, __webpack_require__(23)))
 
 /***/ }),
 /* 12 */
@@ -5601,7 +5601,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "2.0.0";
+  version = "2.0.1";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -5714,15 +5714,15 @@ var _createClass = function () { function defineProperties(target, props) { for 
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 
 
-__webpack_require__(23);
+__webpack_require__(22);
 
-var _auth = __webpack_require__(31);
+var _auth = __webpack_require__(30);
 
 var _auth2 = _interopRequireDefault(_auth);
 
 var _common = __webpack_require__(15);
 
-var _services = __webpack_require__(38);
+var _services = __webpack_require__(37);
 
 var _services2 = _interopRequireDefault(_services);
 
@@ -5730,7 +5730,7 @@ var _common2 = __webpack_require__(16);
 
 var common = _interopRequireWildcard(_common2);
 
-var _mongodbExtjson = __webpack_require__(22);
+var _mongodbExtjson = __webpack_require__(42);
 
 var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
@@ -6368,17 +6368,6 @@ exports.ErrUnauthorized = ErrUnauthorized;
 /* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-
-
-var ExtJSON = __webpack_require__(57);
-
-module.exports = ExtJSON;
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
 // the whatwg-fetch polyfill installs the fetch() function
 // on the global object (window or self)
 //
@@ -6389,7 +6378,7 @@ module.exports = globalObj.fetch.bind(globalObj);
 
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -6579,7 +6568,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6593,7 +6582,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-__webpack_require__(23);
+__webpack_require__(22);
 
 var _client = __webpack_require__(19);
 
@@ -6604,10 +6593,6 @@ var _common = __webpack_require__(16);
 var _common2 = _interopRequireDefault(_common);
 
 var _common3 = __webpack_require__(15);
-
-var _mongodbExtjson = __webpack_require__(22);
-
-var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -7379,9 +7364,7 @@ var Admin = function (_StitchClient) {
         return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this4).call(_this4, url, method, Object.assign({}, { apiVersion: v3 }, options)).then(function (response) {
           var contentHeader = response.headers.get('content-type') || '';
           if (contentHeader.split(',').indexOf('application/json') >= 0) {
-            return response.text().then(function (body) {
-              return _mongodbExtjson2.default.parse(body, { strict: false });
-            });
+            return response.json();
           }
           return response;
         });
@@ -7447,7 +7430,7 @@ exports.default = Admin;
 module.exports = exports['default'];
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function () {
@@ -7518,7 +7501,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7542,9 +7525,9 @@ var writeIEEE754 = __webpack_require__(1).writeIEEE754,
     Binary = __webpack_require__(4);
 
 // Parts of the parser
-var deserialize = __webpack_require__(29),
-    serializer = __webpack_require__(30),
-    calculateObjectSize = __webpack_require__(28);
+var deserialize = __webpack_require__(28),
+    serializer = __webpack_require__(29),
+    calculateObjectSize = __webpack_require__(27);
 
 /**
  * @ignore
@@ -7873,7 +7856,7 @@ module.exports.Decimal128 = Decimal128;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8032,7 +8015,7 @@ module.exports = calculateObjectSize;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8693,7 +8676,7 @@ module.exports = deserialize;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9701,7 +9684,7 @@ module.exports = serializeInto;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9713,9 +9696,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, document, fetch */
 
-var _storage = __webpack_require__(33);
+var _storage = __webpack_require__(32);
 
-var _providers = __webpack_require__(32);
+var _providers = __webpack_require__(31);
 
 var _errors = __webpack_require__(21);
 
@@ -10105,7 +10088,7 @@ exports.default = Auth;
 module.exports = exports['default'];
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10467,7 +10450,7 @@ function createProviders(auth) {
 exports.createProviders = createProviders;
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10566,7 +10549,7 @@ function createStorage(type) {
 }
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10581,7 +10564,7 @@ var _client = __webpack_require__(19);
 
 var _client2 = _interopRequireDefault(_client);
 
-var _admin = __webpack_require__(25);
+var _admin = __webpack_require__(24);
 
 var _admin2 = _interopRequireDefault(_admin);
 
@@ -10591,7 +10574,7 @@ exports.StitchClient = _client2.default;
 exports.Admin = _admin2.default;
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10670,7 +10653,7 @@ exports.default = S3Service;
 module.exports = exports['default'];
 
 /***/ }),
-/* 36 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10729,7 +10712,7 @@ exports.default = SESService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 37 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10895,7 +10878,7 @@ exports.default = HTTPService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 38 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10905,23 +10888,23 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _s3_service = __webpack_require__(35);
+var _s3_service = __webpack_require__(34);
 
 var _s3_service2 = _interopRequireDefault(_s3_service);
 
-var _ses_service = __webpack_require__(36);
+var _ses_service = __webpack_require__(35);
 
 var _ses_service2 = _interopRequireDefault(_ses_service);
 
-var _http_service = __webpack_require__(37);
+var _http_service = __webpack_require__(36);
 
 var _http_service2 = _interopRequireDefault(_http_service);
 
-var _mongodb_service = __webpack_require__(41);
+var _mongodb_service = __webpack_require__(40);
 
 var _mongodb_service2 = _interopRequireDefault(_mongodb_service);
 
-var _twilio_service = __webpack_require__(42);
+var _twilio_service = __webpack_require__(41);
 
 var _twilio_service2 = _interopRequireDefault(_twilio_service);
 
@@ -10937,7 +10920,7 @@ exports.default = {
 module.exports = exports['default'];
 
 /***/ }),
-/* 39 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11193,7 +11176,7 @@ exports.default = Collection;
 module.exports = exports['default'];
 
 /***/ }),
-/* 40 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11205,7 +11188,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _collection = __webpack_require__(39);
+var _collection = __webpack_require__(38);
 
 var _collection2 = _interopRequireDefault(_collection);
 
@@ -11253,7 +11236,7 @@ exports.default = DB;
 module.exports = exports['default'];
 
 /***/ }),
-/* 41 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11265,7 +11248,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _db = __webpack_require__(40);
+var _db = __webpack_require__(39);
 
 var _db2 = _interopRequireDefault(_db);
 
@@ -11313,7 +11296,7 @@ exports.default = MongoDBService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 42 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11369,6 +11352,17 @@ var TwilioService = function () {
 
 exports.default = TwilioService;
 module.exports = exports['default'];
+
+/***/ }),
+/* 42 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ExtJSON = __webpack_require__(57);
+
+module.exports = ExtJSON;
 
 /***/ }),
 /* 43 */
@@ -11722,7 +11716,7 @@ module.exports = {
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var codecs = __webpack_require__(48),
-    BSON = __webpack_require__(27);
+    BSON = __webpack_require__(26);
 
 var BSONTypes = ['Binary', 'Code', 'DBRef', 'Decimal128', 'Double', 'Int32', 'Long', 'MaxKey', 'MinKey', 'ObjectID', 'BSONRegExp', 'Symbol', 'Timestamp'];
 
@@ -13428,7 +13422,7 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17), __webpack_require__(24)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17), __webpack_require__(23)))
 
 /***/ }),
 /* 73 */
