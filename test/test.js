@@ -12,7 +12,8 @@ const ANON_AUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/au
 const APIKEY_AUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/api-key/login';
 const LOCALAUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/local-userpass/login';
 const FUNCTION_CALL_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/functions/call';
-const SESSION_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/session';
+const SESSION_URL = 'https://stitch.mongodb.com/api/client/v2.0/auth/session';
+const PROFILE_URL = 'https://stitch.mongodb.com/api/client/v2.0/auth/profile';
 
 const MockBrowser = mocks.MockBrowser;
 global.Buffer = global.Buffer || require('buffer').Buffer;
@@ -20,6 +21,20 @@ global.Buffer = global.Buffer || require('buffer').Buffer;
 const hexStr = '5899445b275d3ebe8f2ab8c0';
 const mockDeviceId = '8773934448abcdef12345678';
 
+const sampleProfile = {
+  user_id: '8a15d6d20584297fa336becf',
+  domain_id: '8a156a044fdd1fa5045accab',
+  identities:
+  [
+    {
+      id: '8a15d6d20584297fa336bece-gkyglweqvueqoypkwanpaaca',
+      provider_type: 'anon-user',
+      provider_id: '8a156a5b0584299f47a1c6fd'
+    }
+  ],
+  data: {},
+  type: 'normal'
+};
 
 const mockBrowserHarness = {
   setup() {
@@ -408,6 +423,7 @@ describe('login/logout', () => {
       let count = 0;
       beforeEach(() => {
         fetchMock.restore();
+        fetchMock.get(PROFILE_URL, () => sampleProfile);
         fetchMock.post(LOCALAUTH_URL, {
           user_id: hexStr,
           refresh_token: testOriginalRefreshToken,
@@ -444,6 +460,15 @@ describe('login/logout', () => {
             expect(storedToken).toEqual(testOriginalRefreshToken);
             expect(testClient.auth.getAccessToken()).toEqual(testOriginalAccessToken);
             expect(testClient.authedId()).toEqual(hexStr);
+          });
+      });
+
+      it('can get a user profile', () => {
+        let testClient = new StitchClient('testapp');
+        return testClient.login('user', 'password')
+          .then(() => testClient.userProfile())
+          .then(response => {
+            expect(response).toEqual(sampleProfile);
           });
       });
 

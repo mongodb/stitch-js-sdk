@@ -17,6 +17,10 @@ import {
 const v1 = 1;
 const v2 = 2;
 const v3 = 3;
+const API_TYPE_PUBLIC = 'public';
+const API_TYPE_PRIVATE = 'private';
+const API_TYPE_CLIENT = 'client';
+const API_TYPE_APP = 'app';
 
 /**
  * Create a new StitchClient instance.
@@ -41,25 +45,25 @@ export default class StitchClient {
 
     this.rootURLsByAPIVersion = {
       [v1]: {
-        public: `${baseUrl}/api/public/v1.0`,
-        client: `${baseUrl}/api/client/v1.0`,
-        private: `${baseUrl}/api/private/v1.0`,
-        app: (clientAppID ?
+        [API_TYPE_PUBLIC]: `${baseUrl}/api/public/v1.0`,
+        [API_TYPE_CLIENT]: `${baseUrl}/api/client/v1.0`,
+        [API_TYPE_PRIVATE]: `${baseUrl}/api/private/v1.0`,
+        [API_TYPE_APP]: (clientAppID ?
           `${baseUrl}/api/client/v1.0/app/${clientAppID}` :
           `${baseUrl}/api/public/v1.0`)
       },
       [v2]: {
-        public: `${baseUrl}/api/public/v2.0`,
-        client: `${baseUrl}/api/client/v2.0`,
-        private: `${baseUrl}/api/private/v2.0`,
-        app: (clientAppID ?
+        [API_TYPE_PUBLIC]: `${baseUrl}/api/public/v2.0`,
+        [API_TYPE_CLIENT]: `${baseUrl}/api/client/v2.0`,
+        [API_TYPE_PRIVATE]: `${baseUrl}/api/private/v2.0`,
+        [API_TYPE_APP]: (clientAppID ?
           `${baseUrl}/api/client/v2.0/app/${clientAppID}` :
           `${baseUrl}/api/public/v2.0`)
       },
       [v3]: {
-        public: `${baseUrl}/api/public/v3.0`,
-        client: `${baseUrl}/api/client/v3.0`,
-        app: (clientAppID ?
+        [API_TYPE_PUBLIC]: `${baseUrl}/api/public/v3.0`,
+        [API_TYPE_CLIENT]: `${baseUrl}/api/client/v3.0`,
+        [API_TYPE_APP]: (clientAppID ?
           `${baseUrl}/api/client/v3.0/app/${clientAppID}` :
           `${baseUrl}/api/admin/v3.0`)
       }
@@ -151,8 +155,15 @@ export default class StitchClient {
    * @returns {Promise}
    */
   logout() {
-    return this._do('/auth/session', 'DELETE', { refreshOnFailure: false, useRefreshToken: true })
-      .then(() => this.auth.clear());
+    return this._do(
+      '/auth/session',
+      'DELETE',
+      {
+        refreshOnFailure: false,
+        useRefreshToken: true,
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
+      }
+    ).then(() => this.auth.clear());
   }
 
   /**
@@ -168,7 +179,11 @@ export default class StitchClient {
    * @returns {Promise}
    */
   userProfile() {
-    return this._do('/auth/me', 'GET')
+    return this._do(
+      '/auth/profile',
+      'GET',
+      {rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]},
+    )
       .then(response => response.json());
   }
   /**
@@ -242,7 +257,15 @@ export default class StitchClient {
    * @returns {Promise}
    */
   doSessionPost() {
-    return this._do('/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true })
+    return this._do(
+      '/auth/session',
+      'POST',
+      {
+        refreshOnFailure: false,
+        useRefreshToken: true,
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
+      }
+    )
       .then(response => response.json());
   }
 
@@ -251,7 +274,8 @@ export default class StitchClient {
       refreshOnFailure: true,
       useRefreshToken: false,
       apiVersion: v2,
-      apiType: 'app'
+      apiType: API_TYPE_APP,
+      rootURL: undefined
     }, options);
 
     if (!options.noAuth) {
@@ -270,6 +294,9 @@ export default class StitchClient {
 
     const appURL = this.rootURLsByAPIVersion[options.apiVersion][options.apiType];
     let url = `${appURL}${resource}`;
+    if (options.rootURL) {
+      url = `${options.rootURL}${resource}`;
+    }
     let fetchArgs = common.makeFetchArgs(method, options.body);
 
     if (!!options.headers) {
