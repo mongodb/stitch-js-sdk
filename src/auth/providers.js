@@ -241,7 +241,7 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
 
   const device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
-  const result = `${auth.rootUrl}/oauth2-${providerName}?redirect=${encodeURI(redirectUrl)}&state=${state}&device=${uriEncodeObject(device)}`;
+  const result = `${auth.rootUrl}/providers/oauth2-${providerName}/login?redirect=${encodeURI(redirectUrl)}&state=${state}&device=${uriEncodeObject(device)}`;
   return result;
 }
 
