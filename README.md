@@ -5,7 +5,7 @@
 The original source is located in `src/`.
 To transpile to pure JS, run `npm run build` which places the output into `dist/`.
 
-### [Documentation](https://mongodb.github.io/stitch-js-sdk/)
+### [Documentation](https://s3.amazonaws.com/stitch-sdks/js/docs/master/index.html)
 
 ### Usage
 
@@ -35,23 +35,18 @@ itemsCollection.insertMany([ { owner_id: userId, x: 'item1' }, { owner_id: userI
   .catch(e => console.log('error: ', e));
 ```
 
-Access other services:
+Execute a function:
 ```
-// executePipeline takes an array of pipeline stages.
-stitchClient.executePipeline([
-  {
-    action: 'literal',
-    args: {
-      items: [ { name: 'hi' }, { name: 'hello' }, { name: 'goodbye' } ]
-    }
-  },
-  {
-    action: 'match',
-    args: {
-      expression: { name: 'hello' }
-    }
-  }
-])
+stitchClient.executeFunction('myFunc', 1, 'arg2', {arg3: true})
   .then(result => console.log('success: ', result))
   .catch(e => console.log('error: ', e));;
 ```
+
+
+Execute a service function:
+```
+stitchClient.executeServiceFunction('http1', 'get', {url: 'https://domain.org'})
+  .then(result => console.log('success: ', result))
+  .catch(e => console.log('error: ', e));;
+```
+
