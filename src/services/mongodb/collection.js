@@ -92,9 +92,8 @@ class Collection {
    * @method
    * @param {Object} query The query used to match documents.
    * @param {Object} [project] The query document projection.
-   * @param {Object} [MongoQuery.sort] The query document sorting.
-   * @param {Number} [MongoQuery.limit] The maximum number of documents to return.
-   * @return {MongoQuery} A "thenable" object which allows for `limit` and `skip` parameters to be set.
+   * @return {MongoQuery} An object which allows for `limit` and `sort` parameters to be set.
+   * `execute` will return a {Promise} for the operation.
    */
   find(query, project) {
     return new MongoQuery(this, query, project);
