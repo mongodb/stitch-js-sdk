@@ -54,6 +54,36 @@ function anonProvider(auth) {
   };
 }
 
+function customProvider(auth) {
+  const providerRoute = 'providers/custom-token';
+  const loginRoute = `${providerRoute}/login`;
+  return {
+    /**
+     * Login to a stitch application using username and password authentication
+     *
+     * @memberof userPassProvider
+     * @instance
+     * @param {String} username the username to use for authentication
+     * @param {String} password the password to use for authentication
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
+    authenticate: ({ token }) => {
+      const device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+
+      const fetchArgs = common.makeFetchArgs(
+        'POST',
+        JSON.stringify({ token, options: { device } })
+      );
+      fetchArgs.cors = true;
+
+      return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs)
+        .then(common.checkStatus)
+        .then(response => response.json())
+        .then(json => auth.set(json));
+    }
+  };
+}
+
 /** @namespace */
 function userPassProvider(auth) {
   // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
@@ -331,7 +361,8 @@ function createProviders(auth, options = {}) {
     google: googleProvider(auth),
     facebook: facebookProvider(auth),
     mongodbCloud: mongodbCloudProvider(auth),
-    userpass: userPassProvider(auth)
+    userpass: userPassProvider(auth),
+    custom: customProvider(auth)
   };
 }
 
