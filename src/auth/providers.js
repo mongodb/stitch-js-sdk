@@ -54,17 +54,20 @@ function anonProvider(auth) {
   };
 }
 
+/**
+  * @namespace
+  */
 function customProvider(auth) {
   const providerRoute = 'providers/custom-token';
   const loginRoute = `${providerRoute}/login`;
+
   return {
     /**
-     * Login to a stitch application using username and password authentication
+     * Login to a stitch application using custom authentication
      *
-     * @memberof userPassProvider
+     * @memberof customProvider
      * @instance
-     * @param {String} username the username to use for authentication
-     * @param {String} password the password to use for authentication
+     * @param {String} JWT token to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: ({ token }) => {

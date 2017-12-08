@@ -372,7 +372,10 @@ describe('custom auth', () => {
     fetchMock.mock(`begin:${CUSTOM_AUTH_URL}`, (url, opts) => {
       const parsed = new URL(url, '', true);
       const device = parsed.query ? parsed.query.device : null;
+      const args = JSON.parse(opts.body);
 
+      expect(args.token == 'jwt');
+      
       return {
         user_id: hexStr,
         device_id: mockDeviceId,
