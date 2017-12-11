@@ -11,6 +11,8 @@ import ExtJSON from 'mongodb-extjson';
 const ANON_AUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/anon-user/login';
 const APIKEY_AUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/api-key/login';
 const LOCALAUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/local-userpass/login';
+const CUSTOM_AUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/custom-token/login';
+
 const FUNCTION_CALL_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/functions/call';
 const SESSION_URL = 'https://stitch.mongodb.com/api/client/v2.0/auth/session';
 const PROFILE_URL = 'https://stitch.mongodb.com/api/client/v2.0/auth/profile';
@@ -354,6 +356,44 @@ describe('anonymous auth', () => {
     expect.assertions(3);
     let testClient = new StitchClient('testapp');
     return testClient.login()
+      .then(() => {
+        expect(testClient.auth.getAccessToken()).toEqual('test-access-token');
+        expect(testClient.authedId()).toEqual(hexStr);
+      })
+      .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
+      .then((response) => expect(response.x).toEqual(1));
+  });
+});
+
+describe('custom auth', () => {
+  beforeEach(() => {
+    let count = 0;
+    fetchMock.restore();
+    fetchMock.mock(`begin:${CUSTOM_AUTH_URL}`, (url, opts) => {
+      const parsed = new URL(url, '', true);
+      const device = parsed.query ? parsed.query.device : null;
+      const args = JSON.parse(opts.body);
+
+      expect(args.token == 'jwt');
+      
+      return {
+        user_id: hexStr,
+        device_id: mockDeviceId,
+        access_token: 'test-access-token',
+        refresh_token: 'test-refresh-token',
+        device: device
+      };
+    });
+
+    fetchMock.post(FUNCTION_CALL_URL, () => {
+      return JSON.stringify({x: ++count});
+    });
+  });
+
+  it('can authenticate with custom auth method', () => {
+    expect.assertions(3);
+    let testClient = new StitchClient('testapp');
+    return testClient.authenticate('custom', 'jwt')
       .then(() => {
         expect(testClient.auth.getAccessToken()).toEqual('test-access-token');
         expect(testClient.authedId()).toEqual(hexStr);
