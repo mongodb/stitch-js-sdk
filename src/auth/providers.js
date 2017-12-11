@@ -41,15 +41,19 @@ function anonProvider(auth) {
      * @instance
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: () => {
-      const device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+    authenticate: async () => { // eslint-disable-line space-before-function-paren
+      const device = getDeviceInfo(await auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
       const fetchArgs = common.makeFetchArgs('GET');
       fetchArgs.cors = true;
 
-      return fetch(`${auth.rootUrl}/providers/anon-user/login?device=${uriEncodeObject(device)}`, fetchArgs)
-        .then(common.checkStatus)
-        .then(response => response.json())
-        .then(json => auth.set(json));
+      const response = await fetch(
+        `${auth.rootUrl}/providers/anon-user/login?device=${uriEncodeObject(device)}`,
+        fetchArgs
+      );
+
+      common.checkStatus(response);
+      const json = await response.json();
+      return await auth.set(json);
     }
   };
 }
@@ -280,6 +284,8 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
 
 /** @namespace */
 function googleProvider(auth) {
+  const loginRoute = auth.isAppClient() ? 'providers/oauth2-google/login' : 'providers/oauth2-google/login';
+
   return {
     /**
      * Login to a stitch application using google authentication
@@ -290,6 +296,21 @@ function googleProvider(auth) {
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: data => {
+      let { authCode } = data;
+      if (authCode !== null) {
+        const device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+
+        const fetchArgs = common.makeFetchArgs(
+          'POST',
+          JSON.stringify({ authCode, options: { device } })
+        );
+
+        return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs)
+          .then(common.checkStatus)
+          .then(response => response.json())
+          .then(json => auth.set(json));
+      }
+
       const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
       window.location.replace(getOAuthLoginURL(auth, 'google', redirectUrl));
       return Promise.resolve();
@@ -299,6 +320,8 @@ function googleProvider(auth) {
 
 /** @namespace */
 function facebookProvider(auth) {
+  const loginRoute = auth.isAppClient() ? 'providers/oauth2-facebook/login' : 'providers/oauth2-facebook/login';
+
   return {
     /**
      * Login to a stitch application using facebook authentication
@@ -309,6 +332,21 @@ function facebookProvider(auth) {
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: data => {
+      let { accessToken } = data;
+      if (accessToken !== null) {
+        const device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+
+        const fetchArgs = common.makeFetchArgs(
+          'POST',
+          JSON.stringify({ accessToken, options: { device } })
+        );
+
+        return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs)
+          .then(common.checkStatus)
+          .then(response => response.json())
+          .then(json => auth.set(json));
+      }
+
       const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
       window.location.replace(getOAuthLoginURL(auth, 'facebook', redirectUrl));
       return Promise.resolve();

@@ -6,7 +6,7 @@
         "node": "6"
       },
       "useBuiltins": "usage",
-    }],
+    }]
   ],
   "plugins": [
     "transform-async-to-generator",

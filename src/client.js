@@ -7,7 +7,7 @@ import ServiceRegistry from './services';
 import * as common from './common';
 import ExtJSON from 'mongodb-extjson';
 import queryString from 'query-string';
-import { deprecate } from './util';
+import { deprecate, setPlatform } from './util';
 import {
   StitchError,
   ErrInvalidSession,
@@ -29,9 +29,9 @@ const API_TYPE_APP = 'app';
  * @return {StitchClient} a StitchClient instance.
  */
 export default class StitchClient {
-  constructor(clientAppID, options) {
+  constructor(clientAppID, options = {}) {
     let baseUrl = common.DEFAULT_STITCH_SERVER_URL;
-    if (options && options.baseUrl) {
+    if (options.baseUrl) {
       baseUrl = options.baseUrl;
     }
 
@@ -69,10 +69,20 @@ export default class StitchClient {
       }
     };
 
-    const authOptions = {codec: APP_CLIENT_CODEC};
-    if (options && options.authCodec) {
+    if (options.platform) {
+      setPlatform(options.platform);
+    }
+
+    const authOptions = {
+      codec: APP_CLIENT_CODEC,
+      storageType: options.storageType,
+      storage: options.storage
+    };
+
+    if (options.authCodec) {
       authOptions.codec = options.authCodec;
     }
+
     this.auth = new Auth(this, this.authUrl, authOptions);
     this.auth.handleRedirect();
     this.auth.handleCookie();
@@ -106,12 +116,12 @@ export default class StitchClient {
    * @param {Object} [options] additional authentication options
    * @returns {Promise}
    */
-  login(email, password, options = {}) {
+  async login(email, password, options = {}) {
     if (email === undefined || password === undefined) {
-      return this.authenticate('anon', options);
+      return await this.authenticate('anon', options);
     }
 
-    return this.authenticate('userpass', Object.assign({ username: email, password }, options));
+    return await this.authenticate('userpass', Object.assign({ username: email, password }, options));
   }
 
   /**
@@ -139,10 +149,10 @@ export default class StitchClient {
    * @param {Object} [options] additional authentication options
    * @returns {Promise} which resolves to a String value: the authed userId
    */
-  authenticate(providerType, options = {}) {
+  async authenticate(providerType, options = {}) {
     // reuse existing auth if present
     if (this.auth.getAccessToken()) {
-      return Promise.resolve(this.auth.authedId());
+      return await this.auth.authedId();
     }
 
     return this.auth.provider(providerType).authenticate(options)
@@ -154,7 +164,7 @@ export default class StitchClient {
    *
    * @returns {Promise}
    */
-  logout() {
+  async logout() {
     return this._do(
       '/auth/session',
       'DELETE',
@@ -163,7 +173,7 @@ export default class StitchClient {
         useRefreshToken: true,
         rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
       }
-    ).then(() => this.auth.clear());
+    ).then(async () => await this.auth.clear()); // eslint-disable-line space-before-function-paren
   }
 
   /**
@@ -189,8 +199,8 @@ export default class StitchClient {
   /**
    *  @return {String} Returns the currently authed user's ID.
    */
-  authedId() {
-    return this.auth.authedId();
+  async authedId() {
+    return await this.auth.authedId();
   }
 
   /**
@@ -358,8 +368,8 @@ export default class StitchClient {
     return this.auth.provider(providerType).authenticate({ redirectUrl });
   }
 
-  anonymousAuth() {
-    return this.authenticate('anon');
+  async anonymousAuth() {
+    return await this.authenticate('anon');
   }
 }
 

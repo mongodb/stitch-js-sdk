@@ -1,4 +1,4 @@
-import * as platform from 'detect-browser';
+import * as _platform from 'detect-browser';
 import * as base64 from 'Base64';
 
 const RESULT_METADATA_KEY = '_stitch_metadata';
@@ -83,6 +83,8 @@ function serviceResponse(service, { serviceName = service.serviceName, action, a
   return client.executeServiceFunction(serviceName, action, args);
 }
 
+let platform = null;
+
 /**
  * Utility function to get the platform.
  *
@@ -90,7 +92,11 @@ function serviceResponse(service, { serviceName = service.serviceName, action, a
  * @returns {Object} An object of the form {name: ..., version: ...}, or null
  */
 function getPlatform() {
-  return platform ? platform : null;
+  return platform ? platform : _platform;
+}
+
+function setPlatform(customPlatform) {
+  platform = customPlatform;
 }
 
 /**
@@ -110,5 +116,6 @@ export {
   deprecate,
   serviceResponse,
   getPlatform,
+  setPlatform,
   uriEncodeObject
 };

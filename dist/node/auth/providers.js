@@ -17,6 +17,9 @@ var _util = require('../util');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; } /** @module auth  */
+
+
 /**
  * Create the device info for this client.
  *
@@ -48,8 +51,9 @@ function getDeviceInfo(deviceId, appId) {
 /**
  * @namespace
  */
-/** @module auth  */
 function anonProvider(auth) {
+  var _this = this;
+
   return {
     /**
      * Login to a stitch application using anonymous authentication
@@ -58,12 +62,84 @@ function anonProvider(auth) {
      * @instance
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: function authenticate() {
+    authenticate: function () {
+      var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+        var device, fetchArgs, response, json;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.t0 = getDeviceInfo;
+                _context.next = 3;
+                return auth.getDeviceId();
+
+              case 3:
+                _context.t1 = _context.sent;
+                _context.t2 = !!auth.client && auth.client.clientAppID;
+                device = (0, _context.t0)(_context.t1, _context.t2);
+                fetchArgs = common.makeFetchArgs('GET');
+
+                fetchArgs.cors = true;
+
+                _context.next = 10;
+                return fetch(auth.rootUrl + '/providers/anon-user/login?device=' + (0, _util.uriEncodeObject)(device), fetchArgs);
+
+              case 10:
+                response = _context.sent;
+
+
+                common.checkStatus(response);
+                _context.next = 14;
+                return response.json();
+
+              case 14:
+                json = _context.sent;
+                _context.next = 17;
+                return auth.set(json);
+
+              case 17:
+                return _context.abrupt('return', _context.sent);
+
+              case 18:
+              case 'end':
+                return _context.stop();
+            }
+          }
+        }, _callee, _this);
+      }));
+
+      return function authenticate() {
+        return _ref.apply(this, arguments);
+      };
+    }()
+  };
+}
+
+/**
+  * @namespace
+  */
+function customProvider(auth) {
+  var providerRoute = 'providers/custom-token';
+  var loginRoute = providerRoute + '/login';
+
+  return {
+    /**
+     * Login to a stitch application using custom authentication
+     *
+     * @memberof customProvider
+     * @instance
+     * @param {String} JWT token to use for authentication
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
+    authenticate: function authenticate(_ref2) {
+      var token = _ref2.token;
+
       var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
-      var fetchArgs = common.makeFetchArgs('GET');
+
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ token: token, options: { device: device } }));
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/providers/anon-user/login?device=' + (0, _util.uriEncodeObject)(device), fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -89,9 +165,9 @@ function userPassProvider(auth) {
      * @param {String} password the password to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: function authenticate(_ref) {
-      var username = _ref.username,
-          password = _ref.password;
+    authenticate: function authenticate(_ref3) {
+      var username = _ref3.username,
+          password = _ref3.password;
 
       var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
@@ -262,6 +338,8 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
 
 /** @namespace */
 function googleProvider(auth) {
+  var loginRoute = auth.isAppClient() ? 'providers/oauth2-google/login' : 'providers/oauth2-google/login';
+
   return {
     /**
      * Login to a stitch application using google authentication
@@ -272,6 +350,20 @@ function googleProvider(auth) {
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: function authenticate(data) {
+      var authCode = data.authCode;
+
+      if (authCode !== null) {
+        var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+
+        var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ authCode: authCode, options: { device: device } }));
+
+        return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
+          return response.json();
+        }).then(function (json) {
+          return auth.set(json);
+        });
+      }
+
       var redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
       window.location.replace(getOAuthLoginURL(auth, 'google', redirectUrl));
       return Promise.resolve();
@@ -281,6 +373,8 @@ function googleProvider(auth) {
 
 /** @namespace */
 function facebookProvider(auth) {
+  var loginRoute = auth.isAppClient() ? 'providers/oauth2-facebook/login' : 'providers/oauth2-facebook/login';
+
   return {
     /**
      * Login to a stitch application using facebook authentication
@@ -291,6 +385,20 @@ function facebookProvider(auth) {
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: function authenticate(data) {
+      var accessToken = data.accessToken;
+
+      if (accessToken !== null) {
+        var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+
+        var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ accessToken: accessToken, options: { device: device } }));
+
+        return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
+          return response.json();
+        }).then(function (json) {
+          return auth.set(json);
+        });
+      }
+
       var redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
       window.location.replace(getOAuthLoginURL(auth, 'facebook', redirectUrl));
       return Promise.resolve();
@@ -349,7 +457,8 @@ function createProviders(auth) {
     google: googleProvider(auth),
     facebook: facebookProvider(auth),
     mongodbCloud: mongodbCloudProvider(auth),
-    userpass: userPassProvider(auth)
+    userpass: userPassProvider(auth),
+    custom: customProvider(auth)
   };
 }
 

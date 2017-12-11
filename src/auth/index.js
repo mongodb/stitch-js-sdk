@@ -20,8 +20,8 @@ export default class Auth {
     this.client = client;
     this.rootUrl = rootUrl;
     this.codec = options.codec;
-    this.storage = createStorage(options.storageType);
-    this.providers = createProviders(this);
+    this.storage = createStorage(options);
+    this.providers = createProviders(this, options);
   }
 
   provider(name) {
@@ -133,14 +133,14 @@ export default class Auth {
     window.history.replaceState(null, '', this.pageRootUrl());
   }
 
-  clear() {
-    this.storage.remove(authCommon.USER_AUTH_KEY);
-    this.storage.remove(authCommon.REFRESH_TOKEN_KEY);
-    this.clearImpersonation();
+  async clear() {
+    await this.storage.remove(authCommon.USER_AUTH_KEY);
+    await this.storage.remove(authCommon.REFRESH_TOKEN_KEY);
+    await this.clearImpersonation();
   }
 
-  getDeviceId() {
-    return this.storage.get(authCommon.DEVICE_ID_KEY);
+  async getDeviceId() {
+    return await this.storage.get(authCommon.DEVICE_ID_KEY);
   }
 
   // Returns whether or not the access token is expired or is going to expire within 'withinSeconds'
@@ -173,7 +173,7 @@ export default class Auth {
     return this.storage.get(authCommon.REFRESH_TOKEN_KEY);
   }
 
-  set(json) {
+  async set(json) {
     if (!json) {
       return;
     }
@@ -181,13 +181,13 @@ export default class Auth {
     if (json[this.codec.refreshToken]) {
       let rt = json[this.codec.refreshToken];
       delete json[this.codec.refreshToken];
-      this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
+      await this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
     }
 
     if (json[this.codec.deviceId]) {
       const deviceId = json[this.codec.deviceId];
       delete json[this.codec.deviceId];
-      this.storage.set(authCommon.DEVICE_ID_KEY, deviceId);
+      await this.storage.set(authCommon.DEVICE_ID_KEY, deviceId);
     }
 
     // Merge in new fields with old fields. Typically the first json value
@@ -202,12 +202,12 @@ export default class Auth {
     if (json[this.codec.userId]) {
       newUserAuth.userId = json[this.codec.userId];
     }
-    newUserAuth = Object.assign(this._get(), newUserAuth);
-    this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
+    newUserAuth = Object.assign(await this._get(), newUserAuth);
+    return await this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
   }
 
-  _get() {
-    const data = this.storage.get(authCommon.USER_AUTH_KEY);
+  async _get() {
+    const data = await this.storage.get(authCommon.USER_AUTH_KEY);
     if (!data) {
       return {};
     }
@@ -222,16 +222,16 @@ export default class Auth {
     }
   }
 
-  authedId() {
-    return this._get().userId;
+  async authedId() {
+    return (await this._get()).userId;
   }
 
-  isImpersonatingUser() {
-    return this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY) === 'true';
+  async isImpersonatingUser() {
+    return await this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY) === 'true';
   }
 
-  refreshImpersonation(client) {
-    let userId = this.storage.get(authCommon.IMPERSONATION_USER_KEY);
+  async refreshImpersonation(client) {
+    let userId = await this.storage.get(authCommon.IMPERSONATION_USER_KEY);
     return client._do(`/admin/users/${userId}/impersonate`, 'POST', { refreshOnFailure: false, useRefreshToken: true })
       .then(response => response.json())
       .then(json => this.set(json))
@@ -241,8 +241,8 @@ export default class Auth {
       });
   }
 
-  startImpersonation(client, userId) {
-    if (!this.authedId()) {
+  async startImpersonation(client, userId) {
+    if (await !this.authedId()) {
       return Promise.reject(new StitchError('Must auth first'));
     }
 
@@ -250,31 +250,28 @@ export default class Auth {
       return Promise.reject(new StitchError('Already impersonating a user'));
     }
 
-    this.storage.set(authCommon.IMPERSONATION_ACTIVE_KEY, 'true');
-    this.storage.set(authCommon.IMPERSONATION_USER_KEY, userId);
+    await this.storage.set(authCommon.IMPERSONATION_ACTIVE_KEY, 'true');
+    await this.storage.set(authCommon.IMPERSONATION_USER_KEY, userId);
 
-    let realUserAuth = JSON.parse(this.storage.get(authCommon.USER_AUTH_KEY));
-    this.storage.set(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
+    let realUserAuth = JSON.parse(await this.storage.get(authCommon.USER_AUTH_KEY));
+    await this.storage.set(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
     return this.refreshImpersonation(client);
   }
 
-  stopImpersonation() {
+  async stopImpersonation() {
     if (!this.isImpersonatingUser()) {
       throw new StitchError('Not impersonating a user');
     }
 
-    return new Promise((resolve, reject) => {
-      let realUserAuth = JSON.parse(this.storage.get(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY));
-      this.set(realUserAuth);
-      this.clearImpersonation();
-      resolve();
-    });
+    let realUserAuth = JSON.parse(await this.storage.get(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY));
+    await this.set(realUserAuth);
+    await this.clearImpersonation();
   }
 
-  clearImpersonation() {
-    this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY);
-    this.storage.remove(authCommon.IMPERSONATION_USER_KEY);
-    this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
+  async clearImpersonation() {
+    await this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY);
+    await this.storage.remove(authCommon.IMPERSONATION_USER_KEY);
+    await this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
   }
 
   parseRedirectFragment(fragment, ourState) {

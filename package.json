@@ -46,6 +46,7 @@
     "eslint": "^4.7.2",
     "eslint-loader": "^1.7.1",
     "fetch-mock": "^5.10.1",
+    "flow-bin": "^0.61.0",
     "gh-pages": "^1.0.0",
     "jest": "^20.0.3",
     "jest-fetch-mock": "^1.1.1",
