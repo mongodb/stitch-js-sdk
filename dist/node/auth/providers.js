@@ -88,9 +88,7 @@ function customProvider(auth) {
      * @param {String} JWT token to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: function authenticate(_ref) {
-      var token = _ref.token;
-
+    authenticate: function authenticate(token) {
       var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ token: token, options: { device: device } }));
@@ -122,9 +120,9 @@ function userPassProvider(auth) {
      * @param {String} password the password to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: function authenticate(_ref2) {
-      var username = _ref2.username,
-          password = _ref2.password;
+    authenticate: function authenticate(_ref) {
+      var username = _ref.username,
+          password = _ref.password;
 
       var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
