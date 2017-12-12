@@ -264,7 +264,155 @@ export default class StitchClient {
       .then(response => response.json());
   }
 
+  /**
+   * Returns user api keys
+   *
+   * @returns {Promise}
+   */
+  getUserApiKeys() {
+    console.log("getUserApiKeys")
+    return this._do(
+      '/auth/me/api_keys',
+      'GET',
+      {rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_APP]},
+    )
+      .then((response) => {
+         return response.json();
+      });
+  }
+
+  /**
+   * Creates an user api key
+   *
+   * @returns {Promise}
+   */
+  createUserApi(body) {
+    console.log("createUserApi")
+    return this._do(
+      '/auth/me/api_keys',
+      'POST',
+      { rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_APP],
+        body: JSON.stringify(body) 
+      },
+    )
+      .then((response) => {
+         return response.json();
+      });
+  }
+
+  /**
+   * Returns user api keys
+   *
+   * @returns {Promise}
+   */
+  getUserApiKeyByID(keyID) {
+    console.log("getUserApiKeyByID")
+    return this._do(
+      `/auth/me/api_keys/${keyID}`,
+      'GET',
+      {rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_APP]},
+    )
+      .then((response) => {
+         return response.json();
+      });
+  }
+
+  /**
+   * Deletes a user api key
+   *
+   * @returns {Promise}
+   */
+  deleteUserApiKeyByID(keyID) {
+    console.log("deleteUserApiKeyByID")
+    return this._do(
+      `/auth/me/api_keys/${keyID}`,
+      'DELETE',
+      {rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_APP]},
+    )
+      .then((response) => {
+         return response.json();
+      });
+  }
+
+  /**
+   * Enable an user api key
+   *
+   * @returns {Promise}
+   */
+  enableUserApiKey(keyID) {
+    console.log("enableUserApiKey")
+    return this._do(
+      `/auth/me/api_keys/${keyID}/enable`,
+      'PUT',
+      {rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_APP]},
+    )
+      .then((response) => {
+         return response.json();
+      });
+  }
+
+  disableUserApiKey(keyID) {
+    console.log("disableUserApiKey")
+    return this._do(
+      `/auth/me/api_keys/${keyID}/disable`,
+      'PUT',
+      {rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_APP]},
+    )
+      .then((response) => {
+         return response.json();
+      });
+  }
+
+<<<<<<< HEAD
   _fetch(url, fetchArgs, resource, method, options) {
+=======
+
+
+  _do(resource, method, options) {
+    options = Object.assign({}, {
+      refreshOnFailure: true,
+      useRefreshToken: false,
+      apiVersion: v2,
+      apiType: API_TYPE_APP,
+      rootURL: undefined
+    }, options);
+
+    if (!options.noAuth) {
+      if (!this.authedId()) {
+        return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
+      }
+
+      // If access token is expired, proactively get a new one
+      if (!options.useRefreshToken && this.auth.isAccessTokenExpired()) {
+        return this.auth.refreshToken().then(() => {
+          options.refreshOnFailure = false;
+          return this._do(resource, method, options);
+        });
+      }
+    }
+
+    const appURL = this.rootURLsByAPIVersion[options.apiVersion][options.apiType];
+    let url = `${appURL}${resource}`;
+    if (options.rootURL) {
+      url = `${options.rootURL}${resource}`;
+    }
+    let fetchArgs = common.makeFetchArgs(method, options.body);
+
+    if (!!options.headers) {
+      Object.assign(fetchArgs.headers, options.headers);
+    }
+
+    if (!options.noAuth) {
+      let token =
+        options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
+      fetchArgs.headers.Authorization = `Bearer ${token}`;
+    }
+
+    if (options.queryParams) {
+      url = `${url}?${queryString.stringify(options.queryParams)}`;
+    }
+
+>>>>>>> Removed dist
     return fetch(url, fetchArgs)
       .then(response => {
         // Okay: passthrough
