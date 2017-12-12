@@ -12,11 +12,15 @@ export default class SimpleServer {
   }
 
   close() {
-    this.server.close();
+    return new Promise((resolve, reject) => {
+      this.server.close(resolve);
+    });
   }
 
   listen() {
-    this.server.listen(this.port);
+    return new Promise((resolve, reject) => {
+      this.server.listen(this.port, resolve);
+    });
   }
 
   get url() {
