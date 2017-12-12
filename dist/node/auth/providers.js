@@ -72,6 +72,39 @@ function anonProvider(auth) {
   };
 }
 
+/**
+  * @namespace
+  */
+function customProvider(auth) {
+  var providerRoute = 'providers/custom-token';
+  var loginRoute = providerRoute + '/login';
+
+  return {
+    /**
+     * Login to a stitch application using custom authentication
+     *
+     * @memberof customProvider
+     * @instance
+     * @param {String} JWT token to use for authentication
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
+    authenticate: function authenticate(_ref) {
+      var token = _ref.token;
+
+      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ token: token, options: { device: device } }));
+      fetchArgs.cors = true;
+
+      return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        return auth.set(json);
+      });
+    }
+  };
+}
+
 /** @namespace */
 function userPassProvider(auth) {
   // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
@@ -89,9 +122,9 @@ function userPassProvider(auth) {
      * @param {String} password the password to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: function authenticate(_ref) {
-      var username = _ref.username,
-          password = _ref.password;
+    authenticate: function authenticate(_ref2) {
+      var username = _ref2.username,
+          password = _ref2.password;
 
       var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
@@ -349,7 +382,8 @@ function createProviders(auth) {
     google: googleProvider(auth),
     facebook: facebookProvider(auth),
     mongodbCloud: mongodbCloudProvider(auth),
-    userpass: userPassProvider(auth)
+    userpass: userPassProvider(auth),
+    custom: customProvider(auth)
   };
 }
 
