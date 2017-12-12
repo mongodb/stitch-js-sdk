@@ -67,8 +67,12 @@ describe('Executing http service functions', () => {
     });
 
     describe('And an available mock server', () => {
-      beforeAll(() => server.listen());
-      afterAll(() => server.close());
+      beforeAll(async() => {
+        await server.listen();
+      });
+      afterAll(async() => {
+        await server.close();
+      });
 
       describe('Submitting an invalid request', () => {
         it('should fail when an invalid url value is supplied', async() => {
