@@ -57,6 +57,7 @@ describe('Client API executing user api crud functions', () => {
     return th.stitchClient.createApiKey({'name': 'userKey1'})
       .then(response => {
         expect(response.name).toEqual('userKey1');
+        expect(response.disabled).toEqual(false);
       });
   });
 
@@ -70,6 +71,11 @@ describe('Client API executing user api crud functions', () => {
       .then(() => {
         return th.stitchClient.deleteApiKeyByID(apiID).then(response => {
           expect(response.status).toEqual(204);
+
+          return th.stitchClient.getApiKeys()
+            .then(res => {
+              expect(res).toEqual([]);
+            });
         });
       });
   });
@@ -109,12 +115,9 @@ describe('Client API executing user api crud functions', () => {
         apiID = response._id;
       })
       .then(() => {
-        return th.stitchClient.enableApiKey(apiID)
+        return th.stitchClient.enableApiKeyByID(apiID)
           .then(response => {
             expect(response.status).toEqual(204);
-          })
-          .catch(response => {
-            console.log(response);
           });
       });
   });
@@ -127,16 +130,14 @@ describe('Client API executing user api crud functions', () => {
         apiID = response._id;
       })
       .then(() => {
-        return th.stitchClient.disableApiKey(apiID)
+        return th.stitchClient.disableApiKeyByID(apiID)
           .then(response => {
             expect(response).toEqual(204);
           });
       });
   });
 
-
-  // Test invalid key values
-
+  // Test invalid key lookups
   it('will return a 404 when we try get an invalid key', async() => {
     return th.stitchClient.getApiKeyByID(1)
       .catch(e => {
@@ -144,7 +145,6 @@ describe('Client API executing user api crud functions', () => {
         expect(e.response.status).toBe(404);
       });
   });
-
 
   it('will return a 404 when we try deleting an invalid key', async() => {
     return th.stitchClient.deleteApiKeyByID(1)
@@ -154,18 +154,16 @@ describe('Client API executing user api crud functions', () => {
       });
   });
 
-
   it('will return a 404 when we try enabling an invalid key', async() => {
-    return th.stitchClient.enableApiKey(1)
+    return th.stitchClient.enableApiKeyByID(1)
       .catch(e => {
         expect(e).toBeInstanceOf(Error);
         expect(e.response.status).toBe(404);
       });
   });
 
-
   it('will return a 404 when we try disabling an invalid key', async() => {
-    return th.stitchClient.disableApiKey(1)
+    return th.stitchClient.disableApiKeyByID(1)
       .catch(e => {
         expect(e).toBeInstanceOf(Error);
         expect(e.response.status).toBe(404);

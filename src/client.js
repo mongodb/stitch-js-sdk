@@ -341,7 +341,7 @@ export default class StitchClient {
    * @param {String} keyID the ID of the key
    * @returns {Promise}
    */
-  enableApiKey(keyID) {
+  enableApiKeyByID(keyID) {
     return this._do(
       `/auth/me/api_keys/${keyID}/enable`,
       'PUT',
@@ -359,7 +359,7 @@ export default class StitchClient {
    * @param {String} keyID the ID of the key
    * @returns {Promise}
    */
-  disableApiKey(keyID) {
+  disableApiKeyByID(keyID) {
     return this._do(
       `/auth/me/api_keys/${keyID}/disable`,
       'PUT',
