@@ -265,109 +265,120 @@ export default class StitchClient {
   }
 
   /**
-   * Returns user api keys
+   * Returns an array of api keys
    *
    * @returns {Promise}
    */
-  getUserApiKeys() {
-    console.log("getUserApiKeys")
+  getApiKeys() {
     return this._do(
       '/auth/me/api_keys',
       'GET',
-      {rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_APP]},
+      {
+        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
+        useRefreshToken: true
+      },
     )
-      .then((response) => {
-         return response.json();
-      });
+      .then((response) => response.json());
   }
 
   /**
    * Creates an user api key
    *
+   * @param {String} body a JSON object of the name of the new api key
    * @returns {Promise}
    */
-  createUserApi(body) {
-    console.log("createUserApi")
+  createApiKey(body) {
     return this._do(
       '/auth/me/api_keys',
       'POST',
-      { rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_APP],
-        body: JSON.stringify(body) 
+      { rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
+        useRefreshToken: true,
+        body: JSON.stringify(body)
       },
     )
-      .then((response) => {
-         return response.json();
-      });
+      .then((response) => response.json());
   }
 
   /**
-   * Returns user api keys
+   * Returns a user api key
    *
+   * @param {String} keyID the ID of the key
    * @returns {Promise}
    */
-  getUserApiKeyByID(keyID) {
-    console.log("getUserApiKeyByID")
+  getApiKeyByID(keyID) {
     return this._do(
       `/auth/me/api_keys/${keyID}`,
       'GET',
-      {rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_APP]},
+      {
+        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
+        useRefreshToken: true
+      },
     )
-      .then((response) => {
-         return response.json();
-      });
+      .then((response) => response.json());
   }
 
   /**
    * Deletes a user api key
    *
+   * @param {String} keyID the ID of the key
    * @returns {Promise}
    */
-  deleteUserApiKeyByID(keyID) {
-    console.log("deleteUserApiKeyByID")
+  deleteApiKeyByID(keyID) {
     return this._do(
       `/auth/me/api_keys/${keyID}`,
       'DELETE',
-      {rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_APP]},
+      {
+        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
+        useRefreshToken: true
+      },
     )
-      .then((response) => {
-         return response.json();
-      });
+      .then((response) => response);
   }
 
   /**
    * Enable an user api key
    *
+   * @param {String} keyID the ID of the key
    * @returns {Promise}
    */
-  enableUserApiKey(keyID) {
-    console.log("enableUserApiKey")
+  enableApiKey(keyID) {
     return this._do(
       `/auth/me/api_keys/${keyID}/enable`,
       'PUT',
-      {rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_APP]},
+      {
+        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
+        useRefreshToken: true
+      },
     )
-      .then((response) => {
-         return response.json();
-      });
+      .then((response) => response);
   }
 
-  disableUserApiKey(keyID) {
-    console.log("disableUserApiKey")
+  /**
+   * Disable an user api key
+   *
+   * @param {String} keyID the ID of the key
+   * @returns {Promise}
+   */
+  disableApiKey(keyID) {
     return this._do(
       `/auth/me/api_keys/${keyID}/disable`,
       'PUT',
-      {rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_APP]},
+      {
+        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
+        useRefreshToken: true
+      },
     )
-      .then((response) => {
-         return response.json();
-      });
+      .then((response) => response);
   }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   _fetch(url, fetchArgs, resource, method, options) {
 =======
 
 
+=======
+>>>>>>> Created tests and cleaned up formatting.
   _do(resource, method, options) {
     options = Object.assign({}, {
       refreshOnFailure: true,

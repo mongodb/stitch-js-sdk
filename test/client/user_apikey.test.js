@@ -1,76 +1,174 @@
 /* global expect, it, describe, global, afterEach, beforeEach, afterAll, beforeAll, require, Buffer, Promise */
-const fetchMock = require('fetch-mock');
-const URL = require('url-parse');
-import StitchClient from '../../src/client';
-import { JSONTYPE, DEFAULT_STITCH_SERVER_URL } from '../../src/common';
-import { REFRESH_TOKEN_KEY } from '../../src/auth/common';
-import Auth from '../../src/auth';
-import { mocks } from 'mock-browser';
-import ExtJSON from 'mongodb-extjson';
+import { buildClientTestHarness, extractTestFixtureDataPoints } from '../testutil';
 
-const ANON_AUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/anon-user/login';
-const APIKEY_AUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/api-key/login';
-const LOCALAUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/local-userpass/login';
-const CUSTOM_AUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/custom-token/login';
+const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
+const SERVICE_TYPE = 'mongodb';
+const SERVICE_NAME = 'mdb';
+const TEST_DB = 'test_db';
+const TEST_COLLECTION = 'test_collection';
 
-const FUNCTION_CALL_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/functions/call';
-const USERKEYS_API_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/me/api_keys';
 
-const MockBrowser = mocks.MockBrowser;
-global.Buffer = global.Buffer || require('buffer').Buffer;
+describe('Client API executing user api crud functions', () => {
+  let test = new StitchMongoFixture();
+  let th;
 
-const hexStr = '5899445b275d3ebe8f2ab8c0';
-const mockDeviceId = '8773934448abcdef12345678';
+  beforeAll(() => test.setup());
+  afterAll(() => test.teardown());
 
-const sampleProfile = {
-  user_id: '8a15d6d20584297fa336becf',
-  domain_id: '8a156a044fdd1fa5045accab',
-  identities:
-  [
-    {
-      id: '8a15d6d20584297fa336bece-gkyglweqvueqoypkwanpaaca',
-      provider_type: 'anon-user',
-      provider_id: '8a156a5b0584299f47a1c6fd'
-    }
-  ],
-  data: {},
-  type: 'normal'
-};
-
-describe('api key auth/logout', () => {
-  let validAPIKeys = ['valid-api-key'];
-  beforeEach(() => {
-    let count = 0;
-    fetchMock.restore();
-    fetchMock.post(APIKEY_AUTH_URL, (url, opts) => {
-      if (validAPIKeys.indexOf(JSON.parse(opts.body).key) >= 0) {
-        return {
-          user_id: hexStr
-        };
+  beforeEach(async() => {
+    const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
+    th = await buildClientTestHarness(apiKey, groupId, serverUrl);
+    const mongodbService = await th.app().services().create({
+      type: SERVICE_TYPE,
+      name: SERVICE_NAME,
+      config: {
+        uri: 'mongodb://localhost:26000'
       }
-      return {
-        body: {error: 'unauthorized', error_code: 'unauthorized'},
-        headers: { 'Content-Type': JSONTYPE },
-        status: 401
-      };
     });
-    fetchMock.get(USERKEYS_API_URL, () => {
-      return {"a": "asdfasdf"}
+
+    await th.app().services().service(mongodbService._id).rules().create({
+      name: 'testRule',
+      namespace: `${TEST_DB}.${TEST_COLLECTION}`,
+      read: {'%%true': true},
+      write: {'%%true': true},
+      valid: {'%%true': true},
+      fields: {_id: {}, a: {}, b: {}, c: {}, d: {} }
     });
+
+    test.mongo.db(TEST_DB).collection(TEST_COLLECTION);
+    th.stitchClient.service(SERVICE_TYPE, SERVICE_NAME)
+      .db(TEST_DB)
+      .collection(TEST_COLLECTION);
   });
 
+  afterEach(async() => {
+    await th.cleanup();
+    await test.mongo.db(TEST_DB).dropDatabase();
+  });
 
-  it('can get a userkey', () => {
-    let testClient = new StitchClient('testapp');
-    return testClient.authenticate('apiKey', 'valid-api-key')
-      .then(() => testClient.getUserApiKeys())
+  it('can get an empty user api key array', async() => {
+    return th.stitchClient.getApiKeys()
       .then(response => {
-        expect(response).toEqual(sampleProfile);
+        expect(response).toEqual([]);
+      });
+  });
+
+  it('can insert an user api key', async() => {
+    return th.stitchClient.createApiKey({'name': 'userKey1'})
+      .then(response => {
+        expect(response.name).toEqual('userKey1');
+      });
+  });
+
+  it('can delete an user api key', async() => {
+    let apiID;
+    return th.stitchClient.createApiKey({'name': 'userKey1'})
+      .then(response => {
+        expect(response.name).toEqual('userKey1');
+        apiID = response._id;
+      })
+      .then(() => {
+        return th.stitchClient.deleteApiKeyByID(apiID).then(response => {
+          expect(response.status).toEqual(204);
+        });
+      });
+  });
+
+  it('can get the user api key array with element inserted', async() => {
+    return th.stitchClient.createApiKey({'name': 'userKey1'})
+      .then(response => {
+        expect(response.name).toEqual('userKey1');
+      })
+      .then(() => {
+        return th.stitchClient.getApiKeys().then(response => {
+          expect(response.length).toEqual(1);
+        });
+      });
+  });
+
+  it('can get the user api key by id with element inserted', async() => {
+    let apiID;
+    return th.stitchClient.createApiKey({'name': 'userKey1'})
+      .then(response => {
+        expect(response.name).toEqual('userKey1');
+        apiID = response._id;
+      })
+      .then(() => {
+        return th.stitchClient.getApiKeyByID(apiID).then(response => {
+          expect(response._id).toEqual(apiID);
+          expect(response.name).toEqual('userKey1');
+        });
+      });
+  });
+
+  it('can enable an user api key', async() => {
+    let apiID;
+    return th.stitchClient.createApiKey({'name': 'userKey1'})
+      .then(response => {
+        expect(response.name).toEqual('userKey1');
+        apiID = response._id;
+      })
+      .then(() => {
+        return th.stitchClient.enableApiKey(apiID)
+          .then(response => {
+            expect(response.status).toEqual(204);
+          })
+          .catch(response => {
+            console.log(response);
+          });
+      });
+  });
+
+  it('can disable an user api key', async() => {
+    let apiID;
+    return th.stitchClient.createApiKey({'name': 'userKey1'})
+      .then(response => {
+        expect(response.name).toEqual('userKey1');
+        apiID = response._id;
+      })
+      .then(() => {
+        return th.stitchClient.disableApiKey(apiID)
+          .then(response => {
+            expect(response).toEqual(204);
+          });
       });
   });
 
 
+  // Test invalid key values
 
+  it('will return a 404 when we try get an invalid key', async() => {
+    return th.stitchClient.getApiKeyByID(1)
+      .catch(e => {
+        expect(e).toBeInstanceOf(Error);
+        expect(e.response.status).toBe(404);
+      });
+  });
+
+
+  it('will return a 404 when we try deleting an invalid key', async() => {
+    return th.stitchClient.deleteApiKeyByID(1)
+      .catch(e => {
+        expect(e).toBeInstanceOf(Error);
+        expect(e.response.status).toBe(404);
+      });
+  });
+
+
+  it('will return a 404 when we try enabling an invalid key', async() => {
+    return th.stitchClient.enableApiKey(1)
+      .catch(e => {
+        expect(e).toBeInstanceOf(Error);
+        expect(e.response.status).toBe(404);
+      });
+  });
+
+
+  it('will return a 404 when we try disabling an invalid key', async() => {
+    return th.stitchClient.disableApiKey(1)
+      .catch(e => {
+        expect(e).toBeInstanceOf(Error);
+        expect(e.response.status).toBe(404);
+      });
+  });
 });
-
-

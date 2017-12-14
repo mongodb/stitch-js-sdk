@@ -374,6 +374,7 @@ describe('custom auth', () => {
       const device = parsed.query ? parsed.query.device : null;
       const args = JSON.parse(opts.body);
 
+<<<<<<< HEAD
       if (args.token !== 'jwt') {
         return {
           body: {error: 'unauthorized', error_code: 'unauthorized'},
@@ -381,6 +382,9 @@ describe('custom auth', () => {
           status: 401
         };
       }
+=======
+      expect(args.token === 'jwt');
+>>>>>>> Created tests and cleaned up formatting.
 
       return {
         user_id: hexStr,
