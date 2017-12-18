@@ -156,7 +156,7 @@ export default class StitchClient {
     }
 
     return this.auth.provider(providerType).authenticate(options)
-      .then(async () => this.auth.authedId());
+      .then(async() => this.auth.authedId());
   }
 
   /**
@@ -324,7 +324,7 @@ export default class StitchClient {
     }
 
     return fetch(url, fetchArgs)
-      .then(async (response) => {
+      .then(async(response) => {
         // Okay: passthrough
         if (response.status >= 200 && response.status < 300) {
           return Promise.resolve(response);
@@ -332,7 +332,7 @@ export default class StitchClient {
 
         if (response.headers.get('Content-Type') === common.JSONTYPE) {
           return response.json()
-            .then(async (json) => {
+            .then(async(json) => {
               // Only want to try refreshing token when there's an invalid session
               if ('error_code' in json && json.error_code === ErrInvalidSession) {
                 if (!options.refreshOnFailure) {
