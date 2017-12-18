@@ -3,13 +3,13 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.uriEncodeObject = exports.setPlatform = exports.getPlatform = exports.serviceResponse = exports.deprecate = exports.collectMetadata = undefined;
+exports.uriEncodeObject = exports.getPlatform = exports.serviceResponse = exports.deprecate = exports.collectMetadata = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _detectBrowser = require('detect-browser');
 
-var _platform = _interopRequireWildcard(_detectBrowser);
+var platform = _interopRequireWildcard(_detectBrowser);
 
 var _Base = require('Base64');
 
@@ -102,8 +102,6 @@ function serviceResponse(service, _ref) {
   return client.executeServiceFunction(serviceName, action, args);
 }
 
-var platform = null;
-
 /**
  * Utility function to get the platform.
  *
@@ -111,11 +109,7 @@ var platform = null;
  * @returns {Object} An object of the form {name: ..., version: ...}, or null
  */
 function getPlatform() {
-  return platform ? platform : _platform;
-}
-
-function setPlatform(customPlatform) {
-  platform = customPlatform;
+  return platform ? platform : null;
 }
 
 /**
@@ -134,5 +128,4 @@ function uriEncodeObject(obj) {
 exports.deprecate = deprecate;
 exports.serviceResponse = serviceResponse;
 exports.getPlatform = getPlatform;
-exports.setPlatform = setPlatform;
 exports.uriEncodeObject = uriEncodeObject;

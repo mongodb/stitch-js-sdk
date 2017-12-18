@@ -24,8 +24,6 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var jwtDecode = require('jwt-decode');
@@ -44,8 +42,8 @@ var Auth = function () {
     this.client = client;
     this.rootUrl = rootUrl;
     this.codec = options.codec;
-    this.storage = (0, _storage.createStorage)(options);
-    this.providers = (0, _providers.createProviders)(this, options);
+    this.storage = (0, _storage.createStorage)(options.storageType);
+    this.providers = (0, _providers.createProviders)(this);
   }
 
   _createClass(Auth, [{
@@ -171,65 +169,16 @@ var Auth = function () {
     }
   }, {
     key: 'clear',
-    value: function () {
-      var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-        return regeneratorRuntime.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                _context.next = 2;
-                return this.storage.remove(authCommon.USER_AUTH_KEY);
-
-              case 2:
-                _context.next = 4;
-                return this.storage.remove(authCommon.REFRESH_TOKEN_KEY);
-
-              case 4:
-                _context.next = 6;
-                return this.clearImpersonation();
-
-              case 6:
-              case 'end':
-                return _context.stop();
-            }
-          }
-        }, _callee, this);
-      }));
-
-      function clear() {
-        return _ref.apply(this, arguments);
-      }
-
-      return clear;
-    }()
+    value: function clear() {
+      this.storage.remove(authCommon.USER_AUTH_KEY);
+      this.storage.remove(authCommon.REFRESH_TOKEN_KEY);
+      this.clearImpersonation();
+    }
   }, {
     key: 'getDeviceId',
-    value: function () {
-      var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
-        return regeneratorRuntime.wrap(function _callee2$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                _context2.next = 2;
-                return this.storage.get(authCommon.DEVICE_ID_KEY);
-
-              case 2:
-                return _context2.abrupt('return', _context2.sent);
-
-              case 3:
-              case 'end':
-                return _context2.stop();
-            }
-          }
-        }, _callee2, this);
-      }));
-
-      function getDeviceId() {
-        return _ref2.apply(this, arguments);
-      }
-
-      return getDeviceId;
-    }()
+    value: function getDeviceId() {
+      return this.storage.get(authCommon.DEVICE_ID_KEY);
+    }
 
     // Returns whether or not the access token is expired or is going to expire within 'withinSeconds'
     // seconds, according to current system time. Returns false if the token is malformed in any way.
@@ -269,374 +218,121 @@ var Auth = function () {
     }
   }, {
     key: 'set',
-    value: function () {
-      var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(json) {
-        var rt, deviceId, newUserAuth;
-        return regeneratorRuntime.wrap(function _callee3$(_context3) {
-          while (1) {
-            switch (_context3.prev = _context3.next) {
-              case 0:
-                if (json) {
-                  _context3.next = 2;
-                  break;
-                }
-
-                return _context3.abrupt('return');
-
-              case 2:
-                if (!json[this.codec.refreshToken]) {
-                  _context3.next = 7;
-                  break;
-                }
-
-                rt = json[this.codec.refreshToken];
-
-                delete json[this.codec.refreshToken];
-                _context3.next = 7;
-                return this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
-
-              case 7:
-                if (!json[this.codec.deviceId]) {
-                  _context3.next = 12;
-                  break;
-                }
-
-                deviceId = json[this.codec.deviceId];
-
-                delete json[this.codec.deviceId];
-                _context3.next = 12;
-                return this.storage.set(authCommon.DEVICE_ID_KEY, deviceId);
-
-              case 12:
-
-                // Merge in new fields with old fields. Typically the first json value
-                // is complete with every field inside a user auth, but subsequent requests
-                // do not include everything. This merging behavior is safe so long as json
-                // value responses with absent fields do not indicate that the field should
-                // be unset.
-                newUserAuth = {};
-
-                if (json[this.codec.accessToken]) {
-                  newUserAuth.accessToken = json[this.codec.accessToken];
-                }
-                if (json[this.codec.userId]) {
-                  newUserAuth.userId = json[this.codec.userId];
-                }
-                _context3.t0 = Object;
-                _context3.next = 18;
-                return this._get();
-
-              case 18:
-                _context3.t1 = _context3.sent;
-                _context3.t2 = newUserAuth;
-                newUserAuth = _context3.t0.assign.call(_context3.t0, _context3.t1, _context3.t2);
-                _context3.next = 23;
-                return this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
-
-              case 23:
-                return _context3.abrupt('return', _context3.sent);
-
-              case 24:
-              case 'end':
-                return _context3.stop();
-            }
-          }
-        }, _callee3, this);
-      }));
-
-      function set(_x2) {
-        return _ref3.apply(this, arguments);
+    value: function set(json) {
+      if (!json) {
+        return;
       }
 
-      return set;
-    }()
+      if (json[this.codec.refreshToken]) {
+        var rt = json[this.codec.refreshToken];
+        delete json[this.codec.refreshToken];
+        this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
+      }
+
+      if (json[this.codec.deviceId]) {
+        var deviceId = json[this.codec.deviceId];
+        delete json[this.codec.deviceId];
+        this.storage.set(authCommon.DEVICE_ID_KEY, deviceId);
+      }
+
+      // Merge in new fields with old fields. Typically the first json value
+      // is complete with every field inside a user auth, but subsequent requests
+      // do not include everything. This merging behavior is safe so long as json
+      // value responses with absent fields do not indicate that the field should
+      // be unset.
+      var newUserAuth = {};
+      if (json[this.codec.accessToken]) {
+        newUserAuth.accessToken = json[this.codec.accessToken];
+      }
+      if (json[this.codec.userId]) {
+        newUserAuth.userId = json[this.codec.userId];
+      }
+      newUserAuth = Object.assign(this._get(), newUserAuth);
+      this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
+    }
   }, {
     key: '_get',
-    value: function () {
-      var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
-        var data;
-        return regeneratorRuntime.wrap(function _callee4$(_context4) {
-          while (1) {
-            switch (_context4.prev = _context4.next) {
-              case 0:
-                _context4.next = 2;
-                return this.storage.get(authCommon.USER_AUTH_KEY);
-
-              case 2:
-                data = _context4.sent;
-
-                if (data) {
-                  _context4.next = 5;
-                  break;
-                }
-
-                return _context4.abrupt('return', {});
-
-              case 5:
-                _context4.prev = 5;
-                return _context4.abrupt('return', JSON.parse(data));
-
-              case 9:
-                _context4.prev = 9;
-                _context4.t0 = _context4['catch'](5);
-
-                // Need to back out and clear auth otherwise we will never
-                // be able to do anything useful.
-                this.clear();
-                throw new _errors.StitchError('Failure retrieving stored auth');
-
-              case 13:
-              case 'end':
-                return _context4.stop();
-            }
-          }
-        }, _callee4, this, [[5, 9]]);
-      }));
-
-      function _get() {
-        return _ref4.apply(this, arguments);
+    value: function _get() {
+      var data = this.storage.get(authCommon.USER_AUTH_KEY);
+      if (!data) {
+        return {};
       }
 
-      return _get;
-    }()
+      try {
+        return JSON.parse(data);
+      } catch (e) {
+        // Need to back out and clear auth otherwise we will never
+        // be able to do anything useful.
+        this.clear();
+        throw new _errors.StitchError('Failure retrieving stored auth');
+      }
+    }
   }, {
     key: 'authedId',
-    value: function () {
-      var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
-        return regeneratorRuntime.wrap(function _callee5$(_context5) {
-          while (1) {
-            switch (_context5.prev = _context5.next) {
-              case 0:
-                _context5.next = 2;
-                return this._get();
-
-              case 2:
-                return _context5.abrupt('return', _context5.sent.userId);
-
-              case 3:
-              case 'end':
-                return _context5.stop();
-            }
-          }
-        }, _callee5, this);
-      }));
-
-      function authedId() {
-        return _ref5.apply(this, arguments);
-      }
-
-      return authedId;
-    }()
+    value: function authedId() {
+      return this._get().userId;
+    }
   }, {
     key: 'isImpersonatingUser',
-    value: function () {
-      var _ref6 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6() {
-        return regeneratorRuntime.wrap(function _callee6$(_context6) {
-          while (1) {
-            switch (_context6.prev = _context6.next) {
-              case 0:
-                _context6.next = 2;
-                return this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY);
-
-              case 2:
-                _context6.t0 = _context6.sent;
-                return _context6.abrupt('return', _context6.t0 === 'true');
-
-              case 4:
-              case 'end':
-                return _context6.stop();
-            }
-          }
-        }, _callee6, this);
-      }));
-
-      function isImpersonatingUser() {
-        return _ref6.apply(this, arguments);
-      }
-
-      return isImpersonatingUser;
-    }()
+    value: function isImpersonatingUser() {
+      return this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY) === 'true';
+    }
   }, {
     key: 'refreshImpersonation',
-    value: function () {
-      var _ref7 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(client) {
-        var _this2 = this;
+    value: function refreshImpersonation(client) {
+      var _this2 = this;
 
-        var userId;
-        return regeneratorRuntime.wrap(function _callee7$(_context7) {
-          while (1) {
-            switch (_context7.prev = _context7.next) {
-              case 0:
-                _context7.next = 2;
-                return this.storage.get(authCommon.IMPERSONATION_USER_KEY);
-
-              case 2:
-                userId = _context7.sent;
-                return _context7.abrupt('return', client._do('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
-                  return response.json();
-                }).then(function (json) {
-                  return _this2.set(json);
-                }).catch(function (e) {
-                  _this2.stopImpersonation();
-                  throw e; // rethrow
-                }));
-
-              case 4:
-              case 'end':
-                return _context7.stop();
-            }
-          }
-        }, _callee7, this);
-      }));
-
-      function refreshImpersonation(_x3) {
-        return _ref7.apply(this, arguments);
-      }
-
-      return refreshImpersonation;
-    }()
+      var userId = this.storage.get(authCommon.IMPERSONATION_USER_KEY);
+      return client._do('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        return _this2.set(json);
+      }).catch(function (e) {
+        _this2.stopImpersonation();
+        throw e; // rethrow
+      });
+    }
   }, {
     key: 'startImpersonation',
-    value: function () {
-      var _ref8 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(client, userId) {
-        var realUserAuth;
-        return regeneratorRuntime.wrap(function _callee8$(_context8) {
-          while (1) {
-            switch (_context8.prev = _context8.next) {
-              case 0:
-                _context8.next = 2;
-                return !this.authedId();
-
-              case 2:
-                if (!_context8.sent) {
-                  _context8.next = 4;
-                  break;
-                }
-
-                return _context8.abrupt('return', Promise.reject(new _errors.StitchError('Must auth first')));
-
-              case 4:
-                if (!this.isImpersonatingUser()) {
-                  _context8.next = 6;
-                  break;
-                }
-
-                return _context8.abrupt('return', Promise.reject(new _errors.StitchError('Already impersonating a user')));
-
-              case 6:
-                _context8.next = 8;
-                return this.storage.set(authCommon.IMPERSONATION_ACTIVE_KEY, 'true');
-
-              case 8:
-                _context8.next = 10;
-                return this.storage.set(authCommon.IMPERSONATION_USER_KEY, userId);
-
-              case 10:
-                _context8.t0 = JSON;
-                _context8.next = 13;
-                return this.storage.get(authCommon.USER_AUTH_KEY);
-
-              case 13:
-                _context8.t1 = _context8.sent;
-                realUserAuth = _context8.t0.parse.call(_context8.t0, _context8.t1);
-                _context8.next = 17;
-                return this.storage.set(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
-
-              case 17:
-                return _context8.abrupt('return', this.refreshImpersonation(client));
-
-              case 18:
-              case 'end':
-                return _context8.stop();
-            }
-          }
-        }, _callee8, this);
-      }));
-
-      function startImpersonation(_x4, _x5) {
-        return _ref8.apply(this, arguments);
+    value: function startImpersonation(client, userId) {
+      if (!this.authedId()) {
+        return Promise.reject(new _errors.StitchError('Must auth first'));
       }
 
-      return startImpersonation;
-    }()
+      if (this.isImpersonatingUser()) {
+        return Promise.reject(new _errors.StitchError('Already impersonating a user'));
+      }
+
+      this.storage.set(authCommon.IMPERSONATION_ACTIVE_KEY, 'true');
+      this.storage.set(authCommon.IMPERSONATION_USER_KEY, userId);
+
+      var realUserAuth = JSON.parse(this.storage.get(authCommon.USER_AUTH_KEY));
+      this.storage.set(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
+      return this.refreshImpersonation(client);
+    }
   }, {
     key: 'stopImpersonation',
-    value: function () {
-      var _ref9 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9() {
-        var realUserAuth;
-        return regeneratorRuntime.wrap(function _callee9$(_context9) {
-          while (1) {
-            switch (_context9.prev = _context9.next) {
-              case 0:
-                if (this.isImpersonatingUser()) {
-                  _context9.next = 2;
-                  break;
-                }
+    value: function stopImpersonation() {
+      var _this3 = this;
 
-                throw new _errors.StitchError('Not impersonating a user');
-
-              case 2:
-                _context9.t0 = JSON;
-                _context9.next = 5;
-                return this.storage.get(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
-
-              case 5:
-                _context9.t1 = _context9.sent;
-                realUserAuth = _context9.t0.parse.call(_context9.t0, _context9.t1);
-                _context9.next = 9;
-                return this.set(realUserAuth);
-
-              case 9:
-                _context9.next = 11;
-                return this.clearImpersonation();
-
-              case 11:
-              case 'end':
-                return _context9.stop();
-            }
-          }
-        }, _callee9, this);
-      }));
-
-      function stopImpersonation() {
-        return _ref9.apply(this, arguments);
+      if (!this.isImpersonatingUser()) {
+        throw new _errors.StitchError('Not impersonating a user');
       }
 
-      return stopImpersonation;
-    }()
+      return new Promise(function (resolve, reject) {
+        var realUserAuth = JSON.parse(_this3.storage.get(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY));
+        _this3.set(realUserAuth);
+        _this3.clearImpersonation();
+        resolve();
+      });
+    }
   }, {
     key: 'clearImpersonation',
-    value: function () {
-      var _ref10 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10() {
-        return regeneratorRuntime.wrap(function _callee10$(_context10) {
-          while (1) {
-            switch (_context10.prev = _context10.next) {
-              case 0:
-                _context10.next = 2;
-                return this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY);
-
-              case 2:
-                _context10.next = 4;
-                return this.storage.remove(authCommon.IMPERSONATION_USER_KEY);
-
-              case 4:
-                _context10.next = 6;
-                return this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
-
-              case 6:
-              case 'end':
-                return _context10.stop();
-            }
-          }
-        }, _callee10, this);
-      }));
-
-      function clearImpersonation() {
-        return _ref10.apply(this, arguments);
-      }
-
-      return clearImpersonation;
-    }()
+    value: function clearImpersonation() {
+      this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY);
+      this.storage.remove(authCommon.IMPERSONATION_USER_KEY);
+      this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
+    }
   }, {
     key: 'parseRedirectFragment',
     value: function parseRedirectFragment(fragment, ourState) {
@@ -684,14 +380,14 @@ var Auth = function () {
   }, {
     key: 'unmarshallUserAuth',
     value: function unmarshallUserAuth(data) {
-      var _ref11;
+      var _ref;
 
       var parts = data.split('$');
       if (parts.length !== EMBEDDED_USER_AUTH_DATA_PARTS) {
         throw new RangeError('invalid user auth data provided: ' + data);
       }
 
-      return _ref11 = {}, _defineProperty(_ref11, this.codec.accessToken, parts[0]), _defineProperty(_ref11, this.codec.refreshToken, parts[1]), _defineProperty(_ref11, this.codec.userId, parts[2]), _defineProperty(_ref11, this.codec.deviceId, parts[3]), _ref11;
+      return _ref = {}, _defineProperty(_ref, this.codec.accessToken, parts[0]), _defineProperty(_ref, this.codec.refreshToken, parts[1]), _defineProperty(_ref, this.codec.userId, parts[2]), _defineProperty(_ref, this.codec.deviceId, parts[3]), _ref;
     }
   }]);
 
