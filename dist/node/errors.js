@@ -35,6 +35,38 @@ function _extendableBuiltin(cls) {
   return ExtendableBuiltin;
 }
 
+var StitchError = function (_extendableBuiltin2) {
+  _inherits(StitchError, _extendableBuiltin2);
+
+  function StitchError(message, code, response) {
+    _classCallCheck(this, StitchError);
+
+    var _this = _possibleConstructorReturn(this, (StitchError.__proto__ || Object.getPrototypeOf(StitchError)).call(this, message));
+
+    _this.name = 'StitchError';
+    _this.message = message;
+
+    if (code != null) {
+      _this.code = code;
+    }
+
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(_this, _this.constructor);
+    } else {
+      _this.stack = new Error(message).stack;
+    }
+
+    if (response != null) {
+      _this.response = {
+        status: response.status
+      };
+    }
+    return _this;
+  }
+
+  return StitchError;
+}(_extendableBuiltin(Error));
+
 /**
  * Creates a new StitchError
  *
@@ -44,30 +76,7 @@ function _extendableBuiltin(cls) {
  * @param {Object} code The error code.
  * @return {StitchError} A StitchError instance.
  */
-var StitchError = function (_extendableBuiltin2) {
-  _inherits(StitchError, _extendableBuiltin2);
 
-  function StitchError(message, code) {
-    _classCallCheck(this, StitchError);
-
-    var _this = _possibleConstructorReturn(this, (StitchError.__proto__ || Object.getPrototypeOf(StitchError)).call(this, message));
-
-    _this.name = 'StitchError';
-    _this.message = message;
-    if (code !== undefined) {
-      _this.code = code;
-    }
-
-    if (typeof Error.captureStackTrace === 'function') {
-      Error.captureStackTrace(_this, _this.constructor);
-    } else {
-      _this.stack = new Error(message).stack;
-    }
-    return _this;
-  }
-
-  return StitchError;
-}(_extendableBuiltin(Error));
 
 var ErrAuthProviderNotFound = 'AuthProviderNotFound';
 var ErrInvalidSession = 'InvalidSession';

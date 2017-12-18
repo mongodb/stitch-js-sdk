@@ -77,9 +77,8 @@ var MemoryStorage = function () {
             switch (_context3.prev = _context3.next) {
               case 0:
                 delete this._data[key];
-                return _context3.abrupt('return', undefined);
 
-              case 2:
+              case 1:
               case 'end':
                 return _context3.stop();
             }
@@ -123,7 +122,7 @@ var MemoryStorage = function () {
   return MemoryStorage;
 }();
 
-var Storage = function () {
+var Storage = exports.Storage = function () {
   function Storage(store) {
     _classCallCheck(this, Storage);
 

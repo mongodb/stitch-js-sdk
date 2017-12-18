@@ -3,9 +3,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.uriEncodeObject = exports.setPlatform = exports.getPlatform = exports.serviceResponse = exports.deprecate = exports.collectMetadata = undefined;
+exports.uriEncodeObject = exports.setPlatform = exports.getPlatform = exports.serviceResponse = exports.deprecated = exports.deprecate = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+exports.collectMetadata = collectMetadata;
 
 var _detectBrowser = require('detect-browser');
 
@@ -29,7 +31,7 @@ var RESULT_METADATA_KEY = '_stitch_metadata';
  * @memberof util
  * @param {Function} [func] optional finalizer to transform the response data
  */
-var collectMetadata = exports.collectMetadata = function collectMetadata(func) {
+function collectMetadata(func) {
   var attachMetadata = function attachMetadata(metadata) {
     return function (res) {
       if ((typeof res === 'undefined' ? 'undefined' : _typeof(res)) === 'object' && !Object.prototype.hasOwnProperty.call(res, RESULT_METADATA_KEY)) {
@@ -76,6 +78,28 @@ function deprecate(fn, msg) {
   }
 
   return deprecated;
+}
+
+function deprecated(why) {
+  if (typeof why !== 'string') {
+    why = '';
+  }
+  return function (target, key, descriptor) {
+    var className = target.constructor.name;
+    var old = descriptor.value;
+
+    descriptor.value = function () {
+      var that = this;
+      console.warn('DEPRECATE: Method ' + className + '.' + key + '() is deprecated. ' + why);
+
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return old.call.apply(old, [that].concat(args));
+    };
+    return descriptor;
+  };
 }
 
 /**
@@ -132,6 +156,7 @@ function uriEncodeObject(obj) {
 }
 
 exports.deprecate = deprecate;
+exports.deprecated = deprecated;
 exports.serviceResponse = serviceResponse;
 exports.getPlatform = getPlatform;
 exports.setPlatform = setPlatform;
