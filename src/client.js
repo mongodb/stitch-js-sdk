@@ -151,12 +151,12 @@ export default class StitchClient {
    */
   async authenticate(providerType, options = {}) {
     // reuse existing auth if present
-    if (this.auth.getAccessToken()) {
+    if (await this.auth.getAccessToken()) {
       return await this.auth.authedId();
     }
 
     return this.auth.provider(providerType).authenticate(options)
-      .then(() => this.auth.authedId());
+      .then(async () => this.auth.authedId());
   }
 
   /**
@@ -279,7 +279,7 @@ export default class StitchClient {
       .then(response => response.json());
   }
 
-  _do(resource, method, options) {
+  async _do(resource, method, options) {
     options = Object.assign({}, {
       refreshOnFailure: true,
       useRefreshToken: false,
@@ -289,12 +289,12 @@ export default class StitchClient {
     }, options);
 
     if (!options.noAuth) {
-      if (!this.authedId()) {
+      if (!(await this.authedId())) {
         return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
       }
 
       // If access token is expired, proactively get a new one
-      if (!options.useRefreshToken && this.auth.isAccessTokenExpired()) {
+      if (!options.useRefreshToken && await this.auth.isAccessTokenExpired()) {
         return this.auth.refreshToken().then(() => {
           options.refreshOnFailure = false;
           return this._do(resource, method, options);
@@ -315,7 +315,7 @@ export default class StitchClient {
 
     if (!options.noAuth) {
       let token =
-        options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
+        options.useRefreshToken ? await this.auth.getRefreshToken() : await this.auth.getAccessToken();
       fetchArgs.headers.Authorization = `Bearer ${token}`;
     }
 
@@ -324,7 +324,7 @@ export default class StitchClient {
     }
 
     return fetch(url, fetchArgs)
-      .then((response) => {
+      .then(async (response) => {
         // Okay: passthrough
         if (response.status >= 200 && response.status < 300) {
           return Promise.resolve(response);
@@ -332,11 +332,11 @@ export default class StitchClient {
 
         if (response.headers.get('Content-Type') === common.JSONTYPE) {
           return response.json()
-            .then((json) => {
+            .then(async (json) => {
               // Only want to try refreshing token when there's an invalid session
               if ('error_code' in json && json.error_code === ErrInvalidSession) {
                 if (!options.refreshOnFailure) {
-                  this.auth.clear();
+                  await this.auth.clear();
                   const error = new StitchError(json.error, json.error_code);
                   error.response = response;
                   error.json = json;

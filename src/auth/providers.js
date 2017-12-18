@@ -74,8 +74,8 @@ function customProvider(auth) {
      * @param {String} JWT token to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: ({ token }) => {
-      const device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+    authenticate: async ({ token }) => {
+      const device = getDeviceInfo(await auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
       const fetchArgs = common.makeFetchArgs(
         'POST',
@@ -108,8 +108,8 @@ function userPassProvider(auth) {
      * @param {String} password the password to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: ({ username, password }) => {
-      const device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+    authenticate: async ({ username, password }) => {
+      const device = getDeviceInfo(await auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
       const fetchArgs = common.makeFetchArgs(
         'POST',
@@ -234,14 +234,13 @@ function apiKeyProvider(auth) {
      * @param {String} key the key for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: key => {
-      const device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+    authenticate: async key => {
+      const device = getDeviceInfo(await auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
       const fetchArgs = common.makeFetchArgs(
         'POST',
         JSON.stringify({ 'key': key, 'options': { device } })
       );
       fetchArgs.cors = true;
-
       return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json())
@@ -268,15 +267,15 @@ function generateState() {
   return state;
 }
 
-function getOAuthLoginURL(auth, providerName, redirectUrl) {
+async function getOAuthLoginURL(auth, providerName, redirectUrl) {
   if (redirectUrl === undefined) {
     redirectUrl = auth.pageRootUrl();
   }
 
   const state = generateState();
-  auth.storage.set(authCommon.STATE_KEY, state);
+  await auth.storage.set(authCommon.STATE_KEY, state);
 
-  const device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+  const device = getDeviceInfo(await auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
   const result = `${auth.rootUrl}/providers/oauth2-${providerName}/login?redirect=${encodeURI(redirectUrl)}&state=${state}&device=${uriEncodeObject(device)}`;
   return result;
@@ -295,10 +294,10 @@ function googleProvider(auth) {
      * @param {Object} data the redirectUrl data to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: data => {
+    authenticate: async data => {
       let { authCode } = data;
       if (authCode !== null) {
-        const device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+        const device = getDeviceInfo(await auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
         const fetchArgs = common.makeFetchArgs(
           'POST',
@@ -331,10 +330,10 @@ function facebookProvider(auth) {
      * @param {Object} data the redirectUrl data to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: data => {
+    authenticate: async data => {
       let { accessToken } = data;
       if (accessToken !== null) {
-        const device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+        const device = getDeviceInfo(await auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
         const fetchArgs = common.makeFetchArgs(
           'POST',
@@ -369,10 +368,10 @@ function mongodbCloudProvider(auth) {
      * @param {Object} data the username, apiKey, cors, and cookie data to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: data => {
+    authenticate: async data => {
       const { username, apiKey, cors, cookie } = data;
       const options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
-      const device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+      const device = getDeviceInfo(await auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
       const fetchArgs = common.makeFetchArgs(
         'POST',
         JSON.stringify({ username, apiKey, options: { device } })

@@ -30,7 +30,7 @@ describe('Executing http service functions', () => {
     serviceId = httpService._id;
   });
 
-  afterEach(() => th.cleanup());
+  afterEach(async () => await th.cleanup());
 
   describe('That have no matching service rules', () => {
     it('should fail due to no matching rule found', async() => {
@@ -67,8 +67,8 @@ describe('Executing http service functions', () => {
     });
 
     describe('And an available mock server', () => {
-      beforeAll(() => server.listen());
-      afterAll(() => server.close());
+      beforeAll(async () => await server.listen());
+      afterAll(async () => await server.close());
 
       describe('Submitting an invalid request', () => {
         it('should fail when an invalid url value is supplied', async() => {

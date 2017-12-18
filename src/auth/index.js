@@ -32,8 +32,8 @@ export default class Auth {
     return this.providers[name];
   }
 
-  refreshToken() {
-    if (this.isImpersonatingUser()) {
+  async refreshToken() {
+    if (await this.isImpersonatingUser()) {
       return this.refreshImpersonation(this.client);
     }
 
@@ -55,7 +55,7 @@ export default class Auth {
     return this.client.type === common.APP_CLIENT_TYPE;
   }
 
-  handleRedirect() {
+  async handleRedirect() {
     if (typeof (window) === 'undefined') {
       // This means we're running in some environment other
       // than a browser - so handling a redirect makes no sense here.
@@ -92,7 +92,7 @@ export default class Auth {
     }
 
     // If we get here, the state is valid - set auth appropriately.
-    this.set(redirectState.ua);
+    await this.set(redirectState.ua);
     window.history.replaceState(null, '', this.pageRootUrl());
   }
 
@@ -112,7 +112,7 @@ export default class Auth {
     }
   }
 
-  handleCookie() {
+  async handleCookie() {
     if (typeof (window) === 'undefined' || typeof (document) === 'undefined') {
       // This means we're running in some environment other
       // than a browser - so handling a cookie makes no sense here.
@@ -129,7 +129,7 @@ export default class Auth {
 
     document.cookie = `${authCommon.USER_AUTH_COOKIE_NAME}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
     const userAuth = this.unmarshallUserAuth(uaCookie);
-    this.set(userAuth);
+    await this.set(userAuth);
     window.history.replaceState(null, '', this.pageRootUrl());
   }
 
@@ -145,8 +145,8 @@ export default class Auth {
 
   // Returns whether or not the access token is expired or is going to expire within 'withinSeconds'
   // seconds, according to current system time. Returns false if the token is malformed in any way.
-  isAccessTokenExpired(withinSeconds = authCommon.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS) {
-    let token = this.getAccessToken();
+  async isAccessTokenExpired(withinSeconds = authCommon.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS) {
+    let token = await this.getAccessToken();
     if (!token) {
       return false;
     }
@@ -165,11 +165,11 @@ export default class Auth {
     return decodedToken.exp && Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
   }
 
-  getAccessToken() {
-    return this._get().accessToken;
+  async getAccessToken() {
+    return (await this._get()).accessToken;
   }
 
-  getRefreshToken() {
+  async getRefreshToken() {
     return this.storage.get(authCommon.REFRESH_TOKEN_KEY);
   }
 
@@ -217,7 +217,7 @@ export default class Auth {
     } catch (e) {
       // Need to back out and clear auth otherwise we will never
       // be able to do anything useful.
-      this.clear();
+      await this.clear();
       throw new StitchError('Failure retrieving stored auth');
     }
   }
@@ -227,7 +227,7 @@ export default class Auth {
   }
 
   async isImpersonatingUser() {
-    return await this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY) === 'true';
+    return (await this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY)) === 'true';
   }
 
   async refreshImpersonation(client) {
@@ -235,18 +235,18 @@ export default class Auth {
     return client._do(`/admin/users/${userId}/impersonate`, 'POST', { refreshOnFailure: false, useRefreshToken: true })
       .then(response => response.json())
       .then(json => this.set(json))
-      .catch(e => {
-        this.stopImpersonation();
+      .catch(async e => {
+        await this.stopImpersonation();
         throw e;  // rethrow
       });
   }
 
   async startImpersonation(client, userId) {
-    if (await !this.authedId()) {
+    if (!(await this.authedId())) {
       return Promise.reject(new StitchError('Must auth first'));
     }
 
-    if (this.isImpersonatingUser()) {
+    if (await this.isImpersonatingUser()) {
       return Promise.reject(new StitchError('Already impersonating a user'));
     }
 
@@ -259,7 +259,7 @@ export default class Auth {
   }
 
   async stopImpersonation() {
-    if (!this.isImpersonatingUser()) {
+    if (!(await this.isImpersonatingUser())) {
       throw new StitchError('Not impersonating a user');
     }
 
