@@ -74,7 +74,7 @@ function customProvider(auth) {
      * @param {String} JWT token to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: async ({ token }) => {
+    authenticate: async (token) => {
       const device = getDeviceInfo(await auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
       const fetchArgs = common.makeFetchArgs(

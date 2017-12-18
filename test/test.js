@@ -374,8 +374,14 @@ describe('custom auth', () => {
       const device = parsed.query ? parsed.query.device : null;
       const args = JSON.parse(opts.body);
 
-      expect(args.token == 'jwt');
-      
+      if (args.token !== 'jwt') {
+        return {
+          body: {error: 'unauthorized', error_code: 'unauthorized'},
+          headers: { 'Content-Type': JSONTYPE },
+          status: 401
+        };
+      }
+
       return {
         user_id: hexStr,
         device_id: mockDeviceId,
@@ -400,6 +406,21 @@ describe('custom auth', () => {
       })
       .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
       .then((response) => expect(response.x).toEqual(1));
+  });
+
+  it('gets a rejected promise if using an invalid JWT', (done) => {
+    expect.assertions(3);
+    let testClient = new StitchClient('testapp');
+    return testClient.authenticate('custom', 'notthejwt')
+      .then(() => {
+        done('Error should have been thrown, but was not');
+      })
+      .catch(e => {
+        expect(e).toBeInstanceOf(Error);
+        expect(e.response.status).toBe(401);
+        expect(e.error).toBe('unauthorized');
+        done();
+      });
   });
 });
 
