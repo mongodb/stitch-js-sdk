@@ -18,6 +18,11 @@ describe('Client API executing user api crud functions', () => {
   beforeEach(async() => {
     const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
     th = await buildClientTestHarness(apiKey, groupId, serverUrl);
+
+    // enable api key auth provider
+    let providers = await th.app().authProviders().list();
+    await th.app().authProviders().authProvider(providers[0]._id).enable();
+
     const mongodbService = await th.app().services().create({
       type: SERVICE_TYPE,
       name: SERVICE_NAME,
@@ -50,6 +55,9 @@ describe('Client API executing user api crud functions', () => {
     return th.stitchClient.getApiKeys()
       .then(response => {
         expect(response).toEqual([]);
+      })
+      .catch(e => {
+        fail('Should not reach here');
       });
   });
 
@@ -58,6 +66,9 @@ describe('Client API executing user api crud functions', () => {
       .then(response => {
         expect(response.name).toEqual('userKey1');
         expect(response.disabled).toEqual(false);
+      })
+      .catch(e => {
+        fail('Should not reach here');
       });
   });
 
@@ -68,6 +79,9 @@ describe('Client API executing user api crud functions', () => {
         expect(response.name).toEqual('userKey1');
         apiID = response._id;
       })
+      .catch(e => {
+        fail('Should not reach here');
+      })
       .then(() => {
         return th.stitchClient.deleteApiKeyByID(apiID).then(response => {
           expect(response.status).toEqual(204);
@@ -75,7 +89,12 @@ describe('Client API executing user api crud functions', () => {
           return th.stitchClient.getApiKeys()
             .then(res => {
               expect(res).toEqual([]);
+            })
+            .catch(e => {
+              fail('Should not reach here');
             });
+        }).catch(e => {
+          fail('Should not reach here');
         });
       });
   });
@@ -85,9 +104,14 @@ describe('Client API executing user api crud functions', () => {
       .then(response => {
         expect(response.name).toEqual('userKey1');
       })
+      .catch(e => {
+        fail('Should not reach here');
+      })
       .then(() => {
         return th.stitchClient.getApiKeys().then(response => {
           expect(response.length).toEqual(1);
+        }).catch(e => {
+          fail('Should not reach here');
         });
       });
   });
@@ -103,43 +127,92 @@ describe('Client API executing user api crud functions', () => {
         return th.stitchClient.getApiKeyByID(apiID).then(response => {
           expect(response._id).toEqual(apiID);
           expect(response.name).toEqual('userKey1');
+        }).catch(e => {
+          fail('Should not reach here');
         });
       });
   });
 
-  it('can enable an user api key', async() => {
+  it('can disable and endable an user api key', async() => {
     let apiID;
-    return th.stitchClient.createApiKey({'name': 'userKey1'})
-      .then(response => {
-        expect(response.name).toEqual('userKey1');
-        apiID = response._id;
-      })
+    return th.stitchClient.login()
       .then(() => {
-        return th.stitchClient.enableApiKeyByID(apiID)
+        return th.stitchClient.createApiKey({'name': 'userKey1'})
           .then(response => {
-            expect(response.status).toEqual(204);
+            expect(response.name).toEqual('userKey1');
+            expect(response.disabled).toEqual(false);
+            apiID = response._id;
+          })
+          .then(() => {
+            return th.stitchClient.disableApiKeyByID(apiID)
+              .then(res => {
+                expect(res.status).toEqual(204);
+                return th.stitchClient.getApiKeyByID(apiID).then(res2 => {
+                  expect(res2._id).toEqual(apiID);
+                  expect(res2.name).toEqual('userKey1');
+                  expect(res2.disabled).toEqual(true);
+                  return th.stitchClient.enableApiKeyByID(apiID)
+                    .then(res3 => {
+                      expect(res3.status).toEqual(204);
+                      return th.stitchClient.getApiKeyByID(apiID).then(res4 => {
+                        expect(res4._id).toEqual(apiID);
+                        expect(res4.name).toEqual('userKey1');
+                        expect(res4.disabled).toEqual(false);
+                      }).catch(e => {
+                        fail('Should not reach here');
+                      });
+                    }).catch(e => {
+                      fail('Should not reach here');
+                    });
+                }).catch(e => {
+                  fail('Should not reach here');
+                });
+              });
+          }).catch(e => {
+            fail('Should not reach here');
           });
       });
   });
 
-  it('can disable an user api key', async() => {
-    let apiID;
-    return th.stitchClient.createApiKey({'name': 'userKey1'})
-      .then(response => {
-        expect(response.name).toEqual('userKey1');
-        apiID = response._id;
+  it('tests the max number of api keys created', async() => {
+    let ps = [];
+    for (let i = 0; i < 20; i++) {
+      ps.push(th.stitchClient.createApiKey({'name': `userKey${i}`}));
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    Promise.all(ps)
+      .then(res => {
+        expect(res.length).toEqual(20);
       })
-      .then(() => {
-        return th.stitchClient.disableApiKeyByID(apiID)
-          .then(response => {
-            expect(response).toEqual(204);
-          });
+      .catch(e => {
+        fail('Should not reach here');
+      });
+  });
+
+
+  it('tests the max number of api keys created', async() => {
+    let ps = [];
+    for (let i = 0; i < 21; i++) {
+      ps.push(th.stitchClient.createApiKey({'name': `userKey${i}`}));
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    Promise.all(ps)
+      .then(res => {
+        fail('Should not reach here');
+      })
+      .catch(e => {
+        expect(e).toBeInstanceOf(Error);
+        expect(e.response.status).toBe(400);
+        expect(e.code).toBe('MaxAPIKeysReached');
       });
   });
 
   // Test invalid key lookups
   it('will return a 404 when we try get an invalid key', async() => {
     return th.stitchClient.getApiKeyByID(1)
+      .then(res => {
+        fail('Should not reach here');
+      })
       .catch(e => {
         expect(e).toBeInstanceOf(Error);
         expect(e.response.status).toBe(404);
@@ -148,6 +221,9 @@ describe('Client API executing user api crud functions', () => {
 
   it('will return a 404 when we try deleting an invalid key', async() => {
     return th.stitchClient.deleteApiKeyByID(1)
+      .then(res => {
+        fail('Should not reach here');
+      })
       .catch(e => {
         expect(e).toBeInstanceOf(Error);
         expect(e.response.status).toBe(404);
@@ -156,6 +232,9 @@ describe('Client API executing user api crud functions', () => {
 
   it('will return a 404 when we try enabling an invalid key', async() => {
     return th.stitchClient.enableApiKeyByID(1)
+      .then(res => {
+        fail('Should not reach here');
+      })
       .catch(e => {
         expect(e).toBeInstanceOf(Error);
         expect(e.response.status).toBe(404);
@@ -164,6 +243,9 @@ describe('Client API executing user api crud functions', () => {
 
   it('will return a 404 when we try disabling an invalid key', async() => {
     return th.stitchClient.disableApiKeyByID(1)
+      .then(res => {
+        fail('Should not reach here');
+      })
       .catch(e => {
         expect(e).toBeInstanceOf(Error);
         expect(e.response.status).toBe(404);
