@@ -86,9 +86,9 @@ export default class Admin extends StitchClient {
    *
    * @returns {Promise}
    */
-  logout() {
-    return super._do('/auth/session', 'DELETE', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v3 })
-      .then(() => this.auth.clear());
+  async logout() {
+    await super._do('/auth/session', 'DELETE', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v3 })
+    return await this.auth.clear();
   }
 
   /**
@@ -462,11 +462,11 @@ export default class Admin extends StitchClient {
     return this.auth.isImpersonatingUser();
   }
 
-  _startImpersonation(userId) {
-    return this.auth.startImpersonation(this, userId);
+  async _startImpersonation(userId) {
+    return await this.auth.startImpersonation(this, userId);
   }
 
-  _stopImpersonation() {
-    return this.auth.stopImpersonation();
+  async _stopImpersonation() {
+    return await this.auth.stopImpersonation();
   }
 }

@@ -1,4 +1,6 @@
-{
+/*global __dirname, module*/
+
+module.exports = {
   "presets": [
     ["@babel/env", {
       "targets": {

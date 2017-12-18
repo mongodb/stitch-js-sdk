@@ -1,14 +1,14 @@
-const SimpleHttpServer = require('../fixtures/simple_http_server');
-const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
+import SimpleHttpServer from '../fixtures/simple_http_server';
+import StitchMongoFixture from '../fixtures/stitch_mongo_fixture';
 
-import { buildClientTestHarness, extractTestFixtureDataPoints } from '../testutil';
+import { buildClientTestHarness, extractTestFixtureDataPoints, wrap } from '../testutil';
 
 describe('Executing http service functions', () => {
   const server = new SimpleHttpServer();
   const test = new StitchMongoFixture();
 
-  beforeAll(() => test.setup());
-  afterAll(() => test.teardown());
+  beforeAll(async () => await test.setup());
+  afterAll(async () => await test.teardown());
 
   const SERVICE_TYPE = 'http';
   const SERVICE_NAME = 'gd2';
@@ -17,10 +17,9 @@ describe('Executing http service functions', () => {
   let service;
   let serviceId;
 
-  beforeEach(async() => {
+  beforeEach(async () => {
     const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
     th = await buildClientTestHarness(apiKey, groupId, serverUrl);
-
     const httpService = await th
       .app()
       .services()
@@ -30,20 +29,24 @@ describe('Executing http service functions', () => {
     serviceId = httpService._id;
   });
 
-  afterEach(() => th.cleanup());
+  afterEach(async () => {
+    await th.cleanup();
+  });
 
   describe('That have no matching service rules', () => {
-    it('should fail due to no matching rule found', async() => {
-      expect(service.get(server.url)).rejects.toMatchObject({
-        name: 'StitchError',
-        code: 'NoMatchingRuleFound',
-        response: { status: 403 }
-      });
+    it('should fail due to no matching rule found', async () => {
+      try {
+        await service.get(server.url);
+      } catch (rejects) {
+        expect(rejects).toHaveProperty('name', 'StitchError');
+        expect(rejects).toHaveProperty('code', 'NoMatchingRuleFound');
+        expect(rejects).toHaveProperty('response', { status: 403 });
+      }
     });
   });
 
   describe('That have proper service rules created', () => {
-    beforeEach(async() => {
+    beforeEach(async () => {
       await th
         .app()
         .services()
@@ -57,48 +60,54 @@ describe('Executing http service functions', () => {
     });
 
     describe('And an unavailable mock server', () => {
-      it('should fail due to a function execution error', async() => {
-        expect(service.get(server.url)).rejects.toMatchObject({
-          name: 'StitchError',
-          code: 'FunctionExecutionError',
-          response: { status: 400 }
-        });
+      it('should fail due to a function execution error', async () => {
+        try {
+          await service.get(server.url)
+        } catch (error) {
+          expect(error).toHaveProperty('name', 'StitchError');
+          expect(error).toHaveProperty('code', 'FunctionExecutionError');
+          expect(error).toHaveProperty('response', { status: 400 });
+        }
       });
     });
 
     describe('And an available mock server', () => {
-      beforeAll(() => server.listen());
-      afterAll(() => server.close());
+      beforeAll(async () => await server.listen());
+      afterAll(async () => await server.close());
 
       describe('Submitting an invalid request', () => {
-        it('should fail when an invalid url value is supplied', async() => {
-          expect(service.get({ url: 'invalidurl' })).rejects.toMatchObject({
-            name: 'StitchError',
-            code: 'FunctionExecutionError',
-            response: { status: 400 }
-          });
+        it('should fail when an invalid url value is supplied', async () => {
+          try {
+            await service.get({ url: 'invalidurl' })
+          } catch (error) {
+            expect(error).toHaveProperty('name', 'StitchError');
+            expect(error).toHaveProperty('code', 'FunctionExecutionError');
+            expect(error).toHaveProperty('response', { status: 400 });
+          }
         });
 
-        it('should fail when an invalid url datatype is supplied', async() => {
-          expect(service.get({ url: 10281995 })).rejects.toMatchObject({
-            name: 'StitchError',
-            code: 'InvalidParameter',
-            response: { status: 400 }
-          });
+        it('should fail when an invalid url datatype is supplied', async () => {
+          try {
+            await service.get({ url: 10281995 })
+          } catch (error) {
+            expect(error).toHaveProperty('name', 'StitchError');
+            expect(error).toHaveProperty('code', 'InvalidParameter');
+            expect(error).toHaveProperty('response', { status: 400 });
+          }
         });
 
-        it('should fail when both url and scheme+host are supplied', async() => {
-          expect(
-            service.get({
+        it('should fail when both url and scheme+host are supplied', async () => {
+          try {
+            await service.get({
               url: 'http://locahost',
               scheme: 'http',
               host: 'localhost'
-            })
-          ).rejects.toMatchObject({
-            name: 'StitchError',
-            code: 'InvalidParameter',
-            response: { status: 400 }
-          });
+            });
+          } catch (error) {
+            expect(error).toHaveProperty('name', 'StitchError');
+            expect(error).toHaveProperty('code', 'InvalidParameter');
+            expect(error).toHaveProperty('response', { status: 400 });
+          }
         });
       });
 

@@ -1,4 +1,4 @@
-const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
+import StitchMongoFixture from '../fixtures/stitch_mongo_fixture';
 
 import { buildAdminTestHarness, extractTestFixtureDataPoints } from '../testutil';
 
@@ -14,7 +14,7 @@ describe('Apps', ()=>{
     th = await buildAdminTestHarness(false, apiKey, groupId, serverUrl);
   });
 
-  afterEach(async() => th.cleanup());
+  afterEach(async() => await th.cleanup());
 
   it('listing apps should return empty list', async() => {
     let apps = await th.apps().list();

@@ -24,14 +24,13 @@ const hexStr = '5899445b275d3ebe8f2ab8c0';
 const mockDeviceId = '8773934448abcdef12345678';
 
 const sampleProfile = {
-  user_id: '8a15d6d20584297fa336becf',
-  domain_id: '8a156a044fdd1fa5045accab',
+  userId: '8a15d6d20584297fa336becf',
   identities:
   [
     {
       id: '8a15d6d20584297fa336bece-gkyglweqvueqoypkwanpaaca',
-      provider_type: 'anon-user',
-      provider_id: '8a156a5b0584299f47a1c6fd'
+      providerType: 'anon-user',
+      providerId: '8a156a5b0584299f47a1c6fd'
     }
   ],
   data: {},
@@ -62,6 +61,8 @@ const envConfigs = [
   }
 ];
 
+const dummyClient = new StitchClient('dummy');
+
 describe('Redirect fragment parsing', () => {
   const makeFragment = (parts) => (
     Object.keys(parts).map(
@@ -69,7 +70,7 @@ describe('Redirect fragment parsing', () => {
     ).join('&')
   );
 
-  const a = new Auth(null, '/auth');
+  const a = new Auth(dummyClient, '/auth');
   it('should detect valid states', () => {
     let result = a.parseRedirectFragment(makeFragment({'_stitch_state': 'state_XYZ'}), 'state_XYZ');
     expect(result.stateValid).toBe(true);
@@ -85,7 +86,7 @@ describe('Redirect fragment parsing', () => {
 
   it('should detect errors', () => {
     let result = a.parseRedirectFragment(makeFragment({'_stitch_error': 'hello world'}), 'state_ABC');
-    expect(result.lastError).toEqual('hello world');
+    expect(result.lastError.message).toEqual('hello world');
     expect(result.stateValid).toBe(false);
   });
 
@@ -145,7 +146,7 @@ describe('Auth', () => {
   };
   for (const envConfig of envConfigs) {
     describe(envConfig.name, () => { // eslint-disable-line
-      beforeEach(() => {
+      beforeEach(async () => {
         envConfig.setup();
         fetchMock.post('/auth/providers/local-userpass/login', checkLogin);
         fetchMock.post(DEFAULT_STITCH_SERVER_URL + '/api/client/v2.0/app/testapp/auth/providers/local-userpass/login', checkLogin);
@@ -159,90 +160,84 @@ describe('Auth', () => {
         capturedDevice = undefined;
       });
 
-      it('get() set() clear() authedId() should work', () => {
+      it('get() set() clear() authedId() should work', async () => {
         expect.assertions(4);
-        const a = new Auth(null, '/auth');
-        expect(a._get()).toEqual({});
+        const a = new Auth(dummyClient, '/auth');
+        expect(await a._get()).toEqual({});
 
         const testUser = {'access_token': 'bar', 'user_id': hexStr};
-        a.set(testUser);
-        expect(a._get()).toEqual({'accessToken': 'bar', 'userId': hexStr});
-        expect(a.authedId()).toEqual(hexStr);
+        await a.set(testUser);
+        expect(await a._get()).toEqual({'accessToken': 'bar', 'userId': hexStr});
+        expect(await a.authedId()).toEqual(hexStr);
 
-        a.clear();
-        expect(a._get()).toEqual({});
+        await a.clear();
+        expect(await a._get()).toEqual({});
       });
 
       it('should local auth successfully', () => {
         expect.assertions(1);
-        const a = new Auth(null, '/auth');
+        const a = new Auth(dummyClient, '/auth');
         return a.provider('userpass').authenticate({ username: 'user', password: 'password' })
-          .then(() => expect(a.authedId()).toEqual(hexStr));
+          .then((id) => expect(id).toEqual(hexStr));
       });
 
-      it('should send device info with local auth request', () => {
+      it('should send device info with local auth request', async () => {
         expect.assertions(6);
-        const a = new Auth(null, '/auth');
-        return a.provider('userpass').authenticate({ username: 'user', password: 'password' })
-          .then(() => {
-            expect('appId' in capturedDevice).toBeTruthy();
-            expect('appVersion' in capturedDevice).toBeTruthy();
-            expect('platform' in capturedDevice).toBeTruthy();
-            expect('platformVersion' in capturedDevice).toBeTruthy();
-            expect('sdkVersion' in capturedDevice).toBeTruthy();
+        const a = new Auth(dummyClient, '/auth');
+        await a.provider('userpass').authenticate({ username: 'user', password: 'password' });
+        expect('appId' in capturedDevice).toBeTruthy();
+        expect('appVersion' in capturedDevice).toBeTruthy();
+        expect('platform' in capturedDevice).toBeTruthy();
+        expect('platformVersion' in capturedDevice).toBeTruthy();
+        expect('sdkVersion' in capturedDevice).toBeTruthy();
 
-            // a new Auth does not have a deviceId to send
-            expect('deviceId' in capturedDevice).toBeFalsy();
-          });
+        // a new Auth does not have a deviceId to send
+        expect('deviceId' in capturedDevice).toBeFalsy();
       });
 
-      it('should set device ID on successful local auth request', () => {
+      it('should set device ID on successful local auth request', async () => {
         expect.assertions(2);
-        const a = new Auth(null, '/auth');
-        expect(a.getDeviceId()).toBeNull();
+        const a = new Auth(dummyClient, '/auth');
+        expect(await a.getDeviceId()).toBeNull();
         return a.provider('userpass').authenticate({ username: 'user', password: 'password' })
-          .then(() => expect(a.getDeviceId()).toEqual(mockDeviceId));
+          .then(async () => expect(await a.getDeviceId()).toEqual(mockDeviceId));
       });
 
       it('should not set device ID on unsuccessful local auth request', () => {
         expect.assertions(1);
-        const a = new Auth(null, '/auth');
+        const a = new Auth(dummyClient, '/auth');
         return a.provider('userpass').authenticate({ username: 'fake-user', password: 'password' })
           .then(() => console.log('expected error'))
-          .catch(() => expect(a.getDeviceId()).toBeNull());
+          .catch(async () => expect(await a.getDeviceId()).toBeNull());
       });
 
-      it('should not clear device id on logout', async() => {
+      it('should not clear device id on logout', async () => {
         expect.assertions(3);
         const testClient = new StitchClient('testapp');
-        expect(testClient.auth.getDeviceId()).toBeNull();
-        return testClient.login('user', 'password')
-          .then(() => {
-            expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
-          })
-          .then(() => testClient.logout())
-          .then(() => {
-            expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
-          });
+        expect(await testClient.auth.getDeviceId()).toBeNull();
+        await testClient.login('user', 'password')
+        expect(await testClient.auth.getDeviceId()).toEqual(mockDeviceId);
+        await testClient.logout();
+        expect(await testClient.auth.getDeviceId()).toEqual(mockDeviceId);
       });
 
-      it('should send device ID with device info with local auth request on subsequent logins', () => {
+      it('should send device ID with device info with local auth request on subsequent logins', async () => {
         expect.assertions(3);
         const testClient = new StitchClient('testapp');
-        expect(testClient.auth.getDeviceId()).toBeNull();
+        expect(await testClient.auth.getDeviceId()).toBeNull();
         return testClient.login('user', 'password')
-          .then(() => {
-            expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
+          .then(async () => {
+            expect(await testClient.auth.getDeviceId()).toEqual(mockDeviceId);
           })
-          .then(() => testClient.logout())
-          .then(() => {
-            expect(testClient.auth.getDeviceId()).toEqual(mockDeviceId);
+          .then(async () => await testClient.logout())
+          .then(async () => {
+            expect(await testClient.auth.getDeviceId()).toEqual(mockDeviceId);
           });
       });
 
       it('should have an error if local auth is unsuccessful', (done) => {
         expect.assertions(4);
-        const a = new Auth(null, '/auth');
+        const a = new Auth(dummyClient, '/auth');
         return a.provider('userpass').authenticate({ username: 'fake-user', password: 'password' })
           .then(() => done('expected an error on unsuccessful login'))
           .catch(e => {
@@ -256,7 +251,7 @@ describe('Auth', () => {
 
       it('should have an error if server returns non-JSON', (done) => {
         expect.assertions(3);
-        const a = new Auth(null, '/auth');
+        const a = new Auth(dummyClient, '/auth');
         return a.provider('userpass').authenticate({ username: 'html', password: 'password' })
           .then(() => done('expected an error on unsuccessful login'))
           .catch(e => {
@@ -269,13 +264,13 @@ describe('Auth', () => {
 
       it('should allow setting access tokens', () => {
         expect.assertions(3);
-        const auth = new Auth(null, '/auth');
+        const auth = new Auth(dummyClient, '/auth');
         return auth.provider('userpass').authenticate({ username: 'user', password: 'password' })
-          .then(() => {
-            expect(auth.authedId()).toEqual(hexStr);
-            expect(auth.getAccessToken()).toBeUndefined();
-            auth.set({'access_token': 'foo'});
-            expect(auth.getAccessToken()).toEqual('foo');
+          .then(async () => {
+            expect(await auth.authedId()).toEqual(hexStr);
+            expect(await auth.getAccessToken()).toBeUndefined();
+            await auth.set({'access_token': 'foo'});
+            expect(await auth.getAccessToken()).toEqual('foo');
           });
       });
 
@@ -283,14 +278,14 @@ describe('Auth', () => {
         expect.assertions(4);
         let testClient = new StitchClient('testapp');
         return testClient.login('user', 'password')
-          .then(() => {
-            expect(testClient.authedId()).toEqual(hexStr);
-            expect(testClient.authError()).toBeFalsy();
+          .then(async () => {
+            expect(await testClient.authedId()).toEqual(hexStr);
+            expect(await testClient.authError()).toBeFalsy();
           })
-          .then(() => testClient.logout())
-          .then(() => {
-            expect(testClient.authedId()).toBeFalsy();
-            expect(testClient.authError()).toBeFalsy();
+          .then(async () => await testClient.logout())
+          .then(async () => {
+            expect(await testClient.authedId()).toBeFalsy();
+            expect(await testClient.authError()).toBeFalsy();
           });
       });
     });
@@ -356,9 +351,9 @@ describe('anonymous auth', () => {
     expect.assertions(3);
     let testClient = new StitchClient('testapp');
     return testClient.login()
-      .then(() => {
-        expect(testClient.auth.getAccessToken()).toEqual('test-access-token');
-        expect(testClient.authedId()).toEqual(hexStr);
+      .then(async () => {
+        expect(await testClient.auth.getAccessToken()).toEqual('test-access-token');
+        expect(await testClient.authedId()).toEqual(hexStr);
       })
       .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
       .then((response) => expect(response.x).toEqual(1));
@@ -394,9 +389,9 @@ describe('custom auth', () => {
     expect.assertions(3);
     let testClient = new StitchClient('testapp');
     return testClient.authenticate('custom', 'jwt')
-      .then(() => {
-        expect(testClient.auth.getAccessToken()).toEqual('test-access-token');
-        expect(testClient.authedId()).toEqual(hexStr);
+      .then(async () => {
+        expect(await testClient.auth.getAccessToken()).toEqual('test-access-token');
+        expect(await testClient.authedId()).toEqual(hexStr);
       })
       .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
       .then((response) => expect(response.x).toEqual(1));
@@ -431,7 +426,7 @@ describe('api key auth/logout', () => {
     expect.assertions(2);
     let testClient = new StitchClient('testapp');
     return testClient.authenticate('apiKey', 'valid-api-key')
-      .then(() => expect(testClient.authedId()).toEqual(hexStr))
+      .then(async () => expect(await testClient.authedId()).toEqual(hexStr))
       .then(() => testClient.executeFunction('testfunc', {items: [{x: 1}]}, 'hello'))
       .then(response => {
         expect(response.x).toEqual(1);
@@ -495,11 +490,11 @@ describe('login/logout', () => {
         expect.assertions(3);
         let testClient = new StitchClient('testapp');
         return testClient.login('user', 'password')
-          .then(() => {
-            let storedToken = testClient.auth.storage.get(REFRESH_TOKEN_KEY);
+          .then(async () => {
+            let storedToken = await testClient.auth.storage.get(REFRESH_TOKEN_KEY);
             expect(storedToken).toEqual(testOriginalRefreshToken);
-            expect(testClient.auth.getAccessToken()).toEqual(testOriginalAccessToken);
-            expect(testClient.authedId()).toEqual(hexStr);
+            expect(await testClient.auth.getAccessToken()).toEqual(testOriginalAccessToken);
+            expect(await testClient.authedId()).toEqual(hexStr);
           });
       });
 
@@ -529,12 +524,12 @@ describe('login/logout', () => {
           .then(response => {
             expect(response.x).toEqual(2);
           })
-          .then(() => {
-            expect(testClient.auth.getAccessToken()).toEqual(validAccessTokens[0]);
+          .then(async () => {
+            expect(await testClient.auth.getAccessToken()).toEqual(validAccessTokens[0]);
           })
-          .then(() => {
-            testClient.auth.storage.clear();
-            expect(testClient.authedId()).toBeFalsy();
+          .then(async () => {
+            await testClient.auth.storage.clear();
+            expect(await testClient.authedId()).toBeFalsy();
           });
       });
     });
@@ -585,23 +580,23 @@ describe('proactive token refresh', () => {
 
     let testClient = new StitchClient('testapp');
     return testClient.login('user', 'password')
-      .then(() => {
+      .then(async () => {
         // make sure we are starting with the expired access token
-        expect(testClient.auth.getAccessToken()).toEqual(testExpiredAccessToken);
+        expect(await testClient.auth.getAccessToken()).toEqual(testExpiredAccessToken);
         return testClient.executeFunction('testfunc', {items: [{x: 1}]}, 'hello');
       })
       .then(response => {
         // token was expired, though it should yield the response we expect without throwing InvalidSession
         expect(response.x).toEqual(1);
       })
-      .then(() => {
+      .then(async () => {
         // make sure token was updated
         expect(refreshCount).toEqual(1);
-        expect(testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
+        expect(await testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
       })
-      .then(() => {
-        testClient.auth.storage.clear();
-        expect(testClient.authedId()).toBeFalsy();
+      .then(async () => {
+        await testClient.auth.storage.clear();
+        expect(await testClient.authedId()).toBeFalsy();
       });
   });
 
@@ -616,22 +611,22 @@ describe('proactive token refresh', () => {
 
     let testClient = new StitchClient('testapp');
     return testClient.login('user', 'password')
-      .then(() => {
+      .then(async () => {
         // make sure we are starting with the unexpired access token
-        expect(testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
+        expect(await testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
         return testClient.executeFunction('testfunc', {items: [{x: 1}]}, 'hello');
       })
       .then(response => {
         expect(response.x).toEqual(1);
       })
-      .then(() => {
+      .then(async () => {
         // make sure token was not updated
         expect(refreshCount).toEqual(0);
-        expect(testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
+        expect(await testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
       })
-      .then(() => {
-        testClient.auth.storage.clear();
-        expect(testClient.authedId()).toBeFalsy();
+      .then(async () => {
+        await testClient.auth.storage.clear();
+        expect(await testClient.authedId()).toBeFalsy();
       });
   });
 });

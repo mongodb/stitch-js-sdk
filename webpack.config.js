@@ -16,7 +16,7 @@ if (env === 'build') {
 }
 
 const config = {
-  entry: __dirname + '/src/index.js',
+  entry: ['babel-polyfill', __dirname + '/src/index.js'],
   devtool: 'source-map',
   output: {
     path: __dirname + '/dist/web',
@@ -30,7 +30,7 @@ const config = {
       {
         test: /(\.jsx|\.js)$/,
         loader: 'babel-loader',
-        exclude: /node_modules\/(?!(mongodb-extjson|bson))/
+        exclude: /node_modules\/(?!(mongodb-extjson|bson))/,
       },
       {
         test: /(\.jsx|\.js)$/,

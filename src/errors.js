@@ -1,3 +1,5 @@
+// @flow
+
 /**
  * Creates a new StitchError
  *
@@ -7,12 +9,20 @@
  * @param {Object} code The error code.
  * @return {StitchError} A StitchError instance.
  */
+type _StitchError = { name: string, code: string, response: { status: number } };
+
 class StitchError extends Error {
-  constructor(message, code) {
+  code: string;
+  status: number;
+  name: string;
+  response: { status: number };
+
+  constructor(message: string, code: ?string, response: ?Response) {
     super(message);
     this.name = 'StitchError';
     this.message = message;
-    if (code !== undefined) {
+
+    if (code != null) {
       this.code = code;
     }
 
@@ -21,13 +31,18 @@ class StitchError extends Error {
     } else {
       this.stack = (new Error(message)).stack;
     }
+
+    if (response != null) {
+      this.response = {
+        status: response.status
+      }
+    }
   }
 }
 
 const ErrAuthProviderNotFound = 'AuthProviderNotFound';
 const ErrInvalidSession = 'InvalidSession';
 const ErrUnauthorized = 'Unauthorized';
-
 
 export {
   StitchError,

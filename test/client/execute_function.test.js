@@ -1,4 +1,4 @@
-const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
+import StitchMongoFixture from '../fixtures/stitch_mongo_fixture';
 
 import { buildClientTestHarness, extractTestFixtureDataPoints } from '../testutil';
 

@@ -1,4 +1,4 @@
-const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
+import StitchMongoFixture from '../fixtures/stitch_mongo_fixture';
 
 import { buildClientTestHarness, extractTestFixtureDataPoints } from '../testutil';
 
@@ -43,7 +43,7 @@ describe('Client API executing mongodb service functions', () => {
       .collection(TEST_COLLECTION);
   });
 
-  afterEach(async() => {
+  afterEach(async () => {
     await th.cleanup();
     await test.mongo.db(TEST_DB).dropDatabase();
   });

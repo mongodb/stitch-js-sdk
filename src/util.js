@@ -1,3 +1,4 @@
+// @flow
 import * as _platform from 'detect-browser';
 import * as base64 from 'Base64';
 
@@ -13,7 +14,7 @@ const RESULT_METADATA_KEY = '_stitch_metadata';
  * @memberof util
  * @param {Function} [func] optional finalizer to transform the response data
  */
-export const collectMetadata = (func) => {
+export function collectMetadata(func: Function): (Object) => Promise<Object> {
   const attachMetadata = metadata => (res) => {
     if (typeof res === 'object' && !Object.prototype.hasOwnProperty.call(res, RESULT_METADATA_KEY)) {
       Object.defineProperty(
@@ -24,7 +25,7 @@ export const collectMetadata = (func) => {
     }
     return Promise.resolve(res);
   };
-  const captureMetadata = (data) => {
+  const captureMetadata = (data: Object) => {
     let metadata = {};
     if (data.warnings) {
       // Metadata is not yet attached to result, grab any data that needs to be added.
@@ -45,7 +46,7 @@ export const collectMetadata = (func) => {
  * @param {Function} fn the function to deprecate
  * @param {String} msg the message to display to the user regarding deprecation
  */
-function deprecate(fn, msg) {
+function deprecate(fn: Function, msg: string) {
   let alreadyWarned = false;
   function deprecated() {
     if (!alreadyWarned) {
@@ -64,6 +65,23 @@ function deprecate(fn, msg) {
   return deprecated;
 }
 
+function deprecated(why: string) {
+  if (typeof why !== 'string') {
+    why = '';
+  }
+  return function(target, key, descriptor) {
+    let className = target.constructor.name;
+    let old = descriptor.value;
+
+    descriptor.value = function(...args) {
+      let that = this;
+      console.warn(`DEPRECATE: Method ${className}.${key}() is deprecated. ${why}`);
+      return old.call(that, ...args);
+    }
+    return descriptor;
+  }
+}
+
 /**
  * Utility method for executing a service action as a function call.
  *
@@ -73,7 +91,8 @@ function deprecate(fn, msg) {
  * @param {Array} args the arguments to supply to the service action invocation
  * @returns {Promise} the API response from the executed service action
  */
-function serviceResponse(service, { serviceName = service.serviceName, action, args }) {
+function serviceResponse(service: Object, { serviceName = service.serviceName, action, args }: 
+  { serviceName: string, action: string, args: Array<any>}): Promise<Object> {
   const { client } = service;
 
   if (!client) {
@@ -91,11 +110,11 @@ let platform = null;
  * @memberof util
  * @returns {Object} An object of the form {name: ..., version: ...}, or null
  */
-function getPlatform() {
+function getPlatform(): Object {
   return platform ? platform : _platform;
 }
 
-function setPlatform(customPlatform) {
+function setPlatform(customPlatform: Object) {
   platform = customPlatform;
 }
 
@@ -108,12 +127,13 @@ function setPlatform(customPlatform) {
  * @param {Object} obj The object to encode
  * @returns {String} The encoded object
  */
-function uriEncodeObject(obj) {
+function uriEncodeObject(obj: Object) {
   return encodeURIComponent(base64.btoa(JSON.stringify(obj)));
 }
 
 export {
   deprecate,
+  deprecated,
   serviceResponse,
   getPlatform,
   setPlatform,

@@ -1,17 +1,28 @@
+// @flow
 /* global window, document, fetch */
-
-import { createStorage } from './storage';
-import { createProviders } from './providers';
+import { createStorage, Storage } from './storage';
+import { Provider, ProviderCache } from './providers';
 import { StitchError } from '../errors';
 import * as authCommon from './common';
 import * as common from '../common';
+import StitchClient from '../client.js';
+
+import type { AuthCodec } from './common';
+import type { ProviderType, ProviderMap } from './providers';
 
 const jwtDecode = require('jwt-decode');
 
 const EMBEDDED_USER_AUTH_DATA_PARTS = 4;
 
 export default class Auth {
-  constructor(client, rootUrl, options) {
+  client: StitchClient;
+  rootUrl: string;
+  codec: AuthCodec;
+  storage: Storage;
+  providers: ProviderCache;
+  _error: Error;
+
+  constructor(client: StitchClient, rootUrl: string, options: Object) {
     options = Object.assign({}, {
       storageType: 'localStorage',
       codec: authCommon.APP_CLIENT_CODEC
@@ -21,41 +32,38 @@ export default class Auth {
     this.rootUrl = rootUrl;
     this.codec = options.codec;
     this.storage = createStorage(options);
-    this.providers = createProviders(this, options);
+    this.providers = new ProviderCache(this);
   }
 
-  provider(name) {
-    if (!this.providers.hasOwnProperty(name)) {
-      throw new Error('Invalid auth provider specified: ' + name);
-    }
-
-    return this.providers[name];
+  provider<T: Provider>(name: ProviderType): T {
+    return this.providers.get(name);
   }
 
-  refreshToken() {
-    if (this.isImpersonatingUser()) {
+  async refreshToken() {
+    if (await this.isImpersonatingUser()) {
       return this.refreshImpersonation(this.client);
     }
 
-    return this.client.doSessionPost().then(json => this.set(json));
+    let json = await this.client.doSessionPost();
+    await this.set(json);
   }
 
-  pageRootUrl() {
+  pageRootUrl(): string {
     return [window.location.protocol, '//', window.location.host, window.location.pathname].join('');
   }
 
-  error() {
+  error(): Error {
     return this._error;
   }
 
-  isAppClient() {
+  isAppClient(): boolean {
     if (!this.client) {
       return true; // Handle the case where Auth is constructed with null
     }
     return this.client.type === common.APP_CLIENT_TYPE;
   }
 
-  handleRedirect() {
+  async handleRedirect(): Promise<void> {
     if (typeof (window) === 'undefined') {
       // This means we're running in some environment other
       // than a browser - so handling a redirect makes no sense here.
@@ -65,12 +73,15 @@ export default class Auth {
       return;
     }
 
-    let ourState = this.storage.get(authCommon.STATE_KEY);
+    let ourState = await this.storage.get(authCommon.STATE_KEY);
     let redirectFragment = window.location.hash.substring(1);
     const redirectState = this.parseRedirectFragment(redirectFragment, ourState);
     if (redirectState.lastError) {
-      console.error(`StitchClient: error from redirect: ${redirectState.lastError}`);
-      this._error = redirectState.lastError;
+      const lastError = redirectState.lastError;
+      if (lastError != null) {
+        console.error(`StitchClient: error from redirect: ${lastError.message}`);
+        this._error = lastError;
+      }
       window.history.replaceState(null, '', this.pageRootUrl());
       return;
     }
@@ -79,7 +90,7 @@ export default class Auth {
       return;
     }
 
-    this.storage.remove(authCommon.STATE_KEY);
+    await this.storage.remove(authCommon.STATE_KEY);
     if (!redirectState.stateValid) {
       console.error('StitchClient: state values did not match!');
       window.history.replaceState(null, '', this.pageRootUrl());
@@ -92,7 +103,7 @@ export default class Auth {
     }
 
     // If we get here, the state is valid - set auth appropriately.
-    this.set(redirectState.ua);
+    await this.set(redirectState.ua);
     window.history.replaceState(null, '', this.pageRootUrl());
   }
 
@@ -112,7 +123,7 @@ export default class Auth {
     }
   }
 
-  handleCookie() {
+  async handleCookie(): Promise<void> {
     if (typeof (window) === 'undefined' || typeof (document) === 'undefined') {
       // This means we're running in some environment other
       // than a browser - so handling a cookie makes no sense here.
@@ -129,7 +140,7 @@ export default class Auth {
 
     document.cookie = `${authCommon.USER_AUTH_COOKIE_NAME}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
     const userAuth = this.unmarshallUserAuth(uaCookie);
-    this.set(userAuth);
+    await this.set(userAuth);
     window.history.replaceState(null, '', this.pageRootUrl());
   }
 
@@ -139,14 +150,14 @@ export default class Auth {
     await this.clearImpersonation();
   }
 
-  async getDeviceId() {
+  async getDeviceId(): Promise<string> {
     return await this.storage.get(authCommon.DEVICE_ID_KEY);
   }
 
   // Returns whether or not the access token is expired or is going to expire within 'withinSeconds'
   // seconds, according to current system time. Returns false if the token is malformed in any way.
-  isAccessTokenExpired(withinSeconds = authCommon.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS) {
-    let token = this.getAccessToken();
+  async isAccessTokenExpired(withinSeconds = authCommon.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS) {
+    let token = await this.getAccessToken();
     if (!token) {
       return false;
     }
@@ -165,15 +176,15 @@ export default class Auth {
     return decodedToken.exp && Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
   }
 
-  getAccessToken() {
-    return this._get().accessToken;
+  async getAccessToken() {
+    return (await this._get()).accessToken;
   }
 
-  getRefreshToken() {
-    return this.storage.get(authCommon.REFRESH_TOKEN_KEY);
+  async getRefreshToken() {
+    return await this.storage.get(authCommon.REFRESH_TOKEN_KEY);
   }
 
-  async set(json) {
+  async set(json: Object) {
     if (!json) {
       return;
     }
@@ -222,27 +233,32 @@ export default class Auth {
     }
   }
 
-  async authedId() {
+  async authedId(): Promise<string> {
     return (await this._get()).userId;
   }
 
-  async isImpersonatingUser() {
-    return await this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY) === 'true';
+  async isImpersonatingUser(): Promise<boolean> {
+    return (await this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY)) === 'true';
   }
 
-  async refreshImpersonation(client) {
+  async refreshImpersonation(client: StitchClient): Promise<any> {
     let userId = await this.storage.get(authCommon.IMPERSONATION_USER_KEY);
-    return client._do(`/admin/users/${userId}/impersonate`, 'POST', { refreshOnFailure: false, useRefreshToken: true })
-      .then(response => response.json())
-      .then(json => this.set(json))
-      .catch(e => {
-        this.stopImpersonation();
-        throw e;  // rethrow
-      });
+    try {
+      let response = await client._do(
+        `/admin/users/${userId}/impersonate`, 
+        'POST', 
+        { refreshOnFailure: false, useRefreshToken: true }
+      );
+      let json = await response.json();
+      return await this.set(json);
+    } catch (error) {
+      await this.stopImpersonation();
+      throw error;
+    }
   }
 
-  async startImpersonation(client, userId) {
-    if (await !this.authedId()) {
+  async startImpersonation(client: StitchClient, userId: string): Promise<any> {
+    if (!(await this.authedId())) {
       return Promise.reject(new StitchError('Must auth first'));
     }
 
@@ -255,7 +271,7 @@ export default class Auth {
 
     let realUserAuth = JSON.parse(await this.storage.get(authCommon.USER_AUTH_KEY));
     await this.storage.set(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
-    return this.refreshImpersonation(client);
+    return await this.refreshImpersonation(client);
   }
 
   async stopImpersonation() {
@@ -274,20 +290,25 @@ export default class Auth {
     await this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
   }
 
-  parseRedirectFragment(fragment, ourState) {
+  parseRedirectFragment(fragment: string, ourState: ?any): {ua: ?Object, found: boolean, stateValid: boolean, lastError: ?Error} {
     // After being redirected from oauth, the URL will look like:
     // https://todo.examples.stitch.mongodb.com/#_stitch_state=...&_stitch_ua=...
     // This function parses out stitch-specific tokens from the fragment and
     // builds an object describing the result.
     const vars = fragment.split('&');
-    const result = { ua: null, found: false, stateValid: false, lastError: null };
+    var result: {
+      ua: ?Object,
+      found: boolean,
+      stateValid: boolean,
+      lastError: ?Error
+    } = { ua: null, found: false, stateValid: false, lastError: null };
     let shouldBreak = false;
     for (let i = 0; i < vars.length && !shouldBreak; ++i) {
       const pairParts = vars[i].split('=');
       const pairKey = decodeURIComponent(pairParts[0]);
       switch (pairKey) {
       case authCommon.STITCH_ERROR_KEY:
-        result.lastError = decodeURIComponent(pairParts[1]);
+        result.lastError = new Error(decodeURIComponent(pairParts[1]));
         result.found = true;
         shouldBreak = true;
         break;
@@ -316,7 +337,7 @@ export default class Auth {
     return result;
   }
 
-  unmarshallUserAuth(data) {
+  unmarshallUserAuth(data: string): Object {
     let parts = data.split('$');
     if (parts.length !== EMBEDDED_USER_AUTH_DATA_PARTS) {
       throw new RangeError('invalid user auth data provided: ' + data);

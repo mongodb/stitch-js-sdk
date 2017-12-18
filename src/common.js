@@ -1,21 +1,23 @@
-export const JSONTYPE = 'application/json';
-export const APP_CLIENT_TYPE = 'app';
-export const ADMIN_CLIENT_TYPE = 'admin';
-export const DEFAULT_STITCH_SERVER_URL = 'https://stitch.mongodb.com';
+// @flow
+export const JSONTYPE: string = 'application/json';
+export const APP_CLIENT_TYPE: string = 'app';
+export const ADMIN_CLIENT_TYPE: string = 'admin';
+export const DEFAULT_STITCH_SERVER_URL: string = 'https://stitch.mongodb.com';
 
 // VERSION is substituted with the package.json version number at build time
-let version = 'unknown';
+let version: string = 'unknown';
 if (typeof VERSION !== 'undefined') {
   version = VERSION;
 }
-export const SDK_VERSION = version;
 
-export const checkStatus = (response) => {
+export const SDK_VERSION: string = version;
+
+export async function checkStatus(response: Response): Promise<Object> {
   if (response.status >= 200 && response.status < 300) {
     return response;
   }
 
-  let error = new Error(response.statusText);
+  let error: any = new Error(response.statusText);
   error.response = response;
 
   // set error to statusText by default; this will be overwritten when (and if)
@@ -27,8 +29,8 @@ export const checkStatus = (response) => {
     .then(json => Promise.reject(Object.assign(error, json)));
 };
 
-export const makeFetchArgs = (method, body) => {
-  const init = {
+export function makeFetchArgs(method: string, body: any): Object {
+  const init: Object = {
     method: method,
     headers: { 'Accept': JSONTYPE, 'Content-Type': JSONTYPE }
   };

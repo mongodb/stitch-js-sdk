@@ -1,13 +1,18 @@
 /* global window, fetch */
+/* @flow */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 import 'fetch-everywhere';
 import Auth from './auth';
 import { APP_CLIENT_CODEC } from './auth/common';
+import { UserProfile } from './auth/userProfile';
+import type { Provider, ProviderType } from './auth/providers';
+import { UserPassProvider } from './auth/providers';
 import ServiceRegistry from './services';
+import { decode } from './codable';
 import * as common from './common';
 import ExtJSON from 'mongodb-extjson';
 import queryString from 'query-string';
-import { deprecate, setPlatform } from './util';
+import { deprecate, deprecated, setPlatform } from './util';
 import {
   StitchError,
   ErrInvalidSession,
@@ -29,8 +34,14 @@ const API_TYPE_APP = 'app';
  * @return {StitchClient} a StitchClient instance.
  */
 export default class StitchClient {
-  constructor(clientAppID, options = {}) {
-    let baseUrl = common.DEFAULT_STITCH_SERVER_URL;
+  clientAppID: string
+  authUrl: string
+  rootURLsByAPIVersion: Object
+  auth: Auth
+  authManager: any
+  
+  constructor(clientAppID: string, options: Object = {}) {
+    let baseUrl: string = common.DEFAULT_STITCH_SERVER_URL;
     if (options.baseUrl) {
       baseUrl = options.baseUrl;
     }
@@ -39,7 +50,7 @@ export default class StitchClient {
 
     this.authUrl = (
       clientAppID ?
-        `${baseUrl}/api/client/v2.0/app/${clientAppID}/auth` :
+        `${baseUrl}/api/client/v2.0/app/${this.clientAppID}/auth` :
         `${baseUrl}/api/admin/v3.0/auth`
     );
 
@@ -103,7 +114,7 @@ export default class StitchClient {
       deprecate(this.authManager.mongodbCloudAuth, 'use `client.authenticate("mongodbCloud", opts)` instead of `client.authManager.mongodbCloudAuth`');
   }
 
-  get type() {
+  type(): string {
     return common.APP_CLIENT_TYPE;
   }
 
@@ -116,7 +127,7 @@ export default class StitchClient {
    * @param {Object} [options] additional authentication options
    * @returns {Promise}
    */
-  async login(email, password, options = {}) {
+  async login(email: string, password: string, options: Object = {}) {
     if (email === undefined || password === undefined) {
       return await this.authenticate('anon', options);
     }
@@ -136,9 +147,10 @@ export default class StitchClient {
    * @param {Object} [options] additional authentication options
    * @returns {Promise}
    */
-  register(email, password, options = {}) {
-    return this.auth.provider('userpass').register(email, password, options);
-  }
+  async register(email: string, password: string, options: Object = {}) {
+    const userpass = this.auth.provider('userpass');
+    return await userpass.register(email, password, options);
+  };
 
   /**
    * Submits an authentication request to the specified provider providing any
@@ -149,14 +161,13 @@ export default class StitchClient {
    * @param {Object} [options] additional authentication options
    * @returns {Promise} which resolves to a String value: the authed userId
    */
-  async authenticate(providerType, options = {}) {
+  async authenticate(providerType: ProviderType, options: Object = {}): Promise<string> {
     // reuse existing auth if present
-    if (this.auth.getAccessToken()) {
+    if (await this.auth.getAccessToken()) {
       return await this.auth.authedId();
     }
 
-    return this.auth.provider(providerType).authenticate(options)
-      .then(() => this.auth.authedId());
+    return await this.auth.provider(providerType).authenticate(options)
   }
 
   /**
@@ -164,8 +175,8 @@ export default class StitchClient {
    *
    * @returns {Promise}
    */
-  async logout() {
-    return this._do(
+  async logout(): Promise<void> {
+    await this._do(
       '/auth/session',
       'DELETE',
       {
@@ -173,7 +184,8 @@ export default class StitchClient {
         useRefreshToken: true,
         rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
       }
-    ).then(async () => await this.auth.clear()); // eslint-disable-line space-before-function-paren
+    );
+    await this.auth.clear();
   }
 
   /**
@@ -188,14 +200,16 @@ export default class StitchClient {
    *
    * @returns {Promise}
    */
-  userProfile() {
-    return this._do(
+  async userProfile(): Promise<UserProfile> {
+    const response = await this._do(
       '/auth/profile',
       'GET',
-      {rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]},
-    )
-      .then(response => response.json());
+      {rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]}
+    );
+
+    return decode(await response.json(), UserProfile);
   }
+
   /**
    *  @return {String} Returns the currently authed user's ID.
    */
@@ -211,7 +225,7 @@ export default class StitchClient {
    * @param {String} name The service name.
    * @return {Object} returns a named service.
    */
-  service(type, name) {
+  service(type: string, name: string) {
     if (this.constructor !== StitchClient) {
       throw new StitchError('`service` is a factory method, do not use `new`');
     }
@@ -230,7 +244,7 @@ export default class StitchClient {
    * @param {String} name The name of the function.
    * @param {...*} args Arguments to pass to the function.
    */
-  executeFunction(name, ...args) {
+  executeFunction(name: string, ...args: Array<Object>): Promise<Object> {
     return this._doFunctionCall({
       name,
       arguments: args
@@ -244,7 +258,7 @@ export default class StitchClient {
    * @param {String} action The name of the service action.
    * @param {...*} args Arguments to pass to the service action.
    */
-  executeServiceFunction(service, action, ...args) {
+  executeServiceFunction(service: string, action: string, ...args: Array<Object>): Promise<Object> {
     return this._doFunctionCall({
       service,
       name: action,
@@ -252,7 +266,7 @@ export default class StitchClient {
     });
   }
 
-  _doFunctionCall(request) {
+  _doFunctionCall(request: any): Promise<Object> {
     let responseDecoder = (d) => ExtJSON.parse(d, { strict: false });
     let responseEncoder = (d) => ExtJSON.stringify(d);
 
@@ -266,7 +280,7 @@ export default class StitchClient {
    *
    * @returns {Promise}
    */
-  doSessionPost() {
+  async doSessionPost() {
     return this._do(
       '/auth/session',
       'POST',
@@ -275,11 +289,10 @@ export default class StitchClient {
         useRefreshToken: true,
         rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
       }
-    )
-      .then(response => response.json());
-  }
+    ).then(response => response.json());
+  };
 
-  _do(resource, method, options) {
+  async _do(resource: any, method: any, options: any): Promise<any> {
     options = Object.assign({}, {
       refreshOnFailure: true,
       useRefreshToken: false,
@@ -289,12 +302,12 @@ export default class StitchClient {
     }, options);
 
     if (!options.noAuth) {
-      if (!this.authedId()) {
+      if (!(await this.authedId())) {
         return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
       }
 
       // If access token is expired, proactively get a new one
-      if (!options.useRefreshToken && this.auth.isAccessTokenExpired()) {
+      if (!options.useRefreshToken && (await this.auth.isAccessTokenExpired())) {
         return this.auth.refreshToken().then(() => {
           options.refreshOnFailure = false;
           return this._do(resource, method, options);
@@ -315,7 +328,7 @@ export default class StitchClient {
 
     if (!options.noAuth) {
       let token =
-        options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
+        options.useRefreshToken ? await this.auth.getRefreshToken() : await this.auth.getAccessToken();
       fetchArgs.headers.Authorization = `Bearer ${token}`;
     }
 
@@ -323,57 +336,45 @@ export default class StitchClient {
       url = `${url}?${queryString.stringify(options.queryParams)}`;
     }
 
-    return fetch(url, fetchArgs)
-      .then((response) => {
-        // Okay: passthrough
-        if (response.status >= 200 && response.status < 300) {
-          return Promise.resolve(response);
+    const response = await fetch(url, fetchArgs);
+    // Okay: passthrough
+    if (response.status >= 200 && response.status < 300) {
+      return Promise.resolve(response);
+    }
+
+    if (response.headers.get('Content-Type') === common.JSONTYPE) {
+      const json = await response.json()
+          // Only want to try refreshing token when there's an invalid session
+      if ('error_code' in json && json.error_code === ErrInvalidSession) {
+        if (!options.refreshOnFailure) {
+          await this.auth.clear();
+          const error = new StitchError(json.error, json.error_code, response);
+          error.json = json;
+          throw error;
         }
 
-        if (response.headers.get('Content-Type') === common.JSONTYPE) {
-          return response.json()
-            .then((json) => {
-              // Only want to try refreshing token when there's an invalid session
-              if ('error_code' in json && json.error_code === ErrInvalidSession) {
-                if (!options.refreshOnFailure) {
-                  this.auth.clear();
-                  const error = new StitchError(json.error, json.error_code);
-                  error.response = response;
-                  error.json = json;
-                  throw error;
-                }
+        await this.auth.refreshToken()
+        options.refreshOnFailure = false;
+        return this._do(resource, method, options);
+      }
 
-                return this.auth.refreshToken()
-                  .then(() => {
-                    options.refreshOnFailure = false;
-                    return this._do(resource, method, options);
-                  });
-              }
+      const error = new StitchError(json.error, json.error_code, response);
+      error.json = json;
+      return Promise.reject(error);
+    }
 
-              const error = new StitchError(json.error, json.error_code);
-              error.response = response;
-              error.json = json;
-              return Promise.reject(error);
-            });
-        }
-
-        const error = new Error(response.statusText);
-        error.response = response;
-        return Promise.reject(error);
-      });
+    const error: Error = new Error(response.statusText);
+    return Promise.reject(error);
   }
 
   // Deprecated API
-  authWithOAuth(providerType, redirectUrl) {
+  @deprecated('use `login()` instead of `anonymousAuth`')
+  authWithOAuth(providerType: ProviderType, redirectUrl: string) {
     return this.auth.provider(providerType).authenticate({ redirectUrl });
   }
 
+  @deprecated('use `authenticate` instead of `authWithOAuth`')
   async anonymousAuth() {
     return await this.authenticate('anon');
   }
 }
-
-StitchClient.prototype.authWithOAuth =
-  deprecate(StitchClient.prototype.authWithOAuth, 'use `authenticate` instead of `authWithOAuth`');
-StitchClient.prototype.anonymousAuth =
-  deprecate(StitchClient.prototype.anonymousAuth, 'use `login()` instead of `anonymousAuth`');

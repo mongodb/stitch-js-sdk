@@ -1,7 +1,9 @@
-const stitch = require('../src');
-const constants = require('./constants');
+// @flow
+import StitchClient from '../src/client';
+import Admin from '../src/admin';
+import { DEFAULT_SERVER_URL } from './constants';
 
-export const extractTestFixtureDataPoints = (test) => {
+export const extractTestFixtureDataPoints = (test: any) => {
   const {
     userData: {
       apiKey: { key: apiKey },
@@ -12,7 +14,16 @@ export const extractTestFixtureDataPoints = (test) => {
   return { apiKey, groupId, serverUrl };
 };
 
-export const buildAdminTestHarness = async(seedTestApp, apiKey, groupId, serverUrl) => {
+export async function wrap(promise: Promise<any>): Promise<[?Error, ?any]> {
+  return promise.then(data => {
+      return [null, data];
+   }).catch(err => [err, null]);
+}
+
+export async function buildAdminTestHarness(seedTestApp: boolean, 
+                                            apiKey: string, 
+                                            groupId: string, 
+                                            serverUrl: string): Promise<TestHarness> {
   const harness = new TestHarness(apiKey, groupId, serverUrl);
   await harness.authenticate();
   if (seedTestApp) {
@@ -21,18 +32,29 @@ export const buildAdminTestHarness = async(seedTestApp, apiKey, groupId, serverU
   return harness;
 };
 
-export const buildClientTestHarness = async(apiKey, groupId, serverUrl) => {
+export async function buildClientTestHarness(apiKey: string, 
+                                             groupId: string, 
+                                             serverUrl: string): Promise<TestHarness> {
   const harness = await buildAdminTestHarness(true, apiKey, groupId, serverUrl);
   await harness.setupStitchClient();
   return harness;
 };
 
 class TestHarness {
-  constructor(apiKey, groupId, serverUrl = constants.DEFAULT_SERVER_URL) {
+  apiKey: string;
+  groupId: string;
+  serverUrl: string;
+  adminClient: Admin;
+  testApp: ?Object;
+  userCredentials: { username: string, password: string };
+  user: Object;
+  stitchClient: ?StitchClient;
+
+  constructor(apiKey: string, groupId: string, serverUrl: string = DEFAULT_SERVER_URL) {
     this.apiKey = apiKey;
     this.groupId = groupId;
     this.serverUrl = serverUrl;
-    this.adminClient = new stitch.Admin(this.serverUrl);
+    this.adminClient = new Admin(this.serverUrl);
   }
 
   async authenticate() {
@@ -66,7 +88,7 @@ class TestHarness {
     await this.configureUserpass();
     await this.createUser();
 
-    this.stitchClient = new stitch.StitchClient(this.testApp.client_app_id, { baseUrl: this.serverUrl });
+    this.stitchClient = new StitchClient(this.testApp.client_app_id, { baseUrl: this.serverUrl });
     await this.stitchClient.authenticate('userpass', this.userCredentials);
   }
 
@@ -87,6 +109,7 @@ class TestHarness {
   async appRemove() {
     await this.app().remove();
     this.testApp = undefined;
+    this.stitchClient = undefined;
   }
 
   appsV2() {

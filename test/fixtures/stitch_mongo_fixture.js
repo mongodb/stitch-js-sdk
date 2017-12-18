@@ -1,4 +1,4 @@
-const Admin = require('../../src/admin');
+import Admin from '../../src/admin';
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
 const { DEFAULT_URI, DEFAULT_SERVER_URL } = require('../constants');

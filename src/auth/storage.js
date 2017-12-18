@@ -1,40 +1,50 @@
-class MemoryStorage {
+// @flow
+interface IStorage {
+  getItem(key: string): Promise<any>;
+  setItem(key: string, value: any): Promise<any>;
+  removeItem(key: string): Promise<void>;
+  clear(): Object;
+}
+
+class MemoryStorage implements IStorage {
+  _data: Object;
+
   constructor() {
     this._data = {};
   }
 
-  async getItem(key) {
+  async getItem(key): Promise<any> {
     return (key in this._data) ? this._data[key] : null;
   }
 
-  async setItem(key, value) {
+  async setItem(key, value): Promise<any> {
     this._data[key] = value;
     return this._data[key];
   }
 
-  async removeItem(key) {
+  async removeItem(key): Promise<void> {
     delete this._data[key];
-    return undefined;
   }
 
-  async clear() {
+  async clear(): Object {
     this._data = {};
     return this._data;
   }
 }
 
-class Storage {
-  constructor(store) {
+export class Storage {
+  store: IStorage;
+  constructor(store: IStorage) {
     this.store = store;
   }
 
-  async get(key) { return this.store.getItem(key); }
-  async set(key, value) { return this.store.setItem(key, value); }
-  async remove(key) { return this.store.removeItem(key); }
+  async get(key: string) { return this.store.getItem(key); }
+  async set(key: string, value: any) { return this.store.setItem(key, value); }
+  async remove(key: any) { return this.store.removeItem(key); }
   async clear() { return this.store.clear(); }
 }
 
-export function createStorage(options) {
+export function createStorage(options: Object): Storage {
   let { storageType, storage } = options;
   if (storageType === 'localStorage') {
     if ((typeof window !== 'undefined') && 'localStorage' in window && window.localStorage !== null) {

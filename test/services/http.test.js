@@ -1,5 +1,5 @@
 const sinon = require('sinon');
-const HttpService = require('../../src/services/http/http_service');
+import HttpService from '../../src/services/http/http_service';
 
 class TestFixture {}
 TestFixture.prototype.setup = function() {
