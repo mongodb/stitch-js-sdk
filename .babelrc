@@ -9,6 +9,7 @@
     }]
   ],
   "plugins": [
+    "transform-regenerator",
     "transform-async-to-generator",
     "babel-plugin-add-module-exports",
     "version-transform",

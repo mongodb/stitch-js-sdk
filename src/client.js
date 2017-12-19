@@ -173,7 +173,7 @@ export default class StitchClient {
         useRefreshToken: true,
         rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
       }
-    ).then(() => await this.auth.clear()); // eslint-disable-line space-before-function-paren
+    ).then(() => this.auth.clear()); // eslint-disable-line space-before-function-paren
   }
 
   /**
