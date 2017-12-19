@@ -156,7 +156,7 @@ export default class StitchClient {
     }
 
     return this.auth.provider(providerType).authenticate(options)
-      .then(async() => this.auth.authedId());
+      .then(() => this.auth.authedId());
   }
 
   /**
@@ -173,7 +173,7 @@ export default class StitchClient {
         useRefreshToken: true,
         rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
       }
-    ).then(async () => await this.auth.clear()); // eslint-disable-line space-before-function-paren
+    ).then(() => await this.auth.clear()); // eslint-disable-line space-before-function-paren
   }
 
   /**
