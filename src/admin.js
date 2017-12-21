@@ -462,11 +462,11 @@ export default class Admin extends StitchClient {
     return this.auth.isImpersonatingUser();
   }
 
-  async _startImpersonation(userId) {
+  _startImpersonation(userId) {
     return this.auth.startImpersonation(this, userId);
   }
 
-  async _stopImpersonation() {
+  _stopImpersonation() {
     return this.auth.stopImpersonation();
   }
 }

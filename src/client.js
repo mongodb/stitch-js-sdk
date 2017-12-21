@@ -116,12 +116,12 @@ export default class StitchClient {
    * @param {Object} [options] additional authentication options
    * @returns {Promise}
    */
-  async login(email, password, options = {}) {
+  login(email, password, options = {}) {
     if (email === undefined || password === undefined) {
-      return await this.authenticate('anon', options);
+      return this.authenticate('anon', options);
     }
 
-    return await this.authenticate('userpass', Object.assign({ username: email, password }, options));
+    return this.authenticate('userpass', Object.assign({ username: email, password }, options));
   }
 
   /**
@@ -149,14 +149,16 @@ export default class StitchClient {
    * @param {Object} [options] additional authentication options
    * @returns {Promise} which resolves to a String value: the authed userId
    */
-  async authenticate(providerType, options = {}) {
+  authenticate(providerType, options = {}) {
     // reuse existing auth if present
-    if (await this.auth.getAccessToken()) {
-      return await this.auth.authedId();
-    }
+    return this.auth.getAccessToken().then(accessToken => {
+      if (accessToken) {
+        return this.auth.authedId();
+      }
 
-    return this.auth.provider(providerType).authenticate(options)
-      .then(() => this.auth.authedId());
+      return this.auth.provider(providerType).authenticate(options)
+        .then(() => this.auth.authedId());
+    });
   }
 
   /**
@@ -164,7 +166,7 @@ export default class StitchClient {
    *
    * @returns {Promise}
    */
-  async logout() {
+  logout() {
     return this._do(
       '/auth/session',
       'DELETE',
@@ -199,8 +201,8 @@ export default class StitchClient {
   /**
    *  @return {String} Returns the currently authed user's ID.
    */
-  async authedId() {
-    return await this.auth.authedId();
+  authedId() {
+    return this.auth.authedId();
   }
 
   /**
@@ -329,7 +331,7 @@ export default class StitchClient {
         if (response.status >= 200 && response.status < 300) {
           return Promise.resolve(response);
         }
-
+        
         if (response.headers.get('Content-Type') === common.JSONTYPE) {
           return response.json()
             .then(async(json) => {
@@ -347,7 +349,7 @@ export default class StitchClient {
                   .then(() => {
                     options.refreshOnFailure = false;
                     return this._do(resource, method, options);
-                  });
+                });
               }
 
               const error = new StitchError(json.error, json.error_code);
@@ -368,8 +370,8 @@ export default class StitchClient {
     return this.auth.provider(providerType).authenticate({ redirectUrl });
   }
 
-  async anonymousAuth() {
-    return await this.authenticate('anon');
+  anonymousAuth() {
+    return this.authenticate('anon');
   }
 }
 

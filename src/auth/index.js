@@ -32,12 +32,14 @@ export default class Auth {
     return this.providers[name];
   }
 
-  async refreshToken() {
-    if (await this.isImpersonatingUser()) {
-      return this.refreshImpersonation(this.client);
-    }
+  refreshToken() {
+    return this.isImpersonatingUser().then((isImpersonatingUser) => {
+      if (isImpersonatingUser) {
+        return this.refreshImpersonation(this.client);
+      }
 
-    return this.client.doSessionPost().then(json => this.set(json));
+      return this.client.doSessionPost()
+    }).then(json => this.set(json));
   }
 
   pageRootUrl() {
@@ -112,7 +114,7 @@ export default class Auth {
     }
   }
 
-  async handleCookie() {
+  handleCookie() {
     if (typeof (window) === 'undefined' || typeof (document) === 'undefined') {
       // This means we're running in some environment other
       // than a browser - so handling a cookie makes no sense here.
@@ -129,149 +131,177 @@ export default class Auth {
 
     document.cookie = `${authCommon.USER_AUTH_COOKIE_NAME}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
     const userAuth = this.unmarshallUserAuth(uaCookie);
-    await this.set(userAuth);
-    window.history.replaceState(null, '', this.pageRootUrl());
+    return this.set(userAuth).then(() => 
+      window.history.replaceState(null, '', this.pageRootUrl())
+    );
   }
 
-  async clear() {
-    await this.storage.remove(authCommon.USER_AUTH_KEY);
-    await this.storage.remove(authCommon.REFRESH_TOKEN_KEY);
-    await this.clearImpersonation();
+  clear() {
+    return this.storage.remove(authCommon.USER_AUTH_KEY).then(() =>
+      this.storage.remove(authCommon.REFRESH_TOKEN_KEY)
+    ).then(() =>
+      this.clearImpersonation
+    );
   }
 
-  async getDeviceId() {
-    return await this.storage.get(authCommon.DEVICE_ID_KEY);
+  getDeviceId() {
+    return this.storage.get(authCommon.DEVICE_ID_KEY);
   }
 
   // Returns whether or not the access token is expired or is going to expire within 'withinSeconds'
   // seconds, according to current system time. Returns false if the token is malformed in any way.
-  async isAccessTokenExpired(withinSeconds = authCommon.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS) {
-    let token = await this.getAccessToken();
-    if (!token) {
-      return false;
-    }
+  isAccessTokenExpired(withinSeconds = authCommon.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS) {
+    return this.getAccessToken().then((token) => {
+      if (!token) {
+        return false;
+      }
 
-    let decodedToken;
-    try {
-      decodedToken = jwtDecode(token);
-    } catch (e) {
-      return false;
-    }
+      let decodedToken;
+      try {
+        decodedToken = jwtDecode(token);
+      } catch (e) {
+        return false;
+      }
 
-    if (!decodedToken) {
-      return false;
-    }
+      if (!decodedToken) {
+        return false;
+      }
 
-    return decodedToken.exp && Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
+      return decodedToken.exp && Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
+    });    
   }
 
-  async getAccessToken() {
-    return (await this._get()).accessToken;
+  getAccessToken() {
+    return this._get().then(auth => 
+      auth.accessToken
+    );
   }
 
-  async getRefreshToken() {
+  getRefreshToken() {
     return this.storage.get(authCommon.REFRESH_TOKEN_KEY);
   }
 
-  async set(json) {
+  set(json) {
     if (!json) {
       return;
     }
 
-    if (json[this.codec.refreshToken]) {
-      let rt = json[this.codec.refreshToken];
-      delete json[this.codec.refreshToken];
-      await this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
-    }
-
-    if (json[this.codec.deviceId]) {
-      const deviceId = json[this.codec.deviceId];
-      delete json[this.codec.deviceId];
-      await this.storage.set(authCommon.DEVICE_ID_KEY, deviceId);
-    }
-
-    // Merge in new fields with old fields. Typically the first json value
-    // is complete with every field inside a user auth, but subsequent requests
-    // do not include everything. This merging behavior is safe so long as json
-    // value responses with absent fields do not indicate that the field should
-    // be unset.
     let newUserAuth = {};
-    if (json[this.codec.accessToken]) {
-      newUserAuth.accessToken = json[this.codec.accessToken];
-    }
-    if (json[this.codec.userId]) {
-      newUserAuth.userId = json[this.codec.userId];
-    }
-    newUserAuth = Object.assign(await this._get(), newUserAuth);
-    return await this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
+    return new Promise((resolve) => {
+      if (json[this.codec.refreshToken]) {
+        let rt = json[this.codec.refreshToken];
+        delete json[this.codec.refreshToken];
+        resolve(this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt));
+      }
+      resolve();
+    }).then(() => {
+      if (json[this.codec.deviceId]) {
+        const deviceId = json[this.codec.deviceId];
+        delete json[this.codec.deviceId];
+        return this.storage.set(authCommon.DEVICE_ID_KEY, deviceId);
+      }
+      return;
+    }).then(() => {
+      // Merge in new fields with old fields. Typically the first json value
+      // is complete with every field inside a user auth, but subsequent requests
+      // do not include everything. This merging behavior is safe so long as json
+      // value responses with absent fields do not indicate that the field should
+      // be unset.
+      if (json[this.codec.accessToken]) {
+        newUserAuth.accessToken = json[this.codec.accessToken];
+      }
+      if (json[this.codec.userId]) {
+        newUserAuth.userId = json[this.codec.userId];
+      }
+
+      return this._get();
+    }).then((auth) => {
+      newUserAuth = Object.assign(auth, newUserAuth);
+      return this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
+    });
   }
 
-  async _get() {
-    const data = await this.storage.get(authCommon.USER_AUTH_KEY);
-    if (!data) {
-      return {};
-    }
+  _get() {
+    return this.storage.get(authCommon.USER_AUTH_KEY).then((data) => {
+      if (!data) {
+        return {};
+      }
 
-    try {
-      return JSON.parse(data);
-    } catch (e) {
-      // Need to back out and clear auth otherwise we will never
-      // be able to do anything useful.
-      await this.clear();
-      throw new StitchError('Failure retrieving stored auth');
-    }
+      try {
+        return JSON.parse(data);
+      } catch (e) {
+        // Need to back out and clear auth otherwise we will never
+        // be able to do anything useful.
+        return this.clear().then(() => {throw new StitchError('Failure retrieving stored auth')});
+      }
+    });
   }
 
-  async authedId() {
-    return (await this._get()).userId;
+  authedId() {
+    return this._get().then((auth) => auth.userId);
   }
 
-  async isImpersonatingUser() {
-    return (await this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY)) === 'true';
+  isImpersonatingUser() {
+    return this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY).then((isImpersonationActive) =>
+      isImpersonationActive === 'true'
+    );
   }
 
-  async refreshImpersonation(client) {
-    let userId = await this.storage.get(authCommon.IMPERSONATION_USER_KEY);
-    return client._do(`/admin/users/${userId}/impersonate`, 'POST', { refreshOnFailure: false, useRefreshToken: true })
-      .then(response => response.json())
-      .then(json => this.set(json))
-      .catch(async e => {
-        await this.stopImpersonation();
-        throw e;  // rethrow
+  refreshImpersonation(client) {
+    return this.storage.get(authCommon.IMPERSONATION_USER_KEY).then((userId) =>
+      client._do(`/admin/users/${userId}/impersonate`, 'POST', 
+                { refreshOnFailure: false, useRefreshToken: true })
+    )
+    .then(response => response.json())
+    .then(json => this.set(json))
+    .catch(e => {
+      return this.stopImpersonation().then(() => {
+        throw e; // rethrow
       });
+    });
   }
 
-  async startImpersonation(client, userId) {
-    if (!(await this.authedId())) {
-      return Promise.reject(new StitchError('Must auth first'));
-    }
+  startImpersonation(client, userId) {
+    return this.authedId().then((authedId) => {
+      if (!authedId) {
+        Promise.reject(new StitchError('Must auth first'))
+      }
+      return this.isImpersonatingUser();
+    }).then((isImpersonatingUser) => {
+      if (isImpersonatingUser) {
+        return Promise.reject(new StitchError('Already impersonating a user'));
+      }
 
-    if (await this.isImpersonatingUser()) {
-      return Promise.reject(new StitchError('Already impersonating a user'));
-    }
-
-    await this.storage.set(authCommon.IMPERSONATION_ACTIVE_KEY, 'true');
-    await this.storage.set(authCommon.IMPERSONATION_USER_KEY, userId);
-
-    let realUserAuth = JSON.parse(await this.storage.get(authCommon.USER_AUTH_KEY));
-    await this.storage.set(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
-    return this.refreshImpersonation(client);
+      return this.storage.set(authCommon.IMPERSONATION_ACTIVE_KEY, 'true');
+    }).then(() =>
+      this.storage.set(authCommon.IMPERSONATION_USER_KEY, userId)
+    ).then(() => 
+      this.storage.get(authCommon.USER_AUTH_KEY)
+    ).then((userAuth) => {
+      let realUserAuth = JSON.parse(userAuth);
+      return this.storage.set(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
+    }).then(() => this.refreshImpersonation(client));
   }
 
-  async stopImpersonation() {
-    if (!(await this.isImpersonatingUser())) {
-      throw new StitchError('Not impersonating a user');
-    }
+  stopImpersonation() {
+    return this.isImpersonatingUser().then((isImpersonatingUser) => {
+      if (!isImpersonatingUser) {
+        throw new StitchError('Not impersonating a user');
+      }
 
-    let realUserAuth = JSON.parse(await this.storage.get(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY));
-    await this.set(realUserAuth);
-    await this.clearImpersonation();
+      return this.storage.get(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
+    }).then((userAuth) => {
+      let realUserAuth = JSON.parse(userAuth);
+      return this.set(realUserAuth);
+    }).then(() => this.clearImpersonation());
   }
 
-  async clearImpersonation() {
-    await this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY);
-    await this.storage.remove(authCommon.IMPERSONATION_USER_KEY);
-    await this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
+  clearImpersonation() {
+    return this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY).then(() => 
+      this.storage.remove(authCommon.IMPERSONATION_USER_KEY)
+    ).then(() =>
+      this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY)
+    );
   }
 
   parseRedirectFragment(fragment, ourState) {
