@@ -297,11 +297,11 @@ export default class Auth {
   }
 
   clearImpersonation() {
-    return this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY).then(() =>
-      this.storage.remove(authCommon.IMPERSONATION_USER_KEY)
-    ).then(() =>
+    Promise.all([
+      this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY),
+      this.storage.remove(authCommon.IMPERSONATION_USER_KEY),
       this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY)
-    );
+    ]);
   }
 
   parseRedirectFragment(fragment, ourState) {
