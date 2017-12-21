@@ -52,9 +52,9 @@ function anonProvider(auth) {
           fetchArgs
         );
       })
-      .then(common.checkStatus)
-      .then(response => response.json())
-      .then(json => auth.set(json));
+        .then(common.checkStatus)
+        .then(response => response.json())
+        .then(json => auth.set(json));
     }
   };
 }
@@ -87,9 +87,9 @@ function customProvider(auth) {
 
         return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs);
       })
-      .then(common.checkStatus)
-      .then(response => response.json())
-      .then(json => auth.set(json));
+        .then(common.checkStatus)
+        .then(response => response.json())
+        .then(json => auth.set(json));
     }
   };
 }
@@ -123,9 +123,9 @@ function userPassProvider(auth) {
 
         return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs);
       })
-      .then(common.checkStatus)
-      .then(response => response.json())
-      .then(json => auth.set(json));
+        .then(common.checkStatus)
+        .then(response => response.json())
+        .then(json => auth.set(json));
     },
 
     /**
@@ -249,9 +249,9 @@ function apiKeyProvider(auth) {
         fetchArgs.cors = true;
         return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs);
       })
-      .then(common.checkStatus)
-      .then(response => response.json())
-      .then(json => auth.set(json)); 
+        .then(common.checkStatus)
+        .then(response => response.json())
+        .then(json => auth.set(json));
     }
   };
 }
@@ -281,13 +281,13 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
 
   const state = generateState();
   return auth.storage.set(authCommon.STATE_KEY, state)
-  .then(() => auth.getDeviceId())
-  .then(deviceId => {
-    const device = getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+    .then(() => auth.getDeviceId())
+    .then(deviceId => {
+      const device = getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
-    const result = `${auth.rootUrl}/providers/oauth2-${providerName}/login?redirect=${encodeURI(redirectUrl)}&state=${state}&device=${uriEncodeObject(device)}`;
-    return result;
-  });
+      const result = `${auth.rootUrl}/providers/oauth2-${providerName}/login?redirect=${encodeURI(redirectUrl)}&state=${state}&device=${uriEncodeObject(device)}`;
+      return result;
+    });
 }
 
 /** @namespace */
@@ -316,9 +316,9 @@ function googleProvider(auth) {
 
           return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs);
         })
-        .then(common.checkStatus)
-        .then(response => response.json())
-        .then(json => auth.set(json));
+          .then(common.checkStatus)
+          .then(response => response.json())
+          .then(json => auth.set(json));
       }
 
       const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
@@ -354,9 +354,9 @@ function facebookProvider(auth) {
 
           return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs);
         })
-        .then(common.checkStatus)
-        .then(response => response.json())
-        .then(json => auth.set(json));
+          .then(common.checkStatus)
+          .then(response => response.json())
+          .then(json => auth.set(json));
       }
 
       const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
@@ -401,9 +401,9 @@ function mongodbCloudProvider(auth) {
 
         return fetch(url, fetchArgs);
       })
-      .then(common.checkStatus)
-      .then(response => response.json())
-      .then(json => auth.set(json));
+        .then(common.checkStatus)
+        .then(response => response.json())
+        .then(json => auth.set(json));
     }
   };
 }

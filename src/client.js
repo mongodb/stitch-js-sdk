@@ -281,75 +281,33 @@ export default class StitchClient {
       .then(response => response.json());
   }
 
-  async _do(resource, method, options) {
-    options = Object.assign({}, {
-      refreshOnFailure: true,
-      useRefreshToken: false,
-      apiVersion: v2,
-      apiType: API_TYPE_APP,
-      rootURL: undefined
-    }, options);
-
-    if (!options.noAuth) {
-      if (!(await this.authedId())) {
-        return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
-      }
-
-      // If access token is expired, proactively get a new one
-      if (!options.useRefreshToken && await this.auth.isAccessTokenExpired()) {
-        return this.auth.refreshToken().then(() => {
-          options.refreshOnFailure = false;
-          return this._do(resource, method, options);
-        });
-      }
-    }
-
-    const appURL = this.rootURLsByAPIVersion[options.apiVersion][options.apiType];
-    let url = `${appURL}${resource}`;
-    if (options.rootURL) {
-      url = `${options.rootURL}${resource}`;
-    }
-    let fetchArgs = common.makeFetchArgs(method, options.body);
-
-    if (!!options.headers) {
-      Object.assign(fetchArgs.headers, options.headers);
-    }
-
-    if (!options.noAuth) {
-      let token =
-        options.useRefreshToken ? await this.auth.getRefreshToken() : await this.auth.getAccessToken();
-      fetchArgs.headers.Authorization = `Bearer ${token}`;
-    }
-
-    if (options.queryParams) {
-      url = `${url}?${queryString.stringify(options.queryParams)}`;
-    }
-
+  _fetch(url, fetchArgs, resource, method, options) {
     return fetch(url, fetchArgs)
-      .then(async(response) => {
+      .then(response => {
         // Okay: passthrough
         if (response.status >= 200 && response.status < 300) {
           return Promise.resolve(response);
         }
-        
+
         if (response.headers.get('Content-Type') === common.JSONTYPE) {
           return response.json()
-            .then(async(json) => {
+            .then(json => {
               // Only want to try refreshing token when there's an invalid session
               if ('error_code' in json && json.error_code === ErrInvalidSession) {
                 if (!options.refreshOnFailure) {
-                  await this.auth.clear();
-                  const error = new StitchError(json.error, json.error_code);
-                  error.response = response;
-                  error.json = json;
-                  throw error;
+                  return this.auth.clear().then(() => {
+                    const error = new StitchError(json.error, json.error_code);
+                    error.response = response;
+                    error.json = json;
+                    throw error;
+                  });
                 }
 
                 return this.auth.refreshToken()
                   .then(() => {
                     options.refreshOnFailure = false;
                     return this._do(resource, method, options);
-                });
+                  });
               }
 
               const error = new StitchError(json.error, json.error_code);
@@ -363,6 +321,71 @@ export default class StitchClient {
         error.response = response;
         return Promise.reject(error);
       });
+  }
+
+  _fetchArgs(resource, method, options) {
+    const appURL = this.rootURLsByAPIVersion[options.apiVersion][options.apiType];
+    let url = `${appURL}${resource}`;
+    if (options.rootURL) {
+      url = `${options.rootURL}${resource}`;
+    }
+    let fetchArgs = common.makeFetchArgs(method, options.body);
+
+    if (!!options.headers) {
+      Object.assign(fetchArgs.headers, options.headers);
+    }
+
+    if (options.queryParams) {
+      url = `${url}?${queryString.stringify(options.queryParams)}`;
+    }
+
+    return { url, fetchArgs };
+  }
+
+  _do(resource, method, options) {
+    options = Object.assign({}, {
+      refreshOnFailure: true,
+      useRefreshToken: false,
+      apiVersion: v2,
+      apiType: API_TYPE_APP,
+      rootURL: undefined
+    }, options);
+
+    let { url, fetchArgs } = this._fetchArgs(resource, method, options);
+    if (!options.noAuth) {
+      return this.authedId().then(authedId => {
+        if (!this.authedId) {
+          return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
+        }
+
+        let tokenPromise =
+          options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
+
+        // If access token is expired, proactively get a new one
+        if (!options.useRefreshToken) {
+          return this.auth.isAccessTokenExpired().then(isAccessTokenExpired => {
+            if (isAccessTokenExpired) {
+              return this.auth.refreshToken().then(() => {
+                options.refreshOnFailure = false;
+                return this._do(resource, method, options);
+              });
+            }
+
+            return tokenPromise.then(token => {
+              fetchArgs.headers.Authorization = `Bearer ${token}`;
+              return this._fetch(url, fetchArgs, resource, method, options);
+            });
+          });
+        }
+
+        return tokenPromise.then(token => {
+          fetchArgs.headers.Authorization = `Bearer ${token}`;
+          return this._fetch(url, fetchArgs, resource, method, options);
+        });
+      });
+    }
+
+    return this._fetch(url, fetchArgs, resource, method, options);
   }
 
   // Deprecated API

@@ -3,21 +3,21 @@ class MemoryStorage {
     this._data = {};
   }
 
-  async getItem(key) {
+  getItem(key) {
     return (key in this._data) ? this._data[key] : null;
   }
 
-  async setItem(key, value) {
+  setItem(key, value) {
     this._data[key] = value;
     return this._data[key];
   }
 
-  async removeItem(key) {
+  removeItem(key) {
     delete this._data[key];
     return undefined;
   }
 
-  async clear() {
+  clear() {
     this._data = {};
     return this._data;
   }
@@ -28,10 +28,10 @@ class Storage {
     this.store = store;
   }
 
-  async get(key) { return this.store.getItem(key); }
-  async set(key, value) { return this.store.setItem(key, value); }
-  async remove(key) { return this.store.removeItem(key); }
-  async clear() { return this.store.clear(); }
+  get(key) { return new Promise(resolve => resolve(this.store.getItem(key))); }
+  set(key, value) { return new Promise(resolve => resolve(this.store.setItem(key, value))); }
+  remove(key) { return new Promise(resolve => resolve(this.store.removeItem(key))); }
+  clear() { return new Promise(resolve => resolve(this.store.clear())); }
 }
 
 export function createStorage(options) {

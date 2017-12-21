@@ -38,7 +38,7 @@ export default class Auth {
         return this.refreshImpersonation(this.client);
       }
 
-      return this.client.doSessionPost()
+      return this.client.doSessionPost();
     }).then(json => this.set(json));
   }
 
@@ -57,7 +57,7 @@ export default class Auth {
     return this.client.type === common.APP_CLIENT_TYPE;
   }
 
-  async handleRedirect() {
+  handleRedirect() {
     if (typeof (window) === 'undefined') {
       // This means we're running in some environment other
       // than a browser - so handling a redirect makes no sense here.
@@ -67,35 +67,36 @@ export default class Auth {
       return;
     }
 
-    let ourState = this.storage.get(authCommon.STATE_KEY);
-    let redirectFragment = window.location.hash.substring(1);
-    const redirectState = this.parseRedirectFragment(redirectFragment, ourState);
-    if (redirectState.lastError) {
-      console.error(`StitchClient: error from redirect: ${redirectState.lastError}`);
-      this._error = redirectState.lastError;
-      window.history.replaceState(null, '', this.pageRootUrl());
-      return;
-    }
+    return this.storage.get(authCommon.STATE_KEY).then(ourState => {
+      let redirectFragment = window.location.hash.substring(1);
+      const redirectState = this.parseRedirectFragment(redirectFragment, ourState);
+      if (redirectState.lastError) {
+        console.error(`StitchClient: error from redirect: ${redirectState.lastError}`);
+        this._error = redirectState.lastError;
+        window.history.replaceState(null, '', this.pageRootUrl());
+        return;
+      }
 
-    if (!redirectState.found) {
-      return;
-    }
+      if (!redirectState.found) {
+        return;
+      }
 
-    this.storage.remove(authCommon.STATE_KEY);
-    if (!redirectState.stateValid) {
-      console.error('StitchClient: state values did not match!');
-      window.history.replaceState(null, '', this.pageRootUrl());
-      return;
-    }
+      return this.storage.remove(authCommon.STATE_KEY);
+    }).then(() => {
+      if (!redirectState.stateValid) {
+        console.error('StitchClient: state values did not match!');
+        window.history.replaceState(null, '', this.pageRootUrl());
+        return;
+      }
 
-    if (!redirectState.ua) {
-      console.error('StitchClient: no UA value was returned from redirect!');
-      return;
-    }
+      if (!redirectState.ua) {
+        console.error('StitchClient: no UA value was returned from redirect!');
+        return;
+      }
 
-    // If we get here, the state is valid - set auth appropriately.
-    await this.set(redirectState.ua);
-    window.history.replaceState(null, '', this.pageRootUrl());
+      // If we get here, the state is valid - set auth appropriately.
+      return this.set(redirectState.ua);
+    }).then(() => window.history.replaceState(null, '', this.pageRootUrl()));
   }
 
   getCookie(name) {
@@ -131,7 +132,7 @@ export default class Auth {
 
     document.cookie = `${authCommon.USER_AUTH_COOKIE_NAME}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
     const userAuth = this.unmarshallUserAuth(uaCookie);
-    return this.set(userAuth).then(() => 
+    return this.set(userAuth).then(() =>
       window.history.replaceState(null, '', this.pageRootUrl())
     );
   }
@@ -168,11 +169,11 @@ export default class Auth {
       }
 
       return decodedToken.exp && Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
-    });    
+    });
   }
 
   getAccessToken() {
-    return this._get().then(auth => 
+    return this._get().then(auth =>
       auth.accessToken
     );
   }
@@ -232,7 +233,7 @@ export default class Auth {
       } catch (e) {
         // Need to back out and clear auth otherwise we will never
         // be able to do anything useful.
-        return this.clear().then(() => {throw new StitchError('Failure retrieving stored auth')});
+        return this.clear().then(() => {throw new StitchError('Failure retrieving stored auth');});
       }
     });
   }
@@ -249,22 +250,21 @@ export default class Auth {
 
   refreshImpersonation(client) {
     return this.storage.get(authCommon.IMPERSONATION_USER_KEY).then((userId) =>
-      client._do(`/admin/users/${userId}/impersonate`, 'POST', 
-                { refreshOnFailure: false, useRefreshToken: true })
+      client._do(`/admin/users/${userId}/impersonate`, 'POST', { refreshOnFailure: false, useRefreshToken: true })
     )
-    .then(response => response.json())
-    .then(json => this.set(json))
-    .catch(e => {
-      return this.stopImpersonation().then(() => {
-        throw e; // rethrow
+      .then(response => response.json())
+      .then(json => this.set(json))
+      .catch(e => {
+        return this.stopImpersonation().then(() => {
+          throw e; // rethrow
+        });
       });
-    });
   }
 
   startImpersonation(client, userId) {
     return this.authedId().then((authedId) => {
       if (!authedId) {
-        Promise.reject(new StitchError('Must auth first'))
+        Promise.reject(new StitchError('Must auth first'));
       }
       return this.isImpersonatingUser();
     }).then((isImpersonatingUser) => {
@@ -275,7 +275,7 @@ export default class Auth {
       return this.storage.set(authCommon.IMPERSONATION_ACTIVE_KEY, 'true');
     }).then(() =>
       this.storage.set(authCommon.IMPERSONATION_USER_KEY, userId)
-    ).then(() => 
+    ).then(() =>
       this.storage.get(authCommon.USER_AUTH_KEY)
     ).then((userAuth) => {
       let realUserAuth = JSON.parse(userAuth);
@@ -297,7 +297,7 @@ export default class Auth {
   }
 
   clearImpersonation() {
-    return this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY).then(() => 
+    return this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY).then(() =>
       this.storage.remove(authCommon.IMPERSONATION_USER_KEY)
     ).then(() =>
       this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY)
