@@ -14,7 +14,7 @@ const EMBEDDED_USER_AUTH_DATA_PARTS = 4;
 export default class Auth {
   constructor(client, rootUrl, options) {
     let namespace;
-    if (client === undefined || client.clientAppId === '') {
+    if (client === null || client.clientAppId === '') {
       namespace = '<admin>';
     } else {
       namespace = client.clientAppId;
