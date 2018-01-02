@@ -1,6 +1,6 @@
 import StitchClient from './client';
 import Admin from './admin';
-import BSON from 'BSON';
+import { BSON } from 'mongodb-extjson';
 
 export {
   StitchClient,
