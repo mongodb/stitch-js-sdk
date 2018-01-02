@@ -15,16 +15,16 @@ describe('storage', function() {
   });
 
   for (const storageType of storageTypes) {
-    it(`should save token to ${storageType}`, () => {
+    it(`should save token to ${storageType}`, async () => {
       const storage = createStorage(storageType);
-      storage.set('token', 'foo');
-      expect(storage.get('token')).toEqual('foo');
+      await storage.set('token', 'foo');
+      expect(await storage.get('token')).toEqual('foo');
     });
 
-    it(`should remove token to ${storageType}`, () => {
+    it(`should remove token to ${storageType}`, async () => {
       const storage = createStorage(storageType);
-      storage.remove('token');
-      expect(storage.get('token')).toBeNull();
+      await storage.remove('token');
+      expect(await storage.get('token')).toBeNull();
     });
   }
 });

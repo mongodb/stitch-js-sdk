@@ -7,7 +7,6 @@ import ServiceRegistry from './services';
 import * as common from './common';
 import ExtJSON from 'mongodb-extjson';
 import queryString from 'query-string';
-import { deprecate } from './util';
 import {
   StitchError,
   ErrInvalidSession,
@@ -29,9 +28,9 @@ const API_TYPE_APP = 'app';
  * @return {StitchClient} a StitchClient instance.
  */
 export default class StitchClient {
-  constructor(clientAppID, options) {
+  constructor(clientAppID, options = {}) {
     let baseUrl = common.DEFAULT_STITCH_SERVER_URL;
-    if (options && options.baseUrl) {
+    if (options.baseUrl) {
       baseUrl = options.baseUrl;
     }
 
@@ -69,28 +68,22 @@ export default class StitchClient {
       }
     };
 
-    const authOptions = {codec: APP_CLIENT_CODEC};
-    if (options && options.authCodec) {
+    const authOptions = {
+      codec: APP_CLIENT_CODEC,
+      storageType: options.storageType,
+      storage: options.storage
+    };
+
+    if (options.platform) {
+      authOptions.platform = options.platform;
+    }
+    if (options.authCodec) {
       authOptions.codec = options.authCodec;
     }
+
     this.auth = new Auth(this, this.authUrl, authOptions);
     this.auth.handleRedirect();
     this.auth.handleCookie();
-
-    // deprecated API
-    this.authManager = {
-      apiKeyAuth: (key) => this.authenticate('apiKey', key),
-      localAuth: (email, password) => this.login(email, password),
-      mongodbCloudAuth: (username, apiKey, opts) =>
-        this.authenticate('mongodbCloud', Object.assign({ username, apiKey }, opts))
-    };
-
-    this.authManager.apiKeyAuth =
-      deprecate(this.authManager.apiKeyAuth, 'use `client.authenticate("apiKey", "key")` instead of `client.authManager.apiKey`');
-    this.authManager.localAuth =
-      deprecate(this.authManager.localAuth, 'use `client.login` instead of `client.authManager.localAuth`');
-    this.authManager.mongodbCloudAuth =
-      deprecate(this.authManager.mongodbCloudAuth, 'use `client.authenticate("mongodbCloud", opts)` instead of `client.authManager.mongodbCloudAuth`');
   }
 
   get type() {
@@ -141,12 +134,14 @@ export default class StitchClient {
    */
   authenticate(providerType, options = {}) {
     // reuse existing auth if present
-    if (this.auth.getAccessToken()) {
-      return Promise.resolve(this.auth.authedId());
-    }
+    return this.auth.getAccessToken().then(accessToken => {
+      if (accessToken) {
+        return this.auth.authedId();
+      }
 
-    return this.auth.provider(providerType).authenticate(options)
-      .then(() => this.auth.authedId());
+      return this.auth.provider(providerType).authenticate(options)
+        .then(() => this.auth.authedId());
+    });
   }
 
   /**
@@ -163,7 +158,7 @@ export default class StitchClient {
         useRefreshToken: true,
         rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
       }
-    ).then(() => this.auth.clear());
+    ).then(() => this.auth.clear()); // eslint-disable-line space-before-function-paren
   }
 
   /**
@@ -269,52 +264,9 @@ export default class StitchClient {
       .then(response => response.json());
   }
 
-  _do(resource, method, options) {
-    options = Object.assign({}, {
-      refreshOnFailure: true,
-      useRefreshToken: false,
-      apiVersion: v2,
-      apiType: API_TYPE_APP,
-      rootURL: undefined
-    }, options);
-
-    if (!options.noAuth) {
-      if (!this.authedId()) {
-        return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
-      }
-
-      // If access token is expired, proactively get a new one
-      if (!options.useRefreshToken && this.auth.isAccessTokenExpired()) {
-        return this.auth.refreshToken().then(() => {
-          options.refreshOnFailure = false;
-          return this._do(resource, method, options);
-        });
-      }
-    }
-
-    const appURL = this.rootURLsByAPIVersion[options.apiVersion][options.apiType];
-    let url = `${appURL}${resource}`;
-    if (options.rootURL) {
-      url = `${options.rootURL}${resource}`;
-    }
-    let fetchArgs = common.makeFetchArgs(method, options.body);
-
-    if (!!options.headers) {
-      Object.assign(fetchArgs.headers, options.headers);
-    }
-
-    if (!options.noAuth) {
-      let token =
-        options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
-      fetchArgs.headers.Authorization = `Bearer ${token}`;
-    }
-
-    if (options.queryParams) {
-      url = `${url}?${queryString.stringify(options.queryParams)}`;
-    }
-
+  _fetch(url, fetchArgs, resource, method, options) {
     return fetch(url, fetchArgs)
-      .then((response) => {
+      .then(response => {
         // Okay: passthrough
         if (response.status >= 200 && response.status < 300) {
           return Promise.resolve(response);
@@ -322,15 +274,16 @@ export default class StitchClient {
 
         if (response.headers.get('Content-Type') === common.JSONTYPE) {
           return response.json()
-            .then((json) => {
+            .then(json => {
               // Only want to try refreshing token when there's an invalid session
               if ('error_code' in json && json.error_code === ErrInvalidSession) {
                 if (!options.refreshOnFailure) {
-                  this.auth.clear();
-                  const error = new StitchError(json.error, json.error_code);
-                  error.response = response;
-                  error.json = json;
-                  throw error;
+                  return this.auth.clear().then(() => {
+                    const error = new StitchError(json.error, json.error_code);
+                    error.response = response;
+                    error.json = json;
+                    throw error;
+                  });
                 }
 
                 return this.auth.refreshToken()
@@ -353,17 +306,68 @@ export default class StitchClient {
       });
   }
 
-  // Deprecated API
-  authWithOAuth(providerType, redirectUrl) {
-    return this.auth.provider(providerType).authenticate({ redirectUrl });
+  _fetchArgs(resource, method, options) {
+    const appURL = this.rootURLsByAPIVersion[options.apiVersion][options.apiType];
+    let url = `${appURL}${resource}`;
+    if (options.rootURL) {
+      url = `${options.rootURL}${resource}`;
+    }
+    let fetchArgs = common.makeFetchArgs(method, options.body);
+
+    if (!!options.headers) {
+      Object.assign(fetchArgs.headers, options.headers);
+    }
+
+    if (options.queryParams) {
+      url = `${url}?${queryString.stringify(options.queryParams)}`;
+    }
+
+    return { url, fetchArgs };
   }
 
-  anonymousAuth() {
-    return this.authenticate('anon');
+  _do(resource, method, options) {
+    options = Object.assign({}, {
+      refreshOnFailure: true,
+      useRefreshToken: false,
+      apiVersion: v2,
+      apiType: API_TYPE_APP,
+      rootURL: undefined
+    }, options);
+
+    let { url, fetchArgs } = this._fetchArgs(resource, method, options);
+    if (!options.noAuth) {
+      return this.authedId().then(authedId => {
+        if (!this.authedId) {
+          return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
+        }
+
+        let tokenPromise =
+          options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
+
+        // If access token is expired, proactively get a new one
+        if (!options.useRefreshToken) {
+          return this.auth.isAccessTokenExpired().then(isAccessTokenExpired => {
+            if (isAccessTokenExpired) {
+              return this.auth.refreshToken().then(() => {
+                options.refreshOnFailure = false;
+                return this._do(resource, method, options);
+              });
+            }
+
+            return tokenPromise.then(token => {
+              fetchArgs.headers.Authorization = `Bearer ${token}`;
+              return this._fetch(url, fetchArgs, resource, method, options);
+            });
+          });
+        }
+
+        return tokenPromise.then(token => {
+          fetchArgs.headers.Authorization = `Bearer ${token}`;
+          return this._fetch(url, fetchArgs, resource, method, options);
+        });
+      });
+    }
+
+    return this._fetch(url, fetchArgs, resource, method, options);
   }
 }
-
-StitchClient.prototype.authWithOAuth =
-  deprecate(StitchClient.prototype.authWithOAuth, 'use `authenticate` instead of `authWithOAuth`');
-StitchClient.prototype.anonymousAuth =
-  deprecate(StitchClient.prototype.anonymousAuth, 'use `login()` instead of `anonymousAuth`');

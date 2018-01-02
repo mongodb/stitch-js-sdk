@@ -31,12 +31,12 @@ describe('Auth', () => {
   beforeEach(() => { test.fetch = sinon.stub(window, 'fetch'); });
   afterEach(() => test.fetch.restore());
 
-  it('should return a promise for anonymous login with existing auth data', () => {
+  it('should return a promise for anonymous login with existing auth data', async () => {
     window.fetch.resolves(mockApiResponse());
     expect.assertions(1);
 
     let client = new StitchClient();
-    client.auth.storage.set(common.USER_AUTH_KEY, mockAuthData());
+    await client.auth.storage.set(common.USER_AUTH_KEY, mockAuthData());
 
     return client.login()
       .then(userId => expect(userId).toEqual('fake-user-id'));
@@ -59,12 +59,12 @@ describe('Auth', () => {
       .then(userId => expect(userId).toEqual('fake-user-id'));
   });
 
-  it('should return a promise for login with only existing auth data userId', () => {
+  it('should return a promise for login with only existing auth data userId', async () => {
     window.fetch.resolves(mockApiResponse());
     expect.assertions(1);
 
     let client = new StitchClient();
-    client.auth.storage.set(common.USER_AUTH_KEY, mockAuthData());
+    await client.auth.storage.set(common.USER_AUTH_KEY, mockAuthData());
 
     return client.login('email', 'password')
       .then(userId => expect(userId).toEqual('fake-user-id'));
