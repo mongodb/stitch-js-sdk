@@ -1,7 +1,7 @@
 /** @module auth  */
 import * as common from '../common';
 import * as authCommon from './common';
-import { getPlatform, uriEncodeObject } from '../util';
+import { uriEncodeObject } from '../util';
 
 /**
  * @namespace
