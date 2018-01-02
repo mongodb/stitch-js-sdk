@@ -13,9 +13,17 @@ const EMBEDDED_USER_AUTH_DATA_PARTS = 4;
 
 export default class Auth {
   constructor(client, rootUrl, options) {
+    var namespace;
+    if (client == null || client.clientAppId === '') {
+      namespace = "<admin>";
+    } else {
+      namespace = client.clientAppId;
+    }
+
     options = Object.assign({}, {
       storageType: 'localStorage',
-      codec: authCommon.APP_CLIENT_CODEC
+      codec: authCommon.APP_CLIENT_CODEC,
+      namespace: namespace
     }, options);
 
     this.client = client;
