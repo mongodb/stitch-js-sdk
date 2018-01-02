@@ -7,7 +7,7 @@ import ServiceRegistry from './services';
 import * as common from './common';
 import ExtJSON from 'mongodb-extjson';
 import queryString from 'query-string';
-import { deprecate, setPlatform } from './util';
+import { deprecate, } from './util';
 import {
   StitchError,
   ErrInvalidSession,
