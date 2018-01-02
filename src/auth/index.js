@@ -21,7 +21,7 @@ export default class Auth {
     this.client = client;
     this.rootUrl = rootUrl;
     this.codec = options.codec;
-    this.platform = options.platform !== undefined ? options.platform : _platform;
+    this.platform = options.platform || _platform;
     this.storage = createStorage(options);
     this.providers = createProviders(this, options);
   }
@@ -323,7 +323,7 @@ export default class Auth {
   }
 
   clearImpersonation() {
-    Promise.all([
+    return Promise.all([
       this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY),
       this.storage.remove(authCommon.IMPERSONATION_USER_KEY),
       this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY)

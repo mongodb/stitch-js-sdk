@@ -7,7 +7,6 @@ import ServiceRegistry from './services';
 import * as common from './common';
 import ExtJSON from 'mongodb-extjson';
 import queryString from 'query-string';
-import { deprecate } from './util';
 import {
   StitchError,
   ErrInvalidSession,
@@ -85,21 +84,6 @@ export default class StitchClient {
     this.auth = new Auth(this, this.authUrl, authOptions);
     this.auth.handleRedirect();
     this.auth.handleCookie();
-
-    // deprecated API
-    this.authManager = {
-      apiKeyAuth: (key) => this.authenticate('apiKey', key),
-      localAuth: (email, password) => this.login(email, password),
-      mongodbCloudAuth: (username, apiKey, opts) =>
-        this.authenticate('mongodbCloud', Object.assign({ username, apiKey }, opts))
-    };
-
-    this.authManager.apiKeyAuth =
-      deprecate(this.authManager.apiKeyAuth, 'use `client.authenticate("apiKey", "key")` instead of `client.authManager.apiKey`');
-    this.authManager.localAuth =
-      deprecate(this.authManager.localAuth, 'use `client.login` instead of `client.authManager.localAuth`');
-    this.authManager.mongodbCloudAuth =
-      deprecate(this.authManager.mongodbCloudAuth, 'use `client.authenticate("mongodbCloud", opts)` instead of `client.authManager.mongodbCloudAuth`');
   }
 
   get type() {
@@ -386,18 +370,4 @@ export default class StitchClient {
 
     return this._fetch(url, fetchArgs, resource, method, options);
   }
-
-  // Deprecated API
-  authWithOAuth(providerType, redirectUrl) {
-    return this.auth.provider(providerType).authenticate({ redirectUrl });
-  }
-
-  anonymousAuth() {
-    return this.authenticate('anon');
-  }
 }
-
-StitchClient.prototype.authWithOAuth =
-  deprecate(StitchClient.prototype.authWithOAuth, 'use `authenticate` instead of `authWithOAuth`');
-StitchClient.prototype.anonymousAuth =
-  deprecate(StitchClient.prototype.anonymousAuth, 'use `login()` instead of `anonymousAuth`');
