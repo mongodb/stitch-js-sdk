@@ -4,32 +4,6 @@ import * as authCommon from './common';
 import { getPlatform, uriEncodeObject } from '../util';
 
 /**
- * Create the device info for this client.
- *
- * @memberof module:auth
- * @method getDeviceInfo
- * @param {String} appId The app ID for this client
- * @param {String} appVersion The version of the app
- * @returns {Object} The device info object
- */
-function getDeviceInfo(deviceId, appId, appVersion = '') {
-  const deviceInfo = { appId, appVersion, sdkVersion: common.SDK_VERSION };
-
-  if (deviceId) {
-    deviceInfo.deviceId = deviceId;
-  }
-
-  const platform = getPlatform();
-
-  if (platform) {
-    deviceInfo.platform = platform.name;
-    deviceInfo.platformVersion = platform.version;
-  }
-
-  return deviceInfo;
-}
-
-/**
  * @namespace
  */
 function anonProvider(auth) {
@@ -43,7 +17,7 @@ function anonProvider(auth) {
      */
     authenticate: () => {
       return auth.getDeviceId().then((deviceId) => {
-        const device = getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+        const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
         const fetchArgs = common.makeFetchArgs('GET');
         fetchArgs.cors = true;
 
@@ -77,7 +51,7 @@ function customProvider(auth) {
      */
     authenticate: (token) => {
       return auth.getDeviceId().then(deviceId => {
-        const device = getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+        const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
         const fetchArgs = common.makeFetchArgs(
           'POST',
@@ -113,7 +87,7 @@ function userPassProvider(auth) {
      */
     authenticate: ({ username, password }) => {
       return auth.getDeviceId().then(deviceId => {
-        const device = getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+        const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
         const fetchArgs = common.makeFetchArgs(
           'POST',
@@ -241,7 +215,7 @@ function apiKeyProvider(auth) {
      */
     authenticate: key => {
       return auth.getDeviceId().then(deviceId => {
-        const device = getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+        const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
         const fetchArgs = common.makeFetchArgs(
           'POST',
           JSON.stringify({ 'key': key, 'options': { device } })
@@ -283,7 +257,7 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
   return auth.storage.set(authCommon.STATE_KEY, state)
     .then(() => auth.getDeviceId())
     .then(deviceId => {
-      const device = getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+      const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
       const result = `${auth.rootUrl}/providers/oauth2-${providerName}/login?redirect=${encodeURI(redirectUrl)}&state=${state}&device=${uriEncodeObject(device)}`;
       return result;
@@ -307,7 +281,7 @@ function googleProvider(auth) {
       let { authCode } = data;
       if (authCode !== null) {
         return auth.getDeviceId(deviceId => {
-          const device = getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+          const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
           const fetchArgs = common.makeFetchArgs(
             'POST',
@@ -345,7 +319,7 @@ function facebookProvider(auth) {
       let { accessToken } = data;
       if (accessToken !== null) {
         return auth.getDeviceId().then(deviceId => {
-          const device = getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+          const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
           const fetchArgs = common.makeFetchArgs(
             'POST',
@@ -385,7 +359,7 @@ function mongodbCloudProvider(auth) {
       const { username, apiKey, cors, cookie } = data;
       const options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
       return auth.getDeviceId().then(deviceId => {
-        const device = getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+        const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
         const fetchArgs = common.makeFetchArgs(
           'POST',
           JSON.stringify({ username, apiKey, options: { device } })

@@ -5,6 +5,7 @@ import { createProviders } from './providers';
 import { StitchError } from '../errors';
 import * as authCommon from './common';
 import * as common from '../common';
+import * as _platform from 'detect-browser';
 
 const jwtDecode = require('jwt-decode');
 
@@ -20,8 +21,33 @@ export default class Auth {
     this.client = client;
     this.rootUrl = rootUrl;
     this.codec = options.codec;
+    this.platform = options.platform != null ? options.platform : _platform;
     this.storage = createStorage(options);
     this.providers = createProviders(this, options);
+  }
+
+  /**
+   * Create the device info for this client.
+   *
+   * @memberof module:auth
+   * @method getDeviceInfo
+   * @param {String} appId The app ID for this client
+   * @param {String} appVersion The version of the app
+   * @returns {Object} The device info object
+   */
+  getDeviceInfo(deviceId, appId, appVersion = '') {
+    const deviceInfo = { appId, appVersion, sdkVersion: common.SDK_VERSION };
+
+    if (deviceId) {
+      deviceInfo.deviceId = deviceId;
+    }
+
+    if (this.platform) {
+      deviceInfo.platform = this.platform.name;
+      deviceInfo.platformVersion = this.platform.version;
+    }
+
+    return deviceInfo;
   }
 
   provider(name) {

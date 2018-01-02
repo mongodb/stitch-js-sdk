@@ -69,16 +69,15 @@ export default class StitchClient {
       }
     };
 
-    if (options.platform) {
-      setPlatform(options.platform);
-    }
-
     const authOptions = {
       codec: APP_CLIENT_CODEC,
       storageType: options.storageType,
       storage: options.storage
     };
 
+    if (options.platform) {
+      authOptions.platform = options.platform;
+    }
     if (options.authCodec) {
       authOptions.codec = options.authCodec;
     }

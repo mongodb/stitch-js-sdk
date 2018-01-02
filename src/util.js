@@ -1,4 +1,3 @@
-import * as _platform from 'detect-browser';
 import * as base64 from 'Base64';
 
 const RESULT_METADATA_KEY = '_stitch_metadata';
@@ -83,22 +82,6 @@ function serviceResponse(service, { serviceName = service.serviceName, action, a
   return client.executeServiceFunction(serviceName, action, args);
 }
 
-let platform = null;
-
-/**
- * Utility function to get the platform.
- *
- * @memberof util
- * @returns {Object} An object of the form {name: ..., version: ...}, or null
- */
-function getPlatform() {
-  return platform ? platform : _platform;
-}
-
-function setPlatform(customPlatform) {
-  platform = customPlatform;
-}
-
 /**
  * Utility function to encode a JSON object into a valid string that can be
  * inserted in a URI. The object is first stringified, then encoded in base64,
@@ -115,7 +98,5 @@ function uriEncodeObject(obj) {
 export {
   deprecate,
   serviceResponse,
-  getPlatform,
-  setPlatform,
   uriEncodeObject
 };
