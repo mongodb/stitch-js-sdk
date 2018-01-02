@@ -21,7 +21,7 @@ export default class Auth {
     this.client = client;
     this.rootUrl = rootUrl;
     this.codec = options.codec;
-    this.platform = options.platform !== null ? options.platform : _platform;
+    this.platform = options.platform !== undefined ? options.platform : _platform;
     this.storage = createStorage(options);
     this.providers = createProviders(this, options);
   }
