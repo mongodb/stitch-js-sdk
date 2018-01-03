@@ -26,17 +26,75 @@ class MemoryStorage {
 class Storage {
   /**
    * @param {Storage} store implementer of Storage interface
-   * @param {String} namespace appID to be used for namespacing
+   * @param {String} namespace clientAppID to be used for namespacing
   */
   constructor(store, namespace) {
     this.store = store;
     this.namespace = namespace;
+    this._keySetKey = `_${this.namespace}.keys`
+  }
+  
+  _generateKey(key) {
+    return `${this.namespace}.${key}`
+  }
+  _saveKeyToKeySet(generatedKey) {
+    return this._getKeySet().then(keySet => {
+      keySet.push(generatedKey);
+      return this.store.setItem(this._keySetKey, keySet);
+    });
+  }
+  _removeKeyFromKeySet(generatedKey) {
+    return this._getKeySet().then(keySet => {
+      keySet.pop(generatedKey)
+      return this.store.setItem(this._keySetKey, keySet);
+    })
+  }
+  _getKeySet() {
+    return new Promise(resolve => 
+      resolve(this.store.getItem(this._keySetKey))
+    ).then(keySet => {
+      return !keySet ? [] : keySet
+    });
   }
 
-  get(key) { return new Promise(resolve => resolve(this.store.getItem(`${this.namespace}.${key}`))); }
-  set(key, value) { return new Promise(resolve => resolve(this.store.setItem(`${this.namespace}.${key}`, value))); }
-  remove(key) { return new Promise(resolve => resolve(this.store.removeItem(`${this.namespace}.${key}`))); }
-  clear() { return new Promise(resolve => resolve(this.store.clear())); }
+  get(key) {
+    return new Promise(resolve => 
+      resolve(this.store.getItem(this._generateKey(key)))
+    ); 
+  }
+
+  set(key, value) {
+    const generatedKey = this._generateKey(key);
+    return new Promise(resolve =>
+      resolve(this._saveKeyToKeySet(generatedKey))
+    ).then(() => {
+      return this.store.setItem(generatedKey, value);
+    }).catch(() => {
+      return this._removeKeyFromKeySet(generatedKey);
+    }); 
+  }
+
+  remove(key) { 
+    const generatedKey = this._generateKey(key);
+    return new Promise(resolve =>
+      resolve(this.store.removeItem(generatedKey))
+    ).then(() => {
+      return this._removeKeyFromKeySet(generatedKey);
+    }); 
+  }
+
+  clear() { 
+    return this._getKeySet().then(keySet =>
+      Promise.all(
+        [].concat(keySet.map(key => 
+          [new Promise(resolve => 
+            resolve(this.store.removeItem(key))
+          ), 
+          this._removeKeyFromKeySet(key)]
+        ))
+      )
+    );
+  }
 }
 
 export function createStorage(options) {
