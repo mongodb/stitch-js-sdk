@@ -48,132 +48,133 @@ describe('Client API executing user api crud functions', () => {
   afterEach(async() => {
     await th.cleanup();
     await test.mongo.db(TEST_DB).dropDatabase();
-
   });
 
-  it('can get an empty user api key array', async() => {
+  it('can get an empty user api key array.', async() => {
     return th.stitchClient.getApiKeys()
       .then(response => {
         expect(response).toEqual([]);
       })
       .catch(e => {
-        fail('Should not reach here');
+        fail('Should be able to obtain empty user api key array.');
       });
   });
 
-  it('can insert an user api key', async() => {
-    return th.stitchClient.createApiKey({'name': 'userKey1'})
+  it('can insert a user api key.', async() => {
+    return th.stitchClient.createApiKey('userKey1')
       .then(response => {
-        assertApiKey(response, 'userKey1', response._id, false)
+        assertApiKey(response, 'userKey1', response._id, false);
       })
       .catch(e => {
-        fail('Should not reach here');
+        fail('Should be able to insert a user api key.');
       });
   });
 
-  it('can delete an user api key', async() => {
+  it('can delete a user api key.', async() => {
     let apiID;
-    return th.stitchClient.createApiKey({'name': 'userKey1'})
+    return th.stitchClient.createApiKey('userKey1')
       .then(response => {
         apiID = response._id;
-        assertApiKey(response, 'userKey1', apiID, false)
+        assertApiKey(response, 'userKey1', apiID, false);
       })
       .catch(e => {
-        fail('Should not reach here');
+        fail('Should be able to insert a user api key.');
       })
       .then(() => {
-        return th.stitchClient.deleteApiKeyByID(apiID)
+        return th.stitchClient.deleteApiKeyByID(apiID);
       })
       .then(response => {
         expect(response.status).toEqual(204);
-        return th.stitchClient.getApiKeys()
+        return th.stitchClient.getApiKeys();
       })
       .then(res => {
         expect(res).toEqual([]);
       })
       .catch(e => {
-        fail('Should not reach here');
+        fail('Should be able to obtain a user api key.');
       });
   });
 
-  it('can get the user api key array with element inserted', async() => {
-    return th.stitchClient.createApiKey({'name': 'userKey1'})
+  it('can get the user api key array with element inserted.', async() => {
+    return th.stitchClient.createApiKey('userKey1')
       .then(response => {
-        assertApiKey(response, 'userKey1', response._id, false)
+        assertApiKey(response, 'userKey1', response._id, false);
       })
       .catch(e => {
-        fail('Should not reach here');
+        fail('Should be able to insert a user api key.');
       })
       .then(() => {
-        return th.stitchClient.getApiKeys()
+        return th.stitchClient.getApiKeys();
       })
       .then(response => {
         expect(response.length).toEqual(1);
       })
       .catch(e => {
-        fail('Should not reach here');
+        fail('Should be able to obtain user api keys and have the length be equal to 1.');
       });
   });
 
-  it('can get the user api key by id with element inserted', async() => {
+  it('can get the user api key by id with element inserted.', async() => {
     let apiID;
-    return th.stitchClient.createApiKey({'name': 'userKey1'})
+    let userKeyName = 'userKey1';
+    return th.stitchClient.createApiKey(userKeyName)
       .then(response => {
-        assertApiKey(response, 'userKey1', response._id, false)
+        assertApiKey(response, userKeyName, response._id, false);
         apiID = response._id;
       })
       .then(() => {
-        return th.stitchClient.getApiKeyByID(apiID)
+        return th.stitchClient.getApiKeyByID(apiID);
       })
       .then(response => {
-        assertApiKey(response, 'userKey1', response._id, false)
+        assertApiKey(response, userKeyName, response._id, false);
       }).catch(e => {
-        fail('Should not reach here');
+        fail('Should be able to obtain user api keys and assert the contents be equal to what was passed in.');
       });
   });
 
-  it('can disable and endable an user api key', async() => {
+  it('can disable and endable a user api key.', async() => {
+    let userKeyName = 'userKey1';
     let apiID;
     await th.stitchClient.login()
-      .then(async () => {
-        const p1 = await th.stitchClient.createApiKey({'name': 'userKey1'})
-        return p1
+      .then(async() => {
+        const p1 = await th.stitchClient.createApiKey(userKeyName);
+        return p1;
       })
-      .then(async (response) => {
-        assertApiKey(response, 'userKey1', response._id, false)
+      .then(async(response) => {
+        assertApiKey(response, userKeyName, response._id, false);
         apiID = response._id;
       })
-      .then(async () => {
-        const p2 = await th.stitchClient.disableApiKeyByID(apiID)
-        return p2
+      .then(async() => {
+        const p2 = await th.stitchClient.disableApiKeyByID(apiID);
+        return p2;
       })
       .then(async(res) => {
         expect(res.status).toEqual(204);
-        const p3 = await th.stitchClient.getApiKeyByID(apiID)
-        return p3
+        const p3 = await th.stitchClient.getApiKeyByID(apiID);
+        return p3;
       })
       .then(async(res2) => {
-        assertApiKey(res2, 'userKey1', res2._id, true)
-        const p4 = await th.stitchClient.enableApiKeyByID(apiID)
-        return p4
+        assertApiKey(res2, userKeyName, res2._id, true);
+        const p4 = await th.stitchClient.enableApiKeyByID(apiID);
+        return p4;
       })
       .then(async(res3) => {
         expect(res3.status).toEqual(204);
-        const p5 = await th.stitchClient.getApiKeyByID(apiID)  
-        return p5
+        const p5 = await th.stitchClient.getApiKeyByID(apiID);
+        return p5;
       })
       .then(async(res4) => {
-        assertApiKey(res4, 'userKey1', res4._id, false)
+        assertApiKey(res4, userKeyName, res4._id, false);
       })
       .catch(e => {
-        fail('Should not reach here');
+        fail('Should not fail when enabling and disabling a user api key.');
       });
   });
 
-  it('tests the creating 20 api keys', async() => {
+  it('tests creating 20 user api keys.', async() => {
     let ps = [];
     for (let i = 0; i < 20; i++) {
-      ps.push(th.stitchClient.createApiKey({'name': `userKey${i}`}));
+      ps.push(th.stitchClient.createApiKey(`userKey${i}`));
       await new Promise(resolve => setTimeout(resolve, 200));
     }
     Promise.all(ps)
@@ -181,72 +182,72 @@ describe('Client API executing user api crud functions', () => {
         expect(res.length).toEqual(20);
       })
       .catch(e => {
-        console.log(e);
-        fail('asdfasdfasdfas');
+        fail('Should not fail when creating less than 20 user api keys.');
       });
   });
 
-  it('tests creating more than 20 api keys', async() => {
+  it('tests creating more than 20 api keys.', async() => {
     let ps = [];
     for (let i = 0; i < 21; i++) {
-      ps.push(th.stitchClient.createApiKey({'name': `userKey${i}`}));
+      ps.push(th.stitchClient.createApiKey(`userKey${i}`));
       await new Promise(resolve => setTimeout(resolve, 200));
     }
     Promise.all(ps)
       .then(res => {
-        fail('Should not reach here');
+        fail('Should not be able to successfully create more than 20 user api keys.');
       })
       .catch(e => {
-        expect(e).toBeInstanceOf(Error);
-        expect(e.response.status).toBe(400);
-        expect(e.code).toBe('MaxAPIKeysReached');
+        assertError(e, 400, 'MaxAPIKeysReached');
       });
   });
 
   // Test invalid key lookups
-  it('will return a 404 when we try get an invalid key', async() => {
+  it('will return a 404 when we try get an invalid user api key.', async() => {
     return th.stitchClient.getApiKeyByID(1)
       .then(res => {
-        fail('Should not reach here');
+        fail('Should not be able to successfully obtain an invalid user api key.');
       })
       .catch(e => {
-        assert404Error(e)
+        assertError(e, 404);
       });
   });
 
-  it('will return a 404 when we try deleting an invalid key', async() => {
+  it('will return a 404 when we try deleting an invalid user api key.', async() => {
     return th.stitchClient.deleteApiKeyByID(1)
       .then(res => {
-        fail('Should not reach here');
+        fail('Should not be able to successfully delete an invalid user api key.');
       })
       .catch(e => {
-        assert404Error(e)
+        assertError(e, 404);
       });
   });
 
-  it('will return a 404 when we try enabling an invalid key', async() => {
+  it('will return a 404 when we try enabling an invalid user api key.', async() => {
     return th.stitchClient.enableApiKeyByID(1)
       .then(res => {
-        fail('Should not reach here');
+        fail('Should not be able to successfully enable an invalid user api key.');
       })
       .catch(e => {
-        assert404Error(e)
+        assertError(e, 404);
       });
   });
 
-  it('will return a 404 when we try disabling an invalid key', async() => {
+  it('will return a 404 when we try disabling an invalid user api key.', async() => {
     return th.stitchClient.disableApiKeyByID(1)
       .then(res => {
-        fail('Should not reach here');
+        fail('Should not be able to successfully disable an invalid user api key.');
       })
       .catch(e => {
-        assert404Error(e)
+        assertError(e, 404);
       });
   });
 
-  const assert404Error = (e) => {
+  const assertError = (e, eStatus, eCode) => {
     expect(e).toBeInstanceOf(Error);
-    expect(e.response.status).toBe(404);
+    expect(e.response.status).toBe(eStatus);
+    if (eCode) {
+      expect(e.code).toBe(eCode);
+    }
   };
 
   const assertApiKey = (key, name, id, disabled) => {
@@ -254,5 +255,4 @@ describe('Client API executing user api crud functions', () => {
     expect(key.name).toEqual(name);
     expect(key.disabled).toEqual(disabled);
   };
-
 });

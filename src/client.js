@@ -282,18 +282,18 @@ export default class StitchClient {
   }
 
   /**
-   * Creates an user api key
+   * Creates a user api key
    *
-   * @param {String} body a JSON object of the name of the new api key
+   * @param {String} userApiKeyName the user defined name of the userApiKey
    * @returns {Promise}
    */
-  createApiKey(body) {
+  createApiKey(userApiKeyName) {
     return this._do(
       '/auth/me/api_keys',
       'POST',
       { rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
         useRefreshToken: true,
-        body: JSON.stringify(body)
+        body: JSON.stringify({'name': userApiKeyName})
       },
     )
       .then((response) => response.json());
@@ -331,12 +331,11 @@ export default class StitchClient {
         rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
         useRefreshToken: true
       },
-    )
-      .then((response) => response);
+    );
   }
 
   /**
-   * Enable an user api key
+   * Enable a user api key
    *
    * @param {String} keyID the ID of the key
    * @returns {Promise}
@@ -349,12 +348,11 @@ export default class StitchClient {
         rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
         useRefreshToken: true
       },
-    )
-      .then((response) => response);
+    );
   }
 
   /**
-   * Disable an user api key
+   * Disable a user api key
    *
    * @param {String} keyID the ID of the key
    * @returns {Promise}
@@ -367,8 +365,7 @@ export default class StitchClient {
         rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
         useRefreshToken: true
       },
-    )
-      .then((response) => response);
+    );
   }
 
 <<<<<<< HEAD
