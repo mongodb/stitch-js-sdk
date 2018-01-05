@@ -457,16 +457,4 @@ export default class Admin extends StitchClient {
       })
     };
   }
-
-  _isImpersonatingUser() {
-    return this.auth.isImpersonatingUser();
-  }
-
-  _startImpersonation(userId) {
-    return this.auth.startImpersonation(this, userId);
-  }
-
-  _stopImpersonation() {
-    return this.auth.stopImpersonation();
-  }
 }
