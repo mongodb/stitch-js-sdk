@@ -2,6 +2,8 @@
 const StitchMongoFixture = require('./fixtures/stitch_mongo_fixture');
 
 import { createStorage, MemoryStorage } from '../src/auth/storage';
+import { USER_AUTH_KEY, REFRESH_TOKEN_KEY, DEVICE_ID_KEY, STATE_KEY } from '../src/auth/common';
+
 import { mocks } from 'mock-browser';
 import { StitchClient } from '../src/index';
 import { buildClientTestHarness, extractTestFixtureDataPoints } from './testutil';
@@ -15,19 +17,22 @@ function _runReverseMigration(toVersion, storage) {
   switch (toVersion) {
     case null:
     case undefined:
-      let reverseMigrations = [];
-      for (var i = 0; i < storage.store.length; i++) {
-        const key = storage.store.key(i);
-        reverseMigrations.push(new Promise((resolve) => resolve(storage.store.getItem(key)))
+      let reverseMigrations = [
+        USER_AUTH_KEY, 
+        REFRESH_TOKEN_KEY, 
+        DEVICE_ID_KEY, 
+        STATE_KEY
+      ].map(key => 
+        Promise.resolve(storage.get(key))
           .then(item => {
             let newKey = key
             if (key.indexOf(storage.namespace) >= 0) {
               newKey = key.split('.').pop();
             }
-            return storage.store.setItem(newKey, item) })
-          .then(item => storage.store.removeItem(key))
-        );
-      }
+            return storage.store.setItem(newKey, item) 
+          })
+          .then(item => storage.store.removeItem(storage._generateKey(key)))
+      );
       return Promise.all(reverseMigrations)
         .then(() => storage.store.setItem('__storage_version__', toVersion))
     // in future versions, `case 1:`, `case 2:` and so on
@@ -38,7 +43,7 @@ function _runReverseMigration(toVersion, storage) {
 
 describe('storage', function() {
   const namespace = 'client-test-app1';
-  
+
   beforeAll(() => {
     if (!global.window.localStorage || !global.window.sessionStorage) {
       let mock = new MockBrowser();
@@ -102,19 +107,19 @@ describe('storage', function() {
     it(`should reverse migrate for ${storageType}`, async() => {
       const storage = createStorage({storageType, namespace});
 
-      await storage.set('foo', 42);
-      await storage.set('bar', 84);
+      await storage.set(USER_AUTH_KEY, 42);
+      await storage.set(REFRESH_TOKEN_KEY, 84);
 
-      expect(await storage.get('foo')).toEqual(42);
-      expect(await storage.get('bar')).toEqual(84);
+      expect(await storage.get(USER_AUTH_KEY)).toEqual(42);
+      expect(await storage.get(REFRESH_TOKEN_KEY)).toEqual(84);
 
-      expect(storage.store.getItem(`${namespace}.foo`)).toEqual(42);
-      expect(storage.store.getItem(`${namespace}.bar`)).toEqual(84);
+      expect(storage.store.getItem(`${namespace}.${USER_AUTH_KEY}`)).toEqual(42);
+      expect(storage.store.getItem(`${namespace}.${REFRESH_TOKEN_KEY}`)).toEqual(84);
 
       await _runReverseMigration(undefined, storage);
 
-      expect(storage.store.getItem('foo')).toEqual(42);
-      expect(storage.store.getItem('bar')).toEqual(84);
+      expect(storage.store.getItem(USER_AUTH_KEY)).toEqual(42);
+      expect(storage.store.getItem(REFRESH_TOKEN_KEY)).toEqual(84);
     });
 
     it(`should keep a 'StitchClient' logged in after a migration for ${storageType}`, async() => {
@@ -139,16 +144,20 @@ describe('storage', function() {
     });
   }
 
-  it(`should migrate existing values`, async() => {
+  it(`should migrate existing values from undefined version to version 1`, async() => {
     const version = undefined;
 
     let memoryStorage = new MemoryStorage();
 
-    memoryStorage.setItem('foo', 42);
-    memoryStorage.setItem('bar', 84);
+    memoryStorage.setItem(USER_AUTH_KEY, 16);
+    memoryStorage.setItem(REFRESH_TOKEN_KEY, 32);
+    memoryStorage.setItem(DEVICE_ID_KEY, 64);
+    memoryStorage.setItem(STATE_KEY, 128);
 
-    expect(memoryStorage.getItem('foo')).toEqual(42);
-    expect(memoryStorage.getItem('bar')).toEqual(84);
+    expect(memoryStorage.getItem(USER_AUTH_KEY)).toEqual(16);
+    expect(memoryStorage.getItem(REFRESH_TOKEN_KEY)).toEqual(32);
+    expect(memoryStorage.getItem(DEVICE_ID_KEY)).toEqual(64);
+    expect(memoryStorage.getItem(STATE_KEY)).toEqual(128);
 
     const storage = createStorage({ 
       storageType: 'customStorage', 
@@ -156,11 +165,15 @@ describe('storage', function() {
       namespace
     });
 
-    expect(await storage.get('foo')).toEqual(42);
-    expect(await storage.get('bar')).toEqual(84);
+    expect(await storage.get(USER_AUTH_KEY)).toEqual(16);
+    expect(await storage.get(REFRESH_TOKEN_KEY)).toEqual(32);
+    expect(await storage.get(DEVICE_ID_KEY)).toEqual(64);
+    expect(await storage.get(STATE_KEY)).toEqual(128);
 
-    expect(storage.store.getItem('foo')).toBeNull();
-    expect(storage.store.getItem('bar')).toBeNull();
+    expect(storage.store.getItem(USER_AUTH_KEY)).toBeNull()
+    expect(storage.store.getItem(REFRESH_TOKEN_KEY)).toBeNull();
+    expect(storage.store.getItem(DEVICE_ID_KEY)).toBeNull();
+    expect(storage.store.getItem(STATE_KEY)).toBeNull();
   });
 });
 

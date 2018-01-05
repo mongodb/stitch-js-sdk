@@ -1,3 +1,5 @@
+import { USER_AUTH_KEY, REFRESH_TOKEN_KEY, DEVICE_ID_KEY, STATE_KEY } from './common';
+
 export class MemoryStorage {
   constructor() {
     this._data = {};
@@ -50,13 +52,16 @@ function _runMigration(version, storage) {
       // sets the old value to the new "namespaced" key
       // remove the old key value pair,
       // and set the version number
-      let migrations = [];
-      for (var i = 0; i < storage.store.length; i++) {
-        const key = storage.store.key(i);
-        migrations.push(new Promise((resolve) => resolve(storage.store.getItem(key)))
-          .then(item => storage.store.setItem(storage._generateKey(key), item))
-          .then(item => storage.store.removeItem(key)));
-      }
+      let migrations = [
+        USER_AUTH_KEY, 
+        REFRESH_TOKEN_KEY, 
+        DEVICE_ID_KEY, 
+        STATE_KEY
+      ].map(key => 
+        Promise.resolve(storage.store.getItem(key))
+          .then(item => !!item && storage.store.setItem(storage._generateKey(key), item))
+          .then(() => storage.store.removeItem(key))
+      );
       return Promise.all(migrations)
         .then(() => storage.store.setItem(_VERSION_KEY, _VERSION));
     // in future versions, `case 1:`, `case 2:` and so on
