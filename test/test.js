@@ -554,7 +554,7 @@ describe('login/logout', () => {
             expect(await testClient.auth.getAccessToken()).toEqual(validAccessTokens[0]);
           })
           .then(async () => {
-            await testClient.auth.storage.clear();
+            await testClient.auth.clear();
             expect(await testClient.authedId()).toBeFalsy();
           });
       });
@@ -621,7 +621,7 @@ describe('proactive token refresh', () => {
         expect(await testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
       })
       .then(async () => {
-        await testClient.auth.storage.clear();
+        await testClient.auth.clear();
         expect(await testClient.authedId()).toBeFalsy();
       });
   });
@@ -651,7 +651,7 @@ describe('proactive token refresh', () => {
         expect(await testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
       })
       .then(async () => {
-        await testClient.auth.storage.clear();
+        await testClient.auth.clear();
         expect(await testClient.authedId()).toBeFalsy();
       });
   });

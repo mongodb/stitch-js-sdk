@@ -1,6 +1,8 @@
-class MemoryStorage {
+export class MemoryStorage {
   constructor() {
     this._data = {};
+    this._orderedKeys = [];
+    this.length = 0;
   }
 
   getItem(key) {
@@ -8,18 +10,58 @@ class MemoryStorage {
   }
 
   setItem(key, value) {
+    this._orderedKeys.push(key);
     this._data[key] = value;
+    this.length++;
     return this._data[key];
   }
 
   removeItem(key) {
+    this._orderedKeys.pop(key);
     delete this._data[key];
+    this.length--;
     return undefined;
   }
 
-  clear() {
-    this._data = {};
-    return this._data;
+  key(index) {
+    return this._orderedKeys[index];
+  }
+}
+
+const _VERSION = 1
+const _VERSION_KEY = '__storage_version__'
+
+/**
+  * Run a migration on the currently used storage
+  * that checks to see if the current version is up to date.
+  * If the version has not been set, this method will migrate
+  * to the latest version.
+  * @param {Integer} version version number of storage
+  * @param {Object} storage storage class being checked
+  * @returns {Promise} nullable promise containing migration logic
+  */
+function _runMigration(version, storage) {
+  switch (version) {
+    case null:
+    case undefined:
+      // return a promise,
+      // mapping each of the store's keys to a Promise
+      // that fetches the each value for each key,
+      // sets the old value to the new "namespaced" key
+      // remove the old key value pair,
+      // and set the version number
+      let migrations = [];
+      for (var i = 0; i < storage.store.length; i++) {
+        const key = storage.store.key(i);
+        migrations.push(new Promise((resolve) => resolve(storage.store.getItem(key)))
+          .then(item => storage.store.setItem(storage._generateKey(key), item))
+          .then(item => storage.store.removeItem(key)));
+      }
+      return Promise.all(migrations)
+        .then(() => storage.store.setItem(_VERSION_KEY, _VERSION));
+    // in future versions, `case 1:`, `case 2:` and so on
+    // could be added to perform similar migrations 
+    default: break;
   }
 }
 
@@ -27,78 +69,39 @@ class Storage {
   /**
    * @param {Storage} store implementer of Storage interface
    * @param {String} namespace clientAppID to be used for namespacing
+   * @param
   */
   constructor(store, namespace) {
     this.store = store;
     this.namespace = namespace;
-    this._keySetKey = `_${this.namespace}.keys`
+
+    this._migration = Promise.resolve(this.store.getItem(_VERSION_KEY))
+      .then(version => _runMigration(version, this));
   }
   
   _generateKey(key) {
     return `${this.namespace}.${key}`
   }
-  _saveKeyToKeySet(generatedKey) {
-    return this._getKeySet().then(keySet => {
-      keySet.push(generatedKey);
-      return this.store.setItem(this._keySetKey, keySet);
-    });
-  }
-  _removeKeyFromKeySet(generatedKey) {
-    return this._getKeySet().then(keySet => {
-      keySet.pop(generatedKey)
-      return this.store.setItem(this._keySetKey, keySet);
-    })
-  }
-  _getKeySet() {
-    return new Promise(resolve => 
-      resolve(this.store.getItem(this._keySetKey))
-    ).then(keySet => {
-      return !keySet ? [] : keySet
-    });
-  }
 
   get(key) {
-    return new Promise(resolve => 
-      resolve(this.store.getItem(this._generateKey(key)))
-    ); 
+    return Promise.resolve(this._migration)
+      .then(() => this.store.getItem(this._generateKey(key))); 
   }
 
   set(key, value) {
-    const generatedKey = this._generateKey(key);
-    return new Promise(resolve =>
-      resolve(this._saveKeyToKeySet(generatedKey))
-    ).then(() => {
-      return this.store.setItem(generatedKey, value);
-    }).catch(() => {
-      return this._removeKeyFromKeySet(generatedKey);
-    }); 
+    return Promise.resolve(this._migration)
+      .then(() => this.store.setItem(this._generateKey(key), value));
   }
 
   remove(key) { 
-    const generatedKey = this._generateKey(key);
-    return new Promise(resolve =>
-      resolve(this.store.removeItem(generatedKey))
-    ).then(() => {
-      return this._removeKeyFromKeySet(generatedKey);
-    }); 
-  }
-
-  clear() { 
-    return this._getKeySet().then(keySet =>
-      Promise.all(
-        [].concat(keySet.map(key => 
-          [new Promise(resolve => 
-            resolve(this.store.removeItem(key))
-          ), 
-          this._removeKeyFromKeySet(key)]
-        ))
-      )
-    );
+    return Promise.resolve(this._migration)
+      .then(() => this.store.removeItem(this._generateKey(key)));
   }
 }
 
 export function createStorage(options) {
   let { storageType, storage, namespace } = options;
+
   if (storageType === 'localStorage') {
     if ((typeof window !== 'undefined') && 'localStorage' in window && window.localStorage !== null) {
       return new Storage(window.localStorage, namespace);
