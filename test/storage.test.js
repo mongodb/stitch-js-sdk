@@ -37,6 +37,8 @@ function _runReverseMigration(toVersion, storage) {
 }
 
 describe('storage', function() {
+  const namespace = 'client-test-app1';
+  
   beforeAll(() => {
     if (!global.window.localStorage || !global.window.sessionStorage) {
       let mock = new MockBrowser();
@@ -57,8 +59,6 @@ describe('storage', function() {
       await storage.remove('token');
       expect(await storage.get('token')).toBeNull();
     });
-
-    const namespace = 'client-test-app1';
 
     it(`should return key by index for ${storageType}`, async() => {
       const storage = createStorage({ storageType, namespace });
@@ -116,30 +116,6 @@ describe('storage', function() {
       expect(storage.store.getItem('foo')).toEqual(42);
       expect(storage.store.getItem('bar')).toEqual(84);
     });
-    
-    it(`should migrate for ${storageType}`, async() => {
-      const version = undefined;
-
-      let memoryStorage = new MemoryStorage();
-
-      memoryStorage.setItem('foo', 42);
-      memoryStorage.setItem('bar', 84);
-
-      expect(memoryStorage.getItem('foo')).toEqual(42);
-      expect(memoryStorage.getItem('bar')).toEqual(84);
-
-      const storage = createStorage({ 
-        storageType: 'customStorage', 
-        storage: memoryStorage, 
-        namespace
-      });
-
-      expect(await storage.get('foo')).toEqual(42);
-      expect(await storage.get('bar')).toEqual(84);
-
-      expect(storage.store.getItem('foo')).toBeNull();
-      expect(storage.store.getItem('bar')).toBeNull();
-    });
 
     it(`should keep a 'StitchClient' logged in after a migration for ${storageType}`, async() => {
       const test = new StitchMongoFixture();
@@ -162,6 +138,30 @@ describe('storage', function() {
       await test.teardown();
     });
   }
+
+  it(`should migrate existing values`, async() => {
+    const version = undefined;
+
+    let memoryStorage = new MemoryStorage();
+
+    memoryStorage.setItem('foo', 42);
+    memoryStorage.setItem('bar', 84);
+
+    expect(memoryStorage.getItem('foo')).toEqual(42);
+    expect(memoryStorage.getItem('bar')).toEqual(84);
+
+    const storage = createStorage({ 
+      storageType: 'customStorage', 
+      storage: memoryStorage, 
+      namespace
+    });
+
+    expect(await storage.get('foo')).toEqual(42);
+    expect(await storage.get('bar')).toEqual(84);
+
+    expect(storage.store.getItem('foo')).toBeNull();
+    expect(storage.store.getItem('bar')).toBeNull();
+  });
 });
 
 
