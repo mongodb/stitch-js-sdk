@@ -18,8 +18,37 @@ var _util = require('../util');
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /**
+ * Create the device info for this client.
+ *
+ * @memberof module:auth
+ * @method getDeviceInfo
+ * @param {String} appId The app ID for this client
+ * @param {String} appVersion The version of the app
+ * @returns {Object} The device info object
+ */
+function getDeviceInfo(deviceId, appId) {
+  var appVersion = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+
+  var deviceInfo = { appId: appId, appVersion: appVersion, sdkVersion: common.SDK_VERSION };
+
+  if (deviceId) {
+    deviceInfo.deviceId = deviceId;
+  }
+
+  var platform = (0, _util.getPlatform)();
+
+  if (platform) {
+    deviceInfo.platform = platform.name;
+    deviceInfo.platformVersion = platform.version;
+  }
+
+  return deviceInfo;
+}
+
+/**
  * @namespace
  */
+/** @module auth  */
 function anonProvider(auth) {
   return {
     /**
@@ -30,47 +59,11 @@ function anonProvider(auth) {
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: function authenticate() {
-      return auth.getDeviceId().then(function (deviceId) {
-        var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
-        var fetchArgs = common.makeFetchArgs('GET');
-        fetchArgs.cors = true;
+      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+      var fetchArgs = common.makeFetchArgs('GET');
+      fetchArgs.cors = true;
 
-        return fetch(auth.rootUrl + '/providers/anon-user/login?device=' + (0, _util.uriEncodeObject)(device), fetchArgs);
-      }).then(common.checkStatus).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return auth.set(json);
-      });
-    }
-  };
-}
-
-/**
-  * @namespace
-  */
-/** @module auth  */
-function customProvider(auth) {
-  var providerRoute = 'providers/custom-token';
-  var loginRoute = providerRoute + '/login';
-
-  return {
-    /**
-     * Login to a stitch application using custom authentication
-     *
-     * @memberof customProvider
-     * @instance
-     * @param {String} JWT token to use for authentication
-     * @returns {Promise} a promise that resolves when authentication succeeds.
-     */
-    authenticate: function authenticate(token) {
-      return auth.getDeviceId().then(function (deviceId) {
-        var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
-
-        var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ token: token, options: { device: device } }));
-        fetchArgs.cors = true;
-
-        return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs);
-      }).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/providers/anon-user/login?device=' + (0, _util.uriEncodeObject)(device), fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -100,14 +93,12 @@ function userPassProvider(auth) {
       var username = _ref.username,
           password = _ref.password;
 
-      return auth.getDeviceId().then(function (deviceId) {
-        var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
-        var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password, options: { device: device } }));
-        fetchArgs.cors = true;
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password, options: { device: device } }));
+      fetchArgs.cors = true;
 
-        return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs);
-      }).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -224,12 +215,11 @@ function apiKeyProvider(auth) {
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: function authenticate(key) {
-      return auth.getDeviceId().then(function (deviceId) {
-        var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
-        var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ 'key': key, 'options': { device: device } }));
-        fetchArgs.cors = true;
-        return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs);
-      }).then(common.checkStatus).then(function (response) {
+      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ 'key': key, 'options': { device: device } }));
+      fetchArgs.cors = true;
+
+      return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -262,20 +252,16 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
   }
 
   var state = generateState();
-  return auth.storage.set(authCommon.STATE_KEY, state).then(function () {
-    return auth.getDeviceId();
-  }).then(function (deviceId) {
-    var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+  auth.storage.set(authCommon.STATE_KEY, state);
 
-    var result = auth.rootUrl + '/providers/oauth2-' + providerName + '/login?redirect=' + encodeURI(redirectUrl) + '&state=' + state + '&device=' + (0, _util.uriEncodeObject)(device);
-    return result;
-  });
+  var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+
+  var result = auth.rootUrl + '/providers/oauth2-' + providerName + '/login?redirect=' + encodeURI(redirectUrl) + '&state=' + state + '&device=' + (0, _util.uriEncodeObject)(device);
+  return result;
 }
 
 /** @namespace */
 function googleProvider(auth) {
-  var loginRoute = auth.isAppClient() ? 'providers/oauth2-google/login' : 'providers/oauth2-google/login';
-
   return {
     /**
      * Login to a stitch application using google authentication
@@ -286,22 +272,6 @@ function googleProvider(auth) {
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: function authenticate(data) {
-      var authCode = data.authCode;
-
-      if (authCode !== null) {
-        return auth.getDeviceId(function (deviceId) {
-          var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
-
-          var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ authCode: authCode, options: { device: device } }));
-
-          return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs);
-        }).then(common.checkStatus).then(function (response) {
-          return response.json();
-        }).then(function (json) {
-          return auth.set(json);
-        });
-      }
-
       var redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
       window.location.replace(getOAuthLoginURL(auth, 'google', redirectUrl));
       return Promise.resolve();
@@ -311,8 +281,6 @@ function googleProvider(auth) {
 
 /** @namespace */
 function facebookProvider(auth) {
-  var loginRoute = auth.isAppClient() ? 'providers/oauth2-facebook/login' : 'providers/oauth2-facebook/login';
-
   return {
     /**
      * Login to a stitch application using facebook authentication
@@ -323,22 +291,6 @@ function facebookProvider(auth) {
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: function authenticate(data) {
-      var accessToken = data.accessToken;
-
-      if (accessToken !== null) {
-        return auth.getDeviceId().then(function (deviceId) {
-          var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
-
-          var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ accessToken: accessToken, options: { device: device } }));
-
-          return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs);
-        }).then(common.checkStatus).then(function (response) {
-          return response.json();
-        }).then(function (json) {
-          return auth.set(json);
-        });
-      }
-
       var redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
       window.location.replace(getOAuthLoginURL(auth, 'facebook', redirectUrl));
       return Promise.resolve();
@@ -368,19 +320,17 @@ function mongodbCloudProvider(auth) {
           cookie = data.cookie;
 
       var options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
-      return auth.getDeviceId().then(function (deviceId) {
-        var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
-        var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, apiKey: apiKey, options: { device: device } }));
-        fetchArgs.cors = true; // TODO: shouldn't this use the passed in `cors` value?
-        fetchArgs.credentials = 'include';
+      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, apiKey: apiKey, options: { device: device } }));
+      fetchArgs.cors = true; // TODO: shouldn't this use the passed in `cors` value?
+      fetchArgs.credentials = 'include';
 
-        var url = auth.rootUrl + '/' + loginRoute;
-        if (options.cookie) {
-          return fetch(url + '?cookie=true', fetchArgs).then(common.checkStatus);
-        }
+      var url = auth.rootUrl + '/' + loginRoute;
+      if (options.cookie) {
+        return fetch(url + '?cookie=true', fetchArgs).then(common.checkStatus);
+      }
 
-        return fetch(url, fetchArgs);
-      }).then(common.checkStatus).then(function (response) {
+      return fetch(url, fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -399,8 +349,7 @@ function createProviders(auth) {
     google: googleProvider(auth),
     facebook: facebookProvider(auth),
     mongodbCloud: mongodbCloudProvider(auth),
-    userpass: userPassProvider(auth),
-    custom: customProvider(auth)
+    userpass: userPassProvider(auth)
   };
 }
 

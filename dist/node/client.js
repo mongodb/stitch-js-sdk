@@ -32,6 +32,8 @@ var _queryString = require('query-string');
 
 var _queryString2 = _interopRequireDefault(_queryString);
 
+var _util = require('./util');
+
 var _errors = require('./errors');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -58,15 +60,17 @@ var API_TYPE_APP = 'app';
  */
 
 var StitchClient = function () {
-  function StitchClient(clientAppID) {
-    var _v, _v2, _v3, _rootURLsByAPIVersion;
-
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  function StitchClient(clientAppID, options) {
+    var _v,
+        _v2,
+        _v3,
+        _rootURLsByAPIVersion,
+        _this = this;
 
     _classCallCheck(this, StitchClient);
 
     var baseUrl = common.DEFAULT_STITCH_SERVER_URL;
-    if (options.baseUrl) {
+    if (options && options.baseUrl) {
       baseUrl = options.baseUrl;
     }
 
@@ -76,22 +80,30 @@ var StitchClient = function () {
 
     this.rootURLsByAPIVersion = (_rootURLsByAPIVersion = {}, _defineProperty(_rootURLsByAPIVersion, v1, (_v = {}, _defineProperty(_v, API_TYPE_PUBLIC, baseUrl + '/api/public/v1.0'), _defineProperty(_v, API_TYPE_CLIENT, baseUrl + '/api/client/v1.0'), _defineProperty(_v, API_TYPE_PRIVATE, baseUrl + '/api/private/v1.0'), _defineProperty(_v, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v1.0/app/' + clientAppID : baseUrl + '/api/public/v1.0'), _v)), _defineProperty(_rootURLsByAPIVersion, v2, (_v2 = {}, _defineProperty(_v2, API_TYPE_PUBLIC, baseUrl + '/api/public/v2.0'), _defineProperty(_v2, API_TYPE_CLIENT, baseUrl + '/api/client/v2.0'), _defineProperty(_v2, API_TYPE_PRIVATE, baseUrl + '/api/private/v2.0'), _defineProperty(_v2, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID : baseUrl + '/api/public/v2.0'), _v2)), _defineProperty(_rootURLsByAPIVersion, v3, (_v3 = {}, _defineProperty(_v3, API_TYPE_PUBLIC, baseUrl + '/api/public/v3.0'), _defineProperty(_v3, API_TYPE_CLIENT, baseUrl + '/api/client/v3.0'), _defineProperty(_v3, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v3.0/app/' + clientAppID : baseUrl + '/api/admin/v3.0'), _v3)), _rootURLsByAPIVersion);
 
-    var authOptions = {
-      codec: _common.APP_CLIENT_CODEC,
-      storageType: options.storageType,
-      storage: options.storage
-    };
-
-    if (options.platform) {
-      authOptions.platform = options.platform;
-    }
-    if (options.authCodec) {
+    var authOptions = { codec: _common.APP_CLIENT_CODEC };
+    if (options && options.authCodec) {
       authOptions.codec = options.authCodec;
     }
-
     this.auth = new _auth2.default(this, this.authUrl, authOptions);
     this.auth.handleRedirect();
     this.auth.handleCookie();
+
+    // deprecated API
+    this.authManager = {
+      apiKeyAuth: function apiKeyAuth(key) {
+        return _this.authenticate('apiKey', key);
+      },
+      localAuth: function localAuth(email, password) {
+        return _this.login(email, password);
+      },
+      mongodbCloudAuth: function mongodbCloudAuth(username, apiKey, opts) {
+        return _this.authenticate('mongodbCloud', Object.assign({ username: username, apiKey: apiKey }, opts));
+      }
+    };
+
+    this.authManager.apiKeyAuth = (0, _util.deprecate)(this.authManager.apiKeyAuth, 'use `client.authenticate("apiKey", "key")` instead of `client.authManager.apiKey`');
+    this.authManager.localAuth = (0, _util.deprecate)(this.authManager.localAuth, 'use `client.login` instead of `client.authManager.localAuth`');
+    this.authManager.mongodbCloudAuth = (0, _util.deprecate)(this.authManager.mongodbCloudAuth, 'use `client.authenticate("mongodbCloud", opts)` instead of `client.authManager.mongodbCloudAuth`');
   }
 
   _createClass(StitchClient, [{
@@ -151,19 +163,17 @@ var StitchClient = function () {
   }, {
     key: 'authenticate',
     value: function authenticate(providerType) {
-      var _this = this;
+      var _this2 = this;
 
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       // reuse existing auth if present
-      return this.auth.getAccessToken().then(function (accessToken) {
-        if (accessToken) {
-          return _this.auth.authedId();
-        }
+      if (this.auth.getAccessToken()) {
+        return Promise.resolve(this.auth.authedId());
+      }
 
-        return _this.auth.provider(providerType).authenticate(options).then(function () {
-          return _this.auth.authedId();
-        });
+      return this.auth.provider(providerType).authenticate(options).then(function () {
+        return _this2.auth.authedId();
       });
     }
 
@@ -176,15 +186,15 @@ var StitchClient = function () {
   }, {
     key: 'logout',
     value: function logout() {
-      var _this2 = this;
+      var _this3 = this;
 
       return this._do('/auth/session', 'DELETE', {
         refreshOnFailure: false,
         useRefreshToken: true,
         rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
       }).then(function () {
-        return _this2.auth.clear();
-      }); // eslint-disable-line space-before-function-paren
+        return _this3.auth.clear();
+      });
     }
 
     /**
@@ -319,111 +329,52 @@ var StitchClient = function () {
         return response.json();
       });
     }
-
-    /**
-     * Returns an array of api keys
-     *
-     * @returns {Promise}
-     */
-
   }, {
-    key: 'getApiKeys',
-    value: function getApiKeys() {
-      return this._do('/auth/me/api_keys', 'GET', {
-        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
-        useRefreshToken: true
-      }).then(function (response) {
-        return response.json();
-      });
-    }
+    key: '_do',
+    value: function _do(resource, method, options) {
+      var _this4 = this;
 
-    /**
-     * Creates a user api key
-     *
-     * @param {String} userApiKeyName the user defined name of the userApiKey
-     * @returns {Promise}
-     */
+      options = Object.assign({}, {
+        refreshOnFailure: true,
+        useRefreshToken: false,
+        apiVersion: v2,
+        apiType: API_TYPE_APP,
+        rootURL: undefined
+      }, options);
 
-  }, {
-    key: 'createApiKey',
-    value: function createApiKey(userApiKeyName) {
-      return this._do('/auth/me/api_keys', 'POST', { rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
-        useRefreshToken: true,
-        body: JSON.stringify({ 'name': userApiKeyName })
-      }).then(function (response) {
-        return response.json();
-      });
-    }
+      if (!options.noAuth) {
+        if (!this.authedId()) {
+          return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
+        }
 
-    /**
-     * Returns a user api key
-     *
-     * @param {String} keyID the ID of the key
-     * @returns {Promise}
-     */
+        // If access token is expired, proactively get a new one
+        if (!options.useRefreshToken && this.auth.isAccessTokenExpired()) {
+          return this.auth.refreshToken().then(function () {
+            options.refreshOnFailure = false;
+            return _this4._do(resource, method, options);
+          });
+        }
+      }
 
-  }, {
-    key: 'getApiKeyByID',
-    value: function getApiKeyByID(keyID) {
-      return this._do('/auth/me/api_keys/' + keyID, 'GET', {
-        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
-        useRefreshToken: true
-      }).then(function (response) {
-        return response.json();
-      });
-    }
+      var appURL = this.rootURLsByAPIVersion[options.apiVersion][options.apiType];
+      var url = '' + appURL + resource;
+      if (options.rootURL) {
+        url = '' + options.rootURL + resource;
+      }
+      var fetchArgs = common.makeFetchArgs(method, options.body);
 
-    /**
-     * Deletes a user api key
-     *
-     * @param {String} keyID the ID of the key
-     * @returns {Promise}
-     */
+      if (!!options.headers) {
+        Object.assign(fetchArgs.headers, options.headers);
+      }
 
-  }, {
-    key: 'deleteApiKeyByID',
-    value: function deleteApiKeyByID(keyID) {
-      return this._do('/auth/me/api_keys/' + keyID, 'DELETE', {
-        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
-        useRefreshToken: true
-      });
-    }
+      if (!options.noAuth) {
+        var token = options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
+        fetchArgs.headers.Authorization = 'Bearer ' + token;
+      }
 
-    /**
-     * Enable a user api key
-     *
-     * @param {String} keyID the ID of the key
-     * @returns {Promise}
-     */
-
-  }, {
-    key: 'enableApiKeyByID',
-    value: function enableApiKeyByID(keyID) {
-      return this._do('/auth/me/api_keys/' + keyID + '/enable', 'PUT', {
-        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
-        useRefreshToken: true
-      });
-    }
-
-    /**
-     * Disable a user api key
-     *
-     * @param {String} keyID the ID of the key
-     * @returns {Promise}
-     */
-
-  }, {
-    key: 'disableApiKeyByID',
-    value: function disableApiKeyByID(keyID) {
-      return this._do('/auth/me/api_keys/' + keyID + '/disable', 'PUT', {
-        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
-        useRefreshToken: true
-      });
-    }
-  }, {
-    key: '_fetch',
-    value: function _fetch(url, fetchArgs, resource, method, options) {
-      var _this3 = this;
+      if (options.queryParams) {
+        url = url + '?' + _queryString2.default.stringify(options.queryParams);
+      }
 
       return fetch(url, fetchArgs).then(function (response) {
         // Okay: passthrough
@@ -436,17 +387,16 @@ var StitchClient = function () {
             // Only want to try refreshing token when there's an invalid session
             if ('error_code' in json && json.error_code === _errors.ErrInvalidSession) {
               if (!options.refreshOnFailure) {
-                return _this3.auth.clear().then(function () {
-                  var error = new _errors.StitchError(json.error, json.error_code);
-                  error.response = response;
-                  error.json = json;
-                  throw error;
-                });
+                _this4.auth.clear();
+                var _error = new _errors.StitchError(json.error, json.error_code);
+                _error.response = response;
+                _error.json = json;
+                throw _error;
               }
 
-              return _this3.auth.refreshToken().then(function () {
+              return _this4.auth.refreshToken().then(function () {
                 options.refreshOnFailure = false;
-                return _this3._do(resource, method, options);
+                return _this4._do(resource, method, options);
               });
             }
 
@@ -462,76 +412,18 @@ var StitchClient = function () {
         return Promise.reject(error);
       });
     }
+
+    // Deprecated API
+
   }, {
-    key: '_fetchArgs',
-    value: function _fetchArgs(resource, method, options) {
-      var appURL = this.rootURLsByAPIVersion[options.apiVersion][options.apiType];
-      var url = '' + appURL + resource;
-      if (options.rootURL) {
-        url = '' + options.rootURL + resource;
-      }
-      var fetchArgs = common.makeFetchArgs(method, options.body);
-
-      if (!!options.headers) {
-        Object.assign(fetchArgs.headers, options.headers);
-      }
-
-      if (options.queryParams) {
-        url = url + '?' + _queryString2.default.stringify(options.queryParams);
-      }
-
-      return { url: url, fetchArgs: fetchArgs };
+    key: 'authWithOAuth',
+    value: function authWithOAuth(providerType, redirectUrl) {
+      return this.auth.provider(providerType).authenticate({ redirectUrl: redirectUrl });
     }
   }, {
-    key: '_do',
-    value: function _do(resource, method, options) {
-      var _this4 = this;
-
-      options = Object.assign({}, {
-        refreshOnFailure: true,
-        useRefreshToken: false,
-        apiVersion: v2,
-        apiType: API_TYPE_APP,
-        rootURL: undefined
-      }, options);
-
-      var _fetchArgs2 = this._fetchArgs(resource, method, options),
-          url = _fetchArgs2.url,
-          fetchArgs = _fetchArgs2.fetchArgs;
-
-      if (!options.noAuth) {
-        return this.authedId().then(function (authedId) {
-          if (!_this4.authedId) {
-            return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
-          }
-
-          var tokenPromise = options.useRefreshToken ? _this4.auth.getRefreshToken() : _this4.auth.getAccessToken();
-
-          // If access token is expired, proactively get a new one
-          if (!options.useRefreshToken) {
-            return _this4.auth.isAccessTokenExpired().then(function (isAccessTokenExpired) {
-              if (isAccessTokenExpired) {
-                return _this4.auth.refreshToken().then(function () {
-                  options.refreshOnFailure = false;
-                  return _this4._do(resource, method, options);
-                });
-              }
-
-              return tokenPromise.then(function (token) {
-                fetchArgs.headers.Authorization = 'Bearer ' + token;
-                return _this4._fetch(url, fetchArgs, resource, method, options);
-              });
-            });
-          }
-
-          return tokenPromise.then(function (token) {
-            fetchArgs.headers.Authorization = 'Bearer ' + token;
-            return _this4._fetch(url, fetchArgs, resource, method, options);
-          });
-        });
-      }
-
-      return this._fetch(url, fetchArgs, resource, method, options);
+    key: 'anonymousAuth',
+    value: function anonymousAuth() {
+      return this.authenticate('anon');
     }
   }, {
     key: 'type',
@@ -544,4 +436,8 @@ var StitchClient = function () {
 }();
 
 exports.default = StitchClient;
+
+
+StitchClient.prototype.authWithOAuth = (0, _util.deprecate)(StitchClient.prototype.authWithOAuth, 'use `authenticate` instead of `authWithOAuth`');
+StitchClient.prototype.anonymousAuth = (0, _util.deprecate)(StitchClient.prototype.anonymousAuth, 'use `login()` instead of `anonymousAuth`');
 module.exports = exports['default'];

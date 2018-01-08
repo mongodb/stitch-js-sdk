@@ -55,59 +55,37 @@ var Storage = function () {
   _createClass(Storage, [{
     key: 'get',
     value: function get(key) {
-      var _this = this;
-
-      return new Promise(function (resolve) {
-        return resolve(_this.store.getItem(key));
-      });
+      return this.store.getItem(key);
     }
   }, {
     key: 'set',
     value: function set(key, value) {
-      var _this2 = this;
-
-      return new Promise(function (resolve) {
-        return resolve(_this2.store.setItem(key, value));
-      });
+      return this.store.setItem(key, value);
     }
   }, {
     key: 'remove',
     value: function remove(key) {
-      var _this3 = this;
-
-      return new Promise(function (resolve) {
-        return resolve(_this3.store.removeItem(key));
-      });
+      return this.store.removeItem(key);
     }
   }, {
     key: 'clear',
     value: function clear() {
-      var _this4 = this;
-
-      return new Promise(function (resolve) {
-        return resolve(_this4.store.clear());
-      });
+      return this.store.clear();
     }
   }]);
 
   return Storage;
 }();
 
-function createStorage(options) {
-  var storageType = options.storageType,
-      storage = options.storage;
-
-  if (storageType === 'localStorage') {
+function createStorage(type) {
+  if (type === 'localStorage') {
     if (typeof window !== 'undefined' && 'localStorage' in window && window.localStorage !== null) {
       return new Storage(window.localStorage);
     }
-  } else if (storageType === 'sessionStorage') {
+  } else if (type === 'sessionStorage') {
     if (typeof window !== 'undefined' && 'sessionStorage' in window && window.sessionStorage !== null) {
       return new Storage(window.sessionStorage);
     }
-  } else if (storageType == 'customStorage') {
-    //eslint-disable-line eqeqeq
-    return new Storage(storage);
   }
 
   // default to memory storage

@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 33);
+/******/ 	return __webpack_require__(__webpack_require__.s = 32);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -1879,6 +1879,143 @@ function isnan (val) {
 
 "use strict";
 
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.uriEncodeObject = exports.getPlatform = exports.serviceResponse = exports.deprecate = exports.collectMetadata = undefined;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _detectBrowser = __webpack_require__(58);
+
+var platform = _interopRequireWildcard(_detectBrowser);
+
+var _Base = __webpack_require__(23);
+
+var base64 = _interopRequireWildcard(_Base);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var RESULT_METADATA_KEY = '_stitch_metadata';
+
+/** @namespace util */
+
+/**
+ * Utility which creates a function that extracts metadata
+ * from the server in the response to a pipeline request,
+ * and attaches it to the final result after the finalizer has been applied.
+ *
+ * @memberof util
+ * @param {Function} [func] optional finalizer to transform the response data
+ */
+var collectMetadata = exports.collectMetadata = function collectMetadata(func) {
+  var attachMetadata = function attachMetadata(metadata) {
+    return function (res) {
+      if ((typeof res === 'undefined' ? 'undefined' : _typeof(res)) === 'object' && !Object.prototype.hasOwnProperty.call(res, RESULT_METADATA_KEY)) {
+        Object.defineProperty(res, RESULT_METADATA_KEY, { enumerable: false, configurable: false, writable: false, value: metadata });
+      }
+      return Promise.resolve(res);
+    };
+  };
+  var captureMetadata = function captureMetadata(data) {
+    var metadata = {};
+    if (data.warnings) {
+      // Metadata is not yet attached to result, grab any data that needs to be added.
+      metadata.warnings = data.warnings;
+    }
+    if (!func) {
+      return Promise.resolve(data).then(attachMetadata(metadata));
+    }
+    return Promise.resolve(data).then(func).then(attachMetadata(metadata));
+  };
+  return captureMetadata;
+};
+
+/**
+ * Utility function for displaying deprecation notices
+ *
+ * @memberof util
+ * @param {Function} fn the function to deprecate
+ * @param {String} msg the message to display to the user regarding deprecation
+ */
+function deprecate(fn, msg) {
+  var alreadyWarned = false;
+  function deprecated() {
+    if (!alreadyWarned) {
+      alreadyWarned = true;
+      console.warn('DeprecationWarning: ' + msg);
+    }
+
+    return fn.apply(this, arguments);
+  }
+
+  deprecated.__proto__ = fn; // eslint-disable-line
+  if (fn.prototype) {
+    deprecated.prototype = fn.prototype;
+  }
+
+  return deprecated;
+}
+
+/**
+ * Utility method for executing a service action as a function call.
+ *
+ * @memberof util
+ * @param {Object} service the service to execute the action on
+ * @param {String} action the service action to execute
+ * @param {Array} args the arguments to supply to the service action invocation
+ * @returns {Promise} the API response from the executed service action
+ */
+function serviceResponse(service, _ref) {
+  var _ref$serviceName = _ref.serviceName,
+      serviceName = _ref$serviceName === undefined ? service.serviceName : _ref$serviceName,
+      action = _ref.action,
+      args = _ref.args;
+  var client = service.client;
+
+
+  if (!client) {
+    throw new Error('Service has no client');
+  }
+
+  return client.executeServiceFunction(serviceName, action, args);
+}
+
+/**
+ * Utility function to get the platform.
+ *
+ * @memberof util
+ * @returns {Object} An object of the form {name: ..., version: ...}, or null
+ */
+function getPlatform() {
+  return platform ? platform : null;
+}
+
+/**
+ * Utility function to encode a JSON object into a valid string that can be
+ * inserted in a URI. The object is first stringified, then encoded in base64,
+ * and finally encoded via the builtin encodeURIComponent function.
+ *
+ * @memberof util
+ * @param {Object} obj The object to encode
+ * @returns {String} The encoded object
+ */
+function uriEncodeObject(obj) {
+  return encodeURIComponent(base64.btoa(JSON.stringify(obj)));
+}
+
+exports.deprecate = deprecate;
+exports.serviceResponse = serviceResponse;
+exports.getPlatform = getPlatform;
+exports.uriEncodeObject = uriEncodeObject;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -2729,128 +2866,6 @@ module.exports = Long;
 module.exports.Long = Long;
 
 /***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.uriEncodeObject = exports.serviceResponse = exports.deprecate = exports.collectMetadata = undefined;
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var _Base = __webpack_require__(24);
-
-var base64 = _interopRequireWildcard(_Base);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var RESULT_METADATA_KEY = '_stitch_metadata';
-
-/** @namespace util */
-
-/**
- * Utility which creates a function that extracts metadata
- * from the server in the response to a pipeline request,
- * and attaches it to the final result after the finalizer has been applied.
- *
- * @memberof util
- * @param {Function} [func] optional finalizer to transform the response data
- */
-var collectMetadata = exports.collectMetadata = function collectMetadata(func) {
-  var attachMetadata = function attachMetadata(metadata) {
-    return function (res) {
-      if ((typeof res === 'undefined' ? 'undefined' : _typeof(res)) === 'object' && !Object.prototype.hasOwnProperty.call(res, RESULT_METADATA_KEY)) {
-        Object.defineProperty(res, RESULT_METADATA_KEY, { enumerable: false, configurable: false, writable: false, value: metadata });
-      }
-      return Promise.resolve(res);
-    };
-  };
-  var captureMetadata = function captureMetadata(data) {
-    var metadata = {};
-    if (data.warnings) {
-      // Metadata is not yet attached to result, grab any data that needs to be added.
-      metadata.warnings = data.warnings;
-    }
-    if (!func) {
-      return Promise.resolve(data).then(attachMetadata(metadata));
-    }
-    return Promise.resolve(data).then(func).then(attachMetadata(metadata));
-  };
-  return captureMetadata;
-};
-
-/**
- * Utility function for displaying deprecation notices
- *
- * @memberof util
- * @param {Function} fn the function to deprecate
- * @param {String} msg the message to display to the user regarding deprecation
- */
-function deprecate(fn, msg) {
-  var alreadyWarned = false;
-  function deprecated() {
-    if (!alreadyWarned) {
-      alreadyWarned = true;
-      console.warn('DeprecationWarning: ' + msg);
-    }
-
-    return fn.apply(this, arguments);
-  }
-
-  deprecated.__proto__ = fn; // eslint-disable-line
-  if (fn.prototype) {
-    deprecated.prototype = fn.prototype;
-  }
-
-  return deprecated;
-}
-
-/**
- * Utility method for executing a service action as a function call.
- *
- * @memberof util
- * @param {Object} service the service to execute the action on
- * @param {String} action the service action to execute
- * @param {Array} args the arguments to supply to the service action invocation
- * @returns {Promise} the API response from the executed service action
- */
-function serviceResponse(service, _ref) {
-  var _ref$serviceName = _ref.serviceName,
-      serviceName = _ref$serviceName === undefined ? service.serviceName : _ref$serviceName,
-      action = _ref.action,
-      args = _ref.args;
-  var client = service.client;
-
-
-  if (!client) {
-    throw new Error('Service has no client');
-  }
-
-  return client.executeServiceFunction(serviceName, action, args);
-}
-
-/**
- * Utility function to encode a JSON object into a valid string that can be
- * inserted in a URI. The object is first stringified, then encoded in base64,
- * and finally encoded via the builtin encodeURIComponent function.
- *
- * @memberof util
- * @param {Object} obj The object to encode
- * @returns {String} The encoded object
- */
-function uriEncodeObject(obj) {
-  return encodeURIComponent(base64.btoa(JSON.stringify(obj)));
-}
-
-exports.deprecate = deprecate;
-exports.serviceResponse = serviceResponse;
-exports.uriEncodeObject = uriEncodeObject;
-
-/***/ }),
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3279,7 +3294,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "2.3.1";
+  version = "2.2.0";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -3400,7 +3415,7 @@ module.exports.DBRef = DBRef;
 "use strict";
 /* WEBPACK VAR INJECTION */(function(Buffer) {
 
-var Long = __webpack_require__(1);
+var Long = __webpack_require__(2);
 
 var PARSE_STRING_REGEXP = /^(\+|-)?(\d+|(\d*\.\d*))?(E|e)?([-+])?(\d+)?$/;
 var PARSE_INF_REGEXP = /^(\+|-)?(Infinity|inf)$/i;
@@ -4597,7 +4612,7 @@ module.exports.BSONRegExp = BSONRegExp;
 "use strict";
 
 
-var Long = __webpack_require__(1);
+var Long = __webpack_require__(2);
 
 /**
  * @class
@@ -4721,15 +4736,15 @@ var _createClass = function () { function defineProperties(target, props) { for 
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 
 
-__webpack_require__(22);
+__webpack_require__(21);
 
-var _auth = __webpack_require__(30);
+var _auth = __webpack_require__(29);
 
 var _auth2 = _interopRequireDefault(_auth);
 
 var _common = __webpack_require__(5);
 
-var _services = __webpack_require__(37);
+var _services = __webpack_require__(36);
 
 var _services2 = _interopRequireDefault(_services);
 
@@ -4737,7 +4752,7 @@ var _common2 = __webpack_require__(6);
 
 var common = _interopRequireWildcard(_common2);
 
-var _mongodbExtjson = __webpack_require__(17);
+var _mongodbExtjson = __webpack_require__(41);
 
 var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
@@ -4745,7 +4760,9 @@ var _queryString = __webpack_require__(68);
 
 var _queryString2 = _interopRequireDefault(_queryString);
 
-var _errors = __webpack_require__(21);
+var _util = __webpack_require__(1);
+
+var _errors = __webpack_require__(20);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -4771,15 +4788,17 @@ var API_TYPE_APP = 'app';
  */
 
 var StitchClient = function () {
-  function StitchClient(clientAppID) {
-    var _v, _v2, _v3, _rootURLsByAPIVersion;
-
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  function StitchClient(clientAppID, options) {
+    var _v,
+        _v2,
+        _v3,
+        _rootURLsByAPIVersion,
+        _this = this;
 
     _classCallCheck(this, StitchClient);
 
     var baseUrl = common.DEFAULT_STITCH_SERVER_URL;
-    if (options.baseUrl) {
+    if (options && options.baseUrl) {
       baseUrl = options.baseUrl;
     }
 
@@ -4789,22 +4808,30 @@ var StitchClient = function () {
 
     this.rootURLsByAPIVersion = (_rootURLsByAPIVersion = {}, _defineProperty(_rootURLsByAPIVersion, v1, (_v = {}, _defineProperty(_v, API_TYPE_PUBLIC, baseUrl + '/api/public/v1.0'), _defineProperty(_v, API_TYPE_CLIENT, baseUrl + '/api/client/v1.0'), _defineProperty(_v, API_TYPE_PRIVATE, baseUrl + '/api/private/v1.0'), _defineProperty(_v, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v1.0/app/' + clientAppID : baseUrl + '/api/public/v1.0'), _v)), _defineProperty(_rootURLsByAPIVersion, v2, (_v2 = {}, _defineProperty(_v2, API_TYPE_PUBLIC, baseUrl + '/api/public/v2.0'), _defineProperty(_v2, API_TYPE_CLIENT, baseUrl + '/api/client/v2.0'), _defineProperty(_v2, API_TYPE_PRIVATE, baseUrl + '/api/private/v2.0'), _defineProperty(_v2, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID : baseUrl + '/api/public/v2.0'), _v2)), _defineProperty(_rootURLsByAPIVersion, v3, (_v3 = {}, _defineProperty(_v3, API_TYPE_PUBLIC, baseUrl + '/api/public/v3.0'), _defineProperty(_v3, API_TYPE_CLIENT, baseUrl + '/api/client/v3.0'), _defineProperty(_v3, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v3.0/app/' + clientAppID : baseUrl + '/api/admin/v3.0'), _v3)), _rootURLsByAPIVersion);
 
-    var authOptions = {
-      codec: _common.APP_CLIENT_CODEC,
-      storageType: options.storageType,
-      storage: options.storage
-    };
-
-    if (options.platform) {
-      authOptions.platform = options.platform;
-    }
-    if (options.authCodec) {
+    var authOptions = { codec: _common.APP_CLIENT_CODEC };
+    if (options && options.authCodec) {
       authOptions.codec = options.authCodec;
     }
-
     this.auth = new _auth2.default(this, this.authUrl, authOptions);
     this.auth.handleRedirect();
     this.auth.handleCookie();
+
+    // deprecated API
+    this.authManager = {
+      apiKeyAuth: function apiKeyAuth(key) {
+        return _this.authenticate('apiKey', key);
+      },
+      localAuth: function localAuth(email, password) {
+        return _this.login(email, password);
+      },
+      mongodbCloudAuth: function mongodbCloudAuth(username, apiKey, opts) {
+        return _this.authenticate('mongodbCloud', Object.assign({ username: username, apiKey: apiKey }, opts));
+      }
+    };
+
+    this.authManager.apiKeyAuth = (0, _util.deprecate)(this.authManager.apiKeyAuth, 'use `client.authenticate("apiKey", "key")` instead of `client.authManager.apiKey`');
+    this.authManager.localAuth = (0, _util.deprecate)(this.authManager.localAuth, 'use `client.login` instead of `client.authManager.localAuth`');
+    this.authManager.mongodbCloudAuth = (0, _util.deprecate)(this.authManager.mongodbCloudAuth, 'use `client.authenticate("mongodbCloud", opts)` instead of `client.authManager.mongodbCloudAuth`');
   }
 
   _createClass(StitchClient, [{
@@ -4864,19 +4891,17 @@ var StitchClient = function () {
   }, {
     key: 'authenticate',
     value: function authenticate(providerType) {
-      var _this = this;
+      var _this2 = this;
 
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       // reuse existing auth if present
-      return this.auth.getAccessToken().then(function (accessToken) {
-        if (accessToken) {
-          return _this.auth.authedId();
-        }
+      if (this.auth.getAccessToken()) {
+        return Promise.resolve(this.auth.authedId());
+      }
 
-        return _this.auth.provider(providerType).authenticate(options).then(function () {
-          return _this.auth.authedId();
-        });
+      return this.auth.provider(providerType).authenticate(options).then(function () {
+        return _this2.auth.authedId();
       });
     }
 
@@ -4889,15 +4914,15 @@ var StitchClient = function () {
   }, {
     key: 'logout',
     value: function logout() {
-      var _this2 = this;
+      var _this3 = this;
 
       return this._do('/auth/session', 'DELETE', {
         refreshOnFailure: false,
         useRefreshToken: true,
         rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
       }).then(function () {
-        return _this2.auth.clear();
-      }); // eslint-disable-line space-before-function-paren
+        return _this3.auth.clear();
+      });
     }
 
     /**
@@ -5032,111 +5057,52 @@ var StitchClient = function () {
         return response.json();
       });
     }
-
-    /**
-     * Returns an array of api keys
-     *
-     * @returns {Promise}
-     */
-
   }, {
-    key: 'getApiKeys',
-    value: function getApiKeys() {
-      return this._do('/auth/me/api_keys', 'GET', {
-        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
-        useRefreshToken: true
-      }).then(function (response) {
-        return response.json();
-      });
-    }
+    key: '_do',
+    value: function _do(resource, method, options) {
+      var _this4 = this;
 
-    /**
-     * Creates a user api key
-     *
-     * @param {String} userApiKeyName the user defined name of the userApiKey
-     * @returns {Promise}
-     */
+      options = Object.assign({}, {
+        refreshOnFailure: true,
+        useRefreshToken: false,
+        apiVersion: v2,
+        apiType: API_TYPE_APP,
+        rootURL: undefined
+      }, options);
 
-  }, {
-    key: 'createApiKey',
-    value: function createApiKey(userApiKeyName) {
-      return this._do('/auth/me/api_keys', 'POST', { rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
-        useRefreshToken: true,
-        body: JSON.stringify({ 'name': userApiKeyName })
-      }).then(function (response) {
-        return response.json();
-      });
-    }
+      if (!options.noAuth) {
+        if (!this.authedId()) {
+          return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
+        }
 
-    /**
-     * Returns a user api key
-     *
-     * @param {String} keyID the ID of the key
-     * @returns {Promise}
-     */
+        // If access token is expired, proactively get a new one
+        if (!options.useRefreshToken && this.auth.isAccessTokenExpired()) {
+          return this.auth.refreshToken().then(function () {
+            options.refreshOnFailure = false;
+            return _this4._do(resource, method, options);
+          });
+        }
+      }
 
-  }, {
-    key: 'getApiKeyByID',
-    value: function getApiKeyByID(keyID) {
-      return this._do('/auth/me/api_keys/' + keyID, 'GET', {
-        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
-        useRefreshToken: true
-      }).then(function (response) {
-        return response.json();
-      });
-    }
+      var appURL = this.rootURLsByAPIVersion[options.apiVersion][options.apiType];
+      var url = '' + appURL + resource;
+      if (options.rootURL) {
+        url = '' + options.rootURL + resource;
+      }
+      var fetchArgs = common.makeFetchArgs(method, options.body);
 
-    /**
-     * Deletes a user api key
-     *
-     * @param {String} keyID the ID of the key
-     * @returns {Promise}
-     */
+      if (!!options.headers) {
+        Object.assign(fetchArgs.headers, options.headers);
+      }
 
-  }, {
-    key: 'deleteApiKeyByID',
-    value: function deleteApiKeyByID(keyID) {
-      return this._do('/auth/me/api_keys/' + keyID, 'DELETE', {
-        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
-        useRefreshToken: true
-      });
-    }
+      if (!options.noAuth) {
+        var token = options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
+        fetchArgs.headers.Authorization = 'Bearer ' + token;
+      }
 
-    /**
-     * Enable a user api key
-     *
-     * @param {String} keyID the ID of the key
-     * @returns {Promise}
-     */
-
-  }, {
-    key: 'enableApiKeyByID',
-    value: function enableApiKeyByID(keyID) {
-      return this._do('/auth/me/api_keys/' + keyID + '/enable', 'PUT', {
-        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
-        useRefreshToken: true
-      });
-    }
-
-    /**
-     * Disable a user api key
-     *
-     * @param {String} keyID the ID of the key
-     * @returns {Promise}
-     */
-
-  }, {
-    key: 'disableApiKeyByID',
-    value: function disableApiKeyByID(keyID) {
-      return this._do('/auth/me/api_keys/' + keyID + '/disable', 'PUT', {
-        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
-        useRefreshToken: true
-      });
-    }
-  }, {
-    key: '_fetch',
-    value: function _fetch(url, fetchArgs, resource, method, options) {
-      var _this3 = this;
+      if (options.queryParams) {
+        url = url + '?' + _queryString2.default.stringify(options.queryParams);
+      }
 
       return fetch(url, fetchArgs).then(function (response) {
         // Okay: passthrough
@@ -5149,17 +5115,16 @@ var StitchClient = function () {
             // Only want to try refreshing token when there's an invalid session
             if ('error_code' in json && json.error_code === _errors.ErrInvalidSession) {
               if (!options.refreshOnFailure) {
-                return _this3.auth.clear().then(function () {
-                  var error = new _errors.StitchError(json.error, json.error_code);
-                  error.response = response;
-                  error.json = json;
-                  throw error;
-                });
+                _this4.auth.clear();
+                var _error = new _errors.StitchError(json.error, json.error_code);
+                _error.response = response;
+                _error.json = json;
+                throw _error;
               }
 
-              return _this3.auth.refreshToken().then(function () {
+              return _this4.auth.refreshToken().then(function () {
                 options.refreshOnFailure = false;
-                return _this3._do(resource, method, options);
+                return _this4._do(resource, method, options);
               });
             }
 
@@ -5175,76 +5140,18 @@ var StitchClient = function () {
         return Promise.reject(error);
       });
     }
+
+    // Deprecated API
+
   }, {
-    key: '_fetchArgs',
-    value: function _fetchArgs(resource, method, options) {
-      var appURL = this.rootURLsByAPIVersion[options.apiVersion][options.apiType];
-      var url = '' + appURL + resource;
-      if (options.rootURL) {
-        url = '' + options.rootURL + resource;
-      }
-      var fetchArgs = common.makeFetchArgs(method, options.body);
-
-      if (!!options.headers) {
-        Object.assign(fetchArgs.headers, options.headers);
-      }
-
-      if (options.queryParams) {
-        url = url + '?' + _queryString2.default.stringify(options.queryParams);
-      }
-
-      return { url: url, fetchArgs: fetchArgs };
+    key: 'authWithOAuth',
+    value: function authWithOAuth(providerType, redirectUrl) {
+      return this.auth.provider(providerType).authenticate({ redirectUrl: redirectUrl });
     }
   }, {
-    key: '_do',
-    value: function _do(resource, method, options) {
-      var _this4 = this;
-
-      options = Object.assign({}, {
-        refreshOnFailure: true,
-        useRefreshToken: false,
-        apiVersion: v2,
-        apiType: API_TYPE_APP,
-        rootURL: undefined
-      }, options);
-
-      var _fetchArgs2 = this._fetchArgs(resource, method, options),
-          url = _fetchArgs2.url,
-          fetchArgs = _fetchArgs2.fetchArgs;
-
-      if (!options.noAuth) {
-        return this.authedId().then(function (authedId) {
-          if (!_this4.authedId) {
-            return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
-          }
-
-          var tokenPromise = options.useRefreshToken ? _this4.auth.getRefreshToken() : _this4.auth.getAccessToken();
-
-          // If access token is expired, proactively get a new one
-          if (!options.useRefreshToken) {
-            return _this4.auth.isAccessTokenExpired().then(function (isAccessTokenExpired) {
-              if (isAccessTokenExpired) {
-                return _this4.auth.refreshToken().then(function () {
-                  options.refreshOnFailure = false;
-                  return _this4._do(resource, method, options);
-                });
-              }
-
-              return tokenPromise.then(function (token) {
-                fetchArgs.headers.Authorization = 'Bearer ' + token;
-                return _this4._fetch(url, fetchArgs, resource, method, options);
-              });
-            });
-          }
-
-          return tokenPromise.then(function (token) {
-            fetchArgs.headers.Authorization = 'Bearer ' + token;
-            return _this4._fetch(url, fetchArgs, resource, method, options);
-          });
-        });
-      }
-
-      return this._fetch(url, fetchArgs, resource, method, options);
+    key: 'anonymousAuth',
+    value: function anonymousAuth() {
+      return this.authenticate('anon');
     }
   }, {
     key: 'type',
@@ -5257,21 +5164,14 @@ var StitchClient = function () {
 }();
 
 exports.default = StitchClient;
+
+
+StitchClient.prototype.authWithOAuth = (0, _util.deprecate)(StitchClient.prototype.authWithOAuth, 'use `authenticate` instead of `authWithOAuth`');
+StitchClient.prototype.anonymousAuth = (0, _util.deprecate)(StitchClient.prototype.anonymousAuth, 'use `login()` instead of `anonymousAuth`');
 module.exports = exports['default'];
 
 /***/ }),
 /* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var ExtJSON = __webpack_require__(56);
-
-module.exports = ExtJSON;
-
-/***/ }),
-/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5312,7 +5212,7 @@ module.exports = Int32;
 module.exports.Int32 = Int32;
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5448,7 +5348,7 @@ if (typeof global.Map !== 'undefined') {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15)))
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5503,7 +5403,7 @@ module.exports = _Symbol;
 module.exports.Symbol = _Symbol;
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5588,7 +5488,7 @@ exports.ErrInvalidSession = ErrInvalidSession;
 exports.ErrUnauthorized = ErrUnauthorized;
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // the whatwg-fetch polyfill installs the fetch() function
@@ -5601,7 +5501,7 @@ module.exports = globalObj.fetch.bind(globalObj);
 
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5615,7 +5515,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-__webpack_require__(22);
+__webpack_require__(21);
 
 var _client = __webpack_require__(16);
 
@@ -6463,7 +6363,7 @@ exports.default = Admin;
 module.exports = exports['default'];
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function () {
@@ -6534,20 +6434,20 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(Buffer) {
 
-var Map = __webpack_require__(19),
-    Long = __webpack_require__(1),
+var Map = __webpack_require__(18),
+    Long = __webpack_require__(2),
     Double = __webpack_require__(10),
     Timestamp = __webpack_require__(14),
     ObjectID = __webpack_require__(12),
     BSONRegExp = __webpack_require__(13),
-    _Symbol = __webpack_require__(20),
-    Int32 = __webpack_require__(18),
+    _Symbol = __webpack_require__(19),
+    Int32 = __webpack_require__(17),
     Code = __webpack_require__(7),
     Decimal128 = __webpack_require__(9),
     MinKey = __webpack_require__(4),
@@ -6556,9 +6456,9 @@ var Map = __webpack_require__(19),
     Binary = __webpack_require__(3);
 
 // Parts of the parser
-var deserialize = __webpack_require__(28),
-    serializer = __webpack_require__(29),
-    calculateObjectSize = __webpack_require__(27);
+var deserialize = __webpack_require__(27),
+    serializer = __webpack_require__(28),
+    calculateObjectSize = __webpack_require__(26);
 
 /**
  * @ignore
@@ -6887,7 +6787,7 @@ module.exports.Decimal128 = Decimal128;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7034,7 +6934,7 @@ exports.readIEEE754 = readIEEE754;
 exports.writeIEEE754 = writeIEEE754;
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7042,11 +6942,11 @@ exports.writeIEEE754 = writeIEEE754;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-var Long = __webpack_require__(1).Long,
+var Long = __webpack_require__(2).Long,
     Double = __webpack_require__(10).Double,
     Timestamp = __webpack_require__(14).Timestamp,
     ObjectID = __webpack_require__(12).ObjectID,
-    _Symbol = __webpack_require__(20).Symbol,
+    _Symbol = __webpack_require__(19).Symbol,
     BSONRegExp = __webpack_require__(13).BSONRegExp,
     Code = __webpack_require__(7).Code,
     Decimal128 = __webpack_require__(9),
@@ -7194,13 +7094,13 @@ module.exports = calculateObjectSize;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(Buffer) {
 
-var Long = __webpack_require__(1).Long,
+var Long = __webpack_require__(2).Long,
     Double = __webpack_require__(10).Double,
     Timestamp = __webpack_require__(14).Timestamp,
     ObjectID = __webpack_require__(12).ObjectID,
@@ -7208,7 +7108,7 @@ var Long = __webpack_require__(1).Long,
     MinKey = __webpack_require__(4).MinKey,
     MaxKey = __webpack_require__(11).MaxKey,
     Decimal128 = __webpack_require__(9),
-    Int32 = __webpack_require__(18),
+    Int32 = __webpack_require__(17),
     DBRef = __webpack_require__(8).DBRef,
     BSONRegExp = __webpack_require__(13).BSONRegExp,
     Binary = __webpack_require__(3).Binary;
@@ -7893,7 +7793,7 @@ module.exports = deserialize;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7901,9 +7801,9 @@ module.exports = deserialize;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-var writeIEEE754 = __webpack_require__(26).writeIEEE754,
-    Long = __webpack_require__(1).Long,
-    Map = __webpack_require__(19),
+var writeIEEE754 = __webpack_require__(25).writeIEEE754,
+    Long = __webpack_require__(2).Long,
+    Map = __webpack_require__(18),
     MinKey = __webpack_require__(4).MinKey,
     Binary = __webpack_require__(3).Binary;
 
@@ -8892,7 +8792,7 @@ module.exports = serializeInto;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8904,11 +8804,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, document, fetch */
 
-var _storage = __webpack_require__(32);
+var _storage = __webpack_require__(31);
 
-var _providers = __webpack_require__(31);
+var _providers = __webpack_require__(30);
 
-var _errors = __webpack_require__(21);
+var _errors = __webpack_require__(20);
 
 var _common = __webpack_require__(5);
 
@@ -8917,10 +8817,6 @@ var authCommon = _interopRequireWildcard(_common);
 var _common2 = __webpack_require__(6);
 
 var common = _interopRequireWildcard(_common2);
-
-var _detectBrowser = __webpack_require__(58);
-
-var _platform = _interopRequireWildcard(_detectBrowser);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -8944,41 +8840,11 @@ var Auth = function () {
     this.client = client;
     this.rootUrl = rootUrl;
     this.codec = options.codec;
-    this.platform = options.platform || _platform;
-    this.storage = (0, _storage.createStorage)(options);
-    this.providers = (0, _providers.createProviders)(this, options);
+    this.storage = (0, _storage.createStorage)(options.storageType);
+    this.providers = (0, _providers.createProviders)(this);
   }
 
-  /**
-   * Create the device info for this client.
-   *
-   * @memberof module:auth
-   * @method getDeviceInfo
-   * @param {String} appId The app ID for this client
-   * @param {String} appVersion The version of the app
-   * @returns {Object} The device info object
-   */
-
-
   _createClass(Auth, [{
-    key: 'getDeviceInfo',
-    value: function getDeviceInfo(deviceId, appId) {
-      var appVersion = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-
-      var deviceInfo = { appId: appId, appVersion: appVersion, sdkVersion: common.SDK_VERSION };
-
-      if (deviceId) {
-        deviceInfo.deviceId = deviceId;
-      }
-
-      if (this.platform) {
-        deviceInfo.platform = this.platform.name;
-        deviceInfo.platformVersion = this.platform.version;
-      }
-
-      return deviceInfo;
-    }
-  }, {
     key: 'provider',
     value: function provider(name) {
       if (!this.providers.hasOwnProperty(name)) {
@@ -8992,13 +8858,11 @@ var Auth = function () {
     value: function refreshToken() {
       var _this = this;
 
-      return this.isImpersonatingUser().then(function (isImpersonatingUser) {
-        if (isImpersonatingUser) {
-          return _this.refreshImpersonation(_this.client);
-        }
+      if (this.isImpersonatingUser()) {
+        return this.refreshImpersonation(this.client);
+      }
 
-        return _this.client.doSessionPost();
-      }).then(function (json) {
+      return this.client.doSessionPost().then(function (json) {
         return _this.set(json);
       });
     }
@@ -9023,8 +8887,6 @@ var Auth = function () {
   }, {
     key: 'handleRedirect',
     value: function handleRedirect() {
-      var _this2 = this;
-
       if (typeof window === 'undefined') {
         // This means we're running in some environment other
         // than a browser - so handling a redirect makes no sense here.
@@ -9034,38 +8896,35 @@ var Auth = function () {
         return;
       }
 
-      return this.storage.get(authCommon.STATE_KEY).then(function (ourState) {
-        var redirectFragment = window.location.hash.substring(1);
-        var redirectState = _this2.parseRedirectFragment(redirectFragment, ourState);
-        if (redirectState.lastError) {
-          console.error('StitchClient: error from redirect: ' + redirectState.lastError);
-          _this2._error = redirectState.lastError;
-          window.history.replaceState(null, '', _this2.pageRootUrl());
-          return;
-        }
+      var ourState = this.storage.get(authCommon.STATE_KEY);
+      var redirectFragment = window.location.hash.substring(1);
+      var redirectState = this.parseRedirectFragment(redirectFragment, ourState);
+      if (redirectState.lastError) {
+        console.error('StitchClient: error from redirect: ' + redirectState.lastError);
+        this._error = redirectState.lastError;
+        window.history.replaceState(null, '', this.pageRootUrl());
+        return;
+      }
 
-        if (!redirectState.found) {
-          return;
-        }
+      if (!redirectState.found) {
+        return;
+      }
 
-        return _this2.storage.remove(authCommon.STATE_KEY);
-      }).then(function () {
-        if (!redirectState.stateValid) {
-          console.error('StitchClient: state values did not match!');
-          window.history.replaceState(null, '', _this2.pageRootUrl());
-          return;
-        }
+      this.storage.remove(authCommon.STATE_KEY);
+      if (!redirectState.stateValid) {
+        console.error('StitchClient: state values did not match!');
+        window.history.replaceState(null, '', this.pageRootUrl());
+        return;
+      }
 
-        if (!redirectState.ua) {
-          console.error('StitchClient: no UA value was returned from redirect!');
-          return;
-        }
+      if (!redirectState.ua) {
+        console.error('StitchClient: no UA value was returned from redirect!');
+        return;
+      }
 
-        // If we get here, the state is valid - set auth appropriately.
-        return _this2.set(redirectState.ua);
-      }).then(function () {
-        return window.history.replaceState(null, '', _this2.pageRootUrl());
-      });
+      // If we get here, the state is valid - set auth appropriately.
+      this.set(redirectState.ua);
+      window.history.replaceState(null, '', this.pageRootUrl());
     }
   }, {
     key: 'getCookie',
@@ -9087,8 +8946,6 @@ var Auth = function () {
   }, {
     key: 'handleCookie',
     value: function handleCookie() {
-      var _this3 = this;
-
       if (typeof window === 'undefined' || typeof document === 'undefined') {
         // This means we're running in some environment other
         // than a browser - so handling a cookie makes no sense here.
@@ -9105,20 +8962,15 @@ var Auth = function () {
 
       document.cookie = authCommon.USER_AUTH_COOKIE_NAME + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
       var userAuth = this.unmarshallUserAuth(uaCookie);
-      return this.set(userAuth).then(function () {
-        return window.history.replaceState(null, '', _this3.pageRootUrl());
-      });
+      this.set(userAuth);
+      window.history.replaceState(null, '', this.pageRootUrl());
     }
   }, {
     key: 'clear',
     value: function clear() {
-      var _this4 = this;
-
-      return this.storage.remove(authCommon.USER_AUTH_KEY).then(function () {
-        return _this4.storage.remove(authCommon.REFRESH_TOKEN_KEY);
-      }).then(function () {
-        return _this4.clearImpersonation;
-      });
+      this.storage.remove(authCommon.USER_AUTH_KEY);
+      this.storage.remove(authCommon.REFRESH_TOKEN_KEY);
+      this.clearImpersonation();
     }
   }, {
     key: 'getDeviceId',
@@ -9134,31 +8986,28 @@ var Auth = function () {
     value: function isAccessTokenExpired() {
       var withinSeconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : authCommon.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS;
 
-      return this.getAccessToken().then(function (token) {
-        if (!token) {
-          return false;
-        }
+      var token = this.getAccessToken();
+      if (!token) {
+        return false;
+      }
 
-        var decodedToken = void 0;
-        try {
-          decodedToken = jwtDecode(token);
-        } catch (e) {
-          return false;
-        }
+      var decodedToken = void 0;
+      try {
+        decodedToken = jwtDecode(token);
+      } catch (e) {
+        return false;
+      }
 
-        if (!decodedToken) {
-          return false;
-        }
+      if (!decodedToken) {
+        return false;
+      }
 
-        return decodedToken.exp && Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
-      });
+      return decodedToken.exp && Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
     }
   }, {
     key: 'getAccessToken',
     value: function getAccessToken() {
-      return this._get().then(function (auth) {
-        return auth.accessToken;
-      });
+      return this._get().accessToken;
     }
   }, {
     key: 'getRefreshToken',
@@ -9168,147 +9017,119 @@ var Auth = function () {
   }, {
     key: 'set',
     value: function set(json) {
-      var _this5 = this;
-
       if (!json) {
         return;
       }
 
-      var newUserAuth = {};
-      return new Promise(function (resolve) {
-        if (json[_this5.codec.refreshToken]) {
-          var rt = json[_this5.codec.refreshToken];
-          delete json[_this5.codec.refreshToken];
-          resolve(_this5.storage.set(authCommon.REFRESH_TOKEN_KEY, rt));
-        }
-        resolve();
-      }).then(function () {
-        if (json[_this5.codec.deviceId]) {
-          var deviceId = json[_this5.codec.deviceId];
-          delete json[_this5.codec.deviceId];
-          return _this5.storage.set(authCommon.DEVICE_ID_KEY, deviceId);
-        }
-        return;
-      }).then(function () {
-        // Merge in new fields with old fields. Typically the first json value
-        // is complete with every field inside a user auth, but subsequent requests
-        // do not include everything. This merging behavior is safe so long as json
-        // value responses with absent fields do not indicate that the field should
-        // be unset.
-        if (json[_this5.codec.accessToken]) {
-          newUserAuth.accessToken = json[_this5.codec.accessToken];
-        }
-        if (json[_this5.codec.userId]) {
-          newUserAuth.userId = json[_this5.codec.userId];
-        }
+      if (json[this.codec.refreshToken]) {
+        var rt = json[this.codec.refreshToken];
+        delete json[this.codec.refreshToken];
+        this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
+      }
 
-        return _this5._get();
-      }).then(function (auth) {
-        newUserAuth = Object.assign(auth, newUserAuth);
-        return _this5.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
-      });
+      if (json[this.codec.deviceId]) {
+        var deviceId = json[this.codec.deviceId];
+        delete json[this.codec.deviceId];
+        this.storage.set(authCommon.DEVICE_ID_KEY, deviceId);
+      }
+
+      // Merge in new fields with old fields. Typically the first json value
+      // is complete with every field inside a user auth, but subsequent requests
+      // do not include everything. This merging behavior is safe so long as json
+      // value responses with absent fields do not indicate that the field should
+      // be unset.
+      var newUserAuth = {};
+      if (json[this.codec.accessToken]) {
+        newUserAuth.accessToken = json[this.codec.accessToken];
+      }
+      if (json[this.codec.userId]) {
+        newUserAuth.userId = json[this.codec.userId];
+      }
+      newUserAuth = Object.assign(this._get(), newUserAuth);
+      this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
     }
   }, {
     key: '_get',
     value: function _get() {
-      var _this6 = this;
+      var data = this.storage.get(authCommon.USER_AUTH_KEY);
+      if (!data) {
+        return {};
+      }
 
-      return this.storage.get(authCommon.USER_AUTH_KEY).then(function (data) {
-        if (!data) {
-          return {};
-        }
-
-        try {
-          return JSON.parse(data);
-        } catch (e) {
-          // Need to back out and clear auth otherwise we will never
-          // be able to do anything useful.
-          return _this6.clear().then(function () {
-            throw new _errors.StitchError('Failure retrieving stored auth');
-          });
-        }
-      });
+      try {
+        return JSON.parse(data);
+      } catch (e) {
+        // Need to back out and clear auth otherwise we will never
+        // be able to do anything useful.
+        this.clear();
+        throw new _errors.StitchError('Failure retrieving stored auth');
+      }
     }
   }, {
     key: 'authedId',
     value: function authedId() {
-      return this._get().then(function (auth) {
-        return auth.userId;
-      });
+      return this._get().userId;
     }
   }, {
     key: 'isImpersonatingUser',
     value: function isImpersonatingUser() {
-      return this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY).then(function (isImpersonationActive) {
-        return isImpersonationActive === 'true';
-      });
+      return this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY) === 'true';
     }
   }, {
     key: 'refreshImpersonation',
     value: function refreshImpersonation(client) {
-      var _this7 = this;
+      var _this2 = this;
 
-      return this.storage.get(authCommon.IMPERSONATION_USER_KEY).then(function (userId) {
-        return client._do('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true });
-      }).then(function (response) {
+      var userId = this.storage.get(authCommon.IMPERSONATION_USER_KEY);
+      return client._do('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
         return response.json();
       }).then(function (json) {
-        return _this7.set(json);
+        return _this2.set(json);
       }).catch(function (e) {
-        return _this7.stopImpersonation().then(function () {
-          throw e; // rethrow
-        });
+        _this2.stopImpersonation();
+        throw e; // rethrow
       });
     }
   }, {
     key: 'startImpersonation',
     value: function startImpersonation(client, userId) {
-      var _this8 = this;
+      if (!this.authedId()) {
+        return Promise.reject(new _errors.StitchError('Must auth first'));
+      }
 
-      return this.authedId().then(function (authedId) {
-        if (!authedId) {
-          Promise.reject(new _errors.StitchError('Must auth first'));
-        }
-        return _this8.isImpersonatingUser();
-      }).then(function (isImpersonatingUser) {
-        if (isImpersonatingUser) {
-          return Promise.reject(new _errors.StitchError('Already impersonating a user'));
-        }
+      if (this.isImpersonatingUser()) {
+        return Promise.reject(new _errors.StitchError('Already impersonating a user'));
+      }
 
-        return _this8.storage.set(authCommon.IMPERSONATION_ACTIVE_KEY, 'true');
-      }).then(function () {
-        return _this8.storage.set(authCommon.IMPERSONATION_USER_KEY, userId);
-      }).then(function () {
-        return _this8.storage.get(authCommon.USER_AUTH_KEY);
-      }).then(function (userAuth) {
-        var realUserAuth = JSON.parse(userAuth);
-        return _this8.storage.set(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
-      }).then(function () {
-        return _this8.refreshImpersonation(client);
-      });
+      this.storage.set(authCommon.IMPERSONATION_ACTIVE_KEY, 'true');
+      this.storage.set(authCommon.IMPERSONATION_USER_KEY, userId);
+
+      var realUserAuth = JSON.parse(this.storage.get(authCommon.USER_AUTH_KEY));
+      this.storage.set(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
+      return this.refreshImpersonation(client);
     }
   }, {
     key: 'stopImpersonation',
     value: function stopImpersonation() {
-      var _this9 = this;
+      var _this3 = this;
 
-      return this.isImpersonatingUser().then(function (isImpersonatingUser) {
-        if (!isImpersonatingUser) {
-          throw new _errors.StitchError('Not impersonating a user');
-        }
+      if (!this.isImpersonatingUser()) {
+        throw new _errors.StitchError('Not impersonating a user');
+      }
 
-        return _this9.storage.get(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
-      }).then(function (userAuth) {
-        var realUserAuth = JSON.parse(userAuth);
-        return _this9.set(realUserAuth);
-      }).then(function () {
-        return _this9.clearImpersonation();
+      return new Promise(function (resolve, reject) {
+        var realUserAuth = JSON.parse(_this3.storage.get(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY));
+        _this3.set(realUserAuth);
+        _this3.clearImpersonation();
+        resolve();
       });
     }
   }, {
     key: 'clearImpersonation',
     value: function clearImpersonation() {
-      return Promise.all([this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY), this.storage.remove(authCommon.IMPERSONATION_USER_KEY), this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY)]);
+      this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY);
+      this.storage.remove(authCommon.IMPERSONATION_USER_KEY);
+      this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
     }
   }, {
     key: 'parseRedirectFragment',
@@ -9375,7 +9196,7 @@ exports.default = Auth;
 module.exports = exports['default'];
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9394,13 +9215,42 @@ var _common2 = __webpack_require__(5);
 
 var authCommon = _interopRequireWildcard(_common2);
 
-var _util = __webpack_require__(2);
+var _util = __webpack_require__(1);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /**
+ * Create the device info for this client.
+ *
+ * @memberof module:auth
+ * @method getDeviceInfo
+ * @param {String} appId The app ID for this client
+ * @param {String} appVersion The version of the app
+ * @returns {Object} The device info object
+ */
+function getDeviceInfo(deviceId, appId) {
+  var appVersion = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+
+  var deviceInfo = { appId: appId, appVersion: appVersion, sdkVersion: common.SDK_VERSION };
+
+  if (deviceId) {
+    deviceInfo.deviceId = deviceId;
+  }
+
+  var platform = (0, _util.getPlatform)();
+
+  if (platform) {
+    deviceInfo.platform = platform.name;
+    deviceInfo.platformVersion = platform.version;
+  }
+
+  return deviceInfo;
+}
+
+/**
  * @namespace
  */
+/** @module auth  */
 function anonProvider(auth) {
   return {
     /**
@@ -9411,47 +9261,11 @@ function anonProvider(auth) {
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: function authenticate() {
-      return auth.getDeviceId().then(function (deviceId) {
-        var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
-        var fetchArgs = common.makeFetchArgs('GET');
-        fetchArgs.cors = true;
+      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+      var fetchArgs = common.makeFetchArgs('GET');
+      fetchArgs.cors = true;
 
-        return fetch(auth.rootUrl + '/providers/anon-user/login?device=' + (0, _util.uriEncodeObject)(device), fetchArgs);
-      }).then(common.checkStatus).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return auth.set(json);
-      });
-    }
-  };
-}
-
-/**
-  * @namespace
-  */
-/** @module auth  */
-function customProvider(auth) {
-  var providerRoute = 'providers/custom-token';
-  var loginRoute = providerRoute + '/login';
-
-  return {
-    /**
-     * Login to a stitch application using custom authentication
-     *
-     * @memberof customProvider
-     * @instance
-     * @param {String} JWT token to use for authentication
-     * @returns {Promise} a promise that resolves when authentication succeeds.
-     */
-    authenticate: function authenticate(token) {
-      return auth.getDeviceId().then(function (deviceId) {
-        var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
-
-        var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ token: token, options: { device: device } }));
-        fetchArgs.cors = true;
-
-        return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs);
-      }).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/providers/anon-user/login?device=' + (0, _util.uriEncodeObject)(device), fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -9481,14 +9295,12 @@ function userPassProvider(auth) {
       var username = _ref.username,
           password = _ref.password;
 
-      return auth.getDeviceId().then(function (deviceId) {
-        var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
 
-        var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password, options: { device: device } }));
-        fetchArgs.cors = true;
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password, options: { device: device } }));
+      fetchArgs.cors = true;
 
-        return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs);
-      }).then(common.checkStatus).then(function (response) {
+      return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -9605,12 +9417,11 @@ function apiKeyProvider(auth) {
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: function authenticate(key) {
-      return auth.getDeviceId().then(function (deviceId) {
-        var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
-        var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ 'key': key, 'options': { device: device } }));
-        fetchArgs.cors = true;
-        return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs);
-      }).then(common.checkStatus).then(function (response) {
+      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ 'key': key, 'options': { device: device } }));
+      fetchArgs.cors = true;
+
+      return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -9643,20 +9454,16 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
   }
 
   var state = generateState();
-  return auth.storage.set(authCommon.STATE_KEY, state).then(function () {
-    return auth.getDeviceId();
-  }).then(function (deviceId) {
-    var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+  auth.storage.set(authCommon.STATE_KEY, state);
 
-    var result = auth.rootUrl + '/providers/oauth2-' + providerName + '/login?redirect=' + encodeURI(redirectUrl) + '&state=' + state + '&device=' + (0, _util.uriEncodeObject)(device);
-    return result;
-  });
+  var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+
+  var result = auth.rootUrl + '/providers/oauth2-' + providerName + '/login?redirect=' + encodeURI(redirectUrl) + '&state=' + state + '&device=' + (0, _util.uriEncodeObject)(device);
+  return result;
 }
 
 /** @namespace */
 function googleProvider(auth) {
-  var loginRoute = auth.isAppClient() ? 'providers/oauth2-google/login' : 'providers/oauth2-google/login';
-
   return {
     /**
      * Login to a stitch application using google authentication
@@ -9667,22 +9474,6 @@ function googleProvider(auth) {
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: function authenticate(data) {
-      var authCode = data.authCode;
-
-      if (authCode !== null) {
-        return auth.getDeviceId(function (deviceId) {
-          var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
-
-          var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ authCode: authCode, options: { device: device } }));
-
-          return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs);
-        }).then(common.checkStatus).then(function (response) {
-          return response.json();
-        }).then(function (json) {
-          return auth.set(json);
-        });
-      }
-
       var redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
       window.location.replace(getOAuthLoginURL(auth, 'google', redirectUrl));
       return Promise.resolve();
@@ -9692,8 +9483,6 @@ function googleProvider(auth) {
 
 /** @namespace */
 function facebookProvider(auth) {
-  var loginRoute = auth.isAppClient() ? 'providers/oauth2-facebook/login' : 'providers/oauth2-facebook/login';
-
   return {
     /**
      * Login to a stitch application using facebook authentication
@@ -9704,22 +9493,6 @@ function facebookProvider(auth) {
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: function authenticate(data) {
-      var accessToken = data.accessToken;
-
-      if (accessToken !== null) {
-        return auth.getDeviceId().then(function (deviceId) {
-          var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
-
-          var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ accessToken: accessToken, options: { device: device } }));
-
-          return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs);
-        }).then(common.checkStatus).then(function (response) {
-          return response.json();
-        }).then(function (json) {
-          return auth.set(json);
-        });
-      }
-
       var redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
       window.location.replace(getOAuthLoginURL(auth, 'facebook', redirectUrl));
       return Promise.resolve();
@@ -9749,19 +9522,17 @@ function mongodbCloudProvider(auth) {
           cookie = data.cookie;
 
       var options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
-      return auth.getDeviceId().then(function (deviceId) {
-        var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
-        var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, apiKey: apiKey, options: { device: device } }));
-        fetchArgs.cors = true; // TODO: shouldn't this use the passed in `cors` value?
-        fetchArgs.credentials = 'include';
+      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, apiKey: apiKey, options: { device: device } }));
+      fetchArgs.cors = true; // TODO: shouldn't this use the passed in `cors` value?
+      fetchArgs.credentials = 'include';
 
-        var url = auth.rootUrl + '/' + loginRoute;
-        if (options.cookie) {
-          return fetch(url + '?cookie=true', fetchArgs).then(common.checkStatus);
-        }
+      var url = auth.rootUrl + '/' + loginRoute;
+      if (options.cookie) {
+        return fetch(url + '?cookie=true', fetchArgs).then(common.checkStatus);
+      }
 
-        return fetch(url, fetchArgs);
-      }).then(common.checkStatus).then(function (response) {
+      return fetch(url, fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json);
@@ -9780,15 +9551,14 @@ function createProviders(auth) {
     google: googleProvider(auth),
     facebook: facebookProvider(auth),
     mongodbCloud: mongodbCloudProvider(auth),
-    userpass: userPassProvider(auth),
-    custom: customProvider(auth)
+    userpass: userPassProvider(auth)
   };
 }
 
 exports.createProviders = createProviders;
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9849,64 +9619,67 @@ var Storage = function () {
   _createClass(Storage, [{
     key: 'get',
     value: function get(key) {
-      var _this = this;
-
-      return new Promise(function (resolve) {
-        return resolve(_this.store.getItem(key));
-      });
+      return this.store.getItem(key);
     }
   }, {
     key: 'set',
     value: function set(key, value) {
-      var _this2 = this;
-
-      return new Promise(function (resolve) {
-        return resolve(_this2.store.setItem(key, value));
-      });
+      return this.store.setItem(key, value);
     }
   }, {
     key: 'remove',
     value: function remove(key) {
-      var _this3 = this;
-
-      return new Promise(function (resolve) {
-        return resolve(_this3.store.removeItem(key));
-      });
+      return this.store.removeItem(key);
     }
   }, {
     key: 'clear',
     value: function clear() {
-      var _this4 = this;
-
-      return new Promise(function (resolve) {
-        return resolve(_this4.store.clear());
-      });
+      return this.store.clear();
     }
   }]);
 
   return Storage;
 }();
 
-function createStorage(options) {
-  var storageType = options.storageType,
-      storage = options.storage;
-
-  if (storageType === 'localStorage') {
+function createStorage(type) {
+  if (type === 'localStorage') {
     if (typeof window !== 'undefined' && 'localStorage' in window && window.localStorage !== null) {
       return new Storage(window.localStorage);
     }
-  } else if (storageType === 'sessionStorage') {
+  } else if (type === 'sessionStorage') {
     if (typeof window !== 'undefined' && 'sessionStorage' in window && window.sessionStorage !== null) {
       return new Storage(window.sessionStorage);
     }
-  } else if (storageType == 'customStorage') {
-    //eslint-disable-line eqeqeq
-    return new Storage(storage);
   }
 
   // default to memory storage
   return new Storage(new MemoryStorage());
 }
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Admin = exports.StitchClient = undefined;
+
+var _client = __webpack_require__(16);
+
+var _client2 = _interopRequireDefault(_client);
+
+var _admin = __webpack_require__(22);
+
+var _admin2 = _interopRequireDefault(_admin);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.StitchClient = _client2.default;
+exports.Admin = _admin2.default;
 
 /***/ }),
 /* 33 */
@@ -9918,38 +9691,10 @@ function createStorage(options) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.BSON = exports.Admin = exports.StitchClient = undefined;
-
-var _client = __webpack_require__(16);
-
-var _client2 = _interopRequireDefault(_client);
-
-var _admin = __webpack_require__(23);
-
-var _admin2 = _interopRequireDefault(_admin);
-
-var _mongodbExtjson = __webpack_require__(17);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.StitchClient = _client2.default;
-exports.Admin = _admin2.default;
-exports.BSON = _mongodbExtjson.BSON;
-
-/***/ }),
-/* 34 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _util = __webpack_require__(2);
+var _util = __webpack_require__(1);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -10016,7 +9761,7 @@ exports.default = S3Service;
 module.exports = exports['default'];
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10028,7 +9773,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _util = __webpack_require__(2);
+var _util = __webpack_require__(1);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -10075,7 +9820,7 @@ exports.default = SESService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 36 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10087,7 +9832,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _util = __webpack_require__(2);
+var _util = __webpack_require__(1);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -10124,10 +9869,12 @@ var HTTPService = function () {
     }
 
     /**
-     * Send a POST request to a resource with payload
+     * Send a POST request to a resource with payload from previous stage
+     *
+     * NOTE: item from previous stage must serializable to application/json
      *
      * @param {String|Object} urlOrOptions the url to request, or an object of POST args
-     * @param {Object} [options] optional settings for the POST operation
+     * @param {Object} [options] optional settings for the GET operation
      * @param {String} [options.authUrl] url that grants a cookie
      * @return {Promise}
      */
@@ -10141,10 +9888,12 @@ var HTTPService = function () {
     }
 
     /**
-     * Send a PUT request to a resource with payload
+     * Send a PUT request to a resource with payload from previous stage
      *
-     * @param {String|Object} urlOrOptions the url to request, or an object of PUT args
-     * @param {Object} [options] optional settings for the PUT operation
+     * NOTE: item from previous stage must serializable to application/json
+     *
+     * @param {String|Object} urlOrOptions the url to request, or an object of POST args
+     * @param {Object} [options] optional settings for the GET operation
      * @param {String} [options.authUrl] url that grants a cookie
      * @return {Promise}
      */
@@ -10158,10 +9907,12 @@ var HTTPService = function () {
     }
 
     /**
-     * Send a PATCH request to a resource with payload
+     * Send a PATCH request to a resource with payload from previous stage
      *
-     * @param {String|Object} urlOrOptions the url to request, or an object of PATCH args
-     * @param {Object} [options] optional settings for the PATCH operation
+     * NOTE: item from previous stage must serializable to application/json
+     *
+     * @param {String|Object} urlOrOptions the url to request, or an object of POST args
+     * @param {Object} [options] optional settings for the GET operation
      * @param {String} [options.authUrl] url that grants a cookie
      * @return {Promise}
      */
@@ -10177,8 +9928,8 @@ var HTTPService = function () {
     /**
      * Send a DELETE request to a resource
      *
-     * @param {String|Object} urlOrOptions the url to request, or an object of DELETE args
-     * @param {Object} [options] optional settings for the DELETE operation
+     * @param {String|Object} urlOrOptions the url to request, or an object of POST args
+     * @param {Object} [options] optional settings for the GET operation
      * @param {String} [options.authUrl] url that grants a cookie
      * @return {Promise}
      */
@@ -10194,8 +9945,8 @@ var HTTPService = function () {
     /**
      * Send a HEAD request to a resource
      *
-     * @param {String|Object} urlOrOptions the url to request, or an object of HEAD args
-     * @param {Object} [options] optional settings for the HEAD operation
+     * @param {String|Object} urlOrOptions the url to request, or an object of POST args
+     * @param {Object} [options] optional settings for the GET operation
      * @param {String} [options.authUrl] url that grants a cookie
      * @return {Promise}
      */
@@ -10235,7 +9986,7 @@ exports.default = HTTPService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 37 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10245,23 +9996,23 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _s3_service = __webpack_require__(34);
+var _s3_service = __webpack_require__(33);
 
 var _s3_service2 = _interopRequireDefault(_s3_service);
 
-var _ses_service = __webpack_require__(35);
+var _ses_service = __webpack_require__(34);
 
 var _ses_service2 = _interopRequireDefault(_ses_service);
 
-var _http_service = __webpack_require__(36);
+var _http_service = __webpack_require__(35);
 
 var _http_service2 = _interopRequireDefault(_http_service);
 
-var _mongodb_service = __webpack_require__(40);
+var _mongodb_service = __webpack_require__(39);
 
 var _mongodb_service2 = _interopRequireDefault(_mongodb_service);
 
-var _twilio_service = __webpack_require__(41);
+var _twilio_service = __webpack_require__(40);
 
 var _twilio_service2 = _interopRequireDefault(_twilio_service);
 
@@ -10277,7 +10028,7 @@ exports.default = {
 module.exports = exports['default'];
 
 /***/ }),
-/* 38 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10289,7 +10040,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _util = __webpack_require__(2);
+var _util = __webpack_require__(1);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -10408,8 +10159,9 @@ var Collection = function () {
      * @method
      * @param {Object} query The query used to match documents.
      * @param {Object} [project] The query document projection.
-     * @return {MongoQuery} An object which allows for `limit` and `sort` parameters to be set.
-     * `execute` will return a {Promise} for the operation.
+     * @param {Object} [MongoQuery.sort] The query document sorting.
+     * @param {Number} [MongoQuery.limit] The maximum number of documents to return.
+     * @return {MongoQuery} A "thenable" object which allows for `limit` and `skip` parameters to be set.
      */
 
   }, {
@@ -10532,7 +10284,7 @@ exports.default = Collection;
 module.exports = exports['default'];
 
 /***/ }),
-/* 39 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10544,7 +10296,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _collection = __webpack_require__(38);
+var _collection = __webpack_require__(37);
 
 var _collection2 = _interopRequireDefault(_collection);
 
@@ -10592,7 +10344,7 @@ exports.default = DB;
 module.exports = exports['default'];
 
 /***/ }),
-/* 40 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10604,7 +10356,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _db = __webpack_require__(39);
+var _db = __webpack_require__(38);
 
 var _db2 = _interopRequireDefault(_db);
 
@@ -10652,7 +10404,7 @@ exports.default = MongoDBService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 41 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10664,7 +10416,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _util = __webpack_require__(2);
+var _util = __webpack_require__(1);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -10708,6 +10460,17 @@ var TwilioService = function () {
 
 exports.default = TwilioService;
 module.exports = exports['default'];
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ExtJSON = __webpack_require__(56);
+
+module.exports = ExtJSON;
 
 /***/ }),
 /* 42 */
@@ -11061,7 +10824,7 @@ module.exports = {
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var codecs = __webpack_require__(47),
-    BSON = __webpack_require__(25);
+    BSON = __webpack_require__(24);
 
 var BSONTypes = ['Binary', 'Code', 'DBRef', 'Decimal128', 'Double', 'Int32', 'Long', 'MaxKey', 'MinKey', 'ObjectID', 'BSONRegExp', 'Symbol', 'Timestamp'];
 

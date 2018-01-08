@@ -43,10 +43,12 @@ var HTTPService = function () {
     }
 
     /**
-     * Send a POST request to a resource with payload
+     * Send a POST request to a resource with payload from previous stage
+     *
+     * NOTE: item from previous stage must serializable to application/json
      *
      * @param {String|Object} urlOrOptions the url to request, or an object of POST args
-     * @param {Object} [options] optional settings for the POST operation
+     * @param {Object} [options] optional settings for the GET operation
      * @param {String} [options.authUrl] url that grants a cookie
      * @return {Promise}
      */
@@ -60,10 +62,12 @@ var HTTPService = function () {
     }
 
     /**
-     * Send a PUT request to a resource with payload
+     * Send a PUT request to a resource with payload from previous stage
      *
-     * @param {String|Object} urlOrOptions the url to request, or an object of PUT args
-     * @param {Object} [options] optional settings for the PUT operation
+     * NOTE: item from previous stage must serializable to application/json
+     *
+     * @param {String|Object} urlOrOptions the url to request, or an object of POST args
+     * @param {Object} [options] optional settings for the GET operation
      * @param {String} [options.authUrl] url that grants a cookie
      * @return {Promise}
      */
@@ -77,10 +81,12 @@ var HTTPService = function () {
     }
 
     /**
-     * Send a PATCH request to a resource with payload
+     * Send a PATCH request to a resource with payload from previous stage
      *
-     * @param {String|Object} urlOrOptions the url to request, or an object of PATCH args
-     * @param {Object} [options] optional settings for the PATCH operation
+     * NOTE: item from previous stage must serializable to application/json
+     *
+     * @param {String|Object} urlOrOptions the url to request, or an object of POST args
+     * @param {Object} [options] optional settings for the GET operation
      * @param {String} [options.authUrl] url that grants a cookie
      * @return {Promise}
      */
@@ -96,8 +102,8 @@ var HTTPService = function () {
     /**
      * Send a DELETE request to a resource
      *
-     * @param {String|Object} urlOrOptions the url to request, or an object of DELETE args
-     * @param {Object} [options] optional settings for the DELETE operation
+     * @param {String|Object} urlOrOptions the url to request, or an object of POST args
+     * @param {Object} [options] optional settings for the GET operation
      * @param {String} [options.authUrl] url that grants a cookie
      * @return {Promise}
      */
@@ -113,8 +119,8 @@ var HTTPService = function () {
     /**
      * Send a HEAD request to a resource
      *
-     * @param {String|Object} urlOrOptions the url to request, or an object of HEAD args
-     * @param {Object} [options] optional settings for the HEAD operation
+     * @param {String|Object} urlOrOptions the url to request, or an object of POST args
+     * @param {Object} [options] optional settings for the GET operation
      * @param {String} [options.authUrl] url that grants a cookie
      * @return {Promise}
      */
