@@ -70,10 +70,12 @@ export default class StitchClient {
 
     const authOptions = {
       codec: APP_CLIENT_CODEC,
-      storage: options.storage,
-      storageType: options.storageType
+      storage: options.storage
     };
 
+    if (options.storageType) {
+      authOptions.storageType = options.storageType;
+    }
     if (options.platform) {
       authOptions.platform = options.platform;
     }
