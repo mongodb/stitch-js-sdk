@@ -271,10 +271,10 @@ export default class StitchClient {
    */
   getApiKeys() {
     return this._do(
-      '/auth/me/api_keys',
+      '/auth/api_keys',
       'GET',
       {
-        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
         useRefreshToken: true
       },
     )
@@ -289,9 +289,9 @@ export default class StitchClient {
    */
   createApiKey(userApiKeyName) {
     return this._do(
-      '/auth/me/api_keys',
+      '/auth/api_keys',
       'POST',
-      { rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
+      { rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
         useRefreshToken: true,
         body: JSON.stringify({'name': userApiKeyName})
       },
@@ -307,10 +307,10 @@ export default class StitchClient {
    */
   getApiKeyByID(keyID) {
     return this._do(
-      `/auth/me/api_keys/${keyID}`,
+      `/auth/api_keys/${keyID}`,
       'GET',
       {
-        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
         useRefreshToken: true
       },
     )
@@ -325,10 +325,10 @@ export default class StitchClient {
    */
   deleteApiKeyByID(keyID) {
     return this._do(
-      `/auth/me/api_keys/${keyID}`,
+      `/auth/api_keys/${keyID}`,
       'DELETE',
       {
-        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
         useRefreshToken: true
       },
     );
@@ -342,10 +342,10 @@ export default class StitchClient {
    */
   enableApiKeyByID(keyID) {
     return this._do(
-      `/auth/me/api_keys/${keyID}/enable`,
+      `/auth/api_keys/${keyID}/enable`,
       'PUT',
       {
-        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
         useRefreshToken: true
       },
     );
@@ -359,10 +359,10 @@ export default class StitchClient {
    */
   disableApiKeyByID(keyID) {
     return this._do(
-      `/auth/me/api_keys/${keyID}/disable`,
+      `/auth/api_keys/${keyID}/disable`,
       'PUT',
       {
-        rootURL: this.rootURLsByAPIVersion[v1][API_TYPE_APP],
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
         useRefreshToken: true
       },
     );
