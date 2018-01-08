@@ -114,8 +114,8 @@ describe('storage', function() {
       expect(await storage.get(USER_AUTH_KEY)).toEqual(42);
       expect(await storage.get(REFRESH_TOKEN_KEY)).toEqual(84);
 
-      expect(storage.store.getItem(`${namespace}.${USER_AUTH_KEY}`)).toEqual(42);
-      expect(storage.store.getItem(`${namespace}.${REFRESH_TOKEN_KEY}`)).toEqual(84);
+      expect(storage.store.getItem(`_stitch.${namespace}.${USER_AUTH_KEY}`)).toEqual(42);
+      expect(storage.store.getItem(`_stitch.${namespace}.${REFRESH_TOKEN_KEY}`)).toEqual(84);
 
       await _runReverseMigration(undefined, storage);
 

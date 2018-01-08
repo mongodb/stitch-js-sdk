@@ -78,7 +78,7 @@ class Storage {
   */
   constructor(store, namespace) {
     this.store = store;
-    this.namespace = namespace;
+    this.namespace = `_stitch.${namespace}`;
 
     this._migration = Promise.resolve(this.store.getItem(_VERSION_KEY))
       .then(version => _runMigration(version, this));
