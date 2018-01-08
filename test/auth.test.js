@@ -31,7 +31,7 @@ describe('Auth', () => {
   beforeEach(() => { test.fetch = sinon.stub(window, 'fetch'); });
   afterEach(() => test.fetch.restore());
 
-  it('should return a promise for anonymous login with existing auth data', async () => {
+  it('should return a promise for anonymous login with existing auth data', async() => {
     window.fetch.resolves(mockApiResponse());
     expect.assertions(1);
 
@@ -59,7 +59,7 @@ describe('Auth', () => {
       .then(userId => expect(userId).toEqual('fake-user-id'));
   });
 
-  it('should return a promise for login with only existing auth data userId', async () => {
+  it('should return a promise for login with only existing auth data userId', async() => {
     window.fetch.resolves(mockApiResponse());
     expect.assertions(1);
 

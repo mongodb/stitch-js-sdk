@@ -30,8 +30,8 @@ export class MemoryStorage {
   }
 }
 
-const _VERSION = 1
-const _VERSION_KEY = '__storage_version__'
+const _VERSION = 1;
+const _VERSION_KEY = '__stitch_storage_version__';
 
 /**
   * Run a migration on the currently used storage
@@ -44,29 +44,29 @@ const _VERSION_KEY = '__storage_version__'
   */
 function _runMigration(version, storage) {
   switch (version) {
-    case null:
-    case undefined:
-      // return a promise,
-      // mapping each of the store's keys to a Promise
-      // that fetches the each value for each key,
-      // sets the old value to the new "namespaced" key
-      // remove the old key value pair,
-      // and set the version number
-      let migrations = [
-        USER_AUTH_KEY, 
-        REFRESH_TOKEN_KEY, 
-        DEVICE_ID_KEY, 
-        STATE_KEY
-      ].map(key => 
-        Promise.resolve(storage.store.getItem(key))
-          .then(item => !!item && storage.store.setItem(storage._generateKey(key), item))
-          .then(() => storage.store.removeItem(key))
-      );
-      return Promise.all(migrations)
-        .then(() => storage.store.setItem(_VERSION_KEY, _VERSION));
-    // in future versions, `case 1:`, `case 2:` and so on
-    // could be added to perform similar migrations 
-    default: break;
+  case null:
+  case undefined:
+    // return a promise,
+    // mapping each of the store's keys to a Promise
+    // that fetches the each value for each key,
+    // sets the old value to the new "namespaced" key
+    // remove the old key value pair,
+    // and set the version number
+    let migrations = [
+      USER_AUTH_KEY,
+      REFRESH_TOKEN_KEY,
+      DEVICE_ID_KEY,
+      STATE_KEY
+    ].map(key =>
+      Promise.resolve(storage.store.getItem(key))
+        .then(item => !!item && storage.store.setItem(storage._generateKey(key), item))
+        .then(() => storage.store.removeItem(key))
+    );
+    return Promise.all(migrations)
+      .then(() => storage.store.setItem(_VERSION_KEY, _VERSION));
+  // in future versions, `case 1:`, `case 2:` and so on
+  // could be added to perform similar migrations
+  default: break;
   }
 }
 
@@ -83,14 +83,14 @@ class Storage {
     this._migration = Promise.resolve(this.store.getItem(_VERSION_KEY))
       .then(version => _runMigration(version, this));
   }
-  
+
   _generateKey(key) {
-    return `${this.namespace}.${key}`
+    return `${this.namespace}.${key}`;
   }
 
   get(key) {
     return Promise.resolve(this._migration)
-      .then(() => this.store.getItem(this._generateKey(key))); 
+      .then(() => this.store.getItem(this._generateKey(key)));
   }
 
   set(key, value) {
@@ -98,7 +98,7 @@ class Storage {
       .then(() => this.store.setItem(this._generateKey(key), value));
   }
 
-  remove(key) { 
+  remove(key) {
     return Promise.resolve(this._migration)
       .then(() => this.store.removeItem(this._generateKey(key)));
   }

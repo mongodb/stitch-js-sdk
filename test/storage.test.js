@@ -15,29 +15,29 @@ const storageTypes = [ 'localStorage', 'sessionStorage', 'fallback' ];
 // for testing purposes only
 function _runReverseMigration(toVersion, storage) {
   switch (toVersion) {
-    case null:
-    case undefined:
-      let reverseMigrations = [
-        USER_AUTH_KEY, 
-        REFRESH_TOKEN_KEY, 
-        DEVICE_ID_KEY, 
-        STATE_KEY
-      ].map(key => 
-        Promise.resolve(storage.get(key))
-          .then(item => {
-            let newKey = key
-            if (key.indexOf(storage.namespace) >= 0) {
-              newKey = key.split('.').pop();
-            }
-            return storage.store.setItem(newKey, item) 
-          })
-          .then(item => storage.store.removeItem(storage._generateKey(key)))
-      );
-      return Promise.all(reverseMigrations)
-        .then(() => storage.store.setItem('__storage_version__', toVersion))
-    // in future versions, `case 1:`, `case 2:` and so on
-    // could be added to perform similar reverse migrations 
-    default: break;
+  case null:
+  case undefined:
+    let reverseMigrations = [
+      USER_AUTH_KEY,
+      REFRESH_TOKEN_KEY,
+      DEVICE_ID_KEY,
+      STATE_KEY
+    ].map(key =>
+      Promise.resolve(storage.get(key))
+        .then(item => {
+          let newKey = key;
+          if (key.indexOf(storage.namespace) >= 0) {
+            newKey = key.split('.').pop();
+          }
+          return storage.store.setItem(newKey, item);
+        })
+        .then(item => storage.store.removeItem(storage._generateKey(key)))
+    );
+    return Promise.all(reverseMigrations)
+      .then(() => storage.store.setItem('__storage_version__', toVersion));
+  // in future versions, `case 1:`, `case 2:` and so on
+  // could be added to perform similar reverse migrations
+  default: break;
   }
 }
 
@@ -53,13 +53,13 @@ describe('storage', function() {
   });
 
   for (const storageType of storageTypes) {
-    it(`should save token to ${storageType}`, async () => {
+    it(`should save token to ${storageType}`, async() => {
       const storage = createStorage(storageType);
       await storage.set('token', 'foo');
       expect(await storage.get('token')).toEqual('foo');
     });
 
-    it(`should remove token to ${storageType}`, async () => {
+    it(`should remove token to ${storageType}`, async() => {
       const storage = createStorage(storageType);
       await storage.remove('token');
       expect(await storage.get('token')).toBeNull();
@@ -74,7 +74,7 @@ describe('storage', function() {
       expect(storage.store.getItem(storage.store.key(1))).toEqual(42);
     });
 
-    it(`should allow for two unique clients to coexist for ${storageType}`, async () => {
+    it(`should allow for two unique clients to coexist for ${storageType}`, async() => {
       const client1 = new StitchClient('test-app1');
       const client2 = new StitchClient('test-app2');
 
@@ -144,9 +144,7 @@ describe('storage', function() {
     });
   }
 
-  it(`should migrate existing values from undefined version to version 1`, async() => {
-    const version = undefined;
-
+  it('should migrate existing values from undefined version to version 1', async() => {
     let memoryStorage = new MemoryStorage();
 
     memoryStorage.setItem(USER_AUTH_KEY, 16);
@@ -159,9 +157,9 @@ describe('storage', function() {
     expect(memoryStorage.getItem(DEVICE_ID_KEY)).toEqual(64);
     expect(memoryStorage.getItem(STATE_KEY)).toEqual(128);
 
-    const storage = createStorage({ 
-      storageType: 'customStorage', 
-      storage: memoryStorage, 
+    const storage = createStorage({
+      storageType: 'customStorage',
+      storage: memoryStorage,
       namespace
     });
 
@@ -170,7 +168,7 @@ describe('storage', function() {
     expect(await storage.get(DEVICE_ID_KEY)).toEqual(64);
     expect(await storage.get(STATE_KEY)).toEqual(128);
 
-    expect(storage.store.getItem(USER_AUTH_KEY)).toBeNull()
+    expect(storage.store.getItem(USER_AUTH_KEY)).toBeNull();
     expect(storage.store.getItem(REFRESH_TOKEN_KEY)).toBeNull();
     expect(storage.store.getItem(DEVICE_ID_KEY)).toBeNull();
     expect(storage.store.getItem(STATE_KEY)).toBeNull();

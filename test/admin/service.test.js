@@ -12,8 +12,8 @@ describe('Services', ()=>{
   let th;
   let services;
 
-  beforeAll(async () => test.setup());
-  afterAll(async () => test.teardown());
+  beforeAll(async() => test.setup());
+  afterAll(async() => test.teardown());
 
   beforeEach(async() => {
     const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
