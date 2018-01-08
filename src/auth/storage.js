@@ -95,7 +95,8 @@ class Storage {
 
   set(key, value) {
     return Promise.resolve(this._migration)
-      .then(() => this.store.setItem(this._generateKey(key), value));
+      .then(() => this.store.setItem(this._generateKey(key), value))
+      .then(() => value);
   }
 
   remove(key) {

@@ -20,10 +20,10 @@ export default class Auth {
       namespace = `client.${client.clientAppID}`;
     }
 
-    options = Object.assign({}, {
-      storageType: 'localStorage',
+    options = Object.assign({
       codec: authCommon.APP_CLIENT_CODEC,
-      namespace: namespace
+      namespace: namespace,
+      storageType: 'localStorage'
     }, options);
 
     this.client = client;

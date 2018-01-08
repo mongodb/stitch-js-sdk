@@ -31,7 +31,7 @@ function _runReverseMigration(toVersion, storage) {
           }
           return storage.store.setItem(newKey, item);
         })
-        .then(item => storage.store.removeItem(storage._generateKey(key)))
+        .then(() => storage.store.removeItem(storage._generateKey(key)))
     );
     return Promise.all(reverseMigrations)
       .then(() => storage.store.setItem('__storage_version__', toVersion));
@@ -54,13 +54,13 @@ describe('storage', function() {
 
   for (const storageType of storageTypes) {
     it(`should save token to ${storageType}`, async() => {
-      const storage = createStorage(storageType);
+      const storage = createStorage({ storageType });
       await storage.set('token', 'foo');
       expect(await storage.get('token')).toEqual('foo');
     });
 
     it(`should remove token to ${storageType}`, async() => {
-      const storage = createStorage(storageType);
+      const storage = createStorage({ storageType });
       await storage.remove('token');
       expect(await storage.get('token')).toBeNull();
     });
@@ -75,8 +75,8 @@ describe('storage', function() {
     });
 
     it(`should allow for two unique clients to coexist for ${storageType}`, async() => {
-      const client1 = new StitchClient('test-app1');
-      const client2 = new StitchClient('test-app2');
+      const client1 = new StitchClient(`test-app1-${storageType}`);
+      const client2 = new StitchClient(`test-app2-${storageType}`);
 
       const ogAuth1 = JSON.parse(await client1.auth.set({
         'access_token': 'quux',
@@ -84,6 +84,7 @@ describe('storage', function() {
         'device_id': 'uier',
         'user_id': 'grault'
       }));
+
       const ogAuth2 = JSON.parse(await client2.auth.set({
         'access_token': 'foo',
         'refresh_token': 'bar',
@@ -121,28 +122,28 @@ describe('storage', function() {
       expect(storage.store.getItem(USER_AUTH_KEY)).toEqual(42);
       expect(storage.store.getItem(REFRESH_TOKEN_KEY)).toEqual(84);
     });
-
-    it(`should keep a 'StitchClient' logged in after a migration for ${storageType}`, async() => {
-      const test = new StitchMongoFixture();
-      await test.setup();
-      const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
-
-      const th = await buildClientTestHarness(apiKey, groupId, serverUrl);
-      let client = th.stitchClient;
-      await client.authenticate('anon');
-
-      await _runReverseMigration(null, client.auth.storage);
-
-      // this client will be running the migrated storage
-      client = new StitchClient(client.clientAppID);
-
-      // if the authId is defined, we're still logged in
-      expect(await client.authedId).toBeDefined();
-
-      await th.cleanup();
-      await test.teardown();
-    });
   }
+
+  it('should keep a "StitchClient" logged in after a migration', async() => {
+    const test = new StitchMongoFixture();
+    await test.setup();
+    const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
+
+    const th = await buildClientTestHarness(apiKey, groupId, serverUrl);
+    let client = th.stitchClient;
+
+    await client.authenticate('anon');
+    await _runReverseMigration(null, client.auth.storage);
+
+    // this client will be running the migrated storage
+    client = new StitchClient(client.clientAppID);
+
+    // if the authId is defined, we're still logged in
+    expect(await client.authedId).toBeDefined();
+
+    await th.cleanup();
+    await test.teardown();
+  });
 
   it('should migrate existing values from undefined version to version 1', async() => {
     let memoryStorage = new MemoryStorage();
