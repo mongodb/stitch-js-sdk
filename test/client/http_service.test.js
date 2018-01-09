@@ -30,7 +30,7 @@ describe('Executing http service functions', () => {
     serviceId = httpService._id;
   });
 
-  afterEach(async () => await th.cleanup());
+  afterEach(async() => await th.cleanup());
 
   describe('That have no matching service rules', () => {
     it('should fail due to no matching rule found', async() => {

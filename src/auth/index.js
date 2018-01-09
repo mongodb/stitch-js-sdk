@@ -13,9 +13,17 @@ const EMBEDDED_USER_AUTH_DATA_PARTS = 4;
 
 export default class Auth {
   constructor(client, rootUrl, options) {
-    options = Object.assign({}, {
-      storageType: 'localStorage',
-      codec: authCommon.APP_CLIENT_CODEC
+    let namespace;
+    if (!client || client.clientAppID === '') {
+      namespace = 'admin';
+    } else {
+      namespace = `client.${client.clientAppID}`;
+    }
+
+    options = Object.assign({
+      codec: authCommon.APP_CLIENT_CODEC,
+      namespace: namespace,
+      storageType: 'localStorage'
     }, options);
 
     this.client = client;
@@ -59,13 +67,7 @@ export default class Auth {
   }
 
   refreshToken() {
-    return this.isImpersonatingUser().then((isImpersonatingUser) => {
-      if (isImpersonatingUser) {
-        return this.refreshImpersonation(this.client);
-      }
-
-      return this.client.doSessionPost();
-    }).then(json => this.set(json));
+    return this.client.doSessionPost().then(json => this.set(json));
   }
 
   pageRootUrl() {
@@ -166,8 +168,6 @@ export default class Auth {
   clear() {
     return this.storage.remove(authCommon.USER_AUTH_KEY).then(() =>
       this.storage.remove(authCommon.REFRESH_TOKEN_KEY)
-    ).then(() =>
-      this.clearImpersonation
     );
   }
 
@@ -266,68 +266,6 @@ export default class Auth {
 
   authedId() {
     return this._get().then((auth) => auth.userId);
-  }
-
-  isImpersonatingUser() {
-    return this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY).then((isImpersonationActive) =>
-      isImpersonationActive === 'true'
-    );
-  }
-
-  refreshImpersonation(client) {
-    return this.storage.get(authCommon.IMPERSONATION_USER_KEY).then((userId) =>
-      client._do(`/admin/users/${userId}/impersonate`, 'POST', { refreshOnFailure: false, useRefreshToken: true })
-    )
-      .then(response => response.json())
-      .then(json => this.set(json))
-      .catch(e => {
-        return this.stopImpersonation().then(() => {
-          throw e; // rethrow
-        });
-      });
-  }
-
-  startImpersonation(client, userId) {
-    return this.authedId().then((authedId) => {
-      if (!authedId) {
-        Promise.reject(new StitchError('Must auth first'));
-      }
-      return this.isImpersonatingUser();
-    }).then((isImpersonatingUser) => {
-      if (isImpersonatingUser) {
-        return Promise.reject(new StitchError('Already impersonating a user'));
-      }
-
-      return this.storage.set(authCommon.IMPERSONATION_ACTIVE_KEY, 'true');
-    }).then(() =>
-      this.storage.set(authCommon.IMPERSONATION_USER_KEY, userId)
-    ).then(() =>
-      this.storage.get(authCommon.USER_AUTH_KEY)
-    ).then((userAuth) => {
-      let realUserAuth = JSON.parse(userAuth);
-      return this.storage.set(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
-    }).then(() => this.refreshImpersonation(client));
-  }
-
-  stopImpersonation() {
-    return this.isImpersonatingUser().then((isImpersonatingUser) => {
-      if (!isImpersonatingUser) {
-        throw new StitchError('Not impersonating a user');
-      }
-
-      return this.storage.get(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
-    }).then((userAuth) => {
-      let realUserAuth = JSON.parse(userAuth);
-      return this.set(realUserAuth);
-    }).then(() => this.clearImpersonation());
-  }
-
-  clearImpersonation() {
-    return Promise.all([
-      this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY),
-      this.storage.remove(authCommon.IMPERSONATION_USER_KEY),
-      this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY)
-    ]);
   }
 
   parseRedirectFragment(fragment, ourState) {
