@@ -184,7 +184,7 @@ export default class StitchClient {
       .then(response => response.json());
   }
   /**
-   *  @return {String} Returns the currently authed user's ID.
+   *  @return {Promise} Returns a promise resolving to a string of the currently authed user's ID.
    */
   authedId() {
     return this.auth.authedId();
