@@ -67,7 +67,8 @@ export default class Auth {
   }
 
   refreshToken() {
-    return this.client.doSessionPost().then(json => this.set(json));
+    return Promise.all([this.client.doSessionPost(), this.getLoggedInProviderType()])
+      .then(([json, providerType]) => this.set(json, providerType));
   }
 
   pageRootUrl() {
@@ -123,7 +124,7 @@ export default class Auth {
       }
 
       // If we get here, the state is valid - set auth appropriately.
-      return this.set(redirectState.ua);
+      return this.getLoggedInProviderType().then(providerType => this.set(redirectState.ua, providerType));
     }).then(() => window.history.replaceState(null, '', this.pageRootUrl()));
   }
 
@@ -160,14 +161,18 @@ export default class Auth {
 
     document.cookie = `${authCommon.USER_AUTH_COOKIE_NAME}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
     const userAuth = this.unmarshallUserAuth(uaCookie);
-    return this.set(userAuth).then(() =>
+    return this.getLoggedInProviderType().then(providerType => this.set(userAuth, providerType)).then(() =>
       window.history.replaceState(null, '', this.pageRootUrl())
     );
   }
 
   clear() {
-    return this.storage.remove(authCommon.USER_AUTH_KEY).then(() =>
-      this.storage.remove(authCommon.REFRESH_TOKEN_KEY)
+    return Promise.all(
+      [
+        this.storage.remove(authCommon.USER_AUTH_KEY),
+        this.storage.remove(authCommon.REFRESH_TOKEN_KEY),
+        this.storage.remove(authCommon.USER_LOGGED_IN_PT_KEY)
+      ]
     );
   }
 
@@ -208,19 +213,21 @@ export default class Auth {
     return this.storage.get(authCommon.REFRESH_TOKEN_KEY);
   }
 
-  set(json) {
-    if (!json) {
+  set(json, authType) {
+    if (!json || !authType) {
       return;
     }
 
     let newUserAuth = {};
-    return new Promise((resolve) => {
+    return new Promise((resolve) =>
+      resolve(this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType))
+    ).then(() => {
       if (json[this.codec.refreshToken]) {
         let rt = json[this.codec.refreshToken];
         delete json[this.codec.refreshToken];
-        resolve(this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt));
+        return this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
       }
-      resolve();
+      return;
     }).then(() => {
       if (json[this.codec.deviceId]) {
         const deviceId = json[this.codec.deviceId];
@@ -262,6 +269,10 @@ export default class Auth {
         return this.clear().then(() => {throw new StitchError('Failure retrieving stored auth');});
       }
     });
+  }
+
+  getLoggedInProviderType() {
+    return this.storage.get(authCommon.USER_LOGGED_IN_PT_KEY);
   }
 
   authedId() {

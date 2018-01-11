@@ -7,6 +7,8 @@ import { uriEncodeObject } from '../util';
  * @namespace
  */
 function anonProvider(auth) {
+  const providerType = 'anon';
+
   return {
     /**
      * Login to a stitch application using anonymous authentication
@@ -28,7 +30,7 @@ function anonProvider(auth) {
       })
         .then(common.checkStatus)
         .then(response => response.json())
-        .then(json => auth.set(json));
+        .then(json => auth.set(json, providerType));
     }
   };
 }
@@ -39,6 +41,7 @@ function anonProvider(auth) {
 function customProvider(auth) {
   const providerRoute = 'providers/custom-token';
   const loginRoute = `${providerRoute}/login`;
+  const providerType = 'custom';
 
   return {
     /**
@@ -63,7 +66,7 @@ function customProvider(auth) {
       })
         .then(common.checkStatus)
         .then(response => response.json())
-        .then(json => auth.set(json));
+        .then(json => auth.set(json, providerType));
     }
   };
 }
@@ -74,6 +77,7 @@ function userPassProvider(auth) {
   // the client is for the admin or client API.
   const providerRoute = auth.isAppClient() ? 'providers/local-userpass' : 'providers/local-userpass';
   const loginRoute = auth.isAppClient() ? `${providerRoute}/login` : `${providerRoute}/login`;
+  const providerType = 'userpass';
 
   return {
     /**
@@ -99,7 +103,7 @@ function userPassProvider(auth) {
       })
         .then(common.checkStatus)
         .then(response => response.json())
-        .then(json => auth.set(json));
+        .then(json => auth.set(json, providerType));
     },
 
     /**
@@ -203,6 +207,7 @@ function apiKeyProvider(auth) {
   // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
   // the client is for the admin or client API.
   const loginRoute = auth.isAppClient() ? 'providers/api-key/login' : 'providers/api-key/login';
+  const providerType = 'apiKey';
 
   return {
     /**
@@ -225,7 +230,7 @@ function apiKeyProvider(auth) {
       })
         .then(common.checkStatus)
         .then(response => response.json())
-        .then(json => auth.set(json));
+        .then(json => auth.set(json, providerType));
     }
   };
 }
@@ -267,6 +272,7 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
 /** @namespace */
 function googleProvider(auth) {
   const loginRoute = auth.isAppClient() ? 'providers/oauth2-google/login' : 'providers/oauth2-google/login';
+  const providerType = 'google';
 
   return {
     /**
@@ -292,7 +298,7 @@ function googleProvider(auth) {
         })
           .then(common.checkStatus)
           .then(response => response.json())
-          .then(json => auth.set(json));
+          .then(json => auth.set(json, providerType));
       }
 
       const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
@@ -305,6 +311,7 @@ function googleProvider(auth) {
 /** @namespace */
 function facebookProvider(auth) {
   const loginRoute = auth.isAppClient() ? 'providers/oauth2-facebook/login' : 'providers/oauth2-facebook/login';
+  const providerType = 'facebook';
 
   return {
     /**
@@ -330,7 +337,7 @@ function facebookProvider(auth) {
         })
           .then(common.checkStatus)
           .then(response => response.json())
-          .then(json => auth.set(json));
+          .then(json => auth.set(json, providerType));
       }
 
       const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
@@ -345,6 +352,7 @@ function mongodbCloudProvider(auth) {
   // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
   // the client is for the admin or client API.
   const loginRoute = auth.isAppClient() ? 'providers/mongodb-cloud/login' : 'providers/mongodb-cloud/login';
+  const providerType = 'mongodbCloud';
 
   return {
     /**
@@ -377,7 +385,7 @@ function mongodbCloudProvider(auth) {
       })
         .then(common.checkStatus)
         .then(response => response.json())
-        .then(json => auth.set(json));
+        .then(json => auth.set(json, providerType));
     }
   };
 }

@@ -136,14 +136,29 @@ export default class StitchClient {
    */
   authenticate(providerType, options = {}) {
     // reuse existing auth if present
-    return this.auth.getAccessToken().then(accessToken => {
+    return Promise.all(
+      [
+        this.auth.getAccessToken(),
+        this.auth.getLoggedInProviderType()
+      ]
+    ).then(([accessToken, loggedInProviderType]) => {
       if (accessToken) {
-        return this.auth.authedId();
+        // TODO: `anon` should be enumerated once providers are maintain
+        // an interface
+        if (providerType === 'anon' && loggedInProviderType === 'anon') {
+          return false; // is authenticated, skip log in
+        }
+
+        return this.logout(); // will not be authenticated, continue log in
       }
 
-      return this.auth.provider(providerType).authenticate(options)
-        .then(() => this.auth.authedId());
-    });
+      return true; // is not authenticated, continue log in
+    }).then((isNotAuthed) => {
+      if (isNotAuthed) {
+        return this.auth.provider(providerType).authenticate(options);
+      }
+      return;
+    }).then(() => this.auth.authedId());
   }
 
   /**
@@ -160,7 +175,8 @@ export default class StitchClient {
         useRefreshToken: true,
         rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
       }
-    ).then(() => this.auth.clear()); // eslint-disable-line space-before-function-paren
+    ).then(() => this.auth.clear())
+      .then(() => true);
   }
 
   /**

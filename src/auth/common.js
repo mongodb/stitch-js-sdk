@@ -5,6 +5,7 @@ export const STATE_KEY = '_stitch_state';
 export const USER_AUTH_COOKIE_NAME = 'stitch_ua';
 export const STITCH_ERROR_KEY = '_stitch_error';
 export const STITCH_LINK_KEY = '_stitch_link';
+export const USER_LOGGED_IN_PT_KEY = '_stitch_pt';
 export const DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS = 10;
 
 export const APP_CLIENT_CODEC = {

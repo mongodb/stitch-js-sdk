@@ -1,6 +1,9 @@
 import sinon from 'sinon';
 import StitchClient from '../src/client';
 import * as common from '../src/auth/common';
+const StitchMongoFixture = require('./fixtures/stitch_mongo_fixture');
+
+import { buildClientTestHarness, extractTestFixtureDataPoints } from './testutil';
 
 function mockAuthData() {
   const data = {
@@ -26,10 +29,16 @@ function mockApiResponse(options = {}) {
   return new window.Response(body, responseOptions);
 }
 
-let test = {};
 describe('Auth', () => {
-  beforeEach(() => { test.fetch = sinon.stub(window, 'fetch'); });
-  afterEach(() => test.fetch.restore());
+  let test = {};
+
+  beforeEach(() => {
+    test.fetch = sinon.stub(window, 'fetch');
+  });
+
+  afterEach(async() => {
+    test.fetch.restore();
+  });
 
   it('should return a promise for anonymous login with existing auth data', async() => {
     window.fetch.resolves(mockApiResponse());
@@ -37,7 +46,7 @@ describe('Auth', () => {
 
     let client = new StitchClient();
     await client.auth.storage.set(common.USER_AUTH_KEY, mockAuthData());
-
+    await client.auth.storage.set(common.USER_LOGGED_IN_PT_KEY, 'anon');
     return client.login()
       .then(userId => expect(userId).toEqual('fake-user-id'));
   });
@@ -58,15 +67,48 @@ describe('Auth', () => {
     return client.login('email', 'password')
       .then(userId => expect(userId).toEqual('fake-user-id'));
   });
+});
 
-  it('should return a promise for login with only existing auth data userId', async() => {
-    window.fetch.resolves(mockApiResponse());
-    expect.assertions(1);
+describe('Auth login semantics', () => {
+  const email = 'test_user@domain.com';
+  const password = 'password';
+  let test = new StitchMongoFixture();
+  let th;
+  let client;
 
-    let client = new StitchClient();
-    await client.auth.storage.set(common.USER_AUTH_KEY, mockAuthData());
+  beforeAll(async() => await test.setup());
+  afterAll(async() => await test.teardown());
 
-    return client.login('email', 'password')
-      .then(userId => expect(userId).toEqual('fake-user-id'));
+  beforeEach(async() => {
+    const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
+    th = await buildClientTestHarness(apiKey, groupId, serverUrl);
+    await th.configureAnon();
+    client = th.stitchClient;
+  });
+
+  afterEach(async() => await th.cleanup());
+
+  it('should track currently logged in provider type', async() => {
+    await client.login();
+    expect(await client.auth.storage.get(common.USER_LOGGED_IN_PT_KEY)).toEqual('anon');
+    await client.login(email, password);
+    expect(await client.auth.storage.get(common.USER_LOGGED_IN_PT_KEY)).toEqual('userpass');
+  });
+
+  it('should return existing login for relogging "anon"', async() => {
+    const userId = await client.login();
+    expect(userId).toEqual(await client.login());
+  });
+
+  it('should login with a new provider if switching providers', async() => {
+    const userId = await client.login();
+    expect(userId).not.toEqual(await client.login(email, password));
+  });
+
+  it('should re-login with the same provider if not anon', async() => {
+    await client.login(email, password);
+    const auth = await client.auth._get();
+    await client.login(email, password);
+    expect(auth).not.toEqual(await client.auth._get());
   });
 });

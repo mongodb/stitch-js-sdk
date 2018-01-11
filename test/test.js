@@ -165,7 +165,7 @@ describe('Auth', () => {
         expect(await a._get()).toEqual({});
 
         const testUser = {'access_token': 'bar', 'user_id': hexStr};
-        await a.set(testUser);
+        await a.set(testUser, 'foo');
         expect(await a._get()).toEqual({'accessToken': 'bar', 'userId': hexStr});
         expect(await a.authedId()).toEqual(hexStr);
 
@@ -274,7 +274,7 @@ describe('Auth', () => {
           .then(async() => {
             expect(await auth.authedId()).toEqual(hexStr);
             expect(await auth.getAccessToken()).toBeUndefined();
-            await auth.set({'access_token': 'foo'});
+            await auth.set({'access_token': 'foo'}, 'anon');
             expect(await auth.getAccessToken()).toEqual('foo');
           });
       });
