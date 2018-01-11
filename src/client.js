@@ -282,6 +282,110 @@ export default class StitchClient {
       .then(response => response.json());
   }
 
+  /**
+   * Returns an array of api keys
+   *
+   * @returns {Promise}
+   */
+  getApiKeys() {
+    return this._do(
+      '/auth/api_keys',
+      'GET',
+      {
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        useRefreshToken: true
+      },
+    )
+      .then((response) => response.json());
+  }
+
+  /**
+   * Creates a user api key
+   *
+   * @param {String} userApiKeyName the user defined name of the userApiKey
+   * @returns {Promise}
+   */
+  createApiKey(userApiKeyName) {
+    return this._do(
+      '/auth/api_keys',
+      'POST',
+      { rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        useRefreshToken: true,
+        body: JSON.stringify({'name': userApiKeyName})
+      },
+    )
+      .then((response) => response.json());
+  }
+
+  /**
+   * Returns a user api key
+   *
+   * @param {String} keyID the ID of the key
+   * @returns {Promise}
+   */
+  getApiKeyByID(keyID) {
+    return this._do(
+      `/auth/api_keys/${keyID}`,
+      'GET',
+      {
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        useRefreshToken: true
+      },
+    )
+      .then((response) => response.json());
+  }
+
+  /**
+   * Deletes a user api key
+   *
+   * @param {String} keyID the ID of the key
+   * @returns {Promise}
+   */
+  deleteApiKeyByID(keyID) {
+    return this._do(
+      `/auth/api_keys/${keyID}`,
+      'DELETE',
+      {
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        useRefreshToken: true
+      },
+    );
+  }
+
+  /**
+   * Enable a user api key
+   *
+   * @param {String} keyID the ID of the key
+   * @returns {Promise}
+   */
+  enableApiKeyByID(keyID) {
+    return this._do(
+      `/auth/api_keys/${keyID}/enable`,
+      'PUT',
+      {
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        useRefreshToken: true
+      },
+    );
+  }
+
+  /**
+   * Disable a user api key
+   *
+   * @param {String} keyID the ID of the key
+   * @returns {Promise}
+   */
+  disableApiKeyByID(keyID) {
+    return this._do(
+      `/auth/api_keys/${keyID}/disable`,
+      'PUT',
+      {
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        useRefreshToken: true
+      },
+    );
+  }
+
   _fetch(url, fetchArgs, resource, method, options) {
     return fetch(url, fetchArgs)
       .then(response => {
