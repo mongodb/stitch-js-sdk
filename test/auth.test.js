@@ -38,9 +38,7 @@ describe('Auth', () => {
     test.fetch = sinon.stub(window, 'fetch');
   });
 
-  afterEach(async() => {
-    test.fetch.restore();
-  });
+  afterEach(() => test.fetch.restore());
 
   it('should return a promise for anonymous login with existing auth data', async() => {
     window.fetch.resolves(mockApiResponse());

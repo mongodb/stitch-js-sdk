@@ -1,7 +1,7 @@
 /* global window, document, fetch */
 
 import { createStorage } from './storage';
-import { createProviders } from './providers';
+import { createProviders, PROVIDER_TYPE_MONGODB_CLOUD } from './providers';
 import { StitchError } from '../errors';
 import * as authCommon from './common';
 import * as common from '../common';
@@ -124,7 +124,7 @@ export default class Auth {
       }
 
       // If we get here, the state is valid - set auth appropriately.
-      return this.getLoggedInProviderType().then(providerType => this.set(redirectState.ua, providerType));
+      return this.set(redirectState.ua)
     }).then(() => window.history.replaceState(null, '', this.pageRootUrl()));
   }
 
@@ -161,7 +161,7 @@ export default class Auth {
 
     document.cookie = `${authCommon.USER_AUTH_COOKIE_NAME}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
     const userAuth = this.unmarshallUserAuth(uaCookie);
-    return this.getLoggedInProviderType().then(providerType => this.set(userAuth, providerType)).then(() =>
+    return this.set(userAuth, PROVIDER_TYPE_MONGODB_CLOUD).then(() =>
       window.history.replaceState(null, '', this.pageRootUrl())
     );
   }
@@ -279,7 +279,7 @@ export default class Auth {
   }
 
   getLoggedInProviderType() {
-    return this.storage.get(authCommon.USER_LOGGED_IN_PT_KEY);
+    return this.storage.get(authCommon.USER_LOGGED_IN_PT_KEY).then(type => !type ? '' : type);
   }
 
   authedId() {
