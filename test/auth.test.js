@@ -1,6 +1,8 @@
 import sinon from 'sinon';
 import StitchClient from '../src/client';
 import * as common from '../src/auth/common';
+import { PROVIDER_TYPE_ANON, PROVIDER_TYPE_USERPASS } from '../src/auth/providers';
+
 const StitchMongoFixture = require('./fixtures/stitch_mongo_fixture');
 
 import { buildClientTestHarness, extractTestFixtureDataPoints } from './testutil';
@@ -46,7 +48,7 @@ describe('Auth', () => {
 
     let client = new StitchClient();
     await client.auth.storage.set(common.USER_AUTH_KEY, mockAuthData());
-    await client.auth.storage.set(common.USER_LOGGED_IN_PT_KEY, 'anon');
+    await client.auth.storage.set(common.USER_LOGGED_IN_PT_KEY, PROVIDER_TYPE_ANON);
     return client.login()
       .then(userId => expect(userId).toEqual('fake-user-id'));
   });
@@ -90,9 +92,9 @@ describe('Auth login semantics', () => {
 
   it('should track currently logged in provider type', async() => {
     await client.login();
-    expect(await client.auth.storage.get(common.USER_LOGGED_IN_PT_KEY)).toEqual('anon');
+    expect(await client.auth.storage.get(common.USER_LOGGED_IN_PT_KEY)).toEqual(PROVIDER_TYPE_ANON);
     await client.login(email, password);
-    expect(await client.auth.storage.get(common.USER_LOGGED_IN_PT_KEY)).toEqual('userpass');
+    expect(await client.auth.storage.get(common.USER_LOGGED_IN_PT_KEY)).toEqual(PROVIDER_TYPE_USERPASS);
   });
 
   it('should return existing login for relogging "anon"', async() => {

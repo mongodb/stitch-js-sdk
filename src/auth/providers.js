@@ -3,6 +3,14 @@ import * as common from '../common';
 import * as authCommon from './common';
 import { uriEncodeObject } from '../util';
 
+export const PROVIDER_TYPE_ANON = 'anon';
+export const PROVIDER_TYPE_CUSTOM = 'custom';
+export const PROVIDER_TYPE_USERPASS = 'userpass';
+export const PROVIDER_TYPE_APIKEY = 'apiKey';
+export const PROVIDER_TYPE_GOOGLE = 'google';
+export const PROVIDER_TYPE_FACEBOOK = 'facebook';
+export const PROVIDER_TYPE_MONGODB_CLOUD = 'mongodbCloud';
+
 /**
  * @namespace
  */
@@ -393,13 +401,13 @@ function mongodbCloudProvider(auth) {
 // TODO: support auth-specific options
 function createProviders(auth, options = {}) {
   return {
-    anon: anonProvider(auth),
-    apiKey: apiKeyProvider(auth),
-    google: googleProvider(auth),
-    facebook: facebookProvider(auth),
-    mongodbCloud: mongodbCloudProvider(auth),
-    userpass: userPassProvider(auth),
-    custom: customProvider(auth)
+    [PROVIDER_TYPE_ANON]: anonProvider(auth),
+    [PROVIDER_TYPE_APIKEY]: apiKeyProvider(auth),
+    [PROVIDER_TYPE_GOOGLE]: googleProvider(auth),
+    [PROVIDER_TYPE_FACEBOOK]: facebookProvider(auth),
+    [PROVIDER_TYPE_MONGODB_CLOUD]: mongodbCloudProvider(auth),
+    [PROVIDER_TYPE_USERPASS]: userPassProvider(auth),
+    [PROVIDER_TYPE_CUSTOM]: customProvider(auth)
   };
 }
 

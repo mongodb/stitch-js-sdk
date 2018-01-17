@@ -199,6 +199,14 @@ export default class StitchClient {
     )
       .then(response => response.json());
   }
+
+  /**
+  * @return {Promise} whether or not the current client is authenticated
+  */
+  isAuthenticated() {
+    return this.auth.authedId().then((id) => id != null && id != undefined);
+  }
+
   /**
    *  @return {Promise} Returns a promise resolving to a string of the currently authed user's ID.
    */
