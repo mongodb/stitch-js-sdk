@@ -2,6 +2,7 @@
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 import 'fetch-everywhere';
 import Auth from './auth';
+import { PROVIDER_TYPE_ANON } from './auth/providers';
 import { APP_CLIENT_CODEC } from './auth/common';
 import ServiceRegistry from './services';
 import * as common from './common';
@@ -103,7 +104,7 @@ export default class StitchClient {
    */
   login(email, password, options = {}) {
     if (email === undefined || password === undefined) {
-      return this.authenticate('anon', options);
+      return this.authenticate(PROVIDER_TYPE_ANON, options);
     }
 
     return this.authenticate('userpass', Object.assign({ username: email, password }, options));
@@ -143,9 +144,7 @@ export default class StitchClient {
       ]
     ).then(([accessToken, loggedInProviderType]) => {
       if (accessToken) {
-        // TODO: `anon` should be enumerated once providers are maintain
-        // an interface
-        if (providerType === 'anon' && loggedInProviderType === 'anon') {
+        if (providerType === PROVIDER_TYPE_ANON && loggedInProviderType === PROVIDER_TYPE_ANON) {
           return false; // is authenticated, skip log in
         }
 

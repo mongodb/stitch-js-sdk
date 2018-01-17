@@ -113,4 +113,11 @@ describe('Auth login semantics', () => {
     await client.login(email, password);
     expect(auth).not.toEqual(await client.auth._get());
   });
+
+  it('should not be authenticated before log in', async() => {
+    await client.logout();
+    expect(await client.isAuthenticated()).toEqual(false);
+    await client.login(email, password);
+    expect(await client.isAuthenticated()).toEqual(true);
+  })
 });

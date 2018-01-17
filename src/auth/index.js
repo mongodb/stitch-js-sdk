@@ -213,15 +213,22 @@ export default class Auth {
     return this.storage.get(authCommon.REFRESH_TOKEN_KEY);
   }
 
+  setAuthType(authType) {
+    return new Promise((resolve) =>
+      resolve(this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType))
+    );
+  }
+
   set(json, authType) {
-    if (!json || !authType) {
+    if (!json) {
       return;
     }
 
     let newUserAuth = {};
-    return new Promise((resolve) =>
-      resolve(this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType))
-    ).then(() => {
+    return new Promise((resolve) => {
+      if (!authType) { resolve(); }
+      else { resolve(this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType)); }
+    }).then(() => {
       if (json[this.codec.refreshToken]) {
         let rt = json[this.codec.refreshToken];
         delete json[this.codec.refreshToken];

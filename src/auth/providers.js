@@ -310,8 +310,8 @@ function googleProvider(auth) {
       }
 
       const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
-      window.location.replace(getOAuthLoginURL(auth, 'google', redirectUrl));
-      return Promise.resolve();
+      return getOAuthLoginURL(auth, 'google', redirectUrl)
+        .then(window.location.replace);
     }
   };
 }
@@ -349,8 +349,8 @@ function facebookProvider(auth) {
       }
 
       const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
-      window.location.replace(getOAuthLoginURL(auth, 'facebook', redirectUrl));
-      return Promise.resolve();
+      return getOAuthLoginURL(auth, 'facebook', redirectUrl)
+        .then(window.location.replace);
     }
   };
 }
