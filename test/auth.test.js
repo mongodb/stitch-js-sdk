@@ -93,6 +93,8 @@ describe('Auth login semantics', () => {
     expect(await client.auth.storage.get(common.USER_LOGGED_IN_PT_KEY)).toEqual(PROVIDER_TYPE_ANON);
     await client.login(email, password);
     expect(await client.auth.storage.get(common.USER_LOGGED_IN_PT_KEY)).toEqual(PROVIDER_TYPE_USERPASS);
+    await client.logout();
+    expect(await client.auth.storage.get(common.USER_LOGGED_IN_PT_KEY)).toEqual(null);
   });
 
   it('should return existing login for relogging "anon"', async() => {
