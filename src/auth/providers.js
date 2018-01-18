@@ -305,6 +305,7 @@ function googleProvider(auth) {
 
       const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
       return getOAuthLoginURL(auth, 'google', redirectUrl)
+        .then(auth.storage.set(STITCH_REDIRECT_PROVIDER, PROVIDER_TYPE_GOOGLE))
         .then(window.location.replace);
     }
   };
@@ -343,6 +344,7 @@ function facebookProvider(auth) {
 
       const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
       return getOAuthLoginURL(auth, 'facebook', redirectUrl)
+        .then(() => auth.storage.set(STITCH_REDIRECT_PROVIDER, PROVIDER_TYPE_FACEBOOK))
         .then(window.location.replace);
     }
   };

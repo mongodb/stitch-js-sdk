@@ -2,9 +2,7 @@ import sinon from 'sinon';
 import StitchClient from '../src/client';
 import * as common from '../src/auth/common';
 import { PROVIDER_TYPE_ANON, PROVIDER_TYPE_USERPASS } from '../src/auth/providers';
-
-const StitchMongoFixture = require('./fixtures/stitch_mongo_fixture');
-
+import StitchMongoFixture from './fixtures/stitch_mongo_fixture'
 import { buildClientTestHarness, extractTestFixtureDataPoints } from './testutil';
 
 function mockAuthData() {

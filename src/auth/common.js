@@ -6,6 +6,8 @@ export const USER_AUTH_COOKIE_NAME = 'stitch_ua';
 export const STITCH_ERROR_KEY = '_stitch_error';
 export const STITCH_LINK_KEY = '_stitch_link';
 export const USER_LOGGED_IN_PT_KEY = '_stitch_pt';
+export const STITCH_REDIRECT_PROVIDER = '_stitch_rp';
+
 export const DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS = 10;
 
 export const APP_CLIENT_CODEC = {
@@ -15,7 +17,7 @@ export const APP_CLIENT_CODEC = {
   'userId': 'user_id'
 };
 
-export  const ADMIN_CLIENT_CODEC = {
+export const ADMIN_CLIENT_CODEC = {
   'accessToken': 'access_token',
   'refreshToken': 'refresh_token',
   'deviceId': 'device_id',

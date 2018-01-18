@@ -96,11 +96,17 @@ export default class Auth {
       return;
     }
 
-    return this.storage.get(authCommon.STATE_KEY).then(ourState => {
+    let redirectProvider;
+    return Promise.all([
+      this.storage.get(authCommon.STATE_KEY),
+      this.storage.get(authCommon.STITCH_REDIRECT_PROVIDER)
+    ]).then(([ourState, _redirectProvider]) => {
       let redirectFragment = window.location.hash.substring(1);
+      redirectProvider = _redirectProvider; 
       const redirectState = this.parseRedirectFragment(redirectFragment, ourState);
-      if (redirectState.lastError) {
-        console.error(`StitchClient: error from redirect: ${redirectState.lastError}`);
+      if (redirectState.lastError || !redirectProvider) {
+        console.error(`StitchClient: error from redirect: ${redirectState.lastError ? 
+          redirectState.lastError : "provider type not set"}`);
         this._error = redirectState.lastError;
         window.history.replaceState(null, '', this.pageRootUrl());
         return;
@@ -110,7 +116,12 @@ export default class Auth {
         return;
       }
 
-      return this.storage.remove(authCommon.STATE_KEY);
+      return Promise.all(
+        [
+          this.storage.remove(authCommon.STATE_KEY),
+          this.storage.remove(authCommon.STITCH_REDIRECT_PROVIDER)
+        ]
+      );
     }).then(() => {
       if (!redirectState.stateValid) {
         console.error('StitchClient: state values did not match!');
@@ -124,7 +135,7 @@ export default class Auth {
       }
 
       // If we get here, the state is valid - set auth appropriately.
-      return this.set(redirectState.ua)
+      return this.set(redirectState.ua, redirectProvider);
     }).then(() => window.history.replaceState(null, '', this.pageRootUrl()));
   }
 
