@@ -3,6 +3,14 @@ import * as common from '../common';
 import * as authCommon from './common';
 import { uriEncodeObject } from '../util';
 
+export const PROVIDER_TYPE_ANON = 'anon';
+export const PROVIDER_TYPE_CUSTOM = 'custom';
+export const PROVIDER_TYPE_USERPASS = 'userpass';
+export const PROVIDER_TYPE_APIKEY = 'apiKey';
+export const PROVIDER_TYPE_GOOGLE = 'google';
+export const PROVIDER_TYPE_FACEBOOK = 'facebook';
+export const PROVIDER_TYPE_MONGODB_CLOUD = 'mongodbCloud';
+
 /**
  * @namespace
  */
@@ -28,7 +36,7 @@ function anonProvider(auth) {
       })
         .then(common.checkStatus)
         .then(response => response.json())
-        .then(json => auth.set(json));
+        .then(json => auth.set(json, PROVIDER_TYPE_ANON));
     }
   };
 }
@@ -63,7 +71,7 @@ function customProvider(auth) {
       })
         .then(common.checkStatus)
         .then(response => response.json())
-        .then(json => auth.set(json));
+        .then(json => auth.set(json, PROVIDER_TYPE_CUSTOM));
     }
   };
 }
@@ -99,7 +107,7 @@ function userPassProvider(auth) {
       })
         .then(common.checkStatus)
         .then(response => response.json())
-        .then(json => auth.set(json));
+        .then(json => auth.set(json, PROVIDER_TYPE_USERPASS));
     },
 
     /**
@@ -225,7 +233,7 @@ function apiKeyProvider(auth) {
       })
         .then(common.checkStatus)
         .then(response => response.json())
-        .then(json => auth.set(json));
+        .then(json => auth.set(json, PROVIDER_TYPE_APIKEY));
     }
   };
 }
@@ -292,12 +300,13 @@ function googleProvider(auth) {
         })
           .then(common.checkStatus)
           .then(response => response.json())
-          .then(json => auth.set(json));
+          .then(json => auth.set(json, PROVIDER_TYPE_GOOGLE));
       }
 
       const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
-      window.location.replace(getOAuthLoginURL(auth, 'google', redirectUrl));
-      return Promise.resolve();
+      return getOAuthLoginURL(auth, 'google', redirectUrl)
+        .then(auth.storage.set(STITCH_REDIRECT_PROVIDER, PROVIDER_TYPE_GOOGLE))
+        .then(window.location.replace);
     }
   };
 }
@@ -330,12 +339,13 @@ function facebookProvider(auth) {
         })
           .then(common.checkStatus)
           .then(response => response.json())
-          .then(json => auth.set(json));
+          .then(json => auth.set(json, PROVIDER_TYPE_FACEBOOK));
       }
 
       const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
-      window.location.replace(getOAuthLoginURL(auth, 'facebook', redirectUrl));
-      return Promise.resolve();
+      return getOAuthLoginURL(auth, 'facebook', redirectUrl)
+        .then(() => auth.storage.set(STITCH_REDIRECT_PROVIDER, PROVIDER_TYPE_FACEBOOK))
+        .then(window.location.replace);
     }
   };
 }
@@ -377,7 +387,7 @@ function mongodbCloudProvider(auth) {
       })
         .then(common.checkStatus)
         .then(response => response.json())
-        .then(json => auth.set(json));
+        .then(json => auth.set(json, PROVIDER_TYPE_MONGODB_CLOUD));
     }
   };
 }
@@ -385,13 +395,13 @@ function mongodbCloudProvider(auth) {
 // TODO: support auth-specific options
 function createProviders(auth, options = {}) {
   return {
-    anon: anonProvider(auth),
-    apiKey: apiKeyProvider(auth),
-    google: googleProvider(auth),
-    facebook: facebookProvider(auth),
-    mongodbCloud: mongodbCloudProvider(auth),
-    userpass: userPassProvider(auth),
-    custom: customProvider(auth)
+    [PROVIDER_TYPE_ANON]: anonProvider(auth),
+    [PROVIDER_TYPE_APIKEY]: apiKeyProvider(auth),
+    [PROVIDER_TYPE_GOOGLE]: googleProvider(auth),
+    [PROVIDER_TYPE_FACEBOOK]: facebookProvider(auth),
+    [PROVIDER_TYPE_MONGODB_CLOUD]: mongodbCloudProvider(auth),
+    [PROVIDER_TYPE_USERPASS]: userPassProvider(auth),
+    [PROVIDER_TYPE_CUSTOM]: customProvider(auth)
   };
 }
 

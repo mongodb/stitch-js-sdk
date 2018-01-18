@@ -2,6 +2,7 @@
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 import 'fetch-everywhere';
 import Auth from './auth';
+import { PROVIDER_TYPE_ANON } from './auth/providers';
 import { APP_CLIENT_CODEC } from './auth/common';
 import ServiceRegistry from './services';
 import * as common from './common';
@@ -103,7 +104,7 @@ export default class StitchClient {
    */
   login(email, password, options = {}) {
     if (email === undefined || password === undefined) {
-      return this.authenticate('anon', options);
+      return this.authenticate(PROVIDER_TYPE_ANON, options);
     }
 
     return this.authenticate('userpass', Object.assign({ username: email, password }, options));
@@ -136,14 +137,27 @@ export default class StitchClient {
    */
   authenticate(providerType, options = {}) {
     // reuse existing auth if present
-    return this.auth.getAccessToken().then(accessToken => {
-      if (accessToken) {
-        return this.auth.authedId();
+    return Promise.all(
+      [
+        this.isAuthenticated(),
+        this.auth.getLoggedInProviderType()
+      ]
+    ).then(([isAuthenticated, loggedInProviderType]) => {
+      if (isAuthenticated) {
+        if (providerType === PROVIDER_TYPE_ANON && loggedInProviderType === PROVIDER_TYPE_ANON) {
+          return false; // is authenticated, skip log in
+        }
+
+        return this.logout().then(() => true); // will not be authenticated, continue log in
       }
 
-      return this.auth.provider(providerType).authenticate(options)
-        .then(() => this.auth.authedId());
-    });
+      return true; // is not authenticated, continue log in
+    }).then((shouldAuth) => {
+      if (shouldAuth) {
+        return this.auth.provider(providerType).authenticate(options);
+      }
+      return;
+    }).then(() => this.auth.authedId());
   }
 
   /**
@@ -160,7 +174,7 @@ export default class StitchClient {
         useRefreshToken: true,
         rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
       }
-    ).then(() => this.auth.clear()); // eslint-disable-line space-before-function-paren
+    ).then(() => this.auth.clear(), () => this.auth.clear());
   }
 
   /**
@@ -183,6 +197,14 @@ export default class StitchClient {
     )
       .then(response => response.json());
   }
+
+  /**
+  * @return {Promise} whether or not the current client is authenticated
+  */
+  isAuthenticated() {
+    return this.auth.authedId().then((id) => id !== null && id !== undefined, () => false);
+  }
+
   /**
    *  @return {Promise} Returns a promise resolving to a string of the currently authed user's ID.
    */

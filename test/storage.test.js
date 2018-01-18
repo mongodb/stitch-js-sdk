@@ -2,7 +2,7 @@
 const StitchMongoFixture = require('./fixtures/stitch_mongo_fixture');
 
 import { createStorage, MemoryStorage } from '../src/auth/storage';
-import { USER_AUTH_KEY, REFRESH_TOKEN_KEY, DEVICE_ID_KEY, STATE_KEY } from '../src/auth/common';
+import { USER_AUTH_KEY, REFRESH_TOKEN_KEY, DEVICE_ID_KEY, STATE_KEY, USER_LOGGED_IN_PT_KEY } from '../src/auth/common';
 
 import { mocks } from 'mock-browser';
 import { StitchClient } from '../src/index';
@@ -21,7 +21,8 @@ function _runReverseMigration(toVersion, storage) {
       USER_AUTH_KEY,
       REFRESH_TOKEN_KEY,
       DEVICE_ID_KEY,
-      STATE_KEY
+      STATE_KEY,
+      USER_LOGGED_IN_PT_KEY
     ].map(key =>
       Promise.resolve(storage.get(key))
         .then(item => {
@@ -83,14 +84,14 @@ describe('storage', function() {
         'refresh_token': 'corge',
         'device_id': 'uier',
         'user_id': 'grault'
-      }));
+      }, 'anon'));
 
       const ogAuth2 = JSON.parse(await client2.auth.set({
         'access_token': 'foo',
         'refresh_token': 'bar',
         'device_id': 'baz',
         'user_id': 'qux'
-      }));
+      }, 'anon'));
 
       const fetchedAuth1 = await client1.auth._get();
       const fetchedAuth2 = await client2.auth._get();
@@ -132,7 +133,6 @@ describe('storage', function() {
     const th = await buildClientTestHarness(apiKey, groupId, serverUrl);
     let client = th.stitchClient;
 
-    await client.authenticate('anon');
     await _runReverseMigration(null, client.auth.storage);
 
     // this client will be running the migrated storage

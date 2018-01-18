@@ -1,7 +1,7 @@
 /* global window, document, fetch */
 
 import { createStorage } from './storage';
-import { createProviders } from './providers';
+import { createProviders, PROVIDER_TYPE_MONGODB_CLOUD } from './providers';
 import { StitchError } from '../errors';
 import * as authCommon from './common';
 import * as common from '../common';
@@ -67,7 +67,8 @@ export default class Auth {
   }
 
   refreshToken() {
-    return this.client.doSessionPost().then(json => this.set(json));
+    return this.client.doSessionPost()
+      .then((json) => this.set(json));
   }
 
   pageRootUrl() {
@@ -95,11 +96,17 @@ export default class Auth {
       return;
     }
 
-    return this.storage.get(authCommon.STATE_KEY).then(ourState => {
+    let redirectProvider;
+    return Promise.all([
+      this.storage.get(authCommon.STATE_KEY),
+      this.storage.get(authCommon.STITCH_REDIRECT_PROVIDER)
+    ]).then(([ourState, _redirectProvider]) => {
       let redirectFragment = window.location.hash.substring(1);
+      redirectProvider = _redirectProvider;
       const redirectState = this.parseRedirectFragment(redirectFragment, ourState);
-      if (redirectState.lastError) {
-        console.error(`StitchClient: error from redirect: ${redirectState.lastError}`);
+      if (redirectState.lastError || !redirectProvider) {
+        console.error(`StitchClient: error from redirect: ${redirectState.lastError ?
+          redirectState.lastError : 'provider type not set'}`);
         this._error = redirectState.lastError;
         window.history.replaceState(null, '', this.pageRootUrl());
         return;
@@ -109,7 +116,12 @@ export default class Auth {
         return;
       }
 
-      return this.storage.remove(authCommon.STATE_KEY);
+      return Promise.all(
+        [
+          this.storage.remove(authCommon.STATE_KEY),
+          this.storage.remove(authCommon.STITCH_REDIRECT_PROVIDER)
+        ]
+      );
     }).then(() => {
       if (!redirectState.stateValid) {
         console.error('StitchClient: state values did not match!');
@@ -123,7 +135,7 @@ export default class Auth {
       }
 
       // If we get here, the state is valid - set auth appropriately.
-      return this.set(redirectState.ua);
+      return this.set(redirectState.ua, redirectProvider);
     }).then(() => window.history.replaceState(null, '', this.pageRootUrl()));
   }
 
@@ -160,14 +172,19 @@ export default class Auth {
 
     document.cookie = `${authCommon.USER_AUTH_COOKIE_NAME}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
     const userAuth = this.unmarshallUserAuth(uaCookie);
-    return this.set(userAuth).then(() =>
+    return this.set(userAuth, PROVIDER_TYPE_MONGODB_CLOUD).then(() =>
       window.history.replaceState(null, '', this.pageRootUrl())
     );
   }
 
   clear() {
-    return this.storage.remove(authCommon.USER_AUTH_KEY).then(() =>
-      this.storage.remove(authCommon.REFRESH_TOKEN_KEY)
+    return Promise.all(
+      [
+        this.storage.remove(authCommon.USER_AUTH_KEY),
+        this.storage.remove(authCommon.REFRESH_TOKEN_KEY),
+        this.storage.remove(authCommon.USER_LOGGED_IN_PT_KEY),
+        this.storage.remove(authCommon.STITCH_REDIRECT_PROVIDER)
+      ]
     );
   }
 
@@ -208,19 +225,22 @@ export default class Auth {
     return this.storage.get(authCommon.REFRESH_TOKEN_KEY);
   }
 
-  set(json) {
+  set(json, authType = '') {
     if (!json) {
       return;
     }
 
     let newUserAuth = {};
-    return new Promise((resolve) => {
+
+    return (authType ?
+      this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType) :
+      Promise.resolve()
+    ).then(() => {
       if (json[this.codec.refreshToken]) {
         let rt = json[this.codec.refreshToken];
         delete json[this.codec.refreshToken];
-        resolve(this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt));
+        return this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
       }
-      resolve();
     }).then(() => {
       if (json[this.codec.deviceId]) {
         const deviceId = json[this.codec.deviceId];
@@ -262,6 +282,11 @@ export default class Auth {
         return this.clear().then(() => {throw new StitchError('Failure retrieving stored auth');});
       }
     });
+  }
+
+  getLoggedInProviderType() {
+    return this.storage.get(authCommon.USER_LOGGED_IN_PT_KEY)
+      .then((type) => type || '', () => '');
   }
 
   authedId() {
