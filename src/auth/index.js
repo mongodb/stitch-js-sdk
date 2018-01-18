@@ -102,11 +102,11 @@ export default class Auth {
       this.storage.get(authCommon.STITCH_REDIRECT_PROVIDER)
     ]).then(([ourState, _redirectProvider]) => {
       let redirectFragment = window.location.hash.substring(1);
-      redirectProvider = _redirectProvider; 
+      redirectProvider = _redirectProvider;
       const redirectState = this.parseRedirectFragment(redirectFragment, ourState);
       if (redirectState.lastError || !redirectProvider) {
-        console.error(`StitchClient: error from redirect: ${redirectState.lastError ? 
-          redirectState.lastError : "provider type not set"}`);
+        console.error(`StitchClient: error from redirect: ${redirectState.lastError ?
+          redirectState.lastError : 'provider type not set'}`);
         this._error = redirectState.lastError;
         window.history.replaceState(null, '', this.pageRootUrl());
         return;
@@ -235,8 +235,8 @@ export default class Auth {
 
     let newUserAuth = {};
 
-    return (authType ? 
-      this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType) : 
+    return (authType ?
+      this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType) :
       new Promise()
     ).then(() => {
       if (json[this.codec.refreshToken]) {

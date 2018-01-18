@@ -2,7 +2,7 @@ import sinon from 'sinon';
 import StitchClient from '../src/client';
 import * as common from '../src/auth/common';
 import { PROVIDER_TYPE_ANON, PROVIDER_TYPE_USERPASS } from '../src/auth/providers';
-import StitchMongoFixture from './fixtures/stitch_mongo_fixture'
+import StitchMongoFixture from './fixtures/stitch_mongo_fixture';
 import { buildClientTestHarness, extractTestFixtureDataPoints } from './testutil';
 
 function mockAuthData() {
@@ -74,8 +74,8 @@ describe('Auth login semantics', () => {
   let th;
   let client;
 
-  beforeAll(async() => await test.setup());
-  afterAll(async() => await test.teardown());
+  beforeAll(test.setup());
+  afterAll(test.teardown());
 
   beforeEach(async() => {
     const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
@@ -84,7 +84,7 @@ describe('Auth login semantics', () => {
     client = th.stitchClient;
   });
 
-  afterEach(async() => await th.cleanup());
+  afterEach(th.cleanup());
 
   it('should track currently logged in provider type', async() => {
     await client.login();
@@ -117,5 +117,5 @@ describe('Auth login semantics', () => {
     expect(await client.isAuthenticated()).toEqual(false);
     await client.login(email, password);
     expect(await client.isAuthenticated()).toEqual(true);
-  })
+  });
 });
