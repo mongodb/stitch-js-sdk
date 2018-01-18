@@ -3,7 +3,7 @@
 import 'fetch-everywhere';
 import Auth from './auth';
 import { PROVIDER_TYPE_ANON } from './auth/providers';
-import { APP_CLIENT_CODEC, USER_AUTH_KEY } from './auth/common';
+import { APP_CLIENT_CODEC } from './auth/common';
 import ServiceRegistry from './services';
 import * as common from './common';
 import ExtJSON from 'mongodb-extjson';
@@ -137,18 +137,6 @@ export default class StitchClient {
    */
   authenticate(providerType, options = {}) {
     // reuse existing auth if present
-    const fn = (accessToken, loggedInProviderType) => {
-      if (accessToken) {
-        if (providerType === PROVIDER_TYPE_ANON && loggedInProviderType === PROVIDER_TYPE_ANON) {
-          return false; // is authenticated, skip log in
-        }
-
-        return this.logout().then(() => true); // will not be authenticated, continue log in
-      }
-
-      return true; // is not authenticated, continue log in
-    }
-
     return Promise.all(
       [
         this.isAuthenticated(),
