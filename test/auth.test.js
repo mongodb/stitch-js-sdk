@@ -74,8 +74,8 @@ describe('Auth login semantics', () => {
   let th;
   let client;
 
-  beforeAll(test.setup());
-  afterAll(test.teardown());
+  beforeAll(async() => test.setup());
+  afterAll(async() => test.teardown());
 
   beforeEach(async() => {
     const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
@@ -84,7 +84,7 @@ describe('Auth login semantics', () => {
     client = th.stitchClient;
   });
 
-  afterEach(th.cleanup());
+  afterEach(async() => th.cleanup());
 
   it('should track currently logged in provider type', async() => {
     await client.login();

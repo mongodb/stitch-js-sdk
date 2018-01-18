@@ -67,8 +67,8 @@ export default class Auth {
   }
 
   refreshToken() {
-    return Promise.all([this.client.doSessionPost(), this.getLoggedInProviderType()])
-      .then(([json, providerType]) => this.set(json, providerType));
+    return this.client.doSessionPost()
+      .then((json) => this.set(json));
   }
 
   pageRootUrl() {
@@ -182,7 +182,8 @@ export default class Auth {
       [
         this.storage.remove(authCommon.USER_AUTH_KEY),
         this.storage.remove(authCommon.REFRESH_TOKEN_KEY),
-        this.storage.remove(authCommon.USER_LOGGED_IN_PT_KEY)
+        this.storage.remove(authCommon.USER_LOGGED_IN_PT_KEY),
+        this.storage.remove(authCommon.STITCH_REDIRECT_PROVIDER)
       ]
     );
   }
@@ -222,10 +223,6 @@ export default class Auth {
 
   getRefreshToken() {
     return this.storage.get(authCommon.REFRESH_TOKEN_KEY);
-  }
-
-  setAuthType(authType) {
-    return this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType);
   }
 
   set(json, authType = '') {
@@ -288,7 +285,8 @@ export default class Auth {
   }
 
   getLoggedInProviderType() {
-    return this.storage.get(authCommon.USER_LOGGED_IN_PT_KEY).then(type => type || '');
+    return this.storage.get(authCommon.USER_LOGGED_IN_PT_KEY)
+      .then((type) => type || '', () => '');
   }
 
   authedId() {

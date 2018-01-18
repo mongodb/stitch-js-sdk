@@ -137,14 +137,25 @@ export default class StitchClient {
    */
   authenticate(providerType, options = {}) {
     // reuse existing auth if present
+    const fn = (accessToken, loggedInProviderType) => {
+      if (accessToken) {
+        if (providerType === PROVIDER_TYPE_ANON && loggedInProviderType === PROVIDER_TYPE_ANON) {
+          return false; // is authenticated, skip log in
+        }
+
+        return this.logout().then(() => true); // will not be authenticated, continue log in
+      }
+
+      return true; // is not authenticated, continue log in
+    }
 
     return Promise.all(
       [
-        this.auth.storage.get(USER_AUTH_KEY),
+        this.isAuthenticated(),
         this.auth.getLoggedInProviderType()
       ]
-    ).then(([accessToken, loggedInProviderType]) => {
-      if (accessToken) {
+    ).then(([isAuthenticated, loggedInProviderType]) => {
+      if (isAuthenticated) {
         if (providerType === PROVIDER_TYPE_ANON && loggedInProviderType === PROVIDER_TYPE_ANON) {
           return false; // is authenticated, skip log in
         }
@@ -175,9 +186,7 @@ export default class StitchClient {
         useRefreshToken: true,
         rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
       }
-    ).then(() => this.auth.clear())
-      .then(() => true)
-      .catch(() => this.auth.clear());
+    ).then(() => this.auth.clear(), () => this.auth.clear());
   }
 
   /**
@@ -205,7 +214,7 @@ export default class StitchClient {
   * @return {Promise} whether or not the current client is authenticated
   */
   isAuthenticated() {
-    return this.auth.authedId().then((id, onRejected) => id !== null && id !== undefined);
+    return this.auth.authedId().then((id) => id !== null && id !== undefined, () => false);
   }
 
   /**
