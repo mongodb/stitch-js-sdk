@@ -51,8 +51,8 @@ class TestHarness {
     });
   }
 
-  async configureAnon() {
-    return await this.app().authProviders().create({
+  configureAnon() {
+    return this.app().authProviders().create({
       type: 'anon-user'
     });
   }

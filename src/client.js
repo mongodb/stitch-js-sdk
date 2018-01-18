@@ -3,7 +3,7 @@
 import 'fetch-everywhere';
 import Auth from './auth';
 import { PROVIDER_TYPE_ANON } from './auth/providers';
-import { APP_CLIENT_CODEC } from './auth/common';
+import { APP_CLIENT_CODEC, USER_AUTH_KEY } from './auth/common';
 import ServiceRegistry from './services';
 import * as common from './common';
 import ExtJSON from 'mongodb-extjson';
@@ -137,9 +137,10 @@ export default class StitchClient {
    */
   authenticate(providerType, options = {}) {
     // reuse existing auth if present
+
     return Promise.all(
       [
-        this.auth.getAccessToken(),
+        this.auth.storage.get(USER_AUTH_KEY),
         this.auth.getLoggedInProviderType()
       ]
     ).then(([accessToken, loggedInProviderType]) => {
@@ -148,12 +149,12 @@ export default class StitchClient {
           return false; // is authenticated, skip log in
         }
 
-        return this.logout(); // will not be authenticated, continue log in
+        return this.logout().then(() => true); // will not be authenticated, continue log in
       }
 
       return true; // is not authenticated, continue log in
-    }).then((isNotAuthed) => {
-      if (isNotAuthed) {
+    }).then((shouldAuth) => {
+      if (shouldAuth) {
         return this.auth.provider(providerType).authenticate(options);
       }
       return;
@@ -175,7 +176,8 @@ export default class StitchClient {
         rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
       }
     ).then(() => this.auth.clear())
-      .then(() => true);
+      .then(() => true)
+      .catch(() => this.auth.clear());
   }
 
   /**
@@ -203,7 +205,7 @@ export default class StitchClient {
   * @return {Promise} whether or not the current client is authenticated
   */
   isAuthenticated() {
-    return this.auth.authedId().then((id) => id != null && id != undefined);
+    return this.auth.authedId().then((id, onRejected) => id !== null && id !== undefined);
   }
 
   /**

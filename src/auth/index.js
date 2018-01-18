@@ -214,27 +214,25 @@ export default class Auth {
   }
 
   setAuthType(authType) {
-    return new Promise((resolve) =>
-      resolve(this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType))
-    );
+    return this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType);
   }
 
-  set(json, authType) {
+  set(json, authType = '') {
     if (!json) {
       return;
     }
 
     let newUserAuth = {};
-    return new Promise((resolve) => {
-      if (!authType) { resolve(); }
-      else { resolve(this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType)); }
-    }).then(() => {
+
+    return (authType ? 
+      this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType) : 
+      new Promise()
+    ).then(() => {
       if (json[this.codec.refreshToken]) {
         let rt = json[this.codec.refreshToken];
         delete json[this.codec.refreshToken];
         return this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
       }
-      return;
     }).then(() => {
       if (json[this.codec.deviceId]) {
         const deviceId = json[this.codec.deviceId];
@@ -279,7 +277,7 @@ export default class Auth {
   }
 
   getLoggedInProviderType() {
-    return this.storage.get(authCommon.USER_LOGGED_IN_PT_KEY).then(type => !type ? '' : type);
+    return this.storage.get(authCommon.USER_LOGGED_IN_PT_KEY).then(type => type || '');
   }
 
   authedId() {
