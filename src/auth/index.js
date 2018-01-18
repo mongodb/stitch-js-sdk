@@ -237,7 +237,7 @@ export default class Auth {
 
     return (authType ?
       this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType) :
-      new Promise()
+      Promise.resolve()
     ).then(() => {
       if (json[this.codec.refreshToken]) {
         let rt = json[this.codec.refreshToken];
