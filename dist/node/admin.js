@@ -762,21 +762,6 @@ var Admin = function (_StitchClient) {
       };
     }
   }, {
-    key: '_isImpersonatingUser',
-    value: function _isImpersonatingUser() {
-      return this.auth.isImpersonatingUser();
-    }
-  }, {
-    key: '_startImpersonation',
-    value: function _startImpersonation(userId) {
-      return this.auth.startImpersonation(this, userId);
-    }
-  }, {
-    key: '_stopImpersonation',
-    value: function _stopImpersonation() {
-      return this.auth.stopImpersonation();
-    }
-  }, {
     key: 'type',
     get: function get() {
       return _common2.default;

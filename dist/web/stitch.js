@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 33);
+/******/ 	return __webpack_require__(__webpack_require__.s = 34);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -2015,15 +2015,11 @@ exports.writeIEEE754 = writeIEEE754;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.uriEncodeObject = exports.getPlatform = exports.serviceResponse = exports.deprecate = exports.collectMetadata = undefined;
+exports.uriEncodeObject = exports.serviceResponse = exports.deprecate = exports.collectMetadata = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-var _detectBrowser = __webpack_require__(59);
-
-var platform = _interopRequireWildcard(_detectBrowser);
-
-var _Base = __webpack_require__(25);
+var _Base = __webpack_require__(27);
 
 var base64 = _interopRequireWildcard(_Base);
 
@@ -2115,16 +2111,6 @@ function serviceResponse(service, _ref) {
 }
 
 /**
- * Utility function to get the platform.
- *
- * @memberof util
- * @returns {Object} An object of the form {name: ..., version: ...}, or null
- */
-function getPlatform() {
-  return platform ? platform : null;
-}
-
-/**
  * Utility function to encode a JSON object into a valid string that can be
  * inserted in a URI. The object is first stringified, then encoded in base64,
  * and finally encoded via the builtin encodeURIComponent function.
@@ -2139,7 +2125,6 @@ function uriEncodeObject(obj) {
 
 exports.deprecate = deprecate;
 exports.serviceResponse = serviceResponse;
-exports.getPlatform = getPlatform;
 exports.uriEncodeObject = uriEncodeObject;
 
 /***/ }),
@@ -3002,6 +2987,42 @@ module.exports.Long = Long;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var USER_AUTH_KEY = exports.USER_AUTH_KEY = '_stitch_ua';
+var REFRESH_TOKEN_KEY = exports.REFRESH_TOKEN_KEY = '_stitch_rt';
+var DEVICE_ID_KEY = exports.DEVICE_ID_KEY = '_stitch_did';
+var STATE_KEY = exports.STATE_KEY = '_stitch_state';
+var USER_AUTH_COOKIE_NAME = exports.USER_AUTH_COOKIE_NAME = 'stitch_ua';
+var STITCH_ERROR_KEY = exports.STITCH_ERROR_KEY = '_stitch_error';
+var STITCH_LINK_KEY = exports.STITCH_LINK_KEY = '_stitch_link';
+var USER_LOGGED_IN_PT_KEY = exports.USER_LOGGED_IN_PT_KEY = '_stitch_pt';
+var STITCH_REDIRECT_PROVIDER = exports.STITCH_REDIRECT_PROVIDER = '_stitch_rp';
+
+var DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS = exports.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS = 10;
+
+var APP_CLIENT_CODEC = exports.APP_CLIENT_CODEC = {
+  'accessToken': 'access_token',
+  'refreshToken': 'refresh_token',
+  'deviceId': 'device_id',
+  'userId': 'user_id'
+};
+
+var ADMIN_CLIENT_CODEC = exports.ADMIN_CLIENT_CODEC = {
+  'accessToken': 'access_token',
+  'refreshToken': 'refresh_token',
+  'deviceId': 'device_id',
+  'userId': 'user_id'
+};
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 /* WEBPACK VAR INJECTION */(function(global) {
 
 /**
@@ -3350,7 +3371,7 @@ module.exports.Binary = Binary;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17)))
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3382,7 +3403,7 @@ module.exports = Code;
 module.exports.Code = Code;
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3422,7 +3443,7 @@ module.exports = DBRef;
 module.exports.DBRef = DBRef;
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4149,7 +4170,7 @@ module.exports.Decimal128 = Decimal128;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4190,7 +4211,7 @@ module.exports = Double;
 module.exports.Double = Double;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4212,7 +4233,7 @@ module.exports = MaxKey;
 module.exports.MaxKey = MaxKey;
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4234,7 +4255,7 @@ module.exports = MinKey;
 module.exports.MinKey = MinKey;
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4603,10 +4624,10 @@ Object.defineProperty(ObjectID.prototype, "generationTime", {
 module.exports = ObjectID;
 module.exports.ObjectID = ObjectID;
 module.exports.ObjectId = ObjectID;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer, __webpack_require__(23)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer, __webpack_require__(25)))
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4638,7 +4659,7 @@ module.exports = BSONRegExp;
 module.exports.BSONRegExp = BSONRegExp;
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4693,7 +4714,7 @@ module.exports = _Symbol;
 module.exports.Symbol = _Symbol;
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5548,42 +5569,6 @@ module.exports = Timestamp;
 module.exports.Timestamp = Timestamp;
 
 /***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var USER_AUTH_KEY = exports.USER_AUTH_KEY = '_stitch_ua';
-var REFRESH_TOKEN_KEY = exports.REFRESH_TOKEN_KEY = '_stitch_rt';
-var DEVICE_ID_KEY = exports.DEVICE_ID_KEY = '_stitch_did';
-var STATE_KEY = exports.STATE_KEY = '_stitch_state';
-var IMPERSONATION_ACTIVE_KEY = exports.IMPERSONATION_ACTIVE_KEY = '_stitch_impers_active';
-var IMPERSONATION_USER_KEY = exports.IMPERSONATION_USER_KEY = '_stitch_impers_user';
-var IMPERSONATION_REAL_USER_AUTH_KEY = exports.IMPERSONATION_REAL_USER_AUTH_KEY = '_stitch_impers_real_ua';
-var USER_AUTH_COOKIE_NAME = exports.USER_AUTH_COOKIE_NAME = 'stitch_ua';
-var STITCH_ERROR_KEY = exports.STITCH_ERROR_KEY = '_stitch_error';
-var STITCH_LINK_KEY = exports.STITCH_LINK_KEY = '_stitch_link';
-var DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS = exports.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS = 10;
-
-var APP_CLIENT_CODEC = exports.APP_CLIENT_CODEC = {
-  'accessToken': 'access_token',
-  'refreshToken': 'refresh_token',
-  'deviceId': 'device_id',
-  'userId': 'user_id'
-};
-
-var ADMIN_CLIENT_CODEC = exports.ADMIN_CLIENT_CODEC = {
-  'accessToken': 'access_token',
-  'refreshToken': 'refresh_token',
-  'deviceId': 'device_id',
-  'userId': 'user_id'
-};
-
-/***/ }),
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -5601,7 +5586,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "2.3.1";
+  version = "3.0.0";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -5710,19 +5695,23 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, fetch */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 
 
-__webpack_require__(22);
+__webpack_require__(24);
 
-var _auth = __webpack_require__(30);
+var _auth = __webpack_require__(32);
 
 var _auth2 = _interopRequireDefault(_auth);
 
-var _common = __webpack_require__(15);
+var _providers = __webpack_require__(22);
 
-var _services = __webpack_require__(37);
+var _common = __webpack_require__(4);
+
+var _services = __webpack_require__(38);
 
 var _services2 = _interopRequireDefault(_services);
 
@@ -5730,7 +5719,7 @@ var _common2 = __webpack_require__(16);
 
 var common = _interopRequireWildcard(_common2);
 
-var _mongodbExtjson = __webpack_require__(42);
+var _mongodbExtjson = __webpack_require__(20);
 
 var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
@@ -5738,9 +5727,7 @@ var _queryString = __webpack_require__(69);
 
 var _queryString2 = _interopRequireDefault(_queryString);
 
-var _util = __webpack_require__(2);
-
-var _errors = __webpack_require__(21);
+var _errors = __webpack_require__(23);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -5766,17 +5753,15 @@ var API_TYPE_APP = 'app';
  */
 
 var StitchClient = function () {
-  function StitchClient(clientAppID, options) {
-    var _v,
-        _v2,
-        _v3,
-        _rootURLsByAPIVersion,
-        _this = this;
+  function StitchClient(clientAppID) {
+    var _v, _v2, _v3, _rootURLsByAPIVersion;
+
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     _classCallCheck(this, StitchClient);
 
     var baseUrl = common.DEFAULT_STITCH_SERVER_URL;
-    if (options && options.baseUrl) {
+    if (options.baseUrl) {
       baseUrl = options.baseUrl;
     }
 
@@ -5786,30 +5771,24 @@ var StitchClient = function () {
 
     this.rootURLsByAPIVersion = (_rootURLsByAPIVersion = {}, _defineProperty(_rootURLsByAPIVersion, v1, (_v = {}, _defineProperty(_v, API_TYPE_PUBLIC, baseUrl + '/api/public/v1.0'), _defineProperty(_v, API_TYPE_CLIENT, baseUrl + '/api/client/v1.0'), _defineProperty(_v, API_TYPE_PRIVATE, baseUrl + '/api/private/v1.0'), _defineProperty(_v, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v1.0/app/' + clientAppID : baseUrl + '/api/public/v1.0'), _v)), _defineProperty(_rootURLsByAPIVersion, v2, (_v2 = {}, _defineProperty(_v2, API_TYPE_PUBLIC, baseUrl + '/api/public/v2.0'), _defineProperty(_v2, API_TYPE_CLIENT, baseUrl + '/api/client/v2.0'), _defineProperty(_v2, API_TYPE_PRIVATE, baseUrl + '/api/private/v2.0'), _defineProperty(_v2, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID : baseUrl + '/api/public/v2.0'), _v2)), _defineProperty(_rootURLsByAPIVersion, v3, (_v3 = {}, _defineProperty(_v3, API_TYPE_PUBLIC, baseUrl + '/api/public/v3.0'), _defineProperty(_v3, API_TYPE_CLIENT, baseUrl + '/api/client/v3.0'), _defineProperty(_v3, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v3.0/app/' + clientAppID : baseUrl + '/api/admin/v3.0'), _v3)), _rootURLsByAPIVersion);
 
-    var authOptions = { codec: _common.APP_CLIENT_CODEC };
-    if (options && options.authCodec) {
+    var authOptions = {
+      codec: _common.APP_CLIENT_CODEC,
+      storage: options.storage
+    };
+
+    if (options.storageType) {
+      authOptions.storageType = options.storageType;
+    }
+    if (options.platform) {
+      authOptions.platform = options.platform;
+    }
+    if (options.authCodec) {
       authOptions.codec = options.authCodec;
     }
+
     this.auth = new _auth2.default(this, this.authUrl, authOptions);
     this.auth.handleRedirect();
     this.auth.handleCookie();
-
-    // deprecated API
-    this.authManager = {
-      apiKeyAuth: function apiKeyAuth(key) {
-        return _this.authenticate('apiKey', key);
-      },
-      localAuth: function localAuth(email, password) {
-        return _this.login(email, password);
-      },
-      mongodbCloudAuth: function mongodbCloudAuth(username, apiKey, opts) {
-        return _this.authenticate('mongodbCloud', Object.assign({ username: username, apiKey: apiKey }, opts));
-      }
-    };
-
-    this.authManager.apiKeyAuth = (0, _util.deprecate)(this.authManager.apiKeyAuth, 'use `client.authenticate("apiKey", "key")` instead of `client.authManager.apiKey`');
-    this.authManager.localAuth = (0, _util.deprecate)(this.authManager.localAuth, 'use `client.login` instead of `client.authManager.localAuth`');
-    this.authManager.mongodbCloudAuth = (0, _util.deprecate)(this.authManager.mongodbCloudAuth, 'use `client.authenticate("mongodbCloud", opts)` instead of `client.authManager.mongodbCloudAuth`');
   }
 
   _createClass(StitchClient, [{
@@ -5829,7 +5808,7 @@ var StitchClient = function () {
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
       if (email === undefined || password === undefined) {
-        return this.authenticate('anon', options);
+        return this.authenticate(_providers.PROVIDER_TYPE_ANON, options);
       }
 
       return this.authenticate('userpass', Object.assign({ username: email, password: password }, options));
@@ -5869,17 +5848,34 @@ var StitchClient = function () {
   }, {
     key: 'authenticate',
     value: function authenticate(providerType) {
-      var _this2 = this;
+      var _this = this;
 
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       // reuse existing auth if present
-      if (this.auth.getAccessToken()) {
-        return Promise.resolve(this.auth.authedId());
-      }
+      return Promise.all([this.isAuthenticated(), this.auth.getLoggedInProviderType()]).then(function (_ref) {
+        var _ref2 = _slicedToArray(_ref, 2),
+            isAuthenticated = _ref2[0],
+            loggedInProviderType = _ref2[1];
 
-      return this.auth.provider(providerType).authenticate(options).then(function () {
-        return _this2.auth.authedId();
+        if (isAuthenticated) {
+          if (providerType === _providers.PROVIDER_TYPE_ANON && loggedInProviderType === _providers.PROVIDER_TYPE_ANON) {
+            return false; // is authenticated, skip log in
+          }
+
+          return _this.logout().then(function () {
+            return true;
+          }); // will not be authenticated, continue log in
+        }
+
+        return true; // is not authenticated, continue log in
+      }).then(function (shouldAuth) {
+        if (shouldAuth) {
+          return _this.auth.provider(providerType).authenticate(options);
+        }
+        return;
+      }).then(function () {
+        return _this.auth.authedId();
       });
     }
 
@@ -5892,14 +5888,16 @@ var StitchClient = function () {
   }, {
     key: 'logout',
     value: function logout() {
-      var _this3 = this;
+      var _this2 = this;
 
       return this._do('/auth/session', 'DELETE', {
         refreshOnFailure: false,
         useRefreshToken: true,
         rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
       }).then(function () {
-        return _this3.auth.clear();
+        return _this2.auth.clear();
+      }, function () {
+        return _this2.auth.clear();
       });
     }
 
@@ -5926,8 +5924,23 @@ var StitchClient = function () {
         return response.json();
       });
     }
+
     /**
-     *  @return {String} Returns the currently authed user's ID.
+    * @return {Promise} whether or not the current client is authenticated
+    */
+
+  }, {
+    key: 'isAuthenticated',
+    value: function isAuthenticated() {
+      return this.auth.authedId().then(function (id) {
+        return id !== null && id !== undefined;
+      }, function () {
+        return false;
+      });
+    }
+
+    /**
+     *  @return {Promise} Returns a promise resolving to a string of the currently authed user's ID.
      */
 
   }, {
@@ -6035,52 +6048,111 @@ var StitchClient = function () {
         return response.json();
       });
     }
+
+    /**
+     * Returns an array of api keys
+     *
+     * @returns {Promise}
+     */
+
   }, {
-    key: '_do',
-    value: function _do(resource, method, options) {
-      var _this4 = this;
+    key: 'getApiKeys',
+    value: function getApiKeys() {
+      return this._do('/auth/api_keys', 'GET', {
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        useRefreshToken: true
+      }).then(function (response) {
+        return response.json();
+      });
+    }
 
-      options = Object.assign({}, {
-        refreshOnFailure: true,
-        useRefreshToken: false,
-        apiVersion: v2,
-        apiType: API_TYPE_APP,
-        rootURL: undefined
-      }, options);
+    /**
+     * Creates a user api key
+     *
+     * @param {String} userApiKeyName the user defined name of the userApiKey
+     * @returns {Promise}
+     */
 
-      if (!options.noAuth) {
-        if (!this.authedId()) {
-          return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
-        }
+  }, {
+    key: 'createApiKey',
+    value: function createApiKey(userApiKeyName) {
+      return this._do('/auth/api_keys', 'POST', { rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        useRefreshToken: true,
+        body: JSON.stringify({ 'name': userApiKeyName })
+      }).then(function (response) {
+        return response.json();
+      });
+    }
 
-        // If access token is expired, proactively get a new one
-        if (!options.useRefreshToken && this.auth.isAccessTokenExpired()) {
-          return this.auth.refreshToken().then(function () {
-            options.refreshOnFailure = false;
-            return _this4._do(resource, method, options);
-          });
-        }
-      }
+    /**
+     * Returns a user api key
+     *
+     * @param {String} keyID the ID of the key
+     * @returns {Promise}
+     */
 
-      var appURL = this.rootURLsByAPIVersion[options.apiVersion][options.apiType];
-      var url = '' + appURL + resource;
-      if (options.rootURL) {
-        url = '' + options.rootURL + resource;
-      }
-      var fetchArgs = common.makeFetchArgs(method, options.body);
+  }, {
+    key: 'getApiKeyByID',
+    value: function getApiKeyByID(keyID) {
+      return this._do('/auth/api_keys/' + keyID, 'GET', {
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        useRefreshToken: true
+      }).then(function (response) {
+        return response.json();
+      });
+    }
 
-      if (!!options.headers) {
-        Object.assign(fetchArgs.headers, options.headers);
-      }
+    /**
+     * Deletes a user api key
+     *
+     * @param {String} keyID the ID of the key
+     * @returns {Promise}
+     */
 
-      if (!options.noAuth) {
-        var token = options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
-        fetchArgs.headers.Authorization = 'Bearer ' + token;
-      }
+  }, {
+    key: 'deleteApiKeyByID',
+    value: function deleteApiKeyByID(keyID) {
+      return this._do('/auth/api_keys/' + keyID, 'DELETE', {
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        useRefreshToken: true
+      });
+    }
 
-      if (options.queryParams) {
-        url = url + '?' + _queryString2.default.stringify(options.queryParams);
-      }
+    /**
+     * Enable a user api key
+     *
+     * @param {String} keyID the ID of the key
+     * @returns {Promise}
+     */
+
+  }, {
+    key: 'enableApiKeyByID',
+    value: function enableApiKeyByID(keyID) {
+      return this._do('/auth/api_keys/' + keyID + '/enable', 'PUT', {
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        useRefreshToken: true
+      });
+    }
+
+    /**
+     * Disable a user api key
+     *
+     * @param {String} keyID the ID of the key
+     * @returns {Promise}
+     */
+
+  }, {
+    key: 'disableApiKeyByID',
+    value: function disableApiKeyByID(keyID) {
+      return this._do('/auth/api_keys/' + keyID + '/disable', 'PUT', {
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        useRefreshToken: true
+      });
+    }
+  }, {
+    key: '_fetch',
+    value: function _fetch(url, fetchArgs, resource, method, options) {
+      var _this3 = this;
 
       return fetch(url, fetchArgs).then(function (response) {
         // Okay: passthrough
@@ -6093,16 +6165,17 @@ var StitchClient = function () {
             // Only want to try refreshing token when there's an invalid session
             if ('error_code' in json && json.error_code === _errors.ErrInvalidSession) {
               if (!options.refreshOnFailure) {
-                _this4.auth.clear();
-                var _error = new _errors.StitchError(json.error, json.error_code);
-                _error.response = response;
-                _error.json = json;
-                throw _error;
+                return _this3.auth.clear().then(function () {
+                  var error = new _errors.StitchError(json.error, json.error_code);
+                  error.response = response;
+                  error.json = json;
+                  throw error;
+                });
               }
 
-              return _this4.auth.refreshToken().then(function () {
+              return _this3.auth.refreshToken().then(function () {
                 options.refreshOnFailure = false;
-                return _this4._do(resource, method, options);
+                return _this3._do(resource, method, options);
               });
             }
 
@@ -6118,18 +6191,76 @@ var StitchClient = function () {
         return Promise.reject(error);
       });
     }
-
-    // Deprecated API
-
   }, {
-    key: 'authWithOAuth',
-    value: function authWithOAuth(providerType, redirectUrl) {
-      return this.auth.provider(providerType).authenticate({ redirectUrl: redirectUrl });
+    key: '_fetchArgs',
+    value: function _fetchArgs(resource, method, options) {
+      var appURL = this.rootURLsByAPIVersion[options.apiVersion][options.apiType];
+      var url = '' + appURL + resource;
+      if (options.rootURL) {
+        url = '' + options.rootURL + resource;
+      }
+      var fetchArgs = common.makeFetchArgs(method, options.body);
+
+      if (!!options.headers) {
+        Object.assign(fetchArgs.headers, options.headers);
+      }
+
+      if (options.queryParams) {
+        url = url + '?' + _queryString2.default.stringify(options.queryParams);
+      }
+
+      return { url: url, fetchArgs: fetchArgs };
     }
   }, {
-    key: 'anonymousAuth',
-    value: function anonymousAuth() {
-      return this.authenticate('anon');
+    key: '_do',
+    value: function _do(resource, method, options) {
+      var _this4 = this;
+
+      options = Object.assign({}, {
+        refreshOnFailure: true,
+        useRefreshToken: false,
+        apiVersion: v2,
+        apiType: API_TYPE_APP,
+        rootURL: undefined
+      }, options);
+
+      var _fetchArgs2 = this._fetchArgs(resource, method, options),
+          url = _fetchArgs2.url,
+          fetchArgs = _fetchArgs2.fetchArgs;
+
+      if (!options.noAuth) {
+        return this.authedId().then(function (authedId) {
+          if (!_this4.authedId) {
+            return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
+          }
+
+          var tokenPromise = options.useRefreshToken ? _this4.auth.getRefreshToken() : _this4.auth.getAccessToken();
+
+          // If access token is expired, proactively get a new one
+          if (!options.useRefreshToken) {
+            return _this4.auth.isAccessTokenExpired().then(function (isAccessTokenExpired) {
+              if (isAccessTokenExpired) {
+                return _this4.auth.refreshToken().then(function () {
+                  options.refreshOnFailure = false;
+                  return _this4._do(resource, method, options);
+                });
+              }
+
+              return tokenPromise.then(function (token) {
+                fetchArgs.headers.Authorization = 'Bearer ' + token;
+                return _this4._fetch(url, fetchArgs, resource, method, options);
+              });
+            });
+          }
+
+          return tokenPromise.then(function (token) {
+            fetchArgs.headers.Authorization = 'Bearer ' + token;
+            return _this4._fetch(url, fetchArgs, resource, method, options);
+          });
+        });
+      }
+
+      return this._fetch(url, fetchArgs, resource, method, options);
     }
   }, {
     key: 'type',
@@ -6142,14 +6273,21 @@ var StitchClient = function () {
 }();
 
 exports.default = StitchClient;
-
-
-StitchClient.prototype.authWithOAuth = (0, _util.deprecate)(StitchClient.prototype.authWithOAuth, 'use `authenticate` instead of `authWithOAuth`');
-StitchClient.prototype.anonymousAuth = (0, _util.deprecate)(StitchClient.prototype.anonymousAuth, 'use `login()` instead of `anonymousAuth`');
 module.exports = exports['default'];
 
 /***/ }),
 /* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ExtJSON = __webpack_require__(57);
+
+module.exports = ExtJSON;
+
+/***/ }),
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6285,7 +6423,424 @@ if (typeof global.Map !== 'undefined') {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17)))
 
 /***/ }),
-/* 21 */
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createProviders = exports.PROVIDER_TYPE_MONGODB_CLOUD = exports.PROVIDER_TYPE_FACEBOOK = exports.PROVIDER_TYPE_GOOGLE = exports.PROVIDER_TYPE_APIKEY = exports.PROVIDER_TYPE_USERPASS = exports.PROVIDER_TYPE_CUSTOM = exports.PROVIDER_TYPE_ANON = undefined;
+
+var _common = __webpack_require__(16);
+
+var common = _interopRequireWildcard(_common);
+
+var _common2 = __webpack_require__(4);
+
+var authCommon = _interopRequireWildcard(_common2);
+
+var _util = __webpack_require__(2);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; } /** @module auth  */
+
+
+var PROVIDER_TYPE_ANON = exports.PROVIDER_TYPE_ANON = 'anon';
+var PROVIDER_TYPE_CUSTOM = exports.PROVIDER_TYPE_CUSTOM = 'custom';
+var PROVIDER_TYPE_USERPASS = exports.PROVIDER_TYPE_USERPASS = 'userpass';
+var PROVIDER_TYPE_APIKEY = exports.PROVIDER_TYPE_APIKEY = 'apiKey';
+var PROVIDER_TYPE_GOOGLE = exports.PROVIDER_TYPE_GOOGLE = 'google';
+var PROVIDER_TYPE_FACEBOOK = exports.PROVIDER_TYPE_FACEBOOK = 'facebook';
+var PROVIDER_TYPE_MONGODB_CLOUD = exports.PROVIDER_TYPE_MONGODB_CLOUD = 'mongodbCloud';
+
+/**
+ * @namespace
+ */
+function anonProvider(auth) {
+  return {
+    /**
+     * Login to a stitch application using anonymous authentication
+     *
+     * @memberof anonProvider
+     * @instance
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
+    authenticate: function authenticate() {
+      return auth.getDeviceId().then(function (deviceId) {
+        var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+        var fetchArgs = common.makeFetchArgs('GET');
+        fetchArgs.cors = true;
+
+        return fetch(auth.rootUrl + '/providers/anon-user/login?device=' + (0, _util.uriEncodeObject)(device), fetchArgs);
+      }).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        return auth.set(json, PROVIDER_TYPE_ANON);
+      });
+    }
+  };
+}
+
+/**
+  * @namespace
+  */
+function customProvider(auth) {
+  var providerRoute = 'providers/custom-token';
+  var loginRoute = providerRoute + '/login';
+
+  return {
+    /**
+     * Login to a stitch application using custom authentication
+     *
+     * @memberof customProvider
+     * @instance
+     * @param {String} JWT token to use for authentication
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
+    authenticate: function authenticate(token) {
+      return auth.getDeviceId().then(function (deviceId) {
+        var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+
+        var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ token: token, options: { device: device } }));
+        fetchArgs.cors = true;
+
+        return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs);
+      }).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        return auth.set(json, PROVIDER_TYPE_CUSTOM);
+      });
+    }
+  };
+}
+
+/** @namespace */
+function userPassProvider(auth) {
+  // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
+  // the client is for the admin or client API.
+  var providerRoute = auth.isAppClient() ? 'providers/local-userpass' : 'providers/local-userpass';
+  var loginRoute = auth.isAppClient() ? providerRoute + '/login' : providerRoute + '/login';
+
+  return {
+    /**
+     * Login to a stitch application using username and password authentication
+     *
+     * @memberof userPassProvider
+     * @instance
+     * @param {String} username the username to use for authentication
+     * @param {String} password the password to use for authentication
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
+    authenticate: function authenticate(_ref) {
+      var username = _ref.username,
+          password = _ref.password;
+
+      return auth.getDeviceId().then(function (deviceId) {
+        var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+
+        var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password, options: { device: device } }));
+        fetchArgs.cors = true;
+
+        return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs);
+      }).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        return auth.set(json, PROVIDER_TYPE_USERPASS);
+      });
+    },
+
+    /**
+     * Completes the confirmation workflow from the stitch server
+     * @memberof userPassProvider
+     * @instance
+     * @param {String} tokenId the tokenId provided by the stitch server
+     * @param {String} token the token provided by the stitch server
+     * @returns {Promise}
+     */
+    emailConfirm: function emailConfirm(tokenId, token) {
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token }));
+      fetchArgs.cors = true;
+
+      return fetch(auth.rootUrl + '/' + providerRoute + '/confirm', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      });
+    },
+
+    /**
+     * Request that the stitch server send another email confirmation
+     * for account creation.
+     *
+     * @memberof userPassProvider
+     * @instance
+     * @param {String} email the email to send a confirmation email for
+     * @returns {Promise}
+     */
+    sendEmailConfirm: function sendEmailConfirm(email) {
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
+      fetchArgs.cors = true;
+
+      return fetch(auth.rootUrl + '/' + providerRoute + '/confirm/send', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      });
+    },
+
+    /**
+     * Sends a password reset request to the stitch server
+     *
+     * @memberof userPassProvider
+     * @instance
+     * @param {String} email the email of the account to reset the password for
+     * @returns {Promise}
+     */
+    sendPasswordReset: function sendPasswordReset(email) {
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
+      fetchArgs.cors = true;
+
+      return fetch(auth.rootUrl + '/' + providerRoute + '/reset/send', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      });
+    },
+
+    /**
+     * Use information returned from the stitch server to complete the password
+     * reset flow for a given email account, providing a new password for the account.
+     *
+     * @memberof userPassProvider
+     * @instance
+     * @param {String} tokenId the tokenId provided by the stitch server
+     * @param {String} token the token provided by the stitch server
+     * @param {String} password the new password requested for this account
+     * @returns {Promise}
+     */
+    passwordReset: function passwordReset(tokenId, token, password) {
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token, password: password }));
+      fetchArgs.cors = true;
+
+      return fetch(auth.rootUrl + '/' + providerRoute + '/reset', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      });
+    },
+
+    /**
+     * Will trigger an email to the requested account containing a link with the
+     * token and tokenId that must be returned to the server using emailConfirm()
+     * to activate the account.
+     *
+     * @memberof userPassProvider
+     * @instance
+     * @param {String} email the requested email for the account
+     * @param {String} password the requested password for the account
+     * @returns {Promise}
+     */
+    register: function register(email, password) {
+      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email, password: password }));
+      fetchArgs.cors = true;
+
+      return fetch(auth.rootUrl + '/' + providerRoute + '/register', fetchArgs).then(common.checkStatus).then(function (response) {
+        return response.json();
+      });
+    }
+  };
+}
+
+/** @namespace */
+function apiKeyProvider(auth) {
+  // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
+  // the client is for the admin or client API.
+  var loginRoute = auth.isAppClient() ? 'providers/api-key/login' : 'providers/api-key/login';
+
+  return {
+    /**
+     * Login to a stitch application using an api key
+     *
+     * @memberof apiKeyProvider
+     * @instance
+     * @param {String} key the key for authentication
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
+    authenticate: function authenticate(key) {
+      return auth.getDeviceId().then(function (deviceId) {
+        var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+        var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ 'key': key, 'options': { device: device } }));
+        fetchArgs.cors = true;
+        return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs);
+      }).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        return auth.set(json, PROVIDER_TYPE_APIKEY);
+      });
+    }
+  };
+}
+
+// The state we generate is to be used for any kind of request where we will
+// complete an authentication flow via a redirect. We store the generate in
+// a local storage bound to the app's origin. This ensures that any time we
+// receive a redirect, there must be a state parameter and it must match
+// what we ourselves have generated. This state MUST only be sent to
+// a trusted Stitch endpoint in order to preserve its integrity. Stitch will
+// store it in some way on its origin (currently a cookie stored on this client)
+// and use that state at the end of an auth flow as a parameter in the redirect URI.
+var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+function generateState() {
+  var state = '';
+  for (var i = 0; i < 64; ++i) {
+    state += alpha.charAt(Math.floor(Math.random() * alpha.length));
+  }
+
+  return state;
+}
+
+function getOAuthLoginURL(auth, providerName, redirectUrl) {
+  if (redirectUrl === undefined) {
+    redirectUrl = auth.pageRootUrl();
+  }
+
+  var state = generateState();
+  return auth.storage.set(authCommon.STATE_KEY, state).then(function () {
+    return auth.getDeviceId();
+  }).then(function (deviceId) {
+    var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+
+    var result = auth.rootUrl + '/providers/oauth2-' + providerName + '/login?redirect=' + encodeURI(redirectUrl) + '&state=' + state + '&device=' + (0, _util.uriEncodeObject)(device);
+    return result;
+  });
+}
+
+/** @namespace */
+function googleProvider(auth) {
+  var loginRoute = auth.isAppClient() ? 'providers/oauth2-google/login' : 'providers/oauth2-google/login';
+
+  return {
+    /**
+     * Login to a stitch application using google authentication
+     *
+     * @memberof googleProvider
+     * @instance
+     * @param {Object} data the redirectUrl data to use for authentication
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
+    authenticate: function authenticate(data) {
+      var authCode = data.authCode;
+
+      if (authCode !== null) {
+        return auth.getDeviceId(function (deviceId) {
+          var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+
+          var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ authCode: authCode, options: { device: device } }));
+
+          return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs);
+        }).then(common.checkStatus).then(function (response) {
+          return response.json();
+        }).then(function (json) {
+          return auth.set(json, PROVIDER_TYPE_GOOGLE);
+        });
+      }
+
+      var redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
+      return getOAuthLoginURL(auth, 'google', redirectUrl).then(auth.storage.set(STITCH_REDIRECT_PROVIDER, PROVIDER_TYPE_GOOGLE)).then(window.location.replace);
+    }
+  };
+}
+
+/** @namespace */
+function facebookProvider(auth) {
+  var loginRoute = auth.isAppClient() ? 'providers/oauth2-facebook/login' : 'providers/oauth2-facebook/login';
+
+  return {
+    /**
+     * Login to a stitch application using facebook authentication
+     *
+     * @memberof facebookProvider
+     * @instance
+     * @param {Object} data the redirectUrl data to use for authentication
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
+    authenticate: function authenticate(data) {
+      var accessToken = data.accessToken;
+
+      if (accessToken !== null) {
+        return auth.getDeviceId().then(function (deviceId) {
+          var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+
+          var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ accessToken: accessToken, options: { device: device } }));
+
+          return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs);
+        }).then(common.checkStatus).then(function (response) {
+          return response.json();
+        }).then(function (json) {
+          return auth.set(json, PROVIDER_TYPE_FACEBOOK);
+        });
+      }
+
+      var redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
+      return getOAuthLoginURL(auth, 'facebook', redirectUrl).then(function () {
+        return auth.storage.set(STITCH_REDIRECT_PROVIDER, PROVIDER_TYPE_FACEBOOK);
+      }).then(window.location.replace);
+    }
+  };
+}
+
+/** @namespace */
+function mongodbCloudProvider(auth) {
+  // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
+  // the client is for the admin or client API.
+  var loginRoute = auth.isAppClient() ? 'providers/mongodb-cloud/login' : 'providers/mongodb-cloud/login';
+
+  return {
+    /**
+     * Login to a stitch application using mongodb cloud authentication
+     *
+     * @memberof mongodbCloudProvider
+     * @instance
+     * @param {Object} data the username, apiKey, cors, and cookie data to use for authentication
+     * @returns {Promise} a promise that resolves when authentication succeeds.
+     */
+    authenticate: function authenticate(data) {
+      var username = data.username,
+          apiKey = data.apiKey,
+          cors = data.cors,
+          cookie = data.cookie;
+
+      var options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
+      return auth.getDeviceId().then(function (deviceId) {
+        var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+        var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, apiKey: apiKey, options: { device: device } }));
+        fetchArgs.cors = true; // TODO: shouldn't this use the passed in `cors` value?
+        fetchArgs.credentials = 'include';
+
+        var url = auth.rootUrl + '/' + loginRoute;
+        if (options.cookie) {
+          return fetch(url + '?cookie=true', fetchArgs).then(common.checkStatus);
+        }
+
+        return fetch(url, fetchArgs);
+      }).then(common.checkStatus).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        return auth.set(json, PROVIDER_TYPE_MONGODB_CLOUD);
+      });
+    }
+  };
+}
+
+// TODO: support auth-specific options
+function createProviders(auth) {
+  var _ref2;
+
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  return _ref2 = {}, _defineProperty(_ref2, PROVIDER_TYPE_ANON, anonProvider(auth)), _defineProperty(_ref2, PROVIDER_TYPE_APIKEY, apiKeyProvider(auth)), _defineProperty(_ref2, PROVIDER_TYPE_GOOGLE, googleProvider(auth)), _defineProperty(_ref2, PROVIDER_TYPE_FACEBOOK, facebookProvider(auth)), _defineProperty(_ref2, PROVIDER_TYPE_MONGODB_CLOUD, mongodbCloudProvider(auth)), _defineProperty(_ref2, PROVIDER_TYPE_USERPASS, userPassProvider(auth)), _defineProperty(_ref2, PROVIDER_TYPE_CUSTOM, customProvider(auth)), _ref2;
+}
+
+exports.createProviders = createProviders;
+
+/***/ }),
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6370,7 +6925,7 @@ exports.ErrInvalidSession = ErrInvalidSession;
 exports.ErrUnauthorized = ErrUnauthorized;
 
 /***/ }),
-/* 22 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // the whatwg-fetch polyfill installs the fetch() function
@@ -6383,7 +6938,7 @@ module.exports = globalObj.fetch.bind(globalObj);
 
 
 /***/ }),
-/* 23 */
+/* 25 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -6573,7 +7128,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 24 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6587,7 +7142,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-__webpack_require__(22);
+__webpack_require__(24);
 
 var _client = __webpack_require__(19);
 
@@ -6597,7 +7152,7 @@ var _common = __webpack_require__(16);
 
 var _common2 = _interopRequireDefault(_common);
 
-var _common3 = __webpack_require__(15);
+var _common3 = __webpack_require__(4);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -7341,21 +7896,6 @@ var Admin = function (_StitchClient) {
       };
     }
   }, {
-    key: '_isImpersonatingUser',
-    value: function _isImpersonatingUser() {
-      return this.auth.isImpersonatingUser();
-    }
-  }, {
-    key: '_startImpersonation',
-    value: function _startImpersonation(userId) {
-      return this.auth.startImpersonation(this, userId);
-    }
-  }, {
-    key: '_stopImpersonation',
-    value: function _stopImpersonation() {
-      return this.auth.stopImpersonation();
-    }
-  }, {
     key: 'type',
     get: function get() {
       return _common2.default;
@@ -7435,7 +7975,7 @@ exports.default = Admin;
 module.exports = exports['default'];
 
 /***/ }),
-/* 25 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function () {
@@ -7506,7 +8046,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 26 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7514,25 +8054,25 @@ module.exports = exports['default'];
 
 var writeIEEE754 = __webpack_require__(1).writeIEEE754,
     readIEEE754 = __webpack_require__(1).readIEEE754,
-    Map = __webpack_require__(20),
+    Map = __webpack_require__(21),
     Long = __webpack_require__(3),
-    Double = __webpack_require__(8),
-    Timestamp = __webpack_require__(14),
-    ObjectID = __webpack_require__(11),
-    BSONRegExp = __webpack_require__(12),
-    _Symbol = __webpack_require__(13),
+    Double = __webpack_require__(9),
+    Timestamp = __webpack_require__(15),
+    ObjectID = __webpack_require__(12),
+    BSONRegExp = __webpack_require__(13),
+    _Symbol = __webpack_require__(14),
     Int32 = __webpack_require__(18),
-    Code = __webpack_require__(5),
-    Decimal128 = __webpack_require__(7),
-    MinKey = __webpack_require__(10),
-    MaxKey = __webpack_require__(9),
-    DBRef = __webpack_require__(6),
-    Binary = __webpack_require__(4);
+    Code = __webpack_require__(6),
+    Decimal128 = __webpack_require__(8),
+    MinKey = __webpack_require__(11),
+    MaxKey = __webpack_require__(10),
+    DBRef = __webpack_require__(7),
+    Binary = __webpack_require__(5);
 
 // Parts of the parser
-var deserialize = __webpack_require__(28),
-    serializer = __webpack_require__(29),
-    calculateObjectSize = __webpack_require__(27);
+var deserialize = __webpack_require__(30),
+    serializer = __webpack_require__(31),
+    calculateObjectSize = __webpack_require__(29);
 
 /**
  * @ignore
@@ -7861,7 +8401,7 @@ module.exports.Decimal128 = Decimal128;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
-/* 27 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7872,17 +8412,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 var writeIEEE754 = __webpack_require__(1).writeIEEE754,
     readIEEE754 = __webpack_require__(1).readIEEE754,
     Long = __webpack_require__(3).Long,
-    Double = __webpack_require__(8).Double,
-    Timestamp = __webpack_require__(14).Timestamp,
-    ObjectID = __webpack_require__(11).ObjectID,
-    _Symbol = __webpack_require__(13).Symbol,
-    BSONRegExp = __webpack_require__(12).BSONRegExp,
-    Code = __webpack_require__(5).Code,
-    Decimal128 = __webpack_require__(7),
-    MinKey = __webpack_require__(10).MinKey,
-    MaxKey = __webpack_require__(9).MaxKey,
-    DBRef = __webpack_require__(6).DBRef,
-    Binary = __webpack_require__(4).Binary;
+    Double = __webpack_require__(9).Double,
+    Timestamp = __webpack_require__(15).Timestamp,
+    ObjectID = __webpack_require__(12).ObjectID,
+    _Symbol = __webpack_require__(14).Symbol,
+    BSONRegExp = __webpack_require__(13).BSONRegExp,
+    Code = __webpack_require__(6).Code,
+    Decimal128 = __webpack_require__(8),
+    MinKey = __webpack_require__(11).MinKey,
+    MaxKey = __webpack_require__(10).MaxKey,
+    DBRef = __webpack_require__(7).DBRef,
+    Binary = __webpack_require__(5).Binary;
 
 // To ensure that 0.4 of node works correctly
 var isDate = function isDate(d) {
@@ -8020,7 +8560,7 @@ module.exports = calculateObjectSize;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
-/* 28 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8029,18 +8569,18 @@ module.exports = calculateObjectSize;
 var readIEEE754 = __webpack_require__(1).readIEEE754,
     f = __webpack_require__(72).format,
     Long = __webpack_require__(3).Long,
-    Double = __webpack_require__(8).Double,
-    Timestamp = __webpack_require__(14).Timestamp,
-    ObjectID = __webpack_require__(11).ObjectID,
-    _Symbol = __webpack_require__(13).Symbol,
-    Code = __webpack_require__(5).Code,
-    MinKey = __webpack_require__(10).MinKey,
-    MaxKey = __webpack_require__(9).MaxKey,
-    Decimal128 = __webpack_require__(7),
+    Double = __webpack_require__(9).Double,
+    Timestamp = __webpack_require__(15).Timestamp,
+    ObjectID = __webpack_require__(12).ObjectID,
+    _Symbol = __webpack_require__(14).Symbol,
+    Code = __webpack_require__(6).Code,
+    MinKey = __webpack_require__(11).MinKey,
+    MaxKey = __webpack_require__(10).MaxKey,
+    Decimal128 = __webpack_require__(8),
     Int32 = __webpack_require__(18),
-    DBRef = __webpack_require__(6).DBRef,
-    BSONRegExp = __webpack_require__(12).BSONRegExp,
-    Binary = __webpack_require__(4).Binary;
+    DBRef = __webpack_require__(7).DBRef,
+    BSONRegExp = __webpack_require__(13).BSONRegExp,
+    Binary = __webpack_require__(5).Binary;
 
 var deserialize = function deserialize(buffer, options, isArray) {
   options = options == null ? {} : options;
@@ -8681,7 +9221,7 @@ module.exports = deserialize;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
-/* 29 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8692,19 +9232,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 var writeIEEE754 = __webpack_require__(1).writeIEEE754,
     readIEEE754 = __webpack_require__(1).readIEEE754,
     Long = __webpack_require__(3).Long,
-    Map = __webpack_require__(20),
-    Double = __webpack_require__(8).Double,
-    Timestamp = __webpack_require__(14).Timestamp,
-    ObjectID = __webpack_require__(11).ObjectID,
-    _Symbol = __webpack_require__(13).Symbol,
-    Code = __webpack_require__(5).Code,
-    BSONRegExp = __webpack_require__(12).BSONRegExp,
+    Map = __webpack_require__(21),
+    Double = __webpack_require__(9).Double,
+    Timestamp = __webpack_require__(15).Timestamp,
+    ObjectID = __webpack_require__(12).ObjectID,
+    _Symbol = __webpack_require__(14).Symbol,
+    Code = __webpack_require__(6).Code,
+    BSONRegExp = __webpack_require__(13).BSONRegExp,
     Int32 = __webpack_require__(18).Int32,
-    MinKey = __webpack_require__(10).MinKey,
-    MaxKey = __webpack_require__(9).MaxKey,
-    Decimal128 = __webpack_require__(7),
-    DBRef = __webpack_require__(6).DBRef,
-    Binary = __webpack_require__(4).Binary;
+    MinKey = __webpack_require__(11).MinKey,
+    MaxKey = __webpack_require__(10).MaxKey,
+    Decimal128 = __webpack_require__(8),
+    DBRef = __webpack_require__(7).DBRef,
+    Binary = __webpack_require__(5).Binary;
 
 try {
   var _Buffer = Uint8Array;
@@ -9689,7 +10229,7 @@ module.exports = serializeInto;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
-/* 30 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9699,21 +10239,27 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, document, fetch */
 
-var _storage = __webpack_require__(32);
+var _storage = __webpack_require__(33);
 
-var _providers = __webpack_require__(31);
+var _providers = __webpack_require__(22);
 
-var _errors = __webpack_require__(21);
+var _errors = __webpack_require__(23);
 
-var _common = __webpack_require__(15);
+var _common = __webpack_require__(4);
 
 var authCommon = _interopRequireWildcard(_common);
 
 var _common2 = __webpack_require__(16);
 
 var common = _interopRequireWildcard(_common2);
+
+var _detectBrowser = __webpack_require__(59);
+
+var _platform = _interopRequireWildcard(_detectBrowser);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -9729,19 +10275,57 @@ var Auth = function () {
   function Auth(client, rootUrl, options) {
     _classCallCheck(this, Auth);
 
-    options = Object.assign({}, {
-      storageType: 'localStorage',
-      codec: authCommon.APP_CLIENT_CODEC
+    var namespace = void 0;
+    if (!client || client.clientAppID === '') {
+      namespace = 'admin';
+    } else {
+      namespace = 'client.' + client.clientAppID;
+    }
+
+    options = Object.assign({
+      codec: authCommon.APP_CLIENT_CODEC,
+      namespace: namespace,
+      storageType: 'localStorage'
     }, options);
 
     this.client = client;
     this.rootUrl = rootUrl;
     this.codec = options.codec;
-    this.storage = (0, _storage.createStorage)(options.storageType);
-    this.providers = (0, _providers.createProviders)(this);
+    this.platform = options.platform || _platform;
+    this.storage = (0, _storage.createStorage)(options);
+    this.providers = (0, _providers.createProviders)(this, options);
   }
 
+  /**
+   * Create the device info for this client.
+   *
+   * @memberof module:auth
+   * @method getDeviceInfo
+   * @param {String} appId The app ID for this client
+   * @param {String} appVersion The version of the app
+   * @returns {Object} The device info object
+   */
+
+
   _createClass(Auth, [{
+    key: 'getDeviceInfo',
+    value: function getDeviceInfo(deviceId, appId) {
+      var appVersion = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+
+      var deviceInfo = { appId: appId, appVersion: appVersion, sdkVersion: common.SDK_VERSION };
+
+      if (deviceId) {
+        deviceInfo.deviceId = deviceId;
+      }
+
+      if (this.platform) {
+        deviceInfo.platform = this.platform.name;
+        deviceInfo.platformVersion = this.platform.version;
+      }
+
+      return deviceInfo;
+    }
+  }, {
     key: 'provider',
     value: function provider(name) {
       if (!this.providers.hasOwnProperty(name)) {
@@ -9754,10 +10338,6 @@ var Auth = function () {
     key: 'refreshToken',
     value: function refreshToken() {
       var _this = this;
-
-      if (this.isImpersonatingUser()) {
-        return this.refreshImpersonation(this.client);
-      }
 
       return this.client.doSessionPost().then(function (json) {
         return _this.set(json);
@@ -9784,6 +10364,8 @@ var Auth = function () {
   }, {
     key: 'handleRedirect',
     value: function handleRedirect() {
+      var _this2 = this;
+
       if (typeof window === 'undefined') {
         // This means we're running in some environment other
         // than a browser - so handling a redirect makes no sense here.
@@ -9793,35 +10375,44 @@ var Auth = function () {
         return;
       }
 
-      var ourState = this.storage.get(authCommon.STATE_KEY);
-      var redirectFragment = window.location.hash.substring(1);
-      var redirectState = this.parseRedirectFragment(redirectFragment, ourState);
-      if (redirectState.lastError) {
-        console.error('StitchClient: error from redirect: ' + redirectState.lastError);
-        this._error = redirectState.lastError;
-        window.history.replaceState(null, '', this.pageRootUrl());
-        return;
-      }
+      var redirectProvider = void 0;
+      return Promise.all([this.storage.get(authCommon.STATE_KEY), this.storage.get(authCommon.STITCH_REDIRECT_PROVIDER)]).then(function (_ref) {
+        var _ref2 = _slicedToArray(_ref, 2),
+            ourState = _ref2[0],
+            _redirectProvider = _ref2[1];
 
-      if (!redirectState.found) {
-        return;
-      }
+        var redirectFragment = window.location.hash.substring(1);
+        redirectProvider = _redirectProvider;
+        var redirectState = _this2.parseRedirectFragment(redirectFragment, ourState);
+        if (redirectState.lastError || !redirectProvider) {
+          console.error('StitchClient: error from redirect: ' + (redirectState.lastError ? redirectState.lastError : 'provider type not set'));
+          _this2._error = redirectState.lastError;
+          window.history.replaceState(null, '', _this2.pageRootUrl());
+          return;
+        }
 
-      this.storage.remove(authCommon.STATE_KEY);
-      if (!redirectState.stateValid) {
-        console.error('StitchClient: state values did not match!');
-        window.history.replaceState(null, '', this.pageRootUrl());
-        return;
-      }
+        if (!redirectState.found) {
+          return;
+        }
 
-      if (!redirectState.ua) {
-        console.error('StitchClient: no UA value was returned from redirect!');
-        return;
-      }
+        return Promise.all([_this2.storage.remove(authCommon.STATE_KEY), _this2.storage.remove(authCommon.STITCH_REDIRECT_PROVIDER)]);
+      }).then(function () {
+        if (!redirectState.stateValid) {
+          console.error('StitchClient: state values did not match!');
+          window.history.replaceState(null, '', _this2.pageRootUrl());
+          return;
+        }
 
-      // If we get here, the state is valid - set auth appropriately.
-      this.set(redirectState.ua);
-      window.history.replaceState(null, '', this.pageRootUrl());
+        if (!redirectState.ua) {
+          console.error('StitchClient: no UA value was returned from redirect!');
+          return;
+        }
+
+        // If we get here, the state is valid - set auth appropriately.
+        return _this2.set(redirectState.ua, redirectProvider);
+      }).then(function () {
+        return window.history.replaceState(null, '', _this2.pageRootUrl());
+      });
     }
   }, {
     key: 'getCookie',
@@ -9843,6 +10434,8 @@ var Auth = function () {
   }, {
     key: 'handleCookie',
     value: function handleCookie() {
+      var _this3 = this;
+
       if (typeof window === 'undefined' || typeof document === 'undefined') {
         // This means we're running in some environment other
         // than a browser - so handling a cookie makes no sense here.
@@ -9859,15 +10452,14 @@ var Auth = function () {
 
       document.cookie = authCommon.USER_AUTH_COOKIE_NAME + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
       var userAuth = this.unmarshallUserAuth(uaCookie);
-      this.set(userAuth);
-      window.history.replaceState(null, '', this.pageRootUrl());
+      return this.set(userAuth, _providers.PROVIDER_TYPE_MONGODB_CLOUD).then(function () {
+        return window.history.replaceState(null, '', _this3.pageRootUrl());
+      });
     }
   }, {
     key: 'clear',
     value: function clear() {
-      this.storage.remove(authCommon.USER_AUTH_KEY);
-      this.storage.remove(authCommon.REFRESH_TOKEN_KEY);
-      this.clearImpersonation();
+      return Promise.all([this.storage.remove(authCommon.USER_AUTH_KEY), this.storage.remove(authCommon.REFRESH_TOKEN_KEY), this.storage.remove(authCommon.USER_LOGGED_IN_PT_KEY), this.storage.remove(authCommon.STITCH_REDIRECT_PROVIDER)]);
     }
   }, {
     key: 'getDeviceId',
@@ -9883,28 +10475,31 @@ var Auth = function () {
     value: function isAccessTokenExpired() {
       var withinSeconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : authCommon.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS;
 
-      var token = this.getAccessToken();
-      if (!token) {
-        return false;
-      }
+      return this.getAccessToken().then(function (token) {
+        if (!token) {
+          return false;
+        }
 
-      var decodedToken = void 0;
-      try {
-        decodedToken = jwtDecode(token);
-      } catch (e) {
-        return false;
-      }
+        var decodedToken = void 0;
+        try {
+          decodedToken = jwtDecode(token);
+        } catch (e) {
+          return false;
+        }
 
-      if (!decodedToken) {
-        return false;
-      }
+        if (!decodedToken) {
+          return false;
+        }
 
-      return decodedToken.exp && Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
+        return decodedToken.exp && Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
+      });
     }
   }, {
     key: 'getAccessToken',
     value: function getAccessToken() {
-      return this._get().accessToken;
+      return this._get().then(function (auth) {
+        return auth.accessToken;
+      });
     }
   }, {
     key: 'getRefreshToken',
@@ -9914,119 +10509,84 @@ var Auth = function () {
   }, {
     key: 'set',
     value: function set(json) {
+      var _this4 = this;
+
+      var authType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+
       if (!json) {
         return;
       }
 
-      if (json[this.codec.refreshToken]) {
-        var rt = json[this.codec.refreshToken];
-        delete json[this.codec.refreshToken];
-        this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
-      }
-
-      if (json[this.codec.deviceId]) {
-        var deviceId = json[this.codec.deviceId];
-        delete json[this.codec.deviceId];
-        this.storage.set(authCommon.DEVICE_ID_KEY, deviceId);
-      }
-
-      // Merge in new fields with old fields. Typically the first json value
-      // is complete with every field inside a user auth, but subsequent requests
-      // do not include everything. This merging behavior is safe so long as json
-      // value responses with absent fields do not indicate that the field should
-      // be unset.
       var newUserAuth = {};
-      if (json[this.codec.accessToken]) {
-        newUserAuth.accessToken = json[this.codec.accessToken];
-      }
-      if (json[this.codec.userId]) {
-        newUserAuth.userId = json[this.codec.userId];
-      }
-      newUserAuth = Object.assign(this._get(), newUserAuth);
-      this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
+
+      return (authType ? this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType) : Promise.resolve()).then(function () {
+        if (json[_this4.codec.refreshToken]) {
+          var rt = json[_this4.codec.refreshToken];
+          delete json[_this4.codec.refreshToken];
+          return _this4.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
+        }
+      }).then(function () {
+        if (json[_this4.codec.deviceId]) {
+          var deviceId = json[_this4.codec.deviceId];
+          delete json[_this4.codec.deviceId];
+          return _this4.storage.set(authCommon.DEVICE_ID_KEY, deviceId);
+        }
+        return;
+      }).then(function () {
+        // Merge in new fields with old fields. Typically the first json value
+        // is complete with every field inside a user auth, but subsequent requests
+        // do not include everything. This merging behavior is safe so long as json
+        // value responses with absent fields do not indicate that the field should
+        // be unset.
+        if (json[_this4.codec.accessToken]) {
+          newUserAuth.accessToken = json[_this4.codec.accessToken];
+        }
+        if (json[_this4.codec.userId]) {
+          newUserAuth.userId = json[_this4.codec.userId];
+        }
+
+        return _this4._get();
+      }).then(function (auth) {
+        newUserAuth = Object.assign(auth, newUserAuth);
+        return _this4.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
+      });
     }
   }, {
     key: '_get',
     value: function _get() {
-      var data = this.storage.get(authCommon.USER_AUTH_KEY);
-      if (!data) {
-        return {};
-      }
+      var _this5 = this;
 
-      try {
-        return JSON.parse(data);
-      } catch (e) {
-        // Need to back out and clear auth otherwise we will never
-        // be able to do anything useful.
-        this.clear();
-        throw new _errors.StitchError('Failure retrieving stored auth');
-      }
+      return this.storage.get(authCommon.USER_AUTH_KEY).then(function (data) {
+        if (!data) {
+          return {};
+        }
+
+        try {
+          return JSON.parse(data);
+        } catch (e) {
+          // Need to back out and clear auth otherwise we will never
+          // be able to do anything useful.
+          return _this5.clear().then(function () {
+            throw new _errors.StitchError('Failure retrieving stored auth');
+          });
+        }
+      });
+    }
+  }, {
+    key: 'getLoggedInProviderType',
+    value: function getLoggedInProviderType() {
+      return this.storage.get(authCommon.USER_LOGGED_IN_PT_KEY).then(function (type) {
+        return type || '';
+      }, function () {
+        return '';
+      });
     }
   }, {
     key: 'authedId',
     value: function authedId() {
-      return this._get().userId;
-    }
-  }, {
-    key: 'isImpersonatingUser',
-    value: function isImpersonatingUser() {
-      return this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY) === 'true';
-    }
-  }, {
-    key: 'refreshImpersonation',
-    value: function refreshImpersonation(client) {
-      var _this2 = this;
-
-      var userId = this.storage.get(authCommon.IMPERSONATION_USER_KEY);
-      return client._do('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return _this2.set(json);
-      }).catch(function (e) {
-        _this2.stopImpersonation();
-        throw e; // rethrow
+      return this._get().then(function (auth) {
+        return auth.userId;
       });
-    }
-  }, {
-    key: 'startImpersonation',
-    value: function startImpersonation(client, userId) {
-      if (!this.authedId()) {
-        return Promise.reject(new _errors.StitchError('Must auth first'));
-      }
-
-      if (this.isImpersonatingUser()) {
-        return Promise.reject(new _errors.StitchError('Already impersonating a user'));
-      }
-
-      this.storage.set(authCommon.IMPERSONATION_ACTIVE_KEY, 'true');
-      this.storage.set(authCommon.IMPERSONATION_USER_KEY, userId);
-
-      var realUserAuth = JSON.parse(this.storage.get(authCommon.USER_AUTH_KEY));
-      this.storage.set(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
-      return this.refreshImpersonation(client);
-    }
-  }, {
-    key: 'stopImpersonation',
-    value: function stopImpersonation() {
-      var _this3 = this;
-
-      if (!this.isImpersonatingUser()) {
-        throw new _errors.StitchError('Not impersonating a user');
-      }
-
-      return new Promise(function (resolve, reject) {
-        var realUserAuth = JSON.parse(_this3.storage.get(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY));
-        _this3.set(realUserAuth);
-        _this3.clearImpersonation();
-        resolve();
-      });
-    }
-  }, {
-    key: 'clearImpersonation',
-    value: function clearImpersonation() {
-      this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY);
-      this.storage.remove(authCommon.IMPERSONATION_USER_KEY);
-      this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
     }
   }, {
     key: 'parseRedirectFragment',
@@ -10075,14 +10635,14 @@ var Auth = function () {
   }, {
     key: 'unmarshallUserAuth',
     value: function unmarshallUserAuth(data) {
-      var _ref;
+      var _ref3;
 
       var parts = data.split('$');
       if (parts.length !== EMBEDDED_USER_AUTH_DATA_PARTS) {
         throw new RangeError('invalid user auth data provided: ' + data);
       }
 
-      return _ref = {}, _defineProperty(_ref, this.codec.accessToken, parts[0]), _defineProperty(_ref, this.codec.refreshToken, parts[1]), _defineProperty(_ref, this.codec.userId, parts[2]), _defineProperty(_ref, this.codec.deviceId, parts[3]), _ref;
+      return _ref3 = {}, _defineProperty(_ref3, this.codec.accessToken, parts[0]), _defineProperty(_ref3, this.codec.refreshToken, parts[1]), _defineProperty(_ref3, this.codec.userId, parts[2]), _defineProperty(_ref3, this.codec.deviceId, parts[3]), _ref3;
     }
   }]);
 
@@ -10091,499 +10651,6 @@ var Auth = function () {
 
 exports.default = Auth;
 module.exports = exports['default'];
-
-/***/ }),
-/* 31 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.createProviders = undefined;
-
-var _common = __webpack_require__(16);
-
-var common = _interopRequireWildcard(_common);
-
-var _common2 = __webpack_require__(15);
-
-var authCommon = _interopRequireWildcard(_common2);
-
-var _util = __webpack_require__(2);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-/**
- * Create the device info for this client.
- *
- * @memberof module:auth
- * @method getDeviceInfo
- * @param {String} appId The app ID for this client
- * @param {String} appVersion The version of the app
- * @returns {Object} The device info object
- */
-function getDeviceInfo(deviceId, appId) {
-  var appVersion = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-
-  var deviceInfo = { appId: appId, appVersion: appVersion, sdkVersion: common.SDK_VERSION };
-
-  if (deviceId) {
-    deviceInfo.deviceId = deviceId;
-  }
-
-  var platform = (0, _util.getPlatform)();
-
-  if (platform) {
-    deviceInfo.platform = platform.name;
-    deviceInfo.platformVersion = platform.version;
-  }
-
-  return deviceInfo;
-}
-
-/**
- * @namespace
- */
-/** @module auth  */
-function anonProvider(auth) {
-  return {
-    /**
-     * Login to a stitch application using anonymous authentication
-     *
-     * @memberof anonProvider
-     * @instance
-     * @returns {Promise} a promise that resolves when authentication succeeds.
-     */
-    authenticate: function authenticate() {
-      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
-      var fetchArgs = common.makeFetchArgs('GET');
-      fetchArgs.cors = true;
-
-      return fetch(auth.rootUrl + '/providers/anon-user/login?device=' + (0, _util.uriEncodeObject)(device), fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return auth.set(json);
-      });
-    }
-  };
-}
-
-/**
-  * @namespace
-  */
-function customProvider(auth) {
-  var providerRoute = 'providers/custom-token';
-  var loginRoute = providerRoute + '/login';
-
-  return {
-    /**
-     * Login to a stitch application using custom authentication
-     *
-     * @memberof customProvider
-     * @instance
-     * @param {String} JWT token to use for authentication
-     * @returns {Promise} a promise that resolves when authentication succeeds.
-     */
-    authenticate: function authenticate(token) {
-      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
-
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ token: token, options: { device: device } }));
-      fetchArgs.cors = true;
-
-      return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return auth.set(json);
-      });
-    }
-  };
-}
-
-/** @namespace */
-function userPassProvider(auth) {
-  // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
-  // the client is for the admin or client API.
-  var providerRoute = auth.isAppClient() ? 'providers/local-userpass' : 'providers/local-userpass';
-  var loginRoute = auth.isAppClient() ? providerRoute + '/login' : providerRoute + '/login';
-
-  return {
-    /**
-     * Login to a stitch application using username and password authentication
-     *
-     * @memberof userPassProvider
-     * @instance
-     * @param {String} username the username to use for authentication
-     * @param {String} password the password to use for authentication
-     * @returns {Promise} a promise that resolves when authentication succeeds.
-     */
-    authenticate: function authenticate(_ref) {
-      var username = _ref.username,
-          password = _ref.password;
-
-      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
-
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password, options: { device: device } }));
-      fetchArgs.cors = true;
-
-      return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return auth.set(json);
-      });
-    },
-
-    /**
-     * Completes the confirmation workflow from the stitch server
-     * @memberof userPassProvider
-     * @instance
-     * @param {String} tokenId the tokenId provided by the stitch server
-     * @param {String} token the token provided by the stitch server
-     * @returns {Promise}
-     */
-    emailConfirm: function emailConfirm(tokenId, token) {
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token }));
-      fetchArgs.cors = true;
-
-      return fetch(auth.rootUrl + '/' + providerRoute + '/confirm', fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      });
-    },
-
-    /**
-     * Request that the stitch server send another email confirmation
-     * for account creation.
-     *
-     * @memberof userPassProvider
-     * @instance
-     * @param {String} email the email to send a confirmation email for
-     * @returns {Promise}
-     */
-    sendEmailConfirm: function sendEmailConfirm(email) {
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
-      fetchArgs.cors = true;
-
-      return fetch(auth.rootUrl + '/' + providerRoute + '/confirm/send', fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      });
-    },
-
-    /**
-     * Sends a password reset request to the stitch server
-     *
-     * @memberof userPassProvider
-     * @instance
-     * @param {String} email the email of the account to reset the password for
-     * @returns {Promise}
-     */
-    sendPasswordReset: function sendPasswordReset(email) {
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
-      fetchArgs.cors = true;
-
-      return fetch(auth.rootUrl + '/' + providerRoute + '/reset/send', fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      });
-    },
-
-    /**
-     * Use information returned from the stitch server to complete the password
-     * reset flow for a given email account, providing a new password for the account.
-     *
-     * @memberof userPassProvider
-     * @instance
-     * @param {String} tokenId the tokenId provided by the stitch server
-     * @param {String} token the token provided by the stitch server
-     * @param {String} password the new password requested for this account
-     * @returns {Promise}
-     */
-    passwordReset: function passwordReset(tokenId, token, password) {
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token, password: password }));
-      fetchArgs.cors = true;
-
-      return fetch(auth.rootUrl + '/' + providerRoute + '/reset', fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      });
-    },
-
-    /**
-     * Will trigger an email to the requested account containing a link with the
-     * token and tokenId that must be returned to the server using emailConfirm()
-     * to activate the account.
-     *
-     * @memberof userPassProvider
-     * @instance
-     * @param {String} email the requested email for the account
-     * @param {String} password the requested password for the account
-     * @returns {Promise}
-     */
-    register: function register(email, password) {
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email, password: password }));
-      fetchArgs.cors = true;
-
-      return fetch(auth.rootUrl + '/' + providerRoute + '/register', fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      });
-    }
-  };
-}
-
-/** @namespace */
-function apiKeyProvider(auth) {
-  // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
-  // the client is for the admin or client API.
-  var loginRoute = auth.isAppClient() ? 'providers/api-key/login' : 'providers/api-key/login';
-
-  return {
-    /**
-     * Login to a stitch application using an api key
-     *
-     * @memberof apiKeyProvider
-     * @instance
-     * @param {String} key the key for authentication
-     * @returns {Promise} a promise that resolves when authentication succeeds.
-     */
-    authenticate: function authenticate(key) {
-      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ 'key': key, 'options': { device: device } }));
-      fetchArgs.cors = true;
-
-      return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return auth.set(json);
-      });
-    }
-  };
-}
-
-// The state we generate is to be used for any kind of request where we will
-// complete an authentication flow via a redirect. We store the generate in
-// a local storage bound to the app's origin. This ensures that any time we
-// receive a redirect, there must be a state parameter and it must match
-// what we ourselves have generated. This state MUST only be sent to
-// a trusted Stitch endpoint in order to preserve its integrity. Stitch will
-// store it in some way on its origin (currently a cookie stored on this client)
-// and use that state at the end of an auth flow as a parameter in the redirect URI.
-var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-function generateState() {
-  var state = '';
-  for (var i = 0; i < 64; ++i) {
-    state += alpha.charAt(Math.floor(Math.random() * alpha.length));
-  }
-
-  return state;
-}
-
-function getOAuthLoginURL(auth, providerName, redirectUrl) {
-  if (redirectUrl === undefined) {
-    redirectUrl = auth.pageRootUrl();
-  }
-
-  var state = generateState();
-  auth.storage.set(authCommon.STATE_KEY, state);
-
-  var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
-
-  var result = auth.rootUrl + '/providers/oauth2-' + providerName + '/login?redirect=' + encodeURI(redirectUrl) + '&state=' + state + '&device=' + (0, _util.uriEncodeObject)(device);
-  return result;
-}
-
-/** @namespace */
-function googleProvider(auth) {
-  return {
-    /**
-     * Login to a stitch application using google authentication
-     *
-     * @memberof googleProvider
-     * @instance
-     * @param {Object} data the redirectUrl data to use for authentication
-     * @returns {Promise} a promise that resolves when authentication succeeds.
-     */
-    authenticate: function authenticate(data) {
-      var redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
-      window.location.replace(getOAuthLoginURL(auth, 'google', redirectUrl));
-      return Promise.resolve();
-    }
-  };
-}
-
-/** @namespace */
-function facebookProvider(auth) {
-  return {
-    /**
-     * Login to a stitch application using facebook authentication
-     *
-     * @memberof facebookProvider
-     * @instance
-     * @param {Object} data the redirectUrl data to use for authentication
-     * @returns {Promise} a promise that resolves when authentication succeeds.
-     */
-    authenticate: function authenticate(data) {
-      var redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
-      window.location.replace(getOAuthLoginURL(auth, 'facebook', redirectUrl));
-      return Promise.resolve();
-    }
-  };
-}
-
-/** @namespace */
-function mongodbCloudProvider(auth) {
-  // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
-  // the client is for the admin or client API.
-  var loginRoute = auth.isAppClient() ? 'providers/mongodb-cloud/login' : 'providers/mongodb-cloud/login';
-
-  return {
-    /**
-     * Login to a stitch application using mongodb cloud authentication
-     *
-     * @memberof mongodbCloudProvider
-     * @instance
-     * @param {Object} data the username, apiKey, cors, and cookie data to use for authentication
-     * @returns {Promise} a promise that resolves when authentication succeeds.
-     */
-    authenticate: function authenticate(data) {
-      var username = data.username,
-          apiKey = data.apiKey,
-          cors = data.cors,
-          cookie = data.cookie;
-
-      var options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
-      var device = getDeviceInfo(auth.getDeviceId(), !!auth.client && auth.client.clientAppID);
-      var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, apiKey: apiKey, options: { device: device } }));
-      fetchArgs.cors = true; // TODO: shouldn't this use the passed in `cors` value?
-      fetchArgs.credentials = 'include';
-
-      var url = auth.rootUrl + '/' + loginRoute;
-      if (options.cookie) {
-        return fetch(url + '?cookie=true', fetchArgs).then(common.checkStatus);
-      }
-
-      return fetch(url, fetchArgs).then(common.checkStatus).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return auth.set(json);
-      });
-    }
-  };
-}
-
-// TODO: support auth-specific options
-function createProviders(auth) {
-  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-  return {
-    anon: anonProvider(auth),
-    apiKey: apiKeyProvider(auth),
-    google: googleProvider(auth),
-    facebook: facebookProvider(auth),
-    mongodbCloud: mongodbCloudProvider(auth),
-    userpass: userPassProvider(auth),
-    custom: customProvider(auth)
-  };
-}
-
-exports.createProviders = createProviders;
-
-/***/ }),
-/* 32 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-exports.createStorage = createStorage;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var MemoryStorage = function () {
-  function MemoryStorage() {
-    _classCallCheck(this, MemoryStorage);
-
-    this._data = {};
-  }
-
-  _createClass(MemoryStorage, [{
-    key: 'getItem',
-    value: function getItem(key) {
-      return key in this._data ? this._data[key] : null;
-    }
-  }, {
-    key: 'setItem',
-    value: function setItem(key, value) {
-      this._data[key] = value;
-      return this._data[key];
-    }
-  }, {
-    key: 'removeItem',
-    value: function removeItem(key) {
-      delete this._data[key];
-      return undefined;
-    }
-  }, {
-    key: 'clear',
-    value: function clear() {
-      this._data = {};
-      return this._data;
-    }
-  }]);
-
-  return MemoryStorage;
-}();
-
-var Storage = function () {
-  function Storage(store) {
-    _classCallCheck(this, Storage);
-
-    this.store = store;
-  }
-
-  _createClass(Storage, [{
-    key: 'get',
-    value: function get(key) {
-      return this.store.getItem(key);
-    }
-  }, {
-    key: 'set',
-    value: function set(key, value) {
-      return this.store.setItem(key, value);
-    }
-  }, {
-    key: 'remove',
-    value: function remove(key) {
-      return this.store.removeItem(key);
-    }
-  }, {
-    key: 'clear',
-    value: function clear() {
-      return this.store.clear();
-    }
-  }]);
-
-  return Storage;
-}();
-
-function createStorage(type) {
-  if (type === 'localStorage') {
-    if (typeof window !== 'undefined' && 'localStorage' in window && window.localStorage !== null) {
-      return new Storage(window.localStorage);
-    }
-  } else if (type === 'sessionStorage') {
-    if (typeof window !== 'undefined' && 'sessionStorage' in window && window.sessionStorage !== null) {
-      return new Storage(window.sessionStorage);
-    }
-  }
-
-  // default to memory storage
-  return new Storage(new MemoryStorage());
-}
 
 /***/ }),
 /* 33 */
@@ -10595,23 +10662,206 @@ function createStorage(type) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Admin = exports.StitchClient = undefined;
+exports.MemoryStorage = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+exports.createStorage = createStorage;
+
+var _common = __webpack_require__(4);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var MemoryStorage = exports.MemoryStorage = function () {
+  function MemoryStorage() {
+    _classCallCheck(this, MemoryStorage);
+
+    this._data = {};
+    this._orderedKeys = [];
+    this.length = 0;
+  }
+
+  _createClass(MemoryStorage, [{
+    key: 'getItem',
+    value: function getItem(key) {
+      return key in this._data ? this._data[key] : null;
+    }
+  }, {
+    key: 'setItem',
+    value: function setItem(key, value) {
+      this._orderedKeys.push(key);
+      this._data[key] = value;
+      this.length++;
+      return this._data[key];
+    }
+  }, {
+    key: 'removeItem',
+    value: function removeItem(key) {
+      this._orderedKeys.pop(key);
+      delete this._data[key];
+      this.length--;
+      return undefined;
+    }
+  }, {
+    key: 'key',
+    value: function key(index) {
+      return this._orderedKeys[index];
+    }
+  }]);
+
+  return MemoryStorage;
+}();
+
+var _VERSION = 1;
+var _VERSION_KEY = '__stitch_storage_version__';
+
+/**
+  * Run a migration on the currently used storage
+  * that checks to see if the current version is up to date.
+  * If the version has not been set, this method will migrate
+  * to the latest version.
+  * @param {Integer} version version number of storage
+  * @param {Object} storage storage class being checked
+  * @returns {Promise} nullable promise containing migration logic
+  */
+function _runMigration(version, storage) {
+  switch (version) {
+    case null:
+    case undefined:
+      // return a promise,
+      // mapping each of the store's keys to a Promise
+      // that fetches the each value for each key,
+      // sets the old value to the new "namespaced" key
+      // remove the old key value pair,
+      // and set the version number
+      var migrations = [_common.USER_AUTH_KEY, _common.REFRESH_TOKEN_KEY, _common.DEVICE_ID_KEY, _common.STATE_KEY].map(function (key) {
+        return Promise.resolve(storage.store.getItem(key)).then(function (item) {
+          return !!item && storage.store.setItem(storage._generateKey(key), item);
+        }).then(function () {
+          return storage.store.removeItem(key);
+        });
+      });
+      return Promise.all(migrations).then(function () {
+        return storage.store.setItem(_VERSION_KEY, _VERSION);
+      });
+    // in future versions, `case 1:`, `case 2:` and so on
+    // could be added to perform similar migrations
+    default:
+      break;
+  }
+}
+
+var Storage = function () {
+  /**
+   * @param {Storage} store implementer of Storage interface
+   * @param {String} namespace clientAppID to be used for namespacing
+   * @param
+  */
+  function Storage(store, namespace) {
+    var _this = this;
+
+    _classCallCheck(this, Storage);
+
+    this.store = store;
+    this.namespace = '_stitch.' + namespace;
+
+    this._migration = Promise.resolve(this.store.getItem(_VERSION_KEY)).then(function (version) {
+      return _runMigration(version, _this);
+    });
+  }
+
+  _createClass(Storage, [{
+    key: '_generateKey',
+    value: function _generateKey(key) {
+      return this.namespace + '.' + key;
+    }
+  }, {
+    key: 'get',
+    value: function get(key) {
+      var _this2 = this;
+
+      return Promise.resolve(this._migration).then(function () {
+        return _this2.store.getItem(_this2._generateKey(key));
+      });
+    }
+  }, {
+    key: 'set',
+    value: function set(key, value) {
+      var _this3 = this;
+
+      return Promise.resolve(this._migration).then(function () {
+        return _this3.store.setItem(_this3._generateKey(key), value);
+      }).then(function () {
+        return value;
+      });
+    }
+  }, {
+    key: 'remove',
+    value: function remove(key) {
+      var _this4 = this;
+
+      return Promise.resolve(this._migration).then(function () {
+        return _this4.store.removeItem(_this4._generateKey(key));
+      });
+    }
+  }]);
+
+  return Storage;
+}();
+
+function createStorage(options) {
+  var storageType = options.storageType,
+      storage = options.storage,
+      namespace = options.namespace;
+
+
+  if (storageType === 'localStorage') {
+    if (typeof window !== 'undefined' && 'localStorage' in window && window.localStorage !== null) {
+      return new Storage(window.localStorage, namespace);
+    }
+  } else if (storageType === 'sessionStorage') {
+    if (typeof window !== 'undefined' && 'sessionStorage' in window && window.sessionStorage !== null) {
+      return new Storage(window.sessionStorage, namespace);
+    }
+  } else if (storageType == 'customStorage') {
+    //eslint-disable-line eqeqeq
+    return new Storage(storage, namespace);
+  }
+
+  // default to memory storage
+  return new Storage(new MemoryStorage(), namespace);
+}
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.BSON = exports.Admin = exports.StitchClient = undefined;
 
 var _client = __webpack_require__(19);
 
 var _client2 = _interopRequireDefault(_client);
 
-var _admin = __webpack_require__(24);
+var _admin = __webpack_require__(26);
 
 var _admin2 = _interopRequireDefault(_admin);
+
+var _mongodbExtjson = __webpack_require__(20);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.StitchClient = _client2.default;
 exports.Admin = _admin2.default;
+exports.BSON = _mongodbExtjson.BSON;
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10690,7 +10940,7 @@ exports.default = S3Service;
 module.exports = exports['default'];
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10749,7 +10999,7 @@ exports.default = SESService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10909,7 +11159,7 @@ exports.default = HTTPService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10919,23 +11169,23 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _s3_service = __webpack_require__(34);
+var _s3_service = __webpack_require__(35);
 
 var _s3_service2 = _interopRequireDefault(_s3_service);
 
-var _ses_service = __webpack_require__(35);
+var _ses_service = __webpack_require__(36);
 
 var _ses_service2 = _interopRequireDefault(_ses_service);
 
-var _http_service = __webpack_require__(36);
+var _http_service = __webpack_require__(37);
 
 var _http_service2 = _interopRequireDefault(_http_service);
 
-var _mongodb_service = __webpack_require__(40);
+var _mongodb_service = __webpack_require__(41);
 
 var _mongodb_service2 = _interopRequireDefault(_mongodb_service);
 
-var _twilio_service = __webpack_require__(41);
+var _twilio_service = __webpack_require__(42);
 
 var _twilio_service2 = _interopRequireDefault(_twilio_service);
 
@@ -10951,7 +11201,7 @@ exports.default = {
 module.exports = exports['default'];
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11206,7 +11456,7 @@ exports.default = Collection;
 module.exports = exports['default'];
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11218,7 +11468,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _collection = __webpack_require__(38);
+var _collection = __webpack_require__(39);
 
 var _collection2 = _interopRequireDefault(_collection);
 
@@ -11266,7 +11516,7 @@ exports.default = DB;
 module.exports = exports['default'];
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11278,7 +11528,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _db = __webpack_require__(39);
+var _db = __webpack_require__(40);
 
 var _db2 = _interopRequireDefault(_db);
 
@@ -11326,7 +11576,7 @@ exports.default = MongoDBService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11382,17 +11632,6 @@ var TwilioService = function () {
 
 exports.default = TwilioService;
 module.exports = exports['default'];
-
-/***/ }),
-/* 42 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var ExtJSON = __webpack_require__(57);
-
-module.exports = ExtJSON;
 
 /***/ }),
 /* 43 */
@@ -11746,7 +11985,7 @@ module.exports = {
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var codecs = __webpack_require__(48),
-    BSON = __webpack_require__(26);
+    BSON = __webpack_require__(28);
 
 var BSONTypes = ['Binary', 'Code', 'DBRef', 'Decimal128', 'Double', 'Int32', 'Long', 'MaxKey', 'MinKey', 'ObjectID', 'BSONRegExp', 'Symbol', 'Timestamp'];
 
@@ -13452,7 +13691,7 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17), __webpack_require__(23)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17), __webpack_require__(25)))
 
 /***/ }),
 /* 73 */

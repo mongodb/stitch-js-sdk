@@ -3,13 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.uriEncodeObject = exports.getPlatform = exports.serviceResponse = exports.deprecate = exports.collectMetadata = undefined;
+exports.uriEncodeObject = exports.serviceResponse = exports.deprecate = exports.collectMetadata = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var _detectBrowser = require('detect-browser');
-
-var platform = _interopRequireWildcard(_detectBrowser);
 
 var _Base = require('Base64');
 
@@ -103,16 +99,6 @@ function serviceResponse(service, _ref) {
 }
 
 /**
- * Utility function to get the platform.
- *
- * @memberof util
- * @returns {Object} An object of the form {name: ..., version: ...}, or null
- */
-function getPlatform() {
-  return platform ? platform : null;
-}
-
-/**
  * Utility function to encode a JSON object into a valid string that can be
  * inserted in a URI. The object is first stringified, then encoded in base64,
  * and finally encoded via the builtin encodeURIComponent function.
@@ -127,5 +113,4 @@ function uriEncodeObject(obj) {
 
 exports.deprecate = deprecate;
 exports.serviceResponse = serviceResponse;
-exports.getPlatform = getPlatform;
 exports.uriEncodeObject = uriEncodeObject;
