@@ -21,7 +21,6 @@ describe('Client API executing user api crud functions', () => {
     // enable api key auth provider
     let providers = await th.app().authProviders().list();
     await th.app().authProviders().authProvider(providers[0]._id).enable();
-
     const mongodbService = await th.app().services().create({
       type: SERVICE_TYPE,
       name: SERVICE_NAME,
@@ -132,15 +131,10 @@ describe('Client API executing user api crud functions', () => {
       });
   });
 
-  it('can disable and endable a user api key.', async() => {
+  it('can disable and enable a user api key.', async() => {
     let userKeyName = 'userKey1';
     let apiID;
-    await th.stitchClient.login()
-      .then(async() => {
-        const p1 = await th.stitchClient.createApiKey(userKeyName);
-        return p1;
-      })
-      .then(async(response) => {
+    await th.stitchClient.createApiKey(userKeyName).then(async(response) => {
         assertApiKey(response, userKeyName, response._id, false);
         apiID = response._id;
       })
@@ -165,39 +159,6 @@ describe('Client API executing user api crud functions', () => {
       })
       .then(async(res4) => {
         assertApiKey(res4, userKeyName, res4._id, false);
-      })
-      .catch(e => {
-        fail('Should not fail when enabling and disabling a user api key.');
-      });
-  });
-
-  it('tests creating 20 user api keys.', async() => {
-    let ps = [];
-    for (let i = 0; i < 20; i++) {
-      ps.push(th.stitchClient.createApiKey(`userKey${i}`));
-      await new Promise(resolve => setTimeout(resolve, 200));
-    }
-    Promise.all(ps)
-      .then(res => {
-        expect(res.length).toEqual(20);
-      })
-      .catch(e => {
-        fail('Should not fail when creating less than 20 user api keys.');
-      });
-  });
-
-  it('tests creating more than 20 api keys.', async() => {
-    let ps = [];
-    for (let i = 0; i < 21; i++) {
-      ps.push(th.stitchClient.createApiKey(`userKey${i}`));
-      await new Promise(resolve => setTimeout(resolve, 200));
-    }
-    Promise.all(ps)
-      .then(res => {
-        fail('Should not be able to successfully create more than 20 user api keys.');
-      })
-      .catch(e => {
-        assertError(e, 400, 'MaxAPIKeysReached');
       });
   });
 
