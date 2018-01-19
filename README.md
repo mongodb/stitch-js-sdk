@@ -33,9 +33,15 @@ let db = stitchClient.service('mongodb', 'mongodb1').db('app-ovmyj'); // mdb1 is
 let itemsCollection = db.collection('items');
 
 // CRUD operations:
-let userId = stitchClient.authedId();
-itemsCollection.insertMany([ { owner_id: userId, x: 'item1' }, { owner_id: userId, x: 'item2' }, { owner_id: userId, x: 'item3' } ])
-  .then(result => console.log('success: ', result))
+stitchClient.authedId().then(userId =>
+  itemsCollection.insertMany(
+    [ 
+      { owner_id: userId, x: 'item1' }, 
+      { owner_id: userId, x: 'item2' }, 
+      { owner_id: userId, x: 'item3' } 
+    ]
+  )
+).then(result => console.log('success: ', result))
   .catch(e => console.log('error: ', e));
 ```
 
