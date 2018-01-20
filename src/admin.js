@@ -231,6 +231,9 @@ export class StitchAdminClient extends StitchClient {
             create: (user) => api._post(`${appUrl}/users`, user),
             user: (uid) => ({
               get: () => api._get(`${appUrl}/users/${uid}`),
+              devices: () => ({
+                get: () => api._get(`${appUrl}/users/${uid}/devices`)
+              }),
               logout: () => api._put(`${appUrl}/users/${uid}/logout`),
               remove: () => api._delete(`${appUrl}/users/${uid}`)
             })

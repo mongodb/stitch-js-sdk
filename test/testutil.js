@@ -26,7 +26,7 @@ export const buildAdminTestHarness = async(seedTestApp, apiKey, groupId, serverU
 
 export const buildClientTestHarness = async(apiKey, groupId, serverUrl) => {
   const harness = await buildAdminTestHarness(true, apiKey, groupId, serverUrl);
-  await harness.setupStitchClient();
+  await harness.setupUserAuthAndStitchClient();
   return harness;
 };
 
@@ -80,7 +80,7 @@ class TestHarness {
     return this.user;
   }
 
-  async setupStitchClient() {
+  async setupUserAuthAndStitchClient() {
     await this.configureUserpass();
     await this.createUser();
 
@@ -88,6 +88,12 @@ class TestHarness {
       this.testApp.client_app_id,
       { baseUrl: this.serverUrl }
     );
+    await this.stitchClient.authenticate('userpass', this.userCredentials);
+  }
+
+  async setupStitchClient() {
+    await this.createUser();
+    this.stitchClient = new stitch.StitchClient(this.testApp.client_app_id, { baseUrl: this.serverUrl });
     await this.stitchClient.authenticate('userpass', this.userCredentials);
   }
 
