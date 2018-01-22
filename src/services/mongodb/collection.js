@@ -108,7 +108,7 @@ class Collection {
    * @return {Promise<Object, Error>} Returns a Promise for the operation
    */
   findOne(query, project) {
-    return new MongoQuery(this).limit(1).execute();
+    return buildResponse('findOne', this, buildArgs(this, { query, project }));
   }
 
   /**
