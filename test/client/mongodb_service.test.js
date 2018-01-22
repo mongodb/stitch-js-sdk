@@ -188,6 +188,22 @@ describe('Client API executing mongodb service functions', () => {
     expect(foundDocs).toMatchObject(testDocs.splice(0, 2));
   });
 
+  it('Should be successful for findOne', async() => {
+    const testDocs = [
+      { a: 1, b: 'bee', c: 'braves', d: 0 },
+      { a: 2, b: 'bee', c: 'patriots', d: 0 },
+      { a: 3, b: 'bee', c: 'chipper', d: 0 },
+      { a: 4, b: 'be', c: 'tom', d: 0 }
+    ];
+
+    await service.insertMany(testDocs);
+
+    const foundDocs = await service.findOne({ b: 'bee' });
+
+    expect(foundDocs).toHaveLength(1);
+    expect(foundDocs[0]).toMatchObject(testDocs[0]);
+  });
+
   it('Should be successful for find (sort)', async() => {
     const testDocs = [
       { a: 1, b: 'bee', c: 'braves', d: 0 },
