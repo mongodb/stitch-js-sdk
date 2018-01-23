@@ -32,6 +32,9 @@ export default class Auth {
     this.platform = options.platform || _platform;
     this.storage = createStorage(options);
     this.providers = createProviders(this, options);
+    this._willInitialize = this._get().then(auth => {
+      this.authedId = auth.userId;
+    });
   }
 
   /**
@@ -178,6 +181,7 @@ export default class Auth {
   }
 
   clear() {
+    this.authedId = null;
     return Promise.all(
       [
         this.storage.remove(authCommon.USER_AUTH_KEY),
@@ -264,6 +268,7 @@ export default class Auth {
       return this._get();
     }).then((auth) => {
       newUserAuth = Object.assign(auth, newUserAuth);
+      this.authedId = newUserAuth.userId;
       return this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
     });
   }
@@ -287,10 +292,6 @@ export default class Auth {
   getLoggedInProviderType() {
     return this.storage.get(authCommon.USER_LOGGED_IN_PT_KEY)
       .then((type) => type || '', () => '');
-  }
-
-  authedId() {
-    return this._get().then((auth) => auth.userId);
   }
 
   parseRedirectFragment(fragment, ourState) {

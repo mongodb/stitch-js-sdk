@@ -1,14 +1,26 @@
 /* global window, fetch */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 import 'fetch-everywhere';
-import StitchClient from './client';
+import { _StitchClient } from './client';
 import ADMIN_CLIENT_TYPE from './common';
 import { ADMIN_CLIENT_CODEC } from './auth/common';
 
 const v2 = 2;
 const v3 = 3;
 
-export default class Admin extends StitchClient {
+export class Admin {
+  constructor() {
+    throw new StitchError('Constructor undefined. Use `Admin.init` instead.');
+  }
+
+  static init(baseUrl) {
+    return new Promise((resolve, reject) => {
+      resolve(new _Admin(baseUrl));
+    });
+  }
+}
+
+export class _Admin extends _StitchClient {
   constructor(baseUrl) {
     super('', {baseUrl, authCodec: ADMIN_CLIENT_CODEC});
   }

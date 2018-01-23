@@ -23,12 +23,29 @@ const API_TYPE_CLIENT = 'client';
 const API_TYPE_APP = 'app';
 
 /**
- * Create a new StitchClient instance.
+  * Factory class to create a new StitchClient asynchronously.
+  */
+export class StitchClient {
+  constructor() {
+    throw new StitchError('Constructor undefined. Use `StitchClient.init` instead.');
+  }
+
+  static init(clientAppID, options = {}) {
+    return new Promise((resolve, reject) => {
+      resolve(new _StitchClient(clientAppID, options));
+    });
+  }
+}
+
+/**
+ * Create a new _StitchClient instance.
+ * This is the internal implementation for StitchClient and should not
+ * be exposed.
  *
  * @class
  * @return {StitchClient} a StitchClient instance.
  */
-export default class StitchClient {
+export class _StitchClient {
   constructor(clientAppID, options = {}) {
     let baseUrl = common.DEFAULT_STITCH_SERVER_URL;
     if (options.baseUrl) {
@@ -87,6 +104,11 @@ export default class StitchClient {
     this.auth = new Auth(this, this.authUrl, authOptions);
     this.auth.handleRedirect();
     this.auth.handleCookie();
+
+    this._isInitialized = false;
+    this._willInitialize = this.auth._willInitialize.then(() => {
+      this._isInitialized = true;
+    });
   }
 
   get type() {
@@ -157,7 +179,7 @@ export default class StitchClient {
         return this.auth.provider(providerType).authenticate(options);
       }
       return;
-    }).then(() => this.auth.authedId());
+    }).then(() => this.auth.authedId);
   }
 
   /**
@@ -199,17 +221,18 @@ export default class StitchClient {
   }
 
   /**
-  * @return {Promise} whether or not the current client is authenticated
+  * @return {Boolean} whether or not the current client is authenticated
   */
   isAuthenticated() {
-    return this.auth.authedId().then((id) => id !== null && id !== undefined, () => false);
+    const authedId = this.authedId();
+    return authedId !== null && authedId !== undefined;
   }
 
   /**
-   *  @return {Promise} Returns a promise resolving to a string of the currently authed user's ID.
+   *  @return {String} Returns a promise resolving to a string of the currently authed user's ID.
    */
   authedId() {
-    return this.auth.authedId();
+    return this.auth.authedId;
   }
 
   /**
@@ -221,7 +244,7 @@ export default class StitchClient {
    * @return {Object} returns a named service.
    */
   service(type, name) {
-    if (this.constructor !== StitchClient) {
+    if (this.constructor !== _StitchClient) {
       throw new StitchError('`service` is a factory method, do not use `new`');
     }
 
@@ -464,35 +487,33 @@ export default class StitchClient {
 
     let { url, fetchArgs } = this._fetchArgs(resource, method, options);
     if (!options.noAuth) {
-      return this.authedId().then(authedId => {
-        if (!this.authedId) {
-          return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
-        }
+      if (!this.authedId()) {
+        return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
+      }
 
-        let tokenPromise =
-          options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
+      let tokenPromise =
+        options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
 
-        // If access token is expired, proactively get a new one
-        if (!options.useRefreshToken) {
-          return this.auth.isAccessTokenExpired().then(isAccessTokenExpired => {
-            if (isAccessTokenExpired) {
-              return this.auth.refreshToken().then(() => {
-                options.refreshOnFailure = false;
-                return this._do(resource, method, options);
-              });
-            }
-
-            return tokenPromise.then(token => {
-              fetchArgs.headers.Authorization = `Bearer ${token}`;
-              return this._fetch(url, fetchArgs, resource, method, options);
+      // If access token is expired, proactively get a new one
+      if (!options.useRefreshToken) {
+        return this.auth.isAccessTokenExpired().then(isAccessTokenExpired => {
+          if (isAccessTokenExpired) {
+            return this.auth.refreshToken().then(() => {
+              options.refreshOnFailure = false;
+              return this._do(resource, method, options);
             });
-          });
-        }
+          }
 
-        return tokenPromise.then(token => {
-          fetchArgs.headers.Authorization = `Bearer ${token}`;
-          return this._fetch(url, fetchArgs, resource, method, options);
+          return tokenPromise.then(token => {
+            fetchArgs.headers.Authorization = `Bearer ${token}`;
+            return this._fetch(url, fetchArgs, resource, method, options);
+          });
         });
+      }
+
+      return tokenPromise.then(token => {
+        fetchArgs.headers.Authorization = `Bearer ${token}`;
+        return this._fetch(url, fetchArgs, resource, method, options);
       });
     }
 

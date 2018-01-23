@@ -1,5 +1,5 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
-const stitch = require('../../src');
+import { StitchClient } from '../../src/client';
 
 const TEST_DB = 'mongosvccommandtest';
 const TESTNS1 = 'documents';
@@ -63,7 +63,9 @@ describe('Services', ()=>{
     let providers = await appObj.authProviders().list();
     await appObj.authProviders().authProvider(providers[0]._id).enable();
     let newKey = await appObj.apiKeys().create({name: 'test'});
-    let client = new stitch.StitchClient(th.testApp.client_app_id, {baseUrl: test.options.baseUrl});
+    let client = await StitchClient.init(
+      th.testApp.client_app_id, {baseUrl: test.options.baseUrl}
+    );
     await client.authenticate('apiKey', newKey.key);
     let newSvc = await services.create({ name: 'testsvc', type: 'mongodb', config: {uri: 'mongodb://localhost:26000'}});
 
