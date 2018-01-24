@@ -11,29 +11,45 @@ const jwtDecode = require('jwt-decode');
 
 const EMBEDDED_USER_AUTH_DATA_PARTS = 4;
 
-export default class Auth {
+export class AuthFactory {
+  constructor() {
+    throw new StitchError('StitchClient can only be made from the StitchClientFactory.create function');
+  }
+
+  static create(client, rootUrl, options) {
+    return new Promise((resolve, reject) => {
+      resolve(new Auth(client, rootUrl, options)._willInitialize);
+    });
+  }
+}
+
+export class Auth {
   constructor(client, rootUrl, options) {
-    let namespace;
-    if (!client || client.clientAppID === '') {
-      namespace = 'admin';
-    } else {
-      namespace = `client.${client.clientAppID}`;
-    }
+    this._willInitialize = new Promise((resolve, reject) => {
+      let namespace;
+      if (!client || client.clientAppID === '') {
+        namespace = 'admin';
+      } else {
+        namespace = `client.${client.clientAppID}`;
+      }
 
-    options = Object.assign({
-      codec: authCommon.APP_CLIENT_CODEC,
-      namespace: namespace,
-      storageType: 'localStorage'
-    }, options);
+      options = Object.assign({
+        codec: authCommon.APP_CLIENT_CODEC,
+        namespace: namespace,
+        storageType: 'localStorage'
+      }, options);
 
-    this.client = client;
-    this.rootUrl = rootUrl;
-    this.codec = options.codec;
-    this.platform = options.platform || _platform;
-    this.storage = createStorage(options);
-    this.providers = createProviders(this, options);
-    this._willInitialize = this._get().then(auth => {
-      this.authedId = auth.userId;
+      this.client = client;
+      this.rootUrl = rootUrl;
+      this.codec = options.codec;
+      this.platform = options.platform || _platform;
+      this.storage = createStorage(options);
+      this.providers = createProviders(this, options);
+      this._get().then(auth => {
+        this.authedId = auth.userId;
+        this._isInitialized = true;
+        resolve(this);
+      });
     });
   }
 

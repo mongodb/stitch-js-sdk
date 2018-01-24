@@ -1,26 +1,26 @@
 /* global window, fetch */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 import 'fetch-everywhere';
-import { _StitchClient } from './client';
+import { StitchClient } from './client';
 import ADMIN_CLIENT_TYPE from './common';
 import { ADMIN_CLIENT_CODEC } from './auth/common';
 
 const v2 = 2;
 const v3 = 3;
 
-export class Admin {
+export class StitchAdminFactory {
   constructor() {
-    throw new StitchError('Constructor undefined. Use `Admin.init` instead.');
+    throw new StitchError('StitchAdminClient can only be made from the StitchAdminFactory.create function');
   }
 
-  static init(baseUrl) {
+  static create(baseUrl) {
     return new Promise((resolve, reject) => {
-      resolve(new _Admin(baseUrl));
+      resolve(new StitchAdminClient(baseUrl)._willInitialize);
     });
   }
 }
 
-export class _Admin extends _StitchClient {
+export class StitchAdminClient extends StitchClient {
   constructor(baseUrl) {
     super('', {baseUrl, authCodec: ADMIN_CLIENT_CODEC});
   }

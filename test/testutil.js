@@ -1,5 +1,5 @@
-import { Admin } from '../src/admin';
-import { StitchClient } from '../src/client';
+import { StitchAdminFactory } from '../src/admin';
+import { StitchClientFactory } from '../src/client';
 
 const constants = require('./constants');
 
@@ -40,7 +40,7 @@ class TestHarness {
     this.apiKey = apiKey;
     this.groupId = groupId;
     this.serverUrl = serverUrl;
-    this.adminPromise = Admin.init(this.serverUrl);
+    this.adminPromise = StitchAdminFactory.create(this.serverUrl);
   }
 
   async authenticate() {
@@ -80,7 +80,7 @@ class TestHarness {
     await this.configureUserpass();
     await this.createUser();
 
-    this.stitchClient = await StitchClient.init(
+    this.stitchClient = await StitchClientFactory.create(
       this.testApp.client_app_id,
       { baseUrl: this.serverUrl }
     );

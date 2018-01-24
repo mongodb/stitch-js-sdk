@@ -1,5 +1,5 @@
 import sinon from 'sinon';
-import { StitchClient } from '../src/client';
+import { StitchClientFactory } from '../src/client';
 import * as common from '../src/auth/common';
 import { PROVIDER_TYPE_ANON, PROVIDER_TYPE_USERPASS } from '../src/auth/providers';
 import StitchMongoFixture from './fixtures/stitch_mongo_fixture';
@@ -42,7 +42,7 @@ describe('Auth', () => {
     window.fetch.resolves(mockApiResponse());
     expect.assertions(1);
 
-    let client = await StitchClient.init();
+    let client = await StitchClientFactory.create();
 
     await client.auth.set(JSON.parse(mockAuthData()), PROVIDER_TYPE_ANON);
 
@@ -61,7 +61,7 @@ describe('Auth', () => {
     }));
     expect.assertions(1);
 
-    let client = await StitchClient.init();
+    let client = await StitchClientFactory.create();
 
     expect(await client.login('email', 'password')).toEqual('fake-user-id');
   });

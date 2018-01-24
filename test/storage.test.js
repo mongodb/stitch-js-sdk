@@ -5,7 +5,7 @@ import { createStorage, MemoryStorage } from '../src/auth/storage';
 import { USER_AUTH_KEY, REFRESH_TOKEN_KEY, DEVICE_ID_KEY, STATE_KEY, USER_LOGGED_IN_PT_KEY } from '../src/auth/common';
 
 import { mocks } from 'mock-browser';
-import { StitchClient } from '../src/client';
+import { StitchClientFactory } from '../src/client';
 import { buildClientTestHarness, extractTestFixtureDataPoints } from './testutil';
 
 const MockBrowser = mocks.MockBrowser;
@@ -76,8 +76,8 @@ describe('storage', function() {
     });
 
     it(`should allow for two unique clients to coexist for ${storageType}`, async() => {
-      const client1 = await StitchClient.init(`test-app1-${storageType}`);
-      const client2 = await StitchClient.init(`test-app2-${storageType}`);
+      const client1 = await StitchClientFactory.create(`test-app1-${storageType}`);
+      const client2 = await StitchClientFactory.create(`test-app2-${storageType}`);
 
       const ogAuth1 = JSON.parse(await client1.auth.set({
         'access_token': 'quux',
@@ -136,7 +136,7 @@ describe('storage', function() {
     await _runReverseMigration(null, client.auth.storage);
 
     // this client will be running the migrated storage
-    client = await StitchClient.init(client.clientAppID);
+    client = await StitchClientFactory.create(client.clientAppID);
 
     // if the authId is defined, we're still logged in
     expect(await client.authedId).toBeDefined();

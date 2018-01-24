@@ -1,4 +1,4 @@
-import { StitchClient } from '../src/client';
+import { StitchClientFactory } from '../src/client';
 import { buildAdminTestHarness, extractTestFixtureDataPoints } from './testutil';
 import StitchMongoFixture from './fixtures/stitch_mongo_fixture';
 
@@ -20,7 +20,7 @@ describe('StitchClient', () => {
   afterEach(async() => await th.cleanup());
 
   it('should not allow calls to `service` as a constructor', async() => {
-    const client = await StitchClient.init();
+    const client = await StitchClientFactory.create();
     try {
     	expect(new client.service('mongodb', 'mdb1')).toThrow(); // eslint-disable-line
     } catch (_) {} // eslint-disable-line
@@ -29,7 +29,7 @@ describe('StitchClient', () => {
   it('should resolve to a defined StitchClient', async() => {
     expect.assertions(2);
 
-    const stitchClient = await StitchClient.init(
+    const stitchClient = await StitchClientFactory.create(
       th.testApp.client_app_id,
       { baseUrl: th.serverUrl }
     );
@@ -41,8 +41,8 @@ describe('StitchClient', () => {
   it('should allow closure access to a StitchClient', async() => {
 	  expect.assertions(2);
 
-    let ctx = StitchClient.init(th.testApp.client_app_id, { baseUrl: th.serverUrl });
-  	await ctx.then(stitchClient => {
+    let factory = StitchClientFactory.create(th.testApp.client_app_id, { baseUrl: th.serverUrl });
+  	await factory.then(stitchClient => {
   		expect(stitchClient).toBeDefined();
   		return stitchClient.authenticate('userpass', th.userCredentials);
   	}).then(userId => {
