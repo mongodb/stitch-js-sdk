@@ -45,9 +45,20 @@ export class Auth {
       this.platform = options.platform || _platform;
       this.storage = createStorage(options);
       this.providers = createProviders(this, options);
-      this._get().then(auth => {
+
+      Promise.all([
+        this._get(),
+        this.storage.get(authCommon.REFRESH_TOKEN_KEY),
+        this.storage.get(authCommon.USER_LOGGED_IN_PT_KEY),
+        this.storage.get(authCommon.DEVICE_ID_KEY)
+      ]).then(([auth, rt, loggedInProviderType, deviceId]) => {
+        this.auth = auth;
         this.authedId = auth.userId;
+        this.rt = rt;
+        this.loggedInProviderType = loggedInProviderType;
+        this.deviceId = deviceId;
         this._isInitialized = true;
+
         resolve(this);
       });
     });
@@ -197,7 +208,11 @@ export class Auth {
   }
 
   clear() {
+    this.auth = null;
     this.authedId = null;
+    this.rt = null;
+    this.loggedInProviderType = null;
+
     return Promise.all(
       [
         this.storage.remove(authCommon.USER_AUTH_KEY),
@@ -209,40 +224,37 @@ export class Auth {
   }
 
   getDeviceId() {
-    return this.storage.get(authCommon.DEVICE_ID_KEY);
+    return this.deviceId;
   }
 
   // Returns whether or not the access token is expired or is going to expire within 'withinSeconds'
   // seconds, according to current system time. Returns false if the token is malformed in any way.
   isAccessTokenExpired(withinSeconds = authCommon.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS) {
-    return this.getAccessToken().then((token) => {
-      if (!token) {
-        return false;
-      }
+    const token = this.getAccessToken();
+    if (!token) {
+      return false;
+    }
 
-      let decodedToken;
-      try {
-        decodedToken = jwtDecode(token);
-      } catch (e) {
-        return false;
-      }
+    let decodedToken;
+    try {
+      decodedToken = jwtDecode(token);
+    } catch (e) {
+      return false;
+    }
 
-      if (!decodedToken) {
-        return false;
-      }
+    if (!decodedToken) {
+      return false;
+    }
 
-      return decodedToken.exp && Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
-    });
+    return decodedToken.exp && Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
   }
 
   getAccessToken() {
-    return this._get().then(auth =>
-      auth.accessToken
-    );
+    return this.auth.accessToken;
   }
 
   getRefreshToken() {
-    return this.storage.get(authCommon.REFRESH_TOKEN_KEY);
+    return this.rt;
   }
 
   set(json, authType = '') {
@@ -251,42 +263,41 @@ export class Auth {
     }
 
     let newUserAuth = {};
+    let setters = [];
 
-    return (authType ?
-      this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType) :
-      Promise.resolve()
-    ).then(() => {
-      if (json[this.codec.refreshToken]) {
-        let rt = json[this.codec.refreshToken];
-        delete json[this.codec.refreshToken];
-        return this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
-      }
-    }).then(() => {
-      if (json[this.codec.deviceId]) {
-        const deviceId = json[this.codec.deviceId];
-        delete json[this.codec.deviceId];
-        return this.storage.set(authCommon.DEVICE_ID_KEY, deviceId);
-      }
-      return;
-    }).then(() => {
-      // Merge in new fields with old fields. Typically the first json value
-      // is complete with every field inside a user auth, but subsequent requests
-      // do not include everything. This merging behavior is safe so long as json
-      // value responses with absent fields do not indicate that the field should
-      // be unset.
-      if (json[this.codec.accessToken]) {
-        newUserAuth.accessToken = json[this.codec.accessToken];
-      }
-      if (json[this.codec.userId]) {
-        newUserAuth.userId = json[this.codec.userId];
-      }
+    if (authType) {
+      this.loggedInProviderType = authType;
+      setters.push(this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType));
+    }
 
-      return this._get();
-    }).then((auth) => {
-      newUserAuth = Object.assign(auth, newUserAuth);
-      this.authedId = newUserAuth.userId;
-      return this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
-    });
+    if (json[this.codec.refreshToken]) {
+      this.rt = json[this.codec.refreshToken];
+      delete json[this.codec.refreshToken];
+      setters.push(this.storage.set(authCommon.REFRESH_TOKEN_KEY, this.rt));
+    }
+
+    if (json[this.codec.deviceId]) {
+      this.deviceId = json[this.codec.deviceId];
+      delete json[this.codec.deviceId];
+      setters.push(this.storage.set(authCommon.DEVICE_ID_KEY, this.deviceId));
+    }
+
+    // Merge in new fields with old fields. Typically the first json value
+    // is complete with every field inside a user auth, but subsequent requests
+    // do not include everything. This merging behavior is safe so long as json
+    // value responses with absent fields do not indicate that the field should
+    // be unset.
+    if (json[this.codec.accessToken]) {
+      newUserAuth.accessToken = json[this.codec.accessToken];
+    }
+    if (json[this.codec.userId]) {
+      newUserAuth.userId = json[this.codec.userId];
+    }
+
+    this.auth = Object.assign(!!this.auth && {}, newUserAuth);
+    this.authedId = this.auth.userId;
+    setters.push(this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(this.auth)));
+    return Promise.all(setters).then(() => this.auth);
   }
 
   _get() {
@@ -300,14 +311,15 @@ export class Auth {
       } catch (e) {
         // Need to back out and clear auth otherwise we will never
         // be able to do anything useful.
-        return this.clear().then(() => {throw new StitchError('Failure retrieving stored auth');});
+        return this.clear().then(() => {
+          throw new StitchError('Failure retrieving stored auth');
+        });
       }
     });
   }
 
   getLoggedInProviderType() {
-    return this.storage.get(authCommon.USER_LOGGED_IN_PT_KEY)
-      .then((type) => type || '', () => '');
+    return this.loggedInProviderType;
   }
 
   parseRedirectFragment(fragment, ourState) {

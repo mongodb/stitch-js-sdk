@@ -551,7 +551,7 @@ describe('login/logout', () => {
             expect(response.x).toEqual(2);
           })
           .then(async() => {
-            expect(await testClient.auth.getAccessToken()).toEqual(validAccessTokens[0]);
+            expect(testClient.auth.getAccessToken()).toEqual(validAccessTokens[0]);
           })
           .then(async() => {
             await testClient.auth.clear();
@@ -606,9 +606,9 @@ describe('proactive token refresh', () => {
 
     let testClient = await StitchClientFactory.create('testapp');
     return testClient.login('user', 'password')
-      .then(async() => {
+      .then(() => {
         // make sure we are starting with the expired access token
-        expect(await testClient.auth.getAccessToken()).toEqual(testExpiredAccessToken);
+        expect(testClient.auth.getAccessToken()).toEqual(testExpiredAccessToken);
         return testClient.executeFunction('testfunc', {items: [{x: 1}]}, 'hello');
       })
       .then(response => {
@@ -618,11 +618,11 @@ describe('proactive token refresh', () => {
       .then(async() => {
         // make sure token was updated
         expect(refreshCount).toEqual(1);
-        expect(await testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
+        expect(testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
       })
       .then(async() => {
         await testClient.auth.clear();
-        expect(await testClient.authedId()).toBeFalsy();
+        expect(testClient.authedId()).toBeFalsy();
       });
   });
 
@@ -639,7 +639,7 @@ describe('proactive token refresh', () => {
     return testClient.login('user', 'password')
       .then(async() => {
         // make sure we are starting with the unexpired access token
-        expect(await testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
+        expect(testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
         return testClient.executeFunction('testfunc', {items: [{x: 1}]}, 'hello');
       })
       .then(response => {
@@ -648,11 +648,11 @@ describe('proactive token refresh', () => {
       .then(async() => {
         // make sure token was not updated
         expect(refreshCount).toEqual(0);
-        expect(await testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
+        expect(testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
       })
       .then(async() => {
         await testClient.auth.clear();
-        expect(await testClient.authedId()).toBeFalsy();
+        expect(testClient.authedId()).toBeFalsy();
       });
   });
 });

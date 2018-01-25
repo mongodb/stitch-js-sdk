@@ -162,27 +162,19 @@ export class StitchClient {
    */
   authenticate(providerType, options = {}) {
     // reuse existing auth if present
-    return Promise.all(
-      [
-        this.isAuthenticated(),
-        this.auth.getLoggedInProviderType()
-      ]
-    ).then(([isAuthenticated, loggedInProviderType]) => {
-      if (isAuthenticated) {
-        if (providerType === PROVIDER_TYPE_ANON && loggedInProviderType === PROVIDER_TYPE_ANON) {
-          return false; // is authenticated, skip log in
-        }
+    const authenticateFn = () =>
+      this.auth.provider(providerType).authenticate(options).then(() => this.auth.authedId);
 
-        return this.logout().then(() => true); // will not be authenticated, continue log in
+    if (this.isAuthenticated()) {
+      if (providerType === PROVIDER_TYPE_ANON && this.auth.getLoggedInProviderType() === PROVIDER_TYPE_ANON) {
+        return Promise.resolve(this.auth.authedId); // is authenticated, skip log in
       }
 
-      return true; // is not authenticated, continue log in
-    }).then((shouldAuth) => {
-      if (shouldAuth) {
-        return this.auth.provider(providerType).authenticate(options);
-      }
-      return;
-    }).then(() => this.auth.authedId);
+      return this.logout().then(() => authenticateFn()); // will not be authenticated, continue log in
+    }
+
+    // is not authenticated, continue log in
+    return authenticateFn();
   }
 
   /**
@@ -219,16 +211,14 @@ export class StitchClient {
       '/auth/profile',
       'GET',
       {rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]},
-    )
-      .then(response => response.json());
+    ).then(response => response.json());
   }
 
   /**
   * @return {Boolean} whether or not the current client is authenticated
   */
   isAuthenticated() {
-    const authedId = this.authedId();
-    return authedId !== null && authedId !== undefined;
+    return !!this.authedId();
   }
 
   /**
@@ -490,34 +480,28 @@ export class StitchClient {
 
     let { url, fetchArgs } = this._fetchArgs(resource, method, options);
     if (!options.noAuth) {
-      if (!this.authedId()) {
-        return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
-      }
-
-      let tokenPromise =
+      const token =
         options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
 
       // If access token is expired, proactively get a new one
       if (!options.useRefreshToken) {
-        return this.auth.isAccessTokenExpired().then(isAccessTokenExpired => {
-          if (isAccessTokenExpired) {
-            return this.auth.refreshToken().then(() => {
-              options.refreshOnFailure = false;
-              return this._do(resource, method, options);
-            });
-          }
-
-          return tokenPromise.then(token => {
-            fetchArgs.headers.Authorization = `Bearer ${token}`;
-            return this._fetch(url, fetchArgs, resource, method, options);
+        if (this.auth.isAccessTokenExpired()) {
+          return this.auth.refreshToken().then(() => {
+            options.refreshOnFailure = false;
+            return this._do(resource, method, options);
           });
-        });
-      }
+        }
 
-      return tokenPromise.then(token => {
         fetchArgs.headers.Authorization = `Bearer ${token}`;
         return this._fetch(url, fetchArgs, resource, method, options);
-      });
+      }
+
+      fetchArgs.headers.Authorization = `Bearer ${token}`;
+      return this._fetch(url, fetchArgs, resource, method, options);
+    }
+
+    if (!this.isAuthenticated()) {
+      return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
     }
 
     return this._fetch(url, fetchArgs, resource, method, options);

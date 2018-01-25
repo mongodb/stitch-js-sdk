@@ -24,17 +24,15 @@ function anonProvider(auth) {
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: () => {
-      return auth.getDeviceId().then((deviceId) => {
-        const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
-        const fetchArgs = common.makeFetchArgs('GET');
-        fetchArgs.cors = true;
+      const deviceId = auth.getDeviceId();
+      const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+      const fetchArgs = common.makeFetchArgs('GET');
+      fetchArgs.cors = true;
 
-        return fetch(
-          `${auth.rootUrl}/providers/anon-user/login?device=${uriEncodeObject(device)}`,
-          fetchArgs
-        );
-      })
-        .then(common.checkStatus)
+      return fetch(
+        `${auth.rootUrl}/providers/anon-user/login?device=${uriEncodeObject(device)}`,
+        fetchArgs
+      ).then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_ANON));
     }
@@ -58,17 +56,16 @@ function customProvider(auth) {
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: (token) => {
-      return auth.getDeviceId().then(deviceId => {
-        const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+      const deviceId = auth.getDeviceId();
+      const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
-        const fetchArgs = common.makeFetchArgs(
-          'POST',
-          JSON.stringify({ token, options: { device } })
-        );
-        fetchArgs.cors = true;
+      const fetchArgs = common.makeFetchArgs(
+        'POST',
+        JSON.stringify({ token, options: { device } })
+      );
+      fetchArgs.cors = true;
 
-        return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs);
-      })
+      return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_CUSTOM));
@@ -94,17 +91,16 @@ function userPassProvider(auth) {
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: ({ username, password }) => {
-      return auth.getDeviceId().then(deviceId => {
-        const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+      const deviceId = auth.getDeviceId();
+      const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
-        const fetchArgs = common.makeFetchArgs(
-          'POST',
-          JSON.stringify({ username, password, options: { device } })
-        );
-        fetchArgs.cors = true;
+      const fetchArgs = common.makeFetchArgs(
+        'POST',
+        JSON.stringify({ username, password, options: { device } })
+      );
+      fetchArgs.cors = true;
 
-        return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs);
-      })
+      return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_USERPASS));
@@ -222,15 +218,14 @@ function apiKeyProvider(auth) {
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
     authenticate: key => {
-      return auth.getDeviceId().then(deviceId => {
-        const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
-        const fetchArgs = common.makeFetchArgs(
-          'POST',
-          JSON.stringify({ 'key': key, 'options': { device } })
-        );
-        fetchArgs.cors = true;
-        return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs);
-      })
+      const deviceId = auth.getDeviceId();
+      const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+      const fetchArgs = common.makeFetchArgs(
+        'POST',
+        JSON.stringify({ 'key': key, 'options': { device } })
+      );
+      fetchArgs.cors = true;
+      return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_APIKEY));
@@ -288,16 +283,15 @@ function googleProvider(auth) {
     authenticate: data => {
       let { authCode } = data;
       if (authCode !== null) {
-        return auth.getDeviceId(deviceId => {
-          const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+        const deviceId = auth.getDeviceId();
+        const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
-          const fetchArgs = common.makeFetchArgs(
-            'POST',
-            JSON.stringify({ authCode, options: { device } })
-          );
+        const fetchArgs = common.makeFetchArgs(
+          'POST',
+          JSON.stringify({ authCode, options: { device } })
+        );
 
-          return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs);
-        })
+        return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs)
           .then(common.checkStatus)
           .then(response => response.json())
           .then(json => auth.set(json, PROVIDER_TYPE_GOOGLE));
@@ -327,16 +321,15 @@ function facebookProvider(auth) {
     authenticate: data => {
       let { accessToken } = data;
       if (accessToken !== null) {
-        return auth.getDeviceId().then(deviceId => {
-          const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+        const deviceId = auth.getDeviceId();
+        const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
-          const fetchArgs = common.makeFetchArgs(
-            'POST',
-            JSON.stringify({ accessToken, options: { device } })
-          );
+        const fetchArgs = common.makeFetchArgs(
+          'POST',
+          JSON.stringify({ accessToken, options: { device } })
+        );
 
-          return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs);
-        })
+        return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs)
           .then(common.checkStatus)
           .then(response => response.json())
           .then(json => auth.set(json, PROVIDER_TYPE_FACEBOOK));
@@ -368,23 +361,22 @@ function mongodbCloudProvider(auth) {
     authenticate: data => {
       const { username, apiKey, cors, cookie } = data;
       const options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
-      return auth.getDeviceId().then(deviceId => {
-        const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
-        const fetchArgs = common.makeFetchArgs(
-          'POST',
-          JSON.stringify({ username, apiKey, options: { device } })
-        );
-        fetchArgs.cors = true;  // TODO: shouldn't this use the passed in `cors` value?
-        fetchArgs.credentials = 'include';
+      const deviceId = auth.getDeviceId();
+      const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
+      const fetchArgs = common.makeFetchArgs(
+        'POST',
+        JSON.stringify({ username, apiKey, options: { device } })
+      );
+      fetchArgs.cors = true;  // TODO: shouldn't this use the passed in `cors` value?
+      fetchArgs.credentials = 'include';
 
-        let url = `${auth.rootUrl}/${loginRoute}`;
-        if (options.cookie) {
-          return fetch(url + '?cookie=true', fetchArgs)
-            .then(common.checkStatus);
-        }
+      let url = `${auth.rootUrl}/${loginRoute}`;
+      if (options.cookie) {
+        return fetch(url + '?cookie=true', fetchArgs)
+          .then(common.checkStatus);
+      }
 
-        return fetch(url, fetchArgs);
-      })
+      return fetch(url, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_MONGODB_CLOUD));

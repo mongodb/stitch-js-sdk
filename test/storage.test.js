@@ -79,19 +79,19 @@ describe('storage', function() {
       const client1 = await StitchClientFactory.create(`test-app1-${storageType}`);
       const client2 = await StitchClientFactory.create(`test-app2-${storageType}`);
 
-      const ogAuth1 = JSON.parse(await client1.auth.set({
+      const ogAuth1 = await client1.auth.set({
         'access_token': 'quux',
         'refresh_token': 'corge',
         'device_id': 'uier',
         'user_id': 'grault'
-      }, 'anon'));
+      }, 'anon');
 
-      const ogAuth2 = JSON.parse(await client2.auth.set({
+      const ogAuth2 = await client2.auth.set({
         'access_token': 'foo',
         'refresh_token': 'bar',
         'device_id': 'baz',
         'user_id': 'qux'
-      }, 'anon'));
+      }, 'anon');
 
       const fetchedAuth1 = await client1.auth._get();
       const fetchedAuth2 = await client2.auth._get();
