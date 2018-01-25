@@ -1,4 +1,4 @@
-import { StitchAdminFactory } from '../src/admin';
+import { StitchAdminClientFactory } from '../src/admin';
 import { StitchClientFactory } from '../src/client';
 
 const constants = require('./constants');
@@ -40,7 +40,7 @@ class TestHarness {
     this.apiKey = apiKey;
     this.groupId = groupId;
     this.serverUrl = serverUrl;
-    this.adminPromise = StitchAdminFactory.create(this.serverUrl);
+    this.adminPromise = StitchAdminClientFactory.create(this.serverUrl);
   }
 
   async authenticate() {

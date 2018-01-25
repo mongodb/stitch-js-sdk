@@ -8,9 +8,9 @@ import { ADMIN_CLIENT_CODEC } from './auth/common';
 const v2 = 2;
 const v3 = 3;
 
-export class StitchAdminFactory {
+export class StitchAdminClientFactory {
   constructor() {
-    throw new StitchError('StitchAdminClient can only be made from the StitchAdminFactory.create function');
+    throw new StitchError('StitchAdminClient can only be made from the StitchAdminClientFactory.create function');
   }
 
   static create(baseUrl) {
