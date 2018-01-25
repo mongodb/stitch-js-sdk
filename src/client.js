@@ -37,7 +37,7 @@ export class StitchClientFactory {
 
 export function newStitchClient(prototype, clientAppID, options = {}) {
   return new Promise((resolve, reject) => {
-    const stitchClient = Object.create(prototype);
+    let stitchClient = Object.create(prototype);
     let baseUrl = common.DEFAULT_STITCH_SERVER_URL;
     if (options.baseUrl) {
       baseUrl = options.baseUrl;

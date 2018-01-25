@@ -13,55 +13,57 @@ const EMBEDDED_USER_AUTH_DATA_PARTS = 4;
 
 export class AuthFactory {
   constructor() {
-    throw new StitchError('StitchClient can only be made from the StitchClientFactory.create function');
+    throw new StitchError('Auth can only be made from the AuthFactory.create function');
   }
 
   static create(client, rootUrl, options) {
-    return new Promise((resolve, reject) => {
-      resolve(new Auth(client, rootUrl, options)._willInitialize);
-    });
+    return newAuth(client, rootUrl, options);
   }
+}
+
+export function newAuth(client, rootUrl, options) {
+  return new Promise((resolve, reject) => {
+    let auth = Object.create(Auth.prototype);
+    let namespace;
+    if (!client || client.clientAppID === '') {
+      namespace = 'admin';
+    } else {
+      namespace = `client.${client.clientAppID}`;
+    }
+
+    options = Object.assign({
+      codec: authCommon.APP_CLIENT_CODEC,
+      namespace: namespace,
+      storageType: 'localStorage'
+    }, options);
+
+    auth.client = client;
+    auth.rootUrl = rootUrl;
+    auth.codec = options.codec;
+    auth.platform = options.platform || _platform;
+    auth.storage = createStorage(options);
+    auth.providers = createProviders(auth, options);
+
+    Promise.all([
+      auth._get(),
+      auth.storage.get(authCommon.REFRESH_TOKEN_KEY),
+      auth.storage.get(authCommon.USER_LOGGED_IN_PT_KEY),
+      auth.storage.get(authCommon.DEVICE_ID_KEY)
+    ]).then(([authObj, rt, loggedInProviderType, deviceId]) => {
+      auth.auth = authObj;
+      auth.authedId = authObj.userId;
+      auth.rt = rt;
+      auth.loggedInProviderType = loggedInProviderType;
+      auth.deviceId = deviceId;
+
+      resolve(auth);
+    });
+  });
 }
 
 export class Auth {
   constructor(client, rootUrl, options) {
-    this._willInitialize = new Promise((resolve, reject) => {
-      let namespace;
-      if (!client || client.clientAppID === '') {
-        namespace = 'admin';
-      } else {
-        namespace = `client.${client.clientAppID}`;
-      }
-
-      options = Object.assign({
-        codec: authCommon.APP_CLIENT_CODEC,
-        namespace: namespace,
-        storageType: 'localStorage'
-      }, options);
-
-      this.client = client;
-      this.rootUrl = rootUrl;
-      this.codec = options.codec;
-      this.platform = options.platform || _platform;
-      this.storage = createStorage(options);
-      this.providers = createProviders(this, options);
-
-      Promise.all([
-        this._get(),
-        this.storage.get(authCommon.REFRESH_TOKEN_KEY),
-        this.storage.get(authCommon.USER_LOGGED_IN_PT_KEY),
-        this.storage.get(authCommon.DEVICE_ID_KEY)
-      ]).then(([auth, rt, loggedInProviderType, deviceId]) => {
-        this.auth = auth;
-        this.authedId = auth.userId;
-        this.rt = rt;
-        this.loggedInProviderType = loggedInProviderType;
-        this.deviceId = deviceId;
-        this._isInitialized = true;
-
-        resolve(this);
-      });
-    });
+    throw new StitchError('Auth can only be made from the AuthFactory.create function');
   }
 
   /**
