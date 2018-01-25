@@ -222,7 +222,7 @@ export class StitchClient {
   }
 
   /**
-   *  @return {String} Returns a promise resolving to a string of the currently authed user's ID.
+   *  @return {String} Returns a string of the currently authed user's ID.
    */
   authedId() {
     return this.auth.authedId;
