@@ -31,12 +31,77 @@ export class StitchClientFactory {
   }
 
   static create(clientAppID, options = {}) {
-    return new Promise((resolve, reject) => {
-      resolve(new StitchClient(clientAppID, options)._willInitialize);
-    });
+    return newStitchClient(StitchClient.prototype, clientAppID, options);
   }
 }
 
+export function newStitchClient(prototype, clientAppID, options = {}) {
+  return new Promise((resolve, reject) => {
+    const stitchClient = Object.create(prototype);
+    let baseUrl = common.DEFAULT_STITCH_SERVER_URL;
+    if (options.baseUrl) {
+      baseUrl = options.baseUrl;
+    }
+
+    stitchClient.clientAppID = clientAppID;
+
+    stitchClient.authUrl = (
+      clientAppID ?
+        `${baseUrl}/api/client/v2.0/app/${clientAppID}/auth` :
+        `${baseUrl}/api/admin/v3.0/auth`
+    );
+
+    stitchClient.rootURLsByAPIVersion = {
+      [v1]: {
+        [API_TYPE_PUBLIC]: `${baseUrl}/api/public/v1.0`,
+        [API_TYPE_CLIENT]: `${baseUrl}/api/client/v1.0`,
+        [API_TYPE_PRIVATE]: `${baseUrl}/api/private/v1.0`,
+        [API_TYPE_APP]: (clientAppID ?
+          `${baseUrl}/api/client/v1.0/app/${clientAppID}` :
+          `${baseUrl}/api/public/v1.0`)
+      },
+      [v2]: {
+        [API_TYPE_PUBLIC]: `${baseUrl}/api/public/v2.0`,
+        [API_TYPE_CLIENT]: `${baseUrl}/api/client/v2.0`,
+        [API_TYPE_PRIVATE]: `${baseUrl}/api/private/v2.0`,
+        [API_TYPE_APP]: (clientAppID ?
+          `${baseUrl}/api/client/v2.0/app/${clientAppID}` :
+          `${baseUrl}/api/public/v2.0`)
+      },
+      [v3]: {
+        [API_TYPE_PUBLIC]: `${baseUrl}/api/public/v3.0`,
+        [API_TYPE_CLIENT]: `${baseUrl}/api/client/v3.0`,
+        [API_TYPE_APP]: (clientAppID ?
+          `${baseUrl}/api/client/v3.0/app/${clientAppID}` :
+          `${baseUrl}/api/admin/v3.0`)
+      }
+    };
+
+    const authOptions = {
+      codec: APP_CLIENT_CODEC,
+      storage: options.storage
+    };
+
+    if (options.storageType) {
+      authOptions.storageType = options.storageType;
+    }
+    if (options.platform) {
+      authOptions.platform = options.platform;
+    }
+    if (options.authCodec) {
+      authOptions.codec = options.authCodec;
+    }
+
+    const authFactory = AuthFactory.create(stitchClient, stitchClient.authUrl, authOptions);
+    authFactory.then(auth => {
+      stitchClient.auth = auth;
+      stitchClient.auth.handleRedirect();
+      stitchClient.auth.handleCookie();
+
+      resolve(stitchClient);
+    });
+  });
+}
 /**
  * Create a new _StitchClient instance.
  * This is the internal implementation for StitchClient and should not
@@ -46,72 +111,8 @@ export class StitchClientFactory {
  * @return {StitchClient} a StitchClient instance.
  */
 export class StitchClient {
-  constructor(clientAppID, options = {}) {
-    this._willInitialize = new Promise((resolve, reject) => {
-      let baseUrl = common.DEFAULT_STITCH_SERVER_URL;
-      if (options.baseUrl) {
-        baseUrl = options.baseUrl;
-      }
-
-      this.clientAppID = clientAppID;
-
-      this.authUrl = (
-        clientAppID ?
-          `${baseUrl}/api/client/v2.0/app/${clientAppID}/auth` :
-          `${baseUrl}/api/admin/v3.0/auth`
-      );
-
-      this.rootURLsByAPIVersion = {
-        [v1]: {
-          [API_TYPE_PUBLIC]: `${baseUrl}/api/public/v1.0`,
-          [API_TYPE_CLIENT]: `${baseUrl}/api/client/v1.0`,
-          [API_TYPE_PRIVATE]: `${baseUrl}/api/private/v1.0`,
-          [API_TYPE_APP]: (clientAppID ?
-            `${baseUrl}/api/client/v1.0/app/${clientAppID}` :
-            `${baseUrl}/api/public/v1.0`)
-        },
-        [v2]: {
-          [API_TYPE_PUBLIC]: `${baseUrl}/api/public/v2.0`,
-          [API_TYPE_CLIENT]: `${baseUrl}/api/client/v2.0`,
-          [API_TYPE_PRIVATE]: `${baseUrl}/api/private/v2.0`,
-          [API_TYPE_APP]: (clientAppID ?
-            `${baseUrl}/api/client/v2.0/app/${clientAppID}` :
-            `${baseUrl}/api/public/v2.0`)
-        },
-        [v3]: {
-          [API_TYPE_PUBLIC]: `${baseUrl}/api/public/v3.0`,
-          [API_TYPE_CLIENT]: `${baseUrl}/api/client/v3.0`,
-          [API_TYPE_APP]: (clientAppID ?
-            `${baseUrl}/api/client/v3.0/app/${clientAppID}` :
-            `${baseUrl}/api/admin/v3.0`)
-        }
-      };
-
-      const authOptions = {
-        codec: APP_CLIENT_CODEC,
-        storage: options.storage
-      };
-
-      if (options.storageType) {
-        authOptions.storageType = options.storageType;
-      }
-      if (options.platform) {
-        authOptions.platform = options.platform;
-      }
-      if (options.authCodec) {
-        authOptions.codec = options.authCodec;
-      }
-
-      const authFactory = AuthFactory.create(this, this.authUrl, authOptions);
-      authFactory.then(auth => {
-        this.auth = auth;
-        this.auth.handleRedirect();
-        this.auth.handleCookie();
-
-        this._isInitialized = true;
-        resolve(this);
-      });
-    });
+  constructor() {
+    throw new StitchError('StitchClient can only be made from the StitchClientFactory.create function');
   }
 
   get type() {
