@@ -224,6 +224,67 @@ describe('Client API executing mongodb service functions', () => {
     expect(foundDocs[0]).toMatchObject({ a: 3 });
   });
 
+  it('Should be successful for findOne', async() => {
+    const testDocs = [
+      { a: 1, b: 'bee', c: 'braves', d: 0 },
+      { a: 2, b: 'bee', c: 'patriots', d: 0 },
+      { a: 3, b: 'bee', c: 'chipper', d: 0 },
+      { a: 4, b: 'be', c: 'tom', d: 0 }
+    ];
+
+    await service.insertMany(testDocs);
+
+    const foundDoc = await service.findOne({ b: 'bee' });
+
+    expect(foundDoc).toMatchObject(testDocs[0]);
+  });
+
+  it('Should be successful for findOne (does not match any documents)', async() => {
+    const testDocs = [
+      { a: 1, b: 'bee', c: 'braves', d: 0 },
+      { a: 2, b: 'bee', c: 'patriots', d: 0 },
+      { a: 3, b: 'bee', c: 'chipper', d: 0 },
+      { a: 4, b: 'be', c: 'tom', d: 0 }
+    ];
+
+    await service.insertMany(testDocs);
+
+    const foundDoc = await service.findOne({ b: 'cat' });
+
+    expect(foundDoc).toBeNull();
+  });
+
+  it('Should be successful for findOne (project)', async() => {
+    const testDocs = [
+      { a: 1, b: 'bee', c: 'braves', d: 0 },
+      { a: 2, b: 'bee', c: 'patriots', d: 0 },
+      { a: 3, b: 'bee', c: 'chipper', d: 0 },
+      { a: 4, b: 'be', c: 'tom', d: 0 }
+    ];
+
+    await service.insertMany(testDocs);
+
+    const foundDoc = await service.findOne({ d: 0 }, { c: 1 });
+
+    expect(foundDoc).toMatchObject({ c: 'braves' });
+  });
+
+  it('Should be successful for find (project)', async() => {
+    const testDocs = [
+      { a: 1, b: 'bee', c: 'braves', d: 0 },
+      { a: 2, b: 'bee', c: 'patriots', d: 0 },
+      { a: 3, b: 'bee', c: 'chipper', d: 0 },
+      { a: 4, b: 'be', c: 'tom', d: 0 }
+    ];
+
+    await service.insertMany(testDocs);
+
+    const foundDocs = await service.find({ d: 0 }, { c: 1 }).limit(10000).execute();
+
+    expect(foundDocs).toHaveLength(4);
+    expect(foundDocs).toMatchObject([{ c: 'braves' }, { c: 'patriots' }, { c: 'chipper' }, { c: 'tom' }]);
+  });
+
   it('Should be successful for aggregate', async() => {
     const testDocs = [{ a: 1, b: 'foo', c: 0 }, { a: 2, b: 'bar', c: 0 }, { a: 3, b: 'foo', c: 0 }];
 
