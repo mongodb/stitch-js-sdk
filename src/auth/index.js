@@ -42,12 +42,12 @@ export function newAuth(client, rootUrl, options) {
   auth.platform = options.platform || _platform;
   auth.storage = createStorage(options);
   auth.providers = createProviders(auth, options);
-  
+
   return Promise.all([
-      auth._get(),
-      auth.storage.get(authCommon.REFRESH_TOKEN_KEY),
-      auth.storage.get(authCommon.USER_LOGGED_IN_PT_KEY),
-      auth.storage.get(authCommon.DEVICE_ID_KEY)
+    auth._get(),
+    auth.storage.get(authCommon.REFRESH_TOKEN_KEY),
+    auth.storage.get(authCommon.USER_LOGGED_IN_PT_KEY),
+    auth.storage.get(authCommon.DEVICE_ID_KEY)
   ]).then(([authObj, rt, loggedInProviderType, deviceId]) => {
     auth.auth = authObj;
     auth.authedId = authObj.userId;

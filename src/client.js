@@ -91,7 +91,7 @@ export function newStitchClient(prototype, clientAppID, options = {}) {
     authOptions.codec = options.authCodec;
   }
 
-  const authPromise = AuthFactory.create(stitchClient, stitchClient.authUrl, authOptions);    
+  const authPromise = AuthFactory.create(stitchClient, stitchClient.authUrl, authOptions);
   return authPromise.then(auth => {
     stitchClient.auth = auth;
     stitchClient.auth.handleRedirect();
