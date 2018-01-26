@@ -282,7 +282,7 @@ function googleProvider(auth) {
      */
     authenticate: data => {
       let { authCode } = data;
-      if (authCode !== null) {
+      if (authCode) {
         const deviceId = auth.getDeviceId();
         const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
@@ -298,9 +298,9 @@ function googleProvider(auth) {
       }
 
       const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
-      return getOAuthLoginURL(auth, 'google', redirectUrl)
-        .then(auth.storage.set(STITCH_REDIRECT_PROVIDER, PROVIDER_TYPE_GOOGLE))
-        .then(window.location.replace);
+      return auth.storage.set(authCommon.STITCH_REDIRECT_PROVIDER, PROVIDER_TYPE_GOOGLE)
+        .then(() => getOAuthLoginURL(auth, PROVIDER_TYPE_GOOGLE, redirectUrl))
+        .then((res) => window.location.replace(res));
     }
   };
 }
@@ -336,9 +336,9 @@ function facebookProvider(auth) {
       }
 
       const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
-      return getOAuthLoginURL(auth, 'facebook', redirectUrl)
-        .then(() => auth.storage.set(STITCH_REDIRECT_PROVIDER, PROVIDER_TYPE_FACEBOOK))
-        .then(window.location.replace);
+      return auth.storage.set(authCommon.STITCH_REDIRECT_PROVIDER, PROVIDER_TYPE_FACEBOOK)
+        .then(() => getOAuthLoginURL(auth, PROVIDER_TYPE_FACEBOOK, redirectUrl))
+        .then((res) => window.location.replace(res));
     }
   };
 }

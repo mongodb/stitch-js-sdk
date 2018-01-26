@@ -151,8 +151,8 @@ export class Auth {
           this.storage.remove(authCommon.STATE_KEY),
           this.storage.remove(authCommon.STITCH_REDIRECT_PROVIDER)
         ]
-      );
-    }).then(() => {
+      ).then(() => redirectState);
+    }).then((redirectState) => {
       if (!redirectState.stateValid) {
         console.error('StitchClient: state values did not match!');
         window.history.replaceState(null, '', this.pageRootUrl());
