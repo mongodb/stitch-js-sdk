@@ -94,11 +94,11 @@ export function newStitchClient(prototype, clientAppID, options = {}) {
   const authPromise = AuthFactory.create(stitchClient, stitchClient.authUrl, authOptions);
   return authPromise.then(auth => {
     stitchClient.auth = auth;
-    stitchClient.auth.handleRedirect();
-    stitchClient.auth.handleCookie();
-
-    return stitchClient;
-  });
+    return Promise.all([
+      stitchClient.auth.handleRedirect(),
+      stitchClient.auth.handleCookie()
+    ])
+  }).then(() => stitchClient);
 }
 /**
  * Prototype for StitchClient class.
