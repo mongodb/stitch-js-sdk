@@ -97,7 +97,7 @@ export function newStitchClient(prototype, clientAppID, options = {}) {
     return Promise.all([
       stitchClient.auth.handleRedirect(),
       stitchClient.auth.handleCookie()
-    ])
+    ]);
   }).then(() => stitchClient);
 }
 /**
