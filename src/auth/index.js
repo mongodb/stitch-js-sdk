@@ -22,42 +22,40 @@ export class AuthFactory {
 }
 
 export function newAuth(client, rootUrl, options) {
-  return new Promise((resolve, reject) => {
-    let auth = Object.create(Auth.prototype);
-    let namespace;
-    if (!client || client.clientAppID === '') {
-      namespace = 'admin';
-    } else {
-      namespace = `client.${client.clientAppID}`;
-    }
+  let auth = Object.create(Auth.prototype);
+  let namespace;
+  if (!client || client.clientAppID === '') {
+    namespace = 'admin';
+  } else {
+    namespace = `client.${client.clientAppID}`;
+  }
 
-    options = Object.assign({
-      codec: authCommon.APP_CLIENT_CODEC,
-      namespace: namespace,
-      storageType: 'localStorage'
-    }, options);
+  options = Object.assign({
+    codec: authCommon.APP_CLIENT_CODEC,
+    namespace: namespace,
+    storageType: 'localStorage'
+  }, options);
 
-    auth.client = client;
-    auth.rootUrl = rootUrl;
-    auth.codec = options.codec;
-    auth.platform = options.platform || _platform;
-    auth.storage = createStorage(options);
-    auth.providers = createProviders(auth, options);
-
-    Promise.all([
+  auth.client = client;
+  auth.rootUrl = rootUrl;
+  auth.codec = options.codec;
+  auth.platform = options.platform || _platform;
+  auth.storage = createStorage(options);
+  auth.providers = createProviders(auth, options);
+  
+  return Promise.all([
       auth._get(),
       auth.storage.get(authCommon.REFRESH_TOKEN_KEY),
       auth.storage.get(authCommon.USER_LOGGED_IN_PT_KEY),
       auth.storage.get(authCommon.DEVICE_ID_KEY)
-    ]).then(([authObj, rt, loggedInProviderType, deviceId]) => {
-      auth.auth = authObj;
-      auth.authedId = authObj.userId;
-      auth.rt = rt;
-      auth.loggedInProviderType = loggedInProviderType;
-      auth.deviceId = deviceId;
+  ]).then(([authObj, rt, loggedInProviderType, deviceId]) => {
+    auth.auth = authObj;
+    auth.authedId = authObj.userId;
+    auth.rt = rt;
+    auth.loggedInProviderType = loggedInProviderType;
+    auth.deviceId = deviceId;
 
-      resolve(auth);
-    });
+    return auth;
   });
 }
 
@@ -296,7 +294,7 @@ export class Auth {
       newUserAuth.userId = json[this.codec.userId];
     }
 
-    this.auth = Object.assign(!!this.auth && {}, newUserAuth);
+    this.auth = Object.assign(this.auth ? this.auth : {}, newUserAuth);
     this.authedId = this.auth.userId;
     setters.push(this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(this.auth)));
     return Promise.all(setters).then(() => this.auth);
