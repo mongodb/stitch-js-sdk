@@ -153,7 +153,7 @@ tasks:
             mkdir test_app
             cd test_app
             npm install --save ../stitch-js-sdk/tmp/mongodb-stitch.tgz
-            node -e 'process.on("unhandledRejection", err => { throw err }); const stitch = require("mongodb-stitch"); const client = new stitch.StitchClient("stitchtest-vsfmv"); client.login()'
+            node -e 'process.on("unhandledRejection", err => { throw err }); const stitch = require("mongodb-stitch"); stitch.StitchClientFactory.create("stitchtest-vsfmv").then(client => client.login());'
 
   - name: dist
     commands:
