@@ -1,7 +1,7 @@
 /* global window, fetch */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 import 'fetch-everywhere';
-import Auth from './auth';
+import { AuthFactory } from './auth';
 import { PROVIDER_TYPE_ANON } from './auth/providers';
 import { APP_CLIENT_CODEC } from './auth/common';
 import ServiceRegistry from './services';
@@ -23,70 +23,93 @@ const API_TYPE_CLIENT = 'client';
 const API_TYPE_APP = 'app';
 
 /**
- * Create a new StitchClient instance.
+  * Factory class to create a new StitchClient asynchronously.
+  */
+export class StitchClientFactory {
+  constructor() {
+    throw new StitchError('StitchClient can only be made from the StitchClientFactory.create function');
+  }
+
+  static create(clientAppID, options = {}) {
+    return newStitchClient(StitchClient.prototype, clientAppID, options);
+  }
+}
+
+export function newStitchClient(prototype, clientAppID, options = {}) {
+  let stitchClient = Object.create(prototype);
+  let baseUrl = common.DEFAULT_STITCH_SERVER_URL;
+  if (options.baseUrl) {
+    baseUrl = options.baseUrl;
+  }
+
+  stitchClient.clientAppID = clientAppID;
+
+  stitchClient.authUrl = (
+    clientAppID ?
+      `${baseUrl}/api/client/v2.0/app/${clientAppID}/auth` :
+      `${baseUrl}/api/admin/v3.0/auth`
+  );
+
+  stitchClient.rootURLsByAPIVersion = {
+    [v1]: {
+      [API_TYPE_PUBLIC]: `${baseUrl}/api/public/v1.0`,
+      [API_TYPE_CLIENT]: `${baseUrl}/api/client/v1.0`,
+      [API_TYPE_PRIVATE]: `${baseUrl}/api/private/v1.0`,
+      [API_TYPE_APP]: (clientAppID ?
+        `${baseUrl}/api/client/v1.0/app/${clientAppID}` :
+        `${baseUrl}/api/public/v1.0`)
+    },
+    [v2]: {
+      [API_TYPE_PUBLIC]: `${baseUrl}/api/public/v2.0`,
+      [API_TYPE_CLIENT]: `${baseUrl}/api/client/v2.0`,
+      [API_TYPE_PRIVATE]: `${baseUrl}/api/private/v2.0`,
+      [API_TYPE_APP]: (clientAppID ?
+        `${baseUrl}/api/client/v2.0/app/${clientAppID}` :
+        `${baseUrl}/api/public/v2.0`)
+    },
+    [v3]: {
+      [API_TYPE_PUBLIC]: `${baseUrl}/api/public/v3.0`,
+      [API_TYPE_CLIENT]: `${baseUrl}/api/client/v3.0`,
+      [API_TYPE_APP]: (clientAppID ?
+        `${baseUrl}/api/client/v3.0/app/${clientAppID}` :
+        `${baseUrl}/api/admin/v3.0`)
+    }
+  };
+
+  const authOptions = {
+    codec: APP_CLIENT_CODEC,
+    storage: options.storage
+  };
+
+  if (options.storageType) {
+    authOptions.storageType = options.storageType;
+  }
+  if (options.platform) {
+    authOptions.platform = options.platform;
+  }
+  if (options.authCodec) {
+    authOptions.codec = options.authCodec;
+  }
+
+  const authPromise = AuthFactory.create(stitchClient, stitchClient.authUrl, authOptions);
+  return authPromise.then(auth => {
+    stitchClient.auth = auth;
+    return Promise.all([
+      stitchClient.auth.handleRedirect(),
+      stitchClient.auth.handleCookie()
+    ]);
+  }).then(() => stitchClient);
+}
+/**
+ * Prototype for StitchClient class.
+ * This is the internal implementation for StitchClient and should not
+ * be exposed.
  *
  * @class
- * @return {StitchClient} a StitchClient instance.
  */
-export default class StitchClient {
-  constructor(clientAppID, options = {}) {
-    let baseUrl = common.DEFAULT_STITCH_SERVER_URL;
-    if (options.baseUrl) {
-      baseUrl = options.baseUrl;
-    }
-
-    this.clientAppID = clientAppID;
-
-    this.authUrl = (
-      clientAppID ?
-        `${baseUrl}/api/client/v2.0/app/${clientAppID}/auth` :
-        `${baseUrl}/api/admin/v3.0/auth`
-    );
-
-    this.rootURLsByAPIVersion = {
-      [v1]: {
-        [API_TYPE_PUBLIC]: `${baseUrl}/api/public/v1.0`,
-        [API_TYPE_CLIENT]: `${baseUrl}/api/client/v1.0`,
-        [API_TYPE_PRIVATE]: `${baseUrl}/api/private/v1.0`,
-        [API_TYPE_APP]: (clientAppID ?
-          `${baseUrl}/api/client/v1.0/app/${clientAppID}` :
-          `${baseUrl}/api/public/v1.0`)
-      },
-      [v2]: {
-        [API_TYPE_PUBLIC]: `${baseUrl}/api/public/v2.0`,
-        [API_TYPE_CLIENT]: `${baseUrl}/api/client/v2.0`,
-        [API_TYPE_PRIVATE]: `${baseUrl}/api/private/v2.0`,
-        [API_TYPE_APP]: (clientAppID ?
-          `${baseUrl}/api/client/v2.0/app/${clientAppID}` :
-          `${baseUrl}/api/public/v2.0`)
-      },
-      [v3]: {
-        [API_TYPE_PUBLIC]: `${baseUrl}/api/public/v3.0`,
-        [API_TYPE_CLIENT]: `${baseUrl}/api/client/v3.0`,
-        [API_TYPE_APP]: (clientAppID ?
-          `${baseUrl}/api/client/v3.0/app/${clientAppID}` :
-          `${baseUrl}/api/admin/v3.0`)
-      }
-    };
-
-    const authOptions = {
-      codec: APP_CLIENT_CODEC,
-      storage: options.storage
-    };
-
-    if (options.storageType) {
-      authOptions.storageType = options.storageType;
-    }
-    if (options.platform) {
-      authOptions.platform = options.platform;
-    }
-    if (options.authCodec) {
-      authOptions.codec = options.authCodec;
-    }
-
-    this.auth = new Auth(this, this.authUrl, authOptions);
-    this.auth.handleRedirect();
-    this.auth.handleCookie();
+export class StitchClient {
+  constructor() {
+    throw new StitchError('StitchClient can only be made from the StitchClientFactory.create function');
   }
 
   get type() {
@@ -137,27 +160,19 @@ export default class StitchClient {
    */
   authenticate(providerType, options = {}) {
     // reuse existing auth if present
-    return Promise.all(
-      [
-        this.isAuthenticated(),
-        this.auth.getLoggedInProviderType()
-      ]
-    ).then(([isAuthenticated, loggedInProviderType]) => {
-      if (isAuthenticated) {
-        if (providerType === PROVIDER_TYPE_ANON && loggedInProviderType === PROVIDER_TYPE_ANON) {
-          return false; // is authenticated, skip log in
-        }
+    const authenticateFn = () =>
+      this.auth.provider(providerType).authenticate(options).then(() => this.authedId());
 
-        return this.logout().then(() => true); // will not be authenticated, continue log in
+    if (this.isAuthenticated()) {
+      if (providerType === PROVIDER_TYPE_ANON && this.auth.getLoggedInProviderType() === PROVIDER_TYPE_ANON) {
+        return Promise.resolve(this.auth.authedId); // is authenticated, skip log in
       }
 
-      return true; // is not authenticated, continue log in
-    }).then((shouldAuth) => {
-      if (shouldAuth) {
-        return this.auth.provider(providerType).authenticate(options);
-      }
-      return;
-    }).then(() => this.auth.authedId());
+      return this.logout().then(() => authenticateFn()); // will not be authenticated, continue log in
+    }
+
+    // is not authenticated, continue log in
+    return authenticateFn();
   }
 
   /**
@@ -194,22 +209,21 @@ export default class StitchClient {
       '/auth/profile',
       'GET',
       {rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]},
-    )
-      .then(response => response.json());
+    ).then(response => response.json());
   }
 
   /**
-  * @return {Promise} whether or not the current client is authenticated
+  * @return {Boolean} whether or not the current client is authenticated
   */
   isAuthenticated() {
-    return this.auth.authedId().then((id) => id !== null && id !== undefined, () => false);
+    return !!this.authedId();
   }
 
   /**
-   *  @return {Promise} Returns a promise resolving to a string of the currently authed user's ID.
+   *  @return {String} Returns a string of the currently authed user's ID.
    */
   authedId() {
-    return this.auth.authedId();
+    return this.auth.authedId;
   }
 
   /**
@@ -464,36 +478,28 @@ export default class StitchClient {
 
     let { url, fetchArgs } = this._fetchArgs(resource, method, options);
     if (!options.noAuth) {
-      return this.authedId().then(authedId => {
-        if (!this.authedId) {
-          return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
-        }
+      const token =
+        options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
 
-        let tokenPromise =
-          options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
-
-        // If access token is expired, proactively get a new one
-        if (!options.useRefreshToken) {
-          return this.auth.isAccessTokenExpired().then(isAccessTokenExpired => {
-            if (isAccessTokenExpired) {
-              return this.auth.refreshToken().then(() => {
-                options.refreshOnFailure = false;
-                return this._do(resource, method, options);
-              });
-            }
-
-            return tokenPromise.then(token => {
-              fetchArgs.headers.Authorization = `Bearer ${token}`;
-              return this._fetch(url, fetchArgs, resource, method, options);
-            });
+      // If access token is expired, proactively get a new one
+      if (!options.useRefreshToken) {
+        if (this.auth.isAccessTokenExpired()) {
+          return this.auth.refreshToken().then(() => {
+            options.refreshOnFailure = false;
+            return this._do(resource, method, options);
           });
         }
 
-        return tokenPromise.then(token => {
-          fetchArgs.headers.Authorization = `Bearer ${token}`;
-          return this._fetch(url, fetchArgs, resource, method, options);
-        });
-      });
+        fetchArgs.headers.Authorization = `Bearer ${token}`;
+        return this._fetch(url, fetchArgs, resource, method, options);
+      }
+
+      fetchArgs.headers.Authorization = `Bearer ${token}`;
+      return this._fetch(url, fetchArgs, resource, method, options);
+    }
+
+    if (!this.isAuthenticated()) {
+      return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
     }
 
     return this._fetch(url, fetchArgs, resource, method, options);

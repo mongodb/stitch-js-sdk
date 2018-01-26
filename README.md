@@ -15,48 +15,51 @@ To transpile to pure JS, run `npm run build` which places the output into `dist/
 
 Construct a simple app-wide client:
 ```
-import { StitchClient } from 'mongodb-stitch';
+import { StitchClientFactory } from 'mongodb-stitch';
 let appId = 'sample-app-ovmyj';
-let stitchClient = new StitchClient(appId);
+let stitchClientPromise = StitchClientFactory.create(appId);
 ```
 
 Authenticate anonymously:
 ```
-stitchClient.login()
+stitchClientPromise.then(stitchClient => stitchClient.login())
   .then(() => console.log('logged in as: ' + stitchClient.authedId()))
   .catch(e => console.log('error: ', e));
 ```
 
 Access MongoDB APIs:
 ```
-let db = stitchClient.service('mongodb', 'mongodb1').db('app-ovmyj'); // mdb1 is the name of the mongodb service registered with the app.
-let itemsCollection = db.collection('items');
+stitchClientPromise.then(stitchClient => {
+  let db = stitchClient.service('mongodb', 'mongodb1').db('app-ovmyj'); // mdb1 is the name of the mongodb service registered with the app.
+  let itemsCollection = db.collection('items');
 
-// CRUD operations:
-stitchClient.authedId().then(userId =>
-  itemsCollection.insertMany(
+  // CRUD operations:
+  const userId = stitchClient.authedId();
+  return itemsCollection.insertMany(
     [ 
       { owner_id: userId, x: 'item1' }, 
       { owner_id: userId, x: 'item2' }, 
       { owner_id: userId, x: 'item3' } 
     ]
-  )
-).then(result => console.log('success: ', result))
+  );
+}).then(result => console.log('success: ', result))
   .catch(e => console.log('error: ', e));
 ```
 
 Execute a function:
 ```
-stitchClient.executeFunction('myFunc', 1, 'arg2', {arg3: true})
-  .then(result => console.log('success: ', result))
-  .catch(e => console.log('error: ', e));;
+stitchClientPromise.then(stitchClient => 
+  stitchClient.executeFunction('myFunc', 1, 'arg2', {arg3: true})
+).then(result => console.log('success: ', result))
+  .catch(e => console.log('error: ', e));
 ```
 
 
 Execute a service function:
 ```
-stitchClient.executeServiceFunction('http1', 'get', {url: 'https://domain.org'})
-  .then(result => console.log('success: ', result))
-  .catch(e => console.log('error: ', e));;
+stitchClientPromise.then(stitchClient =>
+  stitchClient.executeServiceFunction('http1', 'get', {url: 'https://domain.org'})
+).then(result => console.log('success: ', result))
+  .catch(e => console.log('error: ', e));
 ```
 

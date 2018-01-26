@@ -1,4 +1,4 @@
-const Admin = require('../../src/admin');
+import { StitchAdminClientFactory } from '../../src/admin';
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
 const { DEFAULT_URI, DEFAULT_SERVER_URL } = require('../constants');
@@ -40,9 +40,8 @@ export default class StitchFixture {
     await this.mongo.db('auth').collection('groups').insert(userData.group);
     this.userData = userData;
 
-    this.admin = new Admin(this.options.baseUrl);
+    this.admin = await StitchAdminClientFactory.create(this.options.baseUrl);
     await this.admin.authenticate('apiKey', userData.apiKey.key);
-    return;
   }
 
   async teardown() {

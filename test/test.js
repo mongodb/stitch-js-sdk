@@ -1,10 +1,10 @@
 /* global expect, it, describe, global, afterEach, beforeEach, afterAll, beforeAll, require, Buffer, Promise */
 const fetchMock = require('fetch-mock');
 const URL = require('url-parse');
-import StitchClient from '../src/client';
+import { StitchClientFactory } from '../src/client';
 import { JSONTYPE, DEFAULT_STITCH_SERVER_URL } from '../src/common';
 import { REFRESH_TOKEN_KEY } from '../src/auth/common';
-import Auth from '../src/auth';
+import { AuthFactory } from '../src/auth';
 import { mocks } from 'mock-browser';
 import ExtJSON from 'mongodb-extjson';
 
@@ -62,14 +62,14 @@ const envConfigs = [
   }
 ];
 
-describe('Redirect fragment parsing', () => {
+describe('Redirect fragment parsing', async() => {
   const makeFragment = (parts) => (
     Object.keys(parts).map(
       (key) => (encodeURIComponent(key) + '=' + parts[key])
     ).join('&')
   );
 
-  const a = new Auth(null, '/auth');
+  const a = await AuthFactory.create(null, '/auth');
   it('should detect valid states', () => {
     let result = a.parseRedirectFragment(makeFragment({'_stitch_state': 'state_XYZ'}), 'state_XYZ');
     expect(result.stateValid).toBe(true);
@@ -159,30 +159,30 @@ describe('Auth', () => {
         capturedDevice = undefined;
       });
 
-      it('get() set() clear() authedId() should work', async() => {
+      it('get() set() clear() authedId should work', async() => {
         expect.assertions(4);
-        const a = new Auth(null, '/auth');
+        const a = await AuthFactory.create(null, '/auth');
         expect(await a._get()).toEqual({});
 
         const testUser = {'access_token': 'bar', 'user_id': hexStr};
         await a.set(testUser, 'foo');
         expect(await a._get()).toEqual({'accessToken': 'bar', 'userId': hexStr});
-        expect(await a.authedId()).toEqual(hexStr);
+        expect(a.authedId).toEqual(hexStr);
 
         await a.clear();
         expect(await a._get()).toEqual({});
       });
 
-      it('should local auth successfully', () => {
+      it('should local auth successfully', async() => {
         expect.assertions(1);
-        const a = new Auth(null, '/auth');
+        const a = await AuthFactory.create(null, '/auth');
         return a.provider('userpass').authenticate({ username: 'user', password: 'password' })
-          .then(async() => expect(await a.authedId()).toEqual(hexStr));
+          .then(() => expect(a.authedId).toEqual(hexStr));
       });
 
-      it('should send device info with local auth request', () => {
+      it('should send device info with local auth request', async() => {
         expect.assertions(6);
-        const a = new Auth(null, '/auth');
+        const a = await AuthFactory.create(null, '/auth');
         return a.provider('userpass').authenticate({ username: 'user', password: 'password' })
           .then(() => {
             expect('appId' in capturedDevice).toBeTruthy();
@@ -191,22 +191,22 @@ describe('Auth', () => {
             expect('platformVersion' in capturedDevice).toBeTruthy();
             expect('sdkVersion' in capturedDevice).toBeTruthy();
 
-            // a new Auth does not have a deviceId to send
+            // a await AuthFactory.create does not have a deviceId to send
             expect('deviceId' in capturedDevice).toBeFalsy();
           });
       });
 
       it('should set device ID on successful local auth request', async() => {
         expect.assertions(2);
-        const a = new Auth(null, '/auth');
+        const a = await AuthFactory.create(null, '/auth');
         expect(await a.getDeviceId()).toBeNull();
         return a.provider('userpass').authenticate({ username: 'user', password: 'password' })
           .then(async() => expect(await a.getDeviceId()).toEqual(mockDeviceId));
       });
 
-      it('should not set device ID on unsuccessful local auth request', () => {
+      it('should not set device ID on unsuccessful local auth request', async() => {
         expect.assertions(1);
-        const a = new Auth(null, '/auth');
+        const a = await AuthFactory.create(null, '/auth');
         return a.provider('userpass').authenticate({ username: 'fake-user', password: 'password' })
           .then(() => console.log('expected error'))
           .catch(async() => expect(await a.getDeviceId()).toBeNull());
@@ -214,7 +214,7 @@ describe('Auth', () => {
 
       it('should not clear device id on logout', async() => {
         expect.assertions(3);
-        const testClient = new StitchClient('testapp');
+        const testClient = await StitchClientFactory.create('testapp');
         expect(await testClient.auth.getDeviceId()).toBeNull();
         return testClient.login('user', 'password')
           .then(async() => {
@@ -228,7 +228,7 @@ describe('Auth', () => {
 
       it('should send device ID with device info with local auth request on subsequent logins', async() => {
         expect.assertions(3);
-        const testClient = new StitchClient('testapp');
+        const testClient = await StitchClientFactory.create('testapp');
         expect(await testClient.auth.getDeviceId()).toBeNull();
         return testClient.login('user', 'password')
           .then(async() => {
@@ -240,9 +240,9 @@ describe('Auth', () => {
           });
       });
 
-      it('should have an error if local auth is unsuccessful', (done) => {
+      it('should have an error if local auth is unsuccessful', async(done) => {
         expect.assertions(4);
-        const a = new Auth(null, '/auth');
+        const a = await AuthFactory.create(null, '/auth');
         return a.provider('userpass').authenticate({ username: 'fake-user', password: 'password' })
           .then(() => done('expected an error on unsuccessful login'))
           .catch(e => {
@@ -254,9 +254,9 @@ describe('Auth', () => {
           });
       });
 
-      it('should have an error if server returns non-JSON', (done) => {
+      it('should have an error if server returns non-JSON', async(done) => {
         expect.assertions(3);
-        const a = new Auth(null, '/auth');
+        const a = await AuthFactory.create(null, '/auth');
         return a.provider('userpass').authenticate({ username: 'html', password: 'password' })
           .then(() => done('expected an error on unsuccessful login'))
           .catch(e => {
@@ -267,29 +267,29 @@ describe('Auth', () => {
           });
       });
 
-      it('should allow setting access tokens', () => {
+      it('should allow setting access tokens', async() => {
         expect.assertions(3);
-        const auth = new Auth(null, '/auth');
+        const auth = await AuthFactory.create(null, '/auth');
         return auth.provider('userpass').authenticate({ username: 'user', password: 'password' })
           .then(async() => {
-            expect(await auth.authedId()).toEqual(hexStr);
+            expect(auth.authedId).toEqual(hexStr);
             expect(await auth.getAccessToken()).toBeUndefined();
             await auth.set({'access_token': 'foo'}, 'anon');
             expect(await auth.getAccessToken()).toEqual('foo');
           });
       });
 
-      it('should be able to access auth methods from client', () => {
+      it('should be able to access auth methods from client', async() => {
         expect.assertions(4);
-        let testClient = new StitchClient('testapp');
+        let testClient = await StitchClientFactory.create('testapp');
         return testClient.login('user', 'password')
           .then(async() => {
-            expect(await testClient.authedId()).toEqual(hexStr);
+            expect(testClient.authedId()).toEqual(hexStr);
             expect(testClient.authError()).toBeFalsy();
           })
           .then(() => testClient.logout())
           .then(async() => {
-            expect(await testClient.authedId()).toBeFalsy();
+            expect(testClient.authedId()).toBeFalsy();
             expect(testClient.authError()).toBeFalsy();
           });
       });
@@ -313,8 +313,8 @@ describe('http error responses', () => {
       fetchMock.post(LOCALAUTH_URL, {user_id: hexStr});
     });
 
-    it('should return a StitchError instance with the error and error_code extracted', (done) => {
-      const testClient = new StitchClient('testapp');
+    it('should return a StitchError instance with the error and error_code extracted', async(done) => {
+      const testClient = await StitchClientFactory.create('testapp');
       return testClient.login('user', 'password')
         .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
         .catch(e => {
@@ -352,13 +352,13 @@ describe('anonymous auth', () => {
     });
   });
 
-  it('can authenticate with anonymous auth method', () => {
+  it('can authenticate with anonymous auth method', async() => {
     expect.assertions(3);
-    let testClient = new StitchClient('testapp');
+    let testClient = await StitchClientFactory.create('testapp');
     return testClient.login()
       .then(async() => {
         expect(await testClient.auth.getAccessToken()).toEqual('test-access-token');
-        expect(await testClient.authedId()).toEqual(hexStr);
+        expect(testClient.authedId()).toEqual(hexStr);
       })
       .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
       .then((response) => expect(response.x).toEqual(1));
@@ -396,21 +396,21 @@ describe('custom auth', () => {
     });
   });
 
-  it('can authenticate with custom auth method', () => {
+  it('can authenticate with custom auth method', async() => {
     expect.assertions(3);
-    let testClient = new StitchClient('testapp');
+    let testClient = await StitchClientFactory.create('testapp');
     return testClient.authenticate('custom', 'jwt')
       .then(async() => {
         expect(await testClient.auth.getAccessToken()).toEqual('test-access-token');
-        expect(await testClient.authedId()).toEqual(hexStr);
+        expect(testClient.authedId()).toEqual(hexStr);
       })
       .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
       .then((response) => expect(response.x).toEqual(1));
   });
 
-  it('gets a rejected promise if using an invalid JWT', (done) => {
+  it('gets a rejected promise if using an invalid JWT', async(done) => {
     expect.assertions(3);
-    let testClient = new StitchClient('testapp');
+    let testClient = await StitchClientFactory.create('testapp');
     return testClient.authenticate('custom', 'notthejwt')
       .then(() => {
         done('Error should have been thrown, but was not');
@@ -448,20 +448,20 @@ describe('api key auth/logout', () => {
     });
   });
 
-  it('can authenticate with a valid api key', () => {
+  it('can authenticate with a valid api key', async() => {
     expect.assertions(2);
-    let testClient = new StitchClient('testapp');
+    let testClient = await StitchClientFactory.create('testapp');
     return testClient.authenticate('apiKey', 'valid-api-key')
-      .then(async() => expect(await testClient.authedId()).toEqual(hexStr))
+      .then(async() => expect(testClient.authedId()).toEqual(hexStr))
       .then(() => testClient.executeFunction('testfunc', {items: [{x: 1}]}, 'hello'))
       .then(response => {
         expect(response.x).toEqual(1);
       });
   });
 
-  it('gets a rejected promise if using an invalid API key', (done) => {
+  it('gets a rejected promise if using an invalid API key', async(done) => {
     expect.assertions(3);
-    let testClient = new StitchClient('testapp');
+    let testClient = await StitchClientFactory.create('testapp');
     return testClient.authenticate('apiKey', 'INVALID_KEY')
       .then(() => {
         done('Error should have been thrown, but was not');
@@ -512,20 +512,20 @@ describe('login/logout', () => {
         });
       });
 
-      it('stores the refresh token after logging in', () => {
+      it('stores the refresh token after logging in', async() => {
         expect.assertions(3);
-        let testClient = new StitchClient('testapp');
+        let testClient = await StitchClientFactory.create('testapp');
         return testClient.login('user', 'password')
           .then(async() => {
             let storedToken = await testClient.auth.storage.get(REFRESH_TOKEN_KEY);
             expect(storedToken).toEqual(testOriginalRefreshToken);
             expect(await testClient.auth.getAccessToken()).toEqual(testOriginalAccessToken);
-            expect(await testClient.authedId()).toEqual(hexStr);
+            expect(testClient.authedId()).toEqual(hexStr);
           });
       });
 
-      it('can get a user profile', () => {
-        let testClient = new StitchClient('testapp');
+      it('can get a user profile', async() => {
+        let testClient = await StitchClientFactory.create('testapp');
         return testClient.login('user', 'password')
           .then(() => testClient.userProfile())
           .then(response => {
@@ -533,9 +533,9 @@ describe('login/logout', () => {
           });
       });
 
-      it('fetches a new access token if InvalidSession is received', () => {
+      it('fetches a new access token if InvalidSession is received', async() => {
         expect.assertions(4);
-        let testClient = new StitchClient('testapp');
+        let testClient = await StitchClientFactory.create('testapp');
         return testClient.login('user', 'password')
           .then(() => testClient.executeFunction('testfunc', {items: [{x: 1}]}, 'hello'))
           .then(response => {
@@ -551,11 +551,11 @@ describe('login/logout', () => {
             expect(response.x).toEqual(2);
           })
           .then(async() => {
-            expect(await testClient.auth.getAccessToken()).toEqual(validAccessTokens[0]);
+            expect(testClient.auth.getAccessToken()).toEqual(validAccessTokens[0]);
           })
           .then(async() => {
             await testClient.auth.clear();
-            expect(await testClient.authedId()).toBeFalsy();
+            expect(testClient.authedId()).toBeFalsy();
           });
       });
     });
@@ -595,7 +595,7 @@ describe('proactive token refresh', () => {
     });
   });
 
-  it('proactively fetches a new access token if the locally stored token is expired', () => {
+  it('proactively fetches a new access token if the locally stored token is expired', async() => {
     expect.assertions(5);
 
     fetchMock.post(LOCALAUTH_URL, {
@@ -604,11 +604,11 @@ describe('proactive token refresh', () => {
       access_token: testExpiredAccessToken
     });
 
-    let testClient = new StitchClient('testapp');
+    let testClient = await StitchClientFactory.create('testapp');
     return testClient.login('user', 'password')
-      .then(async() => {
+      .then(() => {
         // make sure we are starting with the expired access token
-        expect(await testClient.auth.getAccessToken()).toEqual(testExpiredAccessToken);
+        expect(testClient.auth.getAccessToken()).toEqual(testExpiredAccessToken);
         return testClient.executeFunction('testfunc', {items: [{x: 1}]}, 'hello');
       })
       .then(response => {
@@ -618,15 +618,15 @@ describe('proactive token refresh', () => {
       .then(async() => {
         // make sure token was updated
         expect(refreshCount).toEqual(1);
-        expect(await testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
+        expect(testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
       })
       .then(async() => {
         await testClient.auth.clear();
-        expect(await testClient.authedId()).toBeFalsy();
+        expect(testClient.authedId()).toBeFalsy();
       });
   });
 
-  it('does not fetch a new access token if the locally stored token is not expired/expiring', () => {
+  it('does not fetch a new access token if the locally stored token is not expired/expiring', async() => {
     expect.assertions(5);
 
     fetchMock.post(LOCALAUTH_URL, {
@@ -635,11 +635,11 @@ describe('proactive token refresh', () => {
       access_token: testUnexpiredAccessToken
     });
 
-    let testClient = new StitchClient('testapp');
+    let testClient = await StitchClientFactory.create('testapp');
     return testClient.login('user', 'password')
       .then(async() => {
         // make sure we are starting with the unexpired access token
-        expect(await testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
+        expect(testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
         return testClient.executeFunction('testfunc', {items: [{x: 1}]}, 'hello');
       })
       .then(response => {
@@ -648,11 +648,11 @@ describe('proactive token refresh', () => {
       .then(async() => {
         // make sure token was not updated
         expect(refreshCount).toEqual(0);
-        expect(await testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
+        expect(testClient.auth.getAccessToken()).toEqual(testUnexpiredAccessToken);
       })
       .then(async() => {
         await testClient.auth.clear();
-        expect(await testClient.authedId()).toBeFalsy();
+        expect(testClient.authedId()).toBeFalsy();
       });
   });
 });
@@ -670,8 +670,8 @@ describe('client options', () => {
     });
   });
 
-  it('allows overriding the base url', () => {
-    let testClient = new StitchClient('testapp', {baseUrl: 'https://stitch2.mongodb.com'});
+  it('allows overriding the base url', async() => {
+    let testClient = await StitchClientFactory.create('testapp', {baseUrl: 'https://stitch2.mongodb.com'});
     expect.assertions(1);
     return testClient.login('user', 'password')
       .then(() => {
@@ -682,8 +682,8 @@ describe('client options', () => {
       });
   });
 
-  it('returns a rejected promise if trying to execute a pipeline without auth', (done) => {
-    let testClient = new StitchClient('testapp');
+  it('returns a rejected promise if trying to execute a pipeline without auth', async(done) => {
+    let testClient = await StitchClientFactory.create('testapp');
     testClient.logout()
       .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
       .then(() => {
@@ -709,9 +709,9 @@ describe('function execution', () => {
           });
         });
 
-        it('should decode extended json from function responses', () => {
+        it('should decode extended json from function responses', async() => {
           expect.assertions(1);
-          let testClient = new StitchClient('testapp');
+          let testClient = await StitchClientFactory.create('testapp');
           return testClient.login('user', 'password')
             .then(() => testClient.executeFunction('testfunc', {items: [{x: {'$oid': hexStr}}]}, 'hello'))
             .then((response) => expect(response.x).toEqual(new ExtJSON.BSON.ObjectID(hexStr)));
@@ -729,9 +729,9 @@ describe('function execution', () => {
           });
         });
 
-        it('should encode objects to extended json for outgoing function request body', () => {
+        it('should encode objects to extended json for outgoing function request body', async() => {
           expect.assertions(1);
-          let testClient = new StitchClient('testapp', {baseUrl: ''});
+          let testClient = await StitchClientFactory.create('testapp', {baseUrl: ''});
           return testClient.login('user', 'password')
             .then(() => testClient.executeFunction('testfunc', {x: new ExtJSON.BSON.ObjectID(hexStr)}, 'hello'))
             .then(response => expect(JSON.parse(requestArg.body)).toEqual({name: 'testfunc', arguments: [{x: {'$oid': hexStr}}, 'hello']}));
@@ -751,9 +751,9 @@ describe('function execution', () => {
           });
         });
 
-        it('promise should be rejected', () => {
+        it('promise should be rejected', async() => {
           expect.assertions(2);
-          let testClient = new StitchClient('testapp', {baseUrl: ''});
+          let testClient = await StitchClientFactory.create('testapp', {baseUrl: ''});
           return testClient.login('user', 'password')
             .then(() => testClient.executeFunction('testfunc', {x: new ExtJSON.BSON.ObjectID(hexStr)}, 'hello'))
             .catch(e => {
