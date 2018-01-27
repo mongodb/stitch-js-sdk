@@ -1,9 +1,10 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 import { StitchClientFactory } from '../../src/client';
+import { BSON } from 'mongodb-extjson';
 
-const TEST_DB = 'mongosvccommandtest';
-const TESTNS1 = 'documents';
-const TESTNS2 = 'documents2';
+const TEST_DB = new BSON.ObjectId().toString();
+const TESTNS1 = new BSON.ObjectId().toString();
+const TESTNS2 = new BSON.ObjectId().toString();
 
 import { buildAdminTestHarness, extractTestFixtureDataPoints } from '../testutil';
 

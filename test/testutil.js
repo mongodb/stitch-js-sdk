@@ -1,5 +1,6 @@
 import { StitchAdminClientFactory } from '../src/admin';
 import { StitchClientFactory } from '../src/client';
+import { BSON } from 'mongodb-extjson';
 
 const constants = require('./constants');
 
@@ -65,7 +66,10 @@ class TestHarness {
     });
   }
 
-  async createApp(testAppName = 'test-app') {
+  async createApp(testAppName) {
+    if (!testAppName) {
+      testAppName = `test-${new BSON.ObjectId().toString()}`;
+    }
     this.testApp = await this.apps().create({ name: testAppName });
     return this.testApp;
   }

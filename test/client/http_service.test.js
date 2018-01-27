@@ -34,7 +34,7 @@ describe('Executing http service functions', () => {
 
   describe('That have no matching service rules', () => {
     it('should fail due to no matching rule found', async() => {
-      expect(service.get(server.url)).rejects.toMatchObject({
+      await expect(service.get(server.url)).rejects.toMatchObject({
         name: 'StitchError',
         code: 'NoMatchingRuleFound',
         response: { status: 403 }
@@ -58,7 +58,7 @@ describe('Executing http service functions', () => {
 
     describe('And an unavailable mock server', () => {
       it('should fail due to a function execution error', async() => {
-        expect(service.get(server.url)).rejects.toMatchObject({
+        await expect(service.get(server.url)).rejects.toMatchObject({
           name: 'StitchError',
           code: 'FunctionExecutionError',
           response: { status: 400 }
@@ -76,7 +76,7 @@ describe('Executing http service functions', () => {
 
       describe('Submitting an invalid request', () => {
         it('should fail when an invalid url value is supplied', async() => {
-          expect(service.get({ url: 'invalidurl' })).rejects.toMatchObject({
+          await expect(service.get({ url: 'invalidurl' })).rejects.toMatchObject({
             name: 'StitchError',
             code: 'FunctionExecutionError',
             response: { status: 400 }
@@ -84,7 +84,7 @@ describe('Executing http service functions', () => {
         });
 
         it('should fail when an invalid url datatype is supplied', async() => {
-          expect(service.get({ url: 10281995 })).rejects.toMatchObject({
+          await expect(service.get({ url: 10281995 })).rejects.toMatchObject({
             name: 'StitchError',
             code: 'InvalidParameter',
             response: { status: 400 }
@@ -92,7 +92,7 @@ describe('Executing http service functions', () => {
         });
 
         it('should fail when both url and scheme+host are supplied', async() => {
-          expect(
+          await expect(
             service.get({
               url: 'http://locahost',
               scheme: 'http',

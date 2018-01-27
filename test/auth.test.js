@@ -1,6 +1,7 @@
 import sinon from 'sinon';
 import { StitchClientFactory } from '../src/client';
 import { PROVIDER_TYPE_ANON, PROVIDER_TYPE_USERPASS } from '../src/auth/providers';
+import { StitchError, ErrUnauthorized } from '../src/errors';
 import StitchMongoFixture from './fixtures/stitch_mongo_fixture';
 import { buildClientTestHarness, extractTestFixtureDataPoints } from './testutil';
 
@@ -63,6 +64,15 @@ describe('Auth', () => {
     let client = await StitchClientFactory.create();
 
     expect(await client.login('email', 'password')).toEqual('fake-user-id');
+  });
+
+  it('should fail trying to do an authed action', async() => {
+    expect.assertions(1);
+
+    let client = await StitchClientFactory.create();
+
+    await expect(client.executeServiceFunction('someService', 'someAction')).rejects
+      .toEqual(new StitchError('Must auth first', ErrUnauthorized));
   });
 });
 
