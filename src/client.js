@@ -477,31 +477,30 @@ export class StitchClient {
     }, options);
 
     let { url, fetchArgs } = this._fetchArgs(resource, method, options);
-    if (!options.noAuth) {
-      const token =
-        options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
+    if (options.noAuth) {
+      return this._fetch(url, fetchArgs, resource, method, options);
+    }
+    
+    if (!this.isAuthenticated()) {
+      return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
+    }
+    const token =
+      options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
 
-      // If access token is expired, proactively get a new one
-      if (!options.useRefreshToken) {
-        if (this.auth.isAccessTokenExpired()) {
-          return this.auth.refreshToken().then(() => {
-            options.refreshOnFailure = false;
-            return this._do(resource, method, options);
-          });
-        }
-
-        fetchArgs.headers.Authorization = `Bearer ${token}`;
-        return this._fetch(url, fetchArgs, resource, method, options);
+    // If access token is expired, proactively get a new one
+    if (!options.useRefreshToken) {
+      if (this.auth.isAccessTokenExpired()) {
+        return this.auth.refreshToken().then(() => {
+          options.refreshOnFailure = false;
+          return this._do(resource, method, options);
+        });
       }
 
       fetchArgs.headers.Authorization = `Bearer ${token}`;
       return this._fetch(url, fetchArgs, resource, method, options);
     }
 
-    if (!this.isAuthenticated()) {
-      return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
-    }
-
+    fetchArgs.headers.Authorization = `Bearer ${token}`;
     return this._fetch(url, fetchArgs, resource, method, options);
   }
 }
