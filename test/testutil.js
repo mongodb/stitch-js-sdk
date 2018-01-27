@@ -68,7 +68,7 @@ class TestHarness {
 
   async createApp(testAppName) {
     if (!testAppName) {
-      testAppName = `test-${new BSON.ObjectId().toString()}`
+      testAppName = `test-${new BSON.ObjectId().toString()}`;
     }
     this.testApp = await this.apps().create({ name: testAppName });
     return this.testApp;

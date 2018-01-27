@@ -136,9 +136,9 @@ describe('Client API executing user api crud functions', () => {
     let userKeyName = 'userKey1';
     let apiID;
     await th.stitchClient.createApiKey(userKeyName).then(async(response) => {
-        assertApiKey(response, userKeyName, response._id, false);
-        apiID = response._id;
-      })
+      assertApiKey(response, userKeyName, response._id, false);
+      apiID = response._id;
+    })
       .then(async() => {
         const p2 = await th.stitchClient.disableApiKeyByID(apiID);
         return p2;

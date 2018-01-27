@@ -480,7 +480,7 @@ export class StitchClient {
     if (options.noAuth) {
       return this._fetch(url, fetchArgs, resource, method, options);
     }
-    
+
     if (!this.isAuthenticated()) {
       return Promise.reject(new StitchError('Must auth first', ErrUnauthorized));
     }
