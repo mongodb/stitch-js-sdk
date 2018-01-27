@@ -1,11 +1,12 @@
 /* global expect, it, describe, global, afterEach, beforeEach, afterAll, beforeAll, require, Buffer, Promise */
 import { buildClientTestHarness, extractTestFixtureDataPoints } from '../testutil';
+import { BSON } from 'mongodb-extjson';
 
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 const SERVICE_TYPE = 'mongodb';
 const SERVICE_NAME = 'mdb';
-const TEST_DB = 'test_db';
-const TEST_COLLECTION = 'test_collection';
+const TEST_DB = new BSON.ObjectId().toString();
+const TEST_COLLECTION = new BSON.ObjectId().toString();
 
 describe('Client API executing user api crud functions', () => {
   let test = new StitchMongoFixture();
