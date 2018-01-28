@@ -320,7 +320,7 @@ function facebookProvider(auth) {
      */
     authenticate: data => {
       let { accessToken } = data;
-      
+
       if (accessToken) {
         const deviceId = auth.getDeviceId();
         const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
