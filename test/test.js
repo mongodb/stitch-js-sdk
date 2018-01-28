@@ -248,8 +248,8 @@ describe('Auth', () => {
           .catch(e => {
             expect(e).toBeInstanceOf(Error);
             expect(e.response.status).toBe(401);
-            expect(e.error).toBe('unauthorized');
-            expect(e.error_code).toBe('unauthorized');
+            expect(e.message).toBe('unauthorized');
+            expect(e.code).toBe('unauthorized');
             done();
           });
       });
@@ -262,7 +262,7 @@ describe('Auth', () => {
           .catch(e => {
             expect(e).toBeInstanceOf(Error);
             expect(e.response.status).toBe(500);
-            expect(e.error).toBe('Internal Server Error');
+            expect(e.message).toBe('Internal Server Error');
             done();
           });
       });
@@ -418,7 +418,7 @@ describe('custom auth', () => {
       .catch(e => {
         expect(e).toBeInstanceOf(Error);
         expect(e.response.status).toBe(401);
-        expect(e.error).toBe('unauthorized');
+        expect(e.message).toBe('unauthorized');
         done();
       });
   });
@@ -469,7 +469,7 @@ describe('api key auth/logout', () => {
       .catch(e => {
         expect(e).toBeInstanceOf(Error);
         expect(e.response.status).toBe(401);
-        expect(e.error).toBe('unauthorized');
+        expect(e.message).toBe('unauthorized');
         done();
       });
   });
