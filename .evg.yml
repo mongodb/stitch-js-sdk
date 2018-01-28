@@ -101,6 +101,9 @@ tasks:
       - name: check_import
         status: "*"
         variant: linux-64
+      - name: eslint
+        status: "*"
+        variant: "linux-64"
     commands:
       - command: shell.exec
         params:
@@ -260,6 +263,18 @@ tasks:
                 aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/${branch_name} --recursive --acl public-read
             fi
 
+  - name: eslint
+    commands:
+      - func: "fetch_source"
+      - command: shell.exec
+        params:
+          script: |
+            set -e
+            cd stitch-js-sdk
+            echo "linting"
+            npm install
+            npm run lint --quiet
+
 buildvariants:
 - name: linux-64
   display_name: Linux-64
@@ -273,4 +288,5 @@ buildvariants:
     - name: dist
     - name: check_import
     - name: docs_dist
+    - name: eslint
     - name: github_pull_request_end
