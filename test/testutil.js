@@ -80,8 +80,10 @@ class TestHarness {
     return this.user;
   }
 
-  async setupStitchClient() {
-    await this.configureUserpass();
+  async setupStitchClient(shouldConfigureUserAuth = true) {
+    if (shouldConfigureUserAuth) {
+      await this.configureUserpass();
+    }
     await this.createUser();
 
     this.stitchClient = await StitchClientFactory.create(

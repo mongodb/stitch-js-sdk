@@ -50,12 +50,23 @@ describe('Users', ()=>{
     expect(fetchedUser.type).toEqual(createdUser.type);
     return fetchedUser;
   }
+
+  async function fetchUserDevicesWithExpectation() {
+    await th.setupStitchClient(false);
+    let devices = await appUsers.user(th.user._id).devices().get();
+    expect(devices.length).toEqual(1);
+    expect(devices[0].platform).toEqual('node');
+  }
   it('creating user should make it appear in list', async() => {
     await createUserWithExpectation();
   });
 
   it('can fetch a user by id', async() => {
     await fetchUserByIdWithExpectation();
+  });
+
+  it('can fetch a users devices', async() => {
+    await fetchUserDevicesWithExpectation();
   });
 
   it('can remove a user by id', async() => {
