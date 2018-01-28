@@ -1,16 +1,27 @@
 /* global window, fetch */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 import 'fetch-everywhere';
-import StitchClient from './client';
+import { newStitchClient, StitchClient } from './client';
 import ADMIN_CLIENT_TYPE from './common';
 import { ADMIN_CLIENT_CODEC } from './auth/common';
 
 const v2 = 2;
 const v3 = 3;
 
-export default class Admin extends StitchClient {
-  constructor(baseUrl) {
-    super('', {baseUrl, authCodec: ADMIN_CLIENT_CODEC});
+export class StitchAdminClientFactory {
+  constructor() {
+    throw new StitchError('StitchAdminClient can only be made from the StitchAdminClientFactory.create function');
+  }
+
+  static create(baseUrl) {
+    return newStitchClient(StitchAdminClient.prototype, '', {baseUrl, authCodec: ADMIN_CLIENT_CODEC});
+  }
+}
+
+export class StitchAdminClient extends StitchClient {
+  constructor() {
+    super();
+    throw new StitchError('StitchAdminClient can only be made from the StitchAdminClientFactory.create function');
   }
 
   get type() {
@@ -220,7 +231,12 @@ export default class Admin extends StitchClient {
             create: (user) => api._post(`${appUrl}/users`, user),
             user: (uid) => ({
               get: () => api._get(`${appUrl}/users/${uid}`),
+              devices: () => ({
+                get: () => api._get(`${appUrl}/users/${uid}/devices`)
+              }),
               logout: () => api._put(`${appUrl}/users/${uid}/logout`),
+              enable: () => api._put(`${appUrl}/users/${uid}/enable`),
+              disable: () => api._put(`${appUrl}/users/${uid}/disable`),
               remove: () => api._delete(`${appUrl}/users/${uid}`)
             })
           }),

@@ -5,7 +5,7 @@ import { createStorage, MemoryStorage } from '../src/auth/storage';
 import { USER_AUTH_KEY, REFRESH_TOKEN_KEY, DEVICE_ID_KEY, STATE_KEY, USER_LOGGED_IN_PT_KEY } from '../src/auth/common';
 
 import { mocks } from 'mock-browser';
-import { StitchClient } from '../src/index';
+import { StitchClientFactory } from '../src/client';
 import { buildClientTestHarness, extractTestFixtureDataPoints } from './testutil';
 
 const MockBrowser = mocks.MockBrowser;
@@ -76,22 +76,22 @@ describe('storage', function() {
     });
 
     it(`should allow for two unique clients to coexist for ${storageType}`, async() => {
-      const client1 = new StitchClient(`test-app1-${storageType}`);
-      const client2 = new StitchClient(`test-app2-${storageType}`);
+      const client1 = await StitchClientFactory.create(`test-app1-${storageType}`);
+      const client2 = await StitchClientFactory.create(`test-app2-${storageType}`);
 
-      const ogAuth1 = JSON.parse(await client1.auth.set({
+      const ogAuth1 = await client1.auth.set({
         'access_token': 'quux',
         'refresh_token': 'corge',
         'device_id': 'uier',
         'user_id': 'grault'
-      }, 'anon'));
+      }, 'anon');
 
-      const ogAuth2 = JSON.parse(await client2.auth.set({
+      const ogAuth2 = await client2.auth.set({
         'access_token': 'foo',
         'refresh_token': 'bar',
         'device_id': 'baz',
         'user_id': 'qux'
-      }, 'anon'));
+      }, 'anon');
 
       const fetchedAuth1 = await client1.auth._get();
       const fetchedAuth2 = await client2.auth._get();
@@ -136,7 +136,7 @@ describe('storage', function() {
     await _runReverseMigration(null, client.auth.storage);
 
     // this client will be running the migrated storage
-    client = new StitchClient(client.clientAppID);
+    client = await StitchClientFactory.create(client.clientAppID);
 
     // if the authId is defined, we're still logged in
     expect(await client.authedId).toBeDefined();

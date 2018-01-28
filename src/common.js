@@ -1,3 +1,5 @@
+import { StitchError } from './errors';
+
 export const JSONTYPE = 'application/json';
 export const APP_CLIENT_TYPE = 'app';
 export const ADMIN_CLIENT_TYPE = 'admin';
@@ -15,16 +17,19 @@ export const checkStatus = (response) => {
     return response;
   }
 
-  let error = new Error(response.statusText);
+  if (response.headers.get('Content-Type') === JSONTYPE) {
+    return response.json()
+      .then(json => {
+        const error = new StitchError(json.error, json.error_code);
+        error.response = response;
+        error.json = json;
+        return Promise.reject(error);
+      });
+  }
+
+  const error = new Error(response.statusText);
   error.response = response;
-
-  // set error to statusText by default; this will be overwritten when (and if)
-  // the response is successfully parsed into json below
-  error.error = response.statusText;
-
-  return response.json()
-    .catch(() => Promise.reject(error))
-    .then(json => Promise.reject(Object.assign(error, json)));
+  return Promise.reject(error);
 };
 
 export const makeFetchArgs = (method, body) => {

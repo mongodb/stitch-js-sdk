@@ -1,4 +1,7 @@
-const stitch = require('../src');
+import { StitchAdminClientFactory } from '../src/admin';
+import { StitchClientFactory } from '../src/client';
+import { BSON } from 'mongodb-extjson';
+
 const constants = require('./constants');
 
 export const extractTestFixtureDataPoints = (test) => {
@@ -13,7 +16,7 @@ export const extractTestFixtureDataPoints = (test) => {
 };
 
 export const buildAdminTestHarness = async(seedTestApp, apiKey, groupId, serverUrl) => {
-  const harness = new TestHarness(apiKey, groupId, serverUrl);
+  const harness = await TestHarness.initialize(apiKey, groupId, serverUrl);
   await harness.authenticate();
   if (seedTestApp) {
     await harness.createApp();
@@ -28,11 +31,17 @@ export const buildClientTestHarness = async(apiKey, groupId, serverUrl) => {
 };
 
 class TestHarness {
+  static async initialize(apiKey, groupId, serverUrl = constants.DEFAULT_SERVER_URL) {
+    const testHarness = new TestHarness(apiKey, groupId, serverUrl);
+    testHarness.adminClient = await testHarness.adminPromise;
+    return testHarness;
+  }
+
   constructor(apiKey, groupId, serverUrl = constants.DEFAULT_SERVER_URL) {
     this.apiKey = apiKey;
     this.groupId = groupId;
     this.serverUrl = serverUrl;
-    this.adminClient = new stitch.Admin(this.serverUrl);
+    this.adminPromise = StitchAdminClientFactory.create(this.serverUrl);
   }
 
   async authenticate() {
@@ -57,7 +66,10 @@ class TestHarness {
     });
   }
 
-  async createApp(testAppName = 'test-app') {
+  async createApp(testAppName) {
+    if (!testAppName) {
+      testAppName = `test-${new BSON.ObjectId().toString()}`;
+    }
     this.testApp = await this.apps().create({ name: testAppName });
     return this.testApp;
   }
@@ -68,11 +80,16 @@ class TestHarness {
     return this.user;
   }
 
-  async setupStitchClient() {
-    await this.configureUserpass();
+  async setupStitchClient(shouldConfigureUserAuth = true) {
+    if (shouldConfigureUserAuth) {
+      await this.configureUserpass();
+    }
     await this.createUser();
 
-    this.stitchClient = new stitch.StitchClient(this.testApp.client_app_id, { baseUrl: this.serverUrl });
+    this.stitchClient = await StitchClientFactory.create(
+      this.testApp.client_app_id,
+      { baseUrl: this.serverUrl }
+    );
     await this.stitchClient.authenticate('userpass', this.userCredentials);
   }
 

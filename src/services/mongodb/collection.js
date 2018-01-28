@@ -100,6 +100,18 @@ class Collection {
   }
 
   /**
+   * Finds one document.
+   *
+   * @method
+   * @param {Object} query The query used to match documents.
+   * @param {Object} [project] The query document projection.
+   * @return {Promise<Object, Error>} Returns a Promise for the operation
+   */
+  findOne(query, project) {
+    return buildResponse('findOne', this, buildArgs(this, { query, project }));
+  }
+
+  /**
    * Executes an aggregation pipeline.
    *
    * @param {Array} pipeline The aggregation pipeline.

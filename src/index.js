@@ -1,9 +1,9 @@
-import StitchClient from './client';
-import Admin from './admin';
+import { StitchClientFactory } from './client';
+import { StitchAdminClientFactory } from './admin';
 import { BSON } from 'mongodb-extjson';
 
 export {
-  StitchClient,
-  Admin,
+  StitchClientFactory,
+  StitchAdminClientFactory,
   BSON
 };
