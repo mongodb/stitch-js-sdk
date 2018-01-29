@@ -4,8 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, document, fetch */
 
 var _storage = require('./storage');
@@ -22,10 +20,6 @@ var _common2 = require('../common');
 
 var common = _interopRequireWildcard(_common2);
 
-var _detectBrowser = require('detect-browser');
-
-var _platform = _interopRequireWildcard(_detectBrowser);
-
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -40,57 +34,19 @@ var Auth = function () {
   function Auth(client, rootUrl, options) {
     _classCallCheck(this, Auth);
 
-    var namespace = void 0;
-    if (!client || client.clientAppID === '') {
-      namespace = 'admin';
-    } else {
-      namespace = 'client.' + client.clientAppID;
-    }
-
-    options = Object.assign({
-      codec: authCommon.APP_CLIENT_CODEC,
-      namespace: namespace,
-      storageType: 'localStorage'
+    options = Object.assign({}, {
+      storageType: 'localStorage',
+      codec: authCommon.APP_CLIENT_CODEC
     }, options);
 
     this.client = client;
     this.rootUrl = rootUrl;
     this.codec = options.codec;
-    this.platform = options.platform || _platform;
-    this.storage = (0, _storage.createStorage)(options);
-    this.providers = (0, _providers.createProviders)(this, options);
+    this.storage = (0, _storage.createStorage)(options.storageType);
+    this.providers = (0, _providers.createProviders)(this);
   }
 
-  /**
-   * Create the device info for this client.
-   *
-   * @memberof module:auth
-   * @method getDeviceInfo
-   * @param {String} appId The app ID for this client
-   * @param {String} appVersion The version of the app
-   * @returns {Object} The device info object
-   */
-
-
   _createClass(Auth, [{
-    key: 'getDeviceInfo',
-    value: function getDeviceInfo(deviceId, appId) {
-      var appVersion = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-
-      var deviceInfo = { appId: appId, appVersion: appVersion, sdkVersion: common.SDK_VERSION };
-
-      if (deviceId) {
-        deviceInfo.deviceId = deviceId;
-      }
-
-      if (this.platform) {
-        deviceInfo.platform = this.platform.name;
-        deviceInfo.platformVersion = this.platform.version;
-      }
-
-      return deviceInfo;
-    }
-  }, {
     key: 'provider',
     value: function provider(name) {
       if (!this.providers.hasOwnProperty(name)) {
@@ -103,6 +59,10 @@ var Auth = function () {
     key: 'refreshToken',
     value: function refreshToken() {
       var _this = this;
+
+      if (this.isImpersonatingUser()) {
+        return this.refreshImpersonation(this.client);
+      }
 
       return this.client.doSessionPost().then(function (json) {
         return _this.set(json);
@@ -129,8 +89,6 @@ var Auth = function () {
   }, {
     key: 'handleRedirect',
     value: function handleRedirect() {
-      var _this2 = this;
-
       if (typeof window === 'undefined') {
         // This means we're running in some environment other
         // than a browser - so handling a redirect makes no sense here.
@@ -140,44 +98,35 @@ var Auth = function () {
         return;
       }
 
-      var redirectProvider = void 0;
-      return Promise.all([this.storage.get(authCommon.STATE_KEY), this.storage.get(authCommon.STITCH_REDIRECT_PROVIDER)]).then(function (_ref) {
-        var _ref2 = _slicedToArray(_ref, 2),
-            ourState = _ref2[0],
-            _redirectProvider = _ref2[1];
+      var ourState = this.storage.get(authCommon.STATE_KEY);
+      var redirectFragment = window.location.hash.substring(1);
+      var redirectState = this.parseRedirectFragment(redirectFragment, ourState);
+      if (redirectState.lastError) {
+        console.error('StitchClient: error from redirect: ' + redirectState.lastError);
+        this._error = redirectState.lastError;
+        window.history.replaceState(null, '', this.pageRootUrl());
+        return;
+      }
 
-        var redirectFragment = window.location.hash.substring(1);
-        redirectProvider = _redirectProvider;
-        var redirectState = _this2.parseRedirectFragment(redirectFragment, ourState);
-        if (redirectState.lastError || !redirectProvider) {
-          console.error('StitchClient: error from redirect: ' + (redirectState.lastError ? redirectState.lastError : 'provider type not set'));
-          _this2._error = redirectState.lastError;
-          window.history.replaceState(null, '', _this2.pageRootUrl());
-          return;
-        }
+      if (!redirectState.found) {
+        return;
+      }
 
-        if (!redirectState.found) {
-          return;
-        }
+      this.storage.remove(authCommon.STATE_KEY);
+      if (!redirectState.stateValid) {
+        console.error('StitchClient: state values did not match!');
+        window.history.replaceState(null, '', this.pageRootUrl());
+        return;
+      }
 
-        return Promise.all([_this2.storage.remove(authCommon.STATE_KEY), _this2.storage.remove(authCommon.STITCH_REDIRECT_PROVIDER)]);
-      }).then(function () {
-        if (!redirectState.stateValid) {
-          console.error('StitchClient: state values did not match!');
-          window.history.replaceState(null, '', _this2.pageRootUrl());
-          return;
-        }
+      if (!redirectState.ua) {
+        console.error('StitchClient: no UA value was returned from redirect!');
+        return;
+      }
 
-        if (!redirectState.ua) {
-          console.error('StitchClient: no UA value was returned from redirect!');
-          return;
-        }
-
-        // If we get here, the state is valid - set auth appropriately.
-        return _this2.set(redirectState.ua, redirectProvider);
-      }).then(function () {
-        return window.history.replaceState(null, '', _this2.pageRootUrl());
-      });
+      // If we get here, the state is valid - set auth appropriately.
+      this.set(redirectState.ua);
+      window.history.replaceState(null, '', this.pageRootUrl());
     }
   }, {
     key: 'getCookie',
@@ -199,8 +148,6 @@ var Auth = function () {
   }, {
     key: 'handleCookie',
     value: function handleCookie() {
-      var _this3 = this;
-
       if (typeof window === 'undefined' || typeof document === 'undefined') {
         // This means we're running in some environment other
         // than a browser - so handling a cookie makes no sense here.
@@ -217,14 +164,15 @@ var Auth = function () {
 
       document.cookie = authCommon.USER_AUTH_COOKIE_NAME + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
       var userAuth = this.unmarshallUserAuth(uaCookie);
-      return this.set(userAuth, _providers.PROVIDER_TYPE_MONGODB_CLOUD).then(function () {
-        return window.history.replaceState(null, '', _this3.pageRootUrl());
-      });
+      this.set(userAuth);
+      window.history.replaceState(null, '', this.pageRootUrl());
     }
   }, {
     key: 'clear',
     value: function clear() {
-      return Promise.all([this.storage.remove(authCommon.USER_AUTH_KEY), this.storage.remove(authCommon.REFRESH_TOKEN_KEY), this.storage.remove(authCommon.USER_LOGGED_IN_PT_KEY), this.storage.remove(authCommon.STITCH_REDIRECT_PROVIDER)]);
+      this.storage.remove(authCommon.USER_AUTH_KEY);
+      this.storage.remove(authCommon.REFRESH_TOKEN_KEY);
+      this.clearImpersonation();
     }
   }, {
     key: 'getDeviceId',
@@ -240,31 +188,28 @@ var Auth = function () {
     value: function isAccessTokenExpired() {
       var withinSeconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : authCommon.DEFAULT_ACCESS_TOKEN_EXPIRE_WITHIN_SECS;
 
-      return this.getAccessToken().then(function (token) {
-        if (!token) {
-          return false;
-        }
+      var token = this.getAccessToken();
+      if (!token) {
+        return false;
+      }
 
-        var decodedToken = void 0;
-        try {
-          decodedToken = jwtDecode(token);
-        } catch (e) {
-          return false;
-        }
+      var decodedToken = void 0;
+      try {
+        decodedToken = jwtDecode(token);
+      } catch (e) {
+        return false;
+      }
 
-        if (!decodedToken) {
-          return false;
-        }
+      if (!decodedToken) {
+        return false;
+      }
 
-        return decodedToken.exp && Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
-      });
+      return decodedToken.exp && Math.floor(Date.now() / 1000) >= decodedToken.exp - withinSeconds;
     }
   }, {
     key: 'getAccessToken',
     value: function getAccessToken() {
-      return this._get().then(function (auth) {
-        return auth.accessToken;
-      });
+      return this._get().accessToken;
     }
   }, {
     key: 'getRefreshToken',
@@ -274,84 +219,119 @@ var Auth = function () {
   }, {
     key: 'set',
     value: function set(json) {
-      var _this4 = this;
-
-      var authType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-
       if (!json) {
         return;
       }
 
+      if (json[this.codec.refreshToken]) {
+        var rt = json[this.codec.refreshToken];
+        delete json[this.codec.refreshToken];
+        this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
+      }
+
+      if (json[this.codec.deviceId]) {
+        var deviceId = json[this.codec.deviceId];
+        delete json[this.codec.deviceId];
+        this.storage.set(authCommon.DEVICE_ID_KEY, deviceId);
+      }
+
+      // Merge in new fields with old fields. Typically the first json value
+      // is complete with every field inside a user auth, but subsequent requests
+      // do not include everything. This merging behavior is safe so long as json
+      // value responses with absent fields do not indicate that the field should
+      // be unset.
       var newUserAuth = {};
-
-      return (authType ? this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType) : Promise.resolve()).then(function () {
-        if (json[_this4.codec.refreshToken]) {
-          var rt = json[_this4.codec.refreshToken];
-          delete json[_this4.codec.refreshToken];
-          return _this4.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
-        }
-      }).then(function () {
-        if (json[_this4.codec.deviceId]) {
-          var deviceId = json[_this4.codec.deviceId];
-          delete json[_this4.codec.deviceId];
-          return _this4.storage.set(authCommon.DEVICE_ID_KEY, deviceId);
-        }
-        return;
-      }).then(function () {
-        // Merge in new fields with old fields. Typically the first json value
-        // is complete with every field inside a user auth, but subsequent requests
-        // do not include everything. This merging behavior is safe so long as json
-        // value responses with absent fields do not indicate that the field should
-        // be unset.
-        if (json[_this4.codec.accessToken]) {
-          newUserAuth.accessToken = json[_this4.codec.accessToken];
-        }
-        if (json[_this4.codec.userId]) {
-          newUserAuth.userId = json[_this4.codec.userId];
-        }
-
-        return _this4._get();
-      }).then(function (auth) {
-        newUserAuth = Object.assign(auth, newUserAuth);
-        return _this4.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
-      });
+      if (json[this.codec.accessToken]) {
+        newUserAuth.accessToken = json[this.codec.accessToken];
+      }
+      if (json[this.codec.userId]) {
+        newUserAuth.userId = json[this.codec.userId];
+      }
+      newUserAuth = Object.assign(this._get(), newUserAuth);
+      this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
     }
   }, {
     key: '_get',
     value: function _get() {
-      var _this5 = this;
+      var data = this.storage.get(authCommon.USER_AUTH_KEY);
+      if (!data) {
+        return {};
+      }
 
-      return this.storage.get(authCommon.USER_AUTH_KEY).then(function (data) {
-        if (!data) {
-          return {};
-        }
-
-        try {
-          return JSON.parse(data);
-        } catch (e) {
-          // Need to back out and clear auth otherwise we will never
-          // be able to do anything useful.
-          return _this5.clear().then(function () {
-            throw new _errors.StitchError('Failure retrieving stored auth');
-          });
-        }
-      });
-    }
-  }, {
-    key: 'getLoggedInProviderType',
-    value: function getLoggedInProviderType() {
-      return this.storage.get(authCommon.USER_LOGGED_IN_PT_KEY).then(function (type) {
-        return type || '';
-      }, function () {
-        return '';
-      });
+      try {
+        return JSON.parse(data);
+      } catch (e) {
+        // Need to back out and clear auth otherwise we will never
+        // be able to do anything useful.
+        this.clear();
+        throw new _errors.StitchError('Failure retrieving stored auth');
+      }
     }
   }, {
     key: 'authedId',
     value: function authedId() {
-      return this._get().then(function (auth) {
-        return auth.userId;
+      return this._get().userId;
+    }
+  }, {
+    key: 'isImpersonatingUser',
+    value: function isImpersonatingUser() {
+      return this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY) === 'true';
+    }
+  }, {
+    key: 'refreshImpersonation',
+    value: function refreshImpersonation(client) {
+      var _this2 = this;
+
+      var userId = this.storage.get(authCommon.IMPERSONATION_USER_KEY);
+      return client._do('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
+        return response.json();
+      }).then(function (json) {
+        return _this2.set(json);
+      }).catch(function (e) {
+        _this2.stopImpersonation();
+        throw e; // rethrow
       });
+    }
+  }, {
+    key: 'startImpersonation',
+    value: function startImpersonation(client, userId) {
+      if (!this.authedId()) {
+        return Promise.reject(new _errors.StitchError('Must auth first'));
+      }
+
+      if (this.isImpersonatingUser()) {
+        return Promise.reject(new _errors.StitchError('Already impersonating a user'));
+      }
+
+      this.storage.set(authCommon.IMPERSONATION_ACTIVE_KEY, 'true');
+      this.storage.set(authCommon.IMPERSONATION_USER_KEY, userId);
+
+      var realUserAuth = JSON.parse(this.storage.get(authCommon.USER_AUTH_KEY));
+      this.storage.set(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
+      return this.refreshImpersonation(client);
+    }
+  }, {
+    key: 'stopImpersonation',
+    value: function stopImpersonation() {
+      var _this3 = this;
+
+      if (!this.isImpersonatingUser()) {
+        throw new _errors.StitchError('Not impersonating a user');
+      }
+
+      return new Promise(function (resolve, reject) {
+        var realUserAuth = JSON.parse(_this3.storage.get(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY));
+        _this3.set(realUserAuth);
+        _this3.clearImpersonation();
+        resolve();
+      });
+    }
+  }, {
+    key: 'clearImpersonation',
+    value: function clearImpersonation() {
+      this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY);
+      this.storage.remove(authCommon.IMPERSONATION_USER_KEY);
+      this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
     }
   }, {
     key: 'parseRedirectFragment',
@@ -400,14 +380,14 @@ var Auth = function () {
   }, {
     key: 'unmarshallUserAuth',
     value: function unmarshallUserAuth(data) {
-      var _ref3;
+      var _ref;
 
       var parts = data.split('$');
       if (parts.length !== EMBEDDED_USER_AUTH_DATA_PARTS) {
         throw new RangeError('invalid user auth data provided: ' + data);
       }
 
-      return _ref3 = {}, _defineProperty(_ref3, this.codec.accessToken, parts[0]), _defineProperty(_ref3, this.codec.refreshToken, parts[1]), _defineProperty(_ref3, this.codec.userId, parts[2]), _defineProperty(_ref3, this.codec.deviceId, parts[3]), _ref3;
+      return _ref = {}, _defineProperty(_ref, this.codec.accessToken, parts[0]), _defineProperty(_ref, this.codec.refreshToken, parts[1]), _defineProperty(_ref, this.codec.userId, parts[2]), _defineProperty(_ref, this.codec.deviceId, parts[3]), _ref;
     }
   }]);
 
