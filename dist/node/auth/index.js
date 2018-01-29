@@ -3,8 +3,13 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.Auth = exports.AuthFactory = undefined;
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, document, fetch */
+
+exports.newAuth = newAuth;
 
 var _storage = require('./storage');
 
@@ -20,6 +25,10 @@ var _common2 = require('../common');
 
 var common = _interopRequireWildcard(_common2);
 
+var _detectBrowser = require('detect-browser');
+
+var _platform = _interopRequireWildcard(_detectBrowser);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -30,23 +39,99 @@ var jwtDecode = require('jwt-decode');
 
 var EMBEDDED_USER_AUTH_DATA_PARTS = 4;
 
-var Auth = function () {
+var AuthFactory = exports.AuthFactory = function () {
+  function AuthFactory() {
+    _classCallCheck(this, AuthFactory);
+
+    throw new _errors.StitchError('Auth can only be made from the AuthFactory.create function');
+  }
+
+  _createClass(AuthFactory, null, [{
+    key: 'create',
+    value: function create(client, rootUrl, options) {
+      return newAuth(client, rootUrl, options);
+    }
+  }]);
+
+  return AuthFactory;
+}();
+
+function newAuth(client, rootUrl, options) {
+  var auth = Object.create(Auth.prototype);
+  var namespace = void 0;
+  if (!client || client.clientAppID === '') {
+    namespace = 'admin';
+  } else {
+    namespace = 'client.' + client.clientAppID;
+  }
+
+  options = Object.assign({
+    codec: authCommon.APP_CLIENT_CODEC,
+    namespace: namespace,
+    storageType: 'localStorage'
+  }, options);
+
+  auth.client = client;
+  auth.rootUrl = rootUrl;
+  auth.codec = options.codec;
+  auth.platform = options.platform || _platform;
+  auth.storage = (0, _storage.createStorage)(options);
+  auth.providers = (0, _providers.createProviders)(auth, options);
+
+  return Promise.all([auth._get(), auth.storage.get(authCommon.REFRESH_TOKEN_KEY), auth.storage.get(authCommon.USER_LOGGED_IN_PT_KEY), auth.storage.get(authCommon.DEVICE_ID_KEY)]).then(function (_ref) {
+    var _ref2 = _slicedToArray(_ref, 4),
+        authObj = _ref2[0],
+        rt = _ref2[1],
+        loggedInProviderType = _ref2[2],
+        deviceId = _ref2[3];
+
+    auth.auth = authObj;
+    auth.authedId = authObj.userId;
+    auth.rt = rt;
+    auth.loggedInProviderType = loggedInProviderType;
+    auth.deviceId = deviceId;
+
+    return auth;
+  });
+}
+
+var Auth = exports.Auth = function () {
   function Auth(client, rootUrl, options) {
     _classCallCheck(this, Auth);
 
-    options = Object.assign({}, {
-      storageType: 'localStorage',
-      codec: authCommon.APP_CLIENT_CODEC
-    }, options);
-
-    this.client = client;
-    this.rootUrl = rootUrl;
-    this.codec = options.codec;
-    this.storage = (0, _storage.createStorage)(options.storageType);
-    this.providers = (0, _providers.createProviders)(this);
+    throw new _errors.StitchError('Auth can only be made from the AuthFactory.create function');
   }
 
+  /**
+   * Create the device info for this client.
+   *
+   * @memberof module:auth
+   * @method getDeviceInfo
+   * @param {String} appId The app ID for this client
+   * @param {String} appVersion The version of the app
+   * @returns {Object} The device info object
+   */
+
+
   _createClass(Auth, [{
+    key: 'getDeviceInfo',
+    value: function getDeviceInfo(deviceId, appId) {
+      var appVersion = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+
+      var deviceInfo = { appId: appId, appVersion: appVersion, sdkVersion: common.SDK_VERSION };
+
+      if (deviceId) {
+        deviceInfo.deviceId = deviceId;
+      }
+
+      if (this.platform) {
+        deviceInfo.platform = this.platform.name;
+        deviceInfo.platformVersion = this.platform.version;
+      }
+
+      return deviceInfo;
+    }
+  }, {
     key: 'provider',
     value: function provider(name) {
       if (!this.providers.hasOwnProperty(name)) {
@@ -59,10 +144,6 @@ var Auth = function () {
     key: 'refreshToken',
     value: function refreshToken() {
       var _this = this;
-
-      if (this.isImpersonatingUser()) {
-        return this.refreshImpersonation(this.client);
-      }
 
       return this.client.doSessionPost().then(function (json) {
         return _this.set(json);
@@ -89,6 +170,8 @@ var Auth = function () {
   }, {
     key: 'handleRedirect',
     value: function handleRedirect() {
+      var _this2 = this;
+
       if (typeof window === 'undefined') {
         // This means we're running in some environment other
         // than a browser - so handling a redirect makes no sense here.
@@ -98,35 +181,46 @@ var Auth = function () {
         return;
       }
 
-      var ourState = this.storage.get(authCommon.STATE_KEY);
-      var redirectFragment = window.location.hash.substring(1);
-      var redirectState = this.parseRedirectFragment(redirectFragment, ourState);
-      if (redirectState.lastError) {
-        console.error('StitchClient: error from redirect: ' + redirectState.lastError);
-        this._error = redirectState.lastError;
-        window.history.replaceState(null, '', this.pageRootUrl());
-        return;
-      }
+      var redirectProvider = void 0;
+      return Promise.all([this.storage.get(authCommon.STATE_KEY), this.storage.get(authCommon.STITCH_REDIRECT_PROVIDER)]).then(function (_ref3) {
+        var _ref4 = _slicedToArray(_ref3, 2),
+            ourState = _ref4[0],
+            _redirectProvider = _ref4[1];
 
-      if (!redirectState.found) {
-        return;
-      }
+        var redirectFragment = window.location.hash.substring(1);
+        redirectProvider = _redirectProvider;
+        var redirectState = _this2.parseRedirectFragment(redirectFragment, ourState);
+        if (redirectState.lastError || !redirectProvider) {
+          console.error('StitchClient: error from redirect: ' + (redirectState.lastError ? redirectState.lastError : 'provider type not set'));
+          _this2._error = redirectState.lastError;
+          window.history.replaceState(null, '', _this2.pageRootUrl());
+          return;
+        }
 
-      this.storage.remove(authCommon.STATE_KEY);
-      if (!redirectState.stateValid) {
-        console.error('StitchClient: state values did not match!');
-        window.history.replaceState(null, '', this.pageRootUrl());
-        return;
-      }
+        if (!redirectState.found) {
+          return;
+        }
 
-      if (!redirectState.ua) {
-        console.error('StitchClient: no UA value was returned from redirect!');
-        return;
-      }
+        return Promise.all([_this2.storage.remove(authCommon.STATE_KEY), _this2.storage.remove(authCommon.STITCH_REDIRECT_PROVIDER)]).then(function () {
+          return redirectState;
+        });
+      }).then(function (redirectState) {
+        if (!redirectState.stateValid) {
+          console.error('StitchClient: state values did not match!');
+          window.history.replaceState(null, '', _this2.pageRootUrl());
+          return;
+        }
 
-      // If we get here, the state is valid - set auth appropriately.
-      this.set(redirectState.ua);
-      window.history.replaceState(null, '', this.pageRootUrl());
+        if (!redirectState.ua) {
+          console.error('StitchClient: no UA value was returned from redirect!');
+          return;
+        }
+
+        // If we get here, the state is valid - set auth appropriately.
+        return _this2.set(redirectState.ua, redirectProvider);
+      }).then(function () {
+        return window.history.replaceState(null, '', _this2.pageRootUrl());
+      });
     }
   }, {
     key: 'getCookie',
@@ -148,6 +242,8 @@ var Auth = function () {
   }, {
     key: 'handleCookie',
     value: function handleCookie() {
+      var _this3 = this;
+
       if (typeof window === 'undefined' || typeof document === 'undefined') {
         // This means we're running in some environment other
         // than a browser - so handling a cookie makes no sense here.
@@ -164,20 +260,24 @@ var Auth = function () {
 
       document.cookie = authCommon.USER_AUTH_COOKIE_NAME + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
       var userAuth = this.unmarshallUserAuth(uaCookie);
-      this.set(userAuth);
-      window.history.replaceState(null, '', this.pageRootUrl());
+      return this.set(userAuth, _providers.PROVIDER_TYPE_MONGODB_CLOUD).then(function () {
+        return window.history.replaceState(null, '', _this3.pageRootUrl());
+      });
     }
   }, {
     key: 'clear',
     value: function clear() {
-      this.storage.remove(authCommon.USER_AUTH_KEY);
-      this.storage.remove(authCommon.REFRESH_TOKEN_KEY);
-      this.clearImpersonation();
+      this.auth = null;
+      this.authedId = null;
+      this.rt = null;
+      this.loggedInProviderType = null;
+
+      return Promise.all([this.storage.remove(authCommon.USER_AUTH_KEY), this.storage.remove(authCommon.REFRESH_TOKEN_KEY), this.storage.remove(authCommon.USER_LOGGED_IN_PT_KEY), this.storage.remove(authCommon.STITCH_REDIRECT_PROVIDER)]);
     }
   }, {
     key: 'getDeviceId',
     value: function getDeviceId() {
-      return this.storage.get(authCommon.DEVICE_ID_KEY);
+      return this.deviceId;
     }
 
     // Returns whether or not the access token is expired or is going to expire within 'withinSeconds'
@@ -209,30 +309,42 @@ var Auth = function () {
   }, {
     key: 'getAccessToken',
     value: function getAccessToken() {
-      return this._get().accessToken;
+      return this.auth.accessToken;
     }
   }, {
     key: 'getRefreshToken',
     value: function getRefreshToken() {
-      return this.storage.get(authCommon.REFRESH_TOKEN_KEY);
+      return this.rt;
     }
   }, {
     key: 'set',
     value: function set(json) {
+      var _this4 = this;
+
+      var authType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+
       if (!json) {
         return;
       }
 
+      var newUserAuth = {};
+      var setters = [];
+
+      if (authType) {
+        this.loggedInProviderType = authType;
+        setters.push(this.storage.set(authCommon.USER_LOGGED_IN_PT_KEY, authType));
+      }
+
       if (json[this.codec.refreshToken]) {
-        var rt = json[this.codec.refreshToken];
+        this.rt = json[this.codec.refreshToken];
         delete json[this.codec.refreshToken];
-        this.storage.set(authCommon.REFRESH_TOKEN_KEY, rt);
+        setters.push(this.storage.set(authCommon.REFRESH_TOKEN_KEY, this.rt));
       }
 
       if (json[this.codec.deviceId]) {
-        var deviceId = json[this.codec.deviceId];
+        this.deviceId = json[this.codec.deviceId];
         delete json[this.codec.deviceId];
-        this.storage.set(authCommon.DEVICE_ID_KEY, deviceId);
+        setters.push(this.storage.set(authCommon.DEVICE_ID_KEY, this.deviceId));
       }
 
       // Merge in new fields with old fields. Typically the first json value
@@ -240,98 +352,45 @@ var Auth = function () {
       // do not include everything. This merging behavior is safe so long as json
       // value responses with absent fields do not indicate that the field should
       // be unset.
-      var newUserAuth = {};
       if (json[this.codec.accessToken]) {
         newUserAuth.accessToken = json[this.codec.accessToken];
       }
       if (json[this.codec.userId]) {
         newUserAuth.userId = json[this.codec.userId];
       }
-      newUserAuth = Object.assign(this._get(), newUserAuth);
-      this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(newUserAuth));
+
+      this.auth = Object.assign(this.auth ? this.auth : {}, newUserAuth);
+      this.authedId = this.auth.userId;
+      setters.push(this.storage.set(authCommon.USER_AUTH_KEY, JSON.stringify(this.auth)));
+      return Promise.all(setters).then(function () {
+        return _this4.auth;
+      });
     }
   }, {
     key: '_get',
     value: function _get() {
-      var data = this.storage.get(authCommon.USER_AUTH_KEY);
-      if (!data) {
-        return {};
-      }
+      var _this5 = this;
 
-      try {
-        return JSON.parse(data);
-      } catch (e) {
-        // Need to back out and clear auth otherwise we will never
-        // be able to do anything useful.
-        this.clear();
-        throw new _errors.StitchError('Failure retrieving stored auth');
-      }
-    }
-  }, {
-    key: 'authedId',
-    value: function authedId() {
-      return this._get().userId;
-    }
-  }, {
-    key: 'isImpersonatingUser',
-    value: function isImpersonatingUser() {
-      return this.storage.get(authCommon.IMPERSONATION_ACTIVE_KEY) === 'true';
-    }
-  }, {
-    key: 'refreshImpersonation',
-    value: function refreshImpersonation(client) {
-      var _this2 = this;
+      return this.storage.get(authCommon.USER_AUTH_KEY).then(function (data) {
+        if (!data) {
+          return {};
+        }
 
-      var userId = this.storage.get(authCommon.IMPERSONATION_USER_KEY);
-      return client._do('/admin/users/' + userId + '/impersonate', 'POST', { refreshOnFailure: false, useRefreshToken: true }).then(function (response) {
-        return response.json();
-      }).then(function (json) {
-        return _this2.set(json);
-      }).catch(function (e) {
-        _this2.stopImpersonation();
-        throw e; // rethrow
+        try {
+          return JSON.parse(data);
+        } catch (e) {
+          // Need to back out and clear auth otherwise we will never
+          // be able to do anything useful.
+          return _this5.clear().then(function () {
+            throw new _errors.StitchError('Failure retrieving stored auth');
+          });
+        }
       });
     }
   }, {
-    key: 'startImpersonation',
-    value: function startImpersonation(client, userId) {
-      if (!this.authedId()) {
-        return Promise.reject(new _errors.StitchError('Must auth first'));
-      }
-
-      if (this.isImpersonatingUser()) {
-        return Promise.reject(new _errors.StitchError('Already impersonating a user'));
-      }
-
-      this.storage.set(authCommon.IMPERSONATION_ACTIVE_KEY, 'true');
-      this.storage.set(authCommon.IMPERSONATION_USER_KEY, userId);
-
-      var realUserAuth = JSON.parse(this.storage.get(authCommon.USER_AUTH_KEY));
-      this.storage.set(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY, JSON.stringify(realUserAuth));
-      return this.refreshImpersonation(client);
-    }
-  }, {
-    key: 'stopImpersonation',
-    value: function stopImpersonation() {
-      var _this3 = this;
-
-      if (!this.isImpersonatingUser()) {
-        throw new _errors.StitchError('Not impersonating a user');
-      }
-
-      return new Promise(function (resolve, reject) {
-        var realUserAuth = JSON.parse(_this3.storage.get(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY));
-        _this3.set(realUserAuth);
-        _this3.clearImpersonation();
-        resolve();
-      });
-    }
-  }, {
-    key: 'clearImpersonation',
-    value: function clearImpersonation() {
-      this.storage.remove(authCommon.IMPERSONATION_ACTIVE_KEY);
-      this.storage.remove(authCommon.IMPERSONATION_USER_KEY);
-      this.storage.remove(authCommon.IMPERSONATION_REAL_USER_AUTH_KEY);
+    key: 'getLoggedInProviderType',
+    value: function getLoggedInProviderType() {
+      return this.loggedInProviderType;
     }
   }, {
     key: 'parseRedirectFragment',
@@ -380,19 +439,16 @@ var Auth = function () {
   }, {
     key: 'unmarshallUserAuth',
     value: function unmarshallUserAuth(data) {
-      var _ref;
+      var _ref5;
 
       var parts = data.split('$');
       if (parts.length !== EMBEDDED_USER_AUTH_DATA_PARTS) {
         throw new RangeError('invalid user auth data provided: ' + data);
       }
 
-      return _ref = {}, _defineProperty(_ref, this.codec.accessToken, parts[0]), _defineProperty(_ref, this.codec.refreshToken, parts[1]), _defineProperty(_ref, this.codec.userId, parts[2]), _defineProperty(_ref, this.codec.deviceId, parts[3]), _ref;
+      return _ref5 = {}, _defineProperty(_ref5, this.codec.accessToken, parts[0]), _defineProperty(_ref5, this.codec.refreshToken, parts[1]), _defineProperty(_ref5, this.codec.userId, parts[2]), _defineProperty(_ref5, this.codec.deviceId, parts[3]), _ref5;
     }
   }]);
 
   return Auth;
 }();
-
-exports.default = Auth;
-module.exports = exports['default'];

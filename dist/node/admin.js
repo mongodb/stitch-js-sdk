@@ -3,16 +3,17 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+exports.StitchAdminClient = exports.StitchAdminClientFactory = undefined;
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, fetch */
+/* eslint no-labels: ['error', { 'allowLoop': true }] */
+
 
 require('fetch-everywhere');
 
 var _client = require('./client');
-
-var _client2 = _interopRequireDefault(_client);
 
 var _common = require('./common');
 
@@ -22,27 +23,45 @@ var _common3 = require('./auth/common');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /* global window, fetch */
-/* eslint no-labels: ['error', { 'allowLoop': true }] */
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var v2 = 2;
 var v3 = 3;
 
-var Admin = function (_StitchClient) {
-  _inherits(Admin, _StitchClient);
+var StitchAdminClientFactory = exports.StitchAdminClientFactory = function () {
+  function StitchAdminClientFactory() {
+    _classCallCheck(this, StitchAdminClientFactory);
 
-  function Admin(baseUrl) {
-    _classCallCheck(this, Admin);
-
-    return _possibleConstructorReturn(this, (Admin.__proto__ || Object.getPrototypeOf(Admin)).call(this, '', { baseUrl: baseUrl, authCodec: _common3.ADMIN_CLIENT_CODEC }));
+    throw new StitchError('StitchAdminClient can only be made from the StitchAdminClientFactory.create function');
   }
 
-  _createClass(Admin, [{
+  _createClass(StitchAdminClientFactory, null, [{
+    key: 'create',
+    value: function create(baseUrl) {
+      return (0, _client.newStitchClient)(StitchAdminClient.prototype, '', { baseUrl: baseUrl, authCodec: _common3.ADMIN_CLIENT_CODEC });
+    }
+  }]);
+
+  return StitchAdminClientFactory;
+}();
+
+var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
+  _inherits(StitchAdminClient, _StitchClient);
+
+  function StitchAdminClient() {
+    _classCallCheck(this, StitchAdminClient);
+
+    var _this = _possibleConstructorReturn(this, (StitchAdminClient.__proto__ || Object.getPrototypeOf(StitchAdminClient)).call(this));
+
+    throw new StitchError('StitchAdminClient can only be made from the StitchAdminClientFactory.create function');
+    return _this;
+  }
+
+  _createClass(StitchAdminClient, [{
     key: 'logout',
 
 
@@ -54,7 +73,7 @@ var Admin = function (_StitchClient) {
     value: function logout() {
       var _this2 = this;
 
-      return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', this).call(this, '/auth/session', 'DELETE', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v3 }).then(function () {
+      return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', this).call(this, '/auth/session', 'DELETE', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v3 }).then(function () {
         return _this2.auth.clear();
       });
     }
@@ -80,7 +99,7 @@ var Admin = function (_StitchClient) {
   }, {
     key: 'getAuthProviders',
     value: function getAuthProviders() {
-      return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', this).call(this, '/auth/providers', 'GET', { noAuth: true, apiVersion: v3 }).then(function (response) {
+      return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', this).call(this, '/auth/providers', 'GET', { noAuth: true, apiVersion: v3 }).then(function (response) {
         return response.json();
       });
     }
@@ -94,7 +113,7 @@ var Admin = function (_StitchClient) {
   }, {
     key: 'doSessionPost',
     value: function doSessionPost() {
-      return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', this).call(this, '/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v3 }).then(function (response) {
+      return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', this).call(this, '/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v3 }).then(function (response) {
         return response.json();
       });
     }
@@ -288,8 +307,21 @@ var Admin = function (_StitchClient) {
                     get: function get() {
                       return api._get(appUrl + '/users/' + uid);
                     },
+                    devices: function devices() {
+                      return {
+                        get: function get() {
+                          return api._get(appUrl + '/users/' + uid + '/devices');
+                        }
+                      };
+                    },
                     logout: function logout() {
                       return api._put(appUrl + '/users/' + uid + '/logout');
+                    },
+                    enable: function enable() {
+                      return api._put(appUrl + '/users/' + uid + '/enable');
+                    },
+                    disable: function disable() {
+                      return api._put(appUrl + '/users/' + uid + '/disable');
                     },
                     remove: function remove() {
                       return api._delete(appUrl + '/users/' + uid);
@@ -741,40 +773,25 @@ var Admin = function (_StitchClient) {
         logs: function logs() {
           return {
             get: function get(filter) {
-              return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this3).call(_this3, '/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter });
+              return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this3).call(_this3, '/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter });
             }
           };
         },
         users: function users() {
           return {
             list: function list(filter) {
-              return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this3).call(_this3, '/admin/users', 'GET', { useRefreshToken: true, queryParams: filter });
+              return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this3).call(_this3, '/admin/users', 'GET', { useRefreshToken: true, queryParams: filter });
             },
             user: function user(uid) {
               return {
                 logout: function logout() {
-                  return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this3).call(_this3, '/admin/users/' + uid + '/logout', 'PUT', { useRefreshToken: true });
+                  return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this3).call(_this3, '/admin/users/' + uid + '/logout', 'PUT', { useRefreshToken: true });
                 }
               };
             }
           };
         }
       };
-    }
-  }, {
-    key: '_isImpersonatingUser',
-    value: function _isImpersonatingUser() {
-      return this.auth.isImpersonatingUser();
-    }
-  }, {
-    key: '_startImpersonation',
-    value: function _startImpersonation(userId) {
-      return this.auth.startImpersonation(this, userId);
-    }
-  }, {
-    key: '_stopImpersonation',
-    value: function _stopImpersonation() {
-      return this.auth.stopImpersonation();
     }
   }, {
     key: 'type',
@@ -787,7 +804,7 @@ var Admin = function (_StitchClient) {
       var _this4 = this;
 
       var v3do = function v3do(url, method, options) {
-        return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this4).call(_this4, url, method, Object.assign({}, { apiVersion: v3 }, options)).then(function (response) {
+        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this4).call(_this4, url, method, Object.assign({}, { apiVersion: v3 }, options)).then(function (response) {
           var contentHeader = response.headers.get('content-type') || '';
           if (contentHeader.split(',').indexOf('application/json') >= 0) {
             return response.json();
@@ -820,7 +837,7 @@ var Admin = function (_StitchClient) {
       var _this5 = this;
 
       var v2do = function v2do(url, method, options) {
-        return _get(Admin.prototype.__proto__ || Object.getPrototypeOf(Admin.prototype), '_do', _this5).call(_this5, url, method, Object.assign({}, { apiVersion: v2 }, options)).then(function (response) {
+        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this5).call(_this5, url, method, Object.assign({}, { apiVersion: v2 }, options)).then(function (response) {
           var contentHeader = response.headers.get('content-type') || '';
           if (contentHeader.split(',').indexOf('application/json') >= 0) {
             return response.json();
@@ -849,8 +866,5 @@ var Admin = function (_StitchClient) {
     }
   }]);
 
-  return Admin;
-}(_client2.default);
-
-exports.default = Admin;
-module.exports = exports['default'];
+  return StitchAdminClient;
+}(_client.StitchClient);
