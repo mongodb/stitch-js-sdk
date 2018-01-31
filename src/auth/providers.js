@@ -11,6 +11,14 @@ export const PROVIDER_TYPE_GOOGLE = 'google';
 export const PROVIDER_TYPE_FACEBOOK = 'facebook';
 export const PROVIDER_TYPE_MONGODB_CLOUD = 'mongodbCloud';
 
+function urlWithParams(url, link) {
+  if (link) {
+    return url + '?link=true';
+  }
+
+  return url;
+}
+
 /**
  * @namespace
  */
@@ -23,14 +31,16 @@ function anonProvider(auth) {
      * @instance
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: () => {
+    authenticate: (options, link) => {
       const deviceId = auth.getDeviceId();
       const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
       const fetchArgs = common.makeFetchArgs('GET');
       fetchArgs.cors = true;
-
+      if (link) {
+        fetchArgs.headers.Authorization = `Bearer ${auth.getAccessToken()}`;
+      }
       return fetch(
-        `${auth.rootUrl}/providers/anon-user/login?device=${uriEncodeObject(device)}`,
+        urlWithParams(`${auth.rootUrl}/providers/anon-user/login?device=${uriEncodeObject(device)}`, link),
         fetchArgs
       ).then(common.checkStatus)
         .then(response => response.json())
@@ -55,7 +65,7 @@ function customProvider(auth) {
      * @param {String} JWT token to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: (token) => {
+    authenticate: (token, link) => {
       const deviceId = auth.getDeviceId();
       const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
@@ -64,8 +74,11 @@ function customProvider(auth) {
         JSON.stringify({ token, options: { device } })
       );
       fetchArgs.cors = true;
+      if (link) {
+        fetchArgs.headers.Authorization = `Bearer ${auth.getAccessToken()}`;
+      }
 
-      return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs)
+      return fetch(urlWithParams(`${auth.rootUrl}/${loginRoute}`, link), fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_CUSTOM));
@@ -90,7 +103,7 @@ function userPassProvider(auth) {
      * @param {String} password the password to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: ({ username, password }) => {
+    authenticate: ({ username, password }, link) => {
       const deviceId = auth.getDeviceId();
       const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
@@ -99,8 +112,11 @@ function userPassProvider(auth) {
         JSON.stringify({ username, password, options: { device } })
       );
       fetchArgs.cors = true;
+      if (link) {
+        fetchArgs.headers.Authorization = `Bearer ${auth.getAccessToken()}`;
+      }
 
-      return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs)
+      return fetch(urlWithParams(`${auth.rootUrl}/${loginRoute}`, link), fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_USERPASS));
@@ -217,7 +233,7 @@ function apiKeyProvider(auth) {
      * @param {String} key the key for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: key => {
+    authenticate: (key, link) => {
       const deviceId = auth.getDeviceId();
       const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
       const fetchArgs = common.makeFetchArgs(
@@ -225,7 +241,11 @@ function apiKeyProvider(auth) {
         JSON.stringify({ 'key': key, 'options': { device } })
       );
       fetchArgs.cors = true;
-      return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs)
+      if (link) {
+        fetchArgs.headers.Authorization = `Bearer ${auth.getAccessToken()}`;
+      }
+
+      return fetch(urlWithParams(`${auth.rootUrl}/${loginRoute}`, link), fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_APIKEY));
@@ -280,7 +300,7 @@ function googleProvider(auth) {
      * @param {Object} data the redirectUrl data to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: data => {
+    authenticate: (data, link) => {
       let { authCode } = data;
       if (authCode) {
         const deviceId = auth.getDeviceId();
@@ -290,8 +310,11 @@ function googleProvider(auth) {
           'POST',
           JSON.stringify({ authCode, options: { device } })
         );
+        if (link) {
+          fetchArgs.headers.Authorization = `Bearer ${auth.getAccessToken()}`;
+        }
 
-        return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs)
+        return fetch(urlWithParams(`${auth.rootUrl}/${loginRoute}`, link), fetchArgs)
           .then(common.checkStatus)
           .then(response => response.json())
           .then(json => auth.set(json, PROVIDER_TYPE_GOOGLE));
@@ -318,7 +341,7 @@ function facebookProvider(auth) {
      * @param {Object} data the redirectUrl data to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: data => {
+    authenticate: (data, link) => {
       let { accessToken } = data;
 
       if (accessToken) {
@@ -329,8 +352,10 @@ function facebookProvider(auth) {
           'POST',
           JSON.stringify({ accessToken, options: { device } })
         );
-
-        return fetch(`${auth.rootUrl}/${loginRoute}`, fetchArgs)
+        if (link) {
+          fetchArgs.headers.Authorization = `Bearer ${auth.getAccessToken()}`;
+        }
+        return fetch(urlWithParams(`${auth.rootUrl}/${loginRoute}`, link), fetchArgs)
           .then(common.checkStatus)
           .then(response => response.json())
           .then(json => auth.set(json, PROVIDER_TYPE_FACEBOOK));
@@ -359,7 +384,7 @@ function mongodbCloudProvider(auth) {
      * @param {Object} data the username, apiKey, cors, and cookie data to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: data => {
+    authenticate: (data, link) => {
       const { username, apiKey, cors, cookie } = data;
       const options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
       const deviceId = auth.getDeviceId();
@@ -370,8 +395,11 @@ function mongodbCloudProvider(auth) {
       );
       fetchArgs.cors = true;  // TODO: shouldn't this use the passed in `cors` value?
       fetchArgs.credentials = 'include';
+      if (link) {
+        fetchArgs.headers.Authorization = `Bearer ${auth.getAccessToken()}`;
+      }
 
-      let url = `${auth.rootUrl}/${loginRoute}`;
+      let url = urlWithParams(`${auth.rootUrl}/${loginRoute}`, link);
       if (options.cookie) {
         return fetch(url + '?cookie=true', fetchArgs)
           .then(common.checkStatus);

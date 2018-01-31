@@ -149,6 +149,10 @@ export class StitchClient {
     return this.auth.provider('userpass').register(email, password, options);
   }
 
+  linkWithProvider(providerType, options = {}) {
+    return this.authenticate(providerType, options, true);
+  }
+
   /**
    * Submits an authentication request to the specified provider providing any
    * included options (read: user data).  If auth data already exists and the
@@ -158,14 +162,18 @@ export class StitchClient {
    * @param {Object} [options] additional authentication options
    * @returns {Promise} which resolves to a String value: the authed userId
    */
-  authenticate(providerType, options = {}) {
+  authenticate(providerType, options = {}, link = false) {
     // reuse existing auth if present
     const authenticateFn = () =>
-      this.auth.provider(providerType).authenticate(options).then(() => this.authedId());
+      this.auth.provider(providerType).authenticate(options, link).then(() => this.authedId());
 
     if (this.isAuthenticated()) {
       if (providerType === PROVIDER_TYPE_ANON && this.auth.getLoggedInProviderType() === PROVIDER_TYPE_ANON) {
         return Promise.resolve(this.auth.authedId); // is authenticated, skip log in
+      }
+
+      if (link) {
+        return authenticateFn();
       }
 
       return this.logout().then(() => authenticateFn()); // will not be authenticated, continue log in
