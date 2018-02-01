@@ -158,7 +158,7 @@ export class StitchClient {
    * @returns {Promise} which resolves to a String value: the original userId
    */
   linkWithProvider(providerType, options = {}) {
-    if (!this.isAuthenticated) {
+    if (!this.isAuthenticated()) {
       throw new StitchError('Must be authenticated to link an account')
     }
 

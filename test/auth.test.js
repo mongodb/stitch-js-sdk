@@ -114,6 +114,18 @@ describe('Auth linking', () => {
     expect(newIdentities[0].provider_type).toEqual('anon-user');
     expect(newIdentities[1].provider_type).toEqual('local-userpass');
   });
+
+  it('should fail if not authenticated', async() => {
+    await client.register(linkEmail, password);
+
+    let { token_id, token } = await th.app().userRegistrations().sendConfirmationEmail(linkEmail);
+    await client.auth.provider('userpass').emailConfirm(token_id, token);
+    try {
+      await client.linkWithProvider('userpass', { username: linkEmail, password })
+    } catch (error) {
+      expect(error).toBeDefined();
+    }
+  })
 });
 
 describe('Auth login semantics', () => {
