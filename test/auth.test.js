@@ -121,11 +121,11 @@ describe('Auth linking', () => {
     let { token_id, token } = await th.app().userRegistrations().sendConfirmationEmail(linkEmail);
     await client.auth.provider('userpass').emailConfirm(token_id, token);
     try {
-      await client.linkWithProvider('userpass', { username: linkEmail, password })
+      await client.linkWithProvider('userpass', { username: linkEmail, password });
     } catch (error) {
       expect(error).toBeDefined();
     }
-  })
+  });
 });
 
 describe('Auth login semantics', () => {

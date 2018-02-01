@@ -159,7 +159,7 @@ export class StitchClient {
    */
   linkWithProvider(providerType, options = {}) {
     if (!this.isAuthenticated()) {
-      throw new StitchError('Must be authenticated to link an account')
+      throw new StitchError('Must be authenticated to link an account');
     }
 
     return this.auth.provider(providerType).authenticate(options, true).then(() => this.authedId());
