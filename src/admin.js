@@ -242,7 +242,7 @@ export class StitchAdminClient extends StitchClient {
           }),
 
           userRegistrations: () => ({
-            sendConfirm: (email) => api._post(`${appUrl}/user_registrations/by_email/${email}/send_confirm`)
+            sendConfirmationEmail: (email) => api._post(`${appUrl}/user_registrations/by_email/${email}/send_confirm`)
           }),
 
           debug: () => ({

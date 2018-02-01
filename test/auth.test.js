@@ -103,7 +103,7 @@ describe('Auth linking', () => {
 
     await client.register(linkEmail, password);
 
-    let { token_id, token } = await th.app().userRegistrations().sendConfirm(linkEmail);
+    let { token_id, token } = await th.app().userRegistrations().sendConfirmationEmail(linkEmail);
     await client.auth.provider('userpass').emailConfirm(token_id, token);
     const newUserId = await client.linkWithProvider('userpass', { username: linkEmail, password });
     expect(userId).toEqual(newUserId);

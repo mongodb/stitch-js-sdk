@@ -377,4 +377,12 @@ export class Auth {
       [this.codec.deviceId]: parts[3]
     };
   }
+
+  fetchArgsWithLink(fetchArgs, link) {
+    if (link) {
+      fetchArgs.headers.Authorization = `Bearer ${this.getAccessToken()}`;
+    }
+
+    return fetchArgs;
+  }
 }

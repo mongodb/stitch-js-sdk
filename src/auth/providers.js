@@ -11,7 +11,7 @@ export const PROVIDER_TYPE_GOOGLE = 'google';
 export const PROVIDER_TYPE_FACEBOOK = 'facebook';
 export const PROVIDER_TYPE_MONGODB_CLOUD = 'mongodbCloud';
 
-function urlWithParams(url, link) {
+function urlWithLinkParam(url, link) {
   if (link) {
     return url + '?link=true';
   }
@@ -36,12 +36,10 @@ function anonProvider(auth) {
       const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
       const fetchArgs = common.makeFetchArgs('GET');
       fetchArgs.cors = true;
-      if (link) {
-        fetchArgs.headers.Authorization = `Bearer ${auth.getAccessToken()}`;
-      }
+
       return fetch(
-        urlWithParams(`${auth.rootUrl}/providers/anon-user/login?device=${uriEncodeObject(device)}`, link),
-        fetchArgs
+        urlWithLinkParam(`${auth.rootUrl}/providers/anon-user/login?device=${uriEncodeObject(device)}`, link),
+        auth.fetchArgsWithLink(fetchArgs, link)
       ).then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_ANON));
@@ -74,11 +72,8 @@ function customProvider(auth) {
         JSON.stringify({ token, options: { device } })
       );
       fetchArgs.cors = true;
-      if (link) {
-        fetchArgs.headers.Authorization = `Bearer ${auth.getAccessToken()}`;
-      }
 
-      return fetch(urlWithParams(`${auth.rootUrl}/${loginRoute}`, link), fetchArgs)
+      return fetch(urlWithLinkParam(`${auth.rootUrl}/${loginRoute}`, link), auth.fetchArgsWithLink(fetchArgs, link))
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_CUSTOM));
@@ -112,11 +107,8 @@ function userPassProvider(auth) {
         JSON.stringify({ username, password, options: { device } })
       );
       fetchArgs.cors = true;
-      if (link) {
-        fetchArgs.headers.Authorization = `Bearer ${auth.getAccessToken()}`;
-      }
 
-      return fetch(urlWithParams(`${auth.rootUrl}/${loginRoute}`, link), fetchArgs)
+      return fetch(urlWithLinkParam(`${auth.rootUrl}/${loginRoute}`, link), auth.fetchArgsWithLink(fetchArgs, link))
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_USERPASS));
@@ -241,11 +233,8 @@ function apiKeyProvider(auth) {
         JSON.stringify({ 'key': key, 'options': { device } })
       );
       fetchArgs.cors = true;
-      if (link) {
-        fetchArgs.headers.Authorization = `Bearer ${auth.getAccessToken()}`;
-      }
 
-      return fetch(urlWithParams(`${auth.rootUrl}/${loginRoute}`, link), fetchArgs)
+      return fetch(urlWithLinkParam(`${auth.rootUrl}/${loginRoute}`, link), auth.fetchArgsWithLink(fetchArgs, link))
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_APIKEY));
@@ -310,11 +299,8 @@ function googleProvider(auth) {
           'POST',
           JSON.stringify({ authCode, options: { device } })
         );
-        if (link) {
-          fetchArgs.headers.Authorization = `Bearer ${auth.getAccessToken()}`;
-        }
 
-        return fetch(urlWithParams(`${auth.rootUrl}/${loginRoute}`, link), fetchArgs)
+        return fetch(urlWithLinkParam(`${auth.rootUrl}/${loginRoute}`, link), auth.fetchArgsWithLink(fetchArgs, link))
           .then(common.checkStatus)
           .then(response => response.json())
           .then(json => auth.set(json, PROVIDER_TYPE_GOOGLE));
@@ -352,10 +338,8 @@ function facebookProvider(auth) {
           'POST',
           JSON.stringify({ accessToken, options: { device } })
         );
-        if (link) {
-          fetchArgs.headers.Authorization = `Bearer ${auth.getAccessToken()}`;
-        }
-        return fetch(urlWithParams(`${auth.rootUrl}/${loginRoute}`, link), fetchArgs)
+
+        return fetch(urlWithLinkParam(`${auth.rootUrl}/${loginRoute}`, link), auth.fetchArgsWithLink(fetchArgs, link))
           .then(common.checkStatus)
           .then(response => response.json())
           .then(json => auth.set(json, PROVIDER_TYPE_FACEBOOK));
@@ -395,17 +379,14 @@ function mongodbCloudProvider(auth) {
       );
       fetchArgs.cors = true;  // TODO: shouldn't this use the passed in `cors` value?
       fetchArgs.credentials = 'include';
-      if (link) {
-        fetchArgs.headers.Authorization = `Bearer ${auth.getAccessToken()}`;
-      }
 
-      let url = urlWithParams(`${auth.rootUrl}/${loginRoute}`, link);
+      let url = urlWithLinkParam(`${auth.rootUrl}/${loginRoute}`, link);
       if (options.cookie) {
         return fetch(url + '?cookie=true', fetchArgs)
           .then(common.checkStatus);
       }
 
-      return fetch(url, fetchArgs)
+      return fetch(url, auth.fetchArgsWithLink(fetchArgs, link))
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_MONGODB_CLOUD));

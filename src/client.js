@@ -149,8 +149,20 @@ export class StitchClient {
     return this.auth.provider('userpass').register(email, password, options);
   }
 
+
+  /**
+   * Links the currently logged in account with another existing account.
+   *
+   * @param {String} providerType the provider of the other account (e.g. 'userpass', 'facebook', 'google')
+   * @param {Object} [options] additional authentication options
+   * @returns {Promise} which resolves to a String value: the original userId
+   */
   linkWithProvider(providerType, options = {}) {
-    return this.authenticate(providerType, options, true);
+    if (!this.isAuthenticated) {
+      throw new StitchError('Must be authenticated to link an account')
+    }
+
+    return this.auth.provider(providerType).authenticate(options, true).then(() => this.authedId());
   }
 
   /**
@@ -162,18 +174,14 @@ export class StitchClient {
    * @param {Object} [options] additional authentication options
    * @returns {Promise} which resolves to a String value: the authed userId
    */
-  authenticate(providerType, options = {}, link = false) {
+  authenticate(providerType, options = {}) {
     // reuse existing auth if present
     const authenticateFn = () =>
-      this.auth.provider(providerType).authenticate(options, link).then(() => this.authedId());
+      this.auth.provider(providerType).authenticate(options).then(() => this.authedId());
 
     if (this.isAuthenticated()) {
       if (providerType === PROVIDER_TYPE_ANON && this.auth.getLoggedInProviderType() === PROVIDER_TYPE_ANON) {
         return Promise.resolve(this.auth.authedId); // is authenticated, skip log in
-      }
-
-      if (link) {
-        return authenticateFn();
       }
 
       return this.logout().then(() => authenticateFn()); // will not be authenticated, continue log in
