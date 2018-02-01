@@ -76,6 +76,58 @@ describe('Auth', () => {
   });
 });
 
+describe('Auth linking', () => {
+  const linkEmail = 'link_user@10gen.com';
+  const password = 'password';
+  let test = new StitchMongoFixture();
+  let th;
+  let client;
+
+  beforeAll(async() => test.setup());
+  afterAll(async() => test.teardown());
+
+  beforeEach(async() => {
+    const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
+    th = await buildClientTestHarness(apiKey, groupId, serverUrl);
+    await th.configureAnon();
+    client = th.stitchClient;
+    await client.logout();
+  });
+
+  afterEach(async() => th.cleanup());
+
+  it('should link two accounts', async() => {
+    const userId = await client.login();
+    const { identities } = await client.userProfile();
+    expect(identities.length).toEqual(1);
+
+    await client.register(linkEmail, password);
+
+    let { token_id: tokenId, token } = await th.app().userRegistrations().sendConfirmationEmail(linkEmail);
+    await client.auth.provider('userpass').emailConfirm(tokenId, token);
+    const newUserId = await client.linkWithProvider('userpass', { username: linkEmail, password });
+    expect(userId).toEqual(newUserId);
+
+    const { identities: newIdentities } = await client.userProfile();
+    expect(newIdentities.length).toEqual(2);
+
+    expect(newIdentities[0].provider_type).toEqual('anon-user');
+    expect(newIdentities[1].provider_type).toEqual('local-userpass');
+  });
+
+  it('should fail if not authenticated', async() => {
+    await client.register(linkEmail, password);
+
+    let { token_id: tokenId, token } = await th.app().userRegistrations().sendConfirmationEmail(linkEmail);
+    await client.auth.provider('userpass').emailConfirm(tokenId, token);
+    try {
+      await client.linkWithProvider('userpass', { username: linkEmail, password });
+    } catch (error) {
+      expect(error).toBeDefined();
+    }
+  });
+});
+
 describe('Auth login semantics', () => {
   const email = 'test_user@domain.com';
   const password = 'password';

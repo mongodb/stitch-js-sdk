@@ -149,6 +149,22 @@ export class StitchClient {
     return this.auth.provider('userpass').register(email, password, options);
   }
 
+
+  /**
+   * Links the currently logged in account with another account.
+   *
+   * @param {String} providerType the provider of the other account (e.g. 'userpass', 'facebook', 'google')
+   * @param {Object} [options] additional authentication options
+   * @returns {Promise} which resolves to a String value: the original userId
+   */
+  linkWithProvider(providerType, options = {}) {
+    if (!this.isAuthenticated()) {
+      throw new StitchError('Must be authenticated to link an account');
+    }
+
+    return this.auth.provider(providerType).authenticate(options, true).then(() => this.authedId());
+  }
+
   /**
    * Submits an authentication request to the specified provider providing any
    * included options (read: user data).  If auth data already exists and the
