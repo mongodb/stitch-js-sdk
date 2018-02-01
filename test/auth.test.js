@@ -103,8 +103,8 @@ describe('Auth linking', () => {
 
     await client.register(linkEmail, password);
 
-    let { token_id, token } = await th.app().userRegistrations().sendConfirmationEmail(linkEmail);
-    await client.auth.provider('userpass').emailConfirm(token_id, token);
+    let { token_id: tokenId, token } = await th.app().userRegistrations().sendConfirmationEmail(linkEmail);
+    await client.auth.provider('userpass').emailConfirm(tokenId, token);
     const newUserId = await client.linkWithProvider('userpass', { username: linkEmail, password });
     expect(userId).toEqual(newUserId);
 
@@ -118,8 +118,8 @@ describe('Auth linking', () => {
   it('should fail if not authenticated', async() => {
     await client.register(linkEmail, password);
 
-    let { token_id, token } = await th.app().userRegistrations().sendConfirmationEmail(linkEmail);
-    await client.auth.provider('userpass').emailConfirm(token_id, token);
+    let { token_id: tokenId, token } = await th.app().userRegistrations().sendConfirmationEmail(linkEmail);
+    await client.auth.provider('userpass').emailConfirm(tokenId, token);
     try {
       await client.linkWithProvider('userpass', { username: linkEmail, password });
     } catch (error) {

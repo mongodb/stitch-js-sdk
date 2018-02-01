@@ -151,7 +151,7 @@ export class StitchClient {
 
 
   /**
-   * Links the currently logged in account with another existing account.
+   * Links the currently logged in account with another account.
    *
    * @param {String} providerType the provider of the other account (e.g. 'userpass', 'facebook', 'google')
    * @param {Object} [options] additional authentication options
