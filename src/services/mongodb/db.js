@@ -1,11 +1,15 @@
 import Collection from './collection';
 
 /**
- * Create a new DB instance (not meant to be instantiated directly).
+ * Creates a new DB instance (not meant to be instantiated directly, use `.db()` on
+ * a {@link MongoDBService} instance).
  * @class
  * @return {DB} a DB instance.
  */
 class DB {
+  /**
+   * @hideconstructor
+   */
   constructor(client, service, name) {
     this.client = client;
     this.service = service;

@@ -1,12 +1,16 @@
 import DB from './db';
 
 /**
- * Create a new MongoDBService instance (not meant to be instantiated directly).
+ * Creates a new MongoDBService instance (not meant to be instantiated directly, use
+ * `.service('mongodb', '<service-name>')` on a {@link StitchClient} instance.
  *
  * @class
  * @return {MongoDBService} a MongoDBService instance.
  */
 class MongoDBService {
+  /**
+   * @hideconstructor
+   */
   constructor(stitchClient, serviceName) {
     this.stitchClient = stitchClient;
     this.serviceName = serviceName;

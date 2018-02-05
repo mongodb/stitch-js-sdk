@@ -11,6 +11,7 @@ const jwtDecode = require('jwt-decode');
 
 const EMBEDDED_USER_AUTH_DATA_PARTS = 4;
 
+/** @private */
 export class AuthFactory {
   constructor() {
     throw new StitchError('Auth can only be made from the AuthFactory.create function');
@@ -21,6 +22,7 @@ export class AuthFactory {
   }
 }
 
+/** @private */
 export function newAuth(client, rootUrl, options) {
   let auth = Object.create(Auth.prototype);
   let namespace;
@@ -59,6 +61,7 @@ export function newAuth(client, rootUrl, options) {
   });
 }
 
+/** @private */
 export class Auth {
   constructor(client, rootUrl, options) {
     throw new StitchError('Auth can only be made from the AuthFactory.create function');
@@ -67,6 +70,7 @@ export class Auth {
   /**
    * Create the device info for this client.
    *
+   * @private
    * @memberof module:auth
    * @method getDeviceInfo
    * @param {String} appId The app ID for this client

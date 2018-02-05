@@ -23,13 +23,26 @@ const API_TYPE_CLIENT = 'client';
 const API_TYPE_APP = 'app';
 
 /**
-  * Factory class to create a new StitchClient asynchronously.
+  * StitchClientFactory is a singleton factory class which can be used to
+  * asynchronously create instances of {@link StitchClient}. StitchClientFactory
+  * is not meant to be instantiated. Use the static `create()` method to build
+  * a new StitchClient.
   */
 export class StitchClientFactory {
+  /**
+   * @hideconstructor
+   */
   constructor() {
     throw new StitchError('StitchClient can only be made from the StitchClientFactory.create function');
   }
 
+  /**
+   * Creates a new {@link StitchClient}.
+   *
+   * @param {String} clientAppID the app ID of the Stitch application, which can be found in
+   * the "Clients" page of the Stitch admin console.
+   * @param {Object} [options = {}] additional options for creating the {@link StitchClient}.
+   */
   static create(clientAppID, options = {}) {
     return newStitchClient(StitchClient.prototype, clientAppID, options);
   }
@@ -101,13 +114,15 @@ export function newStitchClient(prototype, clientAppID, options = {}) {
   }).then(() => stitchClient);
 }
 /**
- * Prototype for StitchClient class.
- * This is the internal implementation for StitchClient and should not
- * be exposed.
- *
- * @class
+ * StitchClient is the fundamental way of communicating with MongoDB Stitch in your
+ * application. Use StitchClient to authenticate users and to access Stitch services.
+ * StitchClient is not meant to be instantiated directly. Use a
+ * {@link StitchClientFactory} to create one.
  */
 export class StitchClient {
+  /**
+   * @hideconstructor
+   */
   constructor() {
     throw new StitchError('StitchClient can only be made from the StitchClientFactory.create function');
   }
@@ -117,13 +132,13 @@ export class StitchClient {
   }
 
   /**
-   * Login to stitch instance, optionally providing a username and password. In
+   * Login to Stitch instance, optionally providing a username and password. In
    * the event that these are omitted, anonymous authentication is used.
    *
    * @param {String} [email] the email address used for login
    * @param {String} [password] the password for the provided email address
-   * @param {Object} [options] additional authentication options
-   * @returns {Promise}
+   * @param {Object} [options = {}] additional authentication options
+   * @returns {Promise} which resolve to a String value: the authenticated user ID.
    */
   login(email, password, options = {}) {
     if (email === undefined || password === undefined) {
@@ -142,7 +157,7 @@ export class StitchClient {
    *
    * @param {String} email the email used to sign up for the app
    * @param {String} password the password used to sign up for the app
-   * @param {Object} [options] additional authentication options
+   * @param {Object} [options = {}] additional authentication options
    * @returns {Promise}
    */
   register(email, password, options = {}) {
@@ -151,11 +166,11 @@ export class StitchClient {
 
 
   /**
-   * Links the currently logged in account with another account.
+   * Links the currently logged in user with another identity.
    *
-   * @param {String} providerType the provider of the other account (e.g. 'userpass', 'facebook', 'google')
-   * @param {Object} [options] additional authentication options
-   * @returns {Promise} which resolves to a String value: the original userId
+   * @param {String} providerType the provider of the other identity (e.g. 'userpass', 'facebook', 'google')
+   * @param {Object} [options = {}] additional authentication options
+   * @returns {Promise} which resolves to a String value: the original user ID
    */
   linkWithProvider(providerType, options = {}) {
     if (!this.isAuthenticated()) {
@@ -171,8 +186,8 @@ export class StitchClient {
    * existing auth data has an access token, then these credentials are returned.
    *
    * @param {String} providerType the provider used for authentication (e.g. 'userpass', 'facebook', 'google')
-   * @param {Object} [options] additional authentication options
-   * @returns {Promise} which resolves to a String value: the authed userId
+   * @param {Object} [options = {}] additional authentication options
+   * @returns {Promise} which resolves to a String value: the authenticated user ID
    */
   authenticate(providerType, options = {}) {
     // reuse existing auth if present
@@ -192,7 +207,7 @@ export class StitchClient {
   }
 
   /**
-   * Ends the session for the current user.
+   * Ends the session for the current user, and clears auth information from local storage.
    *
    * @returns {Promise}
    */
@@ -209,16 +224,16 @@ export class StitchClient {
   }
 
   /**
-   * @return {*} Returns any error from the Stitch authentication system.
+   * @returns {*} Returns any error from the Stitch authentication system.
    */
   authError() {
     return this.auth.error();
   }
 
   /**
-   * Returns profile information for the currently logged in user
+   * Returns profile information for the currently logged in user.
    *
-   * @returns {Promise}
+   * @returns {Promise} which resolves to a a JSON object containing user profile information.
    */
   userProfile() {
     return this._do(
@@ -229,14 +244,14 @@ export class StitchClient {
   }
 
   /**
-  * @return {Boolean} whether or not the current client is authenticated
+  * @returns {Boolean} whether or not the current client is authenticated.
   */
   isAuthenticated() {
     return !!this.authedId();
   }
 
   /**
-   *  @return {String} Returns a string of the currently authed user's ID.
+   *  @returns {String} a string of the currently authenticated user's ID.
    */
   authedId() {
     return this.auth.authedId;
@@ -246,9 +261,9 @@ export class StitchClient {
    * Factory method for accessing Stitch services.
    *
    * @method
-   * @param {String} type The service type [mongodb, {String}]
-   * @param {String} name The service name.
-   * @return {Object} returns a named service.
+   * @param {String} type the service type (e.g. "mongodb", "aws/s3", "twilio", "http", etc.)
+   * @param {String} name the service name specified in the Stitch admin console.
+   * @returns {Object} returns an instance of the specified service type.
    */
   service(type, name) {
     if (this.constructor !== StitchClient) {
@@ -303,6 +318,7 @@ export class StitchClient {
   /**
    * Returns an access token for the user
    *
+   * @private
    * @returns {Promise}
    */
   doSessionPost() {
@@ -319,9 +335,9 @@ export class StitchClient {
   }
 
   /**
-   * Returns an array of api keys
+   * Returns the user API keys associated with the current user.
    *
-   * @returns {Promise}
+   * @returns {Promise} which resolves to an array of API key objects
    */
   getApiKeys() {
     return this._do(
@@ -336,10 +352,10 @@ export class StitchClient {
   }
 
   /**
-   * Creates a user api key
+   * Creates a user API key that can be used to authenticate as the current user.
    *
-   * @param {String} userApiKeyName the user defined name of the userApiKey
-   * @returns {Promise}
+   * @param {String} userApiKeyName a unique name for the user API key
+   * @returns {Promise} which resolves to an API key object containing the API key value
    */
   createApiKey(userApiKeyName) {
     return this._do(
@@ -354,10 +370,10 @@ export class StitchClient {
   }
 
   /**
-   * Returns a user api key
+   * Returns a user API key associated with the current user.
    *
-   * @param {String} keyID the ID of the key
-   * @returns {Promise}
+   * @param {String} keyID the ID of the key to fetch
+   * @returns {Promise} which resolves to an API key object, although the API key value will be omitted
    */
   getApiKeyByID(keyID) {
     return this._do(
@@ -372,9 +388,9 @@ export class StitchClient {
   }
 
   /**
-   * Deletes a user api key
+   * Deletes a user API key associated with the current user.
    *
-   * @param {String} keyID the ID of the key
+   * @param {String} keyID the ID of the key to delete
    * @returns {Promise}
    */
   deleteApiKeyByID(keyID) {
@@ -389,9 +405,9 @@ export class StitchClient {
   }
 
   /**
-   * Enable a user api key
+   * Enables a user API key associated with the current user.
    *
-   * @param {String} keyID the ID of the key
+   * @param {String} keyID the ID of the key to enable
    * @returns {Promise}
    */
   enableApiKeyByID(keyID) {
@@ -406,9 +422,9 @@ export class StitchClient {
   }
 
   /**
-   * Disable a user api key
+   * Disables a user API key associated with the current user.
    *
-   * @param {String} keyID the ID of the key
+   * @param {String} keyID the ID of the key to disable
    * @returns {Promise}
    */
   disableApiKeyByID(keyID) {

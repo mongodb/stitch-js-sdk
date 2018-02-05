@@ -1,7 +1,8 @@
 import { serviceResponse } from '../../util';
 
 /**
- * Convenience wrapper around AWS SES service (not meant to be instantiated directly).
+ * Convenience wrapper around AWS SES service (not meant to be instantiated directly,
+ * use `.service('aws/ses', '<service-name>')` on a {@link StitchClient} instance).
  *
  * @class
  * @return {SESService} a SESService instance.

@@ -2,7 +2,10 @@ import * as base64 from 'Base64';
 
 const RESULT_METADATA_KEY = '_stitch_metadata';
 
-/** @namespace util */
+/**
+ * @namespace util
+ * @ignore
+ */
 
 /**
  * Utility which creates a function that extracts metadata
