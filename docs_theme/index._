@@ -26,7 +26,7 @@
                 <% var hasMembers = doc.members.static.length || doc.members.instance.length %>
                 <li class="<% if (doc.kind == 'note') { %> list-section-header <% } %>"><a
                   href='#<%=slug(doc.namespace)%>'
-                  class="<% if (doc.kind === 'note') { %>h5 bold soft-black caps<% } else { %> soft-black <% } %><% if (hasMembers) { %> toggle-sibling<% } %>">
+                  class="<% if (doc.kind === 'note') { %>h5 bold soft-black caps<% } else { %> soft-black list-symbol <% } %><% if (hasMembers) { %> toggle-sibling<% } %>">
                   <%- doc.name %>
                   <% if (hasMembers) { %><span class='icon'>▸</span><% } %>
                 </a>
@@ -38,7 +38,7 @@
                     <% doc.members.static.forEach(function(member) { %>
                       <li><a
                         href='#<%=slug(member.namespace)%>'
-                        class='soft-black regular pre-open'>
+                        class='soft-black regular pre-open list-symbol'>
                         .<%- member.name %>
                       </a></li>
                     <% }) %>
@@ -50,7 +50,7 @@
                       <% doc.members.instance.forEach(function(member) { %>
                       <li><a
                         href='#<%=slug(member.namespace)%>'
-                        class='soft-black regular pre-open'>
+                        class='soft-black regular pre-open list-symbol'>
                         #<%- member.name %>
                       </a></li>
                       <% }) %>
@@ -62,7 +62,7 @@
                       <% doc.members.inner.forEach(function(member) { %>
                       <li><a
                         href='#<%=slug(member.namespace)%>'
-                        class='soft-black regular pre-open'>
+                        class='soft-black regular pre-open list-symbol'>
                         #<%- member.name %>
                       </a></li>
                       <% }) %>
@@ -74,7 +74,7 @@
                       <% doc.members.events.forEach(function(member) { %>
                         <li><a
                           href='#<%=slug(member.namespace)%>'
-                          class='soft-black regular pre-open'>
+                          class='soft-black regular pre-open list-symbol'>
                           ⓔ <%- member.name %>
                         </a></li>
                       <% }) %>

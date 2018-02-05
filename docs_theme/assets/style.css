@@ -22,7 +22,11 @@
 }
 
 .list-section-header {
-  padding-top: 10px
+  margin-top: 20px
+}
+
+.list-symbol {
+  font-family: Source Code Pro,Menlo,Consolas,Liberation Mono,monospace;
 }
 
 h4 {
