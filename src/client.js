@@ -185,8 +185,8 @@ export class StitchClient {
    * included options (read: user data).  If auth data already exists and the
    * existing auth data has an access token, then these credentials are returned.
    *
-   * @param {String} providerType the provider used for authentication (The possible 
-   *                 options are 'anon', 'userpass', 'custom', 'facebook', 'google', 
+   * @param {String} providerType the provider used for authentication (The possible
+   *                 options are 'anon', 'userpass', 'custom', 'facebook', 'google',
    *                 and 'apiKey')
    * @param {Object} [options = {}] additional authentication options
    * @returns {Promise} which resolves to a String value: the authenticated user ID

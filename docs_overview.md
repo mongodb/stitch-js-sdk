@@ -37,16 +37,16 @@ stitchClientPromise.then(stitchClient => stitchClient.login())
 ```
 stitchClientPromise.then(stitchClient => {
   // mongodb1 is the name of the mongodb service registered with the app.
-  let db = stitchClient.service('mongodb', 'mongodb1').db('app-ovmyj'); 
+  let db = stitchClient.service('mongodb', 'mongodb1').db('app-ovmyj');
   let itemsCollection = db.collection('items');
 
   // CRUD operations:
   const userId = stitchClient.authedId();
   return itemsCollection.insertMany(
-    [ 
-      { owner_id: userId, x: 'item1' }, 
-      { owner_id: userId, x: 'item2' }, 
-      { owner_id: userId, x: 'item3' } 
+    [
+      { owner_id: userId, x: 'item1' },
+      { owner_id: userId, x: 'item2' },
+      { owner_id: userId, x: 'item3' }
     ]
   );
 }).then(result => console.log('success: ', result))
