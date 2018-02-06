@@ -38,4 +38,3 @@ toc:
       Some functions in the MongoDB Stitch JavaScript SDK may result in an error. The types of errors 
       that can be returned by the SDK are documented here.
   - StitchError
-

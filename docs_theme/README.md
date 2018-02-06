@@ -1,12 +1,7 @@
-# the default theme
+# MongoDB Stitch JS SDK theme
 
-![](screenshot.png)
-
-This is the default theme for [documentationjs](https://github.com/documentationjs):
-it consists of underscore templates and a few assets: a [highlight.js](https://highlightjs.org/)
-theme and [basscss](http://www.basscss.com/) as a basic CSS framework.
-
-This is bundled by default in documentation: it is the default theme.
+This is a theme for for [documentationjs](https://github.com/documentationjs) based on the 
+default theme that is bundled with documentationjs.
 
 The contents are the following:
 
