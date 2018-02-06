@@ -1,4 +1,4 @@
-The MongoDB Stitch JavaScript SDK can be used to build web applications, Node.js applications, and React Native applications that use MongoDB Stitch.
+The MongoDB Stitch JavaScript SDK can be used to build web applications and Node.js applications that use MongoDB Stitch.
 
 ### Links to Other Resources
 

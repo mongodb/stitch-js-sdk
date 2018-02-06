@@ -4,7 +4,7 @@ const RESULT_METADATA_KEY = '_stitch_metadata';
 
 /**
  * @namespace util
- * @ignore
+ * @private
  */
 
 /**
