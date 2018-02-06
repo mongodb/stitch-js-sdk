@@ -51,8 +51,6 @@
     "gh-pages": "^1.0.0",
     "jest": "^20.0.3",
     "jest-fetch-mock": "^1.1.1",
-    "jsdoc": "^3.4.3",
-    "jsdoc-export-default-interop": "^0.3.1",
     "mock-browser": "^0.92.14",
     "mongodb": "^2.2.26",
     "regenerator-runtime": "^0.10.5",
