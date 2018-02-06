@@ -1,7 +1,8 @@
 import { serviceResponse } from '../../util';
 
 /**
- * Create a new TwilioService instance (not meant to be instantiated directly).
+ * Create a new TwilioService instance (not meant to be instantiated directly,
+ * use `.service('twilio', '<service-name>')` on a {@link StitchClient} instance).
  *
  * @class
  * @return {TwilioService} a TwilioService instance.

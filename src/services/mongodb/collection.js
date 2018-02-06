@@ -1,12 +1,16 @@
 import { serviceResponse } from '../../util';
 
 /**
- * Create a new Collection instance (not meant to be instantiated directly).
+ * Creates a new Collection instance (not meant to be instantiated directly,
+ * use `.collection()` on a {@link DB} instance).
  *
  * @class
  * @return {Collection} a Collection instance.
  */
 class Collection {
+  /**
+   * @hideconstructor
+   */
   constructor(db, name) {
     this.db = db;
     this.name = name;

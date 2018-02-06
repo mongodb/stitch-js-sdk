@@ -1,7 +1,8 @@
 import { serviceResponse } from '../../util';
 
 /**
- * Convenience wrapper around AWS S3 service (not meant to be instantiated directly).
+ * Convenience wrapper around AWS S3 service (not meant to be instantiated directly,
+ * use `.service('aws/s3', '<service-name>')` on a {@link StitchClient} instance).
  *
  * @class
  * @return {S3Service} a S3Service instance.

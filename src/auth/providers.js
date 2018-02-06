@@ -1,4 +1,7 @@
-/** @module auth  */
+/**
+ * @private
+ * @module auth
+ */
 import * as common from '../common';
 import * as authCommon from './common';
 import { uriEncodeObject } from '../util';
@@ -20,6 +23,7 @@ function urlWithLinkParam(url, link) {
 }
 
 /**
+ * @private
  * @namespace
  */
 function anonProvider(auth) {
@@ -48,6 +52,7 @@ function anonProvider(auth) {
 }
 
 /**
+  * @private
   * @namespace
   */
 function customProvider(auth) {
@@ -81,7 +86,13 @@ function customProvider(auth) {
   };
 }
 
-/** @namespace */
+/**
+ * userPassProvider offers several methods for completing certain tasks necessary for email/password
+ * authentication. userPassProvider cannot be instantiated directly. To instantiate,
+ * use `.auth.providers('userpass')` on a {@link StitchClient}.
+ *
+ * @namespace
+ */
 function userPassProvider(auth) {
   // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
   // the client is for the admin or client API.
@@ -92,6 +103,7 @@ function userPassProvider(auth) {
     /**
      * Login to a stitch application using username and password authentication
      *
+     * @private
      * @memberof userPassProvider
      * @instance
      * @param {String} username the username to use for authentication
@@ -115,11 +127,12 @@ function userPassProvider(auth) {
     },
 
     /**
-     * Completes the confirmation workflow from the stitch server
+     * Completes the email confirmation workflow from the Stitch server
+     *
      * @memberof userPassProvider
      * @instance
-     * @param {String} tokenId the tokenId provided by the stitch server
-     * @param {String} token the token provided by the stitch server
+     * @param {String} tokenId the tokenId provided by the Stitch server
+     * @param {String} token the token provided by the Stitch server
      * @returns {Promise}
      */
     emailConfirm: (tokenId, token) => {
@@ -137,7 +150,7 @@ function userPassProvider(auth) {
      *
      * @memberof userPassProvider
      * @instance
-     * @param {String} email the email to send a confirmation email for
+     * @param {String} email the email address to send a confirmation email for
      * @returns {Promise}
      */
     sendEmailConfirm: (email) => {
@@ -150,11 +163,11 @@ function userPassProvider(auth) {
     },
 
     /**
-     * Sends a password reset request to the stitch server
+     * Sends a password reset request to the Stitch server
      *
      * @memberof userPassProvider
      * @instance
-     * @param {String} email the email of the account to reset the password for
+     * @param {String} email the email address of the account to reset the password for
      * @returns {Promise}
      */
     sendPasswordReset: (email) => {
@@ -167,13 +180,13 @@ function userPassProvider(auth) {
     },
 
     /**
-     * Use information returned from the stitch server to complete the password
+     * Use information returned from the Stitch server to complete the password
      * reset flow for a given email account, providing a new password for the account.
      *
      * @memberof userPassProvider
      * @instance
-     * @param {String} tokenId the tokenId provided by the stitch server
-     * @param {String} token the token provided by the stitch server
+     * @param {String} tokenId the tokenId provided by the Stitch server
+     * @param {String} token the token provided by the Stitch server
      * @param {String} password the new password requested for this account
      * @returns {Promise}
      */
@@ -210,7 +223,10 @@ function userPassProvider(auth) {
   };
 }
 
-/** @namespace */
+/**
+ * @private
+ * @namespace
+ */
 function apiKeyProvider(auth) {
   // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
   // the client is for the admin or client API.
@@ -276,7 +292,10 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
     });
 }
 
-/** @namespace */
+/**
+ * @private
+ * @namespace
+ */
 function googleProvider(auth) {
   const loginRoute = auth.isAppClient() ? 'providers/oauth2-google/login' : 'providers/oauth2-google/login';
 
@@ -314,7 +333,10 @@ function googleProvider(auth) {
   };
 }
 
-/** @namespace */
+/**
+ * @private
+ * @namespace
+ */
 function facebookProvider(auth) {
   const loginRoute = auth.isAppClient() ? 'providers/oauth2-facebook/login' : 'providers/oauth2-facebook/login';
 
@@ -353,7 +375,10 @@ function facebookProvider(auth) {
   };
 }
 
-/** @namespace */
+/**
+ * @private
+ * @namespace
+ */
 function mongodbCloudProvider(auth) {
   // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
   // the client is for the admin or client API.

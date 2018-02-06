@@ -1,0 +1,40 @@
+toc:
+  - name: Overview
+    file: docs_overview.md
+  - name: Client
+    description: |
+      These classes offer fundamental functionality for communicating with MongoDB Stitch.
+  - StitchClientFactory
+  - StitchClient
+  - name: MongoDB Service
+    description: |
+      These classes offer functionality for communicating with a MongoDB instance via Stitch.
+  - MongoDBService
+  - DB
+  - Collection
+  - name: Partner Services
+    description: |
+      These classes provide access to the functionality of MongoDB Stitch partner services. 
+      They are not meant to be instantiated directly, since they can be instantiated by 
+      calling the service() method on the StitchClient.
+  - S3Service
+  - SESService
+  - HTTPService
+  - TwilioService
+  - name: Authentication
+    description: |
+      Although most authentication tasks can be performed by the StitchClient, some authentication
+      providers offer additional functionality that can be accessed via the "auth" property on the
+      StitchClient. The providers which offer additional functionality are documented here.
+  - anonProvider
+  - customProvider
+  - userPassProvider
+  - apiKeyProvider
+  - googleProvider
+  - facebookProvider
+  - mongodbCloudProvider
+  - name: Errors
+    description: |
+      Some functions in the MongoDB Stitch JavaScript SDK may result in an error. The types of errors 
+      that can be returned by the SDK are documented here.
+  - StitchError

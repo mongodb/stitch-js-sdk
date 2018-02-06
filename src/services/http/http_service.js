@@ -1,7 +1,8 @@
 import { serviceResponse } from '../../util';
 
 /**
- * Convenience wrapper for HTTP service (not meant to be instantiated directly).
+ * Convenience wrapper for HTTP service (not meant to be instantiated directly,
+ * use `.service('http', '<service-name>')` on a {@link StitchClient} instance).
  *
  * @class
  * @return {HTTPService} a HTTPService instance.
