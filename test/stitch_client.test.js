@@ -19,6 +19,18 @@ describe('StitchClient', () => {
 
   afterEach(async() => await th.cleanup());
 
+  it('should not allow instantiation of StitchClient', async() => {
+    try {
+      expect(new StitchClient()).toThrow();
+    } catch (_) {}
+  })
+
+  it('should not allow instantiation of StitchClientFactory', async() => {
+    try {
+      expect(new StitchClientFactory()).toThrow();
+    } catch (_) {}
+  })
+
   it('should not allow calls to `service` as a constructor', async() => {
     const client = await StitchClientFactory.create();
     try {

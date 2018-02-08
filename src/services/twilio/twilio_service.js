@@ -20,7 +20,8 @@ class TwilioService {
    * @param {String} from number to send from
    * @param {String} to number to send to
    * @param {String} body SMS body content
-   * @return {Promise}
+   * @return {Promise} which resolves to 'null' when message is sent successfully, 
+   *                   or is rejected when there is an error
    */
   send(from, to, body) {
     return serviceResponse(this, {

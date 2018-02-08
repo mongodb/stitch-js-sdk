@@ -263,7 +263,7 @@ export class StitchClient {
    * Factory method for accessing Stitch services.
    *
    * @method
-   * @param {String} type the service type (e.g. "mongodb", "aws/s3", "twilio", "http", etc.)
+   * @param {String} type the service type (e.g. "mongodb", "aws-s3", "aws-ses", "twilio", "http", etc.)
    * @param {String} name the service name specified in the Stitch admin console.
    * @returns {Object} returns an instance of the specified service type.
    */

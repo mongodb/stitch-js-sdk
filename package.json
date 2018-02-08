@@ -30,6 +30,7 @@
     "query-string": "^4.3.4"
   },
   "devDependencies": {
+    "aws-sdk": "^2.190.0",
     "babel-cli": "^6.24.1",
     "babel-core": "^6.24.1",
     "babel-eslint": "^7.2.3",
