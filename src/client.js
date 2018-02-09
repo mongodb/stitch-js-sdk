@@ -124,7 +124,8 @@ export class StitchClient {
    * @hideconstructor
    */
   constructor() {
-    throw new StitchError('StitchClient can only be made from the StitchClientFactory.create function');
+    let classname = this.constructor.name;
+    throw new StitchError(`${classname} can only be made from the ${classname}Factory.create function`);
   }
 
   get type() {

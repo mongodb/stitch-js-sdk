@@ -1,7 +1,5 @@
 import * as base64 from 'Base64';
 
-const RESULT_METADATA_KEY = '_stitch_metadata';
-
 /**
  * @namespace util
  * @private

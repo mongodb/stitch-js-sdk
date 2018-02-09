@@ -1,4 +1,4 @@
-import { StitchClientFactory } from '../src/client';
+import { StitchClient, StitchClientFactory } from '../src/client';
 import { buildAdminTestHarness, extractTestFixtureDataPoints } from './testutil';
 import StitchMongoFixture from './fixtures/stitch_mongo_fixture';
 
@@ -20,15 +20,15 @@ describe('StitchClient', () => {
   afterEach(async() => await th.cleanup());
 
   it('should not allow instantiation of StitchClient', async() => {
-    try {
-      expect(new StitchClient()).toThrow();
-    } catch (_) {}
+    expect(() => new StitchClient()).toThrowError(
+      /StitchClient can only be made from the StitchClientFactory\.create function/
+    );
   })
 
   it('should not allow instantiation of StitchClientFactory', async() => {
-    try {
-      expect(new StitchClientFactory()).toThrow();
-    } catch (_) {}
+    expect(() => new StitchClientFactory()).toThrowError(
+      /StitchClient can only be made from the StitchClientFactory\.create function/
+    );
   })
 
   it('should not allow calls to `service` as a constructor', async() => {

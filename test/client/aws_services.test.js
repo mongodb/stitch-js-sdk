@@ -17,8 +17,6 @@ describe('Executing AWS service functions', () => {
 
   const DEFAULT_AWS_REGION = 'us-east-1';
 
-
-
   let th;
   let service;
   let serviceId;
