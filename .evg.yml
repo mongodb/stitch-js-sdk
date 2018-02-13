@@ -145,9 +145,9 @@ tasks:
             set -e
             echo "running client tests"
             cd stitch-js-sdk
-            npm install
+            yarn install
             source ./creds
-            npm test
+            yarn test
 
   - name: check_import
     commands:
@@ -157,18 +157,18 @@ tasks:
           script: |
             set -e
             cd stitch-js-sdk
-            npm install
-            npm run build
-            npm run build-web
-            npm run build-web-dev
+            yarn install
+            yarn run build
+            yarn run build-web
+            yarn run build-web-dev
             mkdir tmp
             cd tmp
-            npm pack ../
+            yarn pack ../
             mv mongodb-stitch-*.tgz mongodb-stitch.tgz
             cd ../../
             mkdir test_app
             cd test_app
-            npm install --save ../stitch-js-sdk/tmp/mongodb-stitch.tgz
+            yarn install --save ../stitch-js-sdk/tmp/mongodb-stitch.tgz
             node -e 'process.on("unhandledRejection", err => { throw err }); const stitch = require("mongodb-stitch"); stitch.StitchClientFactory.create("stitchtest-vsfmv").then(client => client.login());'
 
   - name: dist
@@ -179,13 +179,13 @@ tasks:
           script: |
             set -e
             cd stitch-js-sdk
-            npm install
-            npm run build
-            npm run build-web
-            npm run build-web-dev
+            yarn install
+            yarn run build
+            yarn run build-web
+            yarn run build-web-dev
             mkdir tmp
             cd tmp
-            npm pack ../
+            yarn pack ../
             mv mongodb-stitch-*.tgz mongodb-stitch.tgz
 
       - command: s3.put
@@ -243,8 +243,8 @@ tasks:
           script: |
             set -e
             cd stitch-js-sdk
-            npm install
-            npm run docs
+            yarn install
+            yarn docs
 
       - command: shell.exec
         params:
@@ -285,8 +285,8 @@ tasks:
             set -e
             cd stitch-js-sdk
             echo "linting"
-            npm install
-            npm run lint --quiet
+            yarn install
+            yarn run lint --quiet
 
 buildvariants:
 - name: linux-64
