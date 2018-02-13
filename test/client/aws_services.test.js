@@ -129,6 +129,7 @@ describe('Executing AWS service functions', () => {
         return;
       }
 
+      jest.setTimeout(15000);
       const { location } = await service.put(bucketName, objectKey, 'private', 'text', 'this is a string in an S3 bucket');
       expect(location).toBeDefined();
     });
@@ -138,6 +139,7 @@ describe('Executing AWS service functions', () => {
         return;
       }
 
+      jest.setTimeout(15000);
       const { location } = await service.put(bucketName, objectKey, 'private', 'binary', new BSON.Binary('Hello World'));
       expect(location).toBeDefined();
     });
@@ -147,6 +149,7 @@ describe('Executing AWS service functions', () => {
         return;
       }
 
+      jest.setTimeout(15000);
       expect(await service.signPolicy(bucketName, objectKey, 'private', 'largeBinary')).toMatchObject(
         expect.objectContaining({
           policy: expect.any(String),
