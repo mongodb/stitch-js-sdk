@@ -121,6 +121,8 @@ describe('Executing AWS service functions', () => {
           }
           done();
         });
+      } else {
+        done();
       }
     });
 
