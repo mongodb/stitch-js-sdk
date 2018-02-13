@@ -39,6 +39,8 @@ var jwtDecode = require('jwt-decode');
 
 var EMBEDDED_USER_AUTH_DATA_PARTS = 4;
 
+/** @private */
+
 var AuthFactory = exports.AuthFactory = function () {
   function AuthFactory() {
     _classCallCheck(this, AuthFactory);
@@ -55,6 +57,9 @@ var AuthFactory = exports.AuthFactory = function () {
 
   return AuthFactory;
 }();
+
+/** @private */
+
 
 function newAuth(client, rootUrl, options) {
   var auth = Object.create(Auth.prototype);
@@ -95,6 +100,8 @@ function newAuth(client, rootUrl, options) {
   });
 }
 
+/** @private */
+
 var Auth = exports.Auth = function () {
   function Auth(client, rootUrl, options) {
     _classCallCheck(this, Auth);
@@ -105,6 +112,7 @@ var Auth = exports.Auth = function () {
   /**
    * Create the device info for this client.
    *
+   * @private
    * @memberof module:auth
    * @method getDeviceInfo
    * @param {String} appId The app ID for this client
@@ -447,6 +455,15 @@ var Auth = exports.Auth = function () {
       }
 
       return _ref5 = {}, _defineProperty(_ref5, this.codec.accessToken, parts[0]), _defineProperty(_ref5, this.codec.refreshToken, parts[1]), _defineProperty(_ref5, this.codec.userId, parts[2]), _defineProperty(_ref5, this.codec.deviceId, parts[3]), _ref5;
+    }
+  }, {
+    key: 'fetchArgsWithLink',
+    value: function fetchArgsWithLink(fetchArgs, link) {
+      if (link) {
+        fetchArgs.headers.Authorization = 'Bearer ' + this.getAccessToken();
+      }
+
+      return fetchArgs;
     }
   }]);
 

@@ -11,7 +11,8 @@ var _util = require('../../util');
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
- * Convenience wrapper for HTTP service (not meant to be instantiated directly).
+ * Convenience wrapper for HTTP service (not meant to be instantiated directly,
+ * use `.service('http', '<service-name>')` on a {@link StitchClient} instance).
  *
  * @class
  * @return {HTTPService} a HTTPService instance.

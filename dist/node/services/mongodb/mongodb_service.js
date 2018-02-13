@@ -15,12 +15,16 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
- * Create a new MongoDBService instance (not meant to be instantiated directly).
+ * Creates a new MongoDBService instance (not meant to be instantiated directly, use
+ * `.service('mongodb', '<service-name>')` on a {@link StitchClient} instance.
  *
  * @class
  * @return {MongoDBService} a MongoDBService instance.
  */
 var MongoDBService = function () {
+  /**
+   * @hideconstructor
+   */
   function MongoDBService(stitchClient, serviceName) {
     _classCallCheck(this, MongoDBService);
 

@@ -61,6 +61,8 @@ var _VERSION_KEY = '__stitch_storage_version__';
   * that checks to see if the current version is up to date.
   * If the version has not been set, this method will migrate
   * to the latest version.
+  *
+  * @private
   * @param {Integer} version version number of storage
   * @param {Object} storage storage class being checked
   * @returns {Promise} nullable promise containing migration logic
@@ -91,6 +93,8 @@ function _runMigration(version, storage) {
       break;
   }
 }
+
+/** @private */
 
 var Storage = function () {
   /**

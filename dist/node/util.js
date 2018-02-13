@@ -15,7 +15,10 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 var RESULT_METADATA_KEY = '_stitch_metadata';
 
-/** @namespace util */
+/**
+ * @namespace util
+ * @private
+ */
 
 /**
  * Utility which creates a function that extracts metadata

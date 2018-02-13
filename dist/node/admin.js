@@ -32,6 +32,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var v2 = 2;
 var v3 = 3;
 
+/** @private **/
+
 var StitchAdminClientFactory = exports.StitchAdminClientFactory = function () {
   function StitchAdminClientFactory() {
     _classCallCheck(this, StitchAdminClientFactory);
@@ -48,6 +50,9 @@ var StitchAdminClientFactory = exports.StitchAdminClientFactory = function () {
 
   return StitchAdminClientFactory;
 }();
+
+/** @private */
+
 
 var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
   _inherits(StitchAdminClient, _StitchClient);
@@ -327,6 +332,14 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       return api._delete(appUrl + '/users/' + uid);
                     }
                   };
+                }
+              };
+            },
+
+            userRegistrations: function userRegistrations() {
+              return {
+                sendConfirmationEmail: function sendConfirmationEmail(email) {
+                  return api._post(appUrl + '/user_registrations/by_email/' + email + '/send_confirm');
                 }
               };
             },

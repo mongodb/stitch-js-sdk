@@ -11,12 +11,16 @@ var _util = require('../../util');
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
- * Create a new Collection instance (not meant to be instantiated directly).
+ * Creates a new Collection instance (not meant to be instantiated directly,
+ * use `.collection()` on a {@link DB} instance).
  *
  * @class
  * @return {Collection} a Collection instance.
  */
 var Collection = function () {
+  /**
+   * @hideconstructor
+   */
   function Collection(db, name) {
     _classCallCheck(this, Collection);
 

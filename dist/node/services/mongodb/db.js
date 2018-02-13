@@ -15,11 +15,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
- * Create a new DB instance (not meant to be instantiated directly).
+ * Creates a new DB instance (not meant to be instantiated directly, use `.db()` on
+ * a {@link MongoDBService} instance).
  * @class
  * @return {DB} a DB instance.
  */
 var DB = function () {
+  /**
+   * @hideconstructor
+   */
   function DB(client, service, name) {
     _classCallCheck(this, DB);
 

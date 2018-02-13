@@ -54,15 +54,30 @@ var API_TYPE_CLIENT = 'client';
 var API_TYPE_APP = 'app';
 
 /**
-  * Factory class to create a new StitchClient asynchronously.
+  * StitchClientFactory is a singleton factory class which can be used to
+  * asynchronously create instances of {@link StitchClient}. StitchClientFactory
+  * is not meant to be instantiated. Use the static `create()` method to build
+  * a new StitchClient.
   */
 
 var StitchClientFactory = exports.StitchClientFactory = function () {
+  /**
+   * @hideconstructor
+   */
   function StitchClientFactory() {
     _classCallCheck(this, StitchClientFactory);
 
     throw new _errors.StitchError('StitchClient can only be made from the StitchClientFactory.create function');
   }
+
+  /**
+   * Creates a new {@link StitchClient}.
+   *
+   * @param {String} clientAppID the app ID of the Stitch application, which can be found in
+   * the "Clients" page of the Stitch admin console.
+   * @param {Object} [options = {}] additional options for creating the {@link StitchClient}.
+   */
+
 
   _createClass(StitchClientFactory, null, [{
     key: 'create',
@@ -117,14 +132,16 @@ function newStitchClient(prototype, clientAppID) {
   });
 }
 /**
- * Prototype for StitchClient class.
- * This is the internal implementation for StitchClient and should not
- * be exposed.
- *
- * @class
+ * StitchClient is the fundamental way of communicating with MongoDB Stitch in your
+ * application. Use StitchClient to authenticate users and to access Stitch services.
+ * StitchClient is not meant to be instantiated directly. Use a
+ * {@link StitchClientFactory} to create one.
  */
 
 var StitchClient = exports.StitchClient = function () {
+  /**
+   * @hideconstructor
+   */
   function StitchClient() {
     _classCallCheck(this, StitchClient);
 
@@ -136,13 +153,13 @@ var StitchClient = exports.StitchClient = function () {
 
 
     /**
-     * Login to stitch instance, optionally providing a username and password. In
+     * Login to Stitch instance, optionally providing a username and password. In
      * the event that these are omitted, anonymous authentication is used.
      *
      * @param {String} [email] the email address used for login
      * @param {String} [password] the password for the provided email address
-     * @param {Object} [options] additional authentication options
-     * @returns {Promise}
+     * @param {Object} [options = {}] additional authentication options
+     * @returns {Promise} which resolve to a String value: the authenticated user ID.
      */
     value: function login(email, password) {
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
@@ -163,7 +180,7 @@ var StitchClient = exports.StitchClient = function () {
      *
      * @param {String} email the email used to sign up for the app
      * @param {String} password the password used to sign up for the app
-     * @param {Object} [options] additional authentication options
+     * @param {Object} [options = {}] additional authentication options
      * @returns {Promise}
      */
 
@@ -176,26 +193,52 @@ var StitchClient = exports.StitchClient = function () {
     }
 
     /**
+     * Links the currently logged in user with another identity.
+     *
+     * @param {String} providerType the provider of the other identity (e.g. 'userpass', 'facebook', 'google')
+     * @param {Object} [options = {}] additional authentication options
+     * @returns {Promise} which resolves to a String value: the original user ID
+     */
+
+  }, {
+    key: 'linkWithProvider',
+    value: function linkWithProvider(providerType) {
+      var _this = this;
+
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+      if (!this.isAuthenticated()) {
+        throw new _errors.StitchError('Must be authenticated to link an account');
+      }
+
+      return this.auth.provider(providerType).authenticate(options, true).then(function () {
+        return _this.authedId();
+      });
+    }
+
+    /**
      * Submits an authentication request to the specified provider providing any
      * included options (read: user data).  If auth data already exists and the
      * existing auth data has an access token, then these credentials are returned.
      *
-     * @param {String} providerType the provider used for authentication (e.g. 'userpass', 'facebook', 'google')
-     * @param {Object} [options] additional authentication options
-     * @returns {Promise} which resolves to a String value: the authed userId
+     * @param {String} providerType the provider used for authentication (The possible
+     *                 options are 'anon', 'userpass', 'custom', 'facebook', 'google',
+     *                 and 'apiKey')
+     * @param {Object} [options = {}] additional authentication options
+     * @returns {Promise} which resolves to a String value: the authenticated user ID
      */
 
   }, {
     key: 'authenticate',
     value: function authenticate(providerType) {
-      var _this = this;
+      var _this2 = this;
 
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       // reuse existing auth if present
       var authenticateFn = function authenticateFn() {
-        return _this.auth.provider(providerType).authenticate(options).then(function () {
-          return _this.authedId();
+        return _this2.auth.provider(providerType).authenticate(options).then(function () {
+          return _this2.authedId();
         });
       };
 
@@ -214,7 +257,7 @@ var StitchClient = exports.StitchClient = function () {
     }
 
     /**
-     * Ends the session for the current user.
+     * Ends the session for the current user, and clears auth information from storage.
      *
      * @returns {Promise}
      */
@@ -222,21 +265,21 @@ var StitchClient = exports.StitchClient = function () {
   }, {
     key: 'logout',
     value: function logout() {
-      var _this2 = this;
+      var _this3 = this;
 
       return this._do('/auth/session', 'DELETE', {
         refreshOnFailure: false,
         useRefreshToken: true,
         rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
       }).then(function () {
-        return _this2.auth.clear();
+        return _this3.auth.clear();
       }, function () {
-        return _this2.auth.clear();
+        return _this3.auth.clear();
       });
     }
 
     /**
-     * @return {*} Returns any error from the Stitch authentication system.
+     * @returns {*} Returns any error from the Stitch authentication system.
      */
 
   }, {
@@ -246,9 +289,9 @@ var StitchClient = exports.StitchClient = function () {
     }
 
     /**
-     * Returns profile information for the currently logged in user
+     * Returns profile information for the currently logged in user.
      *
-     * @returns {Promise}
+     * @returns {Promise} which resolves to a a JSON object containing user profile information.
      */
 
   }, {
@@ -260,7 +303,7 @@ var StitchClient = exports.StitchClient = function () {
     }
 
     /**
-    * @return {Boolean} whether or not the current client is authenticated
+    * @returns {Boolean} whether or not the current client is authenticated.
     */
 
   }, {
@@ -270,7 +313,7 @@ var StitchClient = exports.StitchClient = function () {
     }
 
     /**
-     *  @return {String} Returns a string of the currently authed user's ID.
+     *  @returns {String} a string of the currently authenticated user's ID.
      */
 
   }, {
@@ -283,9 +326,9 @@ var StitchClient = exports.StitchClient = function () {
      * Factory method for accessing Stitch services.
      *
      * @method
-     * @param {String} type The service type [mongodb, {String}]
-     * @param {String} name The service name.
-     * @return {Object} returns a named service.
+     * @param {String} type the service type (e.g. "mongodb", "aws/s3", "twilio", "http", etc.)
+     * @param {String} name the service name specified in the Stitch admin console.
+     * @returns {Object} returns an instance of the specified service type.
      */
 
   }, {
@@ -364,6 +407,7 @@ var StitchClient = exports.StitchClient = function () {
     /**
      * Returns an access token for the user
      *
+     * @private
      * @returns {Promise}
      */
 
@@ -380,9 +424,9 @@ var StitchClient = exports.StitchClient = function () {
     }
 
     /**
-     * Returns an array of api keys
+     * Returns the user API keys associated with the current user.
      *
-     * @returns {Promise}
+     * @returns {Promise} which resolves to an array of API key objects
      */
 
   }, {
@@ -397,10 +441,10 @@ var StitchClient = exports.StitchClient = function () {
     }
 
     /**
-     * Creates a user api key
+     * Creates a user API key that can be used to authenticate as the current user.
      *
-     * @param {String} userApiKeyName the user defined name of the userApiKey
-     * @returns {Promise}
+     * @param {String} userApiKeyName a unique name for the user API key
+     * @returns {Promise} which resolves to an API key object containing the API key value
      */
 
   }, {
@@ -415,10 +459,10 @@ var StitchClient = exports.StitchClient = function () {
     }
 
     /**
-     * Returns a user api key
+     * Returns a user API key associated with the current user.
      *
-     * @param {String} keyID the ID of the key
-     * @returns {Promise}
+     * @param {String} keyID the ID of the key to fetch
+     * @returns {Promise} which resolves to an API key object, although the API key value will be omitted
      */
 
   }, {
@@ -433,9 +477,9 @@ var StitchClient = exports.StitchClient = function () {
     }
 
     /**
-     * Deletes a user api key
+     * Deletes a user API key associated with the current user.
      *
-     * @param {String} keyID the ID of the key
+     * @param {String} keyID the ID of the key to delete
      * @returns {Promise}
      */
 
@@ -449,9 +493,9 @@ var StitchClient = exports.StitchClient = function () {
     }
 
     /**
-     * Enable a user api key
+     * Enables a user API key associated with the current user.
      *
-     * @param {String} keyID the ID of the key
+     * @param {String} keyID the ID of the key to enable
      * @returns {Promise}
      */
 
@@ -465,9 +509,9 @@ var StitchClient = exports.StitchClient = function () {
     }
 
     /**
-     * Disable a user api key
+     * Disables a user API key associated with the current user.
      *
-     * @param {String} keyID the ID of the key
+     * @param {String} keyID the ID of the key to disable
      * @returns {Promise}
      */
 
@@ -482,7 +526,7 @@ var StitchClient = exports.StitchClient = function () {
   }, {
     key: '_fetch',
     value: function _fetch(url, fetchArgs, resource, method, options) {
-      var _this3 = this;
+      var _this4 = this;
 
       return fetch(url, fetchArgs).then(function (response) {
         // Okay: passthrough
@@ -495,7 +539,7 @@ var StitchClient = exports.StitchClient = function () {
             // Only want to try refreshing token when there's an invalid session
             if ('error_code' in json && json.error_code === _errors.ErrInvalidSession) {
               if (!options.refreshOnFailure) {
-                return _this3.auth.clear().then(function () {
+                return _this4.auth.clear().then(function () {
                   var error = new _errors.StitchError(json.error, json.error_code);
                   error.response = response;
                   error.json = json;
@@ -503,9 +547,9 @@ var StitchClient = exports.StitchClient = function () {
                 });
               }
 
-              return _this3.auth.refreshToken().then(function () {
+              return _this4.auth.refreshToken().then(function () {
                 options.refreshOnFailure = false;
-                return _this3._do(resource, method, options);
+                return _this4._do(resource, method, options);
               });
             }
 
@@ -544,7 +588,7 @@ var StitchClient = exports.StitchClient = function () {
   }, {
     key: '_do',
     value: function _do(resource, method, options) {
-      var _this4 = this;
+      var _this5 = this;
 
       options = Object.assign({}, {
         refreshOnFailure: true,
@@ -572,7 +616,7 @@ var StitchClient = exports.StitchClient = function () {
         if (this.auth.isAccessTokenExpired()) {
           return this.auth.refreshToken().then(function () {
             options.refreshOnFailure = false;
-            return _this4._do(resource, method, options);
+            return _this5._do(resource, method, options);
           });
         }
 

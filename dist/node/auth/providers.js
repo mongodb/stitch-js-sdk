@@ -17,7 +17,10 @@ var _util = require('../util');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; } /** @module auth  */
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; } /**
+                                                                                                                                                                                                                   * @private
+                                                                                                                                                                                                                   * @module auth
+                                                                                                                                                                                                                   */
 
 
 var PROVIDER_TYPE_ANON = exports.PROVIDER_TYPE_ANON = 'anon';
@@ -28,7 +31,16 @@ var PROVIDER_TYPE_GOOGLE = exports.PROVIDER_TYPE_GOOGLE = 'google';
 var PROVIDER_TYPE_FACEBOOK = exports.PROVIDER_TYPE_FACEBOOK = 'facebook';
 var PROVIDER_TYPE_MONGODB_CLOUD = exports.PROVIDER_TYPE_MONGODB_CLOUD = 'mongodbCloud';
 
+function urlWithLinkParam(url, link) {
+  if (link) {
+    return url + '?link=true';
+  }
+
+  return url;
+}
+
 /**
+ * @private
  * @namespace
  */
 function anonProvider(auth) {
@@ -40,13 +52,13 @@ function anonProvider(auth) {
      * @instance
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: function authenticate() {
+    authenticate: function authenticate(options, link) {
       var deviceId = auth.getDeviceId();
       var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
       var fetchArgs = common.makeFetchArgs('GET');
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/providers/anon-user/login?device=' + (0, _util.uriEncodeObject)(device), fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(urlWithLinkParam(auth.rootUrl + '/providers/anon-user/login?device=' + (0, _util.uriEncodeObject)(device), link), auth.fetchArgsWithLink(fetchArgs, link)).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json, PROVIDER_TYPE_ANON);
@@ -56,6 +68,7 @@ function anonProvider(auth) {
 }
 
 /**
+  * @private
   * @namespace
   */
 function customProvider(auth) {
@@ -71,14 +84,14 @@ function customProvider(auth) {
      * @param {String} JWT token to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: function authenticate(token) {
+    authenticate: function authenticate(token, link) {
       var deviceId = auth.getDeviceId();
       var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ token: token, options: { device: device } }));
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(urlWithLinkParam(auth.rootUrl + '/' + loginRoute, link), auth.fetchArgsWithLink(fetchArgs, link)).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json, PROVIDER_TYPE_CUSTOM);
@@ -87,7 +100,13 @@ function customProvider(auth) {
   };
 }
 
-/** @namespace */
+/**
+ * userPassProvider offers several methods for completing certain tasks necessary for email/password
+ * authentication. userPassProvider cannot be instantiated directly. To instantiate,
+ * use `.auth.providers('userpass')` on a {@link StitchClient}.
+ *
+ * @namespace
+ */
 function userPassProvider(auth) {
   // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
   // the client is for the admin or client API.
@@ -98,13 +117,14 @@ function userPassProvider(auth) {
     /**
      * Login to a stitch application using username and password authentication
      *
+     * @private
      * @memberof userPassProvider
      * @instance
      * @param {String} username the username to use for authentication
      * @param {String} password the password to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: function authenticate(_ref) {
+    authenticate: function authenticate(_ref, link) {
       var username = _ref.username,
           password = _ref.password;
 
@@ -114,7 +134,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password, options: { device: device } }));
       fetchArgs.cors = true;
 
-      return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(urlWithLinkParam(auth.rootUrl + '/' + loginRoute, link), auth.fetchArgsWithLink(fetchArgs, link)).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json, PROVIDER_TYPE_USERPASS);
@@ -122,11 +142,12 @@ function userPassProvider(auth) {
     },
 
     /**
-     * Completes the confirmation workflow from the stitch server
+     * Completes the email confirmation workflow from the Stitch server
+     *
      * @memberof userPassProvider
      * @instance
-     * @param {String} tokenId the tokenId provided by the stitch server
-     * @param {String} token the token provided by the stitch server
+     * @param {String} tokenId the tokenId provided by the Stitch server
+     * @param {String} token the token provided by the Stitch server
      * @returns {Promise}
      */
     emailConfirm: function emailConfirm(tokenId, token) {
@@ -144,7 +165,7 @@ function userPassProvider(auth) {
      *
      * @memberof userPassProvider
      * @instance
-     * @param {String} email the email to send a confirmation email for
+     * @param {String} email the email address to send a confirmation email for
      * @returns {Promise}
      */
     sendEmailConfirm: function sendEmailConfirm(email) {
@@ -157,11 +178,11 @@ function userPassProvider(auth) {
     },
 
     /**
-     * Sends a password reset request to the stitch server
+     * Sends a password reset request to the Stitch server
      *
      * @memberof userPassProvider
      * @instance
-     * @param {String} email the email of the account to reset the password for
+     * @param {String} email the email address of the account to reset the password for
      * @returns {Promise}
      */
     sendPasswordReset: function sendPasswordReset(email) {
@@ -174,13 +195,13 @@ function userPassProvider(auth) {
     },
 
     /**
-     * Use information returned from the stitch server to complete the password
+     * Use information returned from the Stitch server to complete the password
      * reset flow for a given email account, providing a new password for the account.
      *
      * @memberof userPassProvider
      * @instance
-     * @param {String} tokenId the tokenId provided by the stitch server
-     * @param {String} token the token provided by the stitch server
+     * @param {String} tokenId the tokenId provided by the Stitch server
+     * @param {String} token the token provided by the Stitch server
      * @param {String} password the new password requested for this account
      * @returns {Promise}
      */
@@ -215,7 +236,10 @@ function userPassProvider(auth) {
   };
 }
 
-/** @namespace */
+/**
+ * @private
+ * @namespace
+ */
 function apiKeyProvider(auth) {
   // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
   // the client is for the admin or client API.
@@ -230,12 +254,13 @@ function apiKeyProvider(auth) {
      * @param {String} key the key for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: function authenticate(key) {
+    authenticate: function authenticate(key, link) {
       var deviceId = auth.getDeviceId();
       var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ 'key': key, 'options': { device: device } }));
       fetchArgs.cors = true;
-      return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
+
+      return fetch(urlWithLinkParam(auth.rootUrl + '/' + loginRoute, link), auth.fetchArgsWithLink(fetchArgs, link)).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json, PROVIDER_TYPE_APIKEY);
@@ -278,7 +303,10 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
   });
 }
 
-/** @namespace */
+/**
+ * @private
+ * @namespace
+ */
 function googleProvider(auth) {
   var loginRoute = auth.isAppClient() ? 'providers/oauth2-google/login' : 'providers/oauth2-google/login';
 
@@ -291,7 +319,7 @@ function googleProvider(auth) {
      * @param {Object} data the redirectUrl data to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: function authenticate(data) {
+    authenticate: function authenticate(data, link) {
       var authCode = data.authCode;
 
       if (authCode) {
@@ -300,7 +328,7 @@ function googleProvider(auth) {
 
         var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ authCode: authCode, options: { device: device } }));
 
-        return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
+        return fetch(urlWithLinkParam(auth.rootUrl + '/' + loginRoute, link), auth.fetchArgsWithLink(fetchArgs, link)).then(common.checkStatus).then(function (response) {
           return response.json();
         }).then(function (json) {
           return auth.set(json, PROVIDER_TYPE_GOOGLE);
@@ -317,7 +345,10 @@ function googleProvider(auth) {
   };
 }
 
-/** @namespace */
+/**
+ * @private
+ * @namespace
+ */
 function facebookProvider(auth) {
   var loginRoute = auth.isAppClient() ? 'providers/oauth2-facebook/login' : 'providers/oauth2-facebook/login';
 
@@ -330,7 +361,7 @@ function facebookProvider(auth) {
      * @param {Object} data the redirectUrl data to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: function authenticate(data) {
+    authenticate: function authenticate(data, link) {
       var accessToken = data.accessToken;
 
 
@@ -340,7 +371,7 @@ function facebookProvider(auth) {
 
         var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ accessToken: accessToken, options: { device: device } }));
 
-        return fetch(auth.rootUrl + '/' + loginRoute, fetchArgs).then(common.checkStatus).then(function (response) {
+        return fetch(urlWithLinkParam(auth.rootUrl + '/' + loginRoute, link), auth.fetchArgsWithLink(fetchArgs, link)).then(common.checkStatus).then(function (response) {
           return response.json();
         }).then(function (json) {
           return auth.set(json, PROVIDER_TYPE_FACEBOOK);
@@ -357,7 +388,10 @@ function facebookProvider(auth) {
   };
 }
 
-/** @namespace */
+/**
+ * @private
+ * @namespace
+ */
 function mongodbCloudProvider(auth) {
   // The ternary expression here is redundant but is just preserving previous behavior based on whether or not
   // the client is for the admin or client API.
@@ -372,7 +406,7 @@ function mongodbCloudProvider(auth) {
      * @param {Object} data the username, apiKey, cors, and cookie data to use for authentication
      * @returns {Promise} a promise that resolves when authentication succeeds.
      */
-    authenticate: function authenticate(data) {
+    authenticate: function authenticate(data, link) {
       var username = data.username,
           apiKey = data.apiKey,
           cors = data.cors,
@@ -385,12 +419,12 @@ function mongodbCloudProvider(auth) {
       fetchArgs.cors = true; // TODO: shouldn't this use the passed in `cors` value?
       fetchArgs.credentials = 'include';
 
-      var url = auth.rootUrl + '/' + loginRoute;
+      var url = urlWithLinkParam(auth.rootUrl + '/' + loginRoute, link);
       if (options.cookie) {
         return fetch(url + '?cookie=true', fetchArgs).then(common.checkStatus);
       }
 
-      return fetch(url, fetchArgs).then(common.checkStatus).then(function (response) {
+      return fetch(url, auth.fetchArgsWithLink(fetchArgs, link)).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
         return auth.set(json, PROVIDER_TYPE_MONGODB_CLOUD);
