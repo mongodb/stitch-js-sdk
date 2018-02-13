@@ -43,7 +43,7 @@
     "babel-plugin-version-transform": "^1.0.0",
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.6.1",
-    "chromedriver": "^2.35.0",
+    "chromedriver": "^2.33.2",
     "documentation": "^5.3.5",
     "eslint": "^4.7.2",
     "eslint-loader": "^1.7.1",
