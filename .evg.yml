@@ -144,9 +144,9 @@ tasks:
           script: |
             set -e
             echo "running client tests"
+            source ./creds
             cd stitch-js-sdk
             yarn install
-            source ./creds
             yarn test
 
   - name: check_import
