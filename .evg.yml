@@ -54,8 +54,8 @@ functions:
           echo export FB_APP_ID=${test_facebook_app_id} >> creds
           echo export FB_APP_SECRET=${test_facebook_app_secret} >> creds
 
-          TMPDIR=./tmp/stitch-js-sdk-tests
-          echo export TMPDIR = $TMPDIR >> creds
+          TMPDIR="./tmp/stitch-js-sdk-tests"
+          echo export TMPDIR=${TMPDIR} >> creds
           mkdir -p $TMPDIR 
           chmod 777 $TMPDIR
 
