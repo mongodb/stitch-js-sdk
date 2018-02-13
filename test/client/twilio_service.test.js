@@ -1,9 +1,9 @@
-const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture')
+const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
 import { buildClientTestHarness, extractTestFixtureDataPoints } from '../testutil';
 
 // Returns true if twilio credentials are in env, false otehrwise.
-function twilioCredsInEnv () {
+function twilioCredsInEnv() {
   return !!(process.env.TWILIO_SID && process.env.TWILIO_AUTHTOKEN);
 }
 
@@ -24,16 +24,16 @@ describe('Executing Twilio service functions', () => {
     const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
     th = await buildClientTestHarness(apiKey, groupId, serverUrl);
 
-    if(twilioCredsInEnv()) {
+    if (twilioCredsInEnv()) {
       const twilioService = await th
         .app()
         .services()
-        .create({ 
-          type: SERVICE_TYPE, 
-          name: SERVICE_NAME, 
+        .create({
+          type: SERVICE_TYPE,
+          name: SERVICE_NAME,
           config: {
-            sid: process.env.TWILIO_SID, 
-            auth_token: process.env.TWILIO_AUTHTOKEN 
+            sid: process.env.TWILIO_SID,
+            auth_token: process.env.TWILIO_AUTHTOKEN
           }
         });
 
@@ -56,11 +56,11 @@ describe('Executing Twilio service functions', () => {
   afterEach(async() => await th.cleanup());
 
   it('should successfully send a text message', async() => {
-    if(!twilioCredsInEnv()) {
-      console.warn("skipping test since there are no twilio credentials in environment");
+    if (!twilioCredsInEnv()) {
+      console.warn('skipping test since there are no twilio credentials in environment');
       return;
-    } 
+    }
 
-    expect(await service.send("+15005550006", "+12018675309", "hello")).toBeNull();
+    expect(await service.send('+15005550006', '+12018675309', 'hello')).toBeNull();
   });
 });

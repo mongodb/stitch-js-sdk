@@ -38,6 +38,12 @@ describe('Auth', () => {
 
   afterEach(() => test.fetch.restore());
 
+  it('should not allow direct instantiation of the underlying auth object', async() => {
+
+    //TODO
+
+  });
+
   it('should return a promise for anonymous login with existing auth data', async() => {
     window.fetch.resolves(mockApiResponse());
     expect.assertions(1);

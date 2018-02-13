@@ -1,11 +1,11 @@
-const AWS = require('aws-sdk')
-const BSON = require('BSON')
-const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture')
+const AWS = require('aws-sdk');
+const BSON = require('BSON');
+const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
 import { buildClientTestHarness, extractTestFixtureDataPoints } from '../testutil';
 
 // Returns true if AWS credentials are in env, false otehrwise.
-function awsCredsInEnv () {
+function awsCredsInEnv() {
   return !!(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY);
 }
 
@@ -22,55 +22,55 @@ describe('Executing AWS service functions', () => {
   let serviceId;
 
   describe('Executing S3 service functions', () => {
-    const S3_API_VERSION  = '2006-03-01'
+    const S3_API_VERSION  = '2006-03-01';
     const S3_SERVICE_TYPE = 'aws-s3';
     const S3_SERVICE_NAME = 'aws-s3-1';
 
     let awsClient = new AWS.S3({apiVersion: S3_API_VERSION});
-    let bucketName = "stitch-test-" + BSON.ObjectId().toString();
-    let objectKey = BSON.ObjectId().toString();
+    let bucketName = 'stitch-test-' + new BSON.ObjectId().toString();
+    let objectKey = new BSON.ObjectId().toString();
 
     // Create S3 bucket
     beforeAll(async(done) => {
-      if(awsCredsInEnv()) {
+      if (awsCredsInEnv()) {
         AWS.config.update(
-        { 
-          region: DEFAULT_AWS_REGION, 
-          credentials: new AWS.Credentials(process.env.AWS_ACCESS_KEY_ID, process.env.AWS_SECRET_ACCESS_KEY) 
-        });
+          {
+            region: DEFAULT_AWS_REGION,
+            credentials: new AWS.Credentials(process.env.AWS_ACCESS_KEY_ID, process.env.AWS_SECRET_ACCESS_KEY)
+          });
         awsClient.createBucket(
           {
             Bucket: bucketName
-          }, 
+          },
           (err, data) => {
-            if(err) {
-              console.error("Error setting up S3 bucket for test", err);
+            if (err) {
+              console.error('Error setting up S3 bucket for test', err);
               done.fail(err);
               return;
             }
             done();
           });
       } else {
-        console.warn("skipping S3 tests since there are no AWS credentials in environment");
+        console.warn('skipping S3 tests since there are no AWS credentials in environment');
         done();
       }
     });
 
     // Remove S3 bucket
     afterAll(async(done) => {
-      if(awsCredsInEnv()) {
+      if (awsCredsInEnv()) {
         awsClient.deleteBucket(
           {
             Bucket: bucketName
           },
           (err, data) => {
-            if(err) {
-              console.error("Error tearing down S3 bucket for test", err);
+            if (err) {
+              console.error('Error tearing down S3 bucket for test', err);
               done.fail(err);
               return;
             }
             done();
-          });       
+          });
       } else {
         done();
       }
@@ -80,17 +80,17 @@ describe('Executing AWS service functions', () => {
       const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
       th = await buildClientTestHarness(apiKey, groupId, serverUrl);
 
-      if(awsCredsInEnv()) {
+      if (awsCredsInEnv()) {
         const s3Service = await th
           .app()
           .services()
-          .create({ 
-            type: S3_SERVICE_TYPE, 
-            name: S3_SERVICE_NAME, 
+          .create({
+            type: S3_SERVICE_TYPE,
+            name: S3_SERVICE_NAME,
             config: {
               region: DEFAULT_AWS_REGION,
-              accessKeyId: process.env.AWS_ACCESS_KEY_ID, 
-              secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY 
+              accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+              secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
             }
           });
 
@@ -112,10 +112,10 @@ describe('Executing AWS service functions', () => {
 
     afterEach(async(done) => {
       await th.cleanup();
-      if(awsCredsInEnv()) {
+      if (awsCredsInEnv()) {
         awsClient.deleteObject({Bucket: bucketName, Key: objectKey}, (err, _) => {
-          if(err) {
-            console.error("Error deleting S3 object for test", err);
+          if (err) {
+            console.error('Error deleting S3 object for test', err);
             done.fail(err);
             return;
           }
@@ -125,29 +125,29 @@ describe('Executing AWS service functions', () => {
     });
 
     it('should successfully put string content into the bucket', async() => {
-      if(!awsCredsInEnv()) {
+      if (!awsCredsInEnv()) {
         return;
-      } 
+      }
 
-      const { location } = await service.put(bucketName, objectKey, "private", "text", "this is a string in an S3 bucket");
+      const { location } = await service.put(bucketName, objectKey, 'private', 'text', 'this is a string in an S3 bucket');
       expect(location).toBeDefined();
     });
 
     it('should successfully put binary content into the bucket', async() => {
-      if(!awsCredsInEnv()) {
+      if (!awsCredsInEnv()) {
         return;
       }
 
-      const { location } = await service.put(bucketName, objectKey, "private", "binary", BSON.Binary("Hello World"));
+      const { location } = await service.put(bucketName, objectKey, 'private', 'binary', new BSON.Binary('Hello World'));
       expect(location).toBeDefined();
     });
 
     it('should successfully sign an S3 policy', async() => {
-      if(!awsCredsInEnv()) {
+      if (!awsCredsInEnv()) {
         return;
       }
 
-      expect(await service.signPolicy(bucketName, objectKey, "private", "largeBinary")).toMatchObject(
+      expect(await service.signPolicy(bucketName, objectKey, 'private', 'largeBinary')).toMatchObject(
         expect.objectContaining({
           policy: expect.any(String),
           signature: expect.any(String),
@@ -167,17 +167,17 @@ describe('Executing AWS service functions', () => {
       const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
       th = await buildClientTestHarness(apiKey, groupId, serverUrl);
 
-      if(awsCredsInEnv()) {
+      if (awsCredsInEnv()) {
         const sesService = await th
           .app()
           .services()
-          .create({ 
-            type: SES_SERVICE_TYPE, 
-            name: SES_SERVICE_NAME, 
+          .create({
+            type: SES_SERVICE_TYPE,
+            name: SES_SERVICE_NAME,
             config: {
               region: DEFAULT_AWS_REGION,
-              accessKeyId: process.env.AWS_ACCESS_KEY_ID, 
-              secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY 
+              accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+              secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
             }
           });
 
@@ -198,18 +198,18 @@ describe('Executing AWS service functions', () => {
     });
 
     it('should successfully send an email', async() => {
-      if(!awsCredsInEnv()) {
+      if (!awsCredsInEnv()) {
         return;
       }
 
       const { messageId } = await service.send(
-        "me@baas-dev.10gen.cc",
-        "you@stitch-dev.10gen.cc", 
-        "this is the subject", 
-        "this is the body"
+        'me@baas-dev.10gen.cc',
+        'you@stitch-dev.10gen.cc',
+        'this is the subject',
+        'this is the body'
       );
 
-      expect(messageId).toBeDefined()
+      expect(messageId).toBeDefined();
     });
   });
 });

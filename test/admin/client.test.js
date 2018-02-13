@@ -23,13 +23,13 @@ describe('StitchAdminClient', () => {
     expect(() => new StitchAdminClient()).toThrowError(
       /StitchAdminClient can only be made from the StitchAdminClientFactory\.create function/
     );
-  })
+  });
 
   it('should not allow instantiation of StitchAdminClientFactory', async() => {
     expect(() => new StitchAdminClientFactory()).toThrowError(
       /StitchAdminClient can only be made from the StitchAdminClientFactory\.create function/
     );
-  })
+  });
 
   it('should resolve to a defined StitchAdminClient', async() => {
     const stitchAdminClient = await StitchAdminClientFactory.create(

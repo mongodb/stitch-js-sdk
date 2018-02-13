@@ -21,7 +21,7 @@ class S3Service {
    * @param {String} acl which policy to apply
    * @param {String} contentType content type of uploaded data
    * @param {String|BSON.Binary} body the content to put in the bucket
-   * @return {Promise} which resolves to an object containing a single field "location" 
+   * @return {Promise} which resolves to an object containing a single field "location"
    *                   which is the URL of the object that was put into the S3 bucket
    */
   put(bucket, key, acl, contentType, body) {

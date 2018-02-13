@@ -187,9 +187,9 @@ describe('Services', ()=>{
     expect(webhooks).toEqual([]);
   });
 
-  const testWebhook = { 
-    name: 'testhook', 
-    function_source: 'exports = function() { return "hello world" }', 
+  const testWebhook = {
+    name: 'testhook',
+    function_source: 'exports = function() { return "hello world" }',
     respond_result: true,
     options: {
       secret: '12345',
@@ -222,8 +222,8 @@ describe('Services', ()=>{
     let newWebhook = await services.service(newSvc._id).incomingWebhooks().create(testWebhook);
 
     let updatedWebhook = Object.assign({}, testWebhook, {_id: newWebhook._id}, {
-      run_as_user_id: "0",
-      run_as_user_id_script_source: ""
+      run_as_user_id: '0',
+      run_as_user_id_script_source: ''
     });
     await services.service(newSvc._id).incomingWebhooks().incomingWebhook(newWebhook._id).update(updatedWebhook);
 

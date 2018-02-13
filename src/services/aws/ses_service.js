@@ -21,7 +21,7 @@ class SESService {
    * @param {String} toAddress the email to send to
    * @param {String} subject the subject of the email
    * @param {String} body the body of the email
-   * @return {Promise} resolving to an object which contains the single string field 
+   * @return {Promise} resolving to an object which contains the single string field
    *                   "messageId", which is the SES message ID for the email message.
    */
   send(fromAddress, toAddress, subject, body) {
