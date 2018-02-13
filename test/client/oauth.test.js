@@ -4,7 +4,6 @@ const express = require('express');
 require('chromedriver');
 const webdriver = require('selenium-webdriver');
 const By = webdriver.By;
-const until = webdriver.Until;
 
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
