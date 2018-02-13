@@ -8,8 +8,8 @@
       function initStitchClient() {
         stitch.StitchClientFactory.create(
           document.getElementById('client-app-id-input').value, 
-          {baseUrl: "http://localhost:9090"
-        }).then(sc => {
+          {baseUrl: "http://localhost:9090"})
+        .then(sc => {
           client = sc;
           db = client.service('mongodb', 'mongodb-atlas').db('blog');
         });        
@@ -20,7 +20,7 @@
       }
 
       function sendCoverageStats() {
-        var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance 
+        var xmlhttp = new XMLHttpRequest();
         xmlhttp.open("POST", "http://localhost:8005/coverage/client");
         xmlhttp.setRequestHeader("Content-Type", "application/json");
         xmlhttp.send(JSON.stringify(window.__coverage__));
