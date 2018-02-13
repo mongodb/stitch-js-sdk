@@ -1,15 +1,17 @@
 const path = require('path');
 const express = require('express');
-const webdriver = require('selenium-webdriver'),
-  By = webdriver.By,
-  until = webdriver.Until
-const chromedriver = require('chromedriver');
+
+require('chromedriver');
+const webdriver = require('selenium-webdriver');
+const By = webdriver.By;
+const until = webdriver.Until;
+
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
 import { buildClientTestHarness, extractTestFixtureDataPoints } from '../testutil';
 
 // Returns true if Facebook credentials are in env, false otehrwise.
-function facebookCredsInEnv () {
+function facebookCredsInEnv() {
   return !!(process.env.FB_APP_ID && process.env.FB_APP_SECRET);
 }
 
@@ -30,13 +32,11 @@ describe('Logging in with OAuth2 Providers', () => {
   afterAll(() => test.teardown());
 
   let th;
-  let service;
-  let serviceId;
   let server;
   let driver;
 
   beforeEach(async() => {
-    // Start simple web app that contains UI elements for OAuth flow 
+    // Start simple web app that contains UI elements for OAuth flow
     let app = express();
     const publicDir = path.resolve(__dirname, '..', '..', 'dist', 'web');
     // if(coverageIsEnabled()) {
@@ -49,7 +49,7 @@ describe('Logging in with OAuth2 Providers', () => {
     //   app.use('/coverage', im.createHandler());
     //   app.use(im.createClientHandler(publicDir, { matcher }))
     // } else {
-      app.use(express.static(publicDir));
+    app.use(express.static(publicDir));
     //}
     app.use(express.static(path.resolve(__dirname, 'static')));
     server = app.listen(8005);
@@ -67,25 +67,21 @@ describe('Logging in with OAuth2 Providers', () => {
     const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
     th = await buildClientTestHarness(apiKey, groupId, serverUrl);
 
-    if(facebookCredsInEnv()) {
-      const facebookAuthProvider = await th
+    if (facebookCredsInEnv()) {
+      await th
         .app()
         .authProviders()
-        .create({ 
-          type: 'oauth2-facebook',  
+        .create({
+          type: 'oauth2-facebook',
           config: {
-            clientId: process.env.FB_APP_ID, 
+            clientId: process.env.FB_APP_ID,
             clientSecret: process.env.FB_APP_SECRET
           },
           'disabled': false,
-          redirect_uris: ["http://localhost:8005/oauth_test.html"]
+          redirect_uris: ['http://localhost:8005/oauth_test.html']
         });
     }
   });
-
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
 
   afterEach(async() => {
     driver.quit();
@@ -94,8 +90,8 @@ describe('Logging in with OAuth2 Providers', () => {
   });
 
   it('should successfully authenticate using Facebook', async() => {
-    if(!facebookCredsInEnv()) {
-      console.warn("skipping test since there are no Facebook credentials in environment");
+    if (!facebookCredsInEnv()) {
+      console.warn('skipping test since there are no Facebook credentials in environment');
       return;
     }
 
@@ -103,14 +99,14 @@ describe('Logging in with OAuth2 Providers', () => {
     jest.setTimeout(25000);
 
     // Log in to Facebook
-    await driver.get('http://www.facebook.com/')
-    await driver.findElement(By.id("email")).sendKeys("yzbpjkilbl_1518469485@tfbnw.net");
-    await driver.findElement(By.id("pass")).sendKeys("hunter2");
-    await driver.findElement(By.id("loginbutton")).click();
+    await driver.get('http://www.facebook.com/');
+    await driver.findElement(By.id('email')).sendKeys('yzbpjkilbl_1518469485@tfbnw.net');
+    await driver.findElement(By.id('pass')).sendKeys('hunter2');
+    await driver.findElement(By.id('loginbutton')).click();
     await driver.sleep(3000);
 
     // Go to Stitch app
-    await driver.get('http://localhost:8005/oauth_test.html')
+    await driver.get('http://localhost:8005/oauth_test.html');
 
     // initialize the StitchClient
     await driver.findElement(By.id('client-app-id-input')).sendKeys(th.testApp.client_app_id);

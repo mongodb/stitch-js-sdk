@@ -37,7 +37,7 @@ describe('Executing http service functions', () => {
       let err;
       try {
         await service.get(server.url);
-      } catch(e) {
+      } catch (e) {
         err = e;
       }
       expect(err.code).toEqual('NoMatchingRuleFound');
@@ -63,7 +63,7 @@ describe('Executing http service functions', () => {
         let err;
         try {
           await service.get(server.url);
-        } catch(e) {
+        } catch (e) {
           err = e;
         }
         expect(err.code).toEqual('FunctionExecutionError');
@@ -83,7 +83,7 @@ describe('Executing http service functions', () => {
           let err;
           try {
             await service.get({ url: 'invalidurl' });
-          } catch(e) {
+          } catch (e) {
             err = e;
           }
           expect(err.code).toEqual('FunctionExecutionError');
@@ -93,7 +93,7 @@ describe('Executing http service functions', () => {
           let err;
           try {
             await service.get({ url: 10281995 });
-          } catch(e) {
+          } catch (e) {
             err = e;
           }
           expect(err.code).toEqual('InvalidParameter');
@@ -106,8 +106,8 @@ describe('Executing http service functions', () => {
               url: 'http://locahost',
               scheme: 'http',
               host: 'localhost'
-            })
-          } catch(e) {
+            });
+          } catch (e) {
             err = e;
           }
           expect(err.code).toEqual('InvalidParameter');
