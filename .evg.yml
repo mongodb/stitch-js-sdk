@@ -54,11 +54,6 @@ functions:
           echo export FB_APP_ID=${test_facebook_app_id} >> creds
           echo export FB_APP_SECRET=${test_facebook_app_secret} >> creds
 
-          TMPDIR="./tmp/stitch-js-sdk-tests"
-          echo export TMPDIR=${TMPDIR} >> creds
-          mkdir -p $TMPDIR 
-          chmod 777 $TMPDIR
-
     - command: shell.exec
       params:
         script: |
@@ -149,9 +144,9 @@ tasks:
           script: |
             set -e
             echo "running client tests"
-            source ./creds
             cd stitch-js-sdk
             npm install
+            source ./creds
             npm test
 
   - name: check_import
@@ -161,7 +156,6 @@ tasks:
         params:
           script: |
             set -e
-            source ./creds
             cd stitch-js-sdk
             npm install
             npm run build
@@ -184,7 +178,6 @@ tasks:
         params:
           script: |
             set -e
-            source ./creds
             cd stitch-js-sdk
             npm install
             npm run build
@@ -249,7 +242,6 @@ tasks:
         params:
           script: |
             set -e
-            source ./creds
             cd stitch-js-sdk
             npm install
             npm run docs
