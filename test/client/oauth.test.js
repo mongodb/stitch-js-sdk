@@ -56,7 +56,12 @@ describe('Logging in with OAuth2 Providers', () => {
 
     // Set up Chrome to run headlessly
     const chromeCapabilities = webdriver.Capabilities.chrome();
-    chromeCapabilities.set('chromeOptions', {args: ['--headless']});
+    chromeCapabilities.set('chromeOptions', {
+      args: ['--headless', '--disable-gpu', '--window-size=1280,800', '--no-sandbox'],
+      binary: process.platform === 'darwin' ?
+        '/Applications/Google Chrome.app/Contents/MacOS/Google\ Chrome' :
+        '/usr/bin/google-chrome-stable'
+    });
 
     // Start headless chrome
     driver = new webdriver.Builder()
@@ -95,8 +100,8 @@ describe('Logging in with OAuth2 Providers', () => {
       return;
     }
 
-    // Allow 25 seconds for test to complete
-    jest.setTimeout(25000);
+    // Allow 30 seconds for test to complete
+    jest.setTimeout(30000);
 
     // Log in to Facebook
     await driver.get('http://www.facebook.com/');
