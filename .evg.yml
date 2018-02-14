@@ -144,10 +144,10 @@ tasks:
           script: |
             set -e
             echo "running client tests"
-            source ./creds
             cd stitch-js-sdk
             yarn install
-            yarn test
+            source ./creds
+            npm run test
 
   - name: check_import
     commands:
@@ -158,17 +158,17 @@ tasks:
             set -e
             cd stitch-js-sdk
             yarn install
-            yarn run build
-            yarn run build-web
-            yarn run build-web-dev
+            npm run build
+            npm run build-web
+            npm run build-web-dev
             mkdir tmp
             cd tmp
-            yarn pack ../
+            npm pack ../
             mv mongodb-stitch-*.tgz mongodb-stitch.tgz
             cd ../../
             mkdir test_app
             cd test_app
-            yarn install --save ../stitch-js-sdk/tmp/mongodb-stitch.tgz
+            npm install --save ../stitch-js-sdk/tmp/mongodb-stitch.tgz
             node -e 'process.on("unhandledRejection", err => { throw err }); const stitch = require("mongodb-stitch"); stitch.StitchClientFactory.create("stitchtest-vsfmv").then(client => client.login());'
 
   - name: dist
@@ -180,12 +180,12 @@ tasks:
             set -e
             cd stitch-js-sdk
             yarn install
-            yarn run build
-            yarn run build-web
-            yarn run build-web-dev
+            npm run build
+            npm run build-web
+            npm run build-web-dev
             mkdir tmp
             cd tmp
-            yarn pack ../
+            npm pack ../
             mv mongodb-stitch-*.tgz mongodb-stitch.tgz
 
       - command: s3.put
@@ -244,7 +244,7 @@ tasks:
             set -e
             cd stitch-js-sdk
             yarn install
-            yarn docs
+            npm run docs
 
       - command: shell.exec
         params:
@@ -286,7 +286,7 @@ tasks:
             cd stitch-js-sdk
             echo "linting"
             yarn install
-            yarn run lint --quiet
+            npm run lint --quiet
 
 buildvariants:
 - name: linux-64
