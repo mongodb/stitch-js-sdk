@@ -171,4 +171,73 @@ describe('Services', ()=>{
     let fetchedRule = await services.service(newSvc._id).rules().rule(newRule._id).get();
     expect(fetchedRule).toEqual(Object.assign({}, newRule, updatedRule));
   });
+  it('removing rule should work', async()=> {
+    let newSvc = await services.create({ name: 'testsvc', type: 'aws-ses', config: testConfig });
+    let newRule = await services.service(newSvc._id).rules().create(testRule);
+    let rules = await services.service(newSvc._id).rules().list();
+    expect(rules).toHaveLength(1);
+    await services.service(newSvc._id).rules().rule(newRule._id).remove();
+    rules = await services.service(newSvc._id).rules().list();
+    expect(rules).toEqual([]);
+  });
+
+  it('listing incoming webhooks for a service should work', async() => {
+    let newSvc = await services.create({ name: 'testsvc', type: 'http'});
+    let webhooks = await services.service(newSvc._id).incomingWebhooks().list();
+    expect(webhooks).toEqual([]);
+  });
+
+  const testWebhook = {
+    name: 'testhook',
+    function_source: 'exports = function() { return "hello world" }',
+    respond_result: true,
+    options: {
+      secret: '12345',
+      secretAsQueryParam: true
+    }
+  };
+
+  it('creating an incoming webhook should work', async() => {
+    let newSvc = await services.create({ name: 'testsvc', type: 'http'});
+    let webhooks = await services.service(newSvc._id).incomingWebhooks().list();
+    expect(webhooks).toEqual([]);
+
+    let newWebhook = await services.service(newSvc._id).incomingWebhooks().create(testWebhook);
+    webhooks = await services.service(newSvc._id).incomingWebhooks().list();
+    expect(webhooks).toHaveLength(1);
+    expect(webhooks[0]._id).toEqual(newWebhook._id);
+    expect(webhooks[0].name).toEqual(newWebhook.name);
+  });
+
+  it('fetching an incoming webhook should work', async() => {
+    let newSvc = await services.create({ name: 'testsvc', type: 'http'});
+    let newWebhook = await services.service(newSvc._id).incomingWebhooks().create(testWebhook);
+    let fetchedWebhook = await services.service(newSvc._id).incomingWebhooks().incomingWebhook(newWebhook._id).get();
+    expect(fetchedWebhook._id).toEqual(newWebhook._id);
+    expect(fetchedWebhook.name).toEqual(newWebhook.name);
+  });
+
+  it('updating an incoming webhook should work', async() => {
+    let newSvc = await services.create({ name: 'testsvc', type: 'http'});
+    let newWebhook = await services.service(newSvc._id).incomingWebhooks().create(testWebhook);
+
+    let updatedWebhook = Object.assign({}, testWebhook, {_id: newWebhook._id}, {
+      run_as_user_id: '0',
+      run_as_user_id_script_source: ''
+    });
+    await services.service(newSvc._id).incomingWebhooks().incomingWebhook(newWebhook._id).update(updatedWebhook);
+
+    let fetchedWebhook = await services.service(newSvc._id).incomingWebhooks().incomingWebhook(newWebhook._id).get();
+    expect(fetchedWebhook).toEqual(Object.assign({}, newWebhook, updatedWebhook));
+  });
+
+  it('removing an incoming webhook should work', async() => {
+    let newSvc = await services.create({ name: 'testsvc', type: 'http'});
+    let newWebhook = await services.service(newSvc._id).incomingWebhooks().create(testWebhook);
+    let webhooks = await services.service(newSvc._id).incomingWebhooks().list();
+    expect(webhooks).toHaveLength(1);
+    await services.service(newSvc._id).incomingWebhooks().incomingWebhook(newWebhook._id).remove();
+    webhooks = await services.service(newSvc._id).incomingWebhooks().list();
+    expect(webhooks).toEqual([]);
+  });
 });

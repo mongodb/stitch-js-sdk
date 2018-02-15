@@ -79,6 +79,12 @@ describe('Users', ()=>{
     expect(users).toHaveLength(0);
   });
 
+  it('can logout a user by id', async() => {
+    let user = await fetchUserByIdWithExpectation();
+    let { status } = await appUsers.user(user._id).logout();
+    expect(status).toBe(204);
+  });
+
   it('can enable/disable a user by id', async() => {
     let user = await fetchUserByIdWithExpectation();
     expect(user.disabled).toBe(false);

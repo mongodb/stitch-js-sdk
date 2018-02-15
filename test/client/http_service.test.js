@@ -34,11 +34,13 @@ describe('Executing http service functions', () => {
 
   describe('That have no matching service rules', () => {
     it('should fail due to no matching rule found', async() => {
-      await expect(service.get(server.url)).rejects.toMatchObject({
-        name: 'StitchError',
-        code: 'NoMatchingRuleFound',
-        response: { status: 403 }
-      });
+      let err;
+      try {
+        await service.get(server.url);
+      } catch (e) {
+        err = e;
+      }
+      expect(err.code).toEqual('NoMatchingRuleFound');
     });
   });
 
@@ -58,11 +60,13 @@ describe('Executing http service functions', () => {
 
     describe('And an unavailable mock server', () => {
       it('should fail due to a function execution error', async() => {
-        await expect(service.get(server.url)).rejects.toMatchObject({
-          name: 'StitchError',
-          code: 'FunctionExecutionError',
-          response: { status: 400 }
-        });
+        let err;
+        try {
+          await service.get(server.url);
+        } catch (e) {
+          err = e;
+        }
+        expect(err.code).toEqual('FunctionExecutionError');
       });
     });
 
@@ -76,33 +80,37 @@ describe('Executing http service functions', () => {
 
       describe('Submitting an invalid request', () => {
         it('should fail when an invalid url value is supplied', async() => {
-          await expect(service.get({ url: 'invalidurl' })).rejects.toMatchObject({
-            name: 'StitchError',
-            code: 'FunctionExecutionError',
-            response: { status: 400 }
-          });
+          let err;
+          try {
+            await service.get({ url: 'invalidurl' });
+          } catch (e) {
+            err = e;
+          }
+          expect(err.code).toEqual('FunctionExecutionError');
         });
 
         it('should fail when an invalid url datatype is supplied', async() => {
-          await expect(service.get({ url: 10281995 })).rejects.toMatchObject({
-            name: 'StitchError',
-            code: 'InvalidParameter',
-            response: { status: 400 }
-          });
+          let err;
+          try {
+            await service.get({ url: 10281995 });
+          } catch (e) {
+            err = e;
+          }
+          expect(err.code).toEqual('InvalidParameter');
         });
 
         it('should fail when both url and scheme+host are supplied', async() => {
-          await expect(
-            service.get({
+          let err;
+          try {
+            await service.get({
               url: 'http://locahost',
               scheme: 'http',
               host: 'localhost'
-            })
-          ).rejects.toMatchObject({
-            name: 'StitchError',
-            code: 'InvalidParameter',
-            response: { status: 400 }
-          });
+            });
+          } catch (e) {
+            err = e;
+          }
+          expect(err.code).toEqual('InvalidParameter');
         });
       });
 

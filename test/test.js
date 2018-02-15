@@ -4,7 +4,7 @@ const URL = require('url-parse');
 import { StitchClientFactory } from '../src/client';
 import { JSONTYPE, DEFAULT_STITCH_SERVER_URL } from '../src/common';
 import { REFRESH_TOKEN_KEY } from '../src/auth/common';
-import { AuthFactory } from '../src/auth';
+import { Auth, AuthFactory } from '../src/auth';
 import { mocks } from 'mock-browser';
 import ExtJSON from 'mongodb-extjson';
 
@@ -69,32 +69,36 @@ describe('Redirect fragment parsing', async() => {
     ).join('&')
   );
 
-  const a = await AuthFactory.create(null, '/auth');
-  it('should detect valid states', () => {
+  it('should detect valid states', async() => {
+    const a = await AuthFactory.create(null, '/auth');
     let result = a.parseRedirectFragment(makeFragment({'_stitch_state': 'state_XYZ'}), 'state_XYZ');
     expect(result.stateValid).toBe(true);
     expect(result.found).toBe(true);
     expect(result.lastError).toBe(null);
   });
 
-  it('should detect invalid states', () => {
+  it('should detect invalid states', async() => {
+    const a = await AuthFactory.create(null, '/auth');
     let result = a.parseRedirectFragment(makeFragment({'_stitch_state': 'state_XYZ'}), 'state_ABC');
     expect(result.stateValid).toBe(false);
     expect(result.lastError).toBe(null);
   });
 
-  it('should detect errors', () => {
+  it('should detect errors', async() => {
+    const a = await AuthFactory.create(null, '/auth');
     let result = a.parseRedirectFragment(makeFragment({'_stitch_error': 'hello world'}), 'state_ABC');
     expect(result.lastError).toEqual('hello world');
     expect(result.stateValid).toBe(false);
   });
 
-  it('should detect if no items found', () => {
+  it('should detect if no items found', async() => {
+    const a = await AuthFactory.create(null, '/auth');
     let result = a.parseRedirectFragment(makeFragment({'foo': 'bar'}), 'state_ABC');
     expect(result.found).toBe(false);
   });
 
-  it('should handle ua redirects', () => {
+  it('should handle ua redirects', async() => {
+    const a = await AuthFactory.create(null, '/auth');
     let result = a.parseRedirectFragment(makeFragment({'_stitch_ua': 'somejwt$anotherjwt$userid$deviceid'}), 'state_ABC');
     expect(result.found).toBe(true);
     expect(result.ua).toEqual({
@@ -105,7 +109,8 @@ describe('Redirect fragment parsing', async() => {
     });
   });
 
-  it('should gracefully handle invalid ua data', () => {
+  it('should gracefully handle invalid ua data', async() => {
+    const a = await AuthFactory.create(null, '/auth');
     let result = a.parseRedirectFragment(makeFragment({'_stitch_ua': 'invalid'}), 'state_ABC');
     expect(result.found).toBe(false);
     expect(result.ua).toBeNull();
@@ -157,6 +162,18 @@ describe('Auth', () => {
         envConfig.teardown();
         fetchMock.restore();
         capturedDevice = undefined;
+      });
+
+      it('should not allow instantiation of Auth', async() => {
+        expect(() => new Auth()).toThrowError(
+          /Auth can only be made from the AuthFactory\.create function/
+        );
+      });
+
+      it('should not allow instantiation of AuthFactory', async() => {
+        expect(() => new AuthFactory()).toThrowError(
+          /Auth can only be made from the AuthFactory\.create function/
+        );
       });
 
       it('get() set() clear() authedId should work', async() => {
