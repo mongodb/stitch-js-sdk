@@ -29,11 +29,11 @@
   font-family: Source Code Pro,Menlo,Consolas,Liberation Mono,monospace;
 }
 
-.toggle-sibling {
+#split-right .toggle-sibling {
   cursor: pointer;
 }
 
-.toggle-sibling:hover {
+#split-right .toggle-sibling:hover {
   background-color: #f5f5f5;
 }
 

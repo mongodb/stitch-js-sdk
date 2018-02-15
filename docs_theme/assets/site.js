@@ -66,13 +66,15 @@ function toggleSibling() {
 
 function forceOpenSibling(targetId) {
   var hashTarget = document.getElementById(targetId);
-  var stepSibling = hashTarget.getElementsByClassName('toggle-target')[0];
-  if(stepSibling) {
-    var icon = hashTarget.getElementsByClassName('icon')[0];
-    var klass = 'display-none';
-    if (stepSibling.classList.contains(klass)) {
-      stepSibling.classList.remove(klass);
-      icon.innerHTML = '▾';
+  if(hashTarget) {
+    var stepSibling = hashTarget.getElementsByClassName('toggle-target')[0];
+      if(stepSibling) {
+      var icon = hashTarget.getElementsByClassName('icon')[0];
+      var klass = 'display-none';
+      if (stepSibling.classList.contains(klass)) {
+        stepSibling.classList.remove(klass);
+        icon.innerHTML = '▾';
+      }
     }
   }
 }
