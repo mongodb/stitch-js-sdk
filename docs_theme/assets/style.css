@@ -29,6 +29,14 @@
   font-family: Source Code Pro,Menlo,Consolas,Liberation Mono,monospace;
 }
 
+#split-right .toggle-sibling {
+  cursor: pointer;
+}
+
+#split-right .toggle-sibling:hover {
+  background-color: #f5f5f5;
+}
+
 h4 {
   margin: 20px 0 10px 0;
 }

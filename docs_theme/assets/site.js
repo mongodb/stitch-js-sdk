@@ -64,6 +64,21 @@ function toggleSibling() {
   }
 }
 
+function forceOpenSibling(targetId) {
+  var hashTarget = document.getElementById(targetId);
+  if(hashTarget) {
+    var stepSibling = hashTarget.getElementsByClassName('toggle-target')[0];
+      if(stepSibling) {
+      var icon = hashTarget.getElementsByClassName('icon')[0];
+      var klass = 'display-none';
+      if (stepSibling.classList.contains(klass)) {
+        stepSibling.classList.remove(klass);
+        icon.innerHTML = '▾';
+      }
+    }
+  }
+}
+
 function showHashTarget(targetId) {
   if (targetId) {
     var hashTarget = document.getElementById(targetId);
@@ -91,6 +106,7 @@ function scrollIntoView(targetId) {
 function gotoCurrentTarget() {
   showHashTarget(location.hash.substring(1));
   scrollIntoView(location.hash.substring(1));
+  forceOpenSibling(location.hash.substring(1));
 }
 
 window.addEventListener('hashchange', gotoCurrentTarget);
