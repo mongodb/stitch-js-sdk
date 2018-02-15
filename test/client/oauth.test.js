@@ -14,16 +14,6 @@ function facebookCredsInEnv() {
   return !!(process.env.FB_APP_ID && process.env.FB_APP_SECRET);
 }
 
-// // Utility functions related to capturing code coverage information from the browser tests.
-// function coverageIsEnabled() {
-//   const config = JSON.parse(process.env.npm_config_argv)
-//   return config.original.includes('--coverage');
-// }
-// function matcher(req) {
-//     var parsed = url.parse(req.url);
-//     return parsed.pathname && parsed.pathname.match(/\.js$/) && !parsed.pathname.match(/jquery/);
-// }
-
 describe('Logging in with OAuth2 Providers', () => {
   const test = new StitchMongoFixture();
 
@@ -37,19 +27,7 @@ describe('Logging in with OAuth2 Providers', () => {
   beforeEach(async() => {
     // Start simple web app that contains UI elements for OAuth flow
     let app = express();
-    const publicDir = path.resolve(__dirname, '..', '..', 'dist', 'web');
-    // if(coverageIsEnabled()) {
-    //   // Due to jest bug where iconv-lite encodings are not properly lazy-loaded, force the lazy load to occur
-    //   // Context: https://github.com/facebook/jest/issues/2605
-    //   //          https://github.com/sidorares/node-mysql2/issues/489#issuecomment-313374683
-    //   require('../../node_modules/istanbul-middleware/node_modules/iconv-lite').encodingExists('foo');
-    //   console.log("Adding hooks for coverage");
-    //   im.hookLoader(publicDir)
-    //   app.use('/coverage', im.createHandler());
-    //   app.use(im.createClientHandler(publicDir, { matcher }))
-    // } else {
-    app.use(express.static(publicDir));
-    //}
+    app.use(express.static(path.resolve(__dirname, '..', '..', 'dist', 'web')));
     app.use(express.static(path.resolve(__dirname, 'static')));
     server = app.listen(8005);
 
@@ -133,10 +111,5 @@ describe('Logging in with OAuth2 Providers', () => {
     // Check that the authed user is authed with the Facebook provider
     let authStatusElem = await driver.findElement(By.id('auth-status'));
     expect(await authStatusElem.getText()).toEqual('oauth2-facebook');
-
-    // Send coverage statistics back to Jest
-    // if(coverageIsEnabled()) {
-    //   await driver.findElement(By.id('send-coverage-button')).click();
-    // }
   });
 });

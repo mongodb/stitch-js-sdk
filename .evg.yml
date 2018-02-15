@@ -140,8 +140,8 @@ tasks:
       - func: "setup_mongod"
       - func: "setup_stitch"
       - command: shell.exec
-        params:
-          script: |
+        params: 
+          script: | # NOTE: Using yarn for install instead of npm due to evergreen permission issue with chromedriver devDependency
             set -e
             echo "running client tests"
             source ./creds

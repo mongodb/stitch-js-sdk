@@ -19,13 +19,6 @@
         client.authenticate('facebook');
       }
 
-      function sendCoverageStats() {
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.open("POST", "http://localhost:8005/coverage/client");
-        xmlhttp.setRequestHeader("Content-Type", "application/json");
-        xmlhttp.send(JSON.stringify(window.__coverage__));
-      }
-
       function updateAuthStatus() {
         var authStatus = client.isAuthenticated ? client.authedId() : "Logged out.";
         var userProfile = client.userProfile().then(profile=> {
@@ -44,6 +37,5 @@
     <button id="init-stitch-button" onclick="initStitchClient()">Initialize Stitch</button>
     <button id="fb-oauth-button" onclick="authenticateWithFacebook()">Authenticate with Facebook</button>
     <button id="update-auth-status-button" onclick="updateAuthStatus()">Update Auth Status</button>
-    <button id="send-coverage-button" onclick="sendCoverageStats()">Send Coverage Stats</button>
   </body>
 </html>
