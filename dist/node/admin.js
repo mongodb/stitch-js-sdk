@@ -21,6 +21,8 @@ var _common2 = _interopRequireDefault(_common);
 
 var _common3 = require('./auth/common');
 
+var _errors = require('./errors');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -38,7 +40,7 @@ var StitchAdminClientFactory = exports.StitchAdminClientFactory = function () {
   function StitchAdminClientFactory() {
     _classCallCheck(this, StitchAdminClientFactory);
 
-    throw new StitchError('StitchAdminClient can only be made from the StitchAdminClientFactory.create function');
+    throw new _errors.StitchError('StitchAdminClient can only be made from the StitchAdminClientFactory.create function');
   }
 
   _createClass(StitchAdminClientFactory, null, [{
@@ -60,10 +62,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
   function StitchAdminClient() {
     _classCallCheck(this, StitchAdminClient);
 
-    var _this = _possibleConstructorReturn(this, (StitchAdminClient.__proto__ || Object.getPrototypeOf(StitchAdminClient)).call(this));
-
-    throw new StitchError('StitchAdminClient can only be made from the StitchAdminClientFactory.create function');
-    return _this;
+    return _possibleConstructorReturn(this, (StitchAdminClient.__proto__ || Object.getPrototypeOf(StitchAdminClient)).call(this));
   }
 
   _createClass(StitchAdminClient, [{
@@ -778,35 +777,6 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
       };
     }
   }, {
-    key: '_admin',
-    value: function _admin() {
-      var _this3 = this;
-
-      return {
-        logs: function logs() {
-          return {
-            get: function get(filter) {
-              return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this3).call(_this3, '/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter });
-            }
-          };
-        },
-        users: function users() {
-          return {
-            list: function list(filter) {
-              return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this3).call(_this3, '/admin/users', 'GET', { useRefreshToken: true, queryParams: filter });
-            },
-            user: function user(uid) {
-              return {
-                logout: function logout() {
-                  return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this3).call(_this3, '/admin/users/' + uid + '/logout', 'PUT', { useRefreshToken: true });
-                }
-              };
-            }
-          };
-        }
-      };
-    }
-  }, {
     key: 'type',
     get: function get() {
       return _common2.default;
@@ -814,10 +784,10 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
   }, {
     key: '_v3',
     get: function get() {
-      var _this4 = this;
+      var _this3 = this;
 
       var v3do = function v3do(url, method, options) {
-        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this4).call(_this4, url, method, Object.assign({}, { apiVersion: v3 }, options)).then(function (response) {
+        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this3).call(_this3, url, method, Object.assign({}, { apiVersion: v3 }, options)).then(function (response) {
           var contentHeader = response.headers.get('content-type') || '';
           if (contentHeader.split(',').indexOf('application/json') >= 0) {
             return response.json();
@@ -847,10 +817,10 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
   }, {
     key: '_v2',
     get: function get() {
-      var _this5 = this;
+      var _this4 = this;
 
       var v2do = function v2do(url, method, options) {
-        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this5).call(_this5, url, method, Object.assign({}, { apiVersion: v2 }, options)).then(function (response) {
+        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this4).call(_this4, url, method, Object.assign({}, { apiVersion: v2 }, options)).then(function (response) {
           var contentHeader = response.headers.get('content-type') || '';
           if (contentHeader.split(',').indexOf('application/json') >= 0) {
             return response.json();

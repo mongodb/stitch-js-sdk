@@ -12,7 +12,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 /**
  * Convenience wrapper around AWS S3 service (not meant to be instantiated directly,
- * use `.service('aws/s3', '<service-name>')` on a {@link StitchClient} instance).
+ * use `.service('aws-s3', '<service-name>')` on a {@link StitchClient} instance).
  *
  * @class
  * @return {S3Service} a S3Service instance.
@@ -28,22 +28,22 @@ var S3Service = function () {
   /**
    * Put an object to S3 via Stitch. For small uploads
    *
-   * NOTE: body must be a pipeline stream
-   *
    * @param {String} bucket which S3 bucket to use
    * @param {String} key which key (filename) to use
    * @param {String} acl which policy to apply
    * @param {String} contentType content type of uploaded data
-   * @return {Promise}
+   * @param {String|BSON.Binary} body the content to put in the bucket
+   * @return {Promise} which resolves to an object containing a single field "location"
+   *                   which is the URL of the object that was put into the S3 bucket
    */
 
 
   _createClass(S3Service, [{
     key: 'put',
-    value: function put(bucket, key, acl, contentType) {
+    value: function put(bucket, key, acl, contentType, body) {
       return (0, _util.serviceResponse)(this, {
         action: 'put',
-        args: { bucket: bucket, key: key, acl: acl, contentType: contentType }
+        args: { bucket: bucket, key: key, acl: acl, contentType: contentType, body: body }
       });
     }
 

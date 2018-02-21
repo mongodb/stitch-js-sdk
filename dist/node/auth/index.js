@@ -189,30 +189,31 @@ var Auth = exports.Auth = function () {
         return;
       }
 
-      var redirectProvider = void 0;
       return Promise.all([this.storage.get(authCommon.STATE_KEY), this.storage.get(authCommon.STITCH_REDIRECT_PROVIDER)]).then(function (_ref3) {
         var _ref4 = _slicedToArray(_ref3, 2),
             ourState = _ref4[0],
-            _redirectProvider = _ref4[1];
+            redirectProvider = _ref4[1];
 
         var redirectFragment = window.location.hash.substring(1);
-        redirectProvider = _redirectProvider;
         var redirectState = _this2.parseRedirectFragment(redirectFragment, ourState);
-        if (redirectState.lastError || !redirectProvider) {
+        if (redirectState.lastError || redirectState.found && !redirectProvider) {
           console.error('StitchClient: error from redirect: ' + (redirectState.lastError ? redirectState.lastError : 'provider type not set'));
           _this2._error = redirectState.lastError;
           window.history.replaceState(null, '', _this2.pageRootUrl());
-          return;
+          return Promise.reject();
         }
 
         if (!redirectState.found) {
-          return;
+          return Promise.reject();
         }
 
         return Promise.all([_this2.storage.remove(authCommon.STATE_KEY), _this2.storage.remove(authCommon.STITCH_REDIRECT_PROVIDER)]).then(function () {
-          return redirectState;
+          return { redirectState: redirectState, redirectProvider: redirectProvider };
         });
-      }).then(function (redirectState) {
+      }).then(function (_ref5) {
+        var redirectState = _ref5.redirectState,
+            redirectProvider = _ref5.redirectProvider;
+
         if (!redirectState.stateValid) {
           console.error('StitchClient: state values did not match!');
           window.history.replaceState(null, '', _this2.pageRootUrl());
@@ -228,6 +229,10 @@ var Auth = exports.Auth = function () {
         return _this2.set(redirectState.ua, redirectProvider);
       }).then(function () {
         return window.history.replaceState(null, '', _this2.pageRootUrl());
+      }).catch(function (error) {
+        if (error) {
+          throw error;
+        }
       });
     }
   }, {
@@ -447,14 +452,14 @@ var Auth = exports.Auth = function () {
   }, {
     key: 'unmarshallUserAuth',
     value: function unmarshallUserAuth(data) {
-      var _ref5;
+      var _ref6;
 
       var parts = data.split('$');
       if (parts.length !== EMBEDDED_USER_AUTH_DATA_PARTS) {
         throw new RangeError('invalid user auth data provided: ' + data);
       }
 
-      return _ref5 = {}, _defineProperty(_ref5, this.codec.accessToken, parts[0]), _defineProperty(_ref5, this.codec.refreshToken, parts[1]), _defineProperty(_ref5, this.codec.userId, parts[2]), _defineProperty(_ref5, this.codec.deviceId, parts[3]), _ref5;
+      return _ref6 = {}, _defineProperty(_ref6, this.codec.accessToken, parts[0]), _defineProperty(_ref6, this.codec.refreshToken, parts[1]), _defineProperty(_ref6, this.codec.userId, parts[2]), _defineProperty(_ref6, this.codec.deviceId, parts[3]), _ref6;
     }
   }, {
     key: 'fetchArgsWithLink',

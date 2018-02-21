@@ -1871,7 +1871,7 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)))
 
 /***/ }),
 /* 1 */
@@ -2015,9 +2015,7 @@ exports.writeIEEE754 = writeIEEE754;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.uriEncodeObject = exports.serviceResponse = exports.deprecate = exports.collectMetadata = undefined;
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+exports.uriEncodeObject = exports.serviceResponse = undefined;
 
 var _Base = __webpack_require__(27);
 
@@ -2025,69 +2023,10 @@ var base64 = _interopRequireWildcard(_Base);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-var RESULT_METADATA_KEY = '_stitch_metadata';
-
 /**
  * @namespace util
  * @private
  */
-
-/**
- * Utility which creates a function that extracts metadata
- * from the server in the response to a pipeline request,
- * and attaches it to the final result after the finalizer has been applied.
- *
- * @memberof util
- * @param {Function} [func] optional finalizer to transform the response data
- */
-var collectMetadata = exports.collectMetadata = function collectMetadata(func) {
-  var attachMetadata = function attachMetadata(metadata) {
-    return function (res) {
-      if ((typeof res === 'undefined' ? 'undefined' : _typeof(res)) === 'object' && !Object.prototype.hasOwnProperty.call(res, RESULT_METADATA_KEY)) {
-        Object.defineProperty(res, RESULT_METADATA_KEY, { enumerable: false, configurable: false, writable: false, value: metadata });
-      }
-      return Promise.resolve(res);
-    };
-  };
-  var captureMetadata = function captureMetadata(data) {
-    var metadata = {};
-    if (data.warnings) {
-      // Metadata is not yet attached to result, grab any data that needs to be added.
-      metadata.warnings = data.warnings;
-    }
-    if (!func) {
-      return Promise.resolve(data).then(attachMetadata(metadata));
-    }
-    return Promise.resolve(data).then(func).then(attachMetadata(metadata));
-  };
-  return captureMetadata;
-};
-
-/**
- * Utility function for displaying deprecation notices
- *
- * @memberof util
- * @param {Function} fn the function to deprecate
- * @param {String} msg the message to display to the user regarding deprecation
- */
-function deprecate(fn, msg) {
-  var alreadyWarned = false;
-  function deprecated() {
-    if (!alreadyWarned) {
-      alreadyWarned = true;
-      console.warn('DeprecationWarning: ' + msg);
-    }
-
-    return fn.apply(this, arguments);
-  }
-
-  deprecated.__proto__ = fn; // eslint-disable-line
-  if (fn.prototype) {
-    deprecated.prototype = fn.prototype;
-  }
-
-  return deprecated;
-}
 
 /**
  * Utility method for executing a service action as a function call.
@@ -2126,7 +2065,6 @@ function uriEncodeObject(obj) {
   return encodeURIComponent(base64.btoa(JSON.stringify(obj)));
 }
 
-exports.deprecate = deprecate;
 exports.serviceResponse = serviceResponse;
 exports.uriEncodeObject = uriEncodeObject;
 
@@ -3371,7 +3309,7 @@ Binary.SUBTYPE_USER_DEFINED = 128;
  */
 module.exports = Binary;
 module.exports.Binary = Binary;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)))
 
 /***/ }),
 /* 6 */
@@ -5583,7 +5521,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.makeFetchArgs = exports.checkStatus = exports.SDK_VERSION = exports.DEFAULT_STITCH_SERVER_URL = exports.ADMIN_CLIENT_TYPE = exports.APP_CLIENT_TYPE = exports.JSONTYPE = undefined;
 
-var _errors = __webpack_require__(19);
+var _errors = __webpack_require__(17);
 
 var JSONTYPE = exports.JSONTYPE = 'application/json';
 var APP_CLIENT_TYPE = exports.APP_CLIENT_TYPE = 'app';
@@ -5593,7 +5531,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "3.0.2";
+  version = "3.0.3";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -5632,67 +5570,6 @@ var makeFetchArgs = exports.makeFetchArgs = function makeFetchArgs(method, body)
 
 /***/ }),
 /* 17 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Int32 = function Int32(value) {
-  if (!(this instanceof Int32)) return new Int32(value);
-
-  this._bsontype = 'Int32';
-  this.value = value;
-};
-
-/**
- * Access the number value.
- *
- * @method
- * @return {number} returns the wrapped int32 number.
- */
-Int32.prototype.valueOf = function () {
-  return this.value;
-};
-
-/**
- * @ignore
- */
-Int32.prototype.toJSON = function () {
-  return this.value;
-};
-
-module.exports = Int32;
-module.exports.Int32 = Int32;
-
-/***/ }),
-/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5777,6 +5654,67 @@ exports.ErrInvalidSession = ErrInvalidSession;
 exports.ErrUnauthorized = ErrUnauthorized;
 
 /***/ }),
+/* 18 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Int32 = function Int32(value) {
+  if (!(this instanceof Int32)) return new Int32(value);
+
+  this._bsontype = 'Int32';
+  this.value = value;
+};
+
+/**
+ * Access the number value.
+ *
+ * @method
+ * @return {number} returns the wrapped int32 number.
+ */
+Int32.prototype.valueOf = function () {
+  return this.value;
+};
+
+/**
+ * @ignore
+ */
+Int32.prototype.toJSON = function () {
+  return this.value;
+};
+
+module.exports = Int32;
+module.exports.Int32 = Int32;
+
+/***/ }),
 /* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -5818,7 +5756,7 @@ var _queryString = __webpack_require__(69);
 
 var _queryString2 = _interopRequireDefault(_queryString);
 
-var _errors = __webpack_require__(19);
+var _errors = __webpack_require__(17);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -5928,7 +5866,8 @@ var StitchClient = exports.StitchClient = function () {
   function StitchClient() {
     _classCallCheck(this, StitchClient);
 
-    throw new _errors.StitchError('StitchClient can only be made from the StitchClientFactory.create function');
+    var classname = this.constructor.name;
+    throw new _errors.StitchError(classname + ' can only be made from the ' + classname + 'Factory.create function');
   }
 
   _createClass(StitchClient, [{
@@ -6109,7 +6048,7 @@ var StitchClient = exports.StitchClient = function () {
      * Factory method for accessing Stitch services.
      *
      * @method
-     * @param {String} type the service type (e.g. "mongodb", "aws/s3", "twilio", "http", etc.)
+     * @param {String} type the service type (e.g. "mongodb", "aws-s3", "aws-ses", "twilio", "http", etc.)
      * @param {String} name the service name specified in the Stitch admin console.
      * @returns {Object} returns an instance of the specified service type.
      */
@@ -6565,7 +6504,7 @@ if (typeof global.Map !== 'undefined') {
   module.exports = Map;
   module.exports.Map = Map;
 }
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)))
 
 /***/ }),
 /* 23 */
@@ -7249,6 +7188,8 @@ var _common2 = _interopRequireDefault(_common);
 
 var _common3 = __webpack_require__(4);
 
+var _errors = __webpack_require__(17);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -7266,7 +7207,7 @@ var StitchAdminClientFactory = exports.StitchAdminClientFactory = function () {
   function StitchAdminClientFactory() {
     _classCallCheck(this, StitchAdminClientFactory);
 
-    throw new StitchError('StitchAdminClient can only be made from the StitchAdminClientFactory.create function');
+    throw new _errors.StitchError('StitchAdminClient can only be made from the StitchAdminClientFactory.create function');
   }
 
   _createClass(StitchAdminClientFactory, null, [{
@@ -7288,10 +7229,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
   function StitchAdminClient() {
     _classCallCheck(this, StitchAdminClient);
 
-    var _this = _possibleConstructorReturn(this, (StitchAdminClient.__proto__ || Object.getPrototypeOf(StitchAdminClient)).call(this));
-
-    throw new StitchError('StitchAdminClient can only be made from the StitchAdminClientFactory.create function');
-    return _this;
+    return _possibleConstructorReturn(this, (StitchAdminClient.__proto__ || Object.getPrototypeOf(StitchAdminClient)).call(this));
   }
 
   _createClass(StitchAdminClient, [{
@@ -8006,35 +7944,6 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
       };
     }
   }, {
-    key: '_admin',
-    value: function _admin() {
-      var _this3 = this;
-
-      return {
-        logs: function logs() {
-          return {
-            get: function get(filter) {
-              return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this3).call(_this3, '/admin/logs', 'GET', { useRefreshToken: true, queryParams: filter });
-            }
-          };
-        },
-        users: function users() {
-          return {
-            list: function list(filter) {
-              return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this3).call(_this3, '/admin/users', 'GET', { useRefreshToken: true, queryParams: filter });
-            },
-            user: function user(uid) {
-              return {
-                logout: function logout() {
-                  return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this3).call(_this3, '/admin/users/' + uid + '/logout', 'PUT', { useRefreshToken: true });
-                }
-              };
-            }
-          };
-        }
-      };
-    }
-  }, {
     key: 'type',
     get: function get() {
       return _common2.default;
@@ -8042,10 +7951,10 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
   }, {
     key: '_v3',
     get: function get() {
-      var _this4 = this;
+      var _this3 = this;
 
       var v3do = function v3do(url, method, options) {
-        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this4).call(_this4, url, method, Object.assign({}, { apiVersion: v3 }, options)).then(function (response) {
+        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this3).call(_this3, url, method, Object.assign({}, { apiVersion: v3 }, options)).then(function (response) {
           var contentHeader = response.headers.get('content-type') || '';
           if (contentHeader.split(',').indexOf('application/json') >= 0) {
             return response.json();
@@ -8075,10 +7984,10 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
   }, {
     key: '_v2',
     get: function get() {
-      var _this5 = this;
+      var _this4 = this;
 
       var v2do = function v2do(url, method, options) {
-        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this5).call(_this5, url, method, Object.assign({}, { apiVersion: v2 }, options)).then(function (response) {
+        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this4).call(_this4, url, method, Object.assign({}, { apiVersion: v2 }, options)).then(function (response) {
           var contentHeader = response.headers.get('content-type') || '';
           if (contentHeader.split(',').indexOf('application/json') >= 0) {
             return response.json();
@@ -8197,7 +8106,7 @@ var writeIEEE754 = __webpack_require__(1).writeIEEE754,
     ObjectID = __webpack_require__(12),
     BSONRegExp = __webpack_require__(13),
     _Symbol = __webpack_require__(14),
-    Int32 = __webpack_require__(18),
+    Int32 = __webpack_require__(19),
     Code = __webpack_require__(6),
     Decimal128 = __webpack_require__(8),
     MinKey = __webpack_require__(11),
@@ -8713,7 +8622,7 @@ var readIEEE754 = __webpack_require__(1).readIEEE754,
     MinKey = __webpack_require__(11).MinKey,
     MaxKey = __webpack_require__(10).MaxKey,
     Decimal128 = __webpack_require__(8),
-    Int32 = __webpack_require__(18),
+    Int32 = __webpack_require__(19),
     DBRef = __webpack_require__(7).DBRef,
     BSONRegExp = __webpack_require__(13).BSONRegExp,
     Binary = __webpack_require__(5).Binary;
@@ -9375,7 +9284,7 @@ var writeIEEE754 = __webpack_require__(1).writeIEEE754,
     _Symbol = __webpack_require__(14).Symbol,
     Code = __webpack_require__(6).Code,
     BSONRegExp = __webpack_require__(13).BSONRegExp,
-    Int32 = __webpack_require__(18).Int32,
+    Int32 = __webpack_require__(19).Int32,
     MinKey = __webpack_require__(11).MinKey,
     MaxKey = __webpack_require__(10).MaxKey,
     Decimal128 = __webpack_require__(8),
@@ -10386,7 +10295,7 @@ var _storage = __webpack_require__(33);
 
 var _providers = __webpack_require__(23);
 
-var _errors = __webpack_require__(19);
+var _errors = __webpack_require__(17);
 
 var _common = __webpack_require__(4);
 
@@ -10560,30 +10469,31 @@ var Auth = exports.Auth = function () {
         return;
       }
 
-      var redirectProvider = void 0;
       return Promise.all([this.storage.get(authCommon.STATE_KEY), this.storage.get(authCommon.STITCH_REDIRECT_PROVIDER)]).then(function (_ref3) {
         var _ref4 = _slicedToArray(_ref3, 2),
             ourState = _ref4[0],
-            _redirectProvider = _ref4[1];
+            redirectProvider = _ref4[1];
 
         var redirectFragment = window.location.hash.substring(1);
-        redirectProvider = _redirectProvider;
         var redirectState = _this2.parseRedirectFragment(redirectFragment, ourState);
-        if (redirectState.lastError || !redirectProvider) {
+        if (redirectState.lastError || redirectState.found && !redirectProvider) {
           console.error('StitchClient: error from redirect: ' + (redirectState.lastError ? redirectState.lastError : 'provider type not set'));
           _this2._error = redirectState.lastError;
           window.history.replaceState(null, '', _this2.pageRootUrl());
-          return;
+          return Promise.reject();
         }
 
         if (!redirectState.found) {
-          return;
+          return Promise.reject();
         }
 
         return Promise.all([_this2.storage.remove(authCommon.STATE_KEY), _this2.storage.remove(authCommon.STITCH_REDIRECT_PROVIDER)]).then(function () {
-          return redirectState;
+          return { redirectState: redirectState, redirectProvider: redirectProvider };
         });
-      }).then(function (redirectState) {
+      }).then(function (_ref5) {
+        var redirectState = _ref5.redirectState,
+            redirectProvider = _ref5.redirectProvider;
+
         if (!redirectState.stateValid) {
           console.error('StitchClient: state values did not match!');
           window.history.replaceState(null, '', _this2.pageRootUrl());
@@ -10599,6 +10509,10 @@ var Auth = exports.Auth = function () {
         return _this2.set(redirectState.ua, redirectProvider);
       }).then(function () {
         return window.history.replaceState(null, '', _this2.pageRootUrl());
+      }).catch(function (error) {
+        if (error) {
+          throw error;
+        }
       });
     }
   }, {
@@ -10818,14 +10732,14 @@ var Auth = exports.Auth = function () {
   }, {
     key: 'unmarshallUserAuth',
     value: function unmarshallUserAuth(data) {
-      var _ref5;
+      var _ref6;
 
       var parts = data.split('$');
       if (parts.length !== EMBEDDED_USER_AUTH_DATA_PARTS) {
         throw new RangeError('invalid user auth data provided: ' + data);
       }
 
-      return _ref5 = {}, _defineProperty(_ref5, this.codec.accessToken, parts[0]), _defineProperty(_ref5, this.codec.refreshToken, parts[1]), _defineProperty(_ref5, this.codec.userId, parts[2]), _defineProperty(_ref5, this.codec.deviceId, parts[3]), _ref5;
+      return _ref6 = {}, _defineProperty(_ref6, this.codec.accessToken, parts[0]), _defineProperty(_ref6, this.codec.refreshToken, parts[1]), _defineProperty(_ref6, this.codec.userId, parts[2]), _defineProperty(_ref6, this.codec.deviceId, parts[3]), _ref6;
     }
   }, {
     key: 'fetchArgsWithLink',
@@ -11066,7 +10980,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 /**
  * Convenience wrapper around AWS S3 service (not meant to be instantiated directly,
- * use `.service('aws/s3', '<service-name>')` on a {@link StitchClient} instance).
+ * use `.service('aws-s3', '<service-name>')` on a {@link StitchClient} instance).
  *
  * @class
  * @return {S3Service} a S3Service instance.
@@ -11082,22 +10996,22 @@ var S3Service = function () {
   /**
    * Put an object to S3 via Stitch. For small uploads
    *
-   * NOTE: body must be a pipeline stream
-   *
    * @param {String} bucket which S3 bucket to use
    * @param {String} key which key (filename) to use
    * @param {String} acl which policy to apply
    * @param {String} contentType content type of uploaded data
-   * @return {Promise}
+   * @param {String|BSON.Binary} body the content to put in the bucket
+   * @return {Promise} which resolves to an object containing a single field "location"
+   *                   which is the URL of the object that was put into the S3 bucket
    */
 
 
   _createClass(S3Service, [{
     key: 'put',
-    value: function put(bucket, key, acl, contentType) {
+    value: function put(bucket, key, acl, contentType, body) {
       return (0, _util.serviceResponse)(this, {
         action: 'put',
-        args: { bucket: bucket, key: key, acl: acl, contentType: contentType }
+        args: { bucket: bucket, key: key, acl: acl, contentType: contentType, body: body }
       });
     }
 
@@ -11146,7 +11060,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 /**
  * Convenience wrapper around AWS SES service (not meant to be instantiated directly,
- * use `.service('aws/ses', '<service-name>')` on a {@link StitchClient} instance).
+ * use `.service('aws-ses', '<service-name>')` on a {@link StitchClient} instance).
  *
  * @class
  * @return {SESService} a SESService instance.
@@ -11163,20 +11077,21 @@ var SESService = function () {
    * Send an email
    *
    * @method
-   * @param {String} from the email to send from
-   * @param {String} to the email to send to
+   * @param {String} fromAddress the email to send from
+   * @param {String} toAddress the email to send to
    * @param {String} subject the subject of the email
    * @param {String} body the body of the email
-   * @return {Promise}
+   * @return {Promise} resolving to an object which contains the single string field
+   *                   "messageId", which is the SES message ID for the email message.
    */
 
 
   _createClass(SESService, [{
     key: 'send',
-    value: function send(from, to, subject, body) {
+    value: function send(fromAddress, toAddress, subject, body) {
       return (0, _util.serviceResponse)(this, {
         action: 'send',
-        args: { from: from, to: to, subject: subject, body: body }
+        args: { fromAddress: fromAddress, toAddress: toAddress, subject: subject, body: body }
       });
     }
   }]);
@@ -11382,8 +11297,8 @@ var _twilio_service2 = _interopRequireDefault(_twilio_service);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
-  'aws/s3': _s3_service2.default,
-  'aws/ses': _ses_service2.default,
+  'aws-s3': _s3_service2.default,
+  'aws-ses': _ses_service2.default,
   'http': _http_service2.default,
   'mongodb': _mongodb_service2.default,
   'twilio': _twilio_service2.default
@@ -11831,7 +11746,8 @@ var TwilioService = function () {
    * @param {String} from number to send from
    * @param {String} to number to send to
    * @param {String} body SMS body content
-   * @return {Promise}
+   * @return {Promise} which resolves to 'null' when message is sent successfully,
+   *                   or is rejected when there is an error
    */
 
 
@@ -13909,7 +13825,7 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17), __webpack_require__(25)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18), __webpack_require__(25)))
 
 /***/ }),
 /* 73 */

@@ -27,8 +27,8 @@ var _twilio_service2 = _interopRequireDefault(_twilio_service);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
-  'aws/s3': _s3_service2.default,
-  'aws/ses': _ses_service2.default,
+  'aws-s3': _s3_service2.default,
+  'aws-ses': _ses_service2.default,
   'http': _http_service2.default,
   'mongodb': _mongodb_service2.default,
   'twilio': _twilio_service2.default

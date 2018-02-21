@@ -145,7 +145,8 @@ var StitchClient = exports.StitchClient = function () {
   function StitchClient() {
     _classCallCheck(this, StitchClient);
 
-    throw new _errors.StitchError('StitchClient can only be made from the StitchClientFactory.create function');
+    var classname = this.constructor.name;
+    throw new _errors.StitchError(classname + ' can only be made from the ' + classname + 'Factory.create function');
   }
 
   _createClass(StitchClient, [{
@@ -326,7 +327,7 @@ var StitchClient = exports.StitchClient = function () {
      * Factory method for accessing Stitch services.
      *
      * @method
-     * @param {String} type the service type (e.g. "mongodb", "aws/s3", "twilio", "http", etc.)
+     * @param {String} type the service type (e.g. "mongodb", "aws-s3", "aws-ses", "twilio", "http", etc.)
      * @param {String} name the service name specified in the Stitch admin console.
      * @returns {Object} returns an instance of the specified service type.
      */

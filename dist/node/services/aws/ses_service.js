@@ -12,7 +12,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 /**
  * Convenience wrapper around AWS SES service (not meant to be instantiated directly,
- * use `.service('aws/ses', '<service-name>')` on a {@link StitchClient} instance).
+ * use `.service('aws-ses', '<service-name>')` on a {@link StitchClient} instance).
  *
  * @class
  * @return {SESService} a SESService instance.
@@ -29,20 +29,21 @@ var SESService = function () {
    * Send an email
    *
    * @method
-   * @param {String} from the email to send from
-   * @param {String} to the email to send to
+   * @param {String} fromAddress the email to send from
+   * @param {String} toAddress the email to send to
    * @param {String} subject the subject of the email
    * @param {String} body the body of the email
-   * @return {Promise}
+   * @return {Promise} resolving to an object which contains the single string field
+   *                   "messageId", which is the SES message ID for the email message.
    */
 
 
   _createClass(SESService, [{
     key: 'send',
-    value: function send(from, to, subject, body) {
+    value: function send(fromAddress, toAddress, subject, body) {
       return (0, _util.serviceResponse)(this, {
         action: 'send',
-        args: { from: from, to: to, subject: subject, body: body }
+        args: { fromAddress: fromAddress, toAddress: toAddress, subject: subject, body: body }
       });
     }
   }]);
