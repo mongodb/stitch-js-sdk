@@ -130,24 +130,22 @@ export class Auth {
       return;
     }
 
-    let redirectProvider;
     return Promise.all([
       this.storage.get(authCommon.STATE_KEY),
       this.storage.get(authCommon.STITCH_REDIRECT_PROVIDER)
-    ]).then(([ourState, _redirectProvider]) => {
+    ]).then(([ourState, redirectProvider]) => {
       let redirectFragment = window.location.hash.substring(1);
-      redirectProvider = _redirectProvider;
       const redirectState = this.parseRedirectFragment(redirectFragment, ourState);
-      if (redirectState.lastError || !redirectProvider) {
+      if (redirectState.lastError || (redirectState.found && !redirectProvider)) {
         console.error(`StitchClient: error from redirect: ${redirectState.lastError ?
           redirectState.lastError : 'provider type not set'}`);
         this._error = redirectState.lastError;
         window.history.replaceState(null, '', this.pageRootUrl());
-        return;
+        return Promise.reject();
       }
 
       if (!redirectState.found) {
-        return;
+        return Promise.reject();
       }
 
       return Promise.all(
@@ -155,8 +153,8 @@ export class Auth {
           this.storage.remove(authCommon.STATE_KEY),
           this.storage.remove(authCommon.STITCH_REDIRECT_PROVIDER)
         ]
-      ).then(() => redirectState);
-    }).then((redirectState) => {
+      ).then(() => ({redirectState, redirectProvider}));
+    }).then(({redirectState, redirectProvider}) => {
       if (!redirectState.stateValid) {
         console.error('StitchClient: state values did not match!');
         window.history.replaceState(null, '', this.pageRootUrl());
@@ -170,7 +168,12 @@ export class Auth {
 
       // If we get here, the state is valid - set auth appropriately.
       return this.set(redirectState.ua, redirectProvider);
-    }).then(() => window.history.replaceState(null, '', this.pageRootUrl()));
+    }).then(() => window.history.replaceState(null, '', this.pageRootUrl()))
+      .catch(error => {
+        if (error) {
+          throw error;
+        }
+      });
   }
 
   getCookie(name) {
