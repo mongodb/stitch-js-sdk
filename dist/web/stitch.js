@@ -91,9 +91,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 
-var base64 = __webpack_require__(58)
-var ieee754 = __webpack_require__(62)
-var isArray = __webpack_require__(64)
+var base64 = __webpack_require__(43)
+var ieee754 = __webpack_require__(47)
+var isArray = __webpack_require__(49)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -2017,7 +2017,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.uriEncodeObject = exports.serviceResponse = undefined;
 
-var _Base = __webpack_require__(27);
+var _Base = __webpack_require__(28);
 
 var base64 = _interopRequireWildcard(_Base);
 
@@ -4565,7 +4565,7 @@ Object.defineProperty(ObjectID.prototype, "generationTime", {
 module.exports = ObjectID;
 module.exports.ObjectID = ObjectID;
 module.exports.ObjectId = ObjectID;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer, __webpack_require__(25)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer, __webpack_require__(26)))
 
 /***/ }),
 /* 13 */
@@ -5531,7 +5531,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "3.0.4";
+  version = "3.0.5";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -5732,11 +5732,11 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 exports.newStitchClient = newStitchClient;
 
-__webpack_require__(24);
+__webpack_require__(25);
 
 var _auth = __webpack_require__(32);
 
-var _providers = __webpack_require__(23);
+var _providers = __webpack_require__(24);
 
 var _common = __webpack_require__(4);
 
@@ -5752,7 +5752,7 @@ var _mongodbExtjson = __webpack_require__(21);
 
 var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
-var _queryString = __webpack_require__(69);
+var _queryString = __webpack_require__(54);
 
 var _queryString2 = _interopRequireDefault(_queryString);
 
@@ -6364,14 +6364,852 @@ var StitchClient = exports.StitchClient = function () {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+/* WEBPACK VAR INJECTION */(function(Buffer) {var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;
+
+var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+(function (global, factory) {
+  ( false ? 'undefined' : _typeof2(exports)) === 'object' && typeof module !== 'undefined' ? module.exports = factory(__webpack_require__(22)) :  true ? !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(22)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
+				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)) : global['mongodb-extjson'] = factory(global.bson);
+})(undefined, function (bson) {
+  'use strict';
+
+  bson = bson && bson.hasOwnProperty('default') ? bson['default'] : bson;
+
+  /**
+   * Module dependencies.
+   * @ignore
+   */
+
+  function convert(integer) {
+    var str = Number(integer).toString(16);
+    return str.length === 1 ? '0' + str : str;
+  }
+
+  function toExtendedJSON(obj) {
+    var base64String = obj.buffer.toString('base64');
+
+    return {
+      $binary: {
+        base64: base64String,
+        subType: convert(obj.sub_type)
+      }
+    };
+  }
+
+  function fromExtendedJSON(BSON, doc) {
+    var type = doc.$binary.subType ? parseInt(doc.$binary.subType, 16) : 0;
+
+    var data = new Buffer(doc.$binary.base64, 'base64');
+
+    return new BSON.Binary(data, type);
+  }
+
+  var binary = {
+    toExtendedJSON: toExtendedJSON,
+    fromExtendedJSON: fromExtendedJSON
+  };
+
+  function toExtendedJSON$1(obj) {
+    if (obj.scope) {
+      return { $code: obj.code, $scope: obj.scope };
+    }
+
+    return { $code: obj.code };
+  }
+
+  function fromExtendedJSON$1(BSON, doc) {
+    return new BSON.Code(doc.$code, doc.$scope);
+  }
+
+  var code = {
+    toExtendedJSON: toExtendedJSON$1,
+    fromExtendedJSON: fromExtendedJSON$1
+  };
+
+  function toExtendedJSON$2(obj) {
+    var o = {
+      $ref: obj.collection,
+      $id: obj.oid
+    };
+    if (obj.db) o.$db = obj.db;
+    o = Object.assign(o, obj.fields);
+    return o;
+  }
+
+  function fromExtendedJSON$2(BSON, doc) {
+    var copy = Object.assign({}, doc);
+    ['$ref', '$id', '$db'].forEach(function (k) {
+      return delete copy[k];
+    });
+    return new BSON.DBRef(doc.$ref, doc.$id, doc.$db, copy);
+  }
+
+  var db_ref = {
+    toExtendedJSON: toExtendedJSON$2,
+    fromExtendedJSON: fromExtendedJSON$2
+  };
+
+  function toExtendedJSON$3(obj) {
+    return { $numberDecimal: obj.toString() };
+  }
+
+  function fromExtendedJSON$3(BSON, doc) {
+    return new BSON.Decimal128.fromString(doc.$numberDecimal);
+  }
+
+  var decimal128 = {
+    toExtendedJSON: toExtendedJSON$3,
+    fromExtendedJSON: fromExtendedJSON$3
+  };
+
+  function toExtendedJSON$4(obj, options) {
+    if (options.relaxed && isFinite(obj.value)) return obj.value;
+    return { $numberDouble: obj.value.toString() };
+  }
+
+  function fromExtendedJSON$4(BSON, doc) {
+    return new BSON.Double(parseFloat(doc.$numberDouble));
+  }
+
+  var double_1 = {
+    toExtendedJSON: toExtendedJSON$4,
+    fromExtendedJSON: fromExtendedJSON$4
+  };
+
+  function toExtendedJSON$5(obj, options) {
+    if (options && options.relaxed) return obj.value;
+    return { $numberInt: obj.value.toString() };
+  }
+
+  function fromExtendedJSON$5(BSON, doc) {
+    return new BSON.Int32(doc.$numberInt);
+  }
+
+  var int_32 = {
+    toExtendedJSON: toExtendedJSON$5,
+    fromExtendedJSON: fromExtendedJSON$5
+  };
+
+  function toExtendedJSON$6(obj, options) {
+    if (options && options.relaxed) return obj.toNumber();
+    return { $numberLong: obj.toString() };
+  }
+
+  function fromExtendedJSON$6(BSON, doc) {
+    return BSON.Long.fromString(doc.$numberLong);
+  }
+
+  var long_1 = {
+    toExtendedJSON: toExtendedJSON$6,
+    fromExtendedJSON: fromExtendedJSON$6
+  };
+
+  function toExtendedJSON$7() {
+    return { $maxKey: 1 };
+  }
+
+  function fromExtendedJSON$7(BSON) {
+    return new BSON.MaxKey();
+  }
+
+  var max_key = {
+    toExtendedJSON: toExtendedJSON$7,
+    fromExtendedJSON: fromExtendedJSON$7
+  };
+
+  function toExtendedJSON$8() {
+    return { $minKey: 1 };
+  }
+
+  function fromExtendedJSON$8(BSON) {
+    return new BSON.MinKey();
+  }
+
+  var min_key = {
+    toExtendedJSON: toExtendedJSON$8,
+    fromExtendedJSON: fromExtendedJSON$8
+  };
+
+  function toExtendedJSON$9(obj) {
+    if (obj.toHexString) return { $oid: obj.toHexString() };
+    return { $oid: obj.toString('hex') };
+  }
+
+  function fromExtendedJSON$9(BSON, doc) {
+    return new BSON.ObjectID(doc.$oid);
+  }
+
+  var objectid = {
+    toExtendedJSON: toExtendedJSON$9,
+    fromExtendedJSON: fromExtendedJSON$9
+  };
+
+  function toExtendedJSON$10(obj) {
+    return { $regularExpression: { pattern: obj.pattern, options: obj.options } };
+  }
+
+  function fromExtendedJSON$10(BSON, doc) {
+    return new BSON.BSONRegExp(doc.$regularExpression.pattern, doc.$regularExpression.options.split('').sort().join(''));
+  }
+
+  var regexp = {
+    toExtendedJSON: toExtendedJSON$10,
+    fromExtendedJSON: fromExtendedJSON$10
+  };
+
+  function toExtendedJSON$11(obj) {
+    return { $symbol: obj.value };
+  }
+
+  function fromExtendedJSON$11(BSON, doc) {
+    return new BSON.Symbol(doc.$symbol);
+  }
+
+  var symbol = {
+    toExtendedJSON: toExtendedJSON$11,
+    fromExtendedJSON: fromExtendedJSON$11
+  };
+
+  function toExtendedJSON$12(obj) {
+    return {
+      $timestamp: {
+        t: obj.high_,
+        i: obj.low_
+      }
+    };
+  }
+
+  function fromExtendedJSON$12(BSON, doc) {
+    return new BSON.Timestamp(doc.$timestamp.i, doc.$timestamp.t);
+  }
+
+  var timestamp = {
+    toExtendedJSON: toExtendedJSON$12,
+    fromExtendedJSON: fromExtendedJSON$12
+  };
+
+  var bson$1 = {
+    Binary: binary,
+    Code: code,
+    DBRef: db_ref,
+    Decimal128: decimal128,
+    Double: double_1,
+    Int32: int_32,
+    Long: long_1,
+    MaxKey: max_key,
+    MinKey: min_key,
+    ObjectID: objectid,
+    BSONRegExp: regexp,
+    Symbol: symbol,
+    Timestamp: timestamp
+  };
+
+  var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol" ? function (obj) {
+    return typeof obj === 'undefined' ? 'undefined' : _typeof2(obj);
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj === 'undefined' ? 'undefined' : _typeof2(obj);
+  };
+
+  var BSON = bson;
+
+  var BSONTypes = ['Binary', 'Code', 'DBRef', 'Decimal128', 'Double', 'Int32', 'Long', 'MaxKey', 'MinKey', 'ObjectID', 'BSONRegExp', 'Symbol', 'Timestamp'];
+
+  setBSONModule(BSON);
+
+  // all the types where we don't need to do any special processing and can just pass the EJSON
+  //straight to type.fromExtendedJSON
+  var keysToCodecs = {
+    $oid: bson$1.ObjectID,
+    $binary: bson$1.Binary,
+    $symbol: bson$1.Symbol,
+    $numberDecimal: bson$1.Decimal128,
+    $numberLong: bson$1.Long,
+    $minKey: bson$1.MinKey,
+    $maxKey: bson$1.MaxKey,
+    $regularExpression: bson$1.BSONRegExp,
+    $timestamp: bson$1.Timestamp
+  };
+
+  function setBSONModule(module) {
+    BSONTypes.forEach(function (t) {
+      if (!module[t]) throw new Error('passed in module does not contain all BSON types required');
+    });
+    BSON = module;
+  }
+
+  function deserializeValue(self, key, value, options) {
+    if (typeof value === 'number') {
+      // if it's an integer, should interpret as smallest BSON integer
+      // that can represent it exactly. (if out of range, interpret as double.)
+      if (Math.floor(value) === value) {
+        var int32Range = value >= BSON_INT32_MIN && value <= BSON_INT32_MAX,
+            int64Range = value >= BSON_INT64_MIN && value <= BSON_INT64_MAX;
+
+        if (int32Range) return options.strict ? new BSON.Int32(value) : value;
+        if (int64Range) return options.strict ? new BSON.Long.fromNumber(value) : value;
+      }
+      // If the number is a non-integer or out of integer range, should interpret as BSON Double.
+      return new BSON.Double(value);
+    }
+
+    // from here on out we're looking for bson types, so bail if its not an object
+    if (value == null || (typeof value === 'undefined' ? 'undefined' : _typeof(value)) !== 'object') return value;
+
+    // upgrade deprecated undefined to null
+    if (value.$undefined) return null;
+
+    var keys = Object.keys(value).filter(function (k) {
+      return k.startsWith('$') && value[k] != null;
+    });
+    for (var i = 0; i < keys.length; i++) {
+      var c = keysToCodecs[keys[i]];
+      if (c) return c.fromExtendedJSON(BSON, value);
+    }
+
+    if (value.$date != null) {
+      var d = value.$date,
+          date = new Date();
+
+      if (typeof d === 'string') date.setTime(Date.parse(d));else if (d instanceof BSON.Long) date.setTime(d.toNumber());
+      return date;
+    }
+
+    if (value.$code != null) {
+      if (value.$scope) var scope = deserializeValue(self, null, value.$scope);
+      var copy = Object.assign({}, value);
+      copy.$scope = scope;
+      return bson$1.Code.fromExtendedJSON(BSON, value);
+    }
+
+    if (value.$numberDouble != null) {
+      return options.strict ? bson$1.Double.fromExtendedJSON(BSON, value) : parseFloat(value.$numberDouble);
+    }
+
+    if (value.$numberInt != null) {
+      return options.strict ? bson$1.Int32.fromExtendedJSON(BSON, value) : parseInt(value.$numberInt, 10);
+    }
+
+    if (value.$ref != null || value.$dbPointer != null) {
+      var v = value.$ref ? value : value.$dbPointer;
+
+      // we run into this in a "degenerate EJSON" case (with $id and $ref order flipped)
+      // because of the order JSON.parse goes through the document
+      if (v instanceof BSON.DBRef) return v;
+
+      var dollarKeys = Object.keys(v).filter(function (k) {
+        return k.startsWith('$');
+      }),
+          valid = true;
+      dollarKeys.forEach(function (k) {
+        if (['$ref', '$id', '$db'].indexOf(k) === -1) valid = false;
+      });
+
+      // only make DBRef if $ keys are all valid
+      if (valid) return bson$1.DBRef.fromExtendedJSON(BSON, v);
+    }
+
+    return value;
+  }
+
+  var parse = function parse(text, options) {
+    var self = this;
+    options = options || { strict: true };
+
+    return JSON.parse(text, function (key, value) {
+      return deserializeValue(self, key, value, options);
+    });
+  };
+
+  //
+  // Serializer
+  //
+
+  // MAX INT32 boundaries
+  var BSON_INT32_MAX = 0x7fffffff,
+      BSON_INT32_MIN = -0x80000000,
+      BSON_INT64_MAX = 0x7fffffffffffffff,
+      BSON_INT64_MIN = -0x8000000000000000;
+
+  var stringify = function stringify(value, reducer, indents, options) {
+    var opts = {};
+    if (options != null && (typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object') opts = options;else if (indents != null && (typeof indents === 'undefined' ? 'undefined' : _typeof(indents)) === 'object') {
+      opts = indents;
+      indents = 0;
+    } else if (reducer != null && (typeof reducer === 'undefined' ? 'undefined' : _typeof(reducer)) === 'object') {
+      opts = reducer;
+      reducer = null;
+    }
+
+    var doc = Array.isArray(value) ? serializeArray(value, opts) : serializeDocument(value, opts);
+    return JSON.stringify(doc, reducer, indents);
+  };
+
+  function serializeArray(array, options) {
+    return array.map(function (v) {
+      return serializeValue(v, options);
+    });
+  }
+
+  function getISOString(date) {
+    var isoStr = date.toISOString();
+    // we should only show milliseconds in timestamp if they're non-zero
+    return date.getUTCMilliseconds() !== 0 ? isoStr : isoStr.slice(0, -5) + 'Z';
+  }
+
+  function serializeValue(value, options) {
+    if (Array.isArray(value)) return serializeArray(value, options);
+
+    if (value === undefined) return null;
+
+    if (value instanceof Date) {
+      var dateNum = value.getTime(),
 
 
-var ExtJSON = __webpack_require__(57);
+      // is it in year range 1970-9999?
+      inRange = dateNum > -1 && dateNum < 253402318800000;
 
-module.exports = ExtJSON;
+      return options.relaxed && inRange ? { $date: getISOString(value) } : { $date: { $numberLong: value.getTime().toString() } };
+    }
+
+    if (typeof value === 'number' && !options.relaxed) {
+      // it's an integer
+      if (Math.floor(value) === value) {
+        var int32Range = value >= BSON_INT32_MIN && value <= BSON_INT32_MAX,
+            int64Range = value >= BSON_INT64_MIN && value <= BSON_INT64_MAX;
+
+        // interpret as being of the smallest BSON integer type that can represent the number exactly
+        if (int32Range) return { $numberInt: value.toString() };
+        if (int64Range) return { $numberLong: value.toString() };
+      }
+      return { $numberDouble: value.toString() };
+    }
+
+    if (value != null && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') return serializeDocument(value, options);
+    return value;
+  }
+
+  function serializeDocument(doc, options) {
+    if (doc == null || (typeof doc === 'undefined' ? 'undefined' : _typeof(doc)) !== 'object') throw new Error('not an object instance');
+
+    // the document itself is a BSON type
+    if (doc._bsontype && BSONTypes.indexOf(doc._bsontype) !== -1) {
+      // we need to separately serialize the embedded scope document
+      if (doc._bsontype === 'Code' && doc.scope) {
+        var tempScope = serializeDocument(doc.scope, options),
+            tempDoc = Object.assign({}, doc, { scope: tempScope });
+        return bson$1['Code'].toExtendedJSON(tempDoc, options);
+        // we need to separately serialize the embedded OID document
+      } else if (doc._bsontype === 'DBRef' && doc.oid) {
+        var tempId = serializeDocument(doc.oid, options),
+            _tempDoc = Object.assign({}, doc, { oid: tempId });
+        return bson$1['DBRef'].toExtendedJSON(_tempDoc, options);
+      }
+      return bson$1[doc._bsontype].toExtendedJSON(doc, options);
+    }
+
+    // the document is an object with nested BSON types
+    var _doc = {};
+    for (var name in doc) {
+      var val = doc[name];
+      if (Array.isArray(val)) {
+        _doc[name] = serializeArray(val, options);
+      } else if (val != null && val._bsontype && BSONTypes.indexOf(val._bsontype) !== -1) {
+        // we need to separately serialize the embedded scope document
+        if (val._bsontype === 'Code' && val.scope) {
+          var _tempScope = serializeDocument(val.scope, options),
+              tempVal = Object.assign({}, val, { scope: _tempScope });
+          _doc[name] = bson$1['Code'].toExtendedJSON(tempVal, options);
+          // we need to separately serialize the embedded OID document
+        } else if (val._bsontype === 'DBRef' && val.oid) {
+          var _tempId = serializeDocument(val.oid, options),
+              _tempVal = Object.assign({}, val, { oid: _tempId });
+          _doc[name] = bson$1['DBRef'].toExtendedJSON(_tempVal, options);
+        } else _doc[name] = bson$1[val._bsontype].toExtendedJSON(val, options);
+      } else if (val instanceof Date) {
+        _doc[name] = serializeValue(val, options);
+      } else if (val != null && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object') {
+        _doc[name] = serializeDocument(val, options);
+      }
+
+      _doc[name] = serializeValue(val, options);
+    }
+
+    return _doc;
+  }
+
+  var ext_json = {
+    parse: parse,
+    stringify: stringify,
+    setBSONModule: setBSONModule,
+    BSON: BSON
+  };
+
+  var mongodbExtjson = ext_json;
+
+  return mongodbExtjson;
+});
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
 /* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(Buffer) {
+
+var writeIEEE754 = __webpack_require__(1).writeIEEE754,
+    readIEEE754 = __webpack_require__(1).readIEEE754,
+    Map = __webpack_require__(23),
+    Long = __webpack_require__(3),
+    Double = __webpack_require__(9),
+    Timestamp = __webpack_require__(15),
+    ObjectID = __webpack_require__(12),
+    BSONRegExp = __webpack_require__(13),
+    _Symbol = __webpack_require__(14),
+    Int32 = __webpack_require__(19),
+    Code = __webpack_require__(6),
+    Decimal128 = __webpack_require__(8),
+    MinKey = __webpack_require__(11),
+    MaxKey = __webpack_require__(10),
+    DBRef = __webpack_require__(7),
+    Binary = __webpack_require__(5);
+
+// Parts of the parser
+var deserialize = __webpack_require__(30),
+    serializer = __webpack_require__(31),
+    calculateObjectSize = __webpack_require__(29);
+
+/**
+ * @ignore
+ * @api private
+ */
+// Max Size
+var MAXSIZE = 1024 * 1024 * 17;
+// Max Document Buffer size
+var buffer = new Buffer(MAXSIZE);
+
+var BSON = function BSON() {};
+
+/**
+ * Serialize a Javascript object.
+ *
+ * @param {Object} object the Javascript object to serialize.
+ * @param {Boolean} [options.checkKeys] the serializer will check if keys are valid.
+ * @param {Boolean} [options.serializeFunctions=false] serialize the javascript functions **(default:false)**.
+ * @param {Boolean} [options.ignoreUndefined=true] ignore undefined fields **(default:true)**.
+ * @return {Buffer} returns the Buffer object containing the serialized object.
+ * @api public
+ */
+BSON.prototype.serialize = function serialize(object, options) {
+  options = options || {};
+  // Unpack the options
+  var checkKeys = typeof options.checkKeys == 'boolean' ? options.checkKeys : false;
+  var serializeFunctions = typeof options.serializeFunctions == 'boolean' ? options.serializeFunctions : false;
+  var ignoreUndefined = typeof options.ignoreUndefined == 'boolean' ? options.ignoreUndefined : true;
+
+  // Attempt to serialize
+  var serializationIndex = serializer(buffer, object, checkKeys, 0, 0, serializeFunctions, ignoreUndefined, []);
+  // Create the final buffer
+  var finishedBuffer = new Buffer(serializationIndex);
+  // Copy into the finished buffer
+  buffer.copy(finishedBuffer, 0, 0, finishedBuffer.length);
+  // Return the buffer
+  return finishedBuffer;
+};
+
+/**
+ * Serialize a Javascript object using a predefined Buffer and index into the buffer, useful when pre-allocating the space for serialization.
+ *
+ * @param {Object} object the Javascript object to serialize.
+ * @param {Buffer} buffer the Buffer you pre-allocated to store the serialized BSON object.
+ * @param {Boolean} [options.checkKeys] the serializer will check if keys are valid.
+ * @param {Boolean} [options.serializeFunctions=false] serialize the javascript functions **(default:false)**.
+ * @param {Boolean} [options.ignoreUndefined=true] ignore undefined fields **(default:true)**.
+ * @param {Number} [options.index] the index in the buffer where we wish to start serializing into.
+ * @return {Number} returns the index pointing to the last written byte in the buffer.
+ * @api public
+ */
+BSON.prototype.serializeWithBufferAndIndex = function (object, finalBuffer, options) {
+  options = options || {};
+  // Unpack the options
+  var checkKeys = typeof options.checkKeys == 'boolean' ? options.checkKeys : false;
+  var serializeFunctions = typeof options.serializeFunctions == 'boolean' ? options.serializeFunctions : false;
+  var ignoreUndefined = typeof options.ignoreUndefined == 'boolean' ? options.ignoreUndefined : true;
+  var startIndex = typeof options.index == 'number' ? options.index : 0;
+
+  // Attempt to serialize
+  var serializationIndex = serializer(buffer, object, checkKeys, startIndex || 0, 0, serializeFunctions, ignoreUndefined);
+  buffer.copy(finalBuffer, startIndex, 0, serializationIndex);
+
+  // Return the index
+  return serializationIndex - 1;
+};
+
+/**
+ * Deserialize data as BSON.
+ *
+ * @param {Buffer} buffer the buffer containing the serialized set of BSON documents.
+ * @param {Object} [options.evalFunctions=false] evaluate functions in the BSON document scoped to the object deserialized.
+ * @param {Object} [options.cacheFunctions=false] cache evaluated functions for reuse.
+ * @param {Object} [options.cacheFunctionsCrc32=false] use a crc32 code for caching, otherwise use the string of the function.
+ * @param {Object} [options.promoteLongs=true] when deserializing a Long will fit it into a Number if it's smaller than 53 bits
+ * @param {Object} [options.promoteBuffers=false] when deserializing a Binary will return it as a node.js Buffer instance.
+ * @param {Object} [options.promoteValues=false] when deserializing will promote BSON values to their Node.js closest equivalent types.
+ * @param {Object} [options.fieldsAsRaw=null] allow to specify if there what fields we wish to return as unserialized raw buffer.
+ * @param {Object} [options.bsonRegExp=false] return BSON regular expressions as BSONRegExp instances.
+ * @return {Object} returns the deserialized Javascript Object.
+ * @api public
+ */
+BSON.prototype.deserialize = function (buffer, options) {
+  return deserialize(buffer, options);
+};
+
+/**
+ * Calculate the bson size for a passed in Javascript object.
+ *
+ * @param {Object} object the Javascript object to calculate the BSON byte size for.
+ * @param {Boolean} [options.serializeFunctions=false] serialize the javascript functions **(default:false)**.
+ * @param {Boolean} [options.ignoreUndefined=true] ignore undefined fields **(default:true)**.
+ * @return {Number} returns the number of bytes the BSON object will take up.
+ * @api public
+ */
+BSON.prototype.calculateObjectSize = function (object, options) {
+  options = options || {};
+
+  var serializeFunctions = typeof options.serializeFunctions == 'boolean' ? options.serializeFunctions : false;
+  var ignoreUndefined = typeof options.ignoreUndefined == 'boolean' ? options.ignoreUndefined : true;
+
+  return calculateObjectSize(object, serializeFunctions, ignoreUndefined);
+};
+
+/**
+ * Deserialize stream data as BSON documents.
+ *
+ * @param {Buffer} data the buffer containing the serialized set of BSON documents.
+ * @param {Number} startIndex the start index in the data Buffer where the deserialization is to start.
+ * @param {Number} numberOfDocuments number of documents to deserialize.
+ * @param {Array} documents an array where to store the deserialized documents.
+ * @param {Number} docStartIndex the index in the documents array from where to start inserting documents.
+ * @param {Object} [options] additional options used for the deserialization.
+ * @param {Object} [options.evalFunctions=false] evaluate functions in the BSON document scoped to the object deserialized.
+ * @param {Object} [options.cacheFunctions=false] cache evaluated functions for reuse.
+ * @param {Object} [options.cacheFunctionsCrc32=false] use a crc32 code for caching, otherwise use the string of the function.
+ * @param {Object} [options.promoteLongs=true] when deserializing a Long will fit it into a Number if it's smaller than 53 bits
+ * @param {Object} [options.promoteBuffers=false] when deserializing a Binary will return it as a node.js Buffer instance.
+ * @param {Object} [options.promoteValues=false] when deserializing will promote BSON values to their Node.js closest equivalent types.
+ * @param {Object} [options.fieldsAsRaw=null] allow to specify if there what fields we wish to return as unserialized raw buffer.
+ * @param {Object} [options.bsonRegExp=false] return BSON regular expressions as BSONRegExp instances.
+ * @return {Number} returns the next index in the buffer after deserialization **x** numbers of documents.
+ * @api public
+ */
+BSON.prototype.deserializeStream = function (data, startIndex, numberOfDocuments, documents, docStartIndex, options) {
+  options = options != null ? options : {};
+  var index = startIndex;
+  // Loop over all documents
+  for (var i = 0; i < numberOfDocuments; i++) {
+    // Find size of the document
+    var size = data[index] | data[index + 1] << 8 | data[index + 2] << 16 | data[index + 3] << 24;
+    // Update options with index
+    options['index'] = index;
+    // Parse the document at this point
+    documents[docStartIndex + i] = this.deserialize(data, options);
+    // Adjust index by the document size
+    index = index + size;
+  }
+
+  // Return object containing end index of parsing and list of documents
+  return index;
+};
+
+/**
+ * @ignore
+ * @api private
+ */
+// BSON MAX VALUES
+BSON.BSON_INT32_MAX = 0x7FFFFFFF;
+BSON.BSON_INT32_MIN = -0x80000000;
+
+BSON.BSON_INT64_MAX = Math.pow(2, 63) - 1;
+BSON.BSON_INT64_MIN = -Math.pow(2, 63);
+
+// JS MAX PRECISE VALUES
+BSON.JS_INT_MAX = 0x20000000000000; // Any integer up to 2^53 can be precisely represented by a double.
+BSON.JS_INT_MIN = -0x20000000000000; // Any integer down to -2^53 can be precisely represented by a double.
+
+// Internal long versions
+var JS_INT_MAX_LONG = Long.fromNumber(0x20000000000000); // Any integer up to 2^53 can be precisely represented by a double.
+var JS_INT_MIN_LONG = Long.fromNumber(-0x20000000000000); // Any integer down to -2^53 can be precisely represented by a double.
+
+/**
+ * Number BSON Type
+ *
+ * @classconstant BSON_DATA_NUMBER
+ **/
+BSON.BSON_DATA_NUMBER = 1;
+/**
+ * String BSON Type
+ *
+ * @classconstant BSON_DATA_STRING
+ **/
+BSON.BSON_DATA_STRING = 2;
+/**
+ * Object BSON Type
+ *
+ * @classconstant BSON_DATA_OBJECT
+ **/
+BSON.BSON_DATA_OBJECT = 3;
+/**
+ * Array BSON Type
+ *
+ * @classconstant BSON_DATA_ARRAY
+ **/
+BSON.BSON_DATA_ARRAY = 4;
+/**
+ * Binary BSON Type
+ *
+ * @classconstant BSON_DATA_BINARY
+ **/
+BSON.BSON_DATA_BINARY = 5;
+/**
+ * ObjectID BSON Type
+ *
+ * @classconstant BSON_DATA_OID
+ **/
+BSON.BSON_DATA_OID = 7;
+/**
+ * Boolean BSON Type
+ *
+ * @classconstant BSON_DATA_BOOLEAN
+ **/
+BSON.BSON_DATA_BOOLEAN = 8;
+/**
+ * Date BSON Type
+ *
+ * @classconstant BSON_DATA_DATE
+ **/
+BSON.BSON_DATA_DATE = 9;
+/**
+ * null BSON Type
+ *
+ * @classconstant BSON_DATA_NULL
+ **/
+BSON.BSON_DATA_NULL = 10;
+/**
+ * RegExp BSON Type
+ *
+ * @classconstant BSON_DATA_REGEXP
+ **/
+BSON.BSON_DATA_REGEXP = 11;
+/**
+ * Code BSON Type
+ *
+ * @classconstant BSON_DATA_CODE
+ **/
+BSON.BSON_DATA_CODE = 13;
+/**
+ * Symbol BSON Type
+ *
+ * @classconstant BSON_DATA_SYMBOL
+ **/
+BSON.BSON_DATA_SYMBOL = 14;
+/**
+ * Code with Scope BSON Type
+ *
+ * @classconstant BSON_DATA_CODE_W_SCOPE
+ **/
+BSON.BSON_DATA_CODE_W_SCOPE = 15;
+/**
+ * 32 bit Integer BSON Type
+ *
+ * @classconstant BSON_DATA_INT
+ **/
+BSON.BSON_DATA_INT = 16;
+/**
+ * Timestamp BSON Type
+ *
+ * @classconstant BSON_DATA_TIMESTAMP
+ **/
+BSON.BSON_DATA_TIMESTAMP = 17;
+/**
+ * Long BSON Type
+ *
+ * @classconstant BSON_DATA_LONG
+ **/
+BSON.BSON_DATA_LONG = 18;
+/**
+ * MinKey BSON Type
+ *
+ * @classconstant BSON_DATA_MIN_KEY
+ **/
+BSON.BSON_DATA_MIN_KEY = 0xff;
+/**
+ * MaxKey BSON Type
+ *
+ * @classconstant BSON_DATA_MAX_KEY
+ **/
+BSON.BSON_DATA_MAX_KEY = 0x7f;
+
+/**
+ * Binary Default Type
+ *
+ * @classconstant BSON_BINARY_SUBTYPE_DEFAULT
+ **/
+BSON.BSON_BINARY_SUBTYPE_DEFAULT = 0;
+/**
+ * Binary Function Type
+ *
+ * @classconstant BSON_BINARY_SUBTYPE_FUNCTION
+ **/
+BSON.BSON_BINARY_SUBTYPE_FUNCTION = 1;
+/**
+ * Binary Byte Array Type
+ *
+ * @classconstant BSON_BINARY_SUBTYPE_BYTE_ARRAY
+ **/
+BSON.BSON_BINARY_SUBTYPE_BYTE_ARRAY = 2;
+/**
+ * Binary UUID Type
+ *
+ * @classconstant BSON_BINARY_SUBTYPE_UUID
+ **/
+BSON.BSON_BINARY_SUBTYPE_UUID = 3;
+/**
+ * Binary MD5 Type
+ *
+ * @classconstant BSON_BINARY_SUBTYPE_MD5
+ **/
+BSON.BSON_BINARY_SUBTYPE_MD5 = 4;
+/**
+ * Binary User Defined Type
+ *
+ * @classconstant BSON_BINARY_SUBTYPE_USER_DEFINED
+ **/
+BSON.BSON_BINARY_SUBTYPE_USER_DEFINED = 128;
+
+// Return BSON
+module.exports = BSON;
+module.exports.Code = Code;
+module.exports.Map = Map;
+module.exports.Symbol = _Symbol;
+module.exports.BSON = BSON;
+module.exports.DBRef = DBRef;
+module.exports.Binary = Binary;
+module.exports.ObjectID = ObjectID;
+module.exports.Long = Long;
+module.exports.Timestamp = Timestamp;
+module.exports.Double = Double;
+module.exports.Int32 = Int32;
+module.exports.MinKey = MinKey;
+module.exports.MaxKey = MaxKey;
+module.exports.BSONRegExp = BSONRegExp;
+module.exports.Decimal128 = Decimal128;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
+
+/***/ }),
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6507,7 +7345,7 @@ if (typeof global.Map !== 'undefined') {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)))
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6958,20 +7796,20 @@ function createProviders(auth) {
 exports.createProviders = createProviders;
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // the whatwg-fetch polyfill installs the fetch() function
 // on the global object (window or self)
 //
 // Return that as the export for use in Webpack, Browserify etc.
-__webpack_require__(73);
+__webpack_require__(58);
 var globalObj = typeof self !== 'undefined' && self || this;
 module.exports = globalObj.fetch.bind(globalObj);
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -7161,7 +7999,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7178,7 +8016,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 
 
-__webpack_require__(24);
+__webpack_require__(25);
 
 var _client = __webpack_require__(20);
 
@@ -8020,7 +8858,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
 }(_client.StitchClient);
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ;(function () {
@@ -8089,361 +8927,6 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
 
 }());
 
-
-/***/ }),
-/* 28 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(Buffer) {
-
-var writeIEEE754 = __webpack_require__(1).writeIEEE754,
-    readIEEE754 = __webpack_require__(1).readIEEE754,
-    Map = __webpack_require__(22),
-    Long = __webpack_require__(3),
-    Double = __webpack_require__(9),
-    Timestamp = __webpack_require__(15),
-    ObjectID = __webpack_require__(12),
-    BSONRegExp = __webpack_require__(13),
-    _Symbol = __webpack_require__(14),
-    Int32 = __webpack_require__(19),
-    Code = __webpack_require__(6),
-    Decimal128 = __webpack_require__(8),
-    MinKey = __webpack_require__(11),
-    MaxKey = __webpack_require__(10),
-    DBRef = __webpack_require__(7),
-    Binary = __webpack_require__(5);
-
-// Parts of the parser
-var deserialize = __webpack_require__(30),
-    serializer = __webpack_require__(31),
-    calculateObjectSize = __webpack_require__(29);
-
-/**
- * @ignore
- * @api private
- */
-// Max Size
-var MAXSIZE = 1024 * 1024 * 17;
-// Max Document Buffer size
-var buffer = new Buffer(MAXSIZE);
-
-var BSON = function BSON() {};
-
-/**
- * Serialize a Javascript object.
- *
- * @param {Object} object the Javascript object to serialize.
- * @param {Boolean} [options.checkKeys] the serializer will check if keys are valid.
- * @param {Boolean} [options.serializeFunctions=false] serialize the javascript functions **(default:false)**.
- * @param {Boolean} [options.ignoreUndefined=true] ignore undefined fields **(default:true)**.
- * @return {Buffer} returns the Buffer object containing the serialized object.
- * @api public
- */
-BSON.prototype.serialize = function serialize(object, options) {
-  options = options || {};
-  // Unpack the options
-  var checkKeys = typeof options.checkKeys == 'boolean' ? options.checkKeys : false;
-  var serializeFunctions = typeof options.serializeFunctions == 'boolean' ? options.serializeFunctions : false;
-  var ignoreUndefined = typeof options.ignoreUndefined == 'boolean' ? options.ignoreUndefined : true;
-
-  // Attempt to serialize
-  var serializationIndex = serializer(buffer, object, checkKeys, 0, 0, serializeFunctions, ignoreUndefined, []);
-  // Create the final buffer
-  var finishedBuffer = new Buffer(serializationIndex);
-  // Copy into the finished buffer
-  buffer.copy(finishedBuffer, 0, 0, finishedBuffer.length);
-  // Return the buffer
-  return finishedBuffer;
-};
-
-/**
- * Serialize a Javascript object using a predefined Buffer and index into the buffer, useful when pre-allocating the space for serialization.
- *
- * @param {Object} object the Javascript object to serialize.
- * @param {Buffer} buffer the Buffer you pre-allocated to store the serialized BSON object.
- * @param {Boolean} [options.checkKeys] the serializer will check if keys are valid.
- * @param {Boolean} [options.serializeFunctions=false] serialize the javascript functions **(default:false)**.
- * @param {Boolean} [options.ignoreUndefined=true] ignore undefined fields **(default:true)**.
- * @param {Number} [options.index] the index in the buffer where we wish to start serializing into.
- * @return {Number} returns the index pointing to the last written byte in the buffer.
- * @api public
- */
-BSON.prototype.serializeWithBufferAndIndex = function (object, finalBuffer, options) {
-  options = options || {};
-  // Unpack the options
-  var checkKeys = typeof options.checkKeys == 'boolean' ? options.checkKeys : false;
-  var serializeFunctions = typeof options.serializeFunctions == 'boolean' ? options.serializeFunctions : false;
-  var ignoreUndefined = typeof options.ignoreUndefined == 'boolean' ? options.ignoreUndefined : true;
-  var startIndex = typeof options.index == 'number' ? options.index : 0;
-
-  // Attempt to serialize
-  var serializationIndex = serializer(buffer, object, checkKeys, startIndex || 0, 0, serializeFunctions, ignoreUndefined);
-  buffer.copy(finalBuffer, startIndex, 0, serializationIndex);
-
-  // Return the index
-  return serializationIndex - 1;
-};
-
-/**
- * Deserialize data as BSON.
- *
- * @param {Buffer} buffer the buffer containing the serialized set of BSON documents.
- * @param {Object} [options.evalFunctions=false] evaluate functions in the BSON document scoped to the object deserialized.
- * @param {Object} [options.cacheFunctions=false] cache evaluated functions for reuse.
- * @param {Object} [options.cacheFunctionsCrc32=false] use a crc32 code for caching, otherwise use the string of the function.
- * @param {Object} [options.promoteLongs=true] when deserializing a Long will fit it into a Number if it's smaller than 53 bits
- * @param {Object} [options.promoteBuffers=false] when deserializing a Binary will return it as a node.js Buffer instance.
- * @param {Object} [options.promoteValues=false] when deserializing will promote BSON values to their Node.js closest equivalent types.
- * @param {Object} [options.fieldsAsRaw=null] allow to specify if there what fields we wish to return as unserialized raw buffer.
- * @param {Object} [options.bsonRegExp=false] return BSON regular expressions as BSONRegExp instances.
- * @return {Object} returns the deserialized Javascript Object.
- * @api public
- */
-BSON.prototype.deserialize = function (buffer, options) {
-  return deserialize(buffer, options);
-};
-
-/**
- * Calculate the bson size for a passed in Javascript object.
- *
- * @param {Object} object the Javascript object to calculate the BSON byte size for.
- * @param {Boolean} [options.serializeFunctions=false] serialize the javascript functions **(default:false)**.
- * @param {Boolean} [options.ignoreUndefined=true] ignore undefined fields **(default:true)**.
- * @return {Number} returns the number of bytes the BSON object will take up.
- * @api public
- */
-BSON.prototype.calculateObjectSize = function (object, options) {
-  options = options || {};
-
-  var serializeFunctions = typeof options.serializeFunctions == 'boolean' ? options.serializeFunctions : false;
-  var ignoreUndefined = typeof options.ignoreUndefined == 'boolean' ? options.ignoreUndefined : true;
-
-  return calculateObjectSize(object, serializeFunctions, ignoreUndefined);
-};
-
-/**
- * Deserialize stream data as BSON documents.
- *
- * @param {Buffer} data the buffer containing the serialized set of BSON documents.
- * @param {Number} startIndex the start index in the data Buffer where the deserialization is to start.
- * @param {Number} numberOfDocuments number of documents to deserialize.
- * @param {Array} documents an array where to store the deserialized documents.
- * @param {Number} docStartIndex the index in the documents array from where to start inserting documents.
- * @param {Object} [options] additional options used for the deserialization.
- * @param {Object} [options.evalFunctions=false] evaluate functions in the BSON document scoped to the object deserialized.
- * @param {Object} [options.cacheFunctions=false] cache evaluated functions for reuse.
- * @param {Object} [options.cacheFunctionsCrc32=false] use a crc32 code for caching, otherwise use the string of the function.
- * @param {Object} [options.promoteLongs=true] when deserializing a Long will fit it into a Number if it's smaller than 53 bits
- * @param {Object} [options.promoteBuffers=false] when deserializing a Binary will return it as a node.js Buffer instance.
- * @param {Object} [options.promoteValues=false] when deserializing will promote BSON values to their Node.js closest equivalent types.
- * @param {Object} [options.fieldsAsRaw=null] allow to specify if there what fields we wish to return as unserialized raw buffer.
- * @param {Object} [options.bsonRegExp=false] return BSON regular expressions as BSONRegExp instances.
- * @return {Number} returns the next index in the buffer after deserialization **x** numbers of documents.
- * @api public
- */
-BSON.prototype.deserializeStream = function (data, startIndex, numberOfDocuments, documents, docStartIndex, options) {
-  options = options != null ? options : {};
-  var index = startIndex;
-  // Loop over all documents
-  for (var i = 0; i < numberOfDocuments; i++) {
-    // Find size of the document
-    var size = data[index] | data[index + 1] << 8 | data[index + 2] << 16 | data[index + 3] << 24;
-    // Update options with index
-    options['index'] = index;
-    // Parse the document at this point
-    documents[docStartIndex + i] = this.deserialize(data, options);
-    // Adjust index by the document size
-    index = index + size;
-  }
-
-  // Return object containing end index of parsing and list of documents
-  return index;
-};
-
-/**
- * @ignore
- * @api private
- */
-// BSON MAX VALUES
-BSON.BSON_INT32_MAX = 0x7FFFFFFF;
-BSON.BSON_INT32_MIN = -0x80000000;
-
-BSON.BSON_INT64_MAX = Math.pow(2, 63) - 1;
-BSON.BSON_INT64_MIN = -Math.pow(2, 63);
-
-// JS MAX PRECISE VALUES
-BSON.JS_INT_MAX = 0x20000000000000; // Any integer up to 2^53 can be precisely represented by a double.
-BSON.JS_INT_MIN = -0x20000000000000; // Any integer down to -2^53 can be precisely represented by a double.
-
-// Internal long versions
-var JS_INT_MAX_LONG = Long.fromNumber(0x20000000000000); // Any integer up to 2^53 can be precisely represented by a double.
-var JS_INT_MIN_LONG = Long.fromNumber(-0x20000000000000); // Any integer down to -2^53 can be precisely represented by a double.
-
-/**
- * Number BSON Type
- *
- * @classconstant BSON_DATA_NUMBER
- **/
-BSON.BSON_DATA_NUMBER = 1;
-/**
- * String BSON Type
- *
- * @classconstant BSON_DATA_STRING
- **/
-BSON.BSON_DATA_STRING = 2;
-/**
- * Object BSON Type
- *
- * @classconstant BSON_DATA_OBJECT
- **/
-BSON.BSON_DATA_OBJECT = 3;
-/**
- * Array BSON Type
- *
- * @classconstant BSON_DATA_ARRAY
- **/
-BSON.BSON_DATA_ARRAY = 4;
-/**
- * Binary BSON Type
- *
- * @classconstant BSON_DATA_BINARY
- **/
-BSON.BSON_DATA_BINARY = 5;
-/**
- * ObjectID BSON Type
- *
- * @classconstant BSON_DATA_OID
- **/
-BSON.BSON_DATA_OID = 7;
-/**
- * Boolean BSON Type
- *
- * @classconstant BSON_DATA_BOOLEAN
- **/
-BSON.BSON_DATA_BOOLEAN = 8;
-/**
- * Date BSON Type
- *
- * @classconstant BSON_DATA_DATE
- **/
-BSON.BSON_DATA_DATE = 9;
-/**
- * null BSON Type
- *
- * @classconstant BSON_DATA_NULL
- **/
-BSON.BSON_DATA_NULL = 10;
-/**
- * RegExp BSON Type
- *
- * @classconstant BSON_DATA_REGEXP
- **/
-BSON.BSON_DATA_REGEXP = 11;
-/**
- * Code BSON Type
- *
- * @classconstant BSON_DATA_CODE
- **/
-BSON.BSON_DATA_CODE = 13;
-/**
- * Symbol BSON Type
- *
- * @classconstant BSON_DATA_SYMBOL
- **/
-BSON.BSON_DATA_SYMBOL = 14;
-/**
- * Code with Scope BSON Type
- *
- * @classconstant BSON_DATA_CODE_W_SCOPE
- **/
-BSON.BSON_DATA_CODE_W_SCOPE = 15;
-/**
- * 32 bit Integer BSON Type
- *
- * @classconstant BSON_DATA_INT
- **/
-BSON.BSON_DATA_INT = 16;
-/**
- * Timestamp BSON Type
- *
- * @classconstant BSON_DATA_TIMESTAMP
- **/
-BSON.BSON_DATA_TIMESTAMP = 17;
-/**
- * Long BSON Type
- *
- * @classconstant BSON_DATA_LONG
- **/
-BSON.BSON_DATA_LONG = 18;
-/**
- * MinKey BSON Type
- *
- * @classconstant BSON_DATA_MIN_KEY
- **/
-BSON.BSON_DATA_MIN_KEY = 0xff;
-/**
- * MaxKey BSON Type
- *
- * @classconstant BSON_DATA_MAX_KEY
- **/
-BSON.BSON_DATA_MAX_KEY = 0x7f;
-
-/**
- * Binary Default Type
- *
- * @classconstant BSON_BINARY_SUBTYPE_DEFAULT
- **/
-BSON.BSON_BINARY_SUBTYPE_DEFAULT = 0;
-/**
- * Binary Function Type
- *
- * @classconstant BSON_BINARY_SUBTYPE_FUNCTION
- **/
-BSON.BSON_BINARY_SUBTYPE_FUNCTION = 1;
-/**
- * Binary Byte Array Type
- *
- * @classconstant BSON_BINARY_SUBTYPE_BYTE_ARRAY
- **/
-BSON.BSON_BINARY_SUBTYPE_BYTE_ARRAY = 2;
-/**
- * Binary UUID Type
- *
- * @classconstant BSON_BINARY_SUBTYPE_UUID
- **/
-BSON.BSON_BINARY_SUBTYPE_UUID = 3;
-/**
- * Binary MD5 Type
- *
- * @classconstant BSON_BINARY_SUBTYPE_MD5
- **/
-BSON.BSON_BINARY_SUBTYPE_MD5 = 4;
-/**
- * Binary User Defined Type
- *
- * @classconstant BSON_BINARY_SUBTYPE_USER_DEFINED
- **/
-BSON.BSON_BINARY_SUBTYPE_USER_DEFINED = 128;
-
-// Return BSON
-module.exports = BSON;
-module.exports.Code = Code;
-module.exports.Map = Map;
-module.exports.Symbol = _Symbol;
-module.exports.BSON = BSON;
-module.exports.DBRef = DBRef;
-module.exports.Binary = Binary;
-module.exports.ObjectID = ObjectID;
-module.exports.Long = Long;
-module.exports.Timestamp = Timestamp;
-module.exports.Double = Double;
-module.exports.Int32 = Int32;
-module.exports.MinKey = MinKey;
-module.exports.MaxKey = MaxKey;
-module.exports.BSONRegExp = BSONRegExp;
-module.exports.Decimal128 = Decimal128;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
 /* 29 */
@@ -8612,7 +9095,7 @@ module.exports = calculateObjectSize;
 /* WEBPACK VAR INJECTION */(function(Buffer) {
 
 var readIEEE754 = __webpack_require__(1).readIEEE754,
-    f = __webpack_require__(72).format,
+    f = __webpack_require__(57).format,
     Long = __webpack_require__(3).Long,
     Double = __webpack_require__(9).Double,
     Timestamp = __webpack_require__(15).Timestamp,
@@ -9277,7 +9760,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 var writeIEEE754 = __webpack_require__(1).writeIEEE754,
     readIEEE754 = __webpack_require__(1).readIEEE754,
     Long = __webpack_require__(3).Long,
-    Map = __webpack_require__(22),
+    Map = __webpack_require__(23),
     Double = __webpack_require__(9).Double,
     Timestamp = __webpack_require__(15).Timestamp,
     ObjectID = __webpack_require__(12).ObjectID,
@@ -10293,7 +10776,7 @@ exports.newAuth = newAuth;
 
 var _storage = __webpack_require__(33);
 
-var _providers = __webpack_require__(23);
+var _providers = __webpack_require__(24);
 
 var _errors = __webpack_require__(17);
 
@@ -10305,7 +10788,7 @@ var _common2 = __webpack_require__(16);
 
 var common = _interopRequireWildcard(_common2);
 
-var _detectBrowser = __webpack_require__(59);
+var _detectBrowser = __webpack_require__(44);
 
 var _platform = _interopRequireWildcard(_detectBrowser);
 
@@ -10315,7 +10798,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var jwtDecode = __webpack_require__(67);
+var jwtDecode = __webpack_require__(52);
 
 var EMBEDDED_USER_AUTH_DATA_PARTS = 4;
 
@@ -10953,7 +11436,7 @@ exports.BSON = exports.StitchAdminClientFactory = exports.StitchClientFactory = 
 
 var _client = __webpack_require__(20);
 
-var _admin = __webpack_require__(26);
+var _admin = __webpack_require__(27);
 
 var _mongodbExtjson = __webpack_require__(21);
 
@@ -11772,591 +12255,6 @@ module.exports = exports['default'];
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(Buffer) {
-
-/**
- * Module dependencies.
- * @ignore
- */
-
-function convert(integer) {
-  var str = Number(integer).toString(16);
-  return str.length === 1 ? '0' + str : str;
-}
-
-function toExtendedJSON(obj) {
-  var base64String = obj.buffer.toString('base64');
-
-  return {
-    $binary: {
-      base64: base64String,
-      subType: convert(obj.sub_type)
-    }
-  };
-}
-
-function fromExtendedJSON(BSON, doc) {
-  var type = doc.$binary.subType ? parseInt(doc.$binary.subType, 16) : 0;
-
-  var data = new Buffer(doc.$binary.base64, 'base64');
-
-  return new BSON.Binary(data, type);
-}
-
-module.exports = {
-  toExtendedJSON: toExtendedJSON,
-  fromExtendedJSON: fromExtendedJSON
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
-
-/***/ }),
-/* 44 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function toExtendedJSON(obj) {
-  if (obj.scope) {
-    return { $code: obj.code, $scope: obj.scope };
-  }
-
-  return { $code: obj.code };
-}
-
-function fromExtendedJSON(BSON, doc) {
-  return new BSON.Code(doc.$code, doc.$scope);
-}
-
-module.exports = {
-  toExtendedJSON: toExtendedJSON,
-  fromExtendedJSON: fromExtendedJSON
-};
-
-/***/ }),
-/* 45 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function toExtendedJSON(obj) {
-  var o = {
-    $ref: obj.collection,
-    $id: obj.oid
-  };
-  if (obj.db) o.$db = obj.db;
-  o = Object.assign(o, obj.fields);
-  return o;
-}
-
-function fromExtendedJSON(BSON, doc) {
-  var copy = Object.assign({}, doc);
-  ['$ref', '$id', '$db'].forEach(function (k) {
-    return delete copy[k];
-  });
-  return new BSON.DBRef(doc.$ref, doc.$id, doc.$db, copy);
-}
-
-module.exports = {
-  toExtendedJSON: toExtendedJSON,
-  fromExtendedJSON: fromExtendedJSON
-};
-
-/***/ }),
-/* 46 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function toExtendedJSON(obj) {
-  return { $numberDecimal: obj.toString() };
-}
-
-function fromExtendedJSON(BSON, doc) {
-  return new BSON.Decimal128.fromString(doc.$numberDecimal);
-}
-
-module.exports = {
-  toExtendedJSON: toExtendedJSON,
-  fromExtendedJSON: fromExtendedJSON
-};
-
-/***/ }),
-/* 47 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function toExtendedJSON(obj, options) {
-  if (options.relaxed && isFinite(obj.value)) return obj.value;
-  return { $numberDouble: obj.value.toString() };
-}
-
-function fromExtendedJSON(BSON, doc) {
-  return new BSON.Double(parseFloat(doc.$numberDouble));
-}
-
-module.exports = {
-  toExtendedJSON: toExtendedJSON,
-  fromExtendedJSON: fromExtendedJSON
-};
-
-/***/ }),
-/* 48 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Binary = __webpack_require__(43);
-var Code = __webpack_require__(44);
-var DBRef = __webpack_require__(45);
-var Decimal128 = __webpack_require__(46);
-var Double = __webpack_require__(47);
-var Int32 = __webpack_require__(49);
-var Long = __webpack_require__(50);
-var MaxKey = __webpack_require__(51);
-var MinKey = __webpack_require__(52);
-var ObjectID = __webpack_require__(53);
-var BSONRegExp = __webpack_require__(54);
-var _Symbol = __webpack_require__(55);
-var Timestamp = __webpack_require__(56);
-
-module.exports = {
-  Binary: Binary,
-  Code: Code,
-  DBRef: DBRef,
-  Decimal128: Decimal128,
-  Double: Double,
-  Int32: Int32,
-  Long: Long,
-  MaxKey: MaxKey,
-  MinKey: MinKey,
-  ObjectID: ObjectID,
-  BSONRegExp: BSONRegExp,
-  Symbol: _Symbol,
-  Timestamp: Timestamp
-};
-
-/***/ }),
-/* 49 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function toExtendedJSON(obj, options) {
-  if (options && options.relaxed) return obj.value;
-  return { $numberInt: obj.value.toString() };
-}
-
-function fromExtendedJSON(BSON, doc) {
-  return new BSON.Int32(doc.$numberInt);
-}
-
-module.exports = {
-  toExtendedJSON: toExtendedJSON,
-  fromExtendedJSON: fromExtendedJSON
-};
-
-/***/ }),
-/* 50 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function toExtendedJSON(obj, options) {
-  if (options && options.relaxed) return obj.toNumber();
-  return { $numberLong: obj.toString() };
-}
-
-function fromExtendedJSON(BSON, doc) {
-  return BSON.Long.fromString(doc.$numberLong);
-}
-
-module.exports = {
-  toExtendedJSON: toExtendedJSON,
-  fromExtendedJSON: fromExtendedJSON
-};
-
-/***/ }),
-/* 51 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function toExtendedJSON() {
-  return { $maxKey: 1 };
-}
-
-function fromExtendedJSON(BSON) {
-  return new BSON.MaxKey();
-}
-
-module.exports = {
-  toExtendedJSON: toExtendedJSON,
-  fromExtendedJSON: fromExtendedJSON
-};
-
-/***/ }),
-/* 52 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function toExtendedJSON() {
-  return { $minKey: 1 };
-}
-
-function fromExtendedJSON(BSON) {
-  return new BSON.MinKey();
-}
-
-module.exports = {
-  toExtendedJSON: toExtendedJSON,
-  fromExtendedJSON: fromExtendedJSON
-};
-
-/***/ }),
-/* 53 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function toExtendedJSON(obj) {
-  if (obj.toHexString) return { $oid: obj.toHexString() };
-  return { $oid: obj.toString('hex') };
-}
-
-function fromExtendedJSON(BSON, doc) {
-  return new BSON.ObjectID(doc.$oid);
-}
-
-module.exports = {
-  toExtendedJSON: toExtendedJSON,
-  fromExtendedJSON: fromExtendedJSON
-};
-
-/***/ }),
-/* 54 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function toExtendedJSON(obj) {
-  return { $regularExpression: { pattern: obj.pattern, options: obj.options } };
-}
-
-function fromExtendedJSON(BSON, doc) {
-  return new BSON.BSONRegExp(doc.$regularExpression.pattern, doc.$regularExpression.options.split('').sort().join(''));
-}
-
-module.exports = {
-  toExtendedJSON: toExtendedJSON,
-  fromExtendedJSON: fromExtendedJSON
-};
-
-/***/ }),
-/* 55 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function toExtendedJSON(obj) {
-  return { $symbol: obj.value };
-}
-
-function fromExtendedJSON(BSON, doc) {
-  return new BSON.Symbol(doc.$symbol);
-}
-
-module.exports = {
-  toExtendedJSON: toExtendedJSON,
-  fromExtendedJSON: fromExtendedJSON
-};
-
-/***/ }),
-/* 56 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function toExtendedJSON(obj) {
-  return {
-    $timestamp: {
-      t: obj.high_,
-      i: obj.low_
-    }
-  };
-}
-
-function fromExtendedJSON(BSON, doc) {
-  return new BSON.Timestamp(doc.$timestamp.i, doc.$timestamp.t);
-}
-
-module.exports = {
-  toExtendedJSON: toExtendedJSON,
-  fromExtendedJSON: fromExtendedJSON
-};
-
-/***/ }),
-/* 57 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var codecs = __webpack_require__(48),
-    BSON = __webpack_require__(28);
-
-var BSONTypes = ['Binary', 'Code', 'DBRef', 'Decimal128', 'Double', 'Int32', 'Long', 'MaxKey', 'MinKey', 'ObjectID', 'BSONRegExp', 'Symbol', 'Timestamp'];
-
-setBSONModule(BSON);
-
-// all the types where we don't need to do any special processing and can just pass the EJSON
-//straight to type.fromExtendedJSON
-var keysToCodecs = {
-  $oid: codecs.ObjectID,
-  $binary: codecs.Binary,
-  $symbol: codecs.Symbol,
-  $numberDecimal: codecs.Decimal128,
-  $numberLong: codecs.Long,
-  $minKey: codecs.MinKey,
-  $maxKey: codecs.MaxKey,
-  $regularExpression: codecs.BSONRegExp,
-  $timestamp: codecs.Timestamp
-};
-
-function setBSONModule(module) {
-  BSONTypes.forEach(function (t) {
-    if (!module[t]) throw new Error('passed in module does not contain all BSON types required');
-  });
-  BSON = module;
-}
-
-function deserializeValue(self, key, value, options) {
-  if (typeof value === 'number') {
-    // if it's an integer, should interpret as smallest BSON integer
-    // that can represent it exactly. (if out of range, interpret as double.)
-    if (Math.floor(value) === value) {
-      var int32Range = value >= BSON_INT32_MIN && value <= BSON_INT32_MAX,
-          int64Range = value >= BSON_INT64_MIN && value <= BSON_INT64_MAX;
-
-      if (int32Range) return options.strict ? new BSON.Int32(value) : value;
-      if (int64Range) return options.strict ? new BSON.Long.fromNumber(value) : value;
-    }
-    // If the number is a non-integer or out of integer range, should interpret as BSON Double.
-    return new BSON.Double(value);
-  }
-
-  // from here on out we're looking for bson types, so bail if its not an object
-  if (value == null || (typeof value === 'undefined' ? 'undefined' : _typeof(value)) !== 'object') return value;
-
-  // upgrade deprecated undefined to null
-  if (value.$undefined) return null;
-
-  var keys = Object.keys(value).filter(function (k) {
-    return k.startsWith('$') && value[k] != null;
-  });
-  for (var i = 0; i < keys.length; i++) {
-    var c = keysToCodecs[keys[i]];
-    if (c) return c.fromExtendedJSON(BSON, value);
-  }
-
-  if (value.$date != null) {
-    var d = value.$date,
-        date = new Date();
-
-    if (typeof d === 'string') date.setTime(Date.parse(d));else if (d instanceof BSON.Long) date.setTime(d.toNumber());
-    return date;
-  }
-
-  if (value.$code != null) {
-    if (value.$scope) var scope = deserializeValue(self, null, value.$scope);
-    var copy = Object.assign({}, value);
-    copy.$scope = scope;
-    return codecs.Code.fromExtendedJSON(BSON, value);
-  }
-
-  if (value.$numberDouble != null) {
-    return options.strict ? codecs.Double.fromExtendedJSON(BSON, value) : parseFloat(value.$numberDouble);
-  }
-
-  if (value.$numberInt != null) {
-    return options.strict ? codecs.Int32.fromExtendedJSON(BSON, value) : parseInt(value.$numberInt, 10);
-  }
-
-  if (value.$ref != null || value.$dbPointer != null) {
-    var v = value.$ref ? value : value.$dbPointer;
-
-    // we run into this in a "degenerate EJSON" case (with $id and $ref order flipped)
-    // because of the order JSON.parse goes through the document
-    if (v instanceof BSON.DBRef) return v;
-
-    var dollarKeys = Object.keys(v).filter(function (k) {
-      return k.startsWith('$');
-    }),
-        valid = true;
-    dollarKeys.forEach(function (k) {
-      if (['$ref', '$id', '$db'].indexOf(k) === -1) valid = false;
-    });
-
-    // only make DBRef if $ keys are all valid
-    if (valid) return codecs.DBRef.fromExtendedJSON(BSON, v);
-  }
-
-  return value;
-}
-
-var parse = function parse(text, options) {
-  var self = this;
-  options = options || { strict: true };
-
-  return JSON.parse(text, function (key, value) {
-    return deserializeValue(self, key, value, options);
-  });
-};
-
-//
-// Serializer
-//
-
-// MAX INT32 boundaries
-var BSON_INT32_MAX = 0x7fffffff,
-    BSON_INT32_MIN = -0x80000000,
-    BSON_INT64_MAX = 0x7fffffffffffffff,
-    BSON_INT64_MIN = -0x8000000000000000;
-
-var stringify = function stringify(value, reducer, indents, options) {
-  var opts = {};
-  if (options != null && (typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object') opts = options;else if (indents != null && (typeof indents === 'undefined' ? 'undefined' : _typeof(indents)) === 'object') {
-    opts = indents;
-    indents = 0;
-  } else if (reducer != null && (typeof reducer === 'undefined' ? 'undefined' : _typeof(reducer)) === 'object') {
-    opts = reducer;
-    reducer = null;
-  }
-
-  var doc = Array.isArray(value) ? serializeArray(value, opts) : serializeDocument(value, opts);
-  return JSON.stringify(doc, reducer, indents);
-};
-
-function serializeArray(array, options) {
-  return array.map(function (v) {
-    return serializeValue(v, options);
-  });
-}
-
-function getISOString(date) {
-  var isoStr = date.toISOString();
-  // we should only show milliseconds in timestamp if they're non-zero
-  return date.getUTCMilliseconds() !== 0 ? isoStr : isoStr.slice(0, -5) + 'Z';
-}
-
-function serializeValue(value, options) {
-  if (Array.isArray(value)) return serializeArray(value, options);
-
-  if (value === undefined) return null;
-
-  if (value instanceof Date) {
-    var dateNum = value.getTime(),
-
-    // is it in year range 1970-9999?
-    inRange = dateNum > -1 && dateNum < 253402318800000;
-
-    return options.relaxed && inRange ? { $date: getISOString(value) } : { $date: { $numberLong: value.getTime().toString() } };
-  }
-
-  if (typeof value === 'number' && !options.relaxed) {
-    // it's an integer
-    if (Math.floor(value) === value) {
-      var int32Range = value >= BSON_INT32_MIN && value <= BSON_INT32_MAX,
-          int64Range = value >= BSON_INT64_MIN && value <= BSON_INT64_MAX;
-
-      // interpret as being of the smallest BSON integer type that can represent the number exactly
-      if (int32Range) return { $numberInt: value.toString() };
-      if (int64Range) return { $numberLong: value.toString() };
-    }
-    return { $numberDouble: value.toString() };
-  }
-
-  if (value != null && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') return serializeDocument(value, options);
-  return value;
-}
-
-function serializeDocument(doc, options) {
-  if (doc == null || (typeof doc === 'undefined' ? 'undefined' : _typeof(doc)) !== 'object') throw new Error('not an object instance');
-
-  // the document itself is a BSON type
-  if (doc._bsontype && BSONTypes.indexOf(doc._bsontype) !== -1) {
-    // we need to separately serialize the embedded scope document
-    if (doc._bsontype === 'Code' && doc.scope) {
-      var tempScope = serializeDocument(doc.scope, options),
-          tempDoc = Object.assign({}, doc, { scope: tempScope });
-      return codecs['Code'].toExtendedJSON(tempDoc, options);
-      // we need to separately serialize the embedded OID document
-    } else if (doc._bsontype === 'DBRef' && doc.oid) {
-      var tempId = serializeDocument(doc.oid, options),
-          _tempDoc = Object.assign({}, doc, { oid: tempId });
-      return codecs['DBRef'].toExtendedJSON(_tempDoc, options);
-    }
-    return codecs[doc._bsontype].toExtendedJSON(doc, options);
-  }
-
-  // the document is an object with nested BSON types
-  var _doc = {};
-  for (var name in doc) {
-    var val = doc[name];
-    if (Array.isArray(val)) {
-      _doc[name] = serializeArray(val, options);
-    } else if (val != null && val._bsontype && BSONTypes.indexOf(val._bsontype) !== -1) {
-      // we need to separately serialize the embedded scope document
-      if (val._bsontype === 'Code' && val.scope) {
-        var _tempScope = serializeDocument(val.scope, options),
-            tempVal = Object.assign({}, val, { scope: _tempScope });
-        _doc[name] = codecs['Code'].toExtendedJSON(tempVal, options);
-        // we need to separately serialize the embedded OID document
-      } else if (val._bsontype === 'DBRef' && val.oid) {
-        var _tempId = serializeDocument(val.oid, options),
-            _tempVal = Object.assign({}, val, { oid: _tempId });
-        _doc[name] = codecs['DBRef'].toExtendedJSON(_tempVal, options);
-      } else _doc[name] = codecs[val._bsontype].toExtendedJSON(val, options);
-    } else if (val instanceof Date) {
-      _doc[name] = serializeValue(val, options);
-    } else if (val != null && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object') {
-      _doc[name] = serializeDocument(val, options);
-    }
-
-    _doc[name] = serializeValue(val, options);
-  }
-
-  return _doc;
-}
-
-module.exports = {
-  parse: parse,
-  stringify: stringify,
-  setBSONModule: setBSONModule,
-  BSON: BSON
-};
-
-/***/ }),
-/* 58 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
 
 
 exports.byteLength = byteLength
@@ -12474,10 +12372,10 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 59 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var detectBrowser = __webpack_require__(60);
+var detectBrowser = __webpack_require__(45);
 
 var agent;
 
@@ -12489,10 +12387,10 @@ module.exports = detectBrowser(agent);
 
 
 /***/ }),
-/* 60 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var detectOS = __webpack_require__(61);
+var detectOS = __webpack_require__(46);
 
 module.exports = function detectBrowser(userAgentString) {
   if (!userAgentString) return null;
@@ -12538,7 +12436,7 @@ module.exports = function detectBrowser(userAgentString) {
 
 
 /***/ }),
-/* 61 */
+/* 46 */
 /***/ (function(module, exports) {
 
 module.exports = function detectOS(userAgentString) {
@@ -12656,7 +12554,7 @@ module.exports = function detectOS(userAgentString) {
 
 
 /***/ }),
-/* 62 */
+/* 47 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -12746,7 +12644,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 63 */
+/* 48 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -12775,7 +12673,7 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
-/* 64 */
+/* 49 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -12786,7 +12684,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 65 */
+/* 50 */
 /***/ (function(module, exports) {
 
 /**
@@ -12830,10 +12728,10 @@ module.exports = typeof window !== 'undefined' && window.atob && window.atob.bin
 
 
 /***/ }),
-/* 66 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var atob = __webpack_require__(65);
+var atob = __webpack_require__(50);
 
 function b64DecodeUnicode(str) {
   return decodeURIComponent(atob(str).replace(/(.)/g, function (m, p) {
@@ -12869,13 +12767,13 @@ module.exports = function(str) {
 
 
 /***/ }),
-/* 67 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var base64_url_decode = __webpack_require__(66);
+var base64_url_decode = __webpack_require__(51);
 
 function InvalidTokenError(message) {
   this.message = message;
@@ -12902,7 +12800,7 @@ module.exports.InvalidTokenError = InvalidTokenError;
 
 
 /***/ }),
-/* 68 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12999,13 +12897,13 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 69 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var strictUriEncode = __webpack_require__(70);
-var objectAssign = __webpack_require__(68);
+var strictUriEncode = __webpack_require__(55);
+var objectAssign = __webpack_require__(53);
 
 function encoderForArrayFormat(opts) {
 	switch (opts.arrayFormat) {
@@ -13211,7 +13109,7 @@ exports.stringify = function (obj, opts) {
 
 
 /***/ }),
-/* 70 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13224,7 +13122,7 @@ module.exports = function (str) {
 
 
 /***/ }),
-/* 71 */
+/* 56 */
 /***/ (function(module, exports) {
 
 module.exports = function isBuffer(arg) {
@@ -13235,7 +13133,7 @@ module.exports = function isBuffer(arg) {
 }
 
 /***/ }),
-/* 72 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -13763,7 +13661,7 @@ function isPrimitive(arg) {
 }
 exports.isPrimitive = isPrimitive;
 
-exports.isBuffer = __webpack_require__(71);
+exports.isBuffer = __webpack_require__(56);
 
 function objectToString(o) {
   return Object.prototype.toString.call(o);
@@ -13807,7 +13705,7 @@ exports.log = function() {
  *     prototype.
  * @param {function} superCtor Constructor function to inherit prototype from.
  */
-exports.inherits = __webpack_require__(63);
+exports.inherits = __webpack_require__(48);
 
 exports._extend = function(origin, add) {
   // Don't do anything if add isn't an object
@@ -13825,10 +13723,10 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18), __webpack_require__(25)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18), __webpack_require__(26)))
 
 /***/ }),
-/* 73 */
+/* 58 */
 /***/ (function(module, exports) {
 
 (function(self) {
