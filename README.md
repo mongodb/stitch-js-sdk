@@ -70,24 +70,3 @@ stitchClientPromise.then(stitchClient =>
   .catch(e => console.log('error: ', e));
 ```
 
-### Building
-
-If this library is being used to compile to a web format, you must compile some of its dependencies to ES5. The following dependencies use ES6 and are not compiled to ES5:
-
-* [mongodb-extjson](https://github.com/mongodb-js/mongodb-extjson)
-* [bson](https://github.com/mongodb/js-bson)
-
-#### Building for the Web with webpack
-
-In order to compile the pure ES6 dependencies of this library to ES5, [babel-loader](https://github.com/babel/babel-loader) can be used. See the section on usage ([https://github.com/babel/babel-loader#usage](https://github.com/babel/babel-loader#usage)) for how to load specific files. For this library, you must  include the above dependencies in your `node_modules` for compilation to ES5.
-
-The following rule loads any `.js` or `.jsx` file unless it's within `node_modules` (excluding the above dependencies):
-
-```
-{
-  test: /\.jsx?$/,
-  exclude: /node_modules\/(?!(mongodb-extjson|bson))/,
-  loaders: ['babel-loader']
-}
-```
-
