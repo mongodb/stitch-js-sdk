@@ -162,6 +162,10 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
               return api._delete(appUrl);
             },
 
+            export: function _export() {
+              return api._get(appUrl + '/export');
+            },
+
             values: function values() {
               return {
                 list: function list() {
