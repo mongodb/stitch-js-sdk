@@ -589,8 +589,6 @@ var StitchClient = exports.StitchClient = function () {
   }, {
     key: '_do',
     value: function _do(resource, method, options) {
-      var _this5 = this;
-
       options = Object.assign({}, {
         refreshOnFailure: true,
         useRefreshToken: false,
@@ -611,19 +609,6 @@ var StitchClient = exports.StitchClient = function () {
         return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
       }
       var token = options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
-
-      // If access token is expired, proactively get a new one
-      if (!options.useRefreshToken) {
-        if (this.auth.isAccessTokenExpired()) {
-          return this.auth.refreshToken().then(function () {
-            options.refreshOnFailure = false;
-            return _this5._do(resource, method, options);
-          });
-        }
-
-        fetchArgs.headers.Authorization = 'Bearer ' + token;
-        return this._fetch(url, fetchArgs, resource, method, options);
-      }
 
       fetchArgs.headers.Authorization = 'Bearer ' + token;
       return this._fetch(url, fetchArgs, resource, method, options);
