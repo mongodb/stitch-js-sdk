@@ -579,7 +579,7 @@ describe('login/logout', () => {
   }
 });
 
-describe('proactive token refresh', () => {
+describe('token refresh', () => {
   // access token with 5138-Nov-16 expiration
   const testUnexpiredAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdC1hY2Nlc3MtdG9rZW4iLCJleHAiOjEwMDAwMDAwMDAwMH0.KMAoJOX8Dh9wvt-XzrUN_W6fnypsPrlu4e-AOyqSAGw';
 
@@ -600,7 +600,11 @@ describe('proactive token refresh', () => {
         return JSON.stringify({x: ++count});
       }
 
-      throw new Error('invalid session would have been returned from server.');
+      return {
+        body: {error: 'invalid session', error_code: 'InvalidSession'},
+        headers: { 'Content-Type': JSONTYPE },
+        status: 401
+      };
     });
 
     count = 0;
@@ -612,7 +616,7 @@ describe('proactive token refresh', () => {
     });
   });
 
-  it('proactively fetches a new access token if the locally stored token is expired', async() => {
+  it('fetches a new access token if the remote server says the stored token is expired', async() => {
     expect.assertions(5);
 
     fetchMock.post(LOCALAUTH_URL, {

@@ -522,19 +522,6 @@ export class StitchClient {
     const token =
       options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
 
-    // If access token is expired, proactively get a new one
-    if (!options.useRefreshToken) {
-      if (this.auth.isAccessTokenExpired()) {
-        return this.auth.refreshToken().then(() => {
-          options.refreshOnFailure = false;
-          return this._do(resource, method, options);
-        });
-      }
-
-      fetchArgs.headers.Authorization = `Bearer ${token}`;
-      return this._fetch(url, fetchArgs, resource, method, options);
-    }
-
     fetchArgs.headers.Authorization = `Bearer ${token}`;
     return this._fetch(url, fetchArgs, resource, method, options);
   }
