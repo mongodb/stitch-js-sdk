@@ -65,6 +65,10 @@ functions:
           echo "downloading libmongo"
           wget --quiet "https://s3.amazonaws.com/stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_cbcbfd8ebefcca439ff2e4d99b022aedb0d61041_59e2b78c2fbabe58b8001850_17_10_15_01_19_08/libmongo.so"
           chmod +x libmongo.so
+
+          echo "building transpiler"
+          cd src/github.com/10gen/stitch/etc/transpiler
+          yarn install && yarn run build -t ${transpiler_target}
     - command: shell.exec
       params:
         background: true
@@ -72,6 +76,8 @@ functions:
           export GOPATH=`pwd`
           export PATH="`pwd`:$PATH"
           export STITCH_PATH=$GOPATH/src/github.com/10gen/stitch
+          export PATH="$PATH:$STITCH_PATH/etc/transpiler/bin"
+          which transpiler
           cd stitch-js-sdk/test/bin
           echo "running stitch"
           go run $STITCH_PATH/cmd/server/main.go --configFile $STITCH_PATH/etc/configs/test_config.json
@@ -295,6 +301,7 @@ buildvariants:
     - baas-linux
   expansions:
     mongodb_url: http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.4.tgz
+    transpiler_target: node8-linux
   tasks:
     - name: github_pull_request_start
     - name: run_tests
