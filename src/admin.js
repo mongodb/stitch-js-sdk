@@ -185,6 +185,7 @@ export class StitchAdminClient extends StitchClient {
             service: (serviceId) => ({
               get: () => api._get(`${appUrl}/services/${serviceId}`),
               remove: () => api._delete(`${appUrl}/services/${serviceId}`),
+              update: (data) => api._patch(`${appUrl}/services/${serviceId}`, data),
               runCommand: (commandName, data) => api._post(`${appUrl}/services/${serviceId}/commands/${commandName}`, data),
               config: ()=> ({
                 get: () => api._get(`${appUrl}/services/${serviceId}/config`),

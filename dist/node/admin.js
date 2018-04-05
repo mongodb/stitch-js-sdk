@@ -207,6 +207,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                     remove: function remove() {
                       return api._delete(appUrl + '/services/' + serviceId);
                     },
+                    update: function update(data) {
+                      return api._patch(appUrl + '/services/' + serviceId, data);
+                    },
                     runCommand: function runCommand(commandName, data) {
                       return api._post(appUrl + '/services/' + serviceId + '/commands/' + commandName, data);
                     },
