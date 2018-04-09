@@ -197,7 +197,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "3.0.7";
+  version = "3.1.0";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -1056,12 +1056,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
   };
 
   function toExtendedJSON$4(obj, options) {
-    if (options.relaxed && isFinite(obj.value)) return obj.value;
+    if (options && options.relaxed && isFinite(obj.value)) return obj.value;
     return { $numberDouble: obj.value.toString() };
   }
 
-  function fromExtendedJSON$4(BSON, doc) {
-    return new BSON.Double(parseFloat(doc.$numberDouble));
+  function fromExtendedJSON$4(BSON, doc, options) {
+    return options && options.relaxed ? parseFloat(doc.$numberDouble) : new BSON.Double(parseFloat(doc.$numberDouble));
   }
 
   var double_1 = {
@@ -1074,8 +1074,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     return { $numberInt: obj.value.toString() };
   }
 
-  function fromExtendedJSON$5(BSON, doc) {
-    return new BSON.Int32(doc.$numberInt);
+  function fromExtendedJSON$5(BSON, doc, options) {
+    return options && options.relaxed ? parseInt(doc.$numberInt, 10) : new BSON.Int32(doc.$numberInt);
   }
 
   var int_32 = {
@@ -1088,8 +1088,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     return { $numberLong: obj.toString() };
   }
 
-  function fromExtendedJSON$6(BSON, doc) {
-    return BSON.Long.fromString(doc.$numberLong);
+  function fromExtendedJSON$6(BSON, doc, options) {
+    var result = BSON.Long.fromString(doc.$numberLong);
+    return options && options.relaxed ? result.toNumber() : result;
   }
 
   var long_1 = {
@@ -1215,7 +1216,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     $oid: bson$1.ObjectID,
     $binary: bson$1.Binary,
     $symbol: bson$1.Symbol,
+    $numberInt: bson$1.Int32,
     $numberDecimal: bson$1.Decimal128,
+    $numberDouble: bson$1.Double,
     $numberLong: bson$1.Long,
     $minKey: bson$1.MinKey,
     $maxKey: bson$1.MaxKey,
@@ -1256,7 +1259,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     });
     for (var i = 0; i < keys.length; i++) {
       var c = keysToCodecs[keys[i]];
-      if (c) return c.fromExtendedJSON(BSON, value);
+      if (c) return c.fromExtendedJSON(BSON, value, options);
     }
 
     if (value.$date != null) {
@@ -1272,14 +1275,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var copy = Object.assign({}, value);
       copy.$scope = scope;
       return bson$1.Code.fromExtendedJSON(BSON, value);
-    }
-
-    if (value.$numberDouble != null) {
-      return options.strict ? bson$1.Double.fromExtendedJSON(BSON, value) : parseFloat(value.$numberDouble);
-    }
-
-    if (value.$numberInt != null) {
-      return options.strict ? bson$1.Int32.fromExtendedJSON(BSON, value) : parseInt(value.$numberInt, 10);
     }
 
     if (value.$ref != null || value.$dbPointer != null) {
@@ -1306,7 +1301,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
   var parse = function parse(text, options) {
     var self = this;
-    options = options || { strict: true };
+    options = options || { relaxed: false };
+
+    // relaxed implies not strict
+    if (typeof options.relaxed === 'boolean') options.strict = !options.relaxed;
+    if (typeof options.strict === 'boolean') options.relaxed = !options.strict;
 
     return JSON.parse(text, function (key, value) {
       return deserializeValue(self, key, value, options);
@@ -1547,8 +1546,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var global = __webpack_require__(2);
       var core = __webpack_require__(21);
-      var hide = __webpack_require__(12);
-      var redefine = __webpack_require__(13);
+      var hide = __webpack_require__(11);
+      var redefine = __webpack_require__(12);
       var ctx = __webpack_require__(18);
       var PROTOTYPE = 'prototype';
 
@@ -1720,16 +1719,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       /***/
     },
     /* 11 */
-    /***/function (module, exports) {
-
-      var hasOwnProperty = {}.hasOwnProperty;
-      module.exports = function (it, key) {
-        return hasOwnProperty.call(it, key);
-      };
-
-      /***/
-    },
-    /* 12 */
     /***/function (module, exports, __webpack_require__) {
 
       var dP = __webpack_require__(7);
@@ -1743,12 +1732,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 13 */
+    /* 12 */
     /***/function (module, exports, __webpack_require__) {
 
       var global = __webpack_require__(2);
-      var hide = __webpack_require__(12);
-      var has = __webpack_require__(11);
+      var hide = __webpack_require__(11);
+      var has = __webpack_require__(14);
       var SRC = __webpack_require__(32)('src');
       var TO_STRING = 'toString';
       var $toString = Function[TO_STRING];
@@ -1780,7 +1769,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 14 */
+    /* 13 */
     /***/function (module, exports, __webpack_require__) {
 
       var $export = __webpack_require__(0);
@@ -1805,6 +1794,16 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
+    /* 14 */
+    /***/function (module, exports) {
+
+      var hasOwnProperty = {}.hasOwnProperty;
+      module.exports = function (it, key) {
+        return hasOwnProperty.call(it, key);
+      };
+
+      /***/
+    },
     /* 15 */
     /***/function (module, exports, __webpack_require__) {
 
@@ -1824,7 +1823,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var createDesc = __webpack_require__(31);
       var toIObject = __webpack_require__(15);
       var toPrimitive = __webpack_require__(22);
-      var has = __webpack_require__(11);
+      var has = __webpack_require__(14);
       var IE8_DOM_DEFINE = __webpack_require__(106);
       var gOPD = Object.getOwnPropertyDescriptor;
 
@@ -1843,7 +1842,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /***/function (module, exports, __webpack_require__) {
 
       // 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
-      var has = __webpack_require__(11);
+      var has = __webpack_require__(14);
       var toObject = __webpack_require__(9);
       var IE_PROTO = __webpack_require__(78)('IE_PROTO');
       var ObjectProto = Object.prototype;
@@ -1917,7 +1916,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /* 21 */
     /***/function (module, exports) {
 
-      var core = module.exports = { version: '2.5.3' };
+      var core = module.exports = { version: '2.5.4' };
       if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
 
 
@@ -2052,14 +2051,14 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         var ctx = __webpack_require__(18);
         var anInstance = __webpack_require__(39);
         var propertyDesc = __webpack_require__(31);
-        var hide = __webpack_require__(12);
+        var hide = __webpack_require__(11);
         var redefineAll = __webpack_require__(41);
         var toInteger = __webpack_require__(24);
         var toLength = __webpack_require__(8);
         var toIndex = __webpack_require__(132);
         var toAbsoluteIndex = __webpack_require__(35);
         var toPrimitive = __webpack_require__(22);
-        var has = __webpack_require__(11);
+        var has = __webpack_require__(14);
         var classof = __webpack_require__(51);
         var isObject = __webpack_require__(4);
         var toObject = __webpack_require__(9);
@@ -2588,7 +2587,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var META = __webpack_require__(32)('meta');
       var isObject = __webpack_require__(4);
-      var has = __webpack_require__(11);
+      var has = __webpack_require__(14);
       var setDesc = __webpack_require__(7).f;
       var id = 0;
       var isExtensible = Object.isExtensible || function () {
@@ -2648,7 +2647,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       // 22.1.3.31 Array.prototype[@@unscopables]
       var UNSCOPABLES = __webpack_require__(5)('unscopables');
       var ArrayProto = Array.prototype;
-      if (ArrayProto[UNSCOPABLES] == undefined) __webpack_require__(12)(ArrayProto, UNSCOPABLES, {});
+      if (ArrayProto[UNSCOPABLES] == undefined) __webpack_require__(11)(ArrayProto, UNSCOPABLES, {});
       module.exports = function (key) {
         ArrayProto[UNSCOPABLES][key] = true;
       };
@@ -2843,7 +2842,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /* 41 */
     /***/function (module, exports, __webpack_require__) {
 
-      var redefine = __webpack_require__(13);
+      var redefine = __webpack_require__(12);
       module.exports = function (target, src, safe) {
         for (var key in src) {
           redefine(target, key, src[key], safe);
@@ -5459,7 +5458,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /***/function (module, exports, __webpack_require__) {
 
       var def = __webpack_require__(7).f;
-      var has = __webpack_require__(11);
+      var has = __webpack_require__(14);
       var TAG = __webpack_require__(5)('toStringTag');
 
       module.exports = function (it, tag, stat) {
@@ -6114,8 +6113,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       "use strict";
 
-      var hide = __webpack_require__(12);
-      var redefine = __webpack_require__(13);
+      var hide = __webpack_require__(11);
+      var redefine = __webpack_require__(12);
       var fails = __webpack_require__(3);
       var defined = __webpack_require__(23);
       var wks = __webpack_require__(5);
@@ -6171,7 +6170,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var global = __webpack_require__(2);
       var $export = __webpack_require__(0);
-      var redefine = __webpack_require__(13);
+      var redefine = __webpack_require__(12);
       var redefineAll = __webpack_require__(41);
       var meta = __webpack_require__(29);
       var forOf = __webpack_require__(40);
@@ -6266,7 +6265,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /***/function (module, exports, __webpack_require__) {
 
       var global = __webpack_require__(2);
-      var hide = __webpack_require__(12);
+      var hide = __webpack_require__(11);
       var uid = __webpack_require__(32);
       var TYPED = uid('typed_array');
       var VIEW = uid('view');
@@ -6889,7 +6888,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
        * @return {BSONRegExp} A MinKey instance
        */
       function BSONRegExp(pattern, options) {
-        if (!(this instanceof BSONRegExp)) return new BSONRegExp();
+        if (!(this instanceof BSONRegExp)) return new BSONRegExp(pattern, options);
 
         // Execute
         this._bsontype = 'BSONRegExp';
@@ -7939,9 +7938,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var LIBRARY = __webpack_require__(33);
       var $export = __webpack_require__(0);
-      var redefine = __webpack_require__(13);
-      var hide = __webpack_require__(12);
-      var has = __webpack_require__(11);
+      var redefine = __webpack_require__(12);
+      var hide = __webpack_require__(11);
       var Iterators = __webpack_require__(46);
       var $iterCreate = __webpack_require__(89);
       var setToStringTag = __webpack_require__(44);
@@ -7978,7 +7976,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         var VALUES_BUG = false;
         var proto = Base.prototype;
         var $native = proto[ITERATOR] || proto[FF_ITERATOR] || DEFAULT && proto[DEFAULT];
-        var $default = !BUGGY && $native || getMethod(DEFAULT);
+        var $default = $native || getMethod(DEFAULT);
         var $entries = DEFAULT ? !DEF_VALUES ? $default : getMethod('entries') : undefined;
         var $anyNative = NAME == 'Array' ? proto.entries || $native : $native;
         var methods, key, IteratorPrototype;
@@ -7989,7 +7987,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
             // Set @@toStringTag to native iterators
             setToStringTag(IteratorPrototype, TAG, true);
             // fix for some old engines
-            if (!LIBRARY && !has(IteratorPrototype, ITERATOR)) hide(IteratorPrototype, ITERATOR, returnThis);
+            if (!LIBRARY && typeof IteratorPrototype[ITERATOR] != 'function') hide(IteratorPrototype, ITERATOR, returnThis);
           }
         }
         // fix Array#{values, @@iterator}.name in V8 / FF
@@ -8032,7 +8030,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var IteratorPrototype = {};
 
       // 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
-      __webpack_require__(12)(IteratorPrototype, __webpack_require__(5)('iterator'), function () {
+      __webpack_require__(11)(IteratorPrototype, __webpack_require__(5)('iterator'), function () {
         return this;
       });
 
@@ -8390,7 +8388,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var DESCRIPTORS = __webpack_require__(6);
       var LIBRARY = __webpack_require__(33);
       var $typed = __webpack_require__(64);
-      var hide = __webpack_require__(12);
+      var hide = __webpack_require__(11);
       var redefineAll = __webpack_require__(41);
       var fails = __webpack_require__(3);
       var anInstance = __webpack_require__(39);
@@ -8936,7 +8934,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /* 108 */
     /***/function (module, exports, __webpack_require__) {
 
-      var has = __webpack_require__(11);
+      var has = __webpack_require__(14);
       var toIObject = __webpack_require__(15);
       var arrayIndexOf = __webpack_require__(55)(false);
       var IE_PROTO = __webpack_require__(78)('IE_PROTO');
@@ -9542,7 +9540,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       "use strict";
 
       var each = __webpack_require__(26)(0);
-      var redefine = __webpack_require__(13);
+      var redefine = __webpack_require__(12);
       var meta = __webpack_require__(29);
       var assign = __webpack_require__(111);
       var weak = __webpack_require__(131);
@@ -9616,7 +9614,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var anInstance = __webpack_require__(39);
       var forOf = __webpack_require__(40);
       var createArrayMethod = __webpack_require__(26);
-      var $has = __webpack_require__(11);
+      var $has = __webpack_require__(14);
       var validate = __webpack_require__(47);
       var arrayFind = createArrayMethod(5);
       var arrayFindIndex = createArrayMethod(6);
@@ -10126,10 +10124,10 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       // ECMAScript 6 symbols shim
 
       var global = __webpack_require__(2);
-      var has = __webpack_require__(11);
+      var has = __webpack_require__(14);
       var DESCRIPTORS = __webpack_require__(6);
       var $export = __webpack_require__(0);
-      var redefine = __webpack_require__(13);
+      var redefine = __webpack_require__(12);
       var META = __webpack_require__(29).KEY;
       var $fails = __webpack_require__(3);
       var shared = __webpack_require__(54);
@@ -10357,7 +10355,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       });
 
       // 19.4.3.4 Symbol.prototype[@@toPrimitive](hint)
-      $Symbol[PROTOTYPE][TO_PRIMITIVE] || __webpack_require__(12)($Symbol[PROTOTYPE], TO_PRIMITIVE, $Symbol[PROTOTYPE].valueOf);
+      $Symbol[PROTOTYPE][TO_PRIMITIVE] || __webpack_require__(11)($Symbol[PROTOTYPE], TO_PRIMITIVE, $Symbol[PROTOTYPE].valueOf);
       // 19.4.3.5 Symbol.prototype[@@toStringTag]
       setToStringTag($Symbol, 'Symbol');
       // 20.2.1.9 Math[@@toStringTag]
@@ -10609,7 +10607,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var test = {};
       test[__webpack_require__(5)('toStringTag')] = 'z';
       if (test + '' != '[object z]') {
-        __webpack_require__(13)(Object.prototype, 'toString', function toString() {
+        __webpack_require__(12)(Object.prototype, 'toString', function toString() {
           return '[object ' + classof(this) + ']';
         }, true);
       }
@@ -10695,7 +10693,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       "use strict";
 
       var global = __webpack_require__(2);
-      var has = __webpack_require__(11);
+      var has = __webpack_require__(14);
       var cof = __webpack_require__(19);
       var inheritIfRequired = __webpack_require__(83);
       var toPrimitive = __webpack_require__(22);
@@ -10762,7 +10760,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         }
         $Number.prototype = proto;
         proto.constructor = $Number;
-        __webpack_require__(13)(global, NUMBER, $Number);
+        __webpack_require__(12)(global, NUMBER, $Number);
       }
 
       /***/
@@ -11477,7 +11475,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       // B.2.3.2 String.prototype.anchor(name)
 
-      __webpack_require__(14)('anchor', function (createHTML) {
+      __webpack_require__(13)('anchor', function (createHTML) {
         return function anchor(name) {
           return createHTML(this, 'a', 'name', name);
         };
@@ -11492,7 +11490,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       // B.2.3.3 String.prototype.big()
 
-      __webpack_require__(14)('big', function (createHTML) {
+      __webpack_require__(13)('big', function (createHTML) {
         return function big() {
           return createHTML(this, 'big', '', '');
         };
@@ -11507,7 +11505,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       // B.2.3.4 String.prototype.blink()
 
-      __webpack_require__(14)('blink', function (createHTML) {
+      __webpack_require__(13)('blink', function (createHTML) {
         return function blink() {
           return createHTML(this, 'blink', '', '');
         };
@@ -11522,7 +11520,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       // B.2.3.5 String.prototype.bold()
 
-      __webpack_require__(14)('bold', function (createHTML) {
+      __webpack_require__(13)('bold', function (createHTML) {
         return function bold() {
           return createHTML(this, 'b', '', '');
         };
@@ -11537,7 +11535,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       // B.2.3.6 String.prototype.fixed()
 
-      __webpack_require__(14)('fixed', function (createHTML) {
+      __webpack_require__(13)('fixed', function (createHTML) {
         return function fixed() {
           return createHTML(this, 'tt', '', '');
         };
@@ -11552,7 +11550,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       // B.2.3.7 String.prototype.fontcolor(color)
 
-      __webpack_require__(14)('fontcolor', function (createHTML) {
+      __webpack_require__(13)('fontcolor', function (createHTML) {
         return function fontcolor(color) {
           return createHTML(this, 'font', 'color', color);
         };
@@ -11567,7 +11565,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       // B.2.3.8 String.prototype.fontsize(size)
 
-      __webpack_require__(14)('fontsize', function (createHTML) {
+      __webpack_require__(13)('fontsize', function (createHTML) {
         return function fontsize(size) {
           return createHTML(this, 'font', 'size', size);
         };
@@ -11582,7 +11580,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       // B.2.3.9 String.prototype.italics()
 
-      __webpack_require__(14)('italics', function (createHTML) {
+      __webpack_require__(13)('italics', function (createHTML) {
         return function italics() {
           return createHTML(this, 'i', '', '');
         };
@@ -11597,7 +11595,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       // B.2.3.10 String.prototype.link(url)
 
-      __webpack_require__(14)('link', function (createHTML) {
+      __webpack_require__(13)('link', function (createHTML) {
         return function link(url) {
           return createHTML(this, 'a', 'href', url);
         };
@@ -11612,7 +11610,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       // B.2.3.11 String.prototype.small()
 
-      __webpack_require__(14)('small', function (createHTML) {
+      __webpack_require__(13)('small', function (createHTML) {
         return function small() {
           return createHTML(this, 'small', '', '');
         };
@@ -11627,7 +11625,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       // B.2.3.12 String.prototype.strike()
 
-      __webpack_require__(14)('strike', function (createHTML) {
+      __webpack_require__(13)('strike', function (createHTML) {
         return function strike() {
           return createHTML(this, 'strike', '', '');
         };
@@ -11642,7 +11640,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       // B.2.3.13 String.prototype.sub()
 
-      __webpack_require__(14)('sub', function (createHTML) {
+      __webpack_require__(13)('sub', function (createHTML) {
         return function sub() {
           return createHTML(this, 'sub', '', '');
         };
@@ -11657,7 +11655,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       // B.2.3.14 String.prototype.sup()
 
-      __webpack_require__(14)('sup', function (createHTML) {
+      __webpack_require__(13)('sup', function (createHTML) {
         return function sup() {
           return createHTML(this, 'sup', '', '');
         };
@@ -11755,7 +11753,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var $toString = DateProto[TO_STRING];
       var getTime = DateProto.getTime;
       if (new Date(NaN) + '' != INVALID_DATE) {
-        __webpack_require__(13)(DateProto, TO_STRING, function toString() {
+        __webpack_require__(12)(DateProto, TO_STRING, function toString() {
           var value = getTime.call(this);
           // eslint-disable-next-line no-self-compare
           return value === value ? $toString.call(this) : INVALID_DATE;
@@ -11770,7 +11768,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var TO_PRIMITIVE = __webpack_require__(5)('toPrimitive');
       var proto = Date.prototype;
 
-      if (!(TO_PRIMITIVE in proto)) __webpack_require__(12)(proto, TO_PRIMITIVE, __webpack_require__(225));
+      if (!(TO_PRIMITIVE in proto)) __webpack_require__(11)(proto, TO_PRIMITIVE, __webpack_require__(225));
 
       /***/
     },
@@ -12270,7 +12268,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           proxy(keys[i++]);
         }proto.constructor = $RegExp;
         $RegExp.prototype = proto;
-        __webpack_require__(13)(global, 'RegExp', $RegExp);
+        __webpack_require__(12)(global, 'RegExp', $RegExp);
       }
 
       __webpack_require__(38)('RegExp');
@@ -12290,7 +12288,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var $toString = /./[TO_STRING];
 
       var define = function define(fn) {
-        __webpack_require__(13)(RegExp.prototype, TO_STRING, fn, true);
+        __webpack_require__(12)(RegExp.prototype, TO_STRING, fn, true);
       };
 
       // 21.2.5.14 RegExp.prototype.toString()
@@ -12490,7 +12488,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
             var resolve = reaction.resolve;
             var reject = reaction.reject;
             var domain = reaction.domain;
-            var result, then;
+            var result, then, exited;
             try {
               if (handler) {
                 if (!ok) {
@@ -12499,8 +12497,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
                 }
                 if (handler === true) result = value;else {
                   if (domain) domain.enter();
-                  result = handler(value);
-                  if (domain) domain.exit();
+                  result = handler(value); // may throw
+                  if (domain) {
+                    domain.exit();
+                    exited = true;
+                  }
                 }
                 if (result === reaction.promise) {
                   reject(TypeError('Promise-chain cycle'));
@@ -12509,6 +12510,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
                 } else resolve(result);
               } else reject(value);
             } catch (e) {
+              if (domain && !exited) domain.exit();
               reject(e);
             }
           };
@@ -13063,7 +13065,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       // 26.1.6 Reflect.get(target, propertyKey [, receiver])
       var gOPD = __webpack_require__(16);
       var getPrototypeOf = __webpack_require__(17);
-      var has = __webpack_require__(11);
+      var has = __webpack_require__(14);
       var $export = __webpack_require__(0);
       var isObject = __webpack_require__(4);
       var anObject = __webpack_require__(1);
@@ -13182,7 +13184,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var dP = __webpack_require__(7);
       var gOPD = __webpack_require__(16);
       var getPrototypeOf = __webpack_require__(17);
-      var has = __webpack_require__(11);
+      var has = __webpack_require__(14);
       var $export = __webpack_require__(0);
       var createDesc = __webpack_require__(31);
       var anObject = __webpack_require__(1);
@@ -14144,7 +14146,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var anObject = __webpack_require__(1);
       var anInstance = __webpack_require__(39);
       var redefineAll = __webpack_require__(41);
-      var hide = __webpack_require__(12);
+      var hide = __webpack_require__(11);
       var forOf = __webpack_require__(40);
       var RETURN = forOf.RETURN;
 
@@ -14388,9 +14390,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var $iterators = __webpack_require__(97);
       var getKeys = __webpack_require__(34);
-      var redefine = __webpack_require__(13);
+      var redefine = __webpack_require__(12);
       var global = __webpack_require__(2);
-      var hide = __webpack_require__(12);
+      var hide = __webpack_require__(11);
       var Iterators = __webpack_require__(46);
       var wks = __webpack_require__(5);
       var ITERATOR = wks('iterator');
@@ -15344,7 +15346,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           var startIndex = typeof options.index === 'number' ? options.index : 0;
 
           // Attempt to serialize
-          var serializationIndex = serializer(finalBuffer, object, checkKeys, 0, 0, serializeFunctions, ignoreUndefined);
+          var serializationIndex = serializer(buffer, object, checkKeys, 0, 0, serializeFunctions, ignoreUndefined);
+          buffer.copy(finalBuffer, startIndex, 0, serializationIndex);
 
           // Return the index
           return startIndex + serializationIndex - 1;
@@ -20959,6 +20962,8 @@ for (var i = 0, len = code.length; i < len; ++i) {
   revLookup[code.charCodeAt(i)] = i
 }
 
+// Support decoding URL-safe base64 strings, as Node.js does.
+// See: https://en.wikipedia.org/wiki/Base64#URL_applications
 revLookup['-'.charCodeAt(0)] = 62
 revLookup['_'.charCodeAt(0)] = 63
 
@@ -21020,7 +21025,7 @@ function encodeChunk (uint8, start, end) {
   var tmp
   var output = []
   for (var i = start; i < end; i += 3) {
-    tmp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
+    tmp = ((uint8[i] << 16) & 0xFF0000) + ((uint8[i + 1] << 8) & 0xFF00) + (uint8[i + 2] & 0xFF)
     output.push(tripletToBase64(tmp))
   }
   return output.join('')
@@ -23658,6 +23663,28 @@ module.exports = function(module) {
     arrayBuffer: 'ArrayBuffer' in self
   }
 
+  if (support.arrayBuffer) {
+    var viewClasses = [
+      '[object Int8Array]',
+      '[object Uint8Array]',
+      '[object Uint8ClampedArray]',
+      '[object Int16Array]',
+      '[object Uint16Array]',
+      '[object Int32Array]',
+      '[object Uint32Array]',
+      '[object Float32Array]',
+      '[object Float64Array]'
+    ]
+
+    var isDataView = function(obj) {
+      return obj && DataView.prototype.isPrototypeOf(obj)
+    }
+
+    var isArrayBufferView = ArrayBuffer.isView || function(obj) {
+      return obj && viewClasses.indexOf(Object.prototype.toString.call(obj)) > -1
+    }
+  }
+
   function normalizeName(name) {
     if (typeof name !== 'string') {
       name = String(name)
@@ -23700,7 +23727,10 @@ module.exports = function(module) {
       headers.forEach(function(value, name) {
         this.append(name, value)
       }, this)
-
+    } else if (Array.isArray(headers)) {
+      headers.forEach(function(header) {
+        this.append(header[0], header[1])
+      }, this)
     } else if (headers) {
       Object.getOwnPropertyNames(headers).forEach(function(name) {
         this.append(name, headers[name])
@@ -23711,12 +23741,8 @@ module.exports = function(module) {
   Headers.prototype.append = function(name, value) {
     name = normalizeName(name)
     value = normalizeValue(value)
-    var list = this.map[name]
-    if (!list) {
-      list = []
-      this.map[name] = list
-    }
-    list.push(value)
+    var oldValue = this.map[name]
+    this.map[name] = oldValue ? oldValue+','+value : value
   }
 
   Headers.prototype['delete'] = function(name) {
@@ -23724,12 +23750,8 @@ module.exports = function(module) {
   }
 
   Headers.prototype.get = function(name) {
-    var values = this.map[normalizeName(name)]
-    return values ? values[0] : null
-  }
-
-  Headers.prototype.getAll = function(name) {
-    return this.map[normalizeName(name)] || []
+    name = normalizeName(name)
+    return this.has(name) ? this.map[name] : null
   }
 
   Headers.prototype.has = function(name) {
@@ -23737,15 +23759,15 @@ module.exports = function(module) {
   }
 
   Headers.prototype.set = function(name, value) {
-    this.map[normalizeName(name)] = [normalizeValue(value)]
+    this.map[normalizeName(name)] = normalizeValue(value)
   }
 
   Headers.prototype.forEach = function(callback, thisArg) {
-    Object.getOwnPropertyNames(this.map).forEach(function(name) {
-      this.map[name].forEach(function(value) {
-        callback.call(thisArg, value, name, this)
-      }, this)
-    }, this)
+    for (var name in this.map) {
+      if (this.map.hasOwnProperty(name)) {
+        callback.call(thisArg, this.map[name], name, this)
+      }
+    }
   }
 
   Headers.prototype.keys = function() {
@@ -23790,14 +23812,36 @@ module.exports = function(module) {
 
   function readBlobAsArrayBuffer(blob) {
     var reader = new FileReader()
+    var promise = fileReaderReady(reader)
     reader.readAsArrayBuffer(blob)
-    return fileReaderReady(reader)
+    return promise
   }
 
   function readBlobAsText(blob) {
     var reader = new FileReader()
+    var promise = fileReaderReady(reader)
     reader.readAsText(blob)
-    return fileReaderReady(reader)
+    return promise
+  }
+
+  function readArrayBufferAsText(buf) {
+    var view = new Uint8Array(buf)
+    var chars = new Array(view.length)
+
+    for (var i = 0; i < view.length; i++) {
+      chars[i] = String.fromCharCode(view[i])
+    }
+    return chars.join('')
+  }
+
+  function bufferClone(buf) {
+    if (buf.slice) {
+      return buf.slice(0)
+    } else {
+      var view = new Uint8Array(buf.byteLength)
+      view.set(new Uint8Array(buf))
+      return view.buffer
+    }
   }
 
   function Body() {
@@ -23805,7 +23849,9 @@ module.exports = function(module) {
 
     this._initBody = function(body) {
       this._bodyInit = body
-      if (typeof body === 'string') {
+      if (!body) {
+        this._bodyText = ''
+      } else if (typeof body === 'string') {
         this._bodyText = body
       } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
         this._bodyBlob = body
@@ -23813,11 +23859,12 @@ module.exports = function(module) {
         this._bodyFormData = body
       } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
         this._bodyText = body.toString()
-      } else if (!body) {
-        this._bodyText = ''
-      } else if (support.arrayBuffer && ArrayBuffer.prototype.isPrototypeOf(body)) {
-        // Only support ArrayBuffers for POST method.
-        // Receiving ArrayBuffers happens via Blobs, instead.
+      } else if (support.arrayBuffer && support.blob && isDataView(body)) {
+        this._bodyArrayBuffer = bufferClone(body.buffer)
+        // IE 10-11 can't handle a DataView body.
+        this._bodyInit = new Blob([this._bodyArrayBuffer])
+      } else if (support.arrayBuffer && (ArrayBuffer.prototype.isPrototypeOf(body) || isArrayBufferView(body))) {
+        this._bodyArrayBuffer = bufferClone(body)
       } else {
         throw new Error('unsupported BodyInit type')
       }
@@ -23842,6 +23889,8 @@ module.exports = function(module) {
 
         if (this._bodyBlob) {
           return Promise.resolve(this._bodyBlob)
+        } else if (this._bodyArrayBuffer) {
+          return Promise.resolve(new Blob([this._bodyArrayBuffer]))
         } else if (this._bodyFormData) {
           throw new Error('could not read FormData body as blob')
         } else {
@@ -23850,27 +23899,28 @@ module.exports = function(module) {
       }
 
       this.arrayBuffer = function() {
-        return this.blob().then(readBlobAsArrayBuffer)
-      }
-
-      this.text = function() {
-        var rejected = consumed(this)
-        if (rejected) {
-          return rejected
-        }
-
-        if (this._bodyBlob) {
-          return readBlobAsText(this._bodyBlob)
-        } else if (this._bodyFormData) {
-          throw new Error('could not read FormData body as text')
+        if (this._bodyArrayBuffer) {
+          return consumed(this) || Promise.resolve(this._bodyArrayBuffer)
         } else {
-          return Promise.resolve(this._bodyText)
+          return this.blob().then(readBlobAsArrayBuffer)
         }
       }
-    } else {
-      this.text = function() {
-        var rejected = consumed(this)
-        return rejected ? rejected : Promise.resolve(this._bodyText)
+    }
+
+    this.text = function() {
+      var rejected = consumed(this)
+      if (rejected) {
+        return rejected
+      }
+
+      if (this._bodyBlob) {
+        return readBlobAsText(this._bodyBlob)
+      } else if (this._bodyArrayBuffer) {
+        return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer))
+      } else if (this._bodyFormData) {
+        throw new Error('could not read FormData body as text')
+      } else {
+        return Promise.resolve(this._bodyText)
       }
     }
 
@@ -23898,7 +23948,8 @@ module.exports = function(module) {
   function Request(input, options) {
     options = options || {}
     var body = options.body
-    if (Request.prototype.isPrototypeOf(input)) {
+
+    if (input instanceof Request) {
       if (input.bodyUsed) {
         throw new TypeError('Already read')
       }
@@ -23909,12 +23960,12 @@ module.exports = function(module) {
       }
       this.method = input.method
       this.mode = input.mode
-      if (!body) {
+      if (!body && input._bodyInit != null) {
         body = input._bodyInit
         input.bodyUsed = true
       }
     } else {
-      this.url = input
+      this.url = String(input)
     }
 
     this.credentials = options.credentials || this.credentials || 'omit'
@@ -23932,7 +23983,7 @@ module.exports = function(module) {
   }
 
   Request.prototype.clone = function() {
-    return new Request(this)
+    return new Request(this, { body: this._bodyInit })
   }
 
   function decode(body) {
@@ -23948,16 +23999,20 @@ module.exports = function(module) {
     return form
   }
 
-  function headers(xhr) {
-    var head = new Headers()
-    var pairs = (xhr.getAllResponseHeaders() || '').trim().split('\n')
-    pairs.forEach(function(header) {
-      var split = header.trim().split(':')
-      var key = split.shift().trim()
-      var value = split.join(':').trim()
-      head.append(key, value)
+  function parseHeaders(rawHeaders) {
+    var headers = new Headers()
+    // Replace instances of \r\n and \n followed by at least one space or horizontal tab with a space
+    // https://tools.ietf.org/html/rfc7230#section-3.2
+    var preProcessedHeaders = rawHeaders.replace(/\r?\n[\t ]+/g, ' ')
+    preProcessedHeaders.split(/\r?\n/).forEach(function(line) {
+      var parts = line.split(':')
+      var key = parts.shift().trim()
+      if (key) {
+        var value = parts.join(':').trim()
+        headers.append(key, value)
+      }
     })
-    return head
+    return headers
   }
 
   Body.call(Request.prototype)
@@ -23968,10 +24023,10 @@ module.exports = function(module) {
     }
 
     this.type = 'default'
-    this.status = options.status
+    this.status = options.status === undefined ? 200 : options.status
     this.ok = this.status >= 200 && this.status < 300
-    this.statusText = options.statusText
-    this.headers = options.headers instanceof Headers ? options.headers : new Headers(options.headers)
+    this.statusText = 'statusText' in options ? options.statusText : 'OK'
+    this.headers = new Headers(options.headers)
     this.url = options.url || ''
     this._initBody(bodyInit)
   }
@@ -24009,35 +24064,16 @@ module.exports = function(module) {
 
   self.fetch = function(input, init) {
     return new Promise(function(resolve, reject) {
-      var request
-      if (Request.prototype.isPrototypeOf(input) && !init) {
-        request = input
-      } else {
-        request = new Request(input, init)
-      }
-
+      var request = new Request(input, init)
       var xhr = new XMLHttpRequest()
-
-      function responseURL() {
-        if ('responseURL' in xhr) {
-          return xhr.responseURL
-        }
-
-        // Avoid security warnings on getResponseHeader when not allowed by CORS
-        if (/^X-Request-URL:/m.test(xhr.getAllResponseHeaders())) {
-          return xhr.getResponseHeader('X-Request-URL')
-        }
-
-        return
-      }
 
       xhr.onload = function() {
         var options = {
           status: xhr.status,
           statusText: xhr.statusText,
-          headers: headers(xhr),
-          url: responseURL()
+          headers: parseHeaders(xhr.getAllResponseHeaders() || '')
         }
+        options.url = 'responseURL' in xhr ? xhr.responseURL : options.headers.get('X-Request-URL')
         var body = 'response' in xhr ? xhr.response : xhr.responseText
         resolve(new Response(body, options))
       }
@@ -24054,6 +24090,8 @@ module.exports = function(module) {
 
       if (request.credentials === 'include') {
         xhr.withCredentials = true
+      } else if (request.credentials === 'omit') {
+        xhr.withCredentials = false
       }
 
       if ('responseType' in xhr && support.blob) {
