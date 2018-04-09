@@ -30,7 +30,7 @@
     "query-string": "^4.3.4"
   },
   "devDependencies": {
-    "aws-sdk": "^2.190.0",
+    "aws-sdk": "^2.222.1",
     "babel-cli": "^6.24.1",
     "babel-core": "^6.24.1",
     "babel-eslint": "^7.2.3",
@@ -43,7 +43,7 @@
     "babel-plugin-version-transform": "^1.0.0",
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.6.1",
-    "chromedriver": "^2.33.2",
+    "chromedriver": "2.33.2",
     "documentation": "^5.3.5",
     "eslint": "^4.7.2",
     "eslint-loader": "^1.7.1",
