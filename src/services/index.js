@@ -7,6 +7,8 @@ import TwilioService from './twilio/twilio_service';
 export default {
   'aws-s3': S3Service,
   'aws-ses': SESService,
+  'aws_s3': S3Service,
+  'aws_ses': SESService,
   'http': HTTPService,
   'mongodb': MongoDBService,
   'twilio': TwilioService
