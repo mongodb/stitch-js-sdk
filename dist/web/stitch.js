@@ -197,7 +197,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "3.1.0";
+  version = "3.1.1";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -20473,6 +20473,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = {
   'aws-s3': _s3_service2.default,
   'aws-ses': _ses_service2.default,
+  'aws_s3': _s3_service2.default,
+  'aws_ses': _ses_service2.default,
   'http': _http_service2.default,
   'mongodb': _mongodb_service2.default,
   'twilio': _twilio_service2.default
