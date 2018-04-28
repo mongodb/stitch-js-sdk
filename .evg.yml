@@ -82,39 +82,6 @@ functions:
           done
 
 tasks:
-  - name: github_pull_request_end
-    depends_on:
-      - name: github_pull_request_start
-      - name: run_tests
-        status: "*"
-        variant: linux-64
-      - name: dist
-        status: "*"
-        variant: linux-64
-      - name: check_import
-        status: "*"
-        variant: linux-64
-      - name: eslint
-        status: "*"
-        variant: "linux-64"
-    commands:
-      - command: shell.exec
-        params:
-          silent: true
-          script: |
-            if ! [ "${is_patch}" = "true" ]; then
-              exit 0
-            fi
-            curl -H "Auth-Username: ${evg_rest_user}" -H "Api-Key: ${evg_rest_api_key}"  https://evergreen.mongodb.org/rest/v1/builds/${build_id} | python -c "import sys, json; tasks = json.load(sys.stdin)['tasks']; sys.exit(0) if all(tasks[task]['status'] == 'success' or task == 'github_pull_request_end'  for task in tasks) else sys.exit(1)"
-            if [ $? -eq 0 ]; then
-              state="success"
-            else
-              state="failure"
-            fi
-            echo $state > commit_state
-      - func: "set_github_build_status"
-
-
   - name: run_tests
     commands:
       - func: "fetch_source"
