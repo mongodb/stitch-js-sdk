@@ -310,8 +310,8 @@ export class StitchClient {
   }
 
   _doFunctionCall(request) {
-    let responseDecoder = (d) => ExtJSON.parse(d, { strict: false });
-    let responseEncoder = (d) => ExtJSON.stringify(d);
+    let responseDecoder = (d) => ExtJSON.parse(d, { relaxed: true });
+    let responseEncoder = (d) => ExtJSON.stringify(d, { strict: true });
 
     return this._do('/functions/call', 'POST', { body: responseEncoder(request) })
       .then(response => response.text())

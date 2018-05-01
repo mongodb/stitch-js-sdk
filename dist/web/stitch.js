@@ -718,10 +718,10 @@ var StitchClient = exports.StitchClient = function () {
     key: '_doFunctionCall',
     value: function _doFunctionCall(request) {
       var responseDecoder = function responseDecoder(d) {
-        return _mongodbExtjson2.default.parse(d, { strict: false });
+        return _mongodbExtjson2.default.parse(d, { relaxed: true });
       };
       var responseEncoder = function responseEncoder(d) {
-        return _mongodbExtjson2.default.stringify(d);
+        return _mongodbExtjson2.default.stringify(d, { strict: true });
       };
 
       return this._do('/functions/call', 'POST', { body: responseEncoder(request) }).then(function (response) {
@@ -1266,7 +1266,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var d = value.$date,
           date = new Date();
 
-      if (typeof d === 'string') date.setTime(Date.parse(d));else if (d instanceof BSON.Long) date.setTime(d.toNumber());
+      if (typeof d === 'string') date.setTime(Date.parse(d));else if (d instanceof BSON.Long) date.setTime(d.toNumber());else if (typeof d === 'number' && options.relaxed) date.setTime(d);
       return date;
     }
 
@@ -1536,7 +1536,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       /******/__webpack_require__.p = "/";
       /******/
       /******/ // Load entry module and return exports
-      /******/return __webpack_require__(__webpack_require__.s = 140);
+      /******/return __webpack_require__(__webpack_require__.s = 139);
       /******/
     }(
     /************************************************************************/
@@ -1546,8 +1546,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var global = __webpack_require__(2);
       var core = __webpack_require__(21);
-      var hide = __webpack_require__(11);
-      var redefine = __webpack_require__(12);
+      var hide = __webpack_require__(12);
+      var redefine = __webpack_require__(13);
       var ctx = __webpack_require__(18);
       var PROTOTYPE = 'prototype';
 
@@ -1667,7 +1667,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /***/function (module, exports, __webpack_require__) {
 
       var anObject = __webpack_require__(1);
-      var IE8_DOM_DEFINE = __webpack_require__(106);
+      var IE8_DOM_DEFINE = __webpack_require__(105);
       var toPrimitive = __webpack_require__(22);
       var dP = Object.defineProperty;
 
@@ -1719,6 +1719,16 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       /***/
     },
     /* 11 */
+    /***/function (module, exports) {
+
+      var hasOwnProperty = {}.hasOwnProperty;
+      module.exports = function (it, key) {
+        return hasOwnProperty.call(it, key);
+      };
+
+      /***/
+    },
+    /* 12 */
     /***/function (module, exports, __webpack_require__) {
 
       var dP = __webpack_require__(7);
@@ -1732,12 +1742,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 12 */
+    /* 13 */
     /***/function (module, exports, __webpack_require__) {
 
       var global = __webpack_require__(2);
-      var hide = __webpack_require__(11);
-      var has = __webpack_require__(14);
+      var hide = __webpack_require__(12);
+      var has = __webpack_require__(11);
       var SRC = __webpack_require__(32)('src');
       var TO_STRING = 'toString';
       var $toString = Function[TO_STRING];
@@ -1769,7 +1779,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 13 */
+    /* 14 */
     /***/function (module, exports, __webpack_require__) {
 
       var $export = __webpack_require__(0);
@@ -1794,16 +1804,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 14 */
-    /***/function (module, exports) {
-
-      var hasOwnProperty = {}.hasOwnProperty;
-      module.exports = function (it, key) {
-        return hasOwnProperty.call(it, key);
-      };
-
-      /***/
-    },
     /* 15 */
     /***/function (module, exports, __webpack_require__) {
 
@@ -1823,8 +1823,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var createDesc = __webpack_require__(31);
       var toIObject = __webpack_require__(15);
       var toPrimitive = __webpack_require__(22);
-      var has = __webpack_require__(14);
-      var IE8_DOM_DEFINE = __webpack_require__(106);
+      var has = __webpack_require__(11);
+      var IE8_DOM_DEFINE = __webpack_require__(105);
       var gOPD = Object.getOwnPropertyDescriptor;
 
       exports.f = __webpack_require__(6) ? gOPD : function getOwnPropertyDescriptor(O, P) {
@@ -1842,7 +1842,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /***/function (module, exports, __webpack_require__) {
 
       // 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
-      var has = __webpack_require__(14);
+      var has = __webpack_require__(11);
       var toObject = __webpack_require__(9);
       var IE_PROTO = __webpack_require__(78)('IE_PROTO');
       var ObjectProto = Object.prototype;
@@ -1916,7 +1916,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /* 21 */
     /***/function (module, exports) {
 
-      var core = module.exports = { version: '2.5.4' };
+      var core = module.exports = { version: '2.5.1' };
       if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
 
 
@@ -2051,14 +2051,14 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         var ctx = __webpack_require__(18);
         var anInstance = __webpack_require__(39);
         var propertyDesc = __webpack_require__(31);
-        var hide = __webpack_require__(11);
+        var hide = __webpack_require__(12);
         var redefineAll = __webpack_require__(41);
         var toInteger = __webpack_require__(24);
         var toLength = __webpack_require__(8);
-        var toIndex = __webpack_require__(132);
+        var toIndex = __webpack_require__(131);
         var toAbsoluteIndex = __webpack_require__(35);
         var toPrimitive = __webpack_require__(22);
-        var has = __webpack_require__(14);
+        var has = __webpack_require__(11);
         var classof = __webpack_require__(51);
         var isObject = __webpack_require__(4);
         var toObject = __webpack_require__(9);
@@ -2077,7 +2077,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         var $iterDetect = __webpack_require__(59);
         var setSpecies = __webpack_require__(38);
         var arrayFill = __webpack_require__(96);
-        var arrayCopyWithin = __webpack_require__(122);
+        var arrayCopyWithin = __webpack_require__(121);
         var $DP = __webpack_require__(7);
         var $GOPD = __webpack_require__(16);
         var dP = $DP.f;
@@ -2526,10 +2526,10 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /* 28 */
     /***/function (module, exports, __webpack_require__) {
 
-      var Map = __webpack_require__(127);
+      var Map = __webpack_require__(126);
       var $export = __webpack_require__(0);
       var shared = __webpack_require__(54)('metadata');
-      var store = shared.store || (shared.store = new (__webpack_require__(130))());
+      var store = shared.store || (shared.store = new (__webpack_require__(129))());
 
       var getOrCreateMetadataMap = function getOrCreateMetadataMap(target, targetKey, create) {
         var targetMetadata = store.get(target);
@@ -2587,7 +2587,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var META = __webpack_require__(32)('meta');
       var isObject = __webpack_require__(4);
-      var has = __webpack_require__(14);
+      var has = __webpack_require__(11);
       var setDesc = __webpack_require__(7).f;
       var id = 0;
       var isExtensible = Object.isExtensible || function () {
@@ -2647,7 +2647,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       // 22.1.3.31 Array.prototype[@@unscopables]
       var UNSCOPABLES = __webpack_require__(5)('unscopables');
       var ArrayProto = Array.prototype;
-      if (ArrayProto[UNSCOPABLES] == undefined) __webpack_require__(11)(ArrayProto, UNSCOPABLES, {});
+      if (ArrayProto[UNSCOPABLES] == undefined) __webpack_require__(12)(ArrayProto, UNSCOPABLES, {});
       module.exports = function (key) {
         ArrayProto[UNSCOPABLES][key] = true;
       };
@@ -2690,7 +2690,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /***/function (module, exports, __webpack_require__) {
 
       // 19.1.2.14 / 15.2.3.14 Object.keys(O)
-      var $keys = __webpack_require__(108);
+      var $keys = __webpack_require__(107);
       var enumBugKeys = __webpack_require__(79);
 
       module.exports = Object.keys || function keys(O) {
@@ -2717,7 +2717,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       // 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
       var anObject = __webpack_require__(1);
-      var dPs = __webpack_require__(109);
+      var dPs = __webpack_require__(108);
       var enumBugKeys = __webpack_require__(79);
       var IE_PROTO = __webpack_require__(78)('IE_PROTO');
       var Empty = function Empty() {/* empty */};
@@ -2764,7 +2764,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /***/function (module, exports, __webpack_require__) {
 
       // 19.1.2.7 / 15.2.3.4 Object.getOwnPropertyNames(O)
-      var $keys = __webpack_require__(108);
+      var $keys = __webpack_require__(107);
       var hiddenKeys = __webpack_require__(79).concat('length', 'prototype');
 
       exports.f = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
@@ -2810,7 +2810,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /***/function (module, exports, __webpack_require__) {
 
       var ctx = __webpack_require__(18);
-      var call = __webpack_require__(120);
+      var call = __webpack_require__(119);
       var isArrayIter = __webpack_require__(92);
       var anObject = __webpack_require__(1);
       var toLength = __webpack_require__(8);
@@ -2842,7 +2842,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /* 41 */
     /***/function (module, exports, __webpack_require__) {
 
-      var redefine = __webpack_require__(12);
+      var redefine = __webpack_require__(13);
       module.exports = function (target, src, safe) {
         for (var key in src) {
           redefine(target, key, src[key], safe);
@@ -2865,9 +2865,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         */
         /* eslint-disable no-proto */
 
-        var base64 = __webpack_require__(345);
-        var ieee754 = __webpack_require__(346);
-        var isArray = __webpack_require__(347);
+        var base64 = __webpack_require__(344);
+        var ieee754 = __webpack_require__(345);
+        var isArray = __webpack_require__(346);
 
         exports.Buffer = Buffer;
         exports.SlowBuffer = SlowBuffer;
@@ -5458,7 +5458,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /***/function (module, exports, __webpack_require__) {
 
       var def = __webpack_require__(7).f;
-      var has = __webpack_require__(14);
+      var has = __webpack_require__(11);
       var TAG = __webpack_require__(5)('toStringTag');
 
       module.exports = function (it, tag, stat) {
@@ -5677,7 +5677,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
               } else if (typeof Uint8Array !== 'undefined' || Object.prototype.toString.call(buffer) === '[object Array]') {
                 this.buffer = writeStringToArray(buffer);
               } else {
-                throw new Error('only String, Buffer, Uint8Array or Array accepted');
+                throw new TypeError('only String, Buffer, Uint8Array or Array accepted');
               }
             } else {
               this.buffer = buffer;
@@ -5704,8 +5704,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
          */
         Binary.prototype.put = function put(byte_value) {
           // If it's a string and a has more than one character throw an error
-          if (byte_value['length'] != null && typeof byte_value !== 'number' && byte_value.length !== 1) throw new Error('only accepts single character String, Uint8Array or Array');
-          if (typeof byte_value !== 'number' && byte_value < 0 || byte_value > 255) throw new Error('only accepts number in a valid unsigned byte range 0-255');
+          if (byte_value['length'] != null && typeof byte_value !== 'number' && byte_value.length !== 1) throw new TypeError('only accepts single character String, Uint8Array or Array');
+          if (typeof byte_value !== 'number' && byte_value < 0 || byte_value > 255) throw new TypeError('only accepts number in a valid unsigned byte range 0-255');
 
           // Decode the byte value once
           var decoded_byte = null;
@@ -6113,8 +6113,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       "use strict";
 
-      var hide = __webpack_require__(11);
-      var redefine = __webpack_require__(12);
+      var hide = __webpack_require__(12);
+      var redefine = __webpack_require__(13);
       var fails = __webpack_require__(3);
       var defined = __webpack_require__(23);
       var wks = __webpack_require__(5);
@@ -6170,7 +6170,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var global = __webpack_require__(2);
       var $export = __webpack_require__(0);
-      var redefine = __webpack_require__(12);
+      var redefine = __webpack_require__(13);
       var redefineAll = __webpack_require__(41);
       var meta = __webpack_require__(29);
       var forOf = __webpack_require__(40);
@@ -6265,7 +6265,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /***/function (module, exports, __webpack_require__) {
 
       var global = __webpack_require__(2);
-      var hide = __webpack_require__(11);
+      var hide = __webpack_require__(12);
       var uid = __webpack_require__(32);
       var TYPED = uid('typed_array');
       var VIEW = uid('view');
@@ -6322,7 +6322,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       module.exports = function (COLLECTION) {
         $export($export.S, COLLECTION, { of: function of() {
             var length = arguments.length;
-            var A = new Array(length);
+            var A = Array(length);
             while (length--) {
               A[length] = arguments[length];
             }return new this(A);
@@ -6556,7 +6556,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
           // Throw an error if it's not a valid setup
           if (!valid && id != null) {
-            throw new Error('Argument passed in must be a single String of 12 bytes or a string of 24 hex characters');
+            throw new TypeError('Argument passed in must be a single String of 12 bytes or a string of 24 hex characters');
           } else if (valid && typeof id === 'string' && id.length === 24 && hasBufferType) {
             return new ObjectID(new Buffer(id, 'hex'));
           } else if (valid && typeof id === 'string' && id.length === 24) {
@@ -6568,7 +6568,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
             // Duck-typing to support ObjectId from different npm packages
             return id;
           } else {
-            throw new Error('Argument passed in must be a single String of 12 bytes or a string of 24 hex characters');
+            throw new TypeError('Argument passed in must be a single String of 12 bytes or a string of 24 hex characters');
           }
 
           if (ObjectID.cacheHexString) this.__id = this.toString('hex');
@@ -6594,7 +6594,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
           var hexString = '';
           if (!this.id || !this.id.length) {
-            throw new Error('invalid ObjectId, ObjectId.id must be either a string or a Buffer, but is [' + JSON.stringify(this.id) + ']');
+            throw new TypeError('invalid ObjectId, ObjectId.id must be either a string or a Buffer, but is [' + JSON.stringify(this.id) + ']');
           }
 
           if (this.id instanceof _Buffer) {
@@ -6793,7 +6793,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         ObjectID.createFromHexString = function createFromHexString(string) {
           // Throw an error if it's not a valid setup
           if (typeof string === 'undefined' || string != null && string.length !== 24) {
-            throw new Error('Argument passed in must be a single String of 12 bytes or a string of 24 hex characters');
+            throw new TypeError('Argument passed in must be a single String of 12 bytes or a string of 24 hex characters');
           }
 
           // Use Buffer.from method if available
@@ -6868,7 +6868,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         module.exports.ObjectID = ObjectID;
         module.exports.ObjectId = ObjectID;
         /* WEBPACK VAR INJECTION */
-      }).call(exports, __webpack_require__(42).Buffer, __webpack_require__(348));
+      }).call(exports, __webpack_require__(42).Buffer, __webpack_require__(347));
 
       /***/
     },
@@ -7037,7 +7037,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         };
 
         var invalidErr = function invalidErr(string, message) {
-          throw new Error('"${string}" not a valid Decimal128 string - ' + message);
+          throw new TypeError('"${string}" not a valid Decimal128 string - ' + message);
         };
 
         /**
@@ -7105,7 +7105,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           // TODO: implementing a custom parsing for this, or refactoring the regex would yield
           //       further gains.
           if (string.length >= 7000) {
-            throw new Error('' + string + ' not a valid Decimal128 string');
+            throw new TypeError('' + string + ' not a valid Decimal128 string');
           }
 
           // Results
@@ -7115,7 +7115,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
           // Validate the string
           if (!stringMatch && !infMatch && !nanMatch || string.length === 0) {
-            throw new Error('' + string + ' not a valid Decimal128 string');
+            throw new TypeError('' + string + ' not a valid Decimal128 string');
           }
 
           if (stringMatch) {
@@ -7186,7 +7186,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
             index = index + 1;
           }
 
-          if (sawRadix && !nDigitsRead) throw new Error('' + string + ' not a valid Decimal128 string');
+          if (sawRadix && !nDigitsRead) throw new TypeError('' + string + ' not a valid Decimal128 string');
 
           // Read exponent if exists
           if (string[index] === 'e' || string[index] === 'E') {
@@ -7774,7 +7774,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var global = __webpack_require__(2);
       var core = __webpack_require__(21);
       var LIBRARY = __webpack_require__(33);
-      var wksExt = __webpack_require__(107);
+      var wksExt = __webpack_require__(106);
       var defineProperty = __webpack_require__(7).f;
       module.exports = function (name) {
         var $Symbol = core.Symbol || (core.Symbol = LIBRARY ? {} : global.Symbol || {});
@@ -7938,8 +7938,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var LIBRARY = __webpack_require__(33);
       var $export = __webpack_require__(0);
-      var redefine = __webpack_require__(12);
-      var hide = __webpack_require__(11);
+      var redefine = __webpack_require__(13);
+      var hide = __webpack_require__(12);
+      var has = __webpack_require__(11);
       var Iterators = __webpack_require__(46);
       var $iterCreate = __webpack_require__(89);
       var setToStringTag = __webpack_require__(44);
@@ -7987,7 +7988,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
             // Set @@toStringTag to native iterators
             setToStringTag(IteratorPrototype, TAG, true);
             // fix for some old engines
-            if (!LIBRARY && typeof IteratorPrototype[ITERATOR] != 'function') hide(IteratorPrototype, ITERATOR, returnThis);
+            if (!LIBRARY && !has(IteratorPrototype, ITERATOR)) hide(IteratorPrototype, ITERATOR, returnThis);
           }
         }
         // fix Array#{values, @@iterator}.name in V8 / FF
@@ -8030,7 +8031,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var IteratorPrototype = {};
 
       // 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
-      __webpack_require__(11)(IteratorPrototype, __webpack_require__(5)('iterator'), function () {
+      __webpack_require__(12)(IteratorPrototype, __webpack_require__(5)('iterator'), function () {
         return this;
       });
 
@@ -8117,7 +8118,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /***/function (module, exports, __webpack_require__) {
 
       // 9.4.2.3 ArraySpeciesCreate(originalArray, length)
-      var speciesConstructor = __webpack_require__(233);
+      var speciesConstructor = __webpack_require__(232);
 
       module.exports = function (original, length) {
         return new (speciesConstructor(original))(length);
@@ -8154,7 +8155,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       "use strict";
 
       var addToUnscopables = __webpack_require__(30);
-      var step = __webpack_require__(123);
+      var step = __webpack_require__(122);
       var Iterators = __webpack_require__(46);
       var toIObject = __webpack_require__(15);
 
@@ -8193,7 +8194,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /***/function (module, exports, __webpack_require__) {
 
       var ctx = __webpack_require__(18);
-      var invoke = __webpack_require__(113);
+      var invoke = __webpack_require__(112);
       var html = __webpack_require__(80);
       var cel = __webpack_require__(76);
       var global = __webpack_require__(2);
@@ -8314,8 +8315,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           notify = function notify() {
             process.nextTick(flush);
           };
-          // browsers with MutationObserver, except iOS Safari - https://github.com/zloirock/core-js/issues/339
-        } else if (Observer && !(global.navigator && global.navigator.standalone)) {
+          // browsers with MutationObserver
+        } else if (Observer) {
           var toggle = true;
           var node = document.createTextNode('');
           new Observer(flush).observe(node, { characterData: true }); // eslint-disable-line no-new
@@ -8388,13 +8389,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var DESCRIPTORS = __webpack_require__(6);
       var LIBRARY = __webpack_require__(33);
       var $typed = __webpack_require__(64);
-      var hide = __webpack_require__(11);
+      var hide = __webpack_require__(12);
       var redefineAll = __webpack_require__(41);
       var fails = __webpack_require__(3);
       var anInstance = __webpack_require__(39);
       var toInteger = __webpack_require__(24);
       var toLength = __webpack_require__(8);
-      var toIndex = __webpack_require__(132);
+      var toIndex = __webpack_require__(131);
       var gOPN = __webpack_require__(37).f;
       var dP = __webpack_require__(7).f;
       var arrayFill = __webpack_require__(96);
@@ -8425,7 +8426,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       // IEEE754 conversions based on https://github.com/feross/ieee754
       function packIEEE754(value, mLen, nBytes) {
-        var buffer = new Array(nBytes);
+        var buffer = Array(nBytes);
         var eLen = nBytes * 8 - mLen - 1;
         var eMax = (1 << eLen) - 1;
         var eBias = eMax >> 1;
@@ -8547,7 +8548,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         $ArrayBuffer = function ArrayBuffer(length) {
           anInstance(this, $ArrayBuffer, ARRAY_BUFFER);
           var byteLength = toIndex(length);
-          this._b = arrayFill.call(new Array(byteLength), 0);
+          this._b = arrayFill.call(Array(byteLength), 0);
           this[$LENGTH] = byteLength;
         };
 
@@ -8667,16 +8668,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       /***/
     },
     /* 102 */
-    /***/function (module, exports, __webpack_require__) {
-
-      var global = __webpack_require__(2);
-      var navigator = global.navigator;
-
-      module.exports = navigator && navigator.userAgent || '';
-
-      /***/
-    },
-    /* 103 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -8815,7 +8806,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 104 */
+    /* 103 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -8871,7 +8862,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 105 */
+    /* 104 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -8913,7 +8904,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 106 */
+    /* 105 */
     /***/function (module, exports, __webpack_require__) {
 
       module.exports = !__webpack_require__(6) && !__webpack_require__(3)(function () {
@@ -8924,17 +8915,17 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 107 */
+    /* 106 */
     /***/function (module, exports, __webpack_require__) {
 
       exports.f = __webpack_require__(5);
 
       /***/
     },
-    /* 108 */
+    /* 107 */
     /***/function (module, exports, __webpack_require__) {
 
-      var has = __webpack_require__(14);
+      var has = __webpack_require__(11);
       var toIObject = __webpack_require__(15);
       var arrayIndexOf = __webpack_require__(55)(false);
       var IE_PROTO = __webpack_require__(78)('IE_PROTO');
@@ -8956,7 +8947,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 109 */
+    /* 108 */
     /***/function (module, exports, __webpack_require__) {
 
       var dP = __webpack_require__(7);
@@ -8976,7 +8967,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 110 */
+    /* 109 */
     /***/function (module, exports, __webpack_require__) {
 
       // fallback for IE11 buggy Object.getOwnPropertyNames with iframe and window
@@ -9000,7 +8991,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 111 */
+    /* 110 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -9047,14 +9038,14 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 112 */
+    /* 111 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
       var aFunction = __webpack_require__(10);
       var isObject = __webpack_require__(4);
-      var invoke = __webpack_require__(113);
+      var invoke = __webpack_require__(112);
       var arraySlice = [].slice;
       var factories = {};
 
@@ -9080,7 +9071,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 113 */
+    /* 112 */
     /***/function (module, exports) {
 
       // fast apply, http://jsperf.lnkit.com/fast-apply/5
@@ -9102,7 +9093,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 114 */
+    /* 113 */
     /***/function (module, exports, __webpack_require__) {
 
       var $parseInt = __webpack_require__(2).parseInt;
@@ -9117,7 +9108,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 115 */
+    /* 114 */
     /***/function (module, exports, __webpack_require__) {
 
       var $parseFloat = __webpack_require__(2).parseFloat;
@@ -9131,7 +9122,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 116 */
+    /* 115 */
     /***/function (module, exports, __webpack_require__) {
 
       var cof = __webpack_require__(19);
@@ -9142,7 +9133,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 117 */
+    /* 116 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.1.2.3 Number.isInteger(number)
@@ -9154,7 +9145,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 118 */
+    /* 117 */
     /***/function (module, exports) {
 
       // 20.2.2.20 Math.log1p(x)
@@ -9164,7 +9155,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 119 */
+    /* 118 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.2.2.16 Math.fround(x)
@@ -9193,7 +9184,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 120 */
+    /* 119 */
     /***/function (module, exports, __webpack_require__) {
 
       // call something on iterator step with safe closing on error
@@ -9211,7 +9202,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 121 */
+    /* 120 */
     /***/function (module, exports, __webpack_require__) {
 
       var aFunction = __webpack_require__(10);
@@ -9246,7 +9237,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 122 */
+    /* 121 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -9278,7 +9269,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 123 */
+    /* 122 */
     /***/function (module, exports) {
 
       module.exports = function (done, value) {
@@ -9287,7 +9278,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 124 */
+    /* 123 */
     /***/function (module, exports, __webpack_require__) {
 
       // 21.2.5.3 get RegExp.prototype.flags()
@@ -9298,7 +9289,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 125 */
+    /* 124 */
     /***/function (module, exports) {
 
       module.exports = function (exec) {
@@ -9311,7 +9302,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 126 */
+    /* 125 */
     /***/function (module, exports, __webpack_require__) {
 
       var anObject = __webpack_require__(1);
@@ -9329,12 +9320,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 127 */
+    /* 126 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
-      var strong = __webpack_require__(128);
+      var strong = __webpack_require__(127);
       var validate = __webpack_require__(47);
       var MAP = 'Map';
 
@@ -9357,7 +9348,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 128 */
+    /* 127 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -9369,7 +9360,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var anInstance = __webpack_require__(39);
       var forOf = __webpack_require__(40);
       var $iterDefine = __webpack_require__(88);
-      var step = __webpack_require__(123);
+      var step = __webpack_require__(122);
       var setSpecies = __webpack_require__(38);
       var DESCRIPTORS = __webpack_require__(6);
       var fastKey = __webpack_require__(29).fastKey;
@@ -9511,12 +9502,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 129 */
+    /* 128 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
-      var strong = __webpack_require__(128);
+      var strong = __webpack_require__(127);
       var validate = __webpack_require__(47);
       var SET = 'Set';
 
@@ -9534,16 +9525,16 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 130 */
+    /* 129 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
       var each = __webpack_require__(26)(0);
-      var redefine = __webpack_require__(12);
+      var redefine = __webpack_require__(13);
       var meta = __webpack_require__(29);
-      var assign = __webpack_require__(111);
-      var weak = __webpack_require__(131);
+      var assign = __webpack_require__(110);
+      var weak = __webpack_require__(130);
       var isObject = __webpack_require__(4);
       var fails = __webpack_require__(3);
       var validate = __webpack_require__(47);
@@ -9602,7 +9593,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 131 */
+    /* 130 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -9614,7 +9605,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var anInstance = __webpack_require__(39);
       var forOf = __webpack_require__(40);
       var createArrayMethod = __webpack_require__(26);
-      var $has = __webpack_require__(14);
+      var $has = __webpack_require__(11);
       var validate = __webpack_require__(47);
       var arrayFind = createArrayMethod(5);
       var arrayFindIndex = createArrayMethod(6);
@@ -9692,7 +9683,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 132 */
+    /* 131 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://tc39.github.io/ecma262/#sec-toindex
@@ -9708,7 +9699,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 133 */
+    /* 132 */
     /***/function (module, exports, __webpack_require__) {
 
       // all object keys, includes non-enumerable and symbols
@@ -9724,7 +9715,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 134 */
+    /* 133 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -9771,7 +9762,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 135 */
+    /* 134 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://github.com/tc39/proposal-string-pad-start-end
@@ -9793,7 +9784,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 136 */
+    /* 135 */
     /***/function (module, exports, __webpack_require__) {
 
       var getKeys = __webpack_require__(34);
@@ -9817,12 +9808,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 137 */
+    /* 136 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://github.com/DavidBruant/Map-Set.prototype.toJSON
       var classof = __webpack_require__(51);
-      var from = __webpack_require__(138);
+      var from = __webpack_require__(137);
       module.exports = function (NAME) {
         return function toJSON() {
           if (classof(this) != NAME) throw TypeError(NAME + "#toJSON isn't generic");
@@ -9832,7 +9823,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 138 */
+    /* 137 */
     /***/function (module, exports, __webpack_require__) {
 
       var forOf = __webpack_require__(40);
@@ -9845,7 +9836,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 139 */
+    /* 138 */
     /***/function (module, exports) {
 
       // https://rwaldron.github.io/proposal-math-extensions/
@@ -9867,26 +9858,26 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 140 */
+    /* 139 */
     /***/function (module, exports, __webpack_require__) {
 
-      __webpack_require__(141);
-      module.exports = __webpack_require__(343);
+      __webpack_require__(140);
+      module.exports = __webpack_require__(342);
 
       /***/
     },
-    /* 141 */
+    /* 140 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
       /* WEBPACK VAR INJECTION */
       (function (global) {
 
-        __webpack_require__(142);
+        __webpack_require__(141);
+
+        __webpack_require__(338);
 
         __webpack_require__(339);
-
-        __webpack_require__(340);
 
         if (global._babelPolyfill) {
           throw new Error("only one instance of babel-polyfill is allowed");
@@ -9913,10 +9904,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 142 */
+    /* 141 */
     /***/function (module, exports, __webpack_require__) {
 
-      __webpack_require__(143);
+      __webpack_require__(142);
+      __webpack_require__(144);
       __webpack_require__(145);
       __webpack_require__(146);
       __webpack_require__(147);
@@ -9931,7 +9923,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       __webpack_require__(156);
       __webpack_require__(157);
       __webpack_require__(158);
-      __webpack_require__(159);
+      __webpack_require__(160);
       __webpack_require__(161);
       __webpack_require__(162);
       __webpack_require__(163);
@@ -9992,16 +9984,16 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       __webpack_require__(218);
       __webpack_require__(219);
       __webpack_require__(220);
-      __webpack_require__(221);
+      __webpack_require__(222);
       __webpack_require__(223);
-      __webpack_require__(224);
+      __webpack_require__(225);
       __webpack_require__(226);
       __webpack_require__(227);
       __webpack_require__(228);
       __webpack_require__(229);
       __webpack_require__(230);
       __webpack_require__(231);
-      __webpack_require__(232);
+      __webpack_require__(233);
       __webpack_require__(234);
       __webpack_require__(235);
       __webpack_require__(236);
@@ -10014,19 +10006,19 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       __webpack_require__(243);
       __webpack_require__(244);
       __webpack_require__(245);
-      __webpack_require__(246);
       __webpack_require__(97);
+      __webpack_require__(246);
       __webpack_require__(247);
+      __webpack_require__(123);
       __webpack_require__(248);
-      __webpack_require__(124);
       __webpack_require__(249);
       __webpack_require__(250);
       __webpack_require__(251);
       __webpack_require__(252);
-      __webpack_require__(253);
-      __webpack_require__(127);
+      __webpack_require__(126);
+      __webpack_require__(128);
       __webpack_require__(129);
-      __webpack_require__(130);
+      __webpack_require__(253);
       __webpack_require__(254);
       __webpack_require__(255);
       __webpack_require__(256);
@@ -10111,12 +10103,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       __webpack_require__(335);
       __webpack_require__(336);
       __webpack_require__(337);
-      __webpack_require__(338);
       module.exports = __webpack_require__(21);
 
       /***/
     },
-    /* 143 */
+    /* 142 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -10124,27 +10115,26 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       // ECMAScript 6 symbols shim
 
       var global = __webpack_require__(2);
-      var has = __webpack_require__(14);
+      var has = __webpack_require__(11);
       var DESCRIPTORS = __webpack_require__(6);
       var $export = __webpack_require__(0);
-      var redefine = __webpack_require__(12);
+      var redefine = __webpack_require__(13);
       var META = __webpack_require__(29).KEY;
       var $fails = __webpack_require__(3);
       var shared = __webpack_require__(54);
       var setToStringTag = __webpack_require__(44);
       var uid = __webpack_require__(32);
       var wks = __webpack_require__(5);
-      var wksExt = __webpack_require__(107);
+      var wksExt = __webpack_require__(106);
       var wksDefine = __webpack_require__(77);
-      var enumKeys = __webpack_require__(144);
+      var enumKeys = __webpack_require__(143);
       var isArray = __webpack_require__(57);
       var anObject = __webpack_require__(1);
-      var isObject = __webpack_require__(4);
       var toIObject = __webpack_require__(15);
       var toPrimitive = __webpack_require__(22);
       var createDesc = __webpack_require__(31);
       var _create = __webpack_require__(36);
-      var gOPNExt = __webpack_require__(110);
+      var gOPNExt = __webpack_require__(109);
       var $GOPD = __webpack_require__(16);
       var $DP = __webpack_require__(7);
       var $keys = __webpack_require__(34);
@@ -10338,15 +10328,16 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         return _stringify([S]) != '[null]' || _stringify({ a: S }) != '{}' || _stringify(Object(S)) != '{}';
       })), 'JSON', {
         stringify: function stringify(it) {
+          if (it === undefined || isSymbol(it)) return; // IE8 returns string on undefined
           var args = [it];
           var i = 1;
           var replacer, $replacer;
           while (arguments.length > i) {
             args.push(arguments[i++]);
-          }$replacer = replacer = args[1];
-          if (!isObject(replacer) && it === undefined || isSymbol(it)) return; // IE8 returns string on undefined
-          if (!isArray(replacer)) replacer = function replacer(key, value) {
-            if (typeof $replacer == 'function') value = $replacer.call(this, key, value);
+          }replacer = args[1];
+          if (typeof replacer == 'function') $replacer = replacer;
+          if ($replacer || !isArray(replacer)) replacer = function replacer(key, value) {
+            if ($replacer) value = $replacer.call(this, key, value);
             if (!isSymbol(value)) return value;
           };
           args[1] = replacer;
@@ -10355,7 +10346,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       });
 
       // 19.4.3.4 Symbol.prototype[@@toPrimitive](hint)
-      $Symbol[PROTOTYPE][TO_PRIMITIVE] || __webpack_require__(11)($Symbol[PROTOTYPE], TO_PRIMITIVE, $Symbol[PROTOTYPE].valueOf);
+      $Symbol[PROTOTYPE][TO_PRIMITIVE] || __webpack_require__(12)($Symbol[PROTOTYPE], TO_PRIMITIVE, $Symbol[PROTOTYPE].valueOf);
       // 19.4.3.5 Symbol.prototype[@@toStringTag]
       setToStringTag($Symbol, 'Symbol');
       // 20.2.1.9 Math[@@toStringTag]
@@ -10365,7 +10356,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 144 */
+    /* 143 */
     /***/function (module, exports, __webpack_require__) {
 
       // all enumerable object keys, includes symbols
@@ -10388,7 +10379,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 145 */
+    /* 144 */
     /***/function (module, exports, __webpack_require__) {
 
       var $export = __webpack_require__(0);
@@ -10397,7 +10388,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 146 */
+    /* 145 */
     /***/function (module, exports, __webpack_require__) {
 
       var $export = __webpack_require__(0);
@@ -10406,16 +10397,16 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 147 */
+    /* 146 */
     /***/function (module, exports, __webpack_require__) {
 
       var $export = __webpack_require__(0);
       // 19.1.2.3 / 15.2.3.7 Object.defineProperties(O, Properties)
-      $export($export.S + $export.F * !__webpack_require__(6), 'Object', { defineProperties: __webpack_require__(109) });
+      $export($export.S + $export.F * !__webpack_require__(6), 'Object', { defineProperties: __webpack_require__(108) });
 
       /***/
     },
-    /* 148 */
+    /* 147 */
     /***/function (module, exports, __webpack_require__) {
 
       // 19.1.2.6 Object.getOwnPropertyDescriptor(O, P)
@@ -10430,7 +10421,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 149 */
+    /* 148 */
     /***/function (module, exports, __webpack_require__) {
 
       // 19.1.2.9 Object.getPrototypeOf(O)
@@ -10445,7 +10436,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 150 */
+    /* 149 */
     /***/function (module, exports, __webpack_require__) {
 
       // 19.1.2.14 Object.keys(O)
@@ -10460,17 +10451,17 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 151 */
+    /* 150 */
     /***/function (module, exports, __webpack_require__) {
 
       // 19.1.2.7 Object.getOwnPropertyNames(O)
       __webpack_require__(25)('getOwnPropertyNames', function () {
-        return __webpack_require__(110).f;
+        return __webpack_require__(109).f;
       });
 
       /***/
     },
-    /* 152 */
+    /* 151 */
     /***/function (module, exports, __webpack_require__) {
 
       // 19.1.2.5 Object.freeze(O)
@@ -10485,7 +10476,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 153 */
+    /* 152 */
     /***/function (module, exports, __webpack_require__) {
 
       // 19.1.2.17 Object.seal(O)
@@ -10500,7 +10491,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 154 */
+    /* 153 */
     /***/function (module, exports, __webpack_require__) {
 
       // 19.1.2.15 Object.preventExtensions(O)
@@ -10515,7 +10506,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 155 */
+    /* 154 */
     /***/function (module, exports, __webpack_require__) {
 
       // 19.1.2.12 Object.isFrozen(O)
@@ -10529,7 +10520,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 156 */
+    /* 155 */
     /***/function (module, exports, __webpack_require__) {
 
       // 19.1.2.13 Object.isSealed(O)
@@ -10543,7 +10534,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 157 */
+    /* 156 */
     /***/function (module, exports, __webpack_require__) {
 
       // 19.1.2.11 Object.isExtensible(O)
@@ -10557,26 +10548,26 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 158 */
+    /* 157 */
     /***/function (module, exports, __webpack_require__) {
 
       // 19.1.3.1 Object.assign(target, source)
       var $export = __webpack_require__(0);
 
-      $export($export.S + $export.F, 'Object', { assign: __webpack_require__(111) });
+      $export($export.S + $export.F, 'Object', { assign: __webpack_require__(110) });
 
       /***/
     },
-    /* 159 */
+    /* 158 */
     /***/function (module, exports, __webpack_require__) {
 
       // 19.1.3.10 Object.is(value1, value2)
       var $export = __webpack_require__(0);
-      $export($export.S, 'Object', { is: __webpack_require__(160) });
+      $export($export.S, 'Object', { is: __webpack_require__(159) });
 
       /***/
     },
-    /* 160 */
+    /* 159 */
     /***/function (module, exports) {
 
       // 7.2.9 SameValue(x, y)
@@ -10587,7 +10578,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 161 */
+    /* 160 */
     /***/function (module, exports, __webpack_require__) {
 
       // 19.1.3.19 Object.setPrototypeOf(O, proto)
@@ -10596,7 +10587,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 162 */
+    /* 161 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -10607,24 +10598,24 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var test = {};
       test[__webpack_require__(5)('toStringTag')] = 'z';
       if (test + '' != '[object z]') {
-        __webpack_require__(12)(Object.prototype, 'toString', function toString() {
+        __webpack_require__(13)(Object.prototype, 'toString', function toString() {
           return '[object ' + classof(this) + ']';
         }, true);
       }
 
       /***/
     },
-    /* 163 */
+    /* 162 */
     /***/function (module, exports, __webpack_require__) {
 
       // 19.2.3.2 / 15.3.4.5 Function.prototype.bind(thisArg, args...)
       var $export = __webpack_require__(0);
 
-      $export($export.P, 'Function', { bind: __webpack_require__(112) });
+      $export($export.P, 'Function', { bind: __webpack_require__(111) });
 
       /***/
     },
-    /* 164 */
+    /* 163 */
     /***/function (module, exports, __webpack_require__) {
 
       var dP = __webpack_require__(7).f;
@@ -10646,7 +10637,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 165 */
+    /* 164 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -10667,33 +10658,33 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
+    /* 165 */
+    /***/function (module, exports, __webpack_require__) {
+
+      var $export = __webpack_require__(0);
+      var $parseInt = __webpack_require__(113);
+      // 18.2.5 parseInt(string, radix)
+      $export($export.G + $export.F * (parseInt != $parseInt), { parseInt: $parseInt });
+
+      /***/
+    },
     /* 166 */
     /***/function (module, exports, __webpack_require__) {
 
       var $export = __webpack_require__(0);
-      var $parseInt = __webpack_require__(114);
-      // 18.2.5 parseInt(string, radix)
-      $export($export.G + $export.F * (parseInt != $parseInt), { parseInt: $parseInt });
+      var $parseFloat = __webpack_require__(114);
+      // 18.2.4 parseFloat(string)
+      $export($export.G + $export.F * (parseFloat != $parseFloat), { parseFloat: $parseFloat });
 
       /***/
     },
     /* 167 */
     /***/function (module, exports, __webpack_require__) {
 
-      var $export = __webpack_require__(0);
-      var $parseFloat = __webpack_require__(115);
-      // 18.2.4 parseFloat(string)
-      $export($export.G + $export.F * (parseFloat != $parseFloat), { parseFloat: $parseFloat });
-
-      /***/
-    },
-    /* 168 */
-    /***/function (module, exports, __webpack_require__) {
-
       "use strict";
 
       var global = __webpack_require__(2);
-      var has = __webpack_require__(14);
+      var has = __webpack_require__(11);
       var cof = __webpack_require__(19);
       var inheritIfRequired = __webpack_require__(83);
       var toPrimitive = __webpack_require__(22);
@@ -10760,19 +10751,19 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         }
         $Number.prototype = proto;
         proto.constructor = $Number;
-        __webpack_require__(12)(global, NUMBER, $Number);
+        __webpack_require__(13)(global, NUMBER, $Number);
       }
 
       /***/
     },
-    /* 169 */
+    /* 168 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
       var $export = __webpack_require__(0);
       var toInteger = __webpack_require__(24);
-      var aNumberValue = __webpack_require__(116);
+      var aNumberValue = __webpack_require__(115);
       var repeat = __webpack_require__(84);
       var $toFixed = 1.0.toFixed;
       var floor = Math.floor;
@@ -10881,14 +10872,14 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 170 */
+    /* 169 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
       var $export = __webpack_require__(0);
       var $fails = __webpack_require__(3);
-      var aNumberValue = __webpack_require__(116);
+      var aNumberValue = __webpack_require__(115);
       var $toPrecision = 1.0.toPrecision;
 
       $export($export.P + $export.F * ($fails(function () {
@@ -10906,7 +10897,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 171 */
+    /* 170 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.1.2.1 Number.EPSILON
@@ -10916,7 +10907,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 172 */
+    /* 171 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.1.2.2 Number.isFinite(number)
@@ -10931,17 +10922,17 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 173 */
+    /* 172 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.1.2.3 Number.isInteger(number)
       var $export = __webpack_require__(0);
 
-      $export($export.S, 'Number', { isInteger: __webpack_require__(117) });
+      $export($export.S, 'Number', { isInteger: __webpack_require__(116) });
 
       /***/
     },
-    /* 174 */
+    /* 173 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.1.2.4 Number.isNaN(number)
@@ -10956,12 +10947,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 175 */
+    /* 174 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.1.2.5 Number.isSafeInteger(number)
       var $export = __webpack_require__(0);
-      var isInteger = __webpack_require__(117);
+      var isInteger = __webpack_require__(116);
       var abs = Math.abs;
 
       $export($export.S, 'Number', {
@@ -10972,7 +10963,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 176 */
+    /* 175 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.1.2.6 Number.MAX_SAFE_INTEGER
@@ -10982,7 +10973,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 177 */
+    /* 176 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.1.2.10 Number.MIN_SAFE_INTEGER
@@ -10992,32 +10983,32 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
+    /* 177 */
+    /***/function (module, exports, __webpack_require__) {
+
+      var $export = __webpack_require__(0);
+      var $parseFloat = __webpack_require__(114);
+      // 20.1.2.12 Number.parseFloat(string)
+      $export($export.S + $export.F * (Number.parseFloat != $parseFloat), 'Number', { parseFloat: $parseFloat });
+
+      /***/
+    },
     /* 178 */
     /***/function (module, exports, __webpack_require__) {
 
       var $export = __webpack_require__(0);
-      var $parseFloat = __webpack_require__(115);
-      // 20.1.2.12 Number.parseFloat(string)
-      $export($export.S + $export.F * (Number.parseFloat != $parseFloat), 'Number', { parseFloat: $parseFloat });
+      var $parseInt = __webpack_require__(113);
+      // 20.1.2.13 Number.parseInt(string, radix)
+      $export($export.S + $export.F * (Number.parseInt != $parseInt), 'Number', { parseInt: $parseInt });
 
       /***/
     },
     /* 179 */
     /***/function (module, exports, __webpack_require__) {
 
-      var $export = __webpack_require__(0);
-      var $parseInt = __webpack_require__(114);
-      // 20.1.2.13 Number.parseInt(string, radix)
-      $export($export.S + $export.F * (Number.parseInt != $parseInt), 'Number', { parseInt: $parseInt });
-
-      /***/
-    },
-    /* 180 */
-    /***/function (module, exports, __webpack_require__) {
-
       // 20.2.2.3 Math.acosh(x)
       var $export = __webpack_require__(0);
-      var log1p = __webpack_require__(118);
+      var log1p = __webpack_require__(117);
       var sqrt = Math.sqrt;
       var $acosh = Math.acosh;
 
@@ -11033,7 +11024,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 181 */
+    /* 180 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.2.2.5 Math.asinh(x)
@@ -11049,7 +11040,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 182 */
+    /* 181 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.2.2.7 Math.atanh(x)
@@ -11065,7 +11056,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 183 */
+    /* 182 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.2.2.9 Math.cbrt(x)
@@ -11080,7 +11071,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 184 */
+    /* 183 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.2.2.11 Math.clz32(x)
@@ -11094,7 +11085,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 185 */
+    /* 184 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.2.2.12 Math.cosh(x)
@@ -11109,7 +11100,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 186 */
+    /* 185 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.2.2.14 Math.expm1(x)
@@ -11120,17 +11111,17 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 187 */
+    /* 186 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.2.2.16 Math.fround(x)
       var $export = __webpack_require__(0);
 
-      $export($export.S, 'Math', { fround: __webpack_require__(119) });
+      $export($export.S, 'Math', { fround: __webpack_require__(118) });
 
       /***/
     },
-    /* 188 */
+    /* 187 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.2.2.17 Math.hypot([value1[, value2[, … ]]])
@@ -11162,7 +11153,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 189 */
+    /* 188 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.2.2.18 Math.imul(x, y)
@@ -11185,7 +11176,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 190 */
+    /* 189 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.2.2.21 Math.log10(x)
@@ -11199,17 +11190,17 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 191 */
+    /* 190 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.2.2.20 Math.log1p(x)
       var $export = __webpack_require__(0);
 
-      $export($export.S, 'Math', { log1p: __webpack_require__(118) });
+      $export($export.S, 'Math', { log1p: __webpack_require__(117) });
 
       /***/
     },
-    /* 192 */
+    /* 191 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.2.2.22 Math.log2(x)
@@ -11223,7 +11214,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 193 */
+    /* 192 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.2.2.28 Math.sign(x)
@@ -11233,7 +11224,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 194 */
+    /* 193 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.2.2.30 Math.sinh(x)
@@ -11252,7 +11243,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 195 */
+    /* 194 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.2.2.33 Math.tanh(x)
@@ -11270,7 +11261,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 196 */
+    /* 195 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.2.2.34 Math.trunc(x)
@@ -11284,7 +11275,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 197 */
+    /* 196 */
     /***/function (module, exports, __webpack_require__) {
 
       var $export = __webpack_require__(0);
@@ -11311,7 +11302,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 198 */
+    /* 197 */
     /***/function (module, exports, __webpack_require__) {
 
       var $export = __webpack_require__(0);
@@ -11335,7 +11326,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 199 */
+    /* 198 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -11350,7 +11341,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 200 */
+    /* 199 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -11374,7 +11365,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 201 */
+    /* 200 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -11390,7 +11381,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 202 */
+    /* 201 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -11415,7 +11406,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 203 */
+    /* 202 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -11433,7 +11424,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 204 */
+    /* 203 */
     /***/function (module, exports, __webpack_require__) {
 
       var $export = __webpack_require__(0);
@@ -11445,7 +11436,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 205 */
+    /* 204 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -11468,16 +11459,31 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 206 */
+    /* 205 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
       // B.2.3.2 String.prototype.anchor(name)
 
-      __webpack_require__(13)('anchor', function (createHTML) {
+      __webpack_require__(14)('anchor', function (createHTML) {
         return function anchor(name) {
           return createHTML(this, 'a', 'name', name);
+        };
+      });
+
+      /***/
+    },
+    /* 206 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      // B.2.3.3 String.prototype.big()
+
+      __webpack_require__(14)('big', function (createHTML) {
+        return function big() {
+          return createHTML(this, 'big', '', '');
         };
       });
 
@@ -11488,11 +11494,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       "use strict";
 
-      // B.2.3.3 String.prototype.big()
+      // B.2.3.4 String.prototype.blink()
 
-      __webpack_require__(13)('big', function (createHTML) {
-        return function big() {
-          return createHTML(this, 'big', '', '');
+      __webpack_require__(14)('blink', function (createHTML) {
+        return function blink() {
+          return createHTML(this, 'blink', '', '');
         };
       });
 
@@ -11503,11 +11509,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       "use strict";
 
-      // B.2.3.4 String.prototype.blink()
+      // B.2.3.5 String.prototype.bold()
 
-      __webpack_require__(13)('blink', function (createHTML) {
-        return function blink() {
-          return createHTML(this, 'blink', '', '');
+      __webpack_require__(14)('bold', function (createHTML) {
+        return function bold() {
+          return createHTML(this, 'b', '', '');
         };
       });
 
@@ -11518,11 +11524,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       "use strict";
 
-      // B.2.3.5 String.prototype.bold()
+      // B.2.3.6 String.prototype.fixed()
 
-      __webpack_require__(13)('bold', function (createHTML) {
-        return function bold() {
-          return createHTML(this, 'b', '', '');
+      __webpack_require__(14)('fixed', function (createHTML) {
+        return function fixed() {
+          return createHTML(this, 'tt', '', '');
         };
       });
 
@@ -11533,11 +11539,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       "use strict";
 
-      // B.2.3.6 String.prototype.fixed()
+      // B.2.3.7 String.prototype.fontcolor(color)
 
-      __webpack_require__(13)('fixed', function (createHTML) {
-        return function fixed() {
-          return createHTML(this, 'tt', '', '');
+      __webpack_require__(14)('fontcolor', function (createHTML) {
+        return function fontcolor(color) {
+          return createHTML(this, 'font', 'color', color);
         };
       });
 
@@ -11548,11 +11554,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       "use strict";
 
-      // B.2.3.7 String.prototype.fontcolor(color)
+      // B.2.3.8 String.prototype.fontsize(size)
 
-      __webpack_require__(13)('fontcolor', function (createHTML) {
-        return function fontcolor(color) {
-          return createHTML(this, 'font', 'color', color);
+      __webpack_require__(14)('fontsize', function (createHTML) {
+        return function fontsize(size) {
+          return createHTML(this, 'font', 'size', size);
         };
       });
 
@@ -11563,11 +11569,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       "use strict";
 
-      // B.2.3.8 String.prototype.fontsize(size)
+      // B.2.3.9 String.prototype.italics()
 
-      __webpack_require__(13)('fontsize', function (createHTML) {
-        return function fontsize(size) {
-          return createHTML(this, 'font', 'size', size);
+      __webpack_require__(14)('italics', function (createHTML) {
+        return function italics() {
+          return createHTML(this, 'i', '', '');
         };
       });
 
@@ -11578,11 +11584,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       "use strict";
 
-      // B.2.3.9 String.prototype.italics()
+      // B.2.3.10 String.prototype.link(url)
 
-      __webpack_require__(13)('italics', function (createHTML) {
-        return function italics() {
-          return createHTML(this, 'i', '', '');
+      __webpack_require__(14)('link', function (createHTML) {
+        return function link(url) {
+          return createHTML(this, 'a', 'href', url);
         };
       });
 
@@ -11593,11 +11599,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       "use strict";
 
-      // B.2.3.10 String.prototype.link(url)
+      // B.2.3.11 String.prototype.small()
 
-      __webpack_require__(13)('link', function (createHTML) {
-        return function link(url) {
-          return createHTML(this, 'a', 'href', url);
+      __webpack_require__(14)('small', function (createHTML) {
+        return function small() {
+          return createHTML(this, 'small', '', '');
         };
       });
 
@@ -11608,11 +11614,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       "use strict";
 
-      // B.2.3.11 String.prototype.small()
+      // B.2.3.12 String.prototype.strike()
 
-      __webpack_require__(13)('small', function (createHTML) {
-        return function small() {
-          return createHTML(this, 'small', '', '');
+      __webpack_require__(14)('strike', function (createHTML) {
+        return function strike() {
+          return createHTML(this, 'strike', '', '');
         };
       });
 
@@ -11623,11 +11629,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       "use strict";
 
-      // B.2.3.12 String.prototype.strike()
+      // B.2.3.13 String.prototype.sub()
 
-      __webpack_require__(13)('strike', function (createHTML) {
-        return function strike() {
-          return createHTML(this, 'strike', '', '');
+      __webpack_require__(14)('sub', function (createHTML) {
+        return function sub() {
+          return createHTML(this, 'sub', '', '');
         };
       });
 
@@ -11638,24 +11644,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       "use strict";
 
-      // B.2.3.13 String.prototype.sub()
-
-      __webpack_require__(13)('sub', function (createHTML) {
-        return function sub() {
-          return createHTML(this, 'sub', '', '');
-        };
-      });
-
-      /***/
-    },
-    /* 218 */
-    /***/function (module, exports, __webpack_require__) {
-
-      "use strict";
-
       // B.2.3.14 String.prototype.sup()
 
-      __webpack_require__(13)('sup', function (createHTML) {
+      __webpack_require__(14)('sup', function (createHTML) {
         return function sup() {
           return createHTML(this, 'sup', '', '');
         };
@@ -11663,7 +11654,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 219 */
+    /* 218 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.3.3.1 / 15.9.4.4 Date.now()
@@ -11675,7 +11666,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 220 */
+    /* 219 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -11699,12 +11690,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 221 */
+    /* 220 */
     /***/function (module, exports, __webpack_require__) {
 
       // 20.3.4.36 / 15.9.5.43 Date.prototype.toISOString()
       var $export = __webpack_require__(0);
-      var toISOString = __webpack_require__(222);
+      var toISOString = __webpack_require__(221);
 
       // PhantomJS / old WebKit has a broken implementations
       $export($export.P + $export.F * (Date.prototype.toISOString !== toISOString), 'Date', {
@@ -11713,7 +11704,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 222 */
+    /* 221 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -11744,7 +11735,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 223 */
+    /* 222 */
     /***/function (module, exports, __webpack_require__) {
 
       var DateProto = Date.prototype;
@@ -11753,7 +11744,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var $toString = DateProto[TO_STRING];
       var getTime = DateProto.getTime;
       if (new Date(NaN) + '' != INVALID_DATE) {
-        __webpack_require__(12)(DateProto, TO_STRING, function toString() {
+        __webpack_require__(13)(DateProto, TO_STRING, function toString() {
           var value = getTime.call(this);
           // eslint-disable-next-line no-self-compare
           return value === value ? $toString.call(this) : INVALID_DATE;
@@ -11762,17 +11753,17 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 224 */
+    /* 223 */
     /***/function (module, exports, __webpack_require__) {
 
       var TO_PRIMITIVE = __webpack_require__(5)('toPrimitive');
       var proto = Date.prototype;
 
-      if (!(TO_PRIMITIVE in proto)) __webpack_require__(11)(proto, TO_PRIMITIVE, __webpack_require__(225));
+      if (!(TO_PRIMITIVE in proto)) __webpack_require__(12)(proto, TO_PRIMITIVE, __webpack_require__(224));
 
       /***/
     },
-    /* 225 */
+    /* 224 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -11788,7 +11779,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 226 */
+    /* 225 */
     /***/function (module, exports, __webpack_require__) {
 
       // 22.1.2.2 / 15.4.3.2 Array.isArray(arg)
@@ -11798,7 +11789,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 227 */
+    /* 226 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -11806,7 +11797,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var ctx = __webpack_require__(18);
       var $export = __webpack_require__(0);
       var toObject = __webpack_require__(9);
-      var call = __webpack_require__(120);
+      var call = __webpack_require__(119);
       var isArrayIter = __webpack_require__(92);
       var toLength = __webpack_require__(8);
       var createProperty = __webpack_require__(93);
@@ -11844,7 +11835,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 228 */
+    /* 227 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -11871,7 +11862,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 229 */
+    /* 228 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -11891,7 +11882,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 230 */
+    /* 229 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -11915,7 +11906,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           var start = toAbsoluteIndex(begin, len);
           var upTo = toAbsoluteIndex(end, len);
           var size = toLength(upTo - start);
-          var cloned = new Array(size);
+          var cloned = Array(size);
           var i = 0;
           for (; i < size; i++) {
             cloned[i] = klass == 'String' ? this.charAt(start + i) : this[start + i];
@@ -11925,7 +11916,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 231 */
+    /* 230 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -11953,7 +11944,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 232 */
+    /* 231 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -11971,7 +11962,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 233 */
+    /* 232 */
     /***/function (module, exports, __webpack_require__) {
 
       var isObject = __webpack_require__(4);
@@ -11993,7 +11984,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 234 */
+    /* 233 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -12010,7 +12001,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 235 */
+    /* 234 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -12027,7 +12018,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 236 */
+    /* 235 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -12044,7 +12035,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 237 */
+    /* 236 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -12061,13 +12052,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 238 */
+    /* 237 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
       var $export = __webpack_require__(0);
-      var $reduce = __webpack_require__(121);
+      var $reduce = __webpack_require__(120);
 
       $export($export.P + $export.F * !__webpack_require__(20)([].reduce, true), 'Array', {
         // 22.1.3.18 / 15.4.4.21 Array.prototype.reduce(callbackfn [, initialValue])
@@ -12078,13 +12069,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 239 */
+    /* 238 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
       var $export = __webpack_require__(0);
-      var $reduce = __webpack_require__(121);
+      var $reduce = __webpack_require__(120);
 
       $export($export.P + $export.F * !__webpack_require__(20)([].reduceRight, true), 'Array', {
         // 22.1.3.19 / 15.4.4.22 Array.prototype.reduceRight(callbackfn [, initialValue])
@@ -12095,7 +12086,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 240 */
+    /* 239 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -12116,7 +12107,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 241 */
+    /* 240 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -12146,19 +12137,19 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 242 */
+    /* 241 */
     /***/function (module, exports, __webpack_require__) {
 
       // 22.1.3.3 Array.prototype.copyWithin(target, start, end = this.length)
       var $export = __webpack_require__(0);
 
-      $export($export.P, 'Array', { copyWithin: __webpack_require__(122) });
+      $export($export.P, 'Array', { copyWithin: __webpack_require__(121) });
 
       __webpack_require__(30)('copyWithin');
 
       /***/
     },
-    /* 243 */
+    /* 242 */
     /***/function (module, exports, __webpack_require__) {
 
       // 22.1.3.6 Array.prototype.fill(value, start = 0, end = this.length)
@@ -12170,7 +12161,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 244 */
+    /* 243 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -12194,7 +12185,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 245 */
+    /* 244 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -12218,14 +12209,14 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 246 */
+    /* 245 */
     /***/function (module, exports, __webpack_require__) {
 
       __webpack_require__(38)('Array');
 
       /***/
     },
-    /* 247 */
+    /* 246 */
     /***/function (module, exports, __webpack_require__) {
 
       var global = __webpack_require__(2);
@@ -12268,19 +12259,19 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           proxy(keys[i++]);
         }proto.constructor = $RegExp;
         $RegExp.prototype = proto;
-        __webpack_require__(12)(global, 'RegExp', $RegExp);
+        __webpack_require__(13)(global, 'RegExp', $RegExp);
       }
 
       __webpack_require__(38)('RegExp');
 
       /***/
     },
-    /* 248 */
+    /* 247 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
-      __webpack_require__(124);
+      __webpack_require__(123);
       var anObject = __webpack_require__(1);
       var $flags = __webpack_require__(60);
       var DESCRIPTORS = __webpack_require__(6);
@@ -12288,7 +12279,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var $toString = /./[TO_STRING];
 
       var define = function define(fn) {
-        __webpack_require__(12)(RegExp.prototype, TO_STRING, fn, true);
+        __webpack_require__(13)(RegExp.prototype, TO_STRING, fn, true);
       };
 
       // 21.2.5.14 RegExp.prototype.toString()
@@ -12308,7 +12299,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 249 */
+    /* 248 */
     /***/function (module, exports, __webpack_require__) {
 
       // @@match logic
@@ -12325,7 +12316,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 250 */
+    /* 249 */
     /***/function (module, exports, __webpack_require__) {
 
       // @@replace logic
@@ -12342,7 +12333,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 251 */
+    /* 250 */
     /***/function (module, exports, __webpack_require__) {
 
       // @@search logic
@@ -12359,7 +12350,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 252 */
+    /* 251 */
     /***/function (module, exports, __webpack_require__) {
 
       // @@split logic
@@ -12429,7 +12420,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 253 */
+    /* 252 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -12447,8 +12438,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var task = __webpack_require__(98).set;
       var microtask = __webpack_require__(99)();
       var newPromiseCapabilityModule = __webpack_require__(100);
-      var perform = __webpack_require__(125);
-      var promiseResolve = __webpack_require__(126);
+      var perform = __webpack_require__(124);
+      var promiseResolve = __webpack_require__(125);
       var PROMISE = 'Promise';
       var TypeError = global.TypeError;
       var process = global.process;
@@ -12488,7 +12479,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
             var resolve = reaction.resolve;
             var reject = reaction.reject;
             var domain = reaction.domain;
-            var result, then, exited;
+            var result, then;
             try {
               if (handler) {
                 if (!ok) {
@@ -12497,11 +12488,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
                 }
                 if (handler === true) result = value;else {
                   if (domain) domain.enter();
-                  result = handler(value); // may throw
-                  if (domain) {
-                    domain.exit();
-                    exited = true;
-                  }
+                  result = handler(value);
+                  if (domain) domain.exit();
                 }
                 if (result === reaction.promise) {
                   reject(TypeError('Promise-chain cycle'));
@@ -12510,7 +12498,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
                 } else resolve(result);
               } else reject(value);
             } catch (e) {
-              if (domain && !exited) domain.exit();
               reject(e);
             }
           };
@@ -12544,7 +12531,14 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         });
       };
       var isUnhandled = function isUnhandled(promise) {
-        return promise._h !== 1 && (promise._a || promise._c).length === 0;
+        if (promise._h == 1) return false;
+        var chain = promise._a || promise._c;
+        var i = 0;
+        var reaction;
+        while (chain.length > i) {
+          reaction = chain[i++];
+          if (reaction.fail || !isUnhandled(reaction.promise)) return false;
+        }return true;
       };
       var onHandleUnhandled = function onHandleUnhandled(promise) {
         task.call(global, function () {
@@ -12712,12 +12706,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 254 */
+    /* 253 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
-      var weak = __webpack_require__(131);
+      var weak = __webpack_require__(130);
       var validate = __webpack_require__(47);
       var WEAK_SET = 'WeakSet';
 
@@ -12735,7 +12729,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 255 */
+    /* 254 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -12788,7 +12782,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 256 */
+    /* 255 */
     /***/function (module, exports, __webpack_require__) {
 
       var $export = __webpack_require__(0);
@@ -12798,7 +12792,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 257 */
+    /* 256 */
     /***/function (module, exports, __webpack_require__) {
 
       __webpack_require__(27)('Int8', 1, function (init) {
@@ -12809,7 +12803,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 258 */
+    /* 257 */
     /***/function (module, exports, __webpack_require__) {
 
       __webpack_require__(27)('Uint8', 1, function (init) {
@@ -12820,7 +12814,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 259 */
+    /* 258 */
     /***/function (module, exports, __webpack_require__) {
 
       __webpack_require__(27)('Uint8', 1, function (init) {
@@ -12831,7 +12825,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 260 */
+    /* 259 */
     /***/function (module, exports, __webpack_require__) {
 
       __webpack_require__(27)('Int16', 2, function (init) {
@@ -12842,7 +12836,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 261 */
+    /* 260 */
     /***/function (module, exports, __webpack_require__) {
 
       __webpack_require__(27)('Uint16', 2, function (init) {
@@ -12853,7 +12847,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 262 */
+    /* 261 */
     /***/function (module, exports, __webpack_require__) {
 
       __webpack_require__(27)('Int32', 4, function (init) {
@@ -12864,7 +12858,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 263 */
+    /* 262 */
     /***/function (module, exports, __webpack_require__) {
 
       __webpack_require__(27)('Uint32', 4, function (init) {
@@ -12875,7 +12869,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 264 */
+    /* 263 */
     /***/function (module, exports, __webpack_require__) {
 
       __webpack_require__(27)('Float32', 4, function (init) {
@@ -12886,7 +12880,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 265 */
+    /* 264 */
     /***/function (module, exports, __webpack_require__) {
 
       __webpack_require__(27)('Float64', 8, function (init) {
@@ -12897,7 +12891,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 266 */
+    /* 265 */
     /***/function (module, exports, __webpack_require__) {
 
       // 26.1.1 Reflect.apply(target, thisArgument, argumentsList)
@@ -12919,7 +12913,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 267 */
+    /* 266 */
     /***/function (module, exports, __webpack_require__) {
 
       // 26.1.2 Reflect.construct(target, argumentsList [, newTarget])
@@ -12929,7 +12923,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var anObject = __webpack_require__(1);
       var isObject = __webpack_require__(4);
       var fails = __webpack_require__(3);
-      var bind = __webpack_require__(112);
+      var bind = __webpack_require__(111);
       var rConstruct = (__webpack_require__(2).Reflect || {}).construct;
 
       // MS Edge supports only 2 arguments and argumentsList argument is optional
@@ -12977,7 +12971,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 268 */
+    /* 267 */
     /***/function (module, exports, __webpack_require__) {
 
       // 26.1.3 Reflect.defineProperty(target, propertyKey, attributes)
@@ -13006,7 +13000,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 269 */
+    /* 268 */
     /***/function (module, exports, __webpack_require__) {
 
       // 26.1.4 Reflect.deleteProperty(target, propertyKey)
@@ -13023,7 +13017,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 270 */
+    /* 269 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -13059,13 +13053,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 271 */
+    /* 270 */
     /***/function (module, exports, __webpack_require__) {
 
       // 26.1.6 Reflect.get(target, propertyKey [, receiver])
       var gOPD = __webpack_require__(16);
       var getPrototypeOf = __webpack_require__(17);
-      var has = __webpack_require__(14);
+      var has = __webpack_require__(11);
       var $export = __webpack_require__(0);
       var isObject = __webpack_require__(4);
       var anObject = __webpack_require__(1);
@@ -13082,7 +13076,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 272 */
+    /* 271 */
     /***/function (module, exports, __webpack_require__) {
 
       // 26.1.7 Reflect.getOwnPropertyDescriptor(target, propertyKey)
@@ -13098,7 +13092,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 273 */
+    /* 272 */
     /***/function (module, exports, __webpack_require__) {
 
       // 26.1.8 Reflect.getPrototypeOf(target)
@@ -13114,7 +13108,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 274 */
+    /* 273 */
     /***/function (module, exports, __webpack_require__) {
 
       // 26.1.9 Reflect.has(target, propertyKey)
@@ -13128,7 +13122,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 275 */
+    /* 274 */
     /***/function (module, exports, __webpack_require__) {
 
       // 26.1.10 Reflect.isExtensible(target)
@@ -13145,17 +13139,17 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 276 */
+    /* 275 */
     /***/function (module, exports, __webpack_require__) {
 
       // 26.1.11 Reflect.ownKeys(target)
       var $export = __webpack_require__(0);
 
-      $export($export.S, 'Reflect', { ownKeys: __webpack_require__(133) });
+      $export($export.S, 'Reflect', { ownKeys: __webpack_require__(132) });
 
       /***/
     },
-    /* 277 */
+    /* 276 */
     /***/function (module, exports, __webpack_require__) {
 
       // 26.1.12 Reflect.preventExtensions(target)
@@ -13177,14 +13171,14 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 278 */
+    /* 277 */
     /***/function (module, exports, __webpack_require__) {
 
       // 26.1.13 Reflect.set(target, propertyKey, V [, receiver])
       var dP = __webpack_require__(7);
       var gOPD = __webpack_require__(16);
       var getPrototypeOf = __webpack_require__(17);
-      var has = __webpack_require__(14);
+      var has = __webpack_require__(11);
       var $export = __webpack_require__(0);
       var createDesc = __webpack_require__(31);
       var anObject = __webpack_require__(1);
@@ -13214,7 +13208,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 279 */
+    /* 278 */
     /***/function (module, exports, __webpack_require__) {
 
       // 26.1.14 Reflect.setPrototypeOf(target, proto)
@@ -13235,7 +13229,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 280 */
+    /* 279 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -13255,7 +13249,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 281 */
+    /* 280 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -13263,7 +13257,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       // https://tc39.github.io/proposal-flatMap/#sec-Array.prototype.flatMap
 
       var $export = __webpack_require__(0);
-      var flattenIntoArray = __webpack_require__(134);
+      var flattenIntoArray = __webpack_require__(133);
       var toObject = __webpack_require__(9);
       var toLength = __webpack_require__(8);
       var aFunction = __webpack_require__(10);
@@ -13285,7 +13279,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 282 */
+    /* 281 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -13293,7 +13287,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       // https://tc39.github.io/proposal-flatMap/#sec-Array.prototype.flatten
 
       var $export = __webpack_require__(0);
-      var flattenIntoArray = __webpack_require__(134);
+      var flattenIntoArray = __webpack_require__(133);
       var toObject = __webpack_require__(9);
       var toLength = __webpack_require__(8);
       var toInteger = __webpack_require__(24);
@@ -13314,7 +13308,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 283 */
+    /* 282 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -13332,6 +13326,24 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
+    /* 283 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      // https://github.com/tc39/proposal-string-pad-start-end
+
+      var $export = __webpack_require__(0);
+      var $pad = __webpack_require__(134);
+
+      $export($export.P, 'String', {
+        padStart: function padStart(maxLength /* , fillString = ' ' */) {
+          return $pad(this, maxLength, arguments.length > 1 ? arguments[1] : undefined, true);
+        }
+      });
+
+      /***/
+    },
     /* 284 */
     /***/function (module, exports, __webpack_require__) {
 
@@ -13340,31 +13352,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       // https://github.com/tc39/proposal-string-pad-start-end
 
       var $export = __webpack_require__(0);
-      var $pad = __webpack_require__(135);
-      var userAgent = __webpack_require__(102);
+      var $pad = __webpack_require__(134);
 
-      // https://github.com/zloirock/core-js/issues/280
-      $export($export.P + $export.F * /Version\/10\.\d+(\.\d+)? Safari\//.test(userAgent), 'String', {
-        padStart: function padStart(maxLength /* , fillString = ' ' */) {
-          return $pad(this, maxLength, arguments.length > 1 ? arguments[1] : undefined, true);
-        }
-      });
-
-      /***/
-    },
-    /* 285 */
-    /***/function (module, exports, __webpack_require__) {
-
-      "use strict";
-
-      // https://github.com/tc39/proposal-string-pad-start-end
-
-      var $export = __webpack_require__(0);
-      var $pad = __webpack_require__(135);
-      var userAgent = __webpack_require__(102);
-
-      // https://github.com/zloirock/core-js/issues/280
-      $export($export.P + $export.F * /Version\/10\.\d+(\.\d+)? Safari\//.test(userAgent), 'String', {
+      $export($export.P, 'String', {
         padEnd: function padEnd(maxLength /* , fillString = ' ' */) {
           return $pad(this, maxLength, arguments.length > 1 ? arguments[1] : undefined, false);
         }
@@ -13372,7 +13362,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 286 */
+    /* 285 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -13387,7 +13377,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 287 */
+    /* 286 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -13402,7 +13392,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 288 */
+    /* 287 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -13440,26 +13430,26 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 289 */
+    /* 288 */
     /***/function (module, exports, __webpack_require__) {
 
       __webpack_require__(77)('asyncIterator');
 
       /***/
     },
-    /* 290 */
+    /* 289 */
     /***/function (module, exports, __webpack_require__) {
 
       __webpack_require__(77)('observable');
 
       /***/
     },
-    /* 291 */
+    /* 290 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://github.com/tc39/proposal-object-getownpropertydescriptors
       var $export = __webpack_require__(0);
-      var ownKeys = __webpack_require__(133);
+      var ownKeys = __webpack_require__(132);
       var toIObject = __webpack_require__(15);
       var gOPD = __webpack_require__(16);
       var createProperty = __webpack_require__(93);
@@ -13482,12 +13472,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 292 */
+    /* 291 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://github.com/tc39/proposal-object-values-entries
       var $export = __webpack_require__(0);
-      var $values = __webpack_require__(136)(false);
+      var $values = __webpack_require__(135)(false);
 
       $export($export.S, 'Object', {
         values: function values(it) {
@@ -13497,12 +13487,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 293 */
+    /* 292 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://github.com/tc39/proposal-object-values-entries
       var $export = __webpack_require__(0);
-      var $entries = __webpack_require__(136)(true);
+      var $entries = __webpack_require__(135)(true);
 
       $export($export.S, 'Object', {
         entries: function entries(it) {
@@ -13512,7 +13502,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 294 */
+    /* 293 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -13531,7 +13521,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 295 */
+    /* 294 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -13550,7 +13540,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 296 */
+    /* 295 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -13575,7 +13565,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 297 */
+    /* 296 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -13600,27 +13590,27 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
+    /* 297 */
+    /***/function (module, exports, __webpack_require__) {
+
+      // https://github.com/DavidBruant/Map-Set.prototype.toJSON
+      var $export = __webpack_require__(0);
+
+      $export($export.P + $export.R, 'Map', { toJSON: __webpack_require__(136)('Map') });
+
+      /***/
+    },
     /* 298 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://github.com/DavidBruant/Map-Set.prototype.toJSON
       var $export = __webpack_require__(0);
 
-      $export($export.P + $export.R, 'Map', { toJSON: __webpack_require__(137)('Map') });
+      $export($export.P + $export.R, 'Set', { toJSON: __webpack_require__(136)('Set') });
 
       /***/
     },
     /* 299 */
-    /***/function (module, exports, __webpack_require__) {
-
-      // https://github.com/DavidBruant/Map-Set.prototype.toJSON
-      var $export = __webpack_require__(0);
-
-      $export($export.P + $export.R, 'Set', { toJSON: __webpack_require__(137)('Set') });
-
-      /***/
-    },
-    /* 300 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://tc39.github.io/proposal-setmap-offrom/#sec-map.of
@@ -13628,7 +13618,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 301 */
+    /* 300 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://tc39.github.io/proposal-setmap-offrom/#sec-set.of
@@ -13636,7 +13626,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 302 */
+    /* 301 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://tc39.github.io/proposal-setmap-offrom/#sec-weakmap.of
@@ -13644,7 +13634,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 303 */
+    /* 302 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://tc39.github.io/proposal-setmap-offrom/#sec-weakset.of
@@ -13652,7 +13642,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 304 */
+    /* 303 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://tc39.github.io/proposal-setmap-offrom/#sec-map.from
@@ -13660,7 +13650,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 305 */
+    /* 304 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://tc39.github.io/proposal-setmap-offrom/#sec-set.from
@@ -13668,7 +13658,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 306 */
+    /* 305 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://tc39.github.io/proposal-setmap-offrom/#sec-weakmap.from
@@ -13676,7 +13666,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 307 */
+    /* 306 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://tc39.github.io/proposal-setmap-offrom/#sec-weakset.from
@@ -13684,7 +13674,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 308 */
+    /* 307 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://github.com/tc39/proposal-global
@@ -13694,7 +13684,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 309 */
+    /* 308 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://github.com/tc39/proposal-global
@@ -13704,7 +13694,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 310 */
+    /* 309 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://github.com/ljharb/proposal-is-error
@@ -13719,7 +13709,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 311 */
+    /* 310 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://rwaldron.github.io/proposal-math-extensions/
@@ -13733,7 +13723,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 312 */
+    /* 311 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://rwaldron.github.io/proposal-math-extensions/
@@ -13743,7 +13733,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 313 */
+    /* 312 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://rwaldron.github.io/proposal-math-extensions/
@@ -13758,13 +13748,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 314 */
+    /* 313 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://rwaldron.github.io/proposal-math-extensions/
       var $export = __webpack_require__(0);
-      var scale = __webpack_require__(139);
-      var fround = __webpack_require__(119);
+      var scale = __webpack_require__(138);
+      var fround = __webpack_require__(118);
 
       $export($export.S, 'Math', {
         fscale: function fscale(x, inLow, inHigh, outLow, outHigh) {
@@ -13774,7 +13764,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 315 */
+    /* 314 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://gist.github.com/BrendanEich/4294d5c212a6d2254703
@@ -13791,7 +13781,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 316 */
+    /* 315 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://gist.github.com/BrendanEich/4294d5c212a6d2254703
@@ -13808,7 +13798,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 317 */
+    /* 316 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://gist.github.com/BrendanEich/4294d5c212a6d2254703
@@ -13830,7 +13820,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 318 */
+    /* 317 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://rwaldron.github.io/proposal-math-extensions/
@@ -13840,7 +13830,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 319 */
+    /* 318 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://rwaldron.github.io/proposal-math-extensions/
@@ -13855,17 +13845,17 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 320 */
+    /* 319 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://rwaldron.github.io/proposal-math-extensions/
       var $export = __webpack_require__(0);
 
-      $export($export.S, 'Math', { scale: __webpack_require__(139) });
+      $export($export.S, 'Math', { scale: __webpack_require__(138) });
 
       /***/
     },
-    /* 321 */
+    /* 320 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://gist.github.com/BrendanEich/4294d5c212a6d2254703
@@ -13887,7 +13877,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 322 */
+    /* 321 */
     /***/function (module, exports, __webpack_require__) {
 
       // http://jfbastien.github.io/papers/Math.signbit.html
@@ -13900,7 +13890,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 323 */
+    /* 322 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -13910,7 +13900,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var core = __webpack_require__(21);
       var global = __webpack_require__(2);
       var speciesConstructor = __webpack_require__(62);
-      var promiseResolve = __webpack_require__(126);
+      var promiseResolve = __webpack_require__(125);
 
       $export($export.P + $export.R, 'Promise', { 'finally': function _finally(onFinally) {
           var C = speciesConstructor(this, core.Promise || global.Promise);
@@ -13928,7 +13918,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 324 */
+    /* 323 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -13937,7 +13927,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var $export = __webpack_require__(0);
       var newPromiseCapability = __webpack_require__(100);
-      var perform = __webpack_require__(125);
+      var perform = __webpack_require__(124);
 
       $export($export.S, 'Promise', { 'try': function _try(callbackfn) {
           var promiseCapability = newPromiseCapability.f(this);
@@ -13948,7 +13938,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 325 */
+    /* 324 */
     /***/function (module, exports, __webpack_require__) {
 
       var metadata = __webpack_require__(28);
@@ -13962,7 +13952,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 326 */
+    /* 325 */
     /***/function (module, exports, __webpack_require__) {
 
       var metadata = __webpack_require__(28);
@@ -13983,7 +13973,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 327 */
+    /* 326 */
     /***/function (module, exports, __webpack_require__) {
 
       var metadata = __webpack_require__(28);
@@ -14006,11 +13996,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 328 */
+    /* 327 */
     /***/function (module, exports, __webpack_require__) {
 
-      var Set = __webpack_require__(129);
-      var from = __webpack_require__(138);
+      var Set = __webpack_require__(128);
+      var from = __webpack_require__(137);
       var metadata = __webpack_require__(28);
       var anObject = __webpack_require__(1);
       var getPrototypeOf = __webpack_require__(17);
@@ -14031,7 +14021,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 329 */
+    /* 328 */
     /***/function (module, exports, __webpack_require__) {
 
       var metadata = __webpack_require__(28);
@@ -14045,7 +14035,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 330 */
+    /* 329 */
     /***/function (module, exports, __webpack_require__) {
 
       var metadata = __webpack_require__(28);
@@ -14059,7 +14049,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 331 */
+    /* 330 */
     /***/function (module, exports, __webpack_require__) {
 
       var metadata = __webpack_require__(28);
@@ -14081,7 +14071,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 332 */
+    /* 331 */
     /***/function (module, exports, __webpack_require__) {
 
       var metadata = __webpack_require__(28);
@@ -14095,7 +14085,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 333 */
+    /* 332 */
     /***/function (module, exports, __webpack_require__) {
 
       var $metadata = __webpack_require__(28);
@@ -14112,7 +14102,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 334 */
+    /* 333 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://github.com/rwaldron/tc39-notes/blob/master/es6/2014-09/sept-25.md#510-globalasap-for-enqueuing-a-microtask
@@ -14130,7 +14120,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 335 */
+    /* 334 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -14146,7 +14136,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var anObject = __webpack_require__(1);
       var anInstance = __webpack_require__(39);
       var redefineAll = __webpack_require__(41);
-      var hide = __webpack_require__(11);
+      var hide = __webpack_require__(12);
       var forOf = __webpack_require__(40);
       var RETURN = forOf.RETURN;
 
@@ -14318,7 +14308,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           });
         },
         of: function of() {
-          for (var i = 0, l = arguments.length, items = new Array(l); i < l;) {
+          for (var i = 0, l = arguments.length, items = Array(l); i < l;) {
             items[i] = arguments[i++];
           }return new (typeof this === 'function' ? this : $Observable)(function (observer) {
             var done = false;
@@ -14347,15 +14337,15 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 336 */
+    /* 335 */
     /***/function (module, exports, __webpack_require__) {
 
       // ie9- setTimeout & setInterval additional parameters fix
       var global = __webpack_require__(2);
       var $export = __webpack_require__(0);
-      var userAgent = __webpack_require__(102);
+      var navigator = global.navigator;
       var slice = [].slice;
-      var MSIE = /MSIE .\./.test(userAgent); // <- dirty ie9- check
+      var MSIE = !!navigator && /MSIE .\./.test(navigator.userAgent); // <- dirty ie9- check
       var wrap = function wrap(set) {
         return function (fn, time /* , ...args */) {
           var boundArgs = arguments.length > 2;
@@ -14373,7 +14363,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 337 */
+    /* 336 */
     /***/function (module, exports, __webpack_require__) {
 
       var $export = __webpack_require__(0);
@@ -14385,14 +14375,14 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 338 */
+    /* 337 */
     /***/function (module, exports, __webpack_require__) {
 
       var $iterators = __webpack_require__(97);
       var getKeys = __webpack_require__(34);
-      var redefine = __webpack_require__(12);
+      var redefine = __webpack_require__(13);
       var global = __webpack_require__(2);
-      var hide = __webpack_require__(11);
+      var hide = __webpack_require__(12);
       var Iterators = __webpack_require__(46);
       var wks = __webpack_require__(5);
       var ITERATOR = wks('iterator');
@@ -14451,7 +14441,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 339 */
+    /* 338 */
     /***/function (module, exports, __webpack_require__) {
 
       /* WEBPACK VAR INJECTION */(function (global) {
@@ -15163,20 +15153,20 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 340 */
+    /* 339 */
     /***/function (module, exports, __webpack_require__) {
 
-      __webpack_require__(341);
+      __webpack_require__(340);
       module.exports = __webpack_require__(21).RegExp.escape;
 
       /***/
     },
-    /* 341 */
+    /* 340 */
     /***/function (module, exports, __webpack_require__) {
 
       // https://github.com/benjamingr/RexExp.escape
       var $export = __webpack_require__(0);
-      var $re = __webpack_require__(342)(/[\\^$*+?.()|[\]{}]/g, '\\$&');
+      var $re = __webpack_require__(341)(/[\\^$*+?.()|[\]{}]/g, '\\$&');
 
       $export($export.S, 'RegExp', { escape: function escape(it) {
           return $re(it);
@@ -15184,7 +15174,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 342 */
+    /* 341 */
     /***/function (module, exports) {
 
       module.exports = function (regExp, replace) {
@@ -15198,25 +15188,25 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 343 */
+    /* 342 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
-      var BSON = __webpack_require__(344),
+      var BSON = __webpack_require__(343),
           Binary = __webpack_require__(53),
           Code = __webpack_require__(72),
           DBRef = __webpack_require__(75),
           Decimal128 = __webpack_require__(73),
           Double = __webpack_require__(68),
-          Int32 = __webpack_require__(105),
+          Int32 = __webpack_require__(104),
           Long = __webpack_require__(43),
-          Map = __webpack_require__(103),
+          Map = __webpack_require__(102),
           MaxKey = __webpack_require__(74),
           MinKey = __webpack_require__(52),
           ObjectId = __webpack_require__(70),
           BSONRegExp = __webpack_require__(71),
-          _Symbol = __webpack_require__(104),
+          _Symbol = __webpack_require__(103),
           Timestamp = __webpack_require__(69);
 
       // BSON MAX VALUES
@@ -15252,21 +15242,21 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 344 */
+    /* 343 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
       /* WEBPACK VAR INJECTION */
       (function (Buffer) {
 
-        var Map = __webpack_require__(103),
+        var Map = __webpack_require__(102),
             Long = __webpack_require__(43),
             Double = __webpack_require__(68),
             Timestamp = __webpack_require__(69),
             ObjectID = __webpack_require__(70),
             BSONRegExp = __webpack_require__(71),
-            _Symbol = __webpack_require__(104),
-            Int32 = __webpack_require__(105),
+            _Symbol = __webpack_require__(103),
+            Int32 = __webpack_require__(104),
             Code = __webpack_require__(72),
             Decimal128 = __webpack_require__(73),
             MinKey = __webpack_require__(52),
@@ -15275,9 +15265,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
             Binary = __webpack_require__(53);
 
         // Parts of the parser
-        var deserialize = __webpack_require__(349),
-            serializer = __webpack_require__(350),
-            calculateObjectSize = __webpack_require__(352);
+        var deserialize = __webpack_require__(348),
+            serializer = __webpack_require__(349),
+            calculateObjectSize = __webpack_require__(351);
 
         /**
          * @ignore
@@ -15365,6 +15355,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
          * @param {Object} [options.promoteValues=false] when deserializing will promote BSON values to their Node.js closest equivalent types.
          * @param {Object} [options.fieldsAsRaw=null] allow to specify if there what fields we wish to return as unserialized raw buffer.
          * @param {Object} [options.bsonRegExp=false] return BSON regular expressions as BSONRegExp instances.
+         * @param {boolean} [options.allowObjectSmallerThanBufferSize=false] allows the buffer to be larger than the parsed BSON object
          * @return {Object} returns the deserialized Javascript Object.
          * @api public
          */
@@ -15411,14 +15402,14 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
          * @api public
          */
         BSON.prototype.deserializeStream = function (data, startIndex, numberOfDocuments, documents, docStartIndex, options) {
-          options = options != null ? options : {};
+          options = Object.assign({ allowObjectSmallerThanBufferSize: true }, options);
           var index = startIndex;
           // Loop over all documents
           for (var i = 0; i < numberOfDocuments; i++) {
             // Find size of the document
             var size = data[index] | data[index + 1] << 8 | data[index + 2] << 16 | data[index + 3] << 24;
             // Update options with index
-            options['index'] = index;
+            options.index = index;
             // Parse the document at this point
             documents[docStartIndex + i] = this.deserialize(data, options);
             // Adjust index by the document size
@@ -15616,7 +15607,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 345 */
+    /* 344 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -15635,8 +15626,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         revLookup[code.charCodeAt(i)] = i;
       }
 
-      // Support decoding URL-safe base64 strings, as Node.js does.
-      // See: https://en.wikipedia.org/wiki/Base64#URL_applications
       revLookup['-'.charCodeAt(0)] = 62;
       revLookup['_'.charCodeAt(0)] = 63;
 
@@ -15698,7 +15687,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         var tmp;
         var output = [];
         for (var i = start; i < end; i += 3) {
-          tmp = (uint8[i] << 16 & 0xFF0000) + (uint8[i + 1] << 8 & 0xFF00) + (uint8[i + 2] & 0xFF);
+          tmp = (uint8[i] << 16) + (uint8[i + 1] << 8) + uint8[i + 2];
           output.push(tripletToBase64(tmp));
         }
         return output.join('');
@@ -15738,7 +15727,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 346 */
+    /* 345 */
     /***/function (module, exports) {
 
       exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -15828,7 +15817,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 347 */
+    /* 346 */
     /***/function (module, exports) {
 
       var toString = {}.toString;
@@ -15839,7 +15828,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 348 */
+    /* 347 */
     /***/function (module, exports) {
 
       // shim for using process in browser
@@ -16030,7 +16019,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 349 */
+    /* 348 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -16045,7 +16034,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
             MinKey = __webpack_require__(52).MinKey,
             MaxKey = __webpack_require__(74).MaxKey,
             Decimal128 = __webpack_require__(73),
-            Int32 = __webpack_require__(105),
+            Int32 = __webpack_require__(104),
             DBRef = __webpack_require__(75).DBRef,
             BSONRegExp = __webpack_require__(71).BSONRegExp,
             Binary = __webpack_require__(53).Binary;
@@ -16056,9 +16045,20 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           // Read the document size
           var size = buffer[index] | buffer[index + 1] << 8 | buffer[index + 2] << 16 | buffer[index + 3] << 24;
 
-          // Ensure buffer is valid size
-          if (size < 5 || buffer.length !== size || size + index > buffer.length) {
-            throw new Error('corrupt bson message');
+          if (size < 5) {
+            throw new Error('bson size must be >= 5, is ' + size);
+          }
+
+          if (options.allowObjectSmallerThanBufferSize && buffer.length < size) {
+            throw new Error('buffer length ' + buffer.length + ' must be >= bson size ' + size);
+          }
+
+          if (!options.allowObjectSmallerThanBufferSize && buffer.length !== size) {
+            throw new Error('buffer length ' + buffer.length + ' must === bson size ' + size);
+          }
+
+          if (size + index > buffer.length) {
+            throw new Error('(bson size ' + size + ' + options.index ' + index + ' must be <= buffer length ' + buffer.length + ')');
           }
 
           // Illegal end value
@@ -16720,7 +16720,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 350 */
+    /* 349 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -16733,9 +16733,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj === 'undefined' ? 'undefined' : _typeof2(obj);
         };
 
-        var writeIEEE754 = __webpack_require__(351).writeIEEE754,
+        var writeIEEE754 = __webpack_require__(350).writeIEEE754,
             Long = __webpack_require__(43).Long,
-            Map = __webpack_require__(103),
+            Map = __webpack_require__(102),
             MinKey = __webpack_require__(52).MinKey,
             Binary = __webpack_require__(53).Binary;
 
@@ -16986,7 +16986,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           } else if (value.id && value.id.copy) {
             value.id.copy(buffer, index, 0, 12);
           } else {
-            throw new Error('object [' + JSON.stringify(value) + '] is not a valid ObjectId');
+            throw new TypeError('object [' + JSON.stringify(value) + '] is not a valid ObjectId');
           }
 
           // Ajust index
@@ -17313,7 +17313,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
               // Is there an override value
               if (value && value.toBSON) {
-                if (typeof value.toBSON !== 'function') throw new Error('toBSON is not a function');
+                if (typeof value.toBSON !== 'function') throw new TypeError('toBSON is not a function');
                 value = value.toBSON();
               }
 
@@ -17442,9 +17442,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           } else {
             // Did we provide a custom serialization method
             if (object.toBSON) {
-              if (typeof object.toBSON !== 'function') throw new Error('toBSON is not a function');
+              if (typeof object.toBSON !== 'function') throw new TypeError('toBSON is not a function');
               object = object.toBSON();
-              if (object != null && (typeof object === 'undefined' ? 'undefined' : _typeof(object)) !== 'object') throw new Error('toBSON function did not return an object');
+              if (object != null && (typeof object === 'undefined' ? 'undefined' : _typeof(object)) !== 'object') throw new TypeError('toBSON function did not return an object');
             }
 
             // Iterate over all the keys
@@ -17452,7 +17452,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
               value = object[key];
               // Is there an override value
               if (value && value.toBSON) {
-                if (typeof value.toBSON !== 'function') throw new Error('toBSON is not a function');
+                if (typeof value.toBSON !== 'function') throw new TypeError('toBSON is not a function');
                 value = value.toBSON();
               }
 
@@ -17726,7 +17726,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 351 */
+    /* 350 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -17874,7 +17874,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 352 */
+    /* 351 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -17891,7 +17891,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
             Double = __webpack_require__(68).Double,
             Timestamp = __webpack_require__(69).Timestamp,
             ObjectID = __webpack_require__(70).ObjectID,
-            _Symbol = __webpack_require__(104).Symbol,
+            _Symbol = __webpack_require__(103).Symbol,
             BSONRegExp = __webpack_require__(71).BSONRegExp,
             Code = __webpack_require__(72).Code,
             Decimal128 = __webpack_require__(73),

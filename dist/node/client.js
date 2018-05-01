@@ -392,10 +392,10 @@ var StitchClient = exports.StitchClient = function () {
     key: '_doFunctionCall',
     value: function _doFunctionCall(request) {
       var responseDecoder = function responseDecoder(d) {
-        return _mongodbExtjson2.default.parse(d, { strict: false });
+        return _mongodbExtjson2.default.parse(d, { relaxed: true });
       };
       var responseEncoder = function responseEncoder(d) {
-        return _mongodbExtjson2.default.stringify(d);
+        return _mongodbExtjson2.default.stringify(d, { strict: true });
       };
 
       return this._do('/functions/call', 'POST', { body: responseEncoder(request) }).then(function (response) {
