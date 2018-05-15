@@ -66,7 +66,7 @@ describe('Executing http service functions', () => {
         } catch (e) {
           err = e;
         }
-        expect(err.code).toEqual('FunctionExecutionError');
+        expect(err.code).toEqual('HTTPError');
       });
     });
 
@@ -86,7 +86,7 @@ describe('Executing http service functions', () => {
           } catch (e) {
             err = e;
           }
-          expect(err.code).toEqual('FunctionExecutionError');
+          expect(err.code).toEqual('HTTPError');
         });
 
         it('should fail when an invalid url datatype is supplied', async() => {
