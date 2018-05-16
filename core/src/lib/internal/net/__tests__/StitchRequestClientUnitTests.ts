@@ -6,6 +6,7 @@ import StitchDocRequest from "../StitchDocRequest";
 import StitchRequest from "../StitchRequest";
 import StitchRequestClient from "../StitchRequestClient";
 import Transport from "../Transport";
+import * as EJSON from "mongodb-extjson";
 
 const BASE_URL = "http://localhost:9090";
 const HEADER_KEY = "bar";
@@ -91,19 +92,18 @@ describe("StitchRequestClient", () => {
     const builder = new StitchDocRequest.Builder();
     builder.withPath(BAD_REQUEST_ENDPOINT).withMethod(Method.POST);
 
-    return stitchRequestClient
+    try { 
+      stitchRequestClient
       .doJSONRequestRaw(builder.build())
-      .catch(err => {
-        expect(err).toBeDefined();
-      })
-      .then(() => {
-        builder.withPath(NOT_GET_ENDPOINT);
-        builder.withDocument(TEST_DOC);
-        return stitchRequestClient.doJSONRequestRaw(builder.build());
-      })
+    } catch (err) {
+      expect(err).toBeDefined();
+    }
+    builder.withPath(NOT_GET_ENDPOINT);
+    builder.withDocument(TEST_DOC);
+    return stitchRequestClient.doJSONRequestRaw(builder.build())
       .then(response => {
-        expect(response.statusCode).toEqual(200);
-        expect(TEST_DOC).toEqual(response.body);
-      });
+          expect(response.statusCode).toEqual(200);
+          expect(TEST_DOC).toEqual(EJSON.parse(response.body));
+        });
   });
 });

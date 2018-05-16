@@ -24,6 +24,7 @@ import StitchAuthRequestClient from "./StitchAuthRequestClient";
 import { StitchAuthRoutes } from "./StitchAuthRoutes";
 import StitchUserFactory from "./StitchUserFactory";
 import StitchUserProfileImpl from "./StitchUserProfileImpl";
+import * as EJSON from "mongodb-extjson";
 
 const OPTIONS = "options";
 const DEVICE = "device";
@@ -136,7 +137,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     stitchReq: StitchAuthDocRequest
   ): Promise<any> {
     return this.doAuthenticatedJSONRequestRaw(stitchReq)
-      .then(response => response.body)
+      .then(response => EJSON.parse(response.body, {strict: false}))
       .catch(err => new StitchClientException(err));
   }
 

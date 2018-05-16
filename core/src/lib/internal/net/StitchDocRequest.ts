@@ -32,6 +32,7 @@ export default class StitchDocRequest extends StitchRequest {
       request.body,
       request.startedAt
     );
+
     this.document = document;
   }
 
