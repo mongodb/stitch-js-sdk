@@ -7,6 +7,7 @@ import StitchRequest from "../StitchRequest";
 import StitchRequestClient from "../StitchRequestClient";
 import Transport from "../Transport";
 import * as EJSON from "mongodb-extjson";
+import StitchServiceException from "../../../StitchServiceException";
 
 const BASE_URL = "http://localhost:9090";
 const HEADER_KEY = "bar";
@@ -97,6 +98,7 @@ describe("StitchRequestClient", () => {
       .doJSONRequestRaw(builder.build())
     } catch (err) {
       expect(err).toBeDefined();
+      expect(err).toBeInstanceOf(StitchServiceException)
     }
     builder.withPath(NOT_GET_ENDPOINT);
     builder.withDocument(TEST_DOC);
