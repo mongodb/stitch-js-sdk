@@ -1,0 +1,1 @@
+Core module for TypeScript/JavaScript SDK. This should not be directly imported.
