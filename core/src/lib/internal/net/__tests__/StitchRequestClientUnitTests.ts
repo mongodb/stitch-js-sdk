@@ -67,7 +67,7 @@ describe("StitchRequestClient", () => {
   });
 
   it("should do json request raw", () => {
-    expect.assertions(3);
+    expect.assertions(4);
 
     const stitchRequestClient = new StitchRequestClient(
       BASE_URL,

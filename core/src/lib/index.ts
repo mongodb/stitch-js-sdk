@@ -25,13 +25,13 @@ import StitchCredential from "./auth/StitchCredential";
 import StitchUserProfile from "./auth/StitchUserProfile";
 import { Storage } from "./internal/common/Storage";
 import CoreStitchAppClient from "./internal/CoreStitchAppClient";
+import FetchTransport from "./internal/net/FetchTransport";
 import { StitchAppRoutes } from "./internal/net/StitchAppRoutes";
 import StitchRequestClient from "./internal/net/StitchRequestClient";
 import CoreStitchService from "./services/internal/CoreStitchService";
 import StitchServiceRoutes from "./services/internal/StitchServiceRoutes";
 import StitchAppClientConfiguration from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";
-import FetchTransport from "./internal/net/FetchTransport";
 
 export {
   AnonymousCredential,

@@ -2,6 +2,7 @@ import ContentTypes from "./internal/net/ContentTypes";
 import Headers from "./internal/net/Headers";
 import Response from "./internal/net/Response";
 import StitchRequestException from "./StitchRequestException";
+import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
 import StitchServiceException from "./StitchServiceException";
 
 enum Fields {
@@ -10,7 +11,7 @@ enum Fields {
 }
 
 export default class StitchError {
-/**
+  /**
    * Static utility method that accepts an HTTP response object, and throws the {@link
    * StitchServiceException} representing the the error in the response. If the error cannot be
    * recognized, this will throw a {@link StitchServiceException} with the "UNKNOWN" error code.
@@ -36,7 +37,7 @@ export default class StitchError {
       )
     }
 
-    let errorMsg: string = StitchError.handleRichError(response, body);
+    const errorMsg: string = StitchError.handleRichError(response, body);
 
     // if the above function call didn't throw, throw an unknown error here
     throw new StitchServiceException(errorMsg, StitchServiceErrorCode.UNKNOWN);

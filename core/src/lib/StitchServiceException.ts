@@ -1,5 +1,6 @@
-import StitchRequestException from "./StitchRequestException";
 import StitchException from "./StitchException";
+import StitchRequestException from "./StitchRequestException";
+import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
 
 /**
  * A StitchServiceException is an exception indicating that an error came from the Stitch server

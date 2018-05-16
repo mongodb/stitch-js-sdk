@@ -2,7 +2,7 @@
  * StitchClientErrorCode represents the errors that can occur when using the Stitch client,
  * typically before a request is made to the Stitch server.
  */
-enum StitchClientErrorCode {
+export enum StitchClientErrorCode {
     LOGGED_OUT_DURING_REQUEST,
     MISSING_URL,
     MUST_AUTHENTICATE_FIRST,

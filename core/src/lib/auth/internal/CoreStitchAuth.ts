@@ -9,8 +9,10 @@ import StitchDocRequest from "../../internal/net/StitchDocRequest";
 import StitchRequest from "../../internal/net/StitchRequest";
 import StitchRequestClient from "../../internal/net/StitchRequestClient";
 import StitchClientException from "../../StitchClientException";
+import { StitchClientErrorCode } from "../../StitchClientErrorCode"
 import StitchException from "../../StitchException";
 import StitchServiceException from "../../StitchServiceException";
+import { StitchServiceErrorCode } from "../../StitchServiceErrorCode";
 import StitchCredential from "../StitchCredential";
 import AccessTokenRefresher from "./AccessTokenRefresher";
 import AuthInfo from "./AuthInfo";
@@ -25,6 +27,7 @@ import StitchUserFactory from "./StitchUserFactory";
 import StitchUserProfileImpl from "./StitchUserProfileImpl";
 import * as EJSON from "mongodb-extjson";
 import StitchRequestException from "../../StitchRequestException";
+import { StitchRequestErrorCode } from "../../StitchRequestErrorCode"; 
 
 const OPTIONS = "options";
 const DEVICE = "device";

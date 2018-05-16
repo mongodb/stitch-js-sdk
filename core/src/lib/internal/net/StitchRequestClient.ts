@@ -8,6 +8,7 @@ import StitchRequest from "./StitchRequest";
 import Transport from "./Transport";
 import * as EJSON from "mongodb-extjson";
 import StitchRequestException from "../../StitchRequestException";
+import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
 
 function inspectResponse(response: Response): Response {
   if (response.statusCode >= 200 && response.statusCode < 300) {

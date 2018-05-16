@@ -1,5 +1,5 @@
 /** StitchRequestErrorCode represents the reasons that a request may fail. */
-enum StitchRequestErrorCode {
+export enum StitchRequestErrorCode {
   TRANSPORT_ERROR,
   DECODING_ERROR
 }

@@ -1,3 +1,4 @@
+import { StitchClientErrorCode } from "./StitchClientErrorCode"
 import StitchException from "./StitchException";
 
 /**

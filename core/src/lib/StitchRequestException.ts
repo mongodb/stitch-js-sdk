@@ -1,9 +1,5 @@
 import StitchException from "./StitchException";
-
-/**
- * A StitchRequestException is an exception that happens while making a request to Stitch servers.
- */
-//export default class StitchRequestException extends StitchException {}
+import { StitchRequestErrorCode } from "./StitchRequestErrorCode"
 
 /**
  * Indicates that an error occurred while a request was being carried out. This could be due to (but
@@ -35,4 +31,3 @@ export default class StitchRequestException extends StitchException {
     this.errorCode = errorCode;
   }
 }
-
