@@ -57,7 +57,5 @@ typings/
 # dotenv environment variables file
 .env
 
-./core/dist
-./web/dist
-./core/node_modules
-./web/node_modules
+/core/dist/
+/web/dist/
