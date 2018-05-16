@@ -1,4 +1,5 @@
 import StitchRequestException from "../../../StitchRequestException";
+import StitchServiceException from "../../../StitchServiceException";
 import BasicRequest from "../BasicRequest";
 import Method from "../Method";
 import Response from "../Response";
@@ -6,11 +7,7 @@ import StitchDocRequest from "../StitchDocRequest";
 import StitchRequest from "../StitchRequest";
 import StitchRequestClient from "../StitchRequestClient";
 import Transport from "../Transport";
-<<<<<<< HEAD
 import * as EJSON from "mongodb-extjson";
-import StitchServiceException from "../../../StitchServiceException";
-=======
->>>>>>> Revert "fix test and remove dist"
 
 const BASE_URL = "http://localhost:9090";
 const HEADER_KEY = "bar";
