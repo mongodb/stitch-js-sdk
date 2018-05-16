@@ -1,7 +1,6 @@
 import ContentTypes from "./internal/net/ContentTypes";
 import Headers from "./internal/net/Headers";
 import Response from "./internal/net/Response";
-import { StitchErrorCode } from "./StitchErrorCode";
 import StitchRequestException from "./StitchRequestException";
 import StitchServiceException from "./StitchServiceException";
 
@@ -11,32 +10,45 @@ enum Fields {
 }
 
 export default class StitchError {
-  /**
-   * Handles a network request error (non-200 family), looking for any embedded errors or codes.
+/**
+   * Static utility method that accepts an HTTP response object, and throws the {@link
+   * StitchServiceException} representing the the error in the response. If the error cannot be
+   * recognized, this will throw a {@link StitchServiceException} with the "UNKNOWN" error code.
    *
    * @param response The network response.
    */
   public static handleRequestError(response: Response): never {
     if (response.body === undefined) {
-      throw new StitchRequestException(
-        `received unexpected status code ${response.statusCode}`
-      );
+      throw new StitchServiceException(
+        `received unexpected status code ${response.statusCode}`,
+        StitchServiceErrorCode.UNKNOWN
+      )
     }
+    
+    let body: string
 
-    let body: string;
     try {
-      body = response.body as string;
+      body = response.body as string
     } catch (e) {
-      throw new StitchRequestException(e);
+      throw new StitchServiceException(
+        `received unexpected status code ${response.statusCode}`,
+        StitchServiceErrorCode.UNKNOWN
+      )
     }
 
-    const errorMsg = StitchError.handleRichError(response, response.body);
-    if (response.statusCode >= 400 && response.statusCode < 600) {
-      throw new StitchServiceException(errorMsg);
-    }
-    throw new StitchRequestException(errorMsg);
+    let errorMsg: string = StitchError.handleRichError(response, body);
+
+    // if the above function call didn't throw, throw an unknown error here
+    throw new StitchServiceException(errorMsg, StitchServiceErrorCode.UNKNOWN);
   }
 
+  /**
+   * Private helper method which decodes the Stitch error from the body of an HTTP `Response`
+   * object. If the error is successfully decoded, this function will throw the error for the end
+   * user to eventually consume. If the error cannot be decoded, this is likely not an error from
+   * the Stitch server, and this function will return an error message that the calling function
+   * should use as the message of a StitchServiceException with an unknown code.
+   */
   private static handleRichError(response: Response, body: string): string {
     if (
       response.headers[Headers.CONTENT_TYPE] !== undefined ||
@@ -61,6 +73,6 @@ export default class StitchError {
     }
 
     const errorCode = doc[Fields.ERROR_CODE] as string;
-    throw new StitchServiceException(errorMsg, StitchErrorCode[errorCode]);
+    throw new StitchServiceException(errorMsg, StitchServiceErrorCode[errorCode]);
   }
 }

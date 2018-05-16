@@ -36,7 +36,7 @@ export default class JWT {
   private static splitToken(jwt: string): string[] {
     const parts = jwt.split(".");
     if (parts.length !== 3) {
-      throw new StitchClientException(
+      throw new Error(
         `Malformed JWT token. The string ${jwt} should have 3 parts.`
       );
     }

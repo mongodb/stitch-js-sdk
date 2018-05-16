@@ -1,7 +1,20 @@
 import StitchException from "./StitchException";
 
 /**
- * A StitchClientException is an exception that happens locally on the client and is typically a
- * user error.
+ * An exception indicating that an error occurred when using the Stitch client, typically before the
+ * client performed a request. An error code indicating the reason for the error is included.
  */
-export default class StitchClientException extends StitchException {}
+export default class StitchClientException extends StitchException {
+    /**
+     * The {@link StitchClientErrorCode} associated with the request.
+     */
+    public readonly errorCode: StitchClientErrorCode;
+
+    /**
+     * Constructs a client exception with the given error code.
+     */
+    public constructor(errorCode: StitchClientErrorCode) {
+        super()
+        this.errorCode = errorCode;
+    }
+}

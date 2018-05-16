@@ -1,5 +1,5 @@
-/** StitchErrorCode represents the set of errors that can come back from a Stitch request. */
-export enum StitchErrorCode {
+/** StitchServiceErrorCode represents the set of errors that can come back from a Stitch request. */
+enum StitchServiceErrorCode {
   MISSING_AUTH_REQ = "MissingAuthReq",
   INVALID_SESSION = "InvalidSession", // Invalid session, expired, no associated user, or app domain mismatch,
   USER_APP_DOMAIN_MISMATCH = "UserAppDomainMismatch",
