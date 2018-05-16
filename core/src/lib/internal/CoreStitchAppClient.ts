@@ -2,6 +2,7 @@ import StitchAuthRequestClient from "../auth/internal/StitchAuthRequestClient";
 import { StitchAppRoutes } from "../internal/net/StitchAppRoutes";
 import Method from "./net/Method";
 import StitchAuthDocRequest from "./net/StitchAuthDocRequest";
+import EJSON from "mongodb-extjson";
 
 export default class CoreStitchAppClient {
   private readonly authRequestClient: StitchAuthRequestClient;
@@ -16,9 +17,9 @@ export default class CoreStitchAppClient {
   }
 
   public callFunctionInternal<T>(name: string, ...args: any[]): Promise<T> {
-    return this.authRequestClient.doAuthenticatedJSONRequest(
+    return EJSON.parse(this.authRequestClient.doAuthenticatedJSONRequest(
       this.getCallFunctionRequest(name, args)
-    );
+    ), {strict: false});
   }
 
   private getCallFunctionRequest(
