@@ -38,7 +38,15 @@ export default class StitchRequestClient {
 
   public doJSONRequestRaw(stitchReq: StitchDocRequest): Promise<Response> {
     const newReqBuilder = stitchReq.builder;
-    newReqBuilder.withBody(EJSON.stringify(stitchReq.document));
+
+    let encoded;
+    try {
+      encoded = EJSON.stringify(stitchReq.document)
+    } catch (error) {
+      return Promise.reject(new StitchRequestException(error, StitchRequestErrorCode.ENCODING_ERROR))
+    }
+    
+    newReqBuilder.withBody(encoded);
     const newHeaders = newReqBuilder.headers; // This is not a copy
     newHeaders[Headers.CONTENT_TYPE] = ContentTypes.APPLICATION_JSON;
     newReqBuilder.withHeaders(newHeaders);

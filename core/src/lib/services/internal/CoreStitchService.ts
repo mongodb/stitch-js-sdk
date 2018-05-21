@@ -1,4 +1,3 @@
-import Document from "mongodb-extjson";
 import StitchAuthRequestClient from "../../auth/internal/StitchAuthRequestClient";
 import Method from "../../internal/net/Method";
 import StitchAuthDocRequest from "../../internal/net/StitchAuthDocRequest";
@@ -29,10 +28,11 @@ export default abstract class CoreStitchService {
     name: string,
     ...args: any[]
   ): StitchAuthDocRequest {
-    const body = new Document();
-    body.put("name", name);
-    body.put("service", this.serviceName);
-    body.put("arguments", args);
+    const body = {
+      name: name,
+      service: this.serviceName,
+      arguments: args
+    }
 
     return new StitchAuthDocRequest.Builder()
       .withMethod(Method.POST)
