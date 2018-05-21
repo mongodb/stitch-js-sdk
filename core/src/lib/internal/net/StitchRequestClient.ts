@@ -6,6 +6,7 @@ import Response from "./Response";
 import StitchDocRequest from "./StitchDocRequest";
 import StitchRequest from "./StitchRequest";
 import Transport from "./Transport";
+import * as EJSON from "mongodb-extjson";
 
 function inspectResponse(response: Response): Response {
   if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -32,7 +33,7 @@ export default class StitchRequestClient {
 
   public doJSONRequestRaw(stitchReq: StitchDocRequest): Promise<Response> {
     const newReqBuilder = stitchReq.builder;
-    newReqBuilder.withBody(stitchReq.document);
+    newReqBuilder.withBody(EJSON.stringify(stitchReq.document));
     const newHeaders = newReqBuilder.headers; // This is not a copy
     newHeaders[Headers.CONTENT_TYPE] = ContentTypes.APPLICATION_JSON;
     newReqBuilder.withHeaders(newHeaders);

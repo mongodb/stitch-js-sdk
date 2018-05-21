@@ -16,7 +16,6 @@ export default class CoreStitchAppClient {
   }
 
   public callFunctionInternal<T>(name: string, ...args: any[]): Promise<T> {
-    // TODO: STITCH-1510
     return this.authRequestClient.doAuthenticatedJSONRequest(
       this.getCallFunctionRequest(name, args)
     );

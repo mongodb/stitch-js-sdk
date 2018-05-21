@@ -9,6 +9,8 @@
     "mongodb-extjson": "^2.1.0"
   },
   "devDependencies": {
+    "sinon": "^5.0.7",
+    "@types/sinon": "^4.3.3",
     "ts-loader": "^4.0.0",
     "typescript": "^2.8.1",
     "@types/base64-js": "^1.2.5",
