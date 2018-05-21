@@ -1,1 +1,0 @@
-{"version":3,"file":"CoreAnonymousAuthProviderClient.js","sourceRoot":"","sources":["../../../../src/lib/auth/providers/anonymous/CoreAnonymousAuthProviderClient.ts"],"names":[],"mappings":";;AAAA,+DAAwD;AAKxD;IAME,YAAsB,YAAoB;QACxC,IAAI,CAAC,YAAY,GAAG,YAAY,CAAC;IACnC,CAAC;IAKM,aAAa;QAClB,OAAO,IAAI,6BAAmB,CAAC,IAAI,CAAC,YAAY,CAAC,CAAC;IACpD,CAAC;CACF;AAhBD,kDAgBC"}

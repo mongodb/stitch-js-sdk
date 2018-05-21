@@ -1,1 +1,0 @@
-{"version":3,"file":"StitchServiceException.js","sourceRoot":"","sources":["../src/lib/StitchServiceException.ts"],"names":[],"mappings":";;AAAA,uDAAoD;AACpD,qEAA8D;AAM9D,4BAA4C,SAAQ,gCAAsB;IAGxE,YACE,OAAe,EACf,YAA6B,iCAAe,CAAC,OAAO;QAEpD,KAAK,CAAC,OAAO,CAAC,CAAC;QACf,IAAI,CAAC,SAAS,GAAG,SAAS,CAAC;IAC7B,CAAC;CACF;AAVD,yCAUC"}

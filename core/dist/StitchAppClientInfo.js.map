@@ -1,1 +1,0 @@
-{"version":3,"file":"StitchAppClientInfo.js","sourceRoot":"","sources":["../src/lib/StitchAppClientInfo.ts"],"names":[],"mappings":";;AAAA;IAME,YACE,WAAmB,EACnB,aAAqB,EACrB,YAAoB,EACpB,eAAuB;QAEvB,IAAI,CAAC,WAAW,GAAG,WAAW,CAAC;QAC/B,IAAI,CAAC,aAAa,GAAG,aAAa,CAAC;QACnC,IAAI,CAAC,YAAY,GAAG,YAAY,CAAC;QACjC,IAAI,CAAC,eAAe,GAAG,eAAe,CAAC;IACzC,CAAC;CACF;AAjBD,sCAiBC"}
