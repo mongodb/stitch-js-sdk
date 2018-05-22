@@ -213,15 +213,15 @@ describe("CoreStitchAuthUnitTests", () => {
 
     return coreStitchAuth
       .loginWithCredential(new AnonymousCredential())
-      .then(user => {
-        return coreStitchAuth.linkUserWithCredential(
+      .then(user =>
+        coreStitchAuth.linkUserWithCredential(
           user,
           new UserPasswordCredential(
             "foo@foo.com",
             "bar"
           )
         )
-      })
+      )
       .then(linkedUser => {
         expect(linkedUser.id).toEqual(coreStitchAuth.user!.id);
       });
