@@ -26,7 +26,7 @@ export default class CustomCredential implements StitchCredential {
    */
   private token: string;
 
-  constructor(providerName: string, token: string) {
+  constructor(token: string, providerName: string = ProviderTypes.CUSTOM) {
     this.providerName = providerName;
     this.token = token;
   }

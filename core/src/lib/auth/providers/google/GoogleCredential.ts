@@ -37,7 +37,7 @@ export default class GoogleCredential implements StitchCredential {
    */
   private readonly authCode: string;
 
-  constructor(providerName: string, authCode: string) {
+  constructor(authCode: string, providerName: string = ProviderTypes.GOOGLE) {
     this.providerName = providerName;
     this.authCode = authCode;
   }

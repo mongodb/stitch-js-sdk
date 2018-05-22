@@ -4,6 +4,8 @@ import Response from "./internal/net/Response";
 import StitchRequestException from "./StitchRequestException";
 import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
 import StitchServiceException from "./StitchServiceException";
+import StitchException from "./StitchException";
+import { StitchRequestErrorCode } from "./StitchRequestErrorCode";
 
 enum Fields {
   ERROR = "error",
@@ -11,10 +13,26 @@ enum Fields {
 }
 
 export default class StitchError {
+
   /**
-   * Static utility method that accepts an HTTP response object, and throws the {@link
-   * StitchServiceException} representing the the error in the response. If the error cannot be
-   * recognized, this will throw a {@link StitchServiceException} with the "UNKNOWN" error code.
+   * Static utility method that accepts an error object, and returns it 
+   * as is if it's a StitchException, or wraps it in a StitchRequestException
+   * decoding error if it's not.
+   * 
+   * @param err The error to check and potentially wrap.
+   */
+  public static wrapDecodingError(err: any): StitchException {
+    if (err instanceof StitchException) {
+      return err;
+    }
+
+    return new StitchRequestException(err, StitchRequestErrorCode.DECODING_ERROR)
+  }
+
+  /**
+   * Static utility method that accepts an HTTP response object, and throws the
+   * StitchServiceException representing the the error in the response. If the error cannot be
+   * recognized, this will throw a StitchServiceException with the "UNKNOWN" error code.
    *
    * @param response The network response.
    */

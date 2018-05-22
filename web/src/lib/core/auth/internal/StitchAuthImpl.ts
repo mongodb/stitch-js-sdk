@@ -7,7 +7,8 @@ import {
     StitchCredential,
     StitchRequestClient,
     StitchUserFactory,
-    Storage
+    Storage,
+    StitchAuthRequestClient
 } from "stitch-core";
 
 import { detect } from "detect-browser";
@@ -36,8 +37,8 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser> implement
       return new StitchUserFactoryImpl(this);
     }
   
-    public getProviderClient<T>(provider: AuthProviderClientSupplier<T>): T {
-      return provider.getClient(this.requestClient, this.authRoutes);
+    public getProviderClient<ClientT>(provider: AuthProviderClientSupplier<ClientT>): ClientT {
+      return provider.getClient(this, this.requestClient, this.authRoutes);
     }
   
     public getProviderClientWithName<T>(
@@ -46,22 +47,16 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser> implement
     }
   
     public loginWithCredential(credential: StitchCredential): Promise<StitchUser> {
-      return new Promise((resolve, reject) => {
-        resolve(this.loginWithCredentialBlocking(credential));
-      });
+        return super.loginWithCredential(credential);
     }
   
     public linkWithCredential(
         user: CoreStitchUser, credential: StitchCredential): Promise<StitchUser> {
-      return new Promise((resolve, reject) => {
-          resolve(this.linkUserWithCredentialBlocking(user, credential));
-        });
+        return super.linkUserWithCredential(user, credential);
     }
   
     public logout(): Promise<void> {
-      return new Promise((resolve, reject) => {
-          resolve(this.logoutBlocking());
-      });
+        return Promise.resolve(super.logout())
     }
 
     protected get deviceInfo() {

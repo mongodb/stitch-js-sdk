@@ -10,7 +10,7 @@ export default class FacebookCredential implements StitchCredential {
 
   private readonly accessToken: string;
 
-  constructor(providerName: string, accessToken: string) {
+  constructor(accessToken: string, providerName: string = ProviderTypes.FACEBOOK) {
     this.providerName = providerName;
     this.accessToken = accessToken;
   }

@@ -28,6 +28,7 @@ import StitchUserProfileImpl from "./StitchUserProfileImpl";
 import * as EJSON from "mongodb-extjson";
 import StitchRequestException from "../../StitchRequestException";
 import { StitchRequestErrorCode } from "../../StitchRequestErrorCode"; 
+import StitchError from "../../StitchError";
 
 const OPTIONS = "options";
 const DEVICE = "device";
@@ -131,8 +132,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   }
 
   /**
-   * Performs an authenticated request to the Stitch server with a JSON body. Uses the current authentication state,
-   * and will throw when the `CoreStitchAuth` is not currently authenticated.
+   * Performs an authenticated request to the Stitch server with a JSON body, and decodes the extended JSON response into
+   * an object. Uses the current authentication state, and will throw when the `CoreStitchAuth` is not currently authenticated.
    *
    * - returns: An `any` representing the decoded response body.
    */
@@ -141,13 +142,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   ): Promise<any> {
     return this.doAuthenticatedJSONRequestRaw(stitchReq)
       .then(response => EJSON.parse(response.body, {strict: false}))
-      .catch(err => {
-        if (err instanceof StitchException) {
-          throw err;
-        }
-
-        throw new StitchRequestException(err, StitchRequestErrorCode.DECODING_ERROR)
-      })
+      .catch(err => { throw StitchError.wrapDecodingError(err) })
   }
 
   /**

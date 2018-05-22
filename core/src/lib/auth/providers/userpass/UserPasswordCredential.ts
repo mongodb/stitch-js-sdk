@@ -20,7 +20,7 @@ export default class UserPasswordCredential implements StitchCredential {
 
   public readonly providerCapabilities = new ProviderCapabilities(false);
 
-  public constructor(providerName: string, username: string, password: string) {
+  public constructor(username: string, password: string, providerName: string = ProviderTypes.USER_PASS) {
     this.providerName = providerName;
     this.username = username;
     this.password = password;

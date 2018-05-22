@@ -34,7 +34,7 @@ export default class ServerAPIKeyCredential implements StitchCredential {
    */
   private readonly key: string;
 
-  constructor(providerName: string, key: string) {
+  constructor(key: string, providerName: string = ProviderTypes.SERVER_API_KEY) {
     this.providerName = providerName;
     this.key = key;
   }

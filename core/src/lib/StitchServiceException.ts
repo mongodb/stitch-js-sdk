@@ -15,7 +15,7 @@ import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
  */
 export default class StitchServiceException extends StitchException {
     /**
-     * The {@link StitchServiceErrorCode} indicating the reason for this exception.
+     * The StitchServiceErrorCode indicating the reason for this exception.
      */
     public readonly errorCode: StitchServiceErrorCode;
 

@@ -10,49 +10,24 @@ export default class UserPasswordAuthProviderClientImpl extends CoreUserPassAuth
     super(ProviderTypes.USER_PASS, requestClient, routes);
   }
 
-  /**
-   * Registers a new user with the given email and password.
-   *
-   * @return A {@link Promise} that completes when registration completes/fails.
-   */
   public registerWithEmail(email: string, password: string): Promise<void> {
-      return Promise.resolve(this.registerWithEmailInternal(email, password));
+      return super.registerWithEmailInternal(email, password);
   }
 
-  /**
-   * Confirms a user with the given token and token id.
-   *
-   * @return A {@link Promise} that completes when confirmation completes/fails.
-   */
   public confirmUser(token: string, tokenId: string): Promise<void> {
-    return Promise.resolve(this.confirmUserInternal(token, tokenId));
+    return super.confirmUserInternal(token, tokenId);
   }
 
-  /**
-   * Resend the confirmation for a user to the given email.
-   *
-   * @return A {@link Task} that completes when the resend request completes/fails.
-   */
   public resendConfirmationEmail(email: string): Promise<void> {
-      return Promise.resolve(this.resendConfirmationEmailInternal(email));
+      return super.resendConfirmationEmailInternal(email);
   }
 
-  /**
-   * Reset the password of a user with the given token, token id, and new password.
-   *
-   * @return A {@link Task} that completes when the password reset completes/fails.
-   */
   public resetPassword(
       token: string, tokenId: string, password: string): Promise<void> {
-        return Promise.resolve(this.resetPasswordInternal(token, tokenId, password));
+        return super.resetPasswordInternal(token, tokenId, password);
   }
 
-  /**
-   * Sends a user a password reset email for the given email.
-   *
-   * @return A {@link Task} that completes when the reqest request completes/fails.
-   */
   public sendResetPasswordEmail(email: string): Promise<void> {
-    return Promise.resolve(this.sendResetPasswordEmailInternal(email));
+    return super.sendResetPasswordEmailInternal(email);
   }
 }

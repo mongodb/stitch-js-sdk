@@ -1,4 +1,4 @@
-import { StitchCredential } from "stitch-core";
+import { StitchCredential, StitchRequestClient, StitchAuthRequestClient } from "stitch-core";
 import AuthProviderClientSupplier from "./providers/internal/AuthProviderClientSupplier";
 import NamedAuthProviderClientSupplier from "./providers/internal/NamedAuthProviderClientSupplier";
 import StitchAuthListener from "./StitchAuthListener";
@@ -9,7 +9,7 @@ interface StitchAuth {
   
     user?: StitchUser;
 
-    getProviderClient<T>(provider: AuthProviderClientSupplier<T>): T;
+    getProviderClient<ClientT>(provider: AuthProviderClientSupplier<ClientT>): ClientT;
   
     getProviderClientWithName<T>(
         provider: NamedAuthProviderClientSupplier<T>, providerName: string): T;

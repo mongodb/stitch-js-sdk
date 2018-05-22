@@ -7,16 +7,12 @@ import { StitchAuthRoutes } from "./auth/internal/StitchAuthRoutes";
 import StitchUserFactory from "./auth/internal/StitchUserFactory";
 import StitchUserProfileImpl from "./auth/internal/StitchUserProfileImpl";
 import AnonymousCredential from './auth/providers/anonymous/AnonymousCredential';
-import CoreAnonymousAuthProviderClient from './auth/providers/anonymous/CoreAnonymousAuthProviderClient';
-import CoreCustomAuthProviderClient from './auth/providers/custom/CoreCustomAuthProviderClient';
 import CustomCredential from './auth/providers/custom/CustomCredential';
-import CoreFacebookAuthProviderClient from './auth/providers/facebook/CoreFacebookAuthProviderClient';
 import FacebookCredential from './auth/providers/facebook/FacebookCredential';
-import CoreGoogleAuthProviderClient from './auth/providers/google/CoreGoogleAuthProviderClient';
 import GoogleCredential from './auth/providers/google/GoogleCredential';
 import ProviderTypes from './auth/providers/ProviderTypes';
-import CoreServerAPIKeyAuthProviderClient from './auth/providers/serverapikey/CoreServerAPIKeyAuthProviderClient';
 import ServerAPIKeyCredential from './auth/providers/serverapikey/ServerAPIKeyCredential';
+import UserAPIKey from "./auth/providers/userapikey/models/UserAPIKey";
 import CoreUserAPIKeyAuthProviderClient from './auth/providers/userapikey/CoreUserAPIKeyAuthProviderClient';
 import UserAPIKeyCredential from './auth/providers/userapikey/UserAPIKeyCredential';
 import CoreUserPassAuthProviderClient from './auth/providers/userpass/CoreUserPasswordAuthProviderClient';
@@ -35,15 +31,11 @@ import StitchAppClientInfo from "./StitchAppClientInfo";
 
 export {
   AnonymousCredential,
-  CoreAnonymousAuthProviderClient,
   CustomCredential,
-  CoreCustomAuthProviderClient,
   FacebookCredential,
-  CoreFacebookAuthProviderClient,
   GoogleCredential,
-  CoreGoogleAuthProviderClient,
   ServerAPIKeyCredential,
-  CoreServerAPIKeyAuthProviderClient,
+  UserAPIKey,  
   UserAPIKeyCredential,
   CoreUserAPIKeyAuthProviderClient,
   UserPassCredential,
@@ -67,5 +59,5 @@ export {
   StitchUserFactory,
   StitchUserProfile,
   StitchUserProfileImpl,
-  Storage
+  Storage,
 };

@@ -7,17 +7,17 @@ import { StitchRequestErrorCode } from "./StitchRequestErrorCode"
  * result. An error code is included, which indicates whether the error was a transport error or
  * decoding error. The underlyingError property can be read to see that underlying error that caused 
  * a StitchRequestException. In the case of transport errors, these errors are thrown by the 
- * underlying {@link Transport} of the Stitch client. An error in decoding the result from the server 
- * is typically an {@link Error} thrown internally by the Stitch SDK.
+ * underlying Transport of the Stitch client. An error in decoding the result from the server 
+ * is typically an Error thrown internally by the Stitch SDK.
  */
 export default class StitchRequestException extends StitchException {
     /**
-     * The {@link StitchRequestErrorCode} indicating the reason for this exception.
+     * The StitchRequestErrorCode indicating the reason for this exception.
      */
     public readonly errorCode: StitchRequestErrorCode;
 
     /**
-     * The underlying {@link Error} that caused this request exception.
+     * The underlying Error that caused this request exception.
      */
     private readonly underlyingError: Error;
 

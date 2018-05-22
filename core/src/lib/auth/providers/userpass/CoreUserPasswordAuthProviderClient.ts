@@ -4,6 +4,7 @@ import StitchRequestClient from "../../../internal/net/StitchRequestClient";
 import { StitchAuthRoutes } from "../../internal/StitchAuthRoutes";
 import CoreAuthProviderClient from "../CoreAuthProviderClient";
 import UserPasswordCredential from "./UserPasswordCredential";
+import { ProviderTypes } from "../../..";
 
 enum RegistrationFields {
   EMAIL = "email",
@@ -17,13 +18,14 @@ enum ActionFields {
   TOKEN_ID = "tokenId"
 }
 
-export default abstract class CoreUserPasswordAuthProviderClient extends CoreAuthProviderClient {
+export default abstract class CoreUserPasswordAuthProviderClient extends CoreAuthProviderClient<StitchRequestClient> {
   protected constructor(
-    providerName: string,
+    providerName: string = ProviderTypes.USER_API_KEY,
     requestClient: StitchRequestClient,
     authRoutes: StitchAuthRoutes
   ) {
-    super(providerName, requestClient, authRoutes);
+    let baseRoute = authRoutes.getAuthProviderRoute(providerName)
+    super(providerName, requestClient, baseRoute)
   }
 
   public getCredential(
@@ -33,7 +35,7 @@ export default abstract class CoreUserPasswordAuthProviderClient extends CoreAut
     return new UserPasswordCredential(this.providerName, username, password);
   }
 
-  protected registerWithEmailInternal(email: string, password: string) {
+  protected registerWithEmailInternal(email: string, password: string): Promise<void> {
     const reqBuilder = new StitchDocRequest.Builder();
     reqBuilder
       .withMethod(Method.POST)
@@ -42,33 +44,39 @@ export default abstract class CoreUserPasswordAuthProviderClient extends CoreAut
       [RegistrationFields.EMAIL]: email,
       [RegistrationFields.PASSWORD]: password
     });
-    this.requestClient.doJSONRequestRaw(reqBuilder.build());
+    return this.requestClient
+      .doJSONRequestRaw(reqBuilder.build())
+      .then(() => {});
   }
 
-  protected confirmUserInternal(token: string, tokenId: string) {
+  protected confirmUserInternal(token: string, tokenId: string): Promise<void> {
     const reqBuilder = new StitchDocRequest.Builder();
     reqBuilder.withMethod(Method.POST).withPath(this.getConfirmUserRoute());
     reqBuilder.withDocument({
       [ActionFields.TOKEN]: token,
       [ActionFields.TOKEN_ID]: tokenId
     });
-    this.requestClient.doJSONRequestRaw(reqBuilder.build());
+    return this.requestClient
+      .doJSONRequestRaw(reqBuilder.build())
+      .then(() => {});
   }
 
-  protected resendConfirmationEmailInternal(email: string) {
+  protected resendConfirmationEmailInternal(email: string): Promise<void> {
     const reqBuilder = new StitchDocRequest.Builder();
     reqBuilder
       .withMethod(Method.POST)
       .withPath(this.getResendConfirmationEmailRoute());
     reqBuilder.withDocument({ [ActionFields.EMAIL]: email });
-    this.requestClient.doJSONRequestRaw(reqBuilder.build());
+    return this.requestClient
+      .doJSONRequestRaw(reqBuilder.build())
+      .then(() => {});
   }
 
   protected resetPasswordInternal(
     token: string,
     tokenId: string,
     password: string
-  ) {
+  ): Promise<void> {
     const reqBuilder = new StitchDocRequest.Builder();
     reqBuilder.withMethod(Method.POST).withPath(this.getResetPasswordRoute());
     reqBuilder.withDocument({
@@ -76,16 +84,20 @@ export default abstract class CoreUserPasswordAuthProviderClient extends CoreAut
       [ActionFields.TOKEN_ID]: tokenId,
       [ActionFields.PASSWORD]: password
     });
-    this.requestClient.doJSONRequestRaw(reqBuilder.build());
+    return this.requestClient
+      .doJSONRequestRaw(reqBuilder.build())
+      .then(() => {});
   }
 
-  protected sendResetPasswordEmailInternal(email: string) {
+  protected sendResetPasswordEmailInternal(email: string): Promise<void> {
     const reqBuilder = new StitchDocRequest.Builder();
     reqBuilder
       .withMethod(Method.POST)
       .withPath(this.getSendResetPasswordEmailRoute());
     reqBuilder.withDocument({ [ActionFields.EMAIL]: email });
-    this.requestClient.doJSONRequestRaw(reqBuilder.build());
+    return this.requestClient
+      .doJSONRequestRaw(reqBuilder.build())
+      .then(() => {});
   }
 
   private getRegisterWithEmailRoute(): string {
@@ -109,6 +121,6 @@ export default abstract class CoreUserPasswordAuthProviderClient extends CoreAut
   }
 
   private getExtensionRoute(path: string): string {
-    return `${this.authRoutes.getAuthProviderRoute(this.providerName)}/${path}`;
+    return `${this.baseRoute}/${path}`;
   }
 }

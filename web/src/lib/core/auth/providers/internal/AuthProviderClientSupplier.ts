@@ -1,9 +1,10 @@
-import { StitchAuthRoutes, StitchRequestClient } from "stitch-core";
+import { StitchAuthRoutes, StitchRequestClient, StitchAuthRequestClient } from "stitch-core";
 
-interface AuthProviderClientSupplier<T> {
+interface AuthProviderClientSupplier<ClientT> {
     getClient(
+        authRequestClient: StitchAuthRequestClient,
         requestClient: StitchRequestClient,
-        routes: StitchAuthRoutes): T;
+        routes: StitchAuthRoutes): ClientT;
 }
   
 export default AuthProviderClientSupplier;

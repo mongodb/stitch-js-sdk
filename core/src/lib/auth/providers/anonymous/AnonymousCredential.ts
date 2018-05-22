@@ -24,7 +24,7 @@ export default class AnonymousCredential implements StitchCredential {
    */
   public readonly providerCapabilities = new ProviderCapabilities(true);
 
-  constructor(providerName: string) {
+  constructor(providerName: string = ProviderTypes.ANON) {
     this.providerName = providerName;
   }
 }
