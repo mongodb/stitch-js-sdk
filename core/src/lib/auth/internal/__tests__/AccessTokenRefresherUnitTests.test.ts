@@ -10,7 +10,6 @@ import StitchDocRequest from "../../../internal/net/StitchDocRequest";
 import StitchRequest from "../../../internal/net/StitchRequest";
 import StitchRequestClient from "../../../internal/net/StitchRequestClient";
 import StitchServiceException from "../../../StitchServiceException";
-import CoreAnonymousAuthProviderClient from "../../providers/anonymous/CoreAnonymousAuthProviderClient";
 import ProviderTypes from "../../providers/ProviderTypes";
 import CoreUserPasswordAuthProviderClient from "../../providers/userpass/CoreUserPasswordAuthProviderClient";
 import UserPasswordCredential from "../../providers/userpass/UserPasswordCredential";
@@ -22,6 +21,7 @@ import CoreStitchUserImpl from "../CoreStitchUserImpl";
 import APIAuthInfo from "../models/APIAuthInfo";
 import StitchUserFactory from "../StitchUserFactory";
 import StitchUserProfileImpl from "../StitchUserProfileImpl";
+import { AnonymousCredential } from "../../..";
 
 class MockRequestClient extends StitchRequestClient {
   public static readonly APP_ROUTES = new StitchAppRoutes("<app-id>");
@@ -232,13 +232,7 @@ describe("AccessTokenRefresher", () => {
     );
 
     return mockCoreAuth
-      .loginWithCredential(
-        new class extends CoreAnonymousAuthProviderClient {
-          constructor() {
-            super(ProviderTypes.ANON);
-          }
-        }().getCredential()
-      )
+      .loginWithCredential(new AnonymousCredential())
       .then(() => {
         expect(mockCoreAuth.authenticatedRequestFired).toEqual(1);
 
@@ -263,13 +257,7 @@ describe("AccessTokenRefresher", () => {
         return mockCoreAuth.logout();
       })
       .then(() => {
-        return mockCoreAuth.loginWithCredential(
-          new class extends CoreAnonymousAuthProviderClient {
-            constructor() {
-              super(ProviderTypes.ANON);
-            }
-          }().getCredential()
-        );
+        return mockCoreAuth.loginWithCredential(new AnonymousCredential());
       })
       .then(() => {
         expect(mockCoreAuth.authenticatedRequestFired).toEqual(3);

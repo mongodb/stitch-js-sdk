@@ -152,13 +152,6 @@ export default abstract class CoreUserAPIKeyAuthProviderClient extends CoreAuthP
       .then(() => {})
   }
 
-  /**
-   * Returns a credential for the provider, with the provided user API key.
-   */
-  public getCredential(key: string): UserAPIKeyCredential {
-    return new UserAPIKeyCredential(this.providerName, key);
-  }
-
   private getApiKeyRoute(keyId: string): string {
       return `${this.baseRoute}/${keyId})`
   }

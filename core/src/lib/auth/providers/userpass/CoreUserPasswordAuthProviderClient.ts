@@ -28,13 +28,6 @@ export default abstract class CoreUserPasswordAuthProviderClient extends CoreAut
     super(providerName, requestClient, baseRoute)
   }
 
-  public getCredential(
-    username: string,
-    password: string
-  ): UserPasswordCredential {
-    return new UserPasswordCredential(this.providerName, username, password);
-  }
-
   protected registerWithEmailInternal(email: string, password: string): Promise<void> {
     const reqBuilder = new StitchDocRequest.Builder();
     reqBuilder

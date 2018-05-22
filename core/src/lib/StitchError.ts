@@ -1,11 +1,11 @@
 import ContentTypes from "./internal/net/ContentTypes";
 import Headers from "./internal/net/Headers";
 import Response from "./internal/net/Response";
+import StitchException from "./StitchException";
+import { StitchRequestErrorCode } from "./StitchRequestErrorCode";
 import StitchRequestException from "./StitchRequestException";
 import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
 import StitchServiceException from "./StitchServiceException";
-import StitchException from "./StitchException";
-import { StitchRequestErrorCode } from "./StitchRequestErrorCode";
 
 enum Fields {
   ERROR = "error",

@@ -10,7 +10,6 @@ import StitchRequest from "../../../internal/net/StitchRequest";
 import StitchRequestClient from "../../../internal/net/StitchRequestClient";
 import StitchServiceException from "../../../StitchServiceException";
 import { StitchServiceErrorCode } from "../../../StitchServiceErrorCode";
-import CoreAnonymousAuthProviderClient from "../../providers/anonymous/CoreAnonymousAuthProviderClient";
 import ProviderTypes from "../../providers/ProviderTypes";
 import CoreUserPasswordAuthProviderClient from "../../providers/userpass/CoreUserPasswordAuthProviderClient";
 import UserPasswordCredential from "../../providers/userpass/UserPasswordCredential";
@@ -21,6 +20,7 @@ import CoreStitchUserImpl from "../CoreStitchUserImpl";
 import APIAuthInfo from "../models/APIAuthInfo";
 import StitchUserFactory from "../StitchUserFactory";
 import StitchUserProfileImpl from "../StitchUserProfileImpl";
+import { AnonymousCredential } from "../../..";
 
 const USER_ID = "<user_id-hex>";
 
@@ -193,13 +193,7 @@ describe("CoreStitchAuthUnitTests", () => {
     const coreStitchAuth = new MockCoreStitchAuth(new MockRequestClient());
 
     return coreStitchAuth
-      .loginWithCredential(
-        new class extends CoreAnonymousAuthProviderClient {
-          constructor() {
-            super(ProviderTypes.ANON);
-          }
-        }().getCredential()
-      )
+      .loginWithCredential(new AnonymousCredential())
       .then(user => {
         expect(user.id).toEqual(USER_ID);
         expect(user.loggedInProviderName).toEqual("anon-user");
@@ -218,23 +212,16 @@ describe("CoreStitchAuthUnitTests", () => {
     const coreStitchAuth = new MockCoreStitchAuth(new MockRequestClient());
 
     return coreStitchAuth
-      .loginWithCredential(
-        new class extends CoreAnonymousAuthProviderClient {
-          constructor() {
-            super(ProviderTypes.ANON);
-          }
-        }().getCredential()
-      )
-      .then(user =>
-        coreStitchAuth.linkUserWithCredential(
+      .loginWithCredential(new AnonymousCredential())
+      .then(user => {
+        return coreStitchAuth.linkUserWithCredential(
           user,
           new UserPasswordCredential(
-            ProviderTypes.USER_PASS,
             "foo@foo.com",
             "bar"
           )
         )
-      )
+      })
       .then(linkedUser => {
         expect(linkedUser.id).toEqual(coreStitchAuth.user!.id);
       });
@@ -246,13 +233,7 @@ describe("CoreStitchAuthUnitTests", () => {
     const coreStitchAuth = new MockCoreStitchAuth(new MockRequestClient());
 
     return coreStitchAuth
-      .loginWithCredential(
-        new class extends CoreAnonymousAuthProviderClient {
-          constructor() {
-            super(ProviderTypes.ANON);
-          }
-        }().getCredential()
-      )
+      .loginWithCredential(new AnonymousCredential())
       .then(() => {
         expect(coreStitchAuth.isLoggedIn).toBeTruthy();
       });
@@ -266,13 +247,7 @@ describe("CoreStitchAuthUnitTests", () => {
     expect(coreStitchAuth.isLoggedIn).toBeFalsy();
 
     return coreStitchAuth
-      .loginWithCredential(
-        new class extends CoreAnonymousAuthProviderClient {
-          constructor() {
-            super(ProviderTypes.ANON);
-          }
-        }().getCredential()
-      )
+      .loginWithCredential(new AnonymousCredential())
       .then(() => {
         expect(coreStitchAuth.isLoggedIn).toBeTruthy();
         return coreStitchAuth.logout();
@@ -290,13 +265,7 @@ describe("CoreStitchAuthUnitTests", () => {
     expect(coreStitchAuth.hasDeviceId).toBeFalsy();
 
     return coreStitchAuth
-      .loginWithCredential(
-        new class extends CoreAnonymousAuthProviderClient {
-          constructor() {
-            super(ProviderTypes.ANON);
-          }
-        }().getCredential()
-      )
+      .loginWithCredential(new AnonymousCredential())
       .then(() => {
         expect(coreStitchAuth.hasDeviceId).toBeTruthy();
       });
@@ -321,18 +290,11 @@ describe("CoreStitchAuthUnitTests", () => {
     };
 
     return coreStitchAuth
-      .loginWithCredential(
-        new class extends CoreAnonymousAuthProviderClient {
-          constructor() {
-            super(ProviderTypes.ANON);
-          }
-        }().getCredential()
-      )
+      .loginWithCredential(new AnonymousCredential())
       .then(user =>
         coreStitchAuth.linkUserWithCredential(
           user,
           new UserPasswordCredential(
-            ProviderTypes.USER_PASS,
             "foo@foo.com",
             "bar"
           )
