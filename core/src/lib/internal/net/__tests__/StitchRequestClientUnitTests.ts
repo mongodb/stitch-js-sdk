@@ -1,4 +1,5 @@
 import StitchRequestException from "../../../StitchRequestException";
+import StitchServiceException from "../../../StitchServiceException";
 import BasicRequest from "../BasicRequest";
 import Method from "../Method";
 import Response from "../Response";
@@ -66,7 +67,7 @@ describe("StitchRequestClient", () => {
   });
 
   it("should do json request raw", () => {
-    expect.assertions(3);
+    expect.assertions(4);
 
     const stitchRequestClient = new StitchRequestClient(
       BASE_URL,
@@ -91,19 +92,22 @@ describe("StitchRequestClient", () => {
 
     const builder = new StitchDocRequest.Builder();
     builder.withPath(BAD_REQUEST_ENDPOINT).withMethod(Method.POST);
-
-    try { 
-      stitchRequestClient
-      .doJSONRequestRaw(builder.build())
-    } catch (err) {
-      expect(err).toBeDefined();
-    }
-    builder.withPath(NOT_GET_ENDPOINT);
     builder.withDocument(TEST_DOC);
-    return stitchRequestClient.doJSONRequestRaw(builder.build())
+
+    return stitchRequestClient
+      .doJSONRequestRaw(builder.build())
+      .catch(err => {
+        expect(err).toBeDefined();
+        expect(err).toBeInstanceOf(StitchServiceException)
+      })
+      .then(() => {
+        builder.withPath(NOT_GET_ENDPOINT);
+        builder.withDocument(TEST_DOC);
+        return stitchRequestClient.doJSONRequestRaw(builder.build())
+      })
       .then(response => {
-          expect(response.statusCode).toEqual(200);
-          expect(TEST_DOC).toEqual(EJSON.parse(response.body));
-        });
+        expect(response.statusCode).toEqual(200);
+        expect(TEST_DOC).toEqual(EJSON.parse(response.body));
+      });
   });
 });

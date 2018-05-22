@@ -9,9 +9,10 @@ import StitchDocRequest from "../../internal/net/StitchDocRequest";
 import StitchRequest from "../../internal/net/StitchRequest";
 import StitchRequestClient from "../../internal/net/StitchRequestClient";
 import StitchClientException from "../../StitchClientException";
-import { StitchErrorCode } from "../../StitchErrorCode";
+import { StitchClientErrorCode } from "../../StitchClientErrorCode"
 import StitchException from "../../StitchException";
 import StitchServiceException from "../../StitchServiceException";
+import { StitchServiceErrorCode } from "../../StitchServiceErrorCode";
 import StitchCredential from "../StitchCredential";
 import AccessTokenRefresher from "./AccessTokenRefresher";
 import AuthInfo from "./AuthInfo";
@@ -25,6 +26,8 @@ import { StitchAuthRoutes } from "./StitchAuthRoutes";
 import StitchUserFactory from "./StitchUserFactory";
 import StitchUserProfileImpl from "./StitchUserProfileImpl";
 import * as EJSON from "mongodb-extjson";
+import StitchRequestException from "../../StitchRequestException";
+import { StitchRequestErrorCode } from "../../StitchRequestErrorCode"; 
 
 const OPTIONS = "options";
 const DEVICE = "device";
@@ -84,7 +87,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     try {
       info = readFromStorage(storage);
     } catch (e) {
-      throw new StitchClientException(e);
+      throw new StitchClientException(StitchClientErrorCode.COULD_NOT_LOAD_PERSISTED_AUTH_INFO)
     }
     if (info === undefined) {
       this.authInfo = AuthInfo.empty();
@@ -138,7 +141,13 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   ): Promise<any> {
     return this.doAuthenticatedJSONRequestRaw(stitchReq)
       .then(response => EJSON.parse(response.body, {strict: false}))
-      .catch(err => new StitchClientException(err));
+      .catch(err => {
+        if (err instanceof StitchException) {
+          throw err;
+        }
+
+        throw new StitchRequestException(err, StitchRequestErrorCode.DECODING_ERROR)
+      })
   }
 
   /**
@@ -168,14 +177,18 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       .withMethod(Method.POST);
 
     return this.doAuthenticatedRequest(reqBuilder.build()).then(response => {
-      const partialInfo = APIAuthInfo.readFromAPI(response.body);
 
-      this.authInfo = this.authInfo.merge(partialInfo);
+      try {
+        const partialInfo = APIAuthInfo.readFromAPI(response.body);
+        this.authInfo = this.authInfo.merge(partialInfo);
+      } catch (err) {
+        throw new StitchRequestException(err, StitchRequestErrorCode.DECODING_ERROR)
+      }
 
       try {
         writeToStorage(this.authInfo, this.storage);
-      } catch (e) {
-        throw new StitchClientException(e);
+      } catch (err) {
+        throw new StitchClientException(StitchClientErrorCode.COULD_NOT_PERSIST_AUTH_INFO);
       }
     });
   }
@@ -213,7 +226,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   ): Promise<TStitchUser> {
     if (this.currentUser !== undefined && user.id !== this.currentUser.id) {
       return Promise.reject(
-        "user no longer valid; please try again with a new user from StitchAuth.getUser()"
+        new StitchClientException(StitchClientErrorCode.USER_NO_LONGER_VALID)
       );
     }
 
@@ -268,7 +281,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    */
   private prepareAuthRequest(stitchReq: StitchAuthRequest): StitchRequest {
     if (!this.isLoggedIn) {
-      throw new StitchClientException("must authenticate first");
+      throw new StitchClientException(StitchClientErrorCode.MUST_AUTHENTICATE_FIRST);
     }
 
     const newReq = stitchReq.builder;
@@ -298,7 +311,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   ): Promise<Response> {
     if (
       !(ex instanceof StitchServiceException) ||
-      ex.errorCode !== StitchErrorCode.INVALID_SESSION
+      ex.errorCode !== StitchServiceErrorCode.INVALID_SESSION
     ) {
       throw ex;
     }
@@ -324,7 +337,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     // that should wait on the result of doing a token refresh or logout. This will
     // prevent too many refreshes happening one after the other.
     if (!this.isLoggedIn) {
-      throw new StitchClientException("logged out during request");
+      throw new StitchClientException(StitchClientErrorCode.LOGGED_OUT_DURING_REQUEST);
     }
 
     try {
@@ -428,8 +441,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     let newAuthInfo: APIAuthInfo;
     try {
       newAuthInfo = APIAuthInfo.readFromAPI(response.body);
-    } catch (e) {
-      throw new StitchClientException(e);
+    } catch (err) {
+      throw new StitchRequestException(err, StitchRequestErrorCode.DECODING_ERROR);
     }
 
     newAuthInfo = this.authInfo.merge(
@@ -471,8 +484,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
         try {
           writeToStorage(newAuthInfo, this.storage);
-        } catch (e) {
-          throw new StitchClientException(e);
+        } catch (err) {
+          throw new StitchClientException(StitchClientErrorCode.COULD_NOT_PERSIST_AUTH_INFO);
         }
 
         this.authInfo = newAuthInfo;
@@ -502,7 +515,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     return this.doAuthenticatedRequest(reqBuilder.build())
       .then(response => APICoreUserProfile.decodeFrom(response.body))
       .catch(err => {
-        throw new StitchClientException(err);
+        throw new StitchRequestException(err, StitchRequestErrorCode.DECODING_ERROR);
       });
   }
 
@@ -530,7 +543,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     try {
       writeToStorage(this.authInfo, this.storage);
     } catch (e) {
-      throw new StitchClientException(e);
+      throw new StitchClientException(StitchClientErrorCode.COULD_NOT_PERSIST_AUTH_INFO);
     }
     this.currentUser = undefined;
     this.onAuthEvent();

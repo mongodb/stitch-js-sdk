@@ -7,6 +7,8 @@ import StitchDocRequest from "./StitchDocRequest";
 import StitchRequest from "./StitchRequest";
 import Transport from "./Transport";
 import * as EJSON from "mongodb-extjson";
+import StitchRequestException from "../../StitchRequestException";
+import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
 
 function inspectResponse(response: Response): Response {
   if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -28,12 +30,23 @@ export default class StitchRequestClient {
   public doRequest(stitchReq: StitchRequest): Promise<Response> {
     return this.transport
       .roundTrip(this.buildRequest(stitchReq))
+      .catch(error => {
+          throw new StitchRequestException(error, StitchRequestErrorCode.TRANSPORT_ERROR);
+      })
       .then(inspectResponse);
   }
 
   public doJSONRequestRaw(stitchReq: StitchDocRequest): Promise<Response> {
     const newReqBuilder = stitchReq.builder;
-    newReqBuilder.withBody(EJSON.stringify(stitchReq.document));
+
+    let encoded;
+    try {
+      encoded = EJSON.stringify(stitchReq.document)
+    } catch (error) {
+      return Promise.reject(new StitchRequestException(error, StitchRequestErrorCode.ENCODING_ERROR))
+    }
+    
+    newReqBuilder.withBody(encoded);
     const newHeaders = newReqBuilder.headers; // This is not a copy
     newHeaders[Headers.CONTENT_TYPE] = ContentTypes.APPLICATION_JSON;
     newReqBuilder.withHeaders(newHeaders);

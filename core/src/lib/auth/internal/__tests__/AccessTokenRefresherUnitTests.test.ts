@@ -9,7 +9,6 @@ import StitchAuthRequest from "../../../internal/net/StitchAuthRequest";
 import StitchDocRequest from "../../../internal/net/StitchDocRequest";
 import StitchRequest from "../../../internal/net/StitchRequest";
 import StitchRequestClient from "../../../internal/net/StitchRequestClient";
-import { StitchErrorCode } from "../../../StitchErrorCode";
 import StitchServiceException from "../../../StitchServiceException";
 import CoreAnonymousAuthProviderClient from "../../providers/anonymous/CoreAnonymousAuthProviderClient";
 import ProviderTypes from "../../providers/ProviderTypes";

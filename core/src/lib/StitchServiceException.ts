@@ -1,18 +1,35 @@
-import { StitchErrorCode } from "./StitchErrorCode";
+import StitchException from "./StitchException";
 import StitchRequestException from "./StitchRequestException";
+import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
 
 /**
- * A StitchServiceException is an exception that happens when the Stitch server has deemed a request
- * as failing for a reason. This exception captures that reason.
+ * A StitchServiceException is an exception indicating that an error came from the Stitch server
+ * after a request was completed, with an error message and an error code defined in the
+ * `StitchServiceErrorCode` enum.
+ *
+ * It is possible that the error code will be `UNKNOWN`, which can mean one of several
+ * possibilities: the Stitch server returned a message that this version of the SDK does not yet
+ * recognize, the server is not a Stitch server and returned an unexpected message, or the response
+ * was corrupted. In these cases, the associated message will be the plain text body of the
+ * response, or an empty string if the body is empty or not decodable as plain text.
  */
-export default class StitchServiceException extends StitchRequestException {
-  public readonly errorCode: StitchErrorCode;
+export default class StitchServiceException extends StitchException {
+    /**
+     * The {@link StitchServiceErrorCode} indicating the reason for this exception.
+     */
+    public readonly errorCode: StitchServiceErrorCode;
 
-  public constructor(
-    message: string,
-    errorCode: StitchErrorCode = StitchErrorCode.UNKNOWN
-  ) {
-    super(message);
-    this.errorCode = errorCode;
-  }
+    /**
+     * A string describing the reason for the error.
+     */
+    public readonly message: string
+
+    public constructor(
+      message: string,
+      errorCode: StitchServiceErrorCode = StitchServiceErrorCode.UNKNOWN
+    ) {
+      super();
+      this.message = message;
+      this.errorCode = errorCode;
+    }
 }
