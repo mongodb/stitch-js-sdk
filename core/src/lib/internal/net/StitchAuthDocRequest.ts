@@ -1,6 +1,6 @@
 import Method from "./Method";
 import { StitchAuthRequest } from "./StitchAuthRequest";
-import StitchRequest from "./StitchRequest";
+import { StitchRequest } from "./StitchRequest";
 
 export class StitchAuthDocRequest extends StitchAuthRequest {
   public readonly document: object;
@@ -10,13 +10,13 @@ export class StitchAuthDocRequest extends StitchAuthRequest {
     this.document = document;
   }
 
-  public get builder(): StitchAuthRequest.Builder {
-    return new StitchAuthRequest.Builder(this);
+  public get builder(): StitchAuthDocRequest.Builder {
+    return new StitchAuthDocRequest.Builder(this);
   }
 }
 
 export namespace StitchAuthDocRequest {
-  export class Builder extends StitchRequest.Builder {
+  export class Builder extends StitchAuthRequest.Builder {
     public document: object;
     public useRefreshToken: boolean;
 

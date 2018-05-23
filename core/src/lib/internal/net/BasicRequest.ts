@@ -1,7 +1,26 @@
 import Method from "./Method";
 
-export default class BasicRequest {
-  public static Builder = class {
+export class BasicRequest {
+  public readonly method: Method;
+  public readonly url: string;
+  public readonly headers: { [key: string]: string };
+  public readonly body?: string;
+
+  public constructor(
+    method: Method,
+    url: string,
+    headers: { [key: string]: string },
+    body?: string
+  ) {
+    this.method = method;
+    this.url = url;
+    this.headers = headers;
+    this.body = body;
+  }
+}
+
+export namespace BasicRequest {
+  export class Builder {
     public method?: Method;
     public url?: string;
     public headers?: { [key: string]: string };
@@ -55,21 +74,4 @@ export default class BasicRequest {
       );
     }
   };
-
-  public readonly method: Method;
-  public readonly url: string;
-  public readonly headers: { [key: string]: string };
-  public readonly body?: string;
-
-  private constructor(
-    method: Method,
-    url: string,
-    headers: { [key: string]: string },
-    body?: string
-  ) {
-    this.method = method;
-    this.url = url;
-    this.headers = headers;
-    this.body = body;
-  }
 }

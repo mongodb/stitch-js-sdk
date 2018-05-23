@@ -5,8 +5,8 @@ import Method from "../../internal/net/Method";
 import Response from "../../internal/net/Response";
 import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
-import StitchDocRequest from "../../internal/net/StitchDocRequest";
-import StitchRequest from "../../internal/net/StitchRequest";
+import { StitchDocRequest } from "../../internal/net/StitchDocRequest";
+import { StitchRequest } from "../../internal/net/StitchRequest";
 import StitchRequestClient from "../../internal/net/StitchRequestClient";
 import StitchClientException from "../../StitchClientException";
 import { StitchClientErrorCode } from "../../StitchClientErrorCode"

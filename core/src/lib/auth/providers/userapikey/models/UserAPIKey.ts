@@ -1,3 +1,5 @@
+import Assertions from "../../../../internal/common/Assertions";
+
 enum Fields {
   ID = "_id",
   KEY = "key",

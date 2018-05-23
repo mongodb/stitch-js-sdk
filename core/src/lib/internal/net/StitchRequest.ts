@@ -1,7 +1,33 @@
 import Method from "./Method";
 
-export default class StitchRequest {
-  public static Builder = class {
+export class StitchRequest {
+  public readonly method: Method;
+  public readonly path: string;
+  public readonly headers: { [key: string]: string };
+  public readonly body?: string;
+  public readonly startedAt: number;
+
+  public constructor(
+    method: Method,
+    path: string,
+    headers: { [key: string]: string },
+    startedAt: number,
+    body?: string
+  ) {
+    this.method = method;
+    this.path = path;
+    this.headers = headers;
+    this.body = body;
+    this.startedAt = startedAt;
+  }
+
+  public get builder(): StitchRequest.Builder {
+    return new StitchRequest.Builder(this);
+  }
+}
+
+export namespace StitchRequest {
+  export class Builder {
     public method?: Method;
     public path?: string;
     public headers?: { [key: string]: string };
@@ -57,28 +83,4 @@ export default class StitchRequest {
       );
     }
   };
-
-  public readonly method: Method;
-  public readonly path: string;
-  public readonly headers: { [key: string]: string };
-  public readonly body?: string;
-  public readonly startedAt: number;
-
-  public constructor(
-    method: Method,
-    path: string,
-    headers: { [key: string]: string },
-    startedAt: number,
-    body?: string
-  ) {
-    this.method = method;
-    this.path = path;
-    this.headers = headers;
-    this.body = body;
-    this.startedAt = startedAt;
-  }
-
-  public get builder() {
-    return new StitchRequest.Builder(this);
-  }
 }

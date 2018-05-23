@@ -1,5 +1,5 @@
 import Method from "../../../internal/net/Method";
-import StitchDocRequest from "../../../internal/net/StitchDocRequest";
+import { StitchDocRequest } from "../../../internal/net/StitchDocRequest";
 import StitchRequestClient from "../../../internal/net/StitchRequestClient";
 import { StitchAuthRoutes } from "../../internal/StitchAuthRoutes";
 import CoreAuthProviderClient from "../CoreAuthProviderClient";

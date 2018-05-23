@@ -5,8 +5,8 @@ import Headers from "../../../internal/net/Headers";
 import Response from "../../../internal/net/Response";
 import { StitchAppRoutes } from "../../../internal/net/StitchAppRoutes";
 import { StitchAuthRequest } from "../../../internal/net/StitchAuthRequest";
-import StitchDocRequest from "../../../internal/net/StitchDocRequest";
-import StitchRequest from "../../../internal/net/StitchRequest";
+import { StitchDocRequest } from "../../../internal/net/StitchDocRequest";
+import { StitchRequest } from "../../../internal/net/StitchRequest";
 import StitchRequestClient from "../../../internal/net/StitchRequestClient";
 import StitchServiceException from "../../../StitchServiceException";
 import { StitchServiceErrorCode } from "../../../StitchServiceErrorCode";
@@ -82,7 +82,7 @@ class MockRequestClient extends StitchRequestClient {
 
   private handleProfileRoute = (request: StitchRequest): Response => {
     return {
-      body: JSON.stringify(MockRequestClient.MOCK_API_AUTH_INFO),
+      body: JSON.stringify(MockRequestClient.MOCK_API_PROFILE),
       headers: MockRequestClient.BASE_JSON_HEADERS,
       statusCode: 200
     };
@@ -90,7 +90,7 @@ class MockRequestClient extends StitchRequestClient {
 
   private handleSessionRoute = (request: StitchRequest): Response => {
     return {
-      body: JSON.stringify(MockRequestClient.MOCK_API_AUTH_INFO),
+      body: JSON.stringify(MockRequestClient.MOCK_SESSION_INFO),
       headers: MockRequestClient.BASE_JSON_HEADERS,
       statusCode: 200
     };
@@ -192,8 +192,14 @@ describe("CoreStitchAuthUnitTests", () => {
 
     const coreStitchAuth = new MockCoreStitchAuth(new MockRequestClient());
 
+    console.log(coreStitchAuth
+      .loginWithCredential(new AnonymousCredential()).catch(err => console.log(err)))
+
     return coreStitchAuth
       .loginWithCredential(new AnonymousCredential())
+      .then(user => {
+        return user
+      })
       .then(user => {
         expect(user.id).toEqual(USER_ID);
         expect(user.loggedInProviderName).toEqual("anon-user");

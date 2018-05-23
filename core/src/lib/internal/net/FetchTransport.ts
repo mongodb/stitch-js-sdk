@@ -1,4 +1,4 @@
-import BasicRequest from "./BasicRequest";
+import { BasicRequest } from "./BasicRequest";
 import Response from "./Response";
 import Transport from "./Transport";
 require('es6-promise').polyfill();

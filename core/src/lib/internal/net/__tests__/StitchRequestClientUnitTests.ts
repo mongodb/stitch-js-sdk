@@ -1,10 +1,10 @@
 import StitchRequestException from "../../../StitchRequestException";
 import StitchServiceException from "../../../StitchServiceException";
-import BasicRequest from "../BasicRequest";
+import { BasicRequest } from "../BasicRequest";
 import Method from "../Method";
 import Response from "../Response";
-import StitchDocRequest from "../StitchDocRequest";
-import StitchRequest from "../StitchRequest";
+import { StitchDocRequest } from "../StitchDocRequest";
+import { StitchRequest } from "../StitchRequest";
 import StitchRequestClient from "../StitchRequestClient";
 import Transport from "../Transport";
 import * as EJSON from "mongodb-extjson";
@@ -36,7 +36,7 @@ describe("StitchRequestClient", () => {
 
           return new Promise((resolve, reject) =>
             resolve({
-              body: JSON.stringify(request.body),
+              body: request.body || "",
               headers: HEADERS,
               statusCode: 200
             })
@@ -62,7 +62,7 @@ describe("StitchRequestClient", () => {
       })
       .then(response => {
         expect(response.statusCode).toEqual(200);
-        expect(TEST_DOC).toEqual(response.body);
+        expect(TEST_DOC).toEqual(JSON.parse(response.body));
       });
   });
 
@@ -81,7 +81,7 @@ describe("StitchRequestClient", () => {
 
           return new Promise((resolve, reject) =>
             resolve({
-              body: JSON.stringify(request.body),
+              body: request.body || "",
               headers: HEADERS,
               statusCode: 200
             })
@@ -107,7 +107,7 @@ describe("StitchRequestClient", () => {
       })
       .then(response => {
         expect(response.statusCode).toEqual(200);
-        expect(TEST_DOC).toEqual(EJSON.parse(response.body));
+        expect(TEST_DOC).toEqual(JSON.parse(response.body));
       });
   });
 });

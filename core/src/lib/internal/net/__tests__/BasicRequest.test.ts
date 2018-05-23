@@ -1,4 +1,4 @@
-import BasicRequest from "../BasicRequest";
+import { BasicRequest } from "../BasicRequest";
 import Method from "../Method";
 
 describe("BasicRequest", () => {

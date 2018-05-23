@@ -1,10 +1,10 @@
 import StitchError from "../../StitchError";
-import BasicRequest from "./BasicRequest";
+import { BasicRequest } from "./BasicRequest";
 import ContentTypes from "./ContentTypes";
 import Headers from "./Headers";
 import Response from "./Response";
-import StitchDocRequest from "./StitchDocRequest";
-import StitchRequest from "./StitchRequest";
+import { StitchDocRequest } from "./StitchDocRequest";
+import { StitchRequest } from "./StitchRequest";
 import Transport from "./Transport";
 import * as EJSON from "mongodb-extjson";
 import StitchRequestException from "../../StitchRequestException";
@@ -47,7 +47,7 @@ export default class StitchRequestClient {
     }
     
     newReqBuilder.withBody(encoded);
-    const newHeaders = newReqBuilder.headers; // This is not a copy
+    const newHeaders = newReqBuilder.headers || {}; // This is not a copy
     newHeaders[Headers.CONTENT_TYPE] = ContentTypes.APPLICATION_JSON;
     newReqBuilder.withHeaders(newHeaders);
 

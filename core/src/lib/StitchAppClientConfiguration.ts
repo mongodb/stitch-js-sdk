@@ -1,4 +1,4 @@
-import StitchClientConfiguration from "./StitchClientConfiguration";
+import { StitchClientConfiguration } from "./StitchClientConfiguration";
 
 export class StitchAppClientConfiguration extends StitchClientConfiguration {
   public readonly clientAppId: string;
@@ -22,7 +22,7 @@ export class StitchAppClientConfiguration extends StitchClientConfiguration {
     this.localAppName = localAppName;
   }
 
-  public builder() {
+  public builder(): StitchAppClientConfiguration.Builder {
     return new StitchAppClientConfiguration.Builder(this);
   }
 }

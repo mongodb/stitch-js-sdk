@@ -1,4 +1,4 @@
-class Assertions {
+export default class Assertions {
   /**
    * Throw IllegalStateException if key is not present in map.
    * @param key the key to expect.

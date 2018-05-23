@@ -1,4 +1,4 @@
-import StitchRequest from "./StitchRequest";
+import { StitchRequest } from "./StitchRequest";
 
 export class StitchAuthRequest extends StitchRequest {
   public readonly useRefreshToken: boolean;
@@ -14,7 +14,7 @@ export class StitchAuthRequest extends StitchRequest {
     this.useRefreshToken = useRefreshToken;
   }
 
-  public get builder() {
+  public get builder(): StitchAuthRequest.Builder {
     return new StitchAuthRequest.Builder(this);
   }
 }
