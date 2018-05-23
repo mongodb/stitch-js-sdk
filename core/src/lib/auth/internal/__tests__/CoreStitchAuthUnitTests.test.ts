@@ -191,9 +191,6 @@ describe("CoreStitchAuthUnitTests", () => {
 
     const coreStitchAuth = new MockCoreStitchAuth(new MockRequestClient());
 
-    console.log(coreStitchAuth
-      .loginWithCredential(new AnonymousCredential()).catch(err => console.log(err)))
-
     return coreStitchAuth
       .loginWithCredential(new AnonymousCredential())
       .then(user => {
