@@ -1,9 +1,22 @@
 import Method from "./Method";
-import StitchAuthRequest from "./StitchAuthRequest";
+import { StitchAuthRequest } from "./StitchAuthRequest";
 import StitchRequest from "./StitchRequest";
 
-export default class StitchAuthDocRequest extends StitchAuthRequest {
-  public static Builder = class extends StitchRequest.Builder {
+export class StitchAuthDocRequest extends StitchAuthRequest {
+  public readonly document: object;
+
+  public constructor(request: StitchRequest, document: object) {
+    super(request, false);
+    this.document = document;
+  }
+
+  public get builder(): StitchAuthRequest.Builder {
+    return new StitchAuthRequest.Builder(this);
+  }
+}
+
+export namespace StitchAuthDocRequest {
+  export class Builder extends StitchRequest.Builder {
     public document: object;
     public useRefreshToken: boolean;
 
@@ -27,18 +40,7 @@ export default class StitchAuthDocRequest extends StitchAuthRequest {
     }
 
     public build(): StitchAuthDocRequest {
-      return new StitchAuthDocRequest(super.build(), document);
+      return new StitchAuthDocRequest(super.build(), this.document);
     }
   };
-
-  public readonly document: object;
-
-  public constructor(request: StitchRequest, document: object) {
-    super(request, false);
-    this.document = document;
-  }
-
-  public get builder() {
-    return new StitchAuthRequest.Builder(this);
-  }
 }

@@ -23,11 +23,11 @@ function getAuthProviderLinkRoute(
 }
 
 export default class StitchAppAuthRoutes implements StitchAuthRoutes {
+  public readonly baseAuthRoute:string = `${BASE_ROUTE}/auth`
+
   public readonly sessionRoute: string = (() => `${this.baseAuthRoute}/session`)();
 
   public readonly profileRoute: string = (() => `${this.baseAuthRoute}/profile`)();
-
-  public readonly baseAuthRoute:string = `${BASE_ROUTE}/auth`
 
   private readonly clientAppId: string;
 

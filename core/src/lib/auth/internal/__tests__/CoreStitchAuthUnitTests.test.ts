@@ -4,7 +4,7 @@ import FetchTransport from "../../../internal/net/FetchTransport";
 import Headers from "../../../internal/net/Headers";
 import Response from "../../../internal/net/Response";
 import { StitchAppRoutes } from "../../../internal/net/StitchAppRoutes";
-import StitchAuthRequest from "../../../internal/net/StitchAuthRequest";
+import { StitchAuthRequest } from "../../../internal/net/StitchAuthRequest";
 import StitchDocRequest from "../../../internal/net/StitchDocRequest";
 import StitchRequest from "../../../internal/net/StitchRequest";
 import StitchRequestClient from "../../../internal/net/StitchRequestClient";
@@ -66,31 +66,31 @@ class MockRequestClient extends StitchRequestClient {
 
   public handleAuthProviderLoginRoute = (request: StitchRequest): Response => {
     return {
-      body: MockRequestClient.MOCK_API_AUTH_INFO,
+      body: JSON.stringify(MockRequestClient.MOCK_API_AUTH_INFO),
       headers: MockRequestClient.BASE_JSON_HEADERS,
       statusCode: 200
     };
   };
 
-  public handleAuthProviderLinkRoute = (request: StitchRequest) => {
+  public handleAuthProviderLinkRoute = (request: StitchRequest): Response => {
     return {
-      body: MockRequestClient.MOCK_API_AUTH_INFO,
+      body: JSON.stringify(MockRequestClient.MOCK_API_AUTH_INFO),
       headers: MockRequestClient.BASE_JSON_HEADERS,
       statusCode: 200
     };
   };
 
-  private handleProfileRoute = (request: StitchRequest) => {
+  private handleProfileRoute = (request: StitchRequest): Response => {
     return {
-      body: MockRequestClient.MOCK_API_PROFILE,
+      body: JSON.stringify(MockRequestClient.MOCK_API_AUTH_INFO),
       headers: MockRequestClient.BASE_JSON_HEADERS,
       statusCode: 200
     };
   };
 
-  private handleSessionRoute = (request: StitchRequest) => {
+  private handleSessionRoute = (request: StitchRequest): Response => {
     return {
-      body: MockRequestClient.MOCK_SESSION_INFO,
+      body: JSON.stringify(MockRequestClient.MOCK_API_AUTH_INFO),
       headers: MockRequestClient.BASE_JSON_HEADERS,
       statusCode: 200
     };

@@ -5,7 +5,7 @@ export default class BasicRequest {
     public method?: Method;
     public url?: string;
     public headers?: { [key: string]: string };
-    public body?: any;
+    public body?: string;
 
     public constructor(request?: BasicRequest) {
       if (!request) {
@@ -33,7 +33,7 @@ export default class BasicRequest {
       return this;
     }
 
-    public withBody(body: any): this {
+    public withBody(body?: string): this {
       this.body = body;
       return this;
     }
@@ -59,13 +59,13 @@ export default class BasicRequest {
   public readonly method: Method;
   public readonly url: string;
   public readonly headers: { [key: string]: string };
-  public readonly body?: any;
+  public readonly body?: string;
 
   private constructor(
     method: Method,
     url: string,
     headers: { [key: string]: string },
-    body?: any
+    body?: string
   ) {
     this.method = method;
     this.url = url;

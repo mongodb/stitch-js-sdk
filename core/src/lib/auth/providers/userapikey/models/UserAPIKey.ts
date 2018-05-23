@@ -34,7 +34,8 @@ export default class UserAPIKey {
    * 
    * @param body The body of the response from the Stitch client API
    */
-  public static readFromAPI(body: object): UserAPIKey {
+  public static readFromAPI(bodyText: string): UserAPIKey {
+    const body = JSON.parse(bodyText)
     Assertions.keyPresent(Fields.ID, body)
     Assertions.keyPresent(Fields.NAME, body)
     Assertions.keyPresent(Fields.DISABLED, body)

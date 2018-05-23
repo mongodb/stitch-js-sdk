@@ -11,7 +11,8 @@ enum Fields {
  * `data` field of a user profile request.
  */
 export default class APICoreUserProfile extends StitchUserProfileImpl {
-  public static decodeFrom(body: object): APICoreUserProfile {
+  public static decodeFrom(bodyText: string): APICoreUserProfile {
+    const body = JSON.parse(bodyText)
     return new APICoreUserProfile(
       body[Fields.USER_TYPE],
       body[Fields.DATA],

@@ -5,7 +5,7 @@ export default class StitchRequest {
     public method?: Method;
     public path?: string;
     public headers?: { [key: string]: string };
-    public body?: any;
+    public body?: string;
     public startedAt?: number;
 
     public constructor(request?: StitchRequest) {
@@ -33,7 +33,7 @@ export default class StitchRequest {
       return this;
     }
 
-    public withBody(body: any): this {
+    public withBody(body: string): this {
       this.body = body;
       return this;
     }
@@ -52,8 +52,8 @@ export default class StitchRequest {
         this.method,
         this.path,
         this.headers === undefined ? {} : this.headers,
-        this.body,
-        this.startedAt
+        this.startedAt,
+        this.body
       );
     }
   };
@@ -61,15 +61,15 @@ export default class StitchRequest {
   public readonly method: Method;
   public readonly path: string;
   public readonly headers: { [key: string]: string };
-  public readonly body: any;
+  public readonly body?: string;
   public readonly startedAt: number;
 
   public constructor(
     method: Method,
     path: string,
     headers: { [key: string]: string },
-    body: any,
-    startedAt: number
+    startedAt: number,
+    body?: string
   ) {
     this.method = method;
     this.path = path;

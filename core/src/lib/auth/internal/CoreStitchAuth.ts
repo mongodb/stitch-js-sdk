@@ -3,8 +3,8 @@ import ContentTypes from "../../internal/net/ContentTypes";
 import Headers from "../../internal/net/Headers";
 import Method from "../../internal/net/Method";
 import Response from "../../internal/net/Response";
-import StitchAuthDocRequest from "../../internal/net/StitchAuthDocRequest";
-import StitchAuthRequest from "../../internal/net/StitchAuthRequest";
+import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
+import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 import StitchDocRequest from "../../internal/net/StitchDocRequest";
 import StitchRequest from "../../internal/net/StitchRequest";
 import StitchRequestClient from "../../internal/net/StitchRequestClient";
@@ -154,11 +154,10 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     stitchReq: StitchAuthDocRequest
   ): Promise<Response> {
     const newReqBuilder = stitchReq.builder;
-    newReqBuilder.withBody(stitchReq.document);
-    const newHeaders = newReqBuilder.headers; // This is not a copy
+    newReqBuilder.withBody(JSON.stringify(stitchReq.document));
+    const newHeaders = newReqBuilder.headers || {}; // This is not a copy
     newHeaders[Headers.CONTENT_TYPE] = ContentTypes.APPLICATION_JSON;
     newReqBuilder.withHeaders(newHeaders);
-
     return this.doAuthenticatedRequest(newReqBuilder.build());
   }
 
@@ -280,7 +279,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     }
 
     const newReq = stitchReq.builder;
-    const newHeaders = newReq.headers; // This is not a copy
+    const newHeaders = newReq.headers || {}; // This is not a copy
     if (stitchReq.useRefreshToken) {
       newHeaders[Headers.AUTHORIZATION] = Headers.getAuthorizationBearer(
         this.authInfo.refreshToken!

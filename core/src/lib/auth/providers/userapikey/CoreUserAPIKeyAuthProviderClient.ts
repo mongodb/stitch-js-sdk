@@ -1,10 +1,10 @@
 import UserAPIKeyCredential from "./UserAPIKeyCredential";
 import CoreAuthProviderClient from "../CoreAuthProviderClient";
 import { StitchAuthRequestClient, ProviderTypes, StitchAuthRoutes } from "../../..";
-import StitchAuthDocRequest from "../../../internal/net/StitchAuthDocRequest";
+import { StitchAuthDocRequest } from "../../../internal/net/StitchAuthDocRequest";
 import Method from "../../../internal/net/Method";
 import UserAPIKey from "./models/UserAPIKey";
-import StitchAuthRequest from "../../../internal/net/StitchAuthRequest";
+import { StitchAuthRequest } from "../../../internal/net/StitchAuthRequest";
 import StitchRequestException from "../../../StitchRequestException";
 import { StitchRequestErrorCode } from "../../../StitchRequestErrorCode";
 import StitchException from "../../../StitchException";
@@ -64,7 +64,7 @@ export default abstract class CoreUserAPIKeyAuthProviderClient extends CoreAuthP
       .withRefreshToken();
     
     return this.requestClient
-      .doAuthenticatedJSONRequestRaw(reqBuilder.build())
+      .doAuthenticatedRequest(reqBuilder.build())
       .then(response => {
         return UserAPIKey.readFromAPI(response.body)
       })
@@ -83,7 +83,7 @@ export default abstract class CoreUserAPIKeyAuthProviderClient extends CoreAuthP
       .withRefreshToken();
     
     return this.requestClient
-      .doAuthenticatedJSONRequestRaw(reqBuilder.build())
+      .doAuthenticatedRequest(reqBuilder.build())
       .then(response => {
         if(Array.isArray(response.body)) {
           const keys = Array.from(response.body)
@@ -112,7 +112,7 @@ export default abstract class CoreUserAPIKeyAuthProviderClient extends CoreAuthP
       .withRefreshToken();
     
     return this.requestClient
-      .doAuthenticatedJSONRequestRaw(reqBuilder.build())
+      .doAuthenticatedRequest(reqBuilder.build())
       .then(() => {})
   }
 
@@ -130,7 +130,7 @@ export default abstract class CoreUserAPIKeyAuthProviderClient extends CoreAuthP
       .withRefreshToken();
     
     return this.requestClient
-      .doAuthenticatedJSONRequestRaw(reqBuilder.build())
+      .doAuthenticatedRequest(reqBuilder.build())
       .then(() => {})
   }
 
@@ -148,7 +148,7 @@ export default abstract class CoreUserAPIKeyAuthProviderClient extends CoreAuthP
       .withRefreshToken();
     
     return this.requestClient
-      .doAuthenticatedJSONRequestRaw(reqBuilder.build())
+      .doAuthenticatedRequest(reqBuilder.build())
       .then(() => {})
   }
 

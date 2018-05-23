@@ -30,13 +30,13 @@ describe("StitchRequestClient", () => {
         public roundTrip(request: BasicRequest): Promise<Response> {
           if (request.url.includes(BAD_REQUEST_ENDPOINT)) {
             return new Promise((resolve, reject) =>
-              resolve({ statusCode: 500, headers: HEADERS, body: undefined })
+              resolve({ statusCode: 500, headers: HEADERS, body: "" })
             );
           }
 
           return new Promise((resolve, reject) =>
             resolve({
-              body: request.body,
+              body: JSON.stringify(request.body),
               headers: HEADERS,
               statusCode: 200
             })
@@ -56,7 +56,7 @@ describe("StitchRequestClient", () => {
       })
       .then(() => {
         builder.withPath(GET_ENDPOINT);
-        builder.withBody(TEST_DOC);
+        builder.withBody(JSON.stringify(TEST_DOC));
 
         return stitchRequestClient.doRequest(builder.build());
       })
@@ -75,13 +75,13 @@ describe("StitchRequestClient", () => {
         public roundTrip(request: BasicRequest): Promise<Response> {
           if (request.url.includes(BAD_REQUEST_ENDPOINT)) {
             return new Promise((resolve, reject) =>
-              resolve({ statusCode: 500, headers: HEADERS, body: undefined })
+              resolve({ statusCode: 500, headers: HEADERS, body: "" })
             );
           }
 
           return new Promise((resolve, reject) =>
             resolve({
-              body: request.body,
+              body: JSON.stringify(request.body),
               headers: HEADERS,
               statusCode: 200
             })

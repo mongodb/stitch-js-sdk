@@ -29,8 +29,8 @@ export default class StitchDocRequest extends StitchRequest {
       request.method,
       request.path,
       request.headers,
-      request.body,
-      request.startedAt
+      request.startedAt,
+      request.body
     );
 
     this.document = document;
