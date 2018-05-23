@@ -1,6 +1,8 @@
-import { UserAPIKey } from "stitch-core";
+import { UserAPIKey, StitchAuthRequestClient, StitchAuthRoutes, StitchRequestClient } from "stitch-core";
+import AuthProviderClientFactory from "../internal/AuthProviderClientFactory";
+import UserAPIKeyAuthProviderClientImpl from "./internal/UserAPIKeyAuthProviderClientImpl";
 
-export default interface UserAPIKeyAuthProviderClient {
+export interface UserAPIKeyAuthProviderClient {
   /**
    * Creates a user API key that can be used to authenticate as the current user.
    * 
@@ -40,4 +42,16 @@ export default interface UserAPIKeyAuthProviderClient {
    * @param keyId the id of the API key to disable
    */
   disableApiKey(keyId: string): Promise<void>
+}
+
+export namespace UserAPIKeyAuthProviderClient {
+  export const Factory: AuthProviderClientFactory<UserAPIKeyAuthProviderClient> =
+  new class implements AuthProviderClientFactory<UserAPIKeyAuthProviderClient> {
+    public getClient(
+      authRequestClient: StitchAuthRequestClient,
+      requestClient: StitchRequestClient, // this arg is ignored
+      routes: StitchAuthRoutes): UserAPIKeyAuthProviderClient {
+      return new UserAPIKeyAuthProviderClientImpl(authRequestClient, routes);
+    }
+  }();
 }

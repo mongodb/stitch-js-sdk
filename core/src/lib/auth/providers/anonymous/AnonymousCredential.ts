@@ -1,6 +1,6 @@
 import ProviderCapabilities from "../../ProviderCapabilities";
 import StitchCredential from "../../StitchCredential";
-import ProviderTypes from "../ProviderTypes";
+import AnonymousAuthProvider from "./AnonymousAuthProvider";
 
 /**
  * A credential which can be used to log in as a Stitch user
@@ -14,7 +14,7 @@ export default class AnonymousCredential implements StitchCredential {
   /**
    * The type of the provider for this credential.
    */
-  public readonly providerType = ProviderTypes.ANON;
+  public readonly providerType = AnonymousAuthProvider.TYPE;
   /**
    * The contents of this credential as they will be passed to the Stitch server.
    */
@@ -24,7 +24,7 @@ export default class AnonymousCredential implements StitchCredential {
    */
   public readonly providerCapabilities = new ProviderCapabilities(true);
 
-  constructor(providerName: string = ProviderTypes.ANON) {
+  constructor(providerName: string = AnonymousAuthProvider.DEFAULT_NAME) {
     this.providerName = providerName;
   }
 }

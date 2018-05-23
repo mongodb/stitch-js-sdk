@@ -3,10 +3,9 @@ import StitchAuthListener from "./core/auth/StitchAuthListener";
 import StitchUser from "./core/auth/StitchUser";
 import Stitch from "./core/Stitch";
 import StitchAppClient from "./core/StitchAppClient";
-import UserAPIKeyAuthProvider from "./core/auth/providers/internal/userapikey/UserAPIKeyAuthProvider";
-import UserAPIKeyAuthProviderClient from "./core/auth/providers/internal/userapikey/UserAPIKeyAuthProviderClient";
-import UserPasswordAuthProvider from "./core/auth/providers/internal/userpassword/UserPasswordAuthProvider";
-import UserPasswordAuthProviderClient from "./core/auth/providers/internal/userpassword/UserPasswordAuthProviderClient";
+import { UserAPIKeyAuthProviderClient } from "./core/auth/providers/userapikey/UserAPIKeyAuthProviderClient";
+import { UserPasswordAuthProviderClient } from "./core/auth/providers/userpassword/UserPasswordAuthProviderClient";
+
 import { 
     StitchAppClientConfiguration, 
     AnonymousCredential, 
@@ -15,7 +14,7 @@ import {
     GoogleCredential, 
     ServerAPIKeyCredential, 
     UserAPIKeyCredential, 
-    UserPassCredential,
+    UserPasswordCredential,
     MemoryStorage
 } from "stitch-core";
 
@@ -26,7 +25,7 @@ export {
     GoogleCredential,
     ServerAPIKeyCredential,
     UserAPIKeyCredential,
-    UserPassCredential,
+    UserPasswordCredential,
     MemoryStorage,
     Stitch,
     StitchAppClient,
@@ -34,8 +33,6 @@ export {
     StitchAuth,
     StitchAuthListener,
     StitchUser,
-    UserAPIKeyAuthProvider,
     UserAPIKeyAuthProviderClient,
-    UserPasswordAuthProvider,
-    UserPasswordAuthProviderClient,
+    UserPasswordAuthProviderClient
 }

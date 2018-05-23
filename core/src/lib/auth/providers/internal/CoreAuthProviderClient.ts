@@ -1,5 +1,5 @@
-import StitchRequestClient from "../../internal/net/StitchRequestClient";
-import { StitchAuthRoutes } from "../internal/StitchAuthRoutes";
+import StitchRequestClient from "../../../internal/net/StitchRequestClient";
+import { StitchAuthRoutes } from "../../internal/StitchAuthRoutes";
 
 /**
  * The class from which all Core auth provider clients inherit. Only auth 

@@ -24,6 +24,7 @@ export class StitchClientConfiguration {
   }
 }
 
+/* tslint:disable:no-namespace max-classes-per-file */
 export namespace StitchClientConfiguration {
   export class Builder {
     public baseURL: string;

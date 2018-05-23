@@ -1,5 +1,5 @@
-import { CoreUserPassAuthProviderClient, StitchRequestClient, StitchAuthRoutes, ProviderTypes } from "stitch-core";
-import UserPasswordAuthProviderClient from "../UserPasswordAuthProviderClient";
+import { CoreUserPassAuthProviderClient, StitchRequestClient, StitchAuthRoutes, UserPasswordAuthProvider } from "stitch-core";
+import { UserPasswordAuthProviderClient } from "../UserPasswordAuthProviderClient";
 
 export default class UserPasswordAuthProviderClientImpl extends CoreUserPassAuthProviderClient
     implements UserPasswordAuthProviderClient {
@@ -7,7 +7,7 @@ export default class UserPasswordAuthProviderClientImpl extends CoreUserPassAuth
   public constructor(
       requestClient: StitchRequestClient,
       routes: StitchAuthRoutes) {
-    super(ProviderTypes.USER_PASS, requestClient, routes);
+    super(UserPasswordAuthProvider.DEFAULT_NAME, requestClient, routes);
   }
 
   public registerWithEmail(email: string, password: string): Promise<void> {

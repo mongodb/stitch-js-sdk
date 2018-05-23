@@ -27,6 +27,7 @@ export class StitchAppClientConfiguration extends StitchClientConfiguration {
   }
 }
 
+/* tslint:disable:no-namespace max-classes-per-file */
 export namespace StitchAppClientConfiguration {
   export class Builder extends StitchClientConfiguration.Builder {
     public static forApp(clientAppId: string, baseURL?: string) {

@@ -1,9 +1,6 @@
 export default class Assertions {
   /**
-   * Throw IllegalStateException if key is not present in map.
-   * @param key the key to expect.
-   * @param map the map to search.
-   * @throws IllegalArgumentException if key is not in map.
+   * Throws an Error if the provided key does not exist in the provided object.
    */
   public static keyPresent(key: string, object: any) {
     if (object[key] === undefined) {

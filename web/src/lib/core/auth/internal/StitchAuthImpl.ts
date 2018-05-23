@@ -13,8 +13,8 @@ import {
 
 import { detect } from "detect-browser";
 import Stitch from "../../Stitch";
-import AuthProviderClientSupplier from "../providers/internal/AuthProviderClientSupplier";
-import NamedAuthProviderClientSupplier from "../providers/internal/NamedAuthProviderClientSupplier";
+import AuthProviderClientFactory from "../providers/internal/AuthProviderClientFactory";
+import NamedAuthProviderClientFactory from "../providers/internal/NamedAuthProviderClientFactory";
 import StitchAuth from "../StitchAuth";
 import StitchAuthListener from "../StitchAuthListener";
 import StitchUser from "../StitchUser";
@@ -37,12 +37,12 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser> implement
       return new StitchUserFactoryImpl(this);
     }
   
-    public getProviderClient<ClientT>(provider: AuthProviderClientSupplier<ClientT>): ClientT {
+    public getProviderClient<ClientT>(provider: AuthProviderClientFactory<ClientT>): ClientT {
       return provider.getClient(this, this.requestClient, this.authRoutes);
     }
   
     public getProviderClientWithName<T>(
-        provider: NamedAuthProviderClientSupplier<T>, providerName: string): T {
+        provider: NamedAuthProviderClientFactory<T>, providerName: string): T {
       return provider.getClient(providerName, this.requestClient, this.authRoutes);
     }
   

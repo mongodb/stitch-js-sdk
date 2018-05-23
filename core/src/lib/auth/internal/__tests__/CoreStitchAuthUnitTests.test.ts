@@ -10,7 +10,6 @@ import { StitchRequest } from "../../../internal/net/StitchRequest";
 import StitchRequestClient from "../../../internal/net/StitchRequestClient";
 import StitchServiceException from "../../../StitchServiceException";
 import { StitchServiceErrorCode } from "../../../StitchServiceErrorCode";
-import ProviderTypes from "../../providers/ProviderTypes";
 import CoreUserPasswordAuthProviderClient from "../../providers/userpass/CoreUserPasswordAuthProviderClient";
 import UserPasswordCredential from "../../providers/userpass/UserPasswordCredential";
 import StitchCredential from "../../StitchCredential";

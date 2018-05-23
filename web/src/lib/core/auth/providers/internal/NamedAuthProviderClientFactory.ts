@@ -1,10 +1,10 @@
 import { StitchAuthRoutes, StitchRequestClient } from "stitch-core";
 
-interface NamedAuthProviderClientSupplier<T> {
+interface NamedAuthProviderClientFactory<T> {
     getClient(
         providerName: string,
         requestClient: StitchRequestClient,
         routes: StitchAuthRoutes): T;
 }
 
-export default NamedAuthProviderClientSupplier;
+export default NamedAuthProviderClientFactory;

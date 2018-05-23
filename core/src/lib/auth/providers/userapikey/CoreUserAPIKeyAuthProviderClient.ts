@@ -1,6 +1,6 @@
 import UserAPIKeyCredential from "./UserAPIKeyCredential";
-import CoreAuthProviderClient from "../CoreAuthProviderClient";
-import { StitchAuthRequestClient, ProviderTypes, StitchAuthRoutes } from "../../..";
+import CoreAuthProviderClient from "../internal/CoreAuthProviderClient";
+import { StitchAuthRequestClient, StitchAuthRoutes } from "../../..";
 import { StitchAuthDocRequest } from "../../../internal/net/StitchAuthDocRequest";
 import Method from "../../../internal/net/Method";
 import UserAPIKey from "./models/UserAPIKey";
@@ -9,6 +9,7 @@ import StitchRequestException from "../../../StitchRequestException";
 import { StitchRequestErrorCode } from "../../../StitchRequestErrorCode";
 import StitchException from "../../../StitchException";
 import StitchError from "../../../StitchError";
+import UserAPIKeyAuthProvider from "./UserAPIKeyAuthProvider";
 
 enum ApiKeyFields {
   NAME = "name"
@@ -23,7 +24,7 @@ export default abstract class CoreUserAPIKeyAuthProviderClient extends CoreAuthP
     authRoutes: StitchAuthRoutes
   ) {
     let baseRoute = `${authRoutes.baseAuthRoute}/api_keys`
-    super(ProviderTypes.USER_API_KEY, requestClient, baseRoute)
+    super(UserAPIKeyAuthProvider.TYPE, requestClient, baseRoute)
   }
 
   /**

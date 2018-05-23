@@ -1,5 +1,5 @@
-import { CoreUserAPIKeyAuthProviderClient, ProviderTypes, StitchAuthRequestClient, StitchAuthRoutes, UserAPIKey } from "stitch-core";
-import UserAPIKeyAuthProviderClient from "../UserAPIKeyAuthProviderClient";
+import { CoreUserAPIKeyAuthProviderClient, StitchAuthRequestClient, StitchAuthRoutes, UserAPIKey } from "stitch-core";
+import { UserAPIKeyAuthProviderClient } from "../UserAPIKeyAuthProviderClient";
 
 export default class UserAPIKeyAuthProviderClientImpl extends CoreUserAPIKeyAuthProviderClient
     implements UserAPIKeyAuthProviderClient {

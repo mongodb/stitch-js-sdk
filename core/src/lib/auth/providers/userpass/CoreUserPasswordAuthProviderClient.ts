@@ -2,9 +2,9 @@ import Method from "../../../internal/net/Method";
 import { StitchDocRequest } from "../../../internal/net/StitchDocRequest";
 import StitchRequestClient from "../../../internal/net/StitchRequestClient";
 import { StitchAuthRoutes } from "../../internal/StitchAuthRoutes";
-import CoreAuthProviderClient from "../CoreAuthProviderClient";
+import CoreAuthProviderClient from "../internal/CoreAuthProviderClient";
 import UserPasswordCredential from "./UserPasswordCredential";
-import { ProviderTypes } from "../../..";
+import UserPasswordAuthProvider from "./UserPasswordAuthProvider";
 
 enum RegistrationFields {
   EMAIL = "email",
@@ -20,7 +20,7 @@ enum ActionFields {
 
 export default abstract class CoreUserPasswordAuthProviderClient extends CoreAuthProviderClient<StitchRequestClient> {
   protected constructor(
-    providerName: string = ProviderTypes.USER_API_KEY,
+    providerName: string = UserPasswordAuthProvider.DEFAULT_NAME,
     requestClient: StitchRequestClient,
     authRoutes: StitchAuthRoutes
   ) {
