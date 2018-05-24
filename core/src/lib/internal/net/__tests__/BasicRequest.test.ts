@@ -1,4 +1,4 @@
-import BasicRequest from "../BasicRequest";
+import { BasicRequest } from "../BasicRequest";
 import Method from "../Method";
 
 describe("BasicRequest", () => {
@@ -18,7 +18,7 @@ describe("BasicRequest", () => {
     const method = Method.GET;
     const url = "http://localhost:8080";
     const headers = { foo: "bar" };
-    const body = [1, 2, 3];
+    const body = JSON.stringify([1, 2, 3]);
 
     const builder = new BasicRequest.Builder();
 

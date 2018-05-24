@@ -1,9 +1,37 @@
-import StitchClientConfiguration from "./StitchClientConfiguration";
+import { StitchClientConfiguration } from "./StitchClientConfiguration";
 
-export default class StitchAppClientConfiguration extends StitchClientConfiguration {
-  public static Builder = class extends StitchClientConfiguration.Builder {
+export class StitchAppClientConfiguration extends StitchClientConfiguration {
+  public readonly clientAppId: string;
+  public readonly localAppName: string;
+  public readonly localAppVersion: string;
+
+  public constructor(
+    config: StitchClientConfiguration,
+    clientAppId: string,
+    localAppName: string,
+    localAppVersion: string
+  ) {
+    super(
+      config.baseURL,
+      config.storage,
+      config.dataDirectory,
+      config.transport
+    );
+    this.clientAppId = clientAppId;
+    this.localAppVersion = localAppVersion;
+    this.localAppName = localAppName;
+  }
+
+  public builder(): StitchAppClientConfiguration.Builder {
+    return new StitchAppClientConfiguration.Builder(this);
+  }
+}
+
+/* tslint:disable:no-namespace max-classes-per-file */
+export namespace StitchAppClientConfiguration {
+  export class Builder extends StitchClientConfiguration.Builder {
     public static forApp(clientAppId: string, baseURL?: string) {
-      const builder = new StitchAppClientConfiguration.Builder().withClientAppId(
+      const builder = new Builder().withClientAppId(
         clientAppId
       );
       if (baseURL) {
@@ -16,7 +44,7 @@ export default class StitchAppClientConfiguration extends StitchClientConfigurat
     public localAppName: string;
     public localAppVersion: string;
 
-    private constructor(config?: StitchAppClientConfiguration) {
+    public constructor(config?: StitchAppClientConfiguration) {
       super(config);
       if (config) {
         this.clientAppId = config.clientAppId;
@@ -54,29 +82,4 @@ export default class StitchAppClientConfiguration extends StitchClientConfigurat
       );
     }
   };
-
-  public readonly clientAppId: string;
-  public readonly localAppName: string;
-  public readonly localAppVersion: string;
-
-  private constructor(
-    config: StitchClientConfiguration,
-    clientAppId: string,
-    localAppName: string,
-    localAppVersion: string
-  ) {
-    super(
-      config.baseURL,
-      config.storage,
-      config.dataDirectory,
-      config.transport
-    );
-    this.clientAppId = clientAppId;
-    this.localAppVersion = localAppVersion;
-    this.localAppName = localAppName;
-  }
-
-  public builder() {
-    return new StitchAppClientConfiguration.Builder(this);
-  }
 }

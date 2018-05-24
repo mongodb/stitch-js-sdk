@@ -6,47 +6,52 @@ import StitchAuthRequestClient from "./auth/internal/StitchAuthRequestClient";
 import { StitchAuthRoutes } from "./auth/internal/StitchAuthRoutes";
 import StitchUserFactory from "./auth/internal/StitchUserFactory";
 import StitchUserProfileImpl from "./auth/internal/StitchUserProfileImpl";
+import AnonymousAuthProvider from "./auth/providers/anonymous/AnonymousAuthProvider";
 import AnonymousCredential from './auth/providers/anonymous/AnonymousCredential';
-import CoreAnonymousAuthProviderClient from './auth/providers/anonymous/CoreAnonymousAuthProviderClient';
-import CoreCustomAuthProviderClient from './auth/providers/custom/CoreCustomAuthProviderClient';
+import CustomAuthProvider from "./auth/providers/custom/CustomAuthProvider";
 import CustomCredential from './auth/providers/custom/CustomCredential';
-import CoreFacebookAuthProviderClient from './auth/providers/facebook/CoreFacebookAuthProviderClient';
+import FacebookAuthProvider from "./auth/providers/facebook/FacebookAuthProvider";
 import FacebookCredential from './auth/providers/facebook/FacebookCredential';
-import CoreGoogleAuthProviderClient from './auth/providers/google/CoreGoogleAuthProviderClient';
+import GoogleAuthProvider from "./auth/providers/google/GoogleAuthProvider";
 import GoogleCredential from './auth/providers/google/GoogleCredential';
-import ProviderTypes from './auth/providers/ProviderTypes';
-import CoreServerAPIKeyAuthProviderClient from './auth/providers/serverapikey/CoreServerAPIKeyAuthProviderClient';
+import ServerAPIKeyAuthProvider from "./auth/providers/serverapikey/ServerAPIKeyAuthProvider";
 import ServerAPIKeyCredential from './auth/providers/serverapikey/ServerAPIKeyCredential';
 import CoreUserAPIKeyAuthProviderClient from './auth/providers/userapikey/CoreUserAPIKeyAuthProviderClient';
+import UserAPIKey from "./auth/providers/userapikey/models/UserAPIKey";
+import UserAPIKeyAuthProvider from "./auth/providers/userapikey/UserAPIKeyAuthProvider";
 import UserAPIKeyCredential from './auth/providers/userapikey/UserAPIKeyCredential';
 import CoreUserPassAuthProviderClient from './auth/providers/userpass/CoreUserPasswordAuthProviderClient';
-import UserPassCredential from './auth/providers/userpass/UserPasswordCredential';
+import UserPasswordAuthProvider from "./auth/providers/userpass/UserPasswordAuthProvider";
+import UserPasswordCredential from './auth/providers/userpass/UserPasswordCredential';
 import StitchCredential from "./auth/StitchCredential";
 import StitchUserProfile from "./auth/StitchUserProfile";
-import { Storage } from "./internal/common/Storage";
+import { MemoryStorage, Storage } from "./internal/common/Storage";
 import CoreStitchAppClient from "./internal/CoreStitchAppClient";
 import FetchTransport from "./internal/net/FetchTransport";
 import { StitchAppRoutes } from "./internal/net/StitchAppRoutes";
 import StitchRequestClient from "./internal/net/StitchRequestClient";
 import CoreStitchService from "./services/internal/CoreStitchService";
 import StitchServiceRoutes from "./services/internal/StitchServiceRoutes";
-import StitchAppClientConfiguration from "./StitchAppClientConfiguration";
+import { StitchAppClientConfiguration } from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";
 
 export {
+  AnonymousAuthProvider,
   AnonymousCredential,
-  CoreAnonymousAuthProviderClient,
+  CustomAuthProvider,
   CustomCredential,
-  CoreCustomAuthProviderClient,
+  FacebookAuthProvider,
   FacebookCredential,
-  CoreFacebookAuthProviderClient,
+  GoogleAuthProvider,
   GoogleCredential,
-  CoreGoogleAuthProviderClient,
+  ServerAPIKeyAuthProvider,
   ServerAPIKeyCredential,
-  CoreServerAPIKeyAuthProviderClient,
+  UserAPIKeyAuthProvider,
+  UserAPIKey,  
   UserAPIKeyCredential,
   CoreUserAPIKeyAuthProviderClient,
-  UserPassCredential,
+  UserPasswordAuthProvider,
+  UserPasswordCredential,
   CoreUserPassAuthProviderClient,
   CoreStitchAppClient,
   CoreStitchAuth,
@@ -55,7 +60,6 @@ export {
   CoreStitchUserImpl,
   DeviceFields,
   FetchTransport,
-  ProviderTypes,
   StitchAppClientInfo,
   StitchAppClientConfiguration,
   StitchAppRoutes,
@@ -67,5 +71,6 @@ export {
   StitchUserFactory,
   StitchUserProfile,
   StitchUserProfileImpl,
-  Storage
+  Storage,
+  MemoryStorage
 };

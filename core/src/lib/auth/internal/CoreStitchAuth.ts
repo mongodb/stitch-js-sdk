@@ -3,10 +3,10 @@ import ContentTypes from "../../internal/net/ContentTypes";
 import Headers from "../../internal/net/Headers";
 import Method from "../../internal/net/Method";
 import Response from "../../internal/net/Response";
-import StitchAuthDocRequest from "../../internal/net/StitchAuthDocRequest";
-import StitchAuthRequest from "../../internal/net/StitchAuthRequest";
-import StitchDocRequest from "../../internal/net/StitchDocRequest";
-import StitchRequest from "../../internal/net/StitchRequest";
+import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
+import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
+import { StitchDocRequest } from "../../internal/net/StitchDocRequest";
+import { StitchRequest } from "../../internal/net/StitchRequest";
 import StitchRequestClient from "../../internal/net/StitchRequestClient";
 import StitchClientException from "../../StitchClientException";
 import { StitchClientErrorCode } from "../../StitchClientErrorCode"
@@ -28,6 +28,7 @@ import StitchUserProfileImpl from "./StitchUserProfileImpl";
 import * as EJSON from "mongodb-extjson";
 import StitchRequestException from "../../StitchRequestException";
 import { StitchRequestErrorCode } from "../../StitchRequestErrorCode"; 
+import StitchError from "../../StitchError";
 
 const OPTIONS = "options";
 const DEVICE = "device";
@@ -131,8 +132,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   }
 
   /**
-   * Performs an authenticated request to the Stitch server with a JSON body. Uses the current authentication state,
-   * and will throw when the `CoreStitchAuth` is not currently authenticated.
+   * Performs an authenticated request to the Stitch server with a JSON body, and decodes the extended JSON response into
+   * an object. Uses the current authentication state, and will throw when the `CoreStitchAuth` is not currently authenticated.
    *
    * - returns: An `any` representing the decoded response body.
    */
@@ -141,13 +142,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   ): Promise<any> {
     return this.doAuthenticatedJSONRequestRaw(stitchReq)
       .then(response => EJSON.parse(response.body, {strict: false}))
-      .catch(err => {
-        if (err instanceof StitchException) {
-          throw err;
-        }
-
-        throw new StitchRequestException(err, StitchRequestErrorCode.DECODING_ERROR)
-      })
+      .catch(err => { throw StitchError.wrapDecodingError(err) })
   }
 
   /**
@@ -159,11 +154,10 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     stitchReq: StitchAuthDocRequest
   ): Promise<Response> {
     const newReqBuilder = stitchReq.builder;
-    newReqBuilder.withBody(stitchReq.document);
-    const newHeaders = newReqBuilder.headers; // This is not a copy
+    newReqBuilder.withBody(JSON.stringify(stitchReq.document));
+    const newHeaders = newReqBuilder.headers || {}; // This is not a copy
     newHeaders[Headers.CONTENT_TYPE] = ContentTypes.APPLICATION_JSON;
     newReqBuilder.withHeaders(newHeaders);
-
     return this.doAuthenticatedRequest(newReqBuilder.build());
   }
 
@@ -285,7 +279,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     }
 
     const newReq = stitchReq.builder;
-    const newHeaders = newReq.headers; // This is not a copy
+    const newHeaders = newReq.headers || {}; // This is not a copy
     if (stitchReq.useRefreshToken) {
       newHeaders[Headers.AUTHORIZATION] = Headers.getAuthorizationBearer(
         this.authInfo.refreshToken!

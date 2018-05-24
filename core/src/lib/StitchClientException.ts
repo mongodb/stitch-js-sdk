@@ -7,7 +7,7 @@ import StitchException from "./StitchException";
  */
 export default class StitchClientException extends StitchException {
     /**
-     * The {@link StitchClientErrorCode} associated with the request.
+     * The StitchClientErrorCode associated with the request.
      */
     public readonly errorCode: StitchClientErrorCode;
 

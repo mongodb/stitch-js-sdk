@@ -1,10 +1,10 @@
 import StitchRequestException from "../../../StitchRequestException";
 import StitchServiceException from "../../../StitchServiceException";
-import BasicRequest from "../BasicRequest";
+import { BasicRequest } from "../BasicRequest";
 import Method from "../Method";
 import Response from "../Response";
-import StitchDocRequest from "../StitchDocRequest";
-import StitchRequest from "../StitchRequest";
+import { StitchDocRequest } from "../StitchDocRequest";
+import { StitchRequest } from "../StitchRequest";
 import StitchRequestClient from "../StitchRequestClient";
 import Transport from "../Transport";
 import * as EJSON from "mongodb-extjson";
@@ -30,13 +30,13 @@ describe("StitchRequestClient", () => {
         public roundTrip(request: BasicRequest): Promise<Response> {
           if (request.url.includes(BAD_REQUEST_ENDPOINT)) {
             return new Promise((resolve, reject) =>
-              resolve({ statusCode: 500, headers: HEADERS, body: undefined })
+              resolve({ statusCode: 500, headers: HEADERS, body: "" })
             );
           }
 
           return new Promise((resolve, reject) =>
             resolve({
-              body: request.body,
+              body: request.body || "",
               headers: HEADERS,
               statusCode: 200
             })
@@ -56,13 +56,13 @@ describe("StitchRequestClient", () => {
       })
       .then(() => {
         builder.withPath(GET_ENDPOINT);
-        builder.withBody(TEST_DOC);
+        builder.withBody(JSON.stringify(TEST_DOC));
 
         return stitchRequestClient.doRequest(builder.build());
       })
       .then(response => {
         expect(response.statusCode).toEqual(200);
-        expect(TEST_DOC).toEqual(response.body);
+        expect(TEST_DOC).toEqual(JSON.parse(response.body));
       });
   });
 
@@ -75,13 +75,13 @@ describe("StitchRequestClient", () => {
         public roundTrip(request: BasicRequest): Promise<Response> {
           if (request.url.includes(BAD_REQUEST_ENDPOINT)) {
             return new Promise((resolve, reject) =>
-              resolve({ statusCode: 500, headers: HEADERS, body: undefined })
+              resolve({ statusCode: 500, headers: HEADERS, body: "" })
             );
           }
 
           return new Promise((resolve, reject) =>
             resolve({
-              body: request.body,
+              body: request.body || "",
               headers: HEADERS,
               statusCode: 200
             })
@@ -107,7 +107,7 @@ describe("StitchRequestClient", () => {
       })
       .then(response => {
         expect(response.statusCode).toEqual(200);
-        expect(TEST_DOC).toEqual(EJSON.parse(response.body));
+        expect(TEST_DOC).toEqual(JSON.parse(response.body));
       });
   });
 });

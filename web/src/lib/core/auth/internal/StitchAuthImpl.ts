@@ -7,13 +7,14 @@ import {
     StitchCredential,
     StitchRequestClient,
     StitchUserFactory,
-    Storage
+    Storage,
+    StitchAuthRequestClient
 } from "stitch-core";
 
 import { detect } from "detect-browser";
 import Stitch from "../../Stitch";
-import AuthProviderClientSupplier from "../providers/internal/AuthProviderClientSupplier";
-import NamedAuthProviderClientSupplier from "../providers/internal/NamedAuthProviderClientSupplier";
+import AuthProviderClientFactory from "../providers/internal/AuthProviderClientFactory";
+import NamedAuthProviderClientFactory from "../providers/internal/NamedAuthProviderClientFactory";
 import StitchAuth from "../StitchAuth";
 import StitchAuthListener from "../StitchAuthListener";
 import StitchUser from "../StitchUser";
@@ -36,32 +37,26 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser> implement
       return new StitchUserFactoryImpl(this);
     }
   
-    public getProviderClient<T>(provider: AuthProviderClientSupplier<T>): T {
-      return provider.getClient(this.requestClient, this.authRoutes);
+    public getProviderClient<ClientT>(provider: AuthProviderClientFactory<ClientT>): ClientT {
+      return provider.getClient(this, this.requestClient, this.authRoutes);
     }
   
     public getProviderClientWithName<T>(
-        provider: NamedAuthProviderClientSupplier<T>, providerName: string): T {
+        provider: NamedAuthProviderClientFactory<T>, providerName: string): T {
       return provider.getClient(providerName, this.requestClient, this.authRoutes);
     }
   
     public loginWithCredential(credential: StitchCredential): Promise<StitchUser> {
-      return new Promise((resolve, reject) => {
-        resolve(this.loginWithCredentialBlocking(credential));
-      });
+        return super.loginWithCredential(credential);
     }
   
     public linkWithCredential(
         user: CoreStitchUser, credential: StitchCredential): Promise<StitchUser> {
-      return new Promise((resolve, reject) => {
-          resolve(this.linkUserWithCredentialBlocking(user, credential));
-        });
+        return super.linkUserWithCredential(user, credential);
     }
   
     public logout(): Promise<void> {
-      return new Promise((resolve, reject) => {
-          resolve(this.logoutBlocking());
-      });
+        return Promise.resolve(super.logout())
     }
 
     protected get deviceInfo() {

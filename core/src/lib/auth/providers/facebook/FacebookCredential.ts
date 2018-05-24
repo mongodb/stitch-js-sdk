@@ -1,16 +1,16 @@
 import ProviderCapabilities from "../../ProviderCapabilities";
 import StitchCredential from "../../StitchCredential";
-import ProviderTypes from "../ProviderTypes";
+import FacebookAuthProvider from "./FacebookAuthProvider";
 
 const ACCESS_TOKEN: string = "accessToken";
 
 export default class FacebookCredential implements StitchCredential {
   public readonly providerName: string;
-  public readonly providerType = ProviderTypes.FACEBOOK;
+  public readonly providerType = FacebookAuthProvider.TYPE;
 
   private readonly accessToken: string;
 
-  constructor(providerName: string, accessToken: string) {
+  constructor(accessToken: string, providerName: string = FacebookAuthProvider.DEFAULT_NAME) {
     this.providerName = providerName;
     this.accessToken = accessToken;
   }

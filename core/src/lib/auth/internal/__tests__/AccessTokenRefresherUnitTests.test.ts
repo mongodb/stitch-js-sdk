@@ -5,13 +5,11 @@ import FetchTransport from "../../../internal/net/FetchTransport";
 import Headers from "../../../internal/net/Headers";
 import Response from "../../../internal/net/Response";
 import { StitchAppRoutes } from "../../../internal/net/StitchAppRoutes";
-import StitchAuthRequest from "../../../internal/net/StitchAuthRequest";
-import StitchDocRequest from "../../../internal/net/StitchDocRequest";
-import StitchRequest from "../../../internal/net/StitchRequest";
+import { StitchAuthRequest } from "../../../internal/net/StitchAuthRequest";
+import { StitchDocRequest } from "../../../internal/net/StitchDocRequest";
+import { StitchRequest } from "../../../internal/net/StitchRequest";
 import StitchRequestClient from "../../../internal/net/StitchRequestClient";
 import StitchServiceException from "../../../StitchServiceException";
-import CoreAnonymousAuthProviderClient from "../../providers/anonymous/CoreAnonymousAuthProviderClient";
-import ProviderTypes from "../../providers/ProviderTypes";
 import CoreUserPasswordAuthProviderClient from "../../providers/userpass/CoreUserPasswordAuthProviderClient";
 import UserPasswordCredential from "../../providers/userpass/UserPasswordCredential";
 import StitchCredential from "../../StitchCredential";
@@ -22,6 +20,7 @@ import CoreStitchUserImpl from "../CoreStitchUserImpl";
 import APIAuthInfo from "../models/APIAuthInfo";
 import StitchUserFactory from "../StitchUserFactory";
 import StitchUserProfileImpl from "../StitchUserProfileImpl";
+import { AnonymousCredential } from "../../..";
 
 class MockRequestClient extends StitchRequestClient {
   public static readonly APP_ROUTES = new StitchAppRoutes("<app-id>");
@@ -91,31 +90,31 @@ class MockRequestClient extends StitchRequestClient {
 
   public handleAuthProviderLoginRoute = (request: StitchRequest): Response => {
     return {
-      body: MockRequestClient.MOCK_GOOD_AUTH_INFO,
+      body: JSON.stringify(MockRequestClient.MOCK_GOOD_AUTH_INFO),
       headers: MockRequestClient.BASE_JSON_HEADERS,
       statusCode: 200
     };
   };
 
-  public handleAuthProviderLinkRoute = (request: StitchRequest) => {
+  public handleAuthProviderLinkRoute = (request: StitchRequest): Response => {
     return {
-      body: MockRequestClient.MOCK_GOOD_AUTH_INFO,
+      body: JSON.stringify(MockRequestClient.MOCK_GOOD_AUTH_INFO),
       headers: MockRequestClient.BASE_JSON_HEADERS,
       statusCode: 200
     };
   };
 
-  private handleProfileRoute = (request: StitchRequest) => {
+  private handleProfileRoute = (request: StitchRequest): Response => {
     return {
-      body: MockRequestClient.MOCK_API_PROFILE,
+      body: JSON.stringify(MockRequestClient.MOCK_API_PROFILE),
       headers: MockRequestClient.BASE_JSON_HEADERS,
       statusCode: 200
     };
   };
 
-  private handleSessionRoute = (request: StitchRequest) => {
+  private handleSessionRoute = (request: StitchRequest): Response => {
     return {
-      body: MockRequestClient.MOCK_SESSION_INFO,
+      body: JSON.stringify(MockRequestClient.MOCK_SESSION_INFO),
       headers: MockRequestClient.BASE_JSON_HEADERS,
       statusCode: 200
     };
@@ -220,7 +219,7 @@ describe("AccessTokenRefresher", () => {
       request: StitchRequest
     ) => {
       return {
-        body: MockRequestClient.MOCK_GOOD_AUTH_INFO,
+        body: JSON.stringify(MockRequestClient.MOCK_GOOD_AUTH_INFO),
         headers: MockRequestClient.BASE_JSON_HEADERS,
         statusCode: 200
       };
@@ -232,13 +231,7 @@ describe("AccessTokenRefresher", () => {
     );
 
     return mockCoreAuth
-      .loginWithCredential(
-        new class extends CoreAnonymousAuthProviderClient {
-          constructor() {
-            super(ProviderTypes.ANON);
-          }
-        }().getCredential()
-      )
+      .loginWithCredential(new AnonymousCredential())
       .then(() => {
         expect(mockCoreAuth.authenticatedRequestFired).toEqual(1);
 
@@ -253,7 +246,7 @@ describe("AccessTokenRefresher", () => {
           request: StitchRequest
         ) => {
           return {
-            body: MockRequestClient.MOCK_EXPIRED_AUTH_INFO,
+            body: JSON.stringify(MockRequestClient.MOCK_EXPIRED_AUTH_INFO),
             headers: MockRequestClient.BASE_JSON_HEADERS,
             statusCode: 200
           };
@@ -263,13 +256,7 @@ describe("AccessTokenRefresher", () => {
         return mockCoreAuth.logout();
       })
       .then(() => {
-        return mockCoreAuth.loginWithCredential(
-          new class extends CoreAnonymousAuthProviderClient {
-            constructor() {
-              super(ProviderTypes.ANON);
-            }
-          }().getCredential()
-        );
+        return mockCoreAuth.loginWithCredential(new AnonymousCredential());
       })
       .then(() => {
         expect(mockCoreAuth.authenticatedRequestFired).toEqual(3);
