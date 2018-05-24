@@ -11,8 +11,10 @@
   "author": "",
   "license": "Apache2",
   "dependencies": {
+    "@types/bson": "^1.0.8",
     "@types/detect-browser": "^2.0.1",
     "@types/stitch-core": "file:../core",
+    "bson": "^2.0.6",
     "detect-browser": "^2.4.0",
     "stitch-core": "file:../core"
   },

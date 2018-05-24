@@ -10,6 +10,7 @@ import { StitchRequestErrorCode } from "../../../StitchRequestErrorCode";
 import StitchException from "../../../StitchException";
 import StitchError from "../../../StitchError";
 import UserAPIKeyAuthProvider from "./UserAPIKeyAuthProvider";
+import { ObjectID } from "bson";
 
 enum ApiKeyFields {
   NAME = "name"
@@ -56,11 +57,11 @@ export default abstract class CoreUserAPIKeyAuthProviderClient extends CoreAuthP
    * 
    * @param keyId the id of the API key to fetch.
    */
-  protected fetchApiKey(keyId: string): Promise<UserAPIKey> {
+  protected fetchApiKey(keyId: ObjectID): Promise<UserAPIKey> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
       .withMethod(Method.GET)
-      .withPath(this.getApiKeyRoute(keyId));
+      .withPath(this.getApiKeyRoute(keyId.toHexString()));
     reqBuilder
       .withRefreshToken();
     
@@ -104,11 +105,11 @@ export default abstract class CoreUserAPIKeyAuthProviderClient extends CoreAuthP
    * 
    * @param keyId the id of the API key to delete
    */
-  protected deleteApiKey(keyId: string): Promise<void> {
+  protected deleteApiKey(keyId: ObjectID): Promise<void> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
       .withMethod(Method.DELETE)
-      .withPath(this.getApiKeyRoute(keyId));
+      .withPath(this.getApiKeyRoute(keyId.toHexString()));
     reqBuilder
       .withRefreshToken();
     
@@ -122,11 +123,11 @@ export default abstract class CoreUserAPIKeyAuthProviderClient extends CoreAuthP
    * 
    * @param keyId the id of the API key to enable
    */
-  protected enableApiKey(keyId: string): Promise<void> {
+  protected enableApiKey(keyId: ObjectID): Promise<void> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
       .withMethod(Method.PUT)
-      .withPath(this.getApiKeyEnableRoute(keyId));
+      .withPath(this.getApiKeyEnableRoute(keyId.toHexString()));
     reqBuilder
       .withRefreshToken();
     
@@ -140,11 +141,11 @@ export default abstract class CoreUserAPIKeyAuthProviderClient extends CoreAuthP
    * 
    * @param keyId the id of the API key to disable
    */
-  protected disableApiKey(keyId: string): Promise<void> {
+  protected disableApiKey(keyId: ObjectID): Promise<void> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
       .withMethod(Method.PUT)
-      .withPath(this.getApiKeyDisableRoute(keyId));
+      .withPath(this.getApiKeyDisableRoute(keyId.toHexString()));
     reqBuilder
       .withRefreshToken();
     

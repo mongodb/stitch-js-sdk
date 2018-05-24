@@ -1,4 +1,5 @@
 import { UserAPIKey, StitchAuthRequestClient, StitchAuthRoutes, StitchRequestClient } from "stitch-core";
+import { ObjectID } from "bson";
 import AuthProviderClientFactory from "../internal/AuthProviderClientFactory";
 import UserAPIKeyAuthProviderClientImpl from "./internal/UserAPIKeyAuthProviderClientImpl";
 
@@ -15,7 +16,7 @@ export interface UserAPIKeyAuthProviderClient {
    * 
    * @param keyId the id of the API key to fetch.
    */
-  fetchApiKey(keyId: string): Promise<UserAPIKey>
+  fetchApiKey(keyId: ObjectID): Promise<UserAPIKey>
 
   /**
    * Fetches the user API keys associated with the current user.
@@ -27,21 +28,21 @@ export interface UserAPIKeyAuthProviderClient {
    * 
    * @param keyId the id of the API key to delete
    */
-  deleteApiKey(keyId: string): Promise<void>
+  deleteApiKey(keyId: ObjectID): Promise<void>
 
   /**
    * Enables a user API key associated with the current user.
    * 
    * @param keyId the id of the API key to enable
    */
-  enableApiKey(keyId: string): Promise<void>
+  enableApiKey(keyId: ObjectID): Promise<void>
 
   /**
    * Disables a user API key associated with the current user.
    * 
    * @param keyId the id of the API key to disable
    */
-  disableApiKey(keyId: string): Promise<void>
+  disableApiKey(keyId: ObjectID): Promise<void>
 }
 
 export namespace UserAPIKeyAuthProviderClient {
