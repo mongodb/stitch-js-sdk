@@ -60,7 +60,7 @@ describe('Services', ()=>{
   });
   it('running service commands should work', async() => {
     // Set up auth and a mongodb service so we can insert some test documents.
-    let appObj = test.admin.v2().apps(test.userData.group.groupId).app(th.testApp._id);
+    let appObj = test.admin.apps(test.userData.group.groupId).app(th.testApp._id);
     let providers = await appObj.authProviders().list();
     await appObj.authProviders().authProvider(providers[0]._id).enable();
     let newKey = await appObj.apiKeys().create({name: 'test'});

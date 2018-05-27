@@ -111,12 +111,4 @@ class TestHarness {
     await this.app().remove();
     this.testApp = undefined;
   }
-
-  appsV2() {
-    return this.adminClient.v2().apps(this.groupId);
-  }
-
-  appV2() {
-    return this.appsV2().app(this.testApp._id);
-  }
 }
