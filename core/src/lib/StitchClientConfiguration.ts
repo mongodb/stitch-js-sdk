@@ -1,8 +1,32 @@
 import { Storage } from "./internal/common/Storage";
 import Transport from "./internal/net/Transport";
 
-export default class StitchClientConfiguration {
-  public static Builder = class {
+export class StitchClientConfiguration {
+  public readonly baseURL: string;
+  public readonly storage: Storage;
+  public readonly dataDirectory: string;
+  public readonly transport: Transport;
+
+  public constructor(
+    baseURL: string,
+    storage: Storage,
+    dataDirectory: string,
+    transport: Transport
+  ) {
+    this.baseURL = baseURL;
+    this.storage = storage;
+    this.dataDirectory = dataDirectory;
+    this.transport = transport;
+  }
+
+  public builder(): StitchClientConfiguration.Builder {
+    return new StitchClientConfiguration.Builder(this);
+  }
+}
+
+/* tslint:disable:no-namespace max-classes-per-file */
+export namespace StitchClientConfiguration {
+  export class Builder {
     public baseURL: string;
     public storage: Storage;
     public dataDirectory: string;
@@ -58,25 +82,4 @@ export default class StitchClientConfiguration {
       );
     }
   };
-
-  public readonly baseURL: string;
-  public readonly storage: Storage;
-  public readonly dataDirectory: string;
-  public readonly transport: Transport;
-
-  protected constructor(
-    baseURL: string,
-    storage: Storage,
-    dataDirectory: string,
-    transport: Transport
-  ) {
-    this.baseURL = baseURL;
-    this.storage = storage;
-    this.dataDirectory = dataDirectory;
-    this.transport = transport;
-  }
-
-  public builder() {
-    return new StitchClientConfiguration.Builder(this);
-  }
 }

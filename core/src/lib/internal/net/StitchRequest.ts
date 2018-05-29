@@ -1,11 +1,37 @@
 import Method from "./Method";
 
-export default class StitchRequest {
-  public static Builder = class {
+export class StitchRequest {
+  public readonly method: Method;
+  public readonly path: string;
+  public readonly headers: { [key: string]: string };
+  public readonly body?: string;
+  public readonly startedAt: number;
+
+  public constructor(
+    method: Method,
+    path: string,
+    headers: { [key: string]: string },
+    startedAt: number,
+    body?: string
+  ) {
+    this.method = method;
+    this.path = path;
+    this.headers = headers;
+    this.body = body;
+    this.startedAt = startedAt;
+  }
+
+  public get builder(): StitchRequest.Builder {
+    return new StitchRequest.Builder(this);
+  }
+}
+
+export namespace StitchRequest {
+  export class Builder {
     public method?: Method;
     public path?: string;
     public headers?: { [key: string]: string };
-    public body?: any;
+    public body?: string;
     public startedAt?: number;
 
     public constructor(request?: StitchRequest) {
@@ -33,7 +59,7 @@ export default class StitchRequest {
       return this;
     }
 
-    public withBody(body: any): this {
+    public withBody(body: string): this {
       this.body = body;
       return this;
     }
@@ -52,33 +78,9 @@ export default class StitchRequest {
         this.method,
         this.path,
         this.headers === undefined ? {} : this.headers,
-        this.body,
-        this.startedAt
+        this.startedAt,
+        this.body
       );
     }
   };
-
-  public readonly method: Method;
-  public readonly path: string;
-  public readonly headers: { [key: string]: string };
-  public readonly body: any;
-  public readonly startedAt: number;
-
-  public constructor(
-    method: Method,
-    path: string,
-    headers: { [key: string]: string },
-    body: any,
-    startedAt: number
-  ) {
-    this.method = method;
-    this.path = path;
-    this.headers = headers;
-    this.body = body;
-    this.startedAt = startedAt;
-  }
-
-  public get builder() {
-    return new StitchRequest.Builder(this);
-  }
 }

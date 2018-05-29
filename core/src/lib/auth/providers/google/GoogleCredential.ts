@@ -1,6 +1,6 @@
 import ProviderCapabilities from "../../ProviderCapabilities";
 import StitchCredential from "../../StitchCredential";
-import ProviderTypes from "../ProviderTypes";
+import GoogleAuthProvider from "./GoogleAuthProvider";
 
 enum Fields {
   AUTH_CODE = "authCode"
@@ -18,7 +18,7 @@ export default class GoogleCredential implements StitchCredential {
   /**
    * The type of the provider for this credential.
    */
-  public readonly providerType = ProviderTypes.GOOGLE;
+  public readonly providerType = GoogleAuthProvider.TYPE;
 
   /**
    * The contents of this credential as they will be passed to the Stitch server.
@@ -37,7 +37,7 @@ export default class GoogleCredential implements StitchCredential {
    */
   private readonly authCode: string;
 
-  constructor(providerName: string, authCode: string) {
+  constructor(authCode: string, providerName: string = GoogleAuthProvider.DEFAULT_NAME) {
     this.providerName = providerName;
     this.authCode = authCode;
   }

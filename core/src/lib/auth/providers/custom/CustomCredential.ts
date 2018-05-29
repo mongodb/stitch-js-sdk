@@ -1,6 +1,6 @@
 import ProviderCapabilities from "../../ProviderCapabilities";
 import StitchCredential from "../../StitchCredential";
-import ProviderTypes from "../ProviderTypes";
+import CustomAuthProvider from "./CustomAuthProvider";
 
 const TOKEN: string = "token";
 
@@ -16,7 +16,7 @@ export default class CustomCredential implements StitchCredential {
   /**
    * The type of the provider for this credential.
    */
-  public readonly providerType = ProviderTypes.CUSTOM;
+  public readonly providerType = CustomAuthProvider.TYPE;
   /**
    * The behavior of this credential when logging in.
    */
@@ -26,7 +26,7 @@ export default class CustomCredential implements StitchCredential {
    */
   private token: string;
 
-  constructor(providerName: string, token: string) {
+  constructor(token: string, providerName: string = CustomAuthProvider.DEFAULT_NAME) {
     this.providerName = providerName;
     this.token = token;
   }

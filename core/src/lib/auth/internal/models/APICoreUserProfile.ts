@@ -1,5 +1,6 @@
 import StitchUserProfileImpl from "../StitchUserProfileImpl";
 import APIStitchUserIdentity from "./APIStitchUserIdentity";
+import Assertions from "../../../internal/common/Assertions";
 
 enum Fields {
   DATA = "data",
@@ -11,7 +12,11 @@ enum Fields {
  * `data` field of a user profile request.
  */
 export default class APICoreUserProfile extends StitchUserProfileImpl {
-  public static decodeFrom(body: object): APICoreUserProfile {
+  public static decodeFrom(bodyText: string): APICoreUserProfile {
+    const body = JSON.parse(bodyText)
+    Assertions.keyPresent(Fields.USER_TYPE, body)
+    Assertions.keyPresent(Fields.DATA, body)
+    Assertions.keyPresent(Fields.IDENTITIES, body)
     return new APICoreUserProfile(
       body[Fields.USER_TYPE],
       body[Fields.DATA],

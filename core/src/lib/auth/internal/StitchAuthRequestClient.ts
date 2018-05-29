@@ -1,6 +1,6 @@
 import Response from "../../internal/net/Response";
-import StitchAuthDocRequest from "../../internal/net/StitchAuthDocRequest";
-import StitchAuthRequest from "../../internal/net/StitchAuthRequest";
+import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
+import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 
 /**
  * An interface defining the methods necessary to make authenticated requests to the Stitch server.

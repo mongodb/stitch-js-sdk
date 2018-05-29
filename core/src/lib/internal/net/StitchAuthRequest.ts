@@ -1,8 +1,27 @@
-import StitchRequest from "./StitchRequest";
+import { StitchRequest } from "./StitchRequest";
 
-export default class StitchAuthRequest extends StitchRequest {
-  public static Builder = class extends StitchRequest.Builder {
-    private useRefreshToken: boolean;
+export class StitchAuthRequest extends StitchRequest {
+  public readonly useRefreshToken: boolean;
+
+  public constructor(request: StitchRequest, useRefreshToken: boolean) {
+    super(
+      request.method,
+      request.path,
+      request.headers,
+      request.startedAt,
+      request.body
+    );
+    this.useRefreshToken = useRefreshToken;
+  }
+
+  public get builder(): StitchAuthRequest.Builder {
+    return new StitchAuthRequest.Builder(this);
+  }
+}
+
+export namespace StitchAuthRequest {
+  export class Builder extends StitchRequest.Builder {
+    public useRefreshToken: boolean;
 
     public constructor(request?: StitchAuthRequest) {
       super(request);
@@ -22,21 +41,4 @@ export default class StitchAuthRequest extends StitchRequest {
       return new StitchAuthRequest(super.build(), this.useRefreshToken);
     }
   };
-
-  public readonly useRefreshToken: boolean;
-
-  public constructor(request: StitchRequest, useRefreshToken: boolean) {
-    super(
-      request.method,
-      request.path,
-      request.headers,
-      request.body,
-      request.startedAt
-    );
-    this.useRefreshToken = useRefreshToken;
-  }
-
-  public get builder() {
-    return new StitchAuthRequest.Builder(this);
-  }
 }

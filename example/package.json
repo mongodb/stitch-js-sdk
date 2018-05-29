@@ -1,0 +1,16 @@
+{
+  "name": "stitch-example",
+  "version": "1.0.0",
+  "description": "This is an example JS application using the stitch-web module",
+  "main": "index.js",
+  "dependencies": {
+    "es6-promise": "^4.2.4",
+    "fetch-everywhere": "^1.0.5",
+    "stitch-web": "file:../web"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

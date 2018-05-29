@@ -1,6 +1,6 @@
 import ProviderCapabilities from "../../ProviderCapabilities";
 import StitchCredential from "../../StitchCredential";
-import ProviderTypes from "../ProviderTypes";
+import UserAPIKeyAuthProvider from "./UserAPIKeyAuthProvider";
 
 enum Fields {
   KEY = "key"
@@ -22,7 +22,7 @@ export default class UserAPIKeyCredential implements StitchCredential {
   /**
    * The type of the provider for this credential.
    */
-  public readonly providerType = ProviderTypes.USER_API_KEY;
+  public readonly providerType = UserAPIKeyAuthProvider.TYPE;
   /**
    * The contents of this credential as they will be passed to the Stitch server.
    */
@@ -34,7 +34,7 @@ export default class UserAPIKeyCredential implements StitchCredential {
    */
   public readonly providerCapabilities = new ProviderCapabilities(false);
 
-  constructor(providerName: string, key: string) {
+  constructor(key: string, providerName: string = UserAPIKeyAuthProvider.DEFAULT_NAME) {
     this.providerName = providerName;
     this.key = key;
   }

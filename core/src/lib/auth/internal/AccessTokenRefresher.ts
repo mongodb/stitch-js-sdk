@@ -57,17 +57,15 @@ export default class AccessTokenRefresher<T extends CoreStitchUser> {
 
   /**
    * Infinitely loops, checking if a proactive token refresh is necessary,
-   * every `sleepMillis` milliseconds.
-   * This should only be run on a standalone,
-   * non-main thread. If the `CoreStitchAuth` referenced in `authRef` is
-   * deallocated, the loop will end.
+   * every `sleepMillis` milliseconds. If the `CoreStitchAuth` referenced in `
+   * authRef` is deallocated, the loop will end.
    */
   public run() {
     if (!this.shouldRefresh()) {
-      setTimeout(this.run, SLEEP_MILLIS);
+      setTimeout(() => this.run(), SLEEP_MILLIS);
     } else {
       this.authRef!.refreshAccessToken().then(() => {
-        setTimeout(this.run, SLEEP_MILLIS);
+        setTimeout(() => this.run(), SLEEP_MILLIS);
       })
     }
   }

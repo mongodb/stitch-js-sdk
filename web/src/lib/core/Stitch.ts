@@ -41,7 +41,7 @@ export default class Stitch {
     }
   
     public static initializeDefaultAppClient(
-        configBuilder: StitchAppClientConfiguration): StitchAppClient {
+        configBuilder: StitchAppClientConfiguration.Builder): StitchAppClient {
       const clientAppId = configBuilder.clientAppId;
       if (clientAppId === undefined || clientAppId === "") {
         throw new Error("clientAppId must be set to a non-empty string");
@@ -56,31 +56,30 @@ export default class Stitch {
     }
   
     public static initializeAppClient(
-        appConfig: StitchAppClientConfiguration): StitchAppClient {
-      if (!appConfig.clientAppId) {
+        configBuilder: StitchAppClientConfiguration.Builder): StitchAppClient {
+      if (!configBuilder.clientAppId) {
         throw new Error("clientAppId must be set to a non-empty string");
       }
   
-      if (appClients[appConfig.clientAppId] !== undefined) {
+      if (appClients[configBuilder.clientAppId] !== undefined) {
         throw new Error(
-            `client for app '${appConfig.clientAppId}' has already been initialized`);
+            `client for app '${configBuilder.clientAppId}' has already been initialized`);
       }
 
-      const configBuilder = appConfig.builder();
       if (configBuilder.storage === undefined) {
         configBuilder.withStorage(new LocalStorage());
       }
-      if (configBuilder.getTransport() == null) {
+      if (configBuilder.transport == null) {
         configBuilder.withTransport(new FetchTransport());
       }
-      if (configBuilder.getBaseURL() == null || configBuilder.getBaseURL().isEmpty()) {
+      if (configBuilder.baseURL == null || configBuilder.baseURL == "") {
         configBuilder.withBaseURL(DEFAULT_BASE_URL);
       }
-      if (configBuilder.getLocalAppName() == null || configBuilder.getLocalAppName().isEmpty()) {
+      if (configBuilder.localAppName == null || configBuilder.localAppName == "") {
         configBuilder.withLocalAppName(Stitch.localAppName);
       }
-      if (configBuilder.getLocalAppVersion() == null
-          || configBuilder.getLocalAppVersion().isEmpty()) {
+      if (configBuilder.localAppVersion == null
+          || configBuilder.localAppVersion == "") {
         configBuilder.withLocalAppVersion(Stitch.localAppVersion);
       }
   

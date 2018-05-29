@@ -1,6 +1,6 @@
 import StitchAuthRequestClient from "../../auth/internal/StitchAuthRequestClient";
 import Method from "../../internal/net/Method";
-import StitchAuthDocRequest from "../../internal/net/StitchAuthDocRequest";
+import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
 import StitchServiceRoutes from "./StitchServiceRoutes";
 
 export default abstract class CoreStitchService {
