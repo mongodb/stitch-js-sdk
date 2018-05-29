@@ -32,6 +32,8 @@ import CoreStitchService from "./services/internal/CoreStitchService";
 import StitchServiceRoutes from "./services/internal/StitchServiceRoutes";
 import StitchAppClientConfiguration from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";
+import StitchUserIdentity from "./auth/StitchUserIdentity";
+import APIStitchUserIdentity from "./auth/internal/models/APIStitchUserIdentity";
 
 export {
   AnonymousCredential,
@@ -67,5 +69,7 @@ export {
   StitchUserFactory,
   StitchUserProfile,
   StitchUserProfileImpl,
-  Storage
+  StitchUserIdentity,
+  Storage,
+  APIStitchUserIdentity
 };

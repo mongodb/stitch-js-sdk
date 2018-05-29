@@ -21,6 +21,7 @@ import CoreStitchUserImpl from "../CoreStitchUserImpl";
 import APIAuthInfo from "../models/APIAuthInfo";
 import StitchUserFactory from "../StitchUserFactory";
 import StitchUserProfileImpl from "../StitchUserProfileImpl";
+import * as ts from "ts-mockito";
 
 const USER_ID = "<user_id-hex>";
 

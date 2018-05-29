@@ -15,6 +15,7 @@
     "stitch-core": "file:../core"
   },
   "devDependencies": {
+    "ts-mockito": "^2.3.0",
     "ts-loader": "^4.0.0",
     "typescript": "^2.8.1"
   }

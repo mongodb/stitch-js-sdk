@@ -9,6 +9,7 @@
     "mongodb-extjson": "^2.1.0"
   },
   "devDependencies": {
+    "ts-mockito": "^2.3.0",
     "sinon": "^5.0.7",
     "@types/sinon": "^4.3.3",
     "ts-loader": "^4.0.0",
