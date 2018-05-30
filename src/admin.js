@@ -274,6 +274,16 @@ export class StitchAdminClient extends StitchClient {
               update: (data) => api._put(`${appUrl}/functions/${functionId}`, data),
               remove: () => api._delete(`${appUrl}/functions/${functionId}`)
             })
+          }),
+
+          eventSubscriptions: () => ({
+            list: () => api._get(`${appUrl}/event_subscriptions`),
+            create: (data) => api._post(`${appUrl}/event_subscriptions`, data),
+            eventSubscription: (eventSubscriptionId) => ({
+              get: () => api._get(`${appUrl}/event_subscriptions/${eventSubscriptionId}`),
+              update: (data) => api._put(`${appUrl}/event_subscriptions/${eventSubscriptionId}`, data),
+              remove: () => api._delete(`${appUrl}/event_subscriptions/${eventSubscriptionId}`)
+            })
           })
         };
       }
