@@ -9,7 +9,7 @@ enum Fields {
     TYPE = "type",
 }
 
-export type AuthProviderResponse = {
+export interface AuthProviderResponse {
     /// unique id of this provider
     readonly id: string;
     /// whether or not this provider is disabled
@@ -20,7 +20,7 @@ export type AuthProviderResponse = {
     readonly type: string;
 }
 
-export class AuthProviderResponseCodec extends Codec<AuthProviderResponse> {
+export class AuthProviderResponseCodec implements Codec<AuthProviderResponse> {
     decode(from: object): AuthProviderResponse {
         return {
             id: from[Fields.ID],

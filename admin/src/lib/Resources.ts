@@ -1,9 +1,11 @@
 import StitchAdminAuth from "./StitchAdminAuth";
 import { Method, StitchAuthRequest } from "stitch-core";
 import * as EJSON from "mongodb-extjson";
-import AppResponse from "./apps/AppsResources";
-import { Codec } from "./Codec";
+import { AppResponse, AppResponseCodec } from "./apps/AppsResources";
+import { Codec, Decoder } from "./Codec";
 import { AuthProviderResponse, AuthProviderResponseCodec } from "./authProviders/AuthProvidersResources";
+import { UserResponse, UserCreator, UserResponseCodec, UserCreatorCodec } from "./users/UsersResources";
+import { ProviderConfig, ProviderConfigCodec } from "./authProviders/ProviderConfigs";
 
 /// Any endpoint that can be described with basic
 /// CRUD operations
@@ -36,20 +38,22 @@ function checkEmpty(response: Response) {
 
 /// Adds an endpoint method that GETs some list
 class Listable<T> extends BasicResource {
+    readonly codec: Codec<T>
+
     list(): Promise<T[]> {
         const reqBuilder = StitchAuthRequest.Builder()
         reqBuilder.withMethod(Method.GET)
             .withPath(this.url)
     
         return this.adminAuth.doAuthenticatedRequest(reqBuilder.build()).then(response => {
-            return EJSON.parse(response.body);
+            return EJSON.parse(response.body).map(val => this.codec.decode(val));
         });
     }
 }
 
 // / Adds an endpoint method that GETs some id
 class Gettable<T> extends BasicResource {
-    private readonly codec: { new<V extends Codec<T>>(): V }
+    readonly codec: Codec<T>
 
     get(): Promise<T> {
         const reqBuilder = StitchAuthRequest.Builder()
@@ -58,7 +62,7 @@ class Gettable<T> extends BasicResource {
             .withPath(this.url);
 
         return this.adminAuth.doAuthenticatedRequest(reqBuilder.build()).then(response => {
-            return new this.codec().decode(EJSON.parse(response.body));
+            return this.codec.decode(EJSON.parse(response.body));
         });
     }
 }
@@ -77,59 +81,66 @@ class Removable extends BasicResource {
 }
 
 // / Adds an endpoint method that POSTs new data
-class Creatable<Creator, T, V extends Codec<T>> extends BasicResource {
+class Creatable<Creator, T> extends BasicResource {
+    readonly codec: Codec<T>
+    readonly creatorCodec: Codec<Creator>
+
     create(data: Creator): Promise<T> {
         const reqBuilder = StitchAuthRequest.Builder()
         reqBuilder
                 .withMethod(Method.POST)
                 .withPath(this.url)
-                .withBody(EJSON.serialize(data))
+                .withBody(EJSON.serialize(this.creatorCodec.encode(data)))
     
         return this.adminAuth.doAuthenticatedRequest(reqBuilder.build()).then(response => {
-            return new V().decode(EJSON.parse(response.body));
+            return this.codec.decode(EJSON.parse(response.body));
         });
     }
 }
 
 // / Adds an endpoint method that PUTs some data
-interface Updatable<T> extends BasicResource {
+class Updatable<T> extends BasicResource {
+    readonly codec: Codec<T>;
 
-}
-Updatable.prototype.update = (data: T): T => {
-    const reqBuilder = StitchAuthRequest.Builder()
-    reqBuilder
-            .withMethod(Method.PUT)
-            .withPath(this.url)
-            .withBody(EJSON.serialize(data))
-
-    const response = this.adminAuth.doAuthenticatedRequest(reqBuilder.build())
-    return new T(EJSON.parse(response.body));
-
+    update(data: T): Promise<T> {
+        const reqBuilder = new StitchAuthRequest.Builder();
+        reqBuilder
+                .withMethod(Method.PUT)
+                .withPath(this.url)
+                .withBody(EJSON.serialize(data))
+    
+        return this.adminAuth.doAuthenticatedRequest(reqBuilder.build()).then(response => 
+            this.codec.decode(EJSON.parse(response.body))
+        );
+    }
 }
 
 // / Adds an endpoint that enables a given resource
-interface Enablable extends Resource {
-}
-
-Enablable.prototype.enable = () => {
-    const reqBuilder = StitchAuthRequest.Builder()
-    reqBuilder
-            .withMethod(Method.PUT)
-            .withPath("${this.url}/enable")
-
-    this.adminAuth.doAuthenticatedRequest(reqBuilder.build())
+class Enablable extends BasicResource {
+    enable(): Promise<void> {
+        const reqBuilder = StitchAuthRequest.Builder()
+        reqBuilder
+                .withMethod(Method.PUT)
+                .withPath("${this.url}/enable")
+    
+        return this.adminAuth.doAuthenticatedRequest(reqBuilder.build()).then(() => {
+            return;
+        })
+    }
 }
 
 // / Adds an endpoint that disables a given resource
-interface Disablable extends Resource {}
-
-Disablable.prototype.disable = () => {
-    const reqBuilder = StitchAuthRequest.Builder()
-    reqBuilder
-            .withMethod(Method.PUT)
-            .withPath("${this.url}/disable")
-
-    this.adminAuth.doAuthenticatedRequest(reqBuilder.build())
+class Disablable extends BasicResource {
+    disable(): Promise<void> {
+        const reqBuilder = StitchAuthRequest.Builder()
+        reqBuilder
+                .withMethod(Method.PUT)
+                .withPath("${this.url}/disable")
+    
+        return this.adminAuth.doAuthenticatedRequest(reqBuilder.build()).then(() => {
+            return;
+        });
+    }
 }
 
 // / Resource for a specific auth provider of an application
@@ -140,26 +151,50 @@ class AuthProvider extends
     Removable,
     Enablable,
     Disablable {
-    private readonly codec = AuthProviderResponseCodec
+    readonly codec = new AuthProviderResponseCodec()
 
-    get: () => Promise<AuthProviderResponse>
+    get: () => Promise<AuthProviderResponse>;
+    update: (data: AuthProviderResponse) => Promise<AuthProviderResponse>;
+    remove: () => Promise<void>;
+    enable: () => Promise<void>;
+    disable: () => Promise<void>;
 }
 
 // / Resource for listing the auth providers of an application
-class AuthProviders extends BasicResource 
-    implements Listable<AuthProvidersResponse>, Creatable<ProviderConfigWrapper, AuthProvidersResponse> {
+class AuthProviders extends 
+    BasicResource implements 
+    Listable<AuthProviderResponse>, 
+    Creatable<ProviderConfig, AuthProviderResponse> {
+    readonly codec = new AuthProviderResponseCodec()
+    readonly creatorCodec = new ProviderConfigCodec()
+
+    create: (data: ProviderConfig) => Promise<AuthProviderResponse>
+    list: () => Promise<AuthProviderResponse[]>;
 }
 
 // / Resource for user registrations of an application
 class UserRegistrations extends BasicResource {}
 
 // / Resource for a single user of an application
-class User extends
-    BasicResource implements Gettable<UserResponse>, Removable {}
+class User extends BasicResource implements Gettable<UserResponse>, Removable {
+    readonly codec = new UserResponseCodec();
+
+    get: () => Promise<AuthProviderResponse>;
+    remove: () => Promise<void>;
+}
 
 // / Resource for a list of users of an application
 class Users extends BasicResource 
     implements Listable<UserResponse>, Creatable<UserCreator, UserResponse> {
+    readonly codec = new UserResponseCodec();
+    readonly creatorCodec = new UserCreatorCodec();
+
+    user(uid: string): User {
+        return new User(this.adminAuth, "$url/$uid");
+    }
+
+    create: (data: UserCreator) => Promise<UserResponse>
+    list: () => Promise<UserResponse[]>;
 }
 
 class Function extends
@@ -203,15 +238,22 @@ class Services extends
 
 class App extends BasicResource 
     implements Gettable<AppResponse>, Removable {
+    readonly codec = new AppResponseCodec();
+
     public readonly authProviders = new AuthProviders(this.adminAuth, "$url/auth_providers");
     public readonly functions = new Functions(this.adminAuth, "$url/functions");
     public readonly services = new Services(this.adminAuth, "$url/services");
     public readonly users = new Users(this.adminAuth, "$url/users");
     public readonly userRegistrations = new UserRegistrations(this.adminAuth, "$url/user_registrations");
+
+    get: () => Promise<AppResponse>;
+    remove: () => Promise<void>;
 }
 
-class Apps extends
-        BasicResource implements Listable<AppResponse> {
+class Apps extends BasicResource implements Listable<AppResponse> {
+    readonly codec = new AppResponseCodec();
+
+    list: () => Promise<AppResponse[]>;
 }
 
 export { 
