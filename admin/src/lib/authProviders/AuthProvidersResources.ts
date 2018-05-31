@@ -1,5 +1,5 @@
 import { AuthProvider, AuthProviders } from "../Resources";
-import Codec from "../Codec";
+import { Codec } from "../Codec";
 
 /// View into a specific auth provider
 enum Fields {

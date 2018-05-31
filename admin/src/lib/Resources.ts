@@ -49,7 +49,7 @@ class Listable<T> extends BasicResource {
 
 // / Adds an endpoint method that GETs some id
 class Gettable<T> extends BasicResource {
-    private readonly codec: { new(): Codec<T> }
+    private readonly codec: { new<V extends Codec<T>>(): V }
 
     get(): Promise<T> {
         const reqBuilder = StitchAuthRequest.Builder()
