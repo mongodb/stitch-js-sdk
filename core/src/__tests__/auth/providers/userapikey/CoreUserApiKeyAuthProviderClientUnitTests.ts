@@ -48,7 +48,7 @@ function testClientCall(
       new UserAPIKey(new ObjectID().toHexString(), "2", "3", false)
     ),
     headers: {},
-    statusCode: 200,
+    statusCode: 200
   });
 
   when(
@@ -61,7 +61,7 @@ function testClientCall(
       new UserAPIKey(new ObjectID().toHexString(), "2", "3", false)
     ]),
     headers: {},
-    statusCode: 200,
+    statusCode: 200
   });
 
   when(
@@ -74,7 +74,7 @@ function testClientCall(
       new UserAPIKey(new ObjectID().toHexString(), "2", "3", false)
     ),
     headers: {},
-    statusCode: 200,
+    statusCode: 200
   });
 
   when(
@@ -83,7 +83,7 @@ function testClientCall(
     ) as any)
   ).thenResolve({
     headers: {},
-    statusCode: 200,
+    statusCode: 200
   });
 
   when(
@@ -92,7 +92,7 @@ function testClientCall(
     ) as any)
   ).thenResolve({
     headers: {},
-    statusCode: 200,
+    statusCode: 200
   });
 
   when(
@@ -102,7 +102,7 @@ function testClientCall(
     ) as any)
   ).thenResolve({
     headers: {},
-    statusCode: 200,
+    statusCode: 200
   });
 
   return fun(client)

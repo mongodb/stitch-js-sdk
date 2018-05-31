@@ -3,6 +3,6 @@ import Method from "../../internal/net/Method";
 import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
 import StitchServiceRoutes from "./StitchServiceRoutes";
 
-export default interface CoreStitchService {
+export default interface CoreStitchServiceClient {
   callFunctionInternal<T>(name: string, args: any[]): Promise<T>;
 }

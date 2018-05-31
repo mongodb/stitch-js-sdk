@@ -30,7 +30,8 @@ import CoreStitchAppClient from "./internal/CoreStitchAppClient";
 import FetchTransport from "./internal/net/FetchTransport";
 import { StitchAppRoutes } from "./internal/net/StitchAppRoutes";
 import StitchRequestClient from "./internal/net/StitchRequestClient";
-import CoreStitchService from "./services/internal/CoreStitchService";
+import CoreStitchServiceClient from "./services/internal/CoreStitchServiceClient";
+import StitchServiceClient from "./services/internal/StitchServiceClient";
 import StitchServiceRoutes from "./services/internal/StitchServiceRoutes";
 import { StitchAppClientConfiguration } from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";
@@ -55,7 +56,7 @@ export {
   CoreUserPassAuthProviderClient,
   CoreStitchAppClient,
   CoreStitchAuth,
-  CoreStitchService,
+  CoreStitchServiceClient,
   CoreStitchUser,
   CoreStitchUserImpl,
   DeviceFields,
@@ -71,6 +72,7 @@ export {
   StitchUserFactory,
   StitchUserProfile,
   StitchUserProfileImpl,
+  StitchServiceClient,
   Storage,
   MemoryStorage
 };

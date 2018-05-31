@@ -45,6 +45,10 @@ export namespace StitchAuthRequest {
     }
 
     public build(): StitchAuthRequest {
+      if (this.useRefreshToken) {
+        this.shouldRefreshOnFailure = false;
+      }
+
       return new StitchAuthRequest(
         super.build(),
         this.useRefreshToken,

@@ -16,7 +16,7 @@ describe("AccessTokenRefresherUnitTests", () => {
       {
         exp: new Date().getMilliseconds() + 20 * 60 * 1000,
         iat: new Date().getMilliseconds(),
-        sub: "uniqueUserID",
+        sub: "uniqueUserID"
       },
       "abcdefghijklmnopqrstuvwxyz1234567890"
     );
@@ -47,7 +47,7 @@ describe("AccessTokenRefresherUnitTests", () => {
       {
         exp: new Date().getMilliseconds() - 5 * 60 * 1000,
         iat: new Date().getMilliseconds() - 10 * 60 * 1000,
-        sub: "uniqueUserID",
+        sub: "uniqueUserID"
       },
       "abcdefghijklmnopqrstuvwxyz1234567890"
     );

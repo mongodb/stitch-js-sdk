@@ -28,6 +28,7 @@ import {
   UserPasswordAuthProvider,
   UserPasswordCredential
 } from "../../../lib";
+import { Decoder } from "../../../lib/internal/common/Codec";
 import ContentTypes from "../../../lib/internal/net/ContentTypes";
 import Headers from "../../../lib/internal/net/Headers";
 import Method from "../../../lib/internal/net/Method";
@@ -36,7 +37,6 @@ import { StitchDocRequest } from "../../../lib/internal/net/StitchDocRequest";
 import { StitchRequest } from "../../../lib/internal/net/StitchRequest";
 import { StitchServiceErrorCode } from "../../../lib/StitchServiceErrorCode";
 import StitchServiceException from "../../../lib/StitchServiceException";
-import { Decoder } from "../../../lib/internal/common/Codec";
 
 class StitchAuth extends CoreStitchAuth<CoreStitchUserImpl> {
   constructor(
@@ -83,7 +83,7 @@ describe("CoreStitchAuthUnitTests", () => {
     const auth = new StitchAuth(requestClient, routes, new MemoryStorage());
 
     return auth
-      .loginWithCredential(new AnonymousCredential())
+      .loginWithCredentialInternal(new AnonymousCredential())
       .then(user => {
         const profile = TEST_USER_PROFILE;
         expect(TEST_LOGIN_RESPONSE.userId).toEqual(user.id);
@@ -141,12 +141,12 @@ describe("CoreStitchAuthUnitTests", () => {
 
     let testUser: CoreStitchUser;
     return auth
-      .loginWithCredential(new AnonymousCredential())
+      .loginWithCredentialInternal(new AnonymousCredential())
       .then(user => {
         verify(requestClientMock.doRequest(anything())).times(2);
 
         testUser = user;
-        return auth.linkUserWithCredential(
+        return auth.linkUserWithCredentialInternal(
           user,
           new UserPasswordCredential("foo@foo.com", "bar")
         );
@@ -204,9 +204,11 @@ describe("CoreStitchAuthUnitTests", () => {
 
     expect(auth.isLoggedIn).toBeFalsy();
 
-    return auth.loginWithCredential(new AnonymousCredential()).then(() => {
-      expect(auth.isLoggedIn).toBeTruthy();
-    });
+    return auth
+      .loginWithCredentialInternal(new AnonymousCredential())
+      .then(() => {
+        expect(auth.isLoggedIn).toBeTruthy();
+      });
   });
 
   it("should logout", () => {
@@ -218,11 +220,11 @@ describe("CoreStitchAuthUnitTests", () => {
     expect(auth.isLoggedIn).toBeFalsy();
 
     return auth
-      .loginWithCredential(new AnonymousCredential())
+      .loginWithCredentialInternal(new AnonymousCredential())
       .then(() => {
         expect(auth.isLoggedIn).toBeTruthy();
 
-        return auth.logout();
+        return auth.logoutInternal();
       })
       .then(() => {
         verify(requestClientMock.doRequest(anything())).times(3);
@@ -251,9 +253,11 @@ describe("CoreStitchAuthUnitTests", () => {
 
     expect(auth.hasDeviceId).toBeFalsy();
 
-    return auth.loginWithCredential(new AnonymousCredential()).then(() => {
-      expect(auth.hasDeviceId).toBeTruthy();
-    });
+    return auth
+      .loginWithCredentialInternal(new AnonymousCredential())
+      .then(() => {
+        expect(auth.hasDeviceId).toBeTruthy();
+      });
   });
 
   it("should handle auth failure", () => {
@@ -266,13 +270,13 @@ describe("CoreStitchAuthUnitTests", () => {
       iat: new Date().getMilliseconds() - 5 * 60 * 1000,
       sub: "uniqueUserID",
       test_refreshed: true,
-      typ: "access",
+      typ: "access"
     };
 
     const refreshedJwt = sign(jwtDoc, "abcdefghijklmnopqrstuvwxyz1234567890");
 
     return auth
-      .loginWithCredential(new AnonymousCredential())
+      .loginWithCredentialInternal(new AnonymousCredential())
       .then(user => {
         when(
           requestClientMock.doRequest(new RequestClassMatcher(
@@ -281,7 +285,7 @@ describe("CoreStitchAuthUnitTests", () => {
         ).thenResolve({
           body: JSON.stringify({ access_token: refreshedJwt }),
           headers: {},
-          statusCode: 200,
+          statusCode: 200
         });
 
         let hasBeenCalled = false;
@@ -294,7 +298,7 @@ describe("CoreStitchAuthUnitTests", () => {
             return Promise.resolve({
               body: JSON.stringify(TEST_LINK_RESPONE),
               headers: {},
-              statusCode: 200,
+              statusCode: 200
             });
           } else {
             hasBeenCalled = true;
@@ -307,7 +311,7 @@ describe("CoreStitchAuthUnitTests", () => {
           }
         });
 
-        return auth.linkUserWithCredential(
+        return auth.linkUserWithCredentialInternal(
           user,
           new UserPasswordCredential("foo@foo.com", "bar")
         );
@@ -377,7 +381,7 @@ describe("CoreStitchAuthUnitTests", () => {
           )
         );
 
-        return auth.linkUserWithCredential(
+        return auth.linkUserWithCredentialInternal(
           linkedUser,
           new UserPasswordCredential("foo@foo.com", "bar")
         );
@@ -409,14 +413,14 @@ describe("CoreStitchAuthUnitTests", () => {
     reqBuilder.withMethod(Method.POST);
 
     return auth
-      .loginWithCredential(new AnonymousCredential())
+      .loginWithCredentialInternal(new AnonymousCredential())
       .then(() => {
         const rawInt = '{"$numberInt": "42"}';
         // Check that primitive return types can be decoded.
         when(requestClientMock.doRequest(anything())).thenResolve({
           body: rawInt,
           headers: {},
-          statusCode: 200,
+          statusCode: 200
         });
 
         return auth.doAuthenticatedJSONRequest(reqBuilder.build());
@@ -427,12 +431,12 @@ describe("CoreStitchAuthUnitTests", () => {
         when(requestClientMock.doRequest(anything())).thenResolve({
           body: docRaw,
           headers: {},
-          statusCode: 200,
+          statusCode: 200
         });
 
         return auth.doAuthenticatedJSONRequest(reqBuilder.build());
       })
-      .then((res: {[key: string]: string}) => {
+      .then((res: { [key: string]: string }) => {
         expect(expectedObjectId).toEqual(res["_id"]);
         expect(res["intValue"]).toEqual(42);
 
@@ -441,24 +445,27 @@ describe("CoreStitchAuthUnitTests", () => {
         when(requestClientMock.doRequest(anything())).thenResolve({
           body: docRaw,
           headers: {},
-          statusCode: 200,
+          statusCode: 200
         });
 
         interface TestDoc {
           id: ObjectID;
-          intValue: number
+          intValue: number;
         }
 
-        return auth.doAuthenticatedJSONRequest(reqBuilder.build(), 
+        return auth.doAuthenticatedJSONRequest(
+          reqBuilder.build(),
           new class implements Decoder<TestDoc> {
             public decode(from: object): TestDoc {
               return {
                 id: from["_id"],
                 intValue: from["intValue"]
-              }
+              };
             }
-        });
-      }).then((res) => {
+          }()
+        );
+      })
+      .then(res => {
         expect(res.id).toEqual(expectedObjectId);
         expect(res.intValue).toEqual(42);
       });

@@ -72,7 +72,7 @@ export const TEST_ACCESS_TOKEN: string = (() => {
       claims,
       exp: new Date().getMilliseconds() + 1000 * 1000,
       iat: new Date().getMilliseconds() - 1000 * 1000,
-      sub: "uniqueUserID",
+      sub: "uniqueUserID"
     },
     "abcdefghijklmnopqrstuvwxyz1234567890"
   );
@@ -192,7 +192,7 @@ export function getMockedRequestClient(): StitchRequestClient {
   ).thenResolve({
     body: JSON.stringify(TEST_LOGIN_RESPONSE),
     headers: {},
-    statusCode: 200,
+    statusCode: 200
   });
 
   // Profile works if the access token is the same as the above
@@ -203,7 +203,7 @@ export function getMockedRequestClient(): StitchRequestClient {
   ).thenResolve({
     body: JSON.stringify(TEST_USER_PROFILE),
     headers: {},
-    statusCode: 200,
+    statusCode: 200
   });
 
   // Link works if the access token is the same as the above
@@ -214,7 +214,7 @@ export function getMockedRequestClient(): StitchRequestClient {
   ).thenResolve({
     body: JSON.stringify(TEST_USER_PROFILE),
     headers: {},
-    statusCode: 200,
+    statusCode: 200
   });
 
   return requestClientMock;

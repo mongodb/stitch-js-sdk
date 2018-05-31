@@ -1,5 +1,4 @@
 import * as EJSON from "mongodb-extjson";
-import * as sinon from "sinon";
 import {
   CoreStitchAppClient,
   CoreStitchAuth,

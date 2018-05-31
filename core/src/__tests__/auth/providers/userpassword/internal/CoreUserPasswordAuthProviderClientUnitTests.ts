@@ -35,7 +35,7 @@ describe("CoreUserPasswordAuthProviderClientUnitTests", () => {
 
     when(requestClientMock.doRequest(anything())).thenResolve({
       headers: {},
-      statusCode: 200,
+      statusCode: 200
     });
     return fun(client)
       .then(() => {

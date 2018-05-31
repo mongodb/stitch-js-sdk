@@ -6,7 +6,7 @@ import {
 } from "../../../lib";
 import Method from "../../../lib/internal/net/Method";
 import { StitchAuthDocRequest } from "../../../lib/internal/net/StitchAuthDocRequest";
-import CoreStitchServiceImpl from "../../../lib/services/internal/CoreStitchServiceImpl";
+import StitchServiceClient from "../../../lib/services/internal/CoreStitchServiceImpl";
 
 describe("CoreStitchServiceUnitTests", () => {
   it("should call function internal", () => {
@@ -23,7 +23,7 @@ describe("CoreStitchServiceUnitTests", () => {
 
     const requestClient: StitchAuthRequestClient = instance(requestClientMock);
 
-    const coreStitchService = new CoreStitchServiceImpl(
+    const coreStitchService = new StitchServiceClient(
       requestClient,
       routes,
       serviceName
@@ -34,7 +34,7 @@ describe("CoreStitchServiceUnitTests", () => {
     const expectedRequestDoc = {
       arguments: args,
       name: funcName,
-      service: serviceName,
+      service: serviceName
     };
 
     return coreStitchService
