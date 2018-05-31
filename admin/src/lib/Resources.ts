@@ -2,6 +2,8 @@ import StitchAdminAuth from "./StitchAdminAuth";
 import { Method, StitchAuthRequest } from "stitch-core";
 import * as EJSON from "mongodb-extjson";
 import AppResponse from "./apps/AppsResources";
+import { Codec } from "./Codec";
+import { AuthProviderResponse, AuthProviderResponseCodec } from "./authProviders/AuthProvidersResources";
 
 /// Any endpoint that can be described with basic
 /// CRUD operations
@@ -47,14 +49,16 @@ class Listable<T> extends BasicResource {
 
 // / Adds an endpoint method that GETs some id
 class Gettable<T> extends BasicResource {
+    private readonly codec: { new(): Codec<T> }
+
     get(): Promise<T> {
         const reqBuilder = StitchAuthRequest.Builder()
         reqBuilder
-                .withMethod(Method.GET)
-                .withPath(this.url)
-    
+            .withMethod(Method.GET)
+            .withPath(this.url);
+
         return this.adminAuth.doAuthenticatedRequest(reqBuilder.build()).then(response => {
-            return EJSON.parse(response.body);
+            return new this.codec().decode(EJSON.parse(response.body));
         });
     }
 }
@@ -73,20 +77,24 @@ class Removable extends BasicResource {
 }
 
 // / Adds an endpoint method that POSTs new data
-interface Creatable<Creator, T> extends Resource {}
-Creatable.prototype.create = (data: Creator): T => {
-    const reqBuilder = StitchAuthRequest.Builder()
-    reqBuilder
-            .withMethod(Method.POST)
-            .withPath(this.url)
-            .withBody(EJSON.serialize(data))
-
-    const response = this.adminAuth.doAuthenticatedRequest(reqBuilder.build())
-    return new T(EJSON.parse(response.body));
+class Creatable<Creator, T, V extends Codec<T>> extends BasicResource {
+    create(data: Creator): Promise<T> {
+        const reqBuilder = StitchAuthRequest.Builder()
+        reqBuilder
+                .withMethod(Method.POST)
+                .withPath(this.url)
+                .withBody(EJSON.serialize(data))
+    
+        return this.adminAuth.doAuthenticatedRequest(reqBuilder.build()).then(response => {
+            return new V().decode(EJSON.parse(response.body));
+        });
+    }
 }
 
 // / Adds an endpoint method that PUTs some data
-interface Updatable<T> extends Resource {}
+interface Updatable<T> extends BasicResource {
+
+}
 Updatable.prototype.update = (data: T): T => {
     const reqBuilder = StitchAuthRequest.Builder()
     reqBuilder
@@ -127,11 +135,15 @@ Disablable.prototype.disable = () => {
 // / Resource for a specific auth provider of an application
 class AuthProvider extends
     BasicResource implements
-    Gettable<AuthProvidersResponse>,
-    Updatable<AuthProvidersResponse>,
+    Gettable<AuthProviderResponse>,
+    Updatable<AuthProviderResponse>,
     Removable,
     Enablable,
-    Disablable {}
+    Disablable {
+    private readonly codec = AuthProviderResponseCodec
+
+    get: () => Promise<AuthProviderResponse>
+}
 
 // / Resource for listing the auth providers of an application
 class AuthProviders extends BasicResource 

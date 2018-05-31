@@ -1,4 +1,5 @@
 import { AuthProvider, AuthProviders } from "../Resources";
+import Codec from "../Codec";
 
 /// View into a specific auth provider
 enum Fields {
@@ -8,21 +9,34 @@ enum Fields {
     TYPE = "type",
 }
 
-class AuthProviderResponse {
+export type AuthProviderResponse = {
     /// unique id of this provider
-    public readonly id: string
+    readonly id: string;
     /// whether or not this provider is disabled
-    public readonly disabled: boolean
+    readonly disabled: boolean;
     /// name of this provider
-    public readonly name: string
+    readonly name: string;
     /// the type of this provider
-    public readonly type: string
+    readonly type: string;
+}
 
-    public constructor(object: object) {
-        this.id = object[Fields.ID];
-        this.disabled = object[Fields.DISABLED];
-        this.name = object[Fields.NAME];
-        this.type = object[Fields.TYPE];
+export class AuthProviderResponseCodec extends Codec<AuthProviderResponse> {
+    decode(from: object): AuthProviderResponse {
+        return {
+            id: from[Fields.ID],
+            disabled: from[Fields.DISABLED],
+            name: from[Fields.NAME],
+            type: from[Fields.TYPE],
+        };
+    }
+
+    encode(from: AuthProviderResponse): object {
+        return {
+            [Fields.ID]: from.id,
+            [Fields.DISABLED]: from.disabled,
+            [Fields.NAME]: from.name,
+            [Fields.TYPE]: from.type
+        }
     }
 }
 
