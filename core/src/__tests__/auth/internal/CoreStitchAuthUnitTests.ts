@@ -36,6 +36,7 @@ import { StitchDocRequest } from "../../../lib/internal/net/StitchDocRequest";
 import { StitchRequest } from "../../../lib/internal/net/StitchRequest";
 import { StitchServiceErrorCode } from "../../../lib/StitchServiceErrorCode";
 import StitchServiceException from "../../../lib/StitchServiceException";
+import { Decoder } from "../../../lib/internal/common/Codec";
 
 class StitchAuth extends CoreStitchAuth<CoreStitchUserImpl> {
   constructor(
@@ -413,9 +414,9 @@ describe("CoreStitchAuthUnitTests", () => {
         const rawInt = '{"$numberInt": "42"}';
         // Check that primitive return types can be decoded.
         when(requestClientMock.doRequest(anything())).thenResolve({
-          statusCode: 200,
           body: rawInt,
-          headers: {}
+          headers: {},
+          statusCode: 200,
         });
 
         return auth.doAuthenticatedJSONRequest(reqBuilder.build());
@@ -431,9 +432,35 @@ describe("CoreStitchAuthUnitTests", () => {
 
         return auth.doAuthenticatedJSONRequest(reqBuilder.build());
       })
-      .then((res: object) => {
+      .then((res: {[key: string]: string}) => {
         expect(expectedObjectId).toEqual(res["_id"]);
         expect(res["intValue"]).toEqual(42);
+
+        // Check that BSON documents returned as extended JSON can be
+        // decoded into custom types
+        when(requestClientMock.doRequest(anything())).thenResolve({
+          body: docRaw,
+          headers: {},
+          statusCode: 200,
+        });
+
+        interface TestDoc {
+          id: ObjectID;
+          intValue: number
+        }
+
+        return auth.doAuthenticatedJSONRequest(reqBuilder.build(), 
+          new class implements Decoder<TestDoc> {
+            public decode(from: object): TestDoc {
+              return {
+                id: from["_id"],
+                intValue: from["intValue"]
+              }
+            }
+        });
+      }).then((res) => {
+        expect(res.id).toEqual(expectedObjectId);
+        expect(res.intValue).toEqual(42);
       });
   });
 });

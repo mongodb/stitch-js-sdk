@@ -30,6 +30,7 @@ import StitchAuthRequestClient from "./StitchAuthRequestClient";
 import { StitchAuthRoutes } from "./StitchAuthRoutes";
 import StitchUserFactory from "./StitchUserFactory";
 import StitchUserProfileImpl from "./StitchUserProfileImpl";
+import { Codec, Decoder } from "../../internal/common/Codec";
 
 const OPTIONS = "options";
 const DEVICE = "device";
@@ -138,14 +139,22 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    * Performs an authenticated request to the Stitch server with a JSON body, and decodes the extended JSON response into
    * an object. Uses the current authentication state, and will throw when the `CoreStitchAuth` is not currently authenticated.
    *
-   * TODO: Add Codec support.
    * - returns: An `any` representing the decoded response body.
    */
   public doAuthenticatedJSONRequest<T>(
-    stitchReq: StitchAuthDocRequest
+    stitchReq: StitchAuthDocRequest,
+    codec?: Decoder<T>
   ): Promise<T> {
     return this.doAuthenticatedRequest(stitchReq)
-      .then(response => EJSON.parse(response.body!, { strict: false }))
+      .then(response => {
+        const obj = EJSON.parse(response.body!, { strict: false })
+        
+        if (codec) {
+          return codec.decode(obj);
+        }
+
+        return obj;
+      })
       .catch(err => {
         throw StitchError.wrapDecodingError(err);
       });
