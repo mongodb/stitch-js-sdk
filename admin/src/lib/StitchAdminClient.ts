@@ -1,63 +1,73 @@
-import { 
-    FetchTransport,
-    StitchRequestClientImpl,
-    StitchAuthRequest,
-    Method,
-    MemoryStorage,
-    StitchCredential
+import {
+  FetchTransport,
+  StitchRequestClientImpl,
+  StitchAuthRequest,
+  Method,
+  MemoryStorage,
+  StitchCredential
 } from "stitch-core";
 import StitchAdminAuth from "./StitchAdminAuth";
 import StitchAdminAuthRoutes from "./StitchAdminAuthRoutes";
-import { StitchAdminUserProfile } from "./StitchAdminUserProfile";
+import {
+  StitchAdminUserProfile,
+  StitchAdminUserProfileCodec
+} from "./StitchAdminUserProfile";
+import Transport from "../../../core/dist/internal/net/Transport";
+import { Apps } from "./Resources";
+import { StitchAdminUser } from "./StitchAdminUser";
 
 export default class StitchAdminClient {
-    public static readonly apiPath = "/api/admin/v3.0"
-    public static readonly defaultServerUrl = "http://localhost:9090"
-    public static readonly defaultRequestTimeout = 15.0
+  public static readonly apiPath = "/api/admin/v3.0";
+  public static readonly defaultServerUrl = "http://localhost:9090";
+  public static readonly defaultRequestTimeout = 15.0;
 
-    private readonly adminAuth: StitchAdminAuth
-    private readonly authRoutes: StitchAdminAuthRoutes
+  private readonly adminAuth: StitchAdminAuth;
+  private readonly authRoutes: StitchAdminAuthRoutes;
 
-    public constructor(baseUrl: string = StitchAdminClient.defaultServerUrl,
-                        transport: Transport = new FetchTransport(),
-                        requestTimeout: number = StitchAdminClient.defaultRequestTimeout) {
-        let requestClient = StitchRequestClientImpl(baseUrl,
-                                                    transport,
-                                                    requestTimeout);
+  public constructor(
+    baseUrl: string = StitchAdminClient.defaultServerUrl,
+    transport: Transport = new FetchTransport(),
+    requestTimeout: number = StitchAdminClient.defaultRequestTimeout
+  ) {
+    let requestClient = StitchRequestClientImpl(
+      baseUrl,
+      transport,
+      requestTimeout
+    );
 
-        this.authRoutes = new StitchAdminAuthRoutes();
+    this.authRoutes = new StitchAdminAuthRoutes();
 
-        this.adminAuth = new StitchAdminAuth(
-            requestClient,
-            this.authRoutes,
-            MemoryStorage()
-        );
-    }
+    this.adminAuth = new StitchAdminAuth(
+      requestClient,
+      this.authRoutes,
+      MemoryStorage()
+    );
+  }
 
-    public adminProfile(): StitchAdminUserProfile {
-        let req = StitchAuthRequest.Builder()
-            .withMethod(Method.GET)
-            .withPath(this.authRoutes.profileRoute)
-            .build();
+  public adminProfile(): Promise<StitchAdminUserProfile> {
+    let req = StitchAuthRequest.Builder()
+      .withMethod(Method.GET)
+      .withPath(this.authRoutes.profileRoute)
+      .build();
 
-        let response = this.adminAuth.doAuthenticatedRequest(req)
+    return this.adminAuth.doAuthenticatedJSONRequest(
+      req,
+      new StitchAdminUserProfileCodec()
+    );
+  }
 
-        if (response.body === undefined) {
-            throw StitchError.serviceError(withMessage: "empty response", withServiceErrorCode: .unknown)
-        }
+  public apps(groupId: String): Apps {
+    return new Apps(
+      this.adminAuth,
+      `${StitchAdminClient.apiPath}/groups/${groupId}/apps`
+    );
+  }
 
-        return try JSONDecoder().decode(StitchAdminUserProfile.self, response.body)
-    }
+  public loginWithCredential(credential: StitchCredential): StitchAdminUser {
+    return this.adminAuth.loginWithCredentialInternal(credential);
+  }
 
-    public apps(groupId: String): Apps {
-        return Apps(this.adminAuth, `${apiPath}/groups/${groupId}/apps`)
-    }
-
-    public loginWithCredential(credential: StitchCredential): StitchAdminUser {
-        return this.adminAuth.loginWithCredentialBlocking(credential)
-    }
-
-    public logout() {
-        return this.adminAuth.logoutBlocking()
-    }
+  public logout() {
+    return this.adminAuth.logoutInternal();
+  }
 }

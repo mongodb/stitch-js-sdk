@@ -1,53 +1,72 @@
 import { APIStitchUserIdentity } from "stitch-core";
+import { Codec, Decoder } from "./Codec";
+
+enum StitchAdminUserProfileFields {
+  UserType = "type",
+  Identities = "identities",
+  Data = "data",
+  Roles = "roles"
+}
+
 /**
  * A struct containing the fields returned by the Stitch client API in a user profile request.
  */
-class StitchAdminUserProfile {
-    private static userTypeKey = "type";
-    private static identitiesKey = "identities";
-    private static dataKey = "data";
-    private static rolesKey = "roles";
+export interface StitchAdminUserProfile {
+  /**
+   * A string describing the type of this user.
+   */
+  readonly userType: string;
 
-    /**
-     * A string describing the type of this user.
-     */
-    public readonly userType: string
+  /**
+   * An array of `StitchUserIdentity` objects representing the identities linked
+   * to this user which can be used to log in as this user.
+   */
+  readonly identities: APIStitchUserIdentity[];
 
-    /**
-     * An array of `StitchUserIdentity` objects representing the identities linked
-     * to this user which can be used to log in as this user.
-     */
-    public readonly identities: [APIStitchUserIdentity]
+  /**
+   * An object containing extra metadata about the user as supplied by the authentication provider.
+   */
+  readonly data: object;
 
-    /**
-     * An object containing extra metadata about the user as supplied by the authentication provider.
-     */
-    public readonly data: Map<String, String>
-
-    /**
-     * A list of the roles that this admin user has.
-     */
-    public readonly roles: [StitchAdminRole]
-
-    public constructor(object: object) {
-        this.userType = object[StitchAdminUserProfile.userTypeKey];
-        this.identities = object[StitchAdminUserProfile.identitiesKey];
-        this.data = object[StitchAdminUserProfile.dataKey];
-        this.roles = object[StitchAdminUserProfile.rolesKey];
-    }
+  /**
+   * A list of the roles that this admin user has.
+   */
+  readonly roles: StitchAdminRole[];
 }
 
-class StitchAdminRole {
-    public readonly name: string
-    public readonly groupId: string
+export class StitchAdminUserProfileCodec
+  implements Decoder<StitchAdminUserProfile> {
+  decode(from: object): StitchAdminUserProfile {
+    const roleCodec = new StitchAdminRoleCodec();
 
-    private static nameKey = "role_name"
-    private static groupIdKey = "group_id"
-
-    public constructor(object: object) {
-        this.name = object[StitchAdminRole.nameKey];
-        this.groupId = object[StitchAdminRole.groupIdKey];
-    }
+    return {
+      userType: from[StitchAdminUserProfileFields.UserType],
+      identities: from[StitchAdminUserProfileFields.Identities].map(identity =>
+        APIStitchUserIdentity.decodeFrom(identity)
+      ),
+      data: from[StitchAdminUserProfileFields.Data],
+      roles: from[StitchAdminUserProfileFields.Roles].map(role =>
+        roleCodec.decode(role)
+      )
+    };
+  }
 }
 
-export { StitchAdminUserProfile, StitchAdminRole };
+enum StitchAdminRoleFields {
+  Name = "role_name",
+  GroupId = "group_id"
+}
+
+export interface StitchAdminRole {
+  readonly name: string;
+  readonly groupId: string;
+}
+
+export class StitchAdminRoleCodec implements Decoder<StitchAdminRole> {
+  decode(from: object): StitchAdminRole {
+    return {
+      name: from[StitchAdminRoleFields.Name],
+      groupId: from[StitchAdminRoleFields.GroupId]
+    };
+  }
+}

@@ -1,31 +1,42 @@
-import { CoreStitchAuth, StitchUserFactory, DeviceFields, StitchRequestClient, StitchAuthRoutes, Storage } from "stitch-core";
+import {
+  CoreStitchAuth,
+  StitchUserFactory,
+  DeviceFields,
+  StitchRequestClient,
+  StitchAuthRoutes,
+  Storage
+} from "stitch-core";
 import { StitchAdminUser, StitchAdminUserFactory } from "./StitchAdminUser";
 
 /**
  * A special implementation of CoreStitchAuth that communicates with the MongoDB Stitch Admin API.
  */
 export default class StitchAdminAuth extends CoreStitchAuth<StitchAdminUser> {
-    public get userFactory(): StitchUserFactory<StitchAdminUser> {
-        return new StitchAdminUserFactory();
+  public get userFactory(): StitchUserFactory<StitchAdminUser> {
+    return new StitchAdminUserFactory();
+  }
+
+  public get deviceInfo(): { [key: string]: string } {
+    var info = {};
+
+    if (this.hasDeviceId) {
+      info[DeviceFields.DEVICE_ID] = this.deviceId;
     }
 
-    public get deviceInfo(): { [key: string]: string } {
-        var info = {};
+    info[DeviceFields.APP_ID] = "MongoDB Stitch Swift Admin Client";
 
-        if (this.hasDeviceId) {
-            info[DeviceFields.DEVICE_ID] = this.deviceId
-        }
+    return info;
+  }
 
-        info[DeviceFields.APP_ID] = "MongoDB Stitch Swift Admin Client"
+  public constructor(
+    requestClient: StitchRequestClient,
+    authRoutes: StitchAuthRoutes,
+    storage: Storage
+  ) {
+    super(requestClient, authRoutes, storage);
+  }
 
-        return info
-    }
-
-    public constructor(requestClient: StitchRequestClient, authRoutes: StitchAuthRoutes, storage: Storage) {
-        super(requestClient, authRoutes, storage);
-    }
-
-    public onAuthEvent() {
-        // do nothing
-    }
+  public onAuthEvent() {
+    // do nothing
+  }
 }

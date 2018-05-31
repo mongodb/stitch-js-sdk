@@ -5,16 +5,24 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "test": "jest",
+    "lint": "tslint src/**/*.ts",
+    "prettier": "prettier --write \"{,!(node_modules)/**/}*.ts\"",
+    "tslint-check": "tslint-config-prettier-check ./tslint.json"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/stitch-core": "file:../core",
-    "stitch-core": "file:../core"
+    "stitch-core": "file:../core",
+    "mongodb-extjson": "^2.1.0"
   },
   "devDependencies": {
     "ts-loader": "^4.0.0",
-    "typescript": "^2.8.1"
+    "typescript": "^2.8.1",
+    "prettier": "1.12.0",
+    "tslint-config-prettier": "^1.10.0",
+    "tslint": "^5.9.1"
   }
 }
