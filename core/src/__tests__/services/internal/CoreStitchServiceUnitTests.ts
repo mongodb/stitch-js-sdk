@@ -44,16 +44,17 @@ describe("CoreStitchServiceUnitTests", () => {
 
         const [docArgument] = capture(
           requestClientMock.doAuthenticatedJSONRequest
-        ).first();
+        ).last();
         verify(
           requestClientMock.doAuthenticatedJSONRequest(
             anyOfClass(StitchAuthDocRequest)
           )
         ).called();
 
-        expect(docArgument.method).toEqual(Method.POST);
-        expect(docArgument.path).toEqual(routes.functionCallRoute);
-        expect(docArgument.document]).toEqual(expectedRequestDoc);
+        const req = docArgument as StitchAuthDocRequest;
+        expect(req.method).toEqual(Method.POST);
+        expect(req.path).toEqual(routes.functionCallRoute);
+        expect(req.document).toEqual(expectedRequestDoc);
       });
   });
 });
