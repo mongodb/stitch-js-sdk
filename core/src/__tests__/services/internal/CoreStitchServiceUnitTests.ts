@@ -1,11 +1,11 @@
+import { anyOfClass, capture, instance, mock, verify, when } from "ts-mockito";
 import {
-  StitchServiceRoutes,
+  CoreStitchAuth,
   StitchAuthRequestClient,
-  CoreStitchAuth
+  StitchServiceRoutes
 } from "../../../lib";
-import { mock, when, instance, anyOfClass, verify, capture } from "ts-mockito";
-import { StitchAuthDocRequest } from "../../../lib/internal/net/StitchAuthDocRequest";
 import Method from "../../../lib/internal/net/Method";
+import { StitchAuthDocRequest } from "../../../lib/internal/net/StitchAuthDocRequest";
 import CoreStitchServiceImpl from "../../../lib/services/internal/CoreStitchServiceImpl";
 
 describe("CoreStitchServiceUnitTests", () => {
@@ -31,10 +31,11 @@ describe("CoreStitchServiceUnitTests", () => {
 
     const funcName = "myFunc1";
     const args = [1, 2, 3];
-    const expectedRequestDoc = {};
-    expectedRequestDoc["name"] = funcName;
-    expectedRequestDoc["service"] = serviceName;
-    expectedRequestDoc["arguments"] = args;
+    const expectedRequestDoc = {
+      arguments: args,
+      name: funcName,
+      service: serviceName,
+    };
 
     return coreStitchService
       .callFunctionInternal(funcName, args)
@@ -52,7 +53,7 @@ describe("CoreStitchServiceUnitTests", () => {
 
         expect(docArgument.method).toEqual(Method.POST);
         expect(docArgument.path).toEqual(routes.functionCallRoute);
-        expect(docArgument.document).toEqual(expectedRequestDoc);
+        expect(docArgument.document]).toEqual(expectedRequestDoc);
       });
   });
 });

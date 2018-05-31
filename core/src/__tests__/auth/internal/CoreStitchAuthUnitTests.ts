@@ -1,39 +1,41 @@
+import { ObjectID } from "bson";
+import { sign } from "jsonwebtoken";
+import { anything, capture, instance, verify, when } from "ts-mockito";
 import {
-  AnonymousCredential,
-  AnonymousAuthProvider,
-  StitchAuthRoutes,
-  UserPasswordAuthProvider,
-  DeviceFields,
-  CoreStitchAuth,
-  CoreStitchUserImpl,
-  StitchRequestClient,
-  Storage,
-  StitchUserFactory,
-  StitchUserProfileImpl,
-  StitchAppRoutes,
-  MemoryStorage,
-  CoreStitchUser,
-  UserPasswordCredential
-} from "../../../lib";
-import {
-  getMockedRequestClient,
   getAuthorizationBearer,
+  getMockedRequestClient,
+  RequestClassMatcher,
   TEST_ACCESS_TOKEN,
-  TEST_USER_PROFILE,
+  TEST_LINK_RESPONE,
   TEST_LOGIN_RESPONSE,
   TEST_REFRESH_TOKEN,
-  RequestClassMatcher,
-  TEST_LINK_RESPONE
+  TEST_USER_PROFILE
 } from "../../../__tests__/APITestUtils";
-import { verify, anything, capture, instance, when } from "ts-mockito";
-import { sign } from "jsonwebtoken";
-import { StitchDocRequest } from "../../../lib/internal/net/StitchDocRequest";
-import Method from "../../../lib/internal/net/Method";
-import { StitchRequest } from "../../../lib/internal/net/StitchRequest";
-import Headers from "../../../lib/internal/net/Headers";
+import {
+  AnonymousAuthProvider,
+  AnonymousCredential,
+  CoreStitchAuth,
+  CoreStitchUser,
+  CoreStitchUserImpl,
+  DeviceFields,
+  MemoryStorage,
+  StitchAppRoutes,
+  StitchAuthRoutes,
+  StitchRequestClient,
+  StitchUserFactory,
+  StitchUserProfileImpl,
+  Storage,
+  UserPasswordAuthProvider,
+  UserPasswordCredential
+} from "../../../lib";
 import ContentTypes from "../../../lib/internal/net/ContentTypes";
-import StitchServiceException from "../../../lib/StitchServiceException";
+import Headers from "../../../lib/internal/net/Headers";
+import Method from "../../../lib/internal/net/Method";
+import { StitchAuthDocRequest } from "../../../lib/internal/net/StitchAuthDocRequest";
+import { StitchDocRequest } from "../../../lib/internal/net/StitchDocRequest";
+import { StitchRequest } from "../../../lib/internal/net/StitchRequest";
 import { StitchServiceErrorCode } from "../../../lib/StitchServiceErrorCode";
+import StitchServiceException from "../../../lib/StitchServiceException";
 
 class StitchAuth extends CoreStitchAuth<CoreStitchUserImpl> {
   constructor(
@@ -54,7 +56,7 @@ class StitchAuth extends CoreStitchAuth<CoreStitchUserImpl> {
 
   protected get userFactory(): StitchUserFactory<CoreStitchUserImpl> {
     return new class implements StitchUserFactory<CoreStitchUserImpl> {
-      makeUser(
+      public makeUser(
         id: string,
         loggedInProviderType: string,
         loggedInProviderName: string,
@@ -126,7 +128,6 @@ describe("CoreStitchAuthUnitTests", () => {
         expect(expectedRequest2.build()).toEqualRequest(actualRequest2);
       })
       .catch(error => {
-        console.log(error);
         fail(error);
       });
   });
@@ -137,7 +138,7 @@ describe("CoreStitchAuthUnitTests", () => {
     const routes = new StitchAppRoutes("my_app-12345").authRoutes;
     const auth = new StitchAuth(requestClient, routes, new MemoryStorage());
 
-    var testUser: CoreStitchUser;
+    let testUser: CoreStitchUser;
     return auth
       .loginWithCredential(new AnonymousCredential())
       .then(user => {
@@ -200,7 +201,7 @@ describe("CoreStitchAuthUnitTests", () => {
     const routes = new StitchAppRoutes("my_app-12345").authRoutes;
     const auth = new StitchAuth(requestClient, routes, new MemoryStorage());
 
-    expect(auth.isLoggedIn).toBeFalsy;
+    expect(auth.isLoggedIn).toBeFalsy();
 
     return auth.loginWithCredential(new AnonymousCredential()).then(() => {
       expect(auth.isLoggedIn).toBeTruthy();
@@ -261,10 +262,10 @@ describe("CoreStitchAuthUnitTests", () => {
     const auth = new StitchAuth(requestClient, routes, new MemoryStorage());
 
     const jwtDoc = {
-      typ: "access",
-      test_refreshed: true,
       iat: new Date().getMilliseconds() - 5 * 60 * 1000,
-      sub: "uniqueUserID"
+      sub: "uniqueUserID",
+      test_refreshed: true,
+      typ: "access",
     };
 
     const refreshedJwt = sign(jwtDoc, "abcdefghijklmnopqrstuvwxyz1234567890");
@@ -273,26 +274,26 @@ describe("CoreStitchAuthUnitTests", () => {
       .loginWithCredential(new AnonymousCredential())
       .then(user => {
         when(
-          requestClientMock.doRequest(<any>new RequestClassMatcher(
+          requestClientMock.doRequest(new RequestClassMatcher(
             new RegExp(".*/session$")
-          ))
+          ) as any)
         ).thenResolve({
-          statusCode: 200,
+          body: JSON.stringify({ access_token: refreshedJwt }),
           headers: {},
-          body: JSON.stringify({ access_token: refreshedJwt })
+          statusCode: 200,
         });
 
-        var hasBeenCalled = false;
+        let hasBeenCalled = false;
         when(
-          requestClientMock.doRequest(<any>new RequestClassMatcher(
+          requestClientMock.doRequest(new RequestClassMatcher(
             new RegExp(".*/login\\?link=true$")
-          ))
+          ) as any)
         ).thenCall(() => {
           if (hasBeenCalled) {
             return Promise.resolve({
-              statusCode: 200,
+              body: JSON.stringify(TEST_LINK_RESPONE),
               headers: {},
-              body: JSON.stringify(TEST_LINK_RESPONE)
+              statusCode: 200,
             });
           } else {
             hasBeenCalled = true;
@@ -354,9 +355,9 @@ describe("CoreStitchAuthUnitTests", () => {
 
         // This should log the user out
         when(
-          requestClientMock.doRequest(<any>new RequestClassMatcher(
+          requestClientMock.doRequest(new RequestClassMatcher(
             new RegExp(".*/session$")
-          ))
+          ) as any)
         ).thenReject(
           new StitchServiceException(
             "beep",
@@ -365,9 +366,9 @@ describe("CoreStitchAuthUnitTests", () => {
         );
 
         when(
-          requestClientMock.doRequest(<any>new RequestClassMatcher(
+          requestClientMock.doRequest(new RequestClassMatcher(
             new RegExp(".*/login\\?link=true$")
-          ))
+          ) as any)
         ).thenReject(
           new StitchServiceException(
             "boop",
@@ -392,111 +393,47 @@ describe("CoreStitchAuthUnitTests", () => {
       });
   });
 
-  //   @Test
-  //   public void testDoAuthenticatedJsonRequestWithDefaultCodecRegistry() {
-  //     final StitchRequestClient requestClient = getMockedRequestClient();
-  //     final StitchAuthRoutes routes = new StitchAppRoutes("my_app-12345").getAuthRoutes();
-  //     final StitchAuth auth = new StitchAuth(
-  //         requestClient,
-  //         routes,
-  //         new MemoryStorage());
-  //     auth.loginWithCredentialInternal(new AnonymousCredential());
+  it("should do authenticated json request", () => {
+    const requestClientMock = getMockedRequestClient();
+    const requestClient = instance(requestClientMock);
+    const routes = new StitchAppRoutes("my_app-12345").authRoutes;
+    const auth = new StitchAuth(requestClient, routes, new MemoryStorage());
 
-  //     final StitchAuthDocRequest.Builder reqBuilder = new StitchAuthDocRequest.Builder();
-  //     reqBuilder.withPath("giveMeData");
-  //     reqBuilder.withDocument(new Document());
-  //     reqBuilder.withMethod(Method.POST);
+    const expectedObjectId = new ObjectID();
+    const docRaw = `{\"_id\": {\"$oid\": \"${expectedObjectId.toHexString()}\"}, \"intValue\": {\"$numberInt\": \"42\"}}`;
 
-  //     final String rawInt = "{\"$numberInt\": \"42\"}";
-  //     // Check that primitive return types can be decoded.
-  //     doReturn(new Response(rawInt)).when(requestClient).doRequest(any());
-  //     assertEquals(42, (int) auth.doAuthenticatedJsonRequest(
-  //         reqBuilder.build(),
-  //         Integer.class, BsonUtils.DEFAULT_CODEC_REGISTRY));
-  //     doReturn(new Response(rawInt)).when(requestClient).doRequest(any());
-  //     assertEquals(42, (int) auth.doAuthenticatedJsonRequest(
-  //         reqBuilder.build(),
-  //         new IntegerCodec()));
+    const reqBuilder = new StitchAuthDocRequest.Builder();
+    reqBuilder.withPath("giveMeData");
+    reqBuilder.withDocument({});
+    reqBuilder.withMethod(Method.POST);
 
-  //     // Check that the proper exceptions are thrown when decoding into the incorrect type.
-  //     doReturn(new Response(rawInt)).when(requestClient).doRequest(any());
-  //     try {
-  //       auth.doAuthenticatedJsonRequest(
-  //           reqBuilder.build(),
-  //           String.class,
-  //           BsonUtils.DEFAULT_CODEC_REGISTRY);
-  //       fail();
-  //     } catch (final StitchRequestException ignored) {
-  //       // do nothing
-  //     }
+    return auth
+      .loginWithCredential(new AnonymousCredential())
+      .then(() => {
+        const rawInt = '{"$numberInt": "42"}';
+        // Check that primitive return types can be decoded.
+        when(requestClientMock.doRequest(anything())).thenResolve({
+          statusCode: 200,
+          body: rawInt,
+          headers: {}
+        });
 
-  //     doReturn(new Response(rawInt)).when(requestClient).doRequest(any());
-  //     try {
-  //       auth.doAuthenticatedJsonRequest(reqBuilder.build(), new StringCodec());
-  //       fail();
-  //     } catch (final StitchRequestException ignored) {
-  //       // do nothing
-  //     }
+        return auth.doAuthenticatedJSONRequest(reqBuilder.build());
+      })
+      .then((res: number) => {
+        expect(res).toEqual(42);
+        // Check that BSON documents returned as extended JSON can be decoded.
+        when(requestClientMock.doRequest(anything())).thenResolve({
+          body: docRaw,
+          headers: {},
+          statusCode: 200,
+        });
 
-  //     // Check that BSON documents returned as extended JSON can be decoded.
-  //     final ObjectId expectedObjectId = new ObjectId();
-  //     final String docRaw =
-  //         String.format(
-  //             "{\"_id\": {\"$oid\": \"%s\"}, \"intValue\": {\"$numberInt\": \"42\"}}",
-  //             expectedObjectId.toHexString());
-  //     doReturn(new Response(docRaw)).when(requestClient).doRequest(any());
-
-  //     Document doc = auth.doAuthenticatedJsonRequest(
-  //         reqBuilder.build(),
-  //         Document.class,
-  //         BsonUtils.DEFAULT_CODEC_REGISTRY);
-  //     assertEquals(expectedObjectId, doc.getObjectId("_id"));
-  //     assertEquals(42, (int) doc.getInteger("intValue"));
-
-  //     doReturn(new Response(docRaw)).when(requestClient).doRequest(any());
-  //     doc = auth.doAuthenticatedJsonRequest(reqBuilder.build(), new DocumentCodec());
-  //     assertEquals(expectedObjectId, doc.getObjectId("_id"));
-  //     assertEquals(42, (int) doc.getInteger("intValue"));
-
-  //     // Check that BSON documents returned as extended JSON can be decoded as a custom type if
-  //     // the codec is specifically provided.
-  //     doReturn(new Response(docRaw)).when(requestClient).doRequest(any());
-  //     final CustomType ct =
-  //         auth.doAuthenticatedJsonRequest(reqBuilder.build(), new CustomType.Codec());
-  //     assertEquals(expectedObjectId, ct.getId());
-  //     assertEquals(42, ct.getIntValue());
-
-  //     // Check that the correct exception is thrown if attempting to decode as a particular class
-  //     // type if the auth was never configured to contain the provided class type
-  //     // codec.
-  //     doReturn(new Response(docRaw)).when(requestClient).doRequest(any());
-  //     try {
-  //       auth.doAuthenticatedJsonRequest(
-  //           reqBuilder.build(),
-  //           CustomType.class,
-  //           BsonUtils.DEFAULT_CODEC_REGISTRY);
-  //       fail();
-  //     } catch (final StitchRequestException ignored) {
-  //       // do nothing
-  //     }
-
-  //     // Check that BSON arrays can be decoded
-  //     final List<Object> arrFromServer =
-  //         Arrays.asList(21, "the meaning of life, the universe, and everything", 84, 168);
-  //     final String arrFromServerRaw;
-  //     try {
-  //       arrFromServerRaw = StitchObjectMapper.getInstance().writeValueAsString(arrFromServer);
-  //     } catch (final JsonProcessingException e) {
-  //       fail(e.getMessage());
-  //       return;
-  //     }
-  //     doReturn(new Response(arrFromServerRaw)).when(requestClient).doRequest(any());
-
-  //     @SuppressWarnings("unchecked")
-  //     final List<Object> list = auth.doAuthenticatedJsonRequest(
-  //         reqBuilder.build(),
-  //         List.class,
-  //         BsonUtils.DEFAULT_CODEC_REGISTRY);
-  //     assertEquals(arrFromServer, list);
-  //   }
+        return auth.doAuthenticatedJSONRequest(reqBuilder.build());
+      })
+      .then((res: object) => {
+        expect(expectedObjectId).toEqual(res["_id"]);
+        expect(res["intValue"]).toEqual(42);
+      });
+  });
 });

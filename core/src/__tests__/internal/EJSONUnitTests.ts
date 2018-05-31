@@ -1,11 +1,11 @@
+import * as EJSON from "mongodb-extjson";
 import * as sinon from "sinon";
 import {
   CoreStitchAppClient,
-  StitchAppRoutes,
   CoreStitchAuth,
+  StitchAppRoutes,
   StitchRequestClient
 } from "../../lib/";
-import * as EJSON from "mongodb-extjson";
 
 describe("EJSON test", () => {
   it("should stringify Extended JSON correctly", () => {

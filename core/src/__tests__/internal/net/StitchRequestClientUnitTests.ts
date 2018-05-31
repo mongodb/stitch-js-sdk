@@ -1,21 +1,21 @@
+import { parse } from "mongodb-extjson";
 import {
-  mock,
-  when,
   anything,
+  capture,
   instance,
-  capture
+  mock,
+  when
 } from "ts-mockito/lib/ts-mockito";
 import { FetchTransport, StitchRequestClient } from "../../../lib";
-import { StitchRequest } from "../../../lib/internal/net/StitchRequest";
-import Method from "../../../lib/internal/net/Method";
-import StitchServiceException from "../../../lib/StitchServiceException";
 import { BasicRequest } from "../../../lib/internal/net/BasicRequest";
-import { StitchServiceErrorCode } from "../../../lib/StitchServiceErrorCode";
 import ContentTypes from "../../../lib/internal/net/ContentTypes";
 import Headers from "../../../lib/internal/net/Headers";
-import { parse } from "mongodb-extjson";
+import Method from "../../../lib/internal/net/Method";
 import { StitchDocRequest } from "../../../lib/internal/net/StitchDocRequest";
+import { StitchRequest } from "../../../lib/internal/net/StitchRequest";
 import StitchException from "../../../lib/StitchException";
+import { StitchServiceErrorCode } from "../../../lib/StitchServiceErrorCode";
+import StitchServiceException from "../../../lib/StitchServiceException";
 
 describe("StitchRequestClientUnitTests", () => {
   it("should doRequest", () => {
@@ -26,9 +26,9 @@ describe("StitchRequestClientUnitTests", () => {
 
     // A bad response should throw an exception
     when(transportMock.roundTrip(anything())).thenResolve({
-      statusCode: 500,
       body: undefined,
-      headers: {}
+      headers: {},
+      statusCode: 500,
     });
 
     const path = "/path";
@@ -51,9 +51,9 @@ describe("StitchRequestClientUnitTests", () => {
 
         // A normal response should be able to be decoded
         when(transportMock.roundTrip(anything())).thenResolve({
-          statusCode: 200,
           body: '{"hello": "world", "a": 42}',
-          headers: {}
+          headers: {},
+          statusCode: 200,
         });
 
         return stitchRequestClient.doRequest(builder.build());
@@ -61,15 +61,15 @@ describe("StitchRequestClientUnitTests", () => {
       .then(response => {
         expect(response.statusCode).toBe(200);
         const expected = {
+          a: 42,
           hello: "world",
-          a: 42
         };
         expect(expected).toEqual(parse(response.body!, { relaxed: true }));
 
         // Error responses should be handled
         when(transportMock.roundTrip(anything())).thenResolve({
+          headers: {},
           statusCode: 500,
-          headers: {}
         });
 
         return stitchRequestClient.doRequest(builder.build());
@@ -80,9 +80,9 @@ describe("StitchRequestClientUnitTests", () => {
       })
       .then(() => {
         when(transportMock.roundTrip(anything())).thenResolve({
-          statusCode: 500,
+          body: "whoops",
           headers: {},
-          body: "whoops"
+          statusCode: 500,
         });
 
         return stitchRequestClient.doRequest(builder.build());
@@ -97,9 +97,9 @@ describe("StitchRequestClientUnitTests", () => {
         };
 
         when(transportMock.roundTrip(anything())).thenResolve({
+          body: "whoops",
+          headers,
           statusCode: 500,
-          headers: headers,
-          body: "whoops"
         });
 
         return stitchRequestClient.doRequest(builder.build());
@@ -114,9 +114,9 @@ describe("StitchRequestClientUnitTests", () => {
         };
 
         when(transportMock.roundTrip(anything())).thenResolve({
+          body: '{"error": "bad", "error_code": "InvalidSession"}',
+          headers,
           statusCode: 500,
-          headers: headers,
-          body: '{"error": "bad", "error_code": "InvalidSession"}'
         });
 
         return stitchRequestClient.doRequest(builder.build());
@@ -149,8 +149,8 @@ describe("StitchRequestClientUnitTests", () => {
 
     // A bad response should throw an exception
     when(transportMock.roundTrip(anything())).thenResolve({
+      headers: {},
       statusCode: 500,
-      headers: {}
     });
 
     return stitchRequestClient
@@ -172,9 +172,9 @@ describe("StitchRequestClientUnitTests", () => {
 
         // A normal response should be able to be decoded
         when(transportMock.roundTrip(anything())).thenResolve({
-          statusCode: 200,
+          body: '{"hello": "world", "a": 42}',
           headers: {},
-          body: '{"hello": "world", "a": 42}'
+          statusCode: 200,
         });
 
         return stitchRequestClient.doRequest(builder.build());
@@ -182,15 +182,15 @@ describe("StitchRequestClientUnitTests", () => {
       .then(response => {
         expect(response.statusCode).toEqual(200);
         const expected = {
+          a: 42,
           hello: "world",
-          a: 42
         };
         expect(parse(response.body!, { relaxed: true })).toEqual(expected);
 
         // Error responses should be handled
         when(transportMock.roundTrip(anything())).thenResolve({
+          headers: {},
           statusCode: 500,
-          headers: {}
         });
         return stitchRequestClient.doRequest(builder.build());
       })
@@ -201,9 +201,9 @@ describe("StitchRequestClientUnitTests", () => {
       .then(() => {
         // Error responses should be handled
         when(transportMock.roundTrip(anything())).thenResolve({
-          statusCode: 500,
+          body: "whoops",
           headers: {},
-          body: "whoops"
+          statusCode: 500,
         });
         return stitchRequestClient.doRequest(builder.build());
       })
@@ -217,9 +217,9 @@ describe("StitchRequestClientUnitTests", () => {
         };
 
         when(transportMock.roundTrip(anything())).thenResolve({
+          body: "whoops",
+          headers,
           statusCode: 500,
-          headers: headers,
-          body: "whoops"
         });
         stitchRequestClient.doRequest(builder.build());
       })
@@ -233,9 +233,9 @@ describe("StitchRequestClientUnitTests", () => {
         };
 
         when(transportMock.roundTrip(anything())).thenResolve({
+          body: '{"error": "bad", "error_code": "InvalidSession"}',
+          headers,
           statusCode: 500,
-          headers: headers,
-          body: '{"error": "bad", "error_code": "InvalidSession"}'
         });
       })
       .catch((error: StitchServiceException) => {
@@ -261,8 +261,8 @@ describe("StitchRequestClientUnitTests", () => {
 
     // A bad response should throw an exception
     when(transportMock.roundTrip(anything())).thenResolve({
+      headers: {},
       statusCode: 500,
-      headers: {}
     });
 
     const path = "/path";
@@ -275,9 +275,9 @@ describe("StitchRequestClientUnitTests", () => {
     };
 
     when(transportMock.roundTrip(anything())).thenResolve({
+      body: '{"error": "bad", "error_code": "InvalidSession"}',
+      headers,
       statusCode: 502,
-      headers: headers,
-      body: '{"error": "bad", "error_code": "InvalidSession"}'
     });
 
     expect(stitchRequestClient.doRequest(builder.build())).rejects.toEqual(
@@ -288,9 +288,9 @@ describe("StitchRequestClientUnitTests", () => {
 
     // A bad response should throw an exception
     when(transportMock.roundTrip(anything())).thenResolve({
+      body: '{"error": "bad", "error_code": "InvalidSession"}',
+      headers,
       statusCode: 500,
-      headers: headers,
-      body: '{"error": "bad", "error_code": "InvalidSession"}'
     });
 
     expect(stitchRequestClient.doRequest(builder.build())).rejects.toEqual(

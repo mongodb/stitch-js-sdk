@@ -1,7 +1,7 @@
 import { MemoryStorage, StitchAppClientConfiguration } from "../lib";
-import Transport from "../lib/internal/net/Transport";
 import { BasicRequest } from "../lib/internal/net/BasicRequest";
 import Response from "../lib/internal/net/Response";
+import Transport from "../lib/internal/net/Transport";
 
 describe("StitchAppClientConfigurationUnitTests", () => {
   it("should build", () => {
@@ -11,7 +11,7 @@ describe("StitchAppClientConfigurationUnitTests", () => {
     const baseUrl = "qux";
     const storage = new MemoryStorage();
     const transport = new class implements Transport {
-      roundTrip(request: BasicRequest): Promise<Response> {
+      public roundTrip(request: BasicRequest): Promise<Response> {
         return Promise.resolve({ statusCode: 200, headers: {}, body: "good" });
       }
     }();
@@ -38,7 +38,7 @@ describe("StitchAppClientConfigurationUnitTests", () => {
     builder.build();
 
     builder.withLocalAppVersion(localAppVersion).withLocalAppName(localAppName);
-    var config = builder.build();
+    let config = builder.build();
 
     expect(config.clientAppId).toEqual(clientAppId);
     expect(config.localAppVersion).toEqual(localAppVersion);

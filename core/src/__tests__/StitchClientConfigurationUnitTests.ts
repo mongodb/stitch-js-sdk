@@ -1,7 +1,7 @@
 import { MemoryStorage } from "../lib";
-import Transport from "../lib/internal/net/Transport";
 import { BasicRequest } from "../lib/internal/net/BasicRequest";
 import Response from "../lib/internal/net/Response";
+import Transport from "../lib/internal/net/Transport";
 import { StitchClientConfiguration } from "../lib/StitchClientConfiguration";
 
 describe("StitchClientConfigurationUnitTests", () => {
@@ -9,13 +9,13 @@ describe("StitchClientConfigurationUnitTests", () => {
     const baseUrl = "http://domain.com";
     const storage = new MemoryStorage();
     const transport = new class implements Transport {
-      roundTrip(request: BasicRequest): Promise<Response> {
+      public roundTrip(request: BasicRequest): Promise<Response> {
         return Promise.resolve({ statusCode: 200, headers: {}, body: "good" });
       }
     }();
 
     // A minimum of baseUrl, storage, and transport must be set
-    var builder = new StitchClientConfiguration.Builder();
+    let builder = new StitchClientConfiguration.Builder();
     expect(builder.build).toThrow();
 
     builder.withBaseURL(baseUrl);
@@ -56,7 +56,7 @@ describe("StitchClientConfigurationUnitTests", () => {
     builder.withStorage(storage);
     builder.withTransport(transport);
 
-    var config = builder.build();
+    const config = builder.build();
 
     expect(config.baseURL).toEqual(baseUrl);
     expect(config.storage).toEqual(storage);

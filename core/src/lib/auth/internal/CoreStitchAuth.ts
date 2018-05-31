@@ -1,3 +1,5 @@
+import * as EJSON from "mongodb-extjson";
+import { CoreUserAPIKeyAuthProviderClient } from "../..";
 import { Storage } from "../../internal/common/Storage";
 import ContentTypes from "../../internal/net/ContentTypes";
 import Headers from "../../internal/net/Headers";
@@ -8,11 +10,14 @@ import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 import { StitchDocRequest } from "../../internal/net/StitchDocRequest";
 import { StitchRequest } from "../../internal/net/StitchRequest";
 import StitchRequestClient from "../../internal/net/StitchRequestClient";
-import StitchClientException from "../../StitchClientException";
 import { StitchClientErrorCode } from "../../StitchClientErrorCode";
+import StitchClientException from "../../StitchClientException";
+import StitchError from "../../StitchError";
 import StitchException from "../../StitchException";
-import StitchServiceException from "../../StitchServiceException";
+import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
+import StitchRequestException from "../../StitchRequestException";
 import { StitchServiceErrorCode } from "../../StitchServiceErrorCode";
+import StitchServiceException from "../../StitchServiceException";
 import StitchCredential from "../StitchCredential";
 import AccessTokenRefresher from "./AccessTokenRefresher";
 import AuthInfo from "./AuthInfo";
@@ -25,11 +30,6 @@ import StitchAuthRequestClient from "./StitchAuthRequestClient";
 import { StitchAuthRoutes } from "./StitchAuthRoutes";
 import StitchUserFactory from "./StitchUserFactory";
 import StitchUserProfileImpl from "./StitchUserProfileImpl";
-import * as EJSON from "mongodb-extjson";
-import StitchRequestException from "../../StitchRequestException";
-import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
-import StitchError from "../../StitchError";
-import { CoreUserAPIKeyAuthProviderClient } from "../..";
 
 const OPTIONS = "options";
 const DEVICE = "device";
@@ -138,11 +138,12 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    * Performs an authenticated request to the Stitch server with a JSON body, and decodes the extended JSON response into
    * an object. Uses the current authentication state, and will throw when the `CoreStitchAuth` is not currently authenticated.
    *
+   * TODO: Add Codec support.
    * - returns: An `any` representing the decoded response body.
    */
-  public doAuthenticatedJSONRequest(
+  public doAuthenticatedJSONRequest<T>(
     stitchReq: StitchAuthDocRequest
-  ): Promise<any> {
+  ): Promise<T> {
     return this.doAuthenticatedRequest(stitchReq)
       .then(response => EJSON.parse(response.body!, { strict: false }))
       .catch(err => {
@@ -179,8 +180,6 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       }
     });
   }
-
-  protected abstract onAuthEvent();
 
   /**
    * Authenticates the `CoreStitchAuth` using the provided `StitchCredential`. Blocks the current thread until the
@@ -261,6 +260,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
     return this.authInfo.deviceId;
   }
+
+  protected abstract onAuthEvent();
 
   /**
    * Prepares an authenticated Stitch request by attaching the `CoreStitchAuth`'s current access or refresh token

@@ -1,6 +1,6 @@
 import {
-  UserPasswordCredential,
-  UserPasswordAuthProvider
+  UserPasswordAuthProvider,
+  UserPasswordCredential
 } from "../../../../lib";
 
 describe("UserPasswordCredentialUnitTests", () => {
@@ -13,8 +13,8 @@ describe("UserPasswordCredentialUnitTests", () => {
     expect(UserPasswordAuthProvider.DEFAULT_NAME).toEqual(
       credential.providerName
     );
-    expect(username).toEqual(credential.material["username"]);
-    expect(password).toEqual(credential.material["password"]);
+    expect(username).toEqual(credential.material.username);
+    expect(password).toEqual(credential.material.password);
     expect(false).toEqual(
       credential.providerCapabilities.reusesExistingSession
     );
@@ -26,8 +26,8 @@ describe("UserPasswordCredentialUnitTests", () => {
     );
 
     expect("hello").toEqual(credentialWithProv.providerName);
-    expect(username).toEqual(credentialWithProv.material["username"]);
-    expect(password).toEqual(credentialWithProv.material["password"]);
+    expect(username).toEqual(credentialWithProv.material.username);
+    expect(password).toEqual(credentialWithProv.material.password);
     expect(false).toEqual(
       credentialWithProv.providerCapabilities.reusesExistingSession
     );

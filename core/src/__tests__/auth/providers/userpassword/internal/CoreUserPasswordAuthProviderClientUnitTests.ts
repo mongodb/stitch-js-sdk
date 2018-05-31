@@ -1,19 +1,19 @@
-import { StitchRequest } from "../../../../../lib/internal/net/StitchRequest";
 import {
-  StitchRequestClient,
-  StitchAppRoutes,
-  CoreUserPassAuthProviderClient
-} from "../../../../../lib";
-import {
-  mock,
-  verify,
   anything,
   capture,
   instance,
+  mock,
+  verify,
   when
 } from "ts-mockito/lib/ts-mockito";
+import {
+  CoreUserPassAuthProviderClient,
+  StitchAppRoutes,
+  StitchRequestClient
+} from "../../../../../lib";
 import Method from "../../../../../lib/internal/net/Method";
 import { StitchDocRequest } from "../../../../../lib/internal/net/StitchDocRequest";
+import { StitchRequest } from "../../../../../lib/internal/net/StitchRequest";
 
 describe("CoreUserPasswordAuthProviderClientUnitTests", () => {
   function testClientCall(
@@ -34,8 +34,8 @@ describe("CoreUserPasswordAuthProviderClientUnitTests", () => {
     );
 
     when(requestClientMock.doRequest(anything())).thenResolve({
+      headers: {},
       statusCode: 200,
-      headers: {}
     });
     return fun(client)
       .then(() => {
@@ -67,7 +67,7 @@ describe("CoreUserPasswordAuthProviderClientUnitTests", () => {
       .withPath(
         routes.getAuthProviderExtensionRoute("userPassProvider", "register")
       );
-    const expectedDoc = { email: username, password: password };
+    const expectedDoc = { email: username, password };
     expectedRequestBuilder.withDocument(expectedDoc);
 
     return testClientCall((client: CoreUserPassAuthProviderClient) => {
@@ -81,20 +81,20 @@ describe("CoreUserPasswordAuthProviderClientUnitTests", () => {
     const tokenId = "thing";
     const expectedRequestBuilder = new StitchDocRequest.Builder();
     expectedRequestBuilder
-        .withMethod(Method.POST)
-        .withPath(routes.getAuthProviderExtensionRoute("userPassProvider", "confirm"));
+      .withMethod(Method.POST)
+      .withPath(
+        routes.getAuthProviderExtensionRoute("userPassProvider", "confirm")
+      );
     const expectedDoc = {
-        token: token,
-        tokenId: tokenId
-    }
+      token,
+      tokenId
+    };
 
     expectedRequestBuilder.withDocument(expectedDoc);
 
-    testClientCall(
-        (client) => {
-          return client.confirmUserInternal(token, tokenId);
-        },
-        expectedRequestBuilder.build());
+    testClientCall(client => {
+      return client.confirmUserInternal(token, tokenId);
+    }, expectedRequestBuilder.build());
   });
 
   it("should resend confirmation", () => {
@@ -102,15 +102,15 @@ describe("CoreUserPasswordAuthProviderClientUnitTests", () => {
     const email = "username@10gen.com";
     const expectedRequestBuilder = new StitchDocRequest.Builder();
     expectedRequestBuilder
-        .withMethod(Method.POST)
-        .withPath(routes.getAuthProviderExtensionRoute("userPassProvider", "confirm/send"));
-    const expectedDoc = {email: email}
+      .withMethod(Method.POST)
+      .withPath(
+        routes.getAuthProviderExtensionRoute("userPassProvider", "confirm/send")
+      );
+    const expectedDoc = { email };
     expectedRequestBuilder.withDocument(expectedDoc);
 
-    testClientCall(
-        (client) => {
-          return client.resendConfirmationEmailInternal(email);
-        },
-        expectedRequestBuilder.build());
+    testClientCall(client => {
+      return client.resendConfirmationEmailInternal(email);
+    }, expectedRequestBuilder.build());
   });
 });

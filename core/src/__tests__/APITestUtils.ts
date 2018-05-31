@@ -1,20 +1,20 @@
-import APIAuthInfo from "../lib/auth/internal/models/APIAuthInfo";
-import { StitchRequestClient } from "../lib";
-import APICoreUserProfile from "../lib/auth/internal/models/APICoreUserProfile";
-import APIStitchUserIdentity from "../lib/auth/internal/models/APIStitchUserIdentity";
 import { sign } from "jsonwebtoken";
 import {
-  mock,
-  when,
   anyOfClass,
+  instance,
   match,
+  mock,
   objectContaining,
-  instance
+  when
 } from "ts-mockito";
 import { Matcher } from "ts-mockito/lib/matcher/type/Matcher";
+import { StitchRequestClient } from "../lib";
+import APIAuthInfo from "../lib/auth/internal/models/APIAuthInfo";
+import APICoreUserProfile from "../lib/auth/internal/models/APICoreUserProfile";
+import APIStitchUserIdentity from "../lib/auth/internal/models/APIStitchUserIdentity";
 import { BasicRequest } from "../lib/internal/net/BasicRequest";
-import { StitchRequest } from "../lib/internal/net/StitchRequest";
 import Method from "../lib/internal/net/Method";
+import { StitchRequest } from "../lib/internal/net/StitchRequest";
 
 expect.extend({
   toEqualRequest(received: StitchRequest, argument: StitchRequest) {
@@ -69,10 +69,10 @@ export const TEST_ACCESS_TOKEN: string = (() => {
 
   return sign(
     {
-      claims: claims,
+      claims,
+      exp: new Date().getMilliseconds() + 1000 * 1000,
       iat: new Date().getMilliseconds() - 1000 * 1000,
       sub: "uniqueUserID",
-      exp: new Date().getMilliseconds() + 1000 * 1000
     },
     "abcdefghijklmnopqrstuvwxyz1234567890"
   );
@@ -88,7 +88,7 @@ export const TEST_REFRESH_TOKEN: string = (() => {
 
   return sign(
     {
-      claims: claims,
+      claims,
       iat: new Date().getMilliseconds() - 1000 * 1000,
       sub: "uniqueUserID"
     },
@@ -155,7 +155,7 @@ export class RequestClassMatcher extends Matcher {
     super();
   }
 
-  match(value: any): boolean {
+  public match(value: any): boolean {
     if (value instanceof StitchRequest) {
       if (this.pathRegEx && !this.pathRegEx.test(value.path)) {
         return false;
@@ -171,7 +171,7 @@ export class RequestClassMatcher extends Matcher {
     return false;
   }
 
-  toString(): string {
+  public toString(): string {
     return `Did not match ${this.pathRegEx} or method ${this.method}`;
   }
 }
@@ -186,35 +186,35 @@ export function getMockedRequestClient(): StitchRequestClient {
 
   // Any /login works
   when(
-    requestClientMock.doRequest(<any>new RequestClassMatcher(
+    requestClientMock.doRequest(new RequestClassMatcher(
       new RegExp(".*/login")
-    ))
+    ) as any)
   ).thenResolve({
-    statusCode: 200,
+    body: JSON.stringify(TEST_LOGIN_RESPONSE),
     headers: {},
-    body: JSON.stringify(TEST_LOGIN_RESPONSE)
+    statusCode: 200,
   });
 
   // Profile works if the access token is the same as the above
   when(
-    requestClientMock.doRequest(<any>new RequestClassMatcher(
+    requestClientMock.doRequest(new RequestClassMatcher(
       new RegExp(".*/profile")
-    ))
+    ) as any)
   ).thenResolve({
-    statusCode: 200,
+    body: JSON.stringify(TEST_USER_PROFILE),
     headers: {},
-    body: JSON.stringify(TEST_USER_PROFILE)
+    statusCode: 200,
   });
 
   // Link works if the access token is the same as the above
   when(
-    requestClientMock.doRequest(<any>new RequestClassMatcher(
+    requestClientMock.doRequest(new RequestClassMatcher(
       new RegExp(".*/login?link=true")
-    ))
+    ) as any)
   ).thenResolve({
-    statusCode: 200,
+    body: JSON.stringify(TEST_USER_PROFILE),
     headers: {},
-    body: JSON.stringify(TEST_USER_PROFILE)
+    statusCode: 200,
   });
 
   return requestClientMock;

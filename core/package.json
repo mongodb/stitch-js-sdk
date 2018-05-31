@@ -36,7 +36,8 @@
     "watch": "tsc -w",
     "test": "jest",
     "lint": "tslint src/**/*.ts",
-    "prettier": "prettier --write \"{,!(node_modules)!(dist)/**/}*.ts\"",
+    "lint-fix": "tslint --fix src/**/*.ts",
+    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\"",
     "tslint-check": "tslint-config-prettier-check ./tslint.json"
   },
   "author": "mongodb",

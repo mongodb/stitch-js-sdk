@@ -1,21 +1,21 @@
-import { StitchAuthRequest } from "../../../../lib/internal/net/StitchAuthRequest";
+import { ObjectID } from "bson";
 import {
-  mock,
-  verify,
-  instance,
   anything,
   capture,
+  instance,
+  mock,
+  verify,
   when
 } from "ts-mockito/lib/ts-mockito";
 import {
-  StitchAppRoutes,
-  CoreUserAPIKeyAuthProviderClient,
   CoreStitchAuth,
+  CoreUserAPIKeyAuthProviderClient,
+  StitchAppRoutes,
   UserAPIKey
 } from "../../../../lib";
-import { StitchAuthDocRequest } from "../../../../lib/internal/net/StitchAuthDocRequest";
 import Method from "../../../../lib/internal/net/Method";
-import { ObjectID } from "bson";
+import { StitchAuthDocRequest } from "../../../../lib/internal/net/StitchAuthDocRequest";
+import { StitchAuthRequest } from "../../../../lib/internal/net/StitchAuthRequest";
 import { StitchRequest } from "../../../../lib/internal/net/StitchRequest";
 import { RequestClassMatcher } from "../../../APITestUtils";
 
@@ -39,70 +39,70 @@ function testClientCall(
   }();
 
   when(
-    requestClientMock.doAuthenticatedRequest(<any>new RequestClassMatcher(
+    requestClientMock.doAuthenticatedRequest(new RequestClassMatcher(
       undefined,
       Method.POST
-    ))
+    ) as any)
   ).thenResolve({
-    statusCode: 200,
-    headers: {},
     body: JSON.stringify(
       new UserAPIKey(new ObjectID().toHexString(), "2", "3", false)
-    )
+    ),
+    headers: {},
+    statusCode: 200,
   });
 
   when(
-    requestClientMock.doAuthenticatedRequest(<any>new RequestClassMatcher(
+    requestClientMock.doAuthenticatedRequest(new RequestClassMatcher(
       new RegExp(".*/api_keys$"),
       Method.GET
-    ))
+    ) as any)
   ).thenResolve({
-    statusCode: 200,
-    headers: {},
     body: JSON.stringify([
       new UserAPIKey(new ObjectID().toHexString(), "2", "3", false)
-    ])
+    ]),
+    headers: {},
+    statusCode: 200,
   });
 
   when(
-    requestClientMock.doAuthenticatedRequest(<any>new RequestClassMatcher(
+    requestClientMock.doAuthenticatedRequest(new RequestClassMatcher(
       new RegExp(`.*\/${keyToFetch}$`),
       Method.GET
-    ))
+    ) as any)
   ).thenResolve({
-    statusCode: 200,
-    headers: {},
     body: JSON.stringify(
       new UserAPIKey(new ObjectID().toHexString(), "2", "3", false)
-    )
+    ),
+    headers: {},
+    statusCode: 200,
   });
 
   when(
-    requestClientMock.doAuthenticatedRequest(<any>new RequestClassMatcher(
+    requestClientMock.doAuthenticatedRequest(new RequestClassMatcher(
       new RegExp(`.*\/enable$`)
-    ))
+    ) as any)
   ).thenResolve({
+    headers: {},
     statusCode: 200,
-    headers: {}
   });
 
   when(
-    requestClientMock.doAuthenticatedRequest(<any>new RequestClassMatcher(
+    requestClientMock.doAuthenticatedRequest(new RequestClassMatcher(
       new RegExp(`.*\/disable$`)
-    ))
+    ) as any)
   ).thenResolve({
+    headers: {},
     statusCode: 200,
-    headers: {}
   });
 
   when(
-    requestClientMock.doAuthenticatedRequest(<any>new RequestClassMatcher(
+    requestClientMock.doAuthenticatedRequest(new RequestClassMatcher(
       undefined,
       Method.DELETE
-    ))
+    ) as any)
   ).thenResolve({
+    headers: {},
     statusCode: 200,
-    headers: {}
   });
 
   return fun(client)
@@ -127,8 +127,8 @@ function testClientCall(
       return fun(client);
     })
     .catch((err: Error) => {
-      if (err.message != "whoops") {
-        console.log(err);
+      if (err.message !== "whoops") {
+        fail(err);
       }
       expect(err.message).toEqual("whoops");
     });
