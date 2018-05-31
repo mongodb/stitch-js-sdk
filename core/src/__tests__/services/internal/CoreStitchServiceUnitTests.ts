@@ -6,7 +6,7 @@ import {
 } from "../../../lib";
 import Method from "../../../lib/internal/net/Method";
 import { StitchAuthDocRequest } from "../../../lib/internal/net/StitchAuthDocRequest";
-import StitchServiceClient from "../../../lib/services/internal/CoreStitchServiceImpl";
+import StitchServiceClient from "../../../lib/services/internal/StitchServiceClient";
 
 describe("CoreStitchServiceUnitTests", () => {
   it("should call function internal", () => {
