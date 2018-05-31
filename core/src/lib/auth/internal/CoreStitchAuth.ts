@@ -9,7 +9,7 @@ import { StitchDocRequest } from "../../internal/net/StitchDocRequest";
 import { StitchRequest } from "../../internal/net/StitchRequest";
 import StitchRequestClient from "../../internal/net/StitchRequestClient";
 import StitchClientException from "../../StitchClientException";
-import { StitchClientErrorCode } from "../../StitchClientErrorCode"
+import { StitchClientErrorCode } from "../../StitchClientErrorCode";
 import StitchException from "../../StitchException";
 import StitchServiceException from "../../StitchServiceException";
 import { StitchServiceErrorCode } from "../../StitchServiceErrorCode";
@@ -27,8 +27,9 @@ import StitchUserFactory from "./StitchUserFactory";
 import StitchUserProfileImpl from "./StitchUserProfileImpl";
 import * as EJSON from "mongodb-extjson";
 import StitchRequestException from "../../StitchRequestException";
-import { StitchRequestErrorCode } from "../../StitchRequestErrorCode"; 
+import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
 import StitchError from "../../StitchError";
+import { CoreUserAPIKeyAuthProviderClient } from "../..";
 
 const OPTIONS = "options";
 const DEVICE = "device";
@@ -88,7 +89,9 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     try {
       info = readFromStorage(storage);
     } catch (e) {
-      throw new StitchClientException(StitchClientErrorCode.COULD_NOT_LOAD_PERSISTED_AUTH_INFO)
+      throw new StitchClientException(
+        StitchClientErrorCode.COULD_NOT_LOAD_PERSISTED_AUTH_INFO
+      );
     }
     if (info === undefined) {
       this.authInfo = AuthInfo.empty();
@@ -140,25 +143,11 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   public doAuthenticatedJSONRequest(
     stitchReq: StitchAuthDocRequest
   ): Promise<any> {
-    return this.doAuthenticatedJSONRequestRaw(stitchReq)
-      .then(response => EJSON.parse(response.body, {strict: false}))
-      .catch(err => { throw StitchError.wrapDecodingError(err) })
-  }
-
-  /**
-   * The underlying logic of performing the authenticated JSON request to the Stitch server.
-   *
-   * - returns: The response to the request as a `Response`.
-   */
-  public doAuthenticatedJSONRequestRaw(
-    stitchReq: StitchAuthDocRequest
-  ): Promise<Response> {
-    const newReqBuilder = stitchReq.builder;
-    newReqBuilder.withBody(JSON.stringify(stitchReq.document));
-    const newHeaders = newReqBuilder.headers || {}; // This is not a copy
-    newHeaders[Headers.CONTENT_TYPE] = ContentTypes.APPLICATION_JSON;
-    newReqBuilder.withHeaders(newHeaders);
-    return this.doAuthenticatedRequest(newReqBuilder.build());
+    return this.doAuthenticatedRequest(stitchReq)
+      .then(response => EJSON.parse(response.body!, { strict: false }))
+      .catch(err => {
+        throw StitchError.wrapDecodingError(err);
+      });
   }
 
   /**
@@ -171,18 +160,22 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       .withMethod(Method.POST);
 
     return this.doAuthenticatedRequest(reqBuilder.build()).then(response => {
-
       try {
-        const partialInfo = APIAuthInfo.readFromAPI(response.body);
+        const partialInfo = APIAuthInfo.fromJSON(JSON.parse(response.body!));
         this.authInfo = this.authInfo.merge(partialInfo);
       } catch (err) {
-        throw new StitchRequestException(err, StitchRequestErrorCode.DECODING_ERROR)
+        throw new StitchRequestException(
+          err,
+          StitchRequestErrorCode.DECODING_ERROR
+        );
       }
 
       try {
         writeToStorage(this.authInfo, this.storage);
       } catch (err) {
-        throw new StitchClientException(StitchClientErrorCode.COULD_NOT_PERSIST_AUTH_INFO);
+        throw new StitchClientException(
+          StitchClientErrorCode.COULD_NOT_PERSIST_AUTH_INFO
+        );
       }
     });
   }
@@ -193,7 +186,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    * Authenticates the `CoreStitchAuth` using the provided `StitchCredential`. Blocks the current thread until the
    * request is completed.
    */
-  protected loginWithCredential(
+  public loginWithCredential(
     credential: StitchCredential
   ): Promise<TStitchUser> {
     if (!this.isLoggedIn) {
@@ -214,7 +207,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    * Links the currently logged in user with a new identity represented by the provided `StitchCredential`. Blocks the
    * current thread until the request is completed.
    */
-  protected linkUserWithCredential(
+  public linkUserWithCredential(
     user: CoreStitchUser,
     credential: StitchCredential
   ): Promise<TStitchUser> {
@@ -233,7 +226,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    * still attempt to clear local authentication state. This method will only throw if clearing authentication state
    * fails.
    */
-  protected logout() {
+  public logout() {
     if (!this.isLoggedIn) {
       return;
     }
@@ -249,7 +242,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   /**
    * Returns whether or not the current authentication state has a meaningful device id.
    */
-  protected get hasDeviceId(): boolean {
+  public get hasDeviceId(): boolean {
     return (
       this.authInfo.deviceId !== undefined &&
       this.authInfo.deviceId !== "" &&
@@ -275,7 +268,9 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    */
   private prepareAuthRequest(stitchReq: StitchAuthRequest): StitchRequest {
     if (!this.isLoggedIn) {
-      throw new StitchClientException(StitchClientErrorCode.MUST_AUTHENTICATE_FIRST);
+      throw new StitchClientException(
+        StitchClientErrorCode.MUST_AUTHENTICATE_FIRST
+      );
     }
 
     const newReq = stitchReq.builder;
@@ -305,50 +300,50 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   ): Promise<Response> {
     if (
       !(ex instanceof StitchServiceException) ||
-      ex.errorCode !== StitchServiceErrorCode.INVALID_SESSION
+      ex.errorCode !== StitchServiceErrorCode.InvalidSession
     ) {
       throw ex;
     }
 
     // using a refresh token implies we cannot refresh anything, so clear auth and
     // notify
-    if (req.useRefreshToken) {
+    if (req.useRefreshToken || !req.shouldRefreshOnFailure) {
       this.clearAuth();
       throw ex;
     }
 
-    this.tryRefreshAccessToken(req.startedAt);
-
-    return this.doAuthenticatedRequest(req);
+    return this.tryRefreshAccessToken(req.startedAt).then(() => {
+      return this.doAuthenticatedRequest(
+        req.builder.withShouldRefreshOnFailure(false).build()
+      );
+    });
   }
 
   /**
    * Checks if the current access token is expired or going to expire soon, and refreshes the access token if
    * necessary.
    */
-  private tryRefreshAccessToken(reqStartedAt: number) {
+  private tryRefreshAccessToken(reqStartedAt: number): Promise<void> {
     // use this critical section to create a queue of pending outbound requests
     // that should wait on the result of doing a token refresh or logout. This will
     // prevent too many refreshes happening one after the other.
     if (!this.isLoggedIn) {
-      throw new StitchClientException(StitchClientErrorCode.LOGGED_OUT_DURING_REQUEST);
+      throw new StitchClientException(
+        StitchClientErrorCode.LOGGED_OUT_DURING_REQUEST
+      );
     }
 
     try {
       const jwt = JWT.fromEncoded(this.authInfo.accessToken!);
       if (jwt.issuedAt >= reqStartedAt) {
-        return;
+        return Promise.resolve();
       }
     } catch (e) {
       // Swallow
     }
 
     // retry
-    try {
-      this.refreshAccessToken();
-    } catch (e) {
-      throw new StitchClientException(e);
-    }
+    return this.refreshAccessToken();
   }
 
   private prepUser() {
@@ -415,13 +410,14 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     reqBuilder.withDocument(material);
 
     if (!asLinkRequest) {
-      return this.requestClient.doJSONRequestRaw(reqBuilder.build());
+      return this.requestClient.doRequest(reqBuilder.build());
     }
     const linkRequest = new StitchAuthDocRequest(
       reqBuilder.build(),
       reqBuilder.document
     );
-    return this.doAuthenticatedJSONRequestRaw(linkRequest);
+
+    return this.doAuthenticatedRequest(linkRequest);
   }
 
   /**
@@ -432,11 +428,14 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     credential: StitchCredential,
     response: Response
   ): Promise<TStitchUser> {
-    let newAuthInfo: APIAuthInfo;
+    let newAuthInfo: AuthInfo;
     try {
-      newAuthInfo = APIAuthInfo.readFromAPI(response.body);
+      newAuthInfo = APIAuthInfo.fromJSON(JSON.parse(response.body!));
     } catch (err) {
-      throw new StitchRequestException(err, StitchRequestErrorCode.DECODING_ERROR);
+      throw new StitchRequestException(
+        err,
+        StitchRequestErrorCode.DECODING_ERROR
+      );
     }
 
     newAuthInfo = this.authInfo.merge(
@@ -479,7 +478,9 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         try {
           writeToStorage(newAuthInfo, this.storage);
         } catch (err) {
-          throw new StitchClientException(StitchClientErrorCode.COULD_NOT_PERSIST_AUTH_INFO);
+          throw new StitchClientException(
+            StitchClientErrorCode.COULD_NOT_PERSIST_AUTH_INFO
+          );
         }
 
         this.authInfo = newAuthInfo;
@@ -507,9 +508,12 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     reqBuilder.withMethod(Method.GET).withPath(this.authRoutes.profileRoute);
 
     return this.doAuthenticatedRequest(reqBuilder.build())
-      .then(response => APICoreUserProfile.decodeFrom(response.body))
+      .then(response => APICoreUserProfile.fromJSON(JSON.parse(response.body!)))
       .catch(err => {
-        throw new StitchRequestException(err, StitchRequestErrorCode.DECODING_ERROR);
+        throw new StitchRequestException(
+          err,
+          StitchRequestErrorCode.DECODING_ERROR
+        );
       });
   }
 
@@ -522,7 +526,9 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       .withRefreshToken()
       .withPath(this.authRoutes.sessionRoute)
       .withMethod(Method.DELETE);
-    return this.doAuthenticatedRequest(reqBuilder.build()).then(() => { return; });
+    return this.doAuthenticatedRequest(reqBuilder.build()).then(() => {
+      return;
+    });
   }
 
   /**
@@ -537,7 +543,9 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     try {
       writeToStorage(this.authInfo, this.storage);
     } catch (e) {
-      throw new StitchClientException(StitchClientErrorCode.COULD_NOT_PERSIST_AUTH_INFO);
+      throw new StitchClientException(
+        StitchClientErrorCode.COULD_NOT_PERSIST_AUTH_INFO
+      );
     }
     this.currentUser = undefined;
     this.onAuthEvent();

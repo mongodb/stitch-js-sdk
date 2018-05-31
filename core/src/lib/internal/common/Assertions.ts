@@ -4,7 +4,7 @@ export default class Assertions {
    */
   public static keyPresent(key: string, object: any) {
     if (object[key] === undefined) {
-      throw new Error(`expected ${key} to be present`)
+      throw new Error(`expected ${key} to be present`);
     }
   }
 }

@@ -1,5 +1,5 @@
-import { BasicRequest } from "../BasicRequest";
-import Method from "../Method";
+import { BasicRequest } from "../../../lib/internal/net/BasicRequest";
+import Method from "../../../lib/internal/net/Method";
 
 describe("BasicRequest", () => {
   it("should throw if missing Method", () => {

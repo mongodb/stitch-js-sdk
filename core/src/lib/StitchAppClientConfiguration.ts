@@ -31,9 +31,7 @@ export class StitchAppClientConfiguration extends StitchClientConfiguration {
 export namespace StitchAppClientConfiguration {
   export class Builder extends StitchClientConfiguration.Builder {
     public static forApp(clientAppId: string, baseURL?: string) {
-      const builder = new Builder().withClientAppId(
-        clientAppId
-      );
+      const builder = new Builder().withClientAppId(clientAppId);
       if (baseURL) {
         builder.withBaseURL(baseURL);
       }
@@ -81,5 +79,5 @@ export namespace StitchAppClientConfiguration {
         this.localAppVersion
       );
     }
-  };
+  }
 }

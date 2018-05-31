@@ -73,5 +73,5 @@ export namespace BasicRequest {
         this.body
       );
     }
-  };
+  }
 }

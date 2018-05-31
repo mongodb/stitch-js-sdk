@@ -18,17 +18,22 @@ enum ActionFields {
   TOKEN_ID = "tokenId"
 }
 
-export default abstract class CoreUserPasswordAuthProviderClient extends CoreAuthProviderClient<StitchRequestClient> {
-  protected constructor(
+export default class CoreUserPasswordAuthProviderClient extends CoreAuthProviderClient<
+  StitchRequestClient
+> {
+  public constructor(
     providerName: string = UserPasswordAuthProvider.DEFAULT_NAME,
     requestClient: StitchRequestClient,
     authRoutes: StitchAuthRoutes
   ) {
-    let baseRoute = authRoutes.getAuthProviderRoute(providerName)
-    super(providerName, requestClient, baseRoute)
+    let baseRoute = authRoutes.getAuthProviderRoute(providerName);
+    super(providerName, requestClient, baseRoute);
   }
 
-  protected registerWithEmailInternal(email: string, password: string): Promise<void> {
+  public registerWithEmailInternal(
+    email: string,
+    password: string
+  ): Promise<void> {
     const reqBuilder = new StitchDocRequest.Builder();
     reqBuilder
       .withMethod(Method.POST)
@@ -37,9 +42,7 @@ export default abstract class CoreUserPasswordAuthProviderClient extends CoreAut
       [RegistrationFields.EMAIL]: email,
       [RegistrationFields.PASSWORD]: password
     });
-    return this.requestClient
-      .doJSONRequestRaw(reqBuilder.build())
-      .then(() => {});
+    return this.requestClient.doRequest(reqBuilder.build()).then(() => {});
   }
 
   protected confirmUserInternal(token: string, tokenId: string): Promise<void> {
@@ -49,9 +52,7 @@ export default abstract class CoreUserPasswordAuthProviderClient extends CoreAut
       [ActionFields.TOKEN]: token,
       [ActionFields.TOKEN_ID]: tokenId
     });
-    return this.requestClient
-      .doJSONRequestRaw(reqBuilder.build())
-      .then(() => {});
+    return this.requestClient.doRequest(reqBuilder.build()).then(() => {});
   }
 
   protected resendConfirmationEmailInternal(email: string): Promise<void> {
@@ -60,9 +61,7 @@ export default abstract class CoreUserPasswordAuthProviderClient extends CoreAut
       .withMethod(Method.POST)
       .withPath(this.getResendConfirmationEmailRoute());
     reqBuilder.withDocument({ [ActionFields.EMAIL]: email });
-    return this.requestClient
-      .doJSONRequestRaw(reqBuilder.build())
-      .then(() => {});
+    return this.requestClient.doRequest(reqBuilder.build()).then(() => {});
   }
 
   protected resetPasswordInternal(
@@ -77,9 +76,7 @@ export default abstract class CoreUserPasswordAuthProviderClient extends CoreAut
       [ActionFields.TOKEN_ID]: tokenId,
       [ActionFields.PASSWORD]: password
     });
-    return this.requestClient
-      .doJSONRequestRaw(reqBuilder.build())
-      .then(() => {});
+    return this.requestClient.doRequest(reqBuilder.build()).then(() => {});
   }
 
   protected sendResetPasswordEmailInternal(email: string): Promise<void> {
@@ -88,29 +85,27 @@ export default abstract class CoreUserPasswordAuthProviderClient extends CoreAut
       .withMethod(Method.POST)
       .withPath(this.getSendResetPasswordEmailRoute());
     reqBuilder.withDocument({ [ActionFields.EMAIL]: email });
-    return this.requestClient
-      .doJSONRequestRaw(reqBuilder.build())
-      .then(() => {});
+    return this.requestClient.doRequest(reqBuilder.build()).then(() => {});
   }
 
   private getRegisterWithEmailRoute(): string {
-    return this.getExtensionRoute("/register");
+    return this.getExtensionRoute("register");
   }
 
   private getConfirmUserRoute(): string {
-    return this.getExtensionRoute("/confirm");
+    return this.getExtensionRoute("confirm");
   }
 
   private getResendConfirmationEmailRoute(): string {
-    return this.getExtensionRoute("/confirm/send");
+    return this.getExtensionRoute("confirm/send");
   }
 
   private getResetPasswordRoute(): string {
-    return this.getExtensionRoute("/reset");
+    return this.getExtensionRoute("reset");
   }
 
   private getSendResetPasswordEmailRoute(): string {
-    return this.getExtensionRoute("/reset/send");
+    return this.getExtensionRoute("reset/send");
   }
 
   private getExtensionRoute(path: string): string {

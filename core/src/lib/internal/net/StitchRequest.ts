@@ -82,5 +82,5 @@ export namespace StitchRequest {
         this.body
       );
     }
-  };
+  }
 }

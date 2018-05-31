@@ -1,4 +1,4 @@
-import { StitchClientErrorCode } from "./StitchClientErrorCode"
+import { StitchClientErrorCode } from "./StitchClientErrorCode";
 import StitchException from "./StitchException";
 
 /**
@@ -6,16 +6,16 @@ import StitchException from "./StitchException";
  * client performed a request. An error code indicating the reason for the error is included.
  */
 export default class StitchClientException extends StitchException {
-    /**
-     * The StitchClientErrorCode associated with the request.
-     */
-    public readonly errorCode: StitchClientErrorCode;
+  /**
+   * The StitchClientErrorCode associated with the request.
+   */
+  public readonly errorCode: StitchClientErrorCode;
 
-    /**
-     * Constructs a client exception with the given error code.
-     */
-    public constructor(errorCode: StitchClientErrorCode) {
-        super()
-        this.errorCode = errorCode;
-    }
+  /**
+   * Constructs a client exception with the given error code.
+   */
+  public constructor(errorCode: StitchClientErrorCode) {
+    super();
+    this.errorCode = errorCode;
+  }
 }

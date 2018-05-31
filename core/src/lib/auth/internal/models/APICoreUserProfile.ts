@@ -7,28 +7,36 @@ enum Fields {
   USER_TYPE = "type",
   IDENTITIES = "identities"
 }
+
 /**
  * A class containing the fields returned by the Stitch client API in the
  * `data` field of a user profile request.
  */
 export default class APICoreUserProfile extends StitchUserProfileImpl {
-  public static decodeFrom(bodyText: string): APICoreUserProfile {
-    const body = JSON.parse(bodyText)
-    Assertions.keyPresent(Fields.USER_TYPE, body)
-    Assertions.keyPresent(Fields.DATA, body)
-    Assertions.keyPresent(Fields.IDENTITIES, body)
+  public static fromJSON(json: object) {
+    Assertions.keyPresent(Fields.USER_TYPE, json);
+    Assertions.keyPresent(Fields.DATA, json);
+    Assertions.keyPresent(Fields.IDENTITIES, json);
     return new APICoreUserProfile(
-      body[Fields.USER_TYPE],
-      body[Fields.DATA],
-      body[Fields.IDENTITIES].map(APIStitchUserIdentity.decodeFrom)
+      json[Fields.USER_TYPE],
+      json[Fields.DATA],
+      json[Fields.IDENTITIES].map(APIStitchUserIdentity.fromJSON)
     );
   }
 
-  private constructor(
+  public constructor(
     userType: string,
     data: { [key: string]: any },
     identities: APIStitchUserIdentity[]
   ) {
     super(userType, data, identities);
+  }
+
+  public toJSON(): object {
+    return {
+      [Fields.DATA]: this.data,
+      [Fields.USER_TYPE]: this.userType,
+      [Fields.IDENTITIES]: this.identities
+    };
   }
 }
