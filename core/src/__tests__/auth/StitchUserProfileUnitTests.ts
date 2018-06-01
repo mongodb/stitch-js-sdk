@@ -1,5 +1,5 @@
-import StitchUserProfileImpl from "../internal/StitchUserProfileImpl";
-import StitchUserIdentity from "../StitchUserIdentity";
+import { StitchUserProfileImpl } from "../../lib";
+import StitchUserIdentity from "../../lib/auth/StitchUserIdentity";
 
 describe("StitchUserProfile", () => {
   const FIRST_NAME = "FIRST_NAME";

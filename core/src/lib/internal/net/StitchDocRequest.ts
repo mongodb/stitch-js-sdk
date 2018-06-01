@@ -1,4 +1,7 @@
 import { StitchRequest } from "./StitchRequest";
+import Headers from "./Headers";
+import ContentTypes from "./ContentTypes";
+import { stringify } from "mongodb-extjson";
 
 export class StitchDocRequest extends StitchRequest {
   public readonly document: object;
@@ -38,7 +41,15 @@ export namespace StitchDocRequest {
     }
 
     public build(): StitchDocRequest {
+      if (this.document === undefined || !(this.document instanceof Object)) {
+        throw new Error("document must be set");
+      }
+      if (this.headers === undefined) {
+        this.withHeaders({});
+      }
+      this.headers![Headers.CONTENT_TYPE] = ContentTypes.APPLICATION_JSON;
+      this.withBody(stringify(this.document));
       return new StitchDocRequest(super.build(), this.document);
     }
-  };
+  }
 }

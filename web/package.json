@@ -4,23 +4,30 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "web",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
-  },
   "author": "",
   "license": "Apache2",
   "dependencies": {
-    "@types/bson": "^1.0.8",
-    "@types/detect-browser": "^2.0.1",
     "@types/stitch-core": "file:../core",
     "bson": "^2.0.6",
     "detect-browser": "^2.4.0",
     "stitch-core": "file:../core"
   },
   "devDependencies": {
-    "ts-mockito": "^2.3.0",
+    "@types/bson": "^1.0.8",
+    "@types/detect-browser": "^2.0.1",
     "ts-loader": "^4.0.0",
-    "typescript": "^2.8.1"
+    "typescript": "^2.8.1",
+    "tslint": "^5.9.1",
+    "tslint-config-prettier": "^1.10.0",
+    "prettier": "1.12.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "lint": "tslint src/**/*.ts",
+    "lint-fix": "tslint --fix src/**/*.ts",
+    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\"",
+    "tslint-check": "tslint-config-prettier-check ./tslint.json"
   }
 }

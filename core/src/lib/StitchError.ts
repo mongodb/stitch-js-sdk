@@ -13,12 +13,11 @@ enum Fields {
 }
 
 export default class StitchError {
-
   /**
-   * Static utility method that accepts an error object, and returns it 
+   * Static utility method that accepts an error object, and returns it
    * as is if it's a StitchException, or wraps it in a StitchRequestException
    * decoding error if it's not.
-   * 
+   *
    * @param err The error to check and potentially wrap.
    */
   public static wrapDecodingError(err: any): StitchException {
@@ -26,7 +25,10 @@ export default class StitchError {
       return err;
     }
 
-    return new StitchRequestException(err, StitchRequestErrorCode.DECODING_ERROR)
+    return new StitchRequestException(
+      err,
+      StitchRequestErrorCode.DECODING_ERROR
+    );
   }
 
   /**
@@ -40,25 +42,25 @@ export default class StitchError {
     if (response.body === undefined) {
       throw new StitchServiceException(
         `received unexpected status code ${response.statusCode}`,
-        StitchServiceErrorCode.UNKNOWN
-      )
+        StitchServiceErrorCode.Unknown
+      );
     }
-    
-    let body: string
+
+    let body: string;
 
     try {
-      body = response.body as string
+      body = response.body as string;
     } catch (e) {
       throw new StitchServiceException(
         `received unexpected status code ${response.statusCode}`,
-        StitchServiceErrorCode.UNKNOWN
-      )
+        StitchServiceErrorCode.Unknown
+      );
     }
 
     const errorMsg: string = StitchError.handleRichError(response, body);
 
     // if the above function call didn't throw, throw an unknown error here
-    throw new StitchServiceException(errorMsg, StitchServiceErrorCode.UNKNOWN);
+    throw new StitchServiceException(errorMsg, StitchServiceErrorCode.Unknown);
   }
 
   /**
@@ -70,8 +72,10 @@ export default class StitchError {
    */
   private static handleRichError(response: Response, body: string): string {
     if (
-      response.headers[Headers.CONTENT_TYPE] !== undefined ||
-      response.headers[Headers.CONTENT_TYPE] !== ContentTypes.APPLICATION_JSON
+      response.headers[Headers.CONTENT_TYPE] === undefined ||
+      (response.headers[Headers.CONTENT_TYPE] !== undefined &&
+        response.headers[Headers.CONTENT_TYPE] !==
+          ContentTypes.APPLICATION_JSON)
     ) {
       return body;
     }
@@ -92,6 +96,10 @@ export default class StitchError {
     }
 
     const errorCode = doc[Fields.ERROR_CODE] as string;
-    throw new StitchServiceException(errorMsg, StitchServiceErrorCode[errorCode]);
+
+    throw new StitchServiceException(
+      errorMsg,
+      StitchServiceErrorCode[errorCode]
+    );
   }
 }

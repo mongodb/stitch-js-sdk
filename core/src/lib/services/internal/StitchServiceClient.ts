@@ -1,14 +1,17 @@
-import StitchAuthRequestClient from "../../auth/internal/StitchAuthRequestClient";
+import {
+  CoreStitchServiceClient,
+  StitchAuthRequestClient,
+  StitchServiceRoutes
+} from "../..";
 import Method from "../../internal/net/Method";
 import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
-import StitchServiceRoutes from "./StitchServiceRoutes";
 
-export default abstract class CoreStitchService {
+export default class StitchServiceClient implements CoreStitchServiceClient {
   private readonly requestClient: StitchAuthRequestClient;
   private readonly serviceRoutes: StitchServiceRoutes;
   private readonly serviceName: string;
 
-  protected constructor(
+  public constructor(
     requestClient: StitchAuthRequestClient,
     routes: StitchServiceRoutes,
     name: string
@@ -18,7 +21,7 @@ export default abstract class CoreStitchService {
     this.serviceName = name;
   }
 
-  protected callFunctionInternal(name: string, ...args: any[]): any {
+  public callFunctionInternal<T>(name: string, args: any[]): Promise<T> {
     return this.requestClient.doAuthenticatedJSONRequest(
       this.getCallServiceFunctionRequest(name, args)
     );
@@ -26,18 +29,19 @@ export default abstract class CoreStitchService {
 
   private getCallServiceFunctionRequest(
     name: string,
-    ...args: any[]
+    args: any[]
   ): StitchAuthDocRequest {
-    const body = {
-      name: name,
-      service: this.serviceName,
-      arguments: args
+    const body = { name };
+    if (this.serviceName !== undefined) {
+      body["service"] = this.serviceName;
     }
+    body["arguments"] = args;
 
-    return new StitchAuthDocRequest.Builder()
+    const reqBuilder = new StitchAuthDocRequest.Builder();
+    reqBuilder
       .withMethod(Method.POST)
-      .withPath(this.serviceRoutes.functionCallRoute)
-      .withDocument(body)
-      .build();
+      .withPath(this.serviceRoutes.functionCallRoute);
+    reqBuilder.withDocument(body);
+    return reqBuilder.build();
   }
 }

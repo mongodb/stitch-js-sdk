@@ -11,22 +11,30 @@ enum Fields {
  * A class containing the fields returned by the Stitch client API in an authentication request.
  */
 export default class APIAuthInfo extends AuthInfo {
-  public static readFromAPI(bodyText: string): AuthInfo {
-    const body = JSON.parse(bodyText)
+  public static fromJSON(json: object): APIAuthInfo {
     return new APIAuthInfo(
-      body[Fields.USER_ID],
-      body[Fields.DEVICE_ID],
-      body[Fields.ACCESS_TOKEN],
-      body[Fields.REFRESH_TOKEN]
+      json[Fields.USER_ID],
+      json[Fields.DEVICE_ID],
+      json[Fields.ACCESS_TOKEN],
+      json[Fields.REFRESH_TOKEN]
     );
   }
 
-  protected constructor(
+  public constructor(
     userId: string,
     deviceId: string,
     accessToken: string,
-    refreshToken: string
+    refreshToken?: string
   ) {
     super(userId, deviceId, accessToken, refreshToken);
+  }
+
+  public toJSON(): object {
+    return {
+      [Fields.USER_ID]: this.userId,
+      [Fields.DEVICE_ID]: this.deviceId,
+      [Fields.ACCESS_TOKEN]: this.accessToken,
+      [Fields.REFRESH_TOKEN]: this.refreshToken
+    };
   }
 }

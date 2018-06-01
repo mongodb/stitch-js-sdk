@@ -1,7 +1,10 @@
 /** HTTP Header definitions and helper methods. */
 export default class Headers {
-  public static readonly CONTENT_TYPE = "Content-Type";
-  public static readonly AUTHORIZATION = "Authorization";
+  public static readonly CONTENT_TYPE_CANON = "Content-Type";
+  public static readonly CONTENT_TYPE = Headers.CONTENT_TYPE_CANON.toLocaleLowerCase();
+
+  public static readonly AUTHORIZATION_CANON = "Authorization";
+  public static readonly AUTHORIZATION = Headers.AUTHORIZATION_CANON.toLocaleLowerCase();
 
   /**
    * @param value The bearer value
