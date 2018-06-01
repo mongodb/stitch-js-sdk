@@ -6,14 +6,21 @@ enum Fields {
 }
 
 export default class APIStitchUserIdentity extends StitchUserIdentity {
-  public static decodeFrom(body: object): APIStitchUserIdentity {
+  public static fromJSON(json: object): APIStitchUserIdentity {
     return new APIStitchUserIdentity(
-      body[Fields.ID],
-      body[Fields.PROVIDER_TYPE]
+      json[Fields.ID],
+      json[Fields.PROVIDER_TYPE]
     );
   }
 
-  private constructor(id: string, providerType: string) {
+  protected constructor(id: string, providerType: string) {
     super(id, providerType);
+  }
+
+  public toJSON(): object {
+    return {
+      [Fields.ID]: this.id,
+      [Fields.PROVIDER_TYPE]: this.providerType
+    };
   }
 }

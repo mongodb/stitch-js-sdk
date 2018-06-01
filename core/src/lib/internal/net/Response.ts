@@ -1,7 +1,14 @@
-interface Response {
-  readonly statusCode: number;
-  readonly headers: { [key: string]: string };
-  readonly body: string;
-}
+export default class Response {
+  public readonly headers: { [key: string]: string } = {};
 
-export default Response;
+  constructor(
+    headers: { [key: string]: string },
+    public readonly statusCode: number,
+    public readonly body?: string
+  ) {
+    // preprocess headers
+    Object.keys(headers).map(
+      (key, index) => (this.headers[key.toLocaleLowerCase()] = headers[key])
+    );
+  }
+}

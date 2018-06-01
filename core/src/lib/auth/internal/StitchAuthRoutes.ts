@@ -32,4 +32,6 @@ export interface StitchAuthRoutes {
    * particular authentication provider.
    */
   getAuthProviderLinkRoute(providerName: string): string;
+
+  getAuthProviderExtensionRoute(providerName: string, path: string);
 }

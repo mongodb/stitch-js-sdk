@@ -14,22 +14,22 @@ import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
  * response, or an empty string if the body is empty or not decodable as plain text.
  */
 export default class StitchServiceException extends StitchException {
-    /**
-     * The StitchServiceErrorCode indicating the reason for this exception.
-     */
-    public readonly errorCode: StitchServiceErrorCode;
+  /**
+   * The StitchServiceErrorCode indicating the reason for this exception.
+   */
+  public readonly errorCode: StitchServiceErrorCode;
 
-    /**
-     * A string describing the reason for the error.
-     */
-    public readonly message: string
+  /**
+   * A string describing the reason for the error.
+   */
+  public readonly message: string;
 
-    public constructor(
-      message: string,
-      errorCode: StitchServiceErrorCode = StitchServiceErrorCode.UNKNOWN
-    ) {
-      super();
-      this.message = message;
-      this.errorCode = errorCode;
-    }
+  public constructor(
+    message: string,
+    errorCode: StitchServiceErrorCode = StitchServiceErrorCode.Unknown
+  ) {
+    super();
+    this.message = message;
+    this.errorCode = errorCode;
+  }
 }

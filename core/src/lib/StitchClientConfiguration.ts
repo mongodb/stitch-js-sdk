@@ -81,5 +81,5 @@ export namespace StitchClientConfiguration {
         this.transport
       );
     }
-  };
+  }
 }

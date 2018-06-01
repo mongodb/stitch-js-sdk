@@ -27,7 +27,7 @@ export default class CoreStitchAppClient {
   ): StitchAuthDocRequest {
     const body = {
       name,
-      arguments: args,
+      arguments: args
     };
 
     const reqBuilder = new StitchAuthDocRequest.Builder();

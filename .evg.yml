@@ -85,16 +85,20 @@ tasks:
   - name: run_tests
     commands:
       - func: "fetch_source"
-      - func: "setup_mongod"
-      - func: "setup_stitch"
+      # - func: "setup_mongod"
+      # - func: "setup_stitch"
       - command: shell.exec
         params: 
           script: | # NOTE: Using yarn for install instead of npm due to evergreen permission issue with chromedriver devDependency
             set -e
             echo "running client tests"
-            source ./creds
+            #source ./creds
             cd stitch-js-sdk
-            yarn install
+            cd core
+            npm install
+            npm run build
+            ls -l
+            ls dist
             npm run test
 
   - name: check_import
@@ -246,7 +250,7 @@ buildvariants:
     transpiler_target: node8-linux
   tasks:
     - name: run_tests
-    - name: dist
-    - name: check_import
-    - name: docs_dist
-    - name: eslint
+    # - name: dist
+    # - name: check_import
+    # - name: docs_dist
+    # - name: eslint
