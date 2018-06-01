@@ -471,6 +471,30 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                   };
                 }
               };
+            },
+
+            eventSubscriptions: function eventSubscriptions() {
+              return {
+                list: function list() {
+                  return api._get(appUrl + '/event_subscriptions');
+                },
+                create: function create(data) {
+                  return api._post(appUrl + '/event_subscriptions', data);
+                },
+                eventSubscription: function eventSubscription(eventSubscriptionId) {
+                  return {
+                    get: function get() {
+                      return api._get(appUrl + '/event_subscriptions/' + eventSubscriptionId);
+                    },
+                    update: function update(data) {
+                      return api._put(appUrl + '/event_subscriptions/' + eventSubscriptionId, data);
+                    },
+                    remove: function remove() {
+                      return api._delete(appUrl + '/event_subscriptions/' + eventSubscriptionId);
+                    }
+                  };
+                }
+              };
             }
           };
         }
