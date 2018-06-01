@@ -26,7 +26,7 @@ export default class StitchServiceClient implements CoreStitchServiceClient {
       this.getCallServiceFunctionRequest(name, args)
     );
   }
-  
+
   private getCallServiceFunctionRequest(
     name: string,
     args: any[]

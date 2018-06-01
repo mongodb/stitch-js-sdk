@@ -1,16 +1,16 @@
-import UserAPIKeyCredential from "./UserAPIKeyCredential";
-import CoreAuthProviderClient from "../internal/CoreAuthProviderClient";
-import { StitchAuthRequestClient, StitchAuthRoutes } from "../../..";
-import { StitchAuthDocRequest } from "../../../internal/net/StitchAuthDocRequest";
-import Method from "../../../internal/net/Method";
-import UserAPIKey from "./models/UserAPIKey";
-import { StitchAuthRequest } from "../../../internal/net/StitchAuthRequest";
-import StitchRequestException from "../../../StitchRequestException";
-import { StitchRequestErrorCode } from "../../../StitchRequestErrorCode";
-import StitchException from "../../../StitchException";
-import StitchError from "../../../StitchError";
-import UserAPIKeyAuthProvider from "./UserAPIKeyAuthProvider";
 import { ObjectID } from "bson";
+import { StitchAuthRequestClient, StitchAuthRoutes } from "../../..";
+import Method from "../../../internal/net/Method";
+import { StitchAuthDocRequest } from "../../../internal/net/StitchAuthDocRequest";
+import { StitchAuthRequest } from "../../../internal/net/StitchAuthRequest";
+import StitchError from "../../../StitchError";
+import StitchException from "../../../StitchException";
+import { StitchRequestErrorCode } from "../../../StitchRequestErrorCode";
+import StitchRequestException from "../../../StitchRequestException";
+import CoreAuthProviderClient from "../internal/CoreAuthProviderClient";
+import UserAPIKey from "./models/UserAPIKey";
+import UserAPIKeyAuthProvider from "./UserAPIKeyAuthProvider";
+import UserAPIKeyCredential from "./UserAPIKeyCredential";
 
 enum ApiKeyFields {
   NAME = "name"
@@ -19,14 +19,14 @@ enum ApiKeyFields {
 /**
  * A client for the user API key authentication provider which can be used to obtain a credential for logging in.
  */
-export default abstract class CoreUserAPIKeyAuthProviderClient extends CoreAuthProviderClient<
+export default class CoreUserAPIKeyAuthProviderClient extends CoreAuthProviderClient<
   StitchAuthRequestClient
 > {
   protected constructor(
     requestClient: StitchAuthRequestClient,
     authRoutes: StitchAuthRoutes
   ) {
-    let baseRoute = `${authRoutes.baseAuthRoute}/api_keys`;
+    const baseRoute = `${authRoutes.baseAuthRoute}/api_keys`;
     super(UserAPIKeyAuthProvider.TYPE, requestClient, baseRoute);
   }
 
@@ -79,7 +79,7 @@ export default abstract class CoreUserAPIKeyAuthProviderClient extends CoreAuthP
   /**
    * Fetches the user API keys associated with the current user.
    */
-  protected fetchApiKeys(): Promise<UserAPIKey[]> {
+  public fetchApiKeys(): Promise<UserAPIKey[]> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder.withMethod(Method.GET).withPath(this.baseRoute);
     reqBuilder.withRefreshToken();

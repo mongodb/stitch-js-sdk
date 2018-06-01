@@ -219,7 +219,3 @@ export function getMockedRequestClient(): StitchRequestClient {
 
   return requestClientMock;
 }
-
-export function getAuthorizationBearer(accessToken: string): string {
-  return "Bearer " + accessToken;
-}

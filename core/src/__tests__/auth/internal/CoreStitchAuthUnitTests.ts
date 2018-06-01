@@ -2,7 +2,6 @@ import { ObjectID } from "bson";
 import { sign } from "jsonwebtoken";
 import { anything, capture, instance, verify, when } from "ts-mockito";
 import {
-  getAuthorizationBearer,
   getMockedRequestClient,
   RequestClassMatcher,
   TEST_ACCESS_TOKEN,
@@ -114,7 +113,9 @@ describe("CoreStitchAuthUnitTests", () => {
 
         const expectedRequest2 = new StitchRequest.Builder();
         const headers = {
-          [Headers.AUTHORIZATION]: getAuthorizationBearer(TEST_ACCESS_TOKEN)
+          [Headers.AUTHORIZATION]: Headers.getAuthorizationBearer(
+            TEST_ACCESS_TOKEN
+          )
         };
 
         expectedRequest2
@@ -171,7 +172,9 @@ describe("CoreStitchAuthUnitTests", () => {
           );
         const headers = {
           [Headers.CONTENT_TYPE]: ContentTypes.APPLICATION_JSON,
-          [Headers.AUTHORIZATION]: getAuthorizationBearer(TEST_ACCESS_TOKEN)
+          [Headers.AUTHORIZATION]: Headers.getAuthorizationBearer(
+            TEST_ACCESS_TOKEN
+          )
         };
 
         expectedRequest.withHeaders(headers);
@@ -182,7 +185,9 @@ describe("CoreStitchAuthUnitTests", () => {
 
         const expectedRequest2 = new StitchRequest.Builder();
         const headers2 = {
-          [Headers.AUTHORIZATION]: getAuthorizationBearer(TEST_ACCESS_TOKEN)
+          [Headers.AUTHORIZATION]: Headers.getAuthorizationBearer(
+            TEST_ACCESS_TOKEN
+          )
         };
 
         expectedRequest2
@@ -232,7 +237,9 @@ describe("CoreStitchAuthUnitTests", () => {
         const expectedRequest = new StitchRequest.Builder();
         expectedRequest.withMethod(Method.DELETE).withPath(routes.sessionRoute);
         const headers = {
-          [Headers.AUTHORIZATION]: getAuthorizationBearer(TEST_REFRESH_TOKEN)
+          [Headers.AUTHORIZATION]: Headers.getAuthorizationBearer(
+            TEST_REFRESH_TOKEN
+          )
         };
         expectedRequest.withHeaders(headers);
 
@@ -322,7 +329,9 @@ describe("CoreStitchAuthUnitTests", () => {
         const expectedRequest = new StitchRequest.Builder();
         expectedRequest.withMethod(Method.POST).withPath(routes.sessionRoute);
         const headers = {
-          [Headers.AUTHORIZATION]: getAuthorizationBearer(TEST_REFRESH_TOKEN)
+          [Headers.AUTHORIZATION]: Headers.getAuthorizationBearer(
+            TEST_REFRESH_TOKEN
+          )
         };
 
         expectedRequest.withHeaders(headers);
@@ -347,7 +356,7 @@ describe("CoreStitchAuthUnitTests", () => {
           );
         const headers2 = {
           [Headers.CONTENT_TYPE]: ContentTypes.APPLICATION_JSON,
-          [Headers.AUTHORIZATION]: getAuthorizationBearer(refreshedJwt)
+          [Headers.AUTHORIZATION]: Headers.getAuthorizationBearer(refreshedJwt)
         };
         expectedRequest2.withHeaders(headers2);
 

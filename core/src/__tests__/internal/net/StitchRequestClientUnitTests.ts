@@ -159,7 +159,7 @@ describe("StitchRequestClientUnitTests", () => {
         expect(error instanceof StitchServiceException).toBeTruthy();
         const [actualRequest] = capture(transportMock.roundTrip).first();
         const expectedHeaders = {
-          [Headers.CONTENT_TYPE]: ContentTypes.APPLICATION_JSON
+          [Headers.CONTENT_TYPE_CANON]: ContentTypes.APPLICATION_JSON
         };
         const expectedRequest = new BasicRequest.Builder()
           .withMethod(Method.PATCH)

@@ -21,7 +21,6 @@ import { RequestClassMatcher } from "../../../APITestUtils";
 
 function testClientCall(
   fun: (CoreUserApiKeyAuthProviderClient) => Promise<any>,
-  ignoresResponse: boolean,
   expectedRequest: StitchAuthRequest,
   keyToFetch?: string
 ): Promise<any> {
@@ -107,11 +106,7 @@ function testClientCall(
 
   return fun(client)
     .then(() => {
-      if (ignoresResponse) {
-        verify(requestClientMock.doAuthenticatedRequest(anything())).times(1);
-      } else {
-        verify(requestClientMock.doAuthenticatedRequest(anything())).times(1);
-      }
+      verify(requestClientMock.doAuthenticatedRequest(anything())).times(1);
 
       const [requestArg] = capture(
         requestClientMock.doAuthenticatedRequest
@@ -146,13 +141,9 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       .withShouldRefreshOnFailure(false)
       .withDocument({ name: apiKeyName });
 
-    return testClientCall(
-      (client: CoreUserAPIKeyAuthProviderClient) => {
-        return client.createApiKey(apiKeyName);
-      },
-      false,
-      expectedRequestBuilder.build()
-    );
+    return testClientCall((client: CoreUserAPIKeyAuthProviderClient) => {
+      return client.createApiKey(apiKeyName);
+    }, expectedRequestBuilder.build());
   });
 
   it("should fetch api key", () => {
@@ -169,7 +160,6 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       (client: CoreUserAPIKeyAuthProviderClient) => {
         return client.fetchApiKey(keyToFetch);
       },
-      false,
       expectedRequestBuilder.build(),
       keyToFetch.toHexString()
     );
@@ -183,13 +173,9 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       .withPath(routes.baseAuthRoute + "/api_keys")
       .withRefreshToken()
       .withShouldRefreshOnFailure(false);
-    return testClientCall(
-      client => {
-        return client.fetchApiKeys();
-      },
-      false,
-      expectedRequestBuilder.build()
-    );
+    return testClientCall(client => {
+      return client.fetchApiKeys();
+    }, expectedRequestBuilder.build());
   });
 
   it("should enable api key", () => {
@@ -206,13 +192,9 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       )
       .withRefreshToken()
       .withShouldRefreshOnFailure(false);
-    testClientCall(
-      (client: CoreUserAPIKeyAuthProviderClient) => {
-        return client.enableApiKey(keyToEnable);
-      },
-      true,
-      expectedRequestBuilder.build()
-    );
+    testClientCall((client: CoreUserAPIKeyAuthProviderClient) => {
+      return client.enableApiKey(keyToEnable);
+    }, expectedRequestBuilder.build());
   });
 
   it("should disable api key", () => {
@@ -229,13 +211,9 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       )
       .withRefreshToken()
       .withShouldRefreshOnFailure(false);
-    testClientCall(
-      client => {
-        return client.disableApiKey(keyToDisable);
-      },
-      true,
-      expectedRequestBuilder.build()
-    );
+    testClientCall(client => {
+      return client.disableApiKey(keyToDisable);
+    }, expectedRequestBuilder.build());
   });
 
   it("should delete api key", () => {
@@ -247,12 +225,8 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       .withPath(routes.baseAuthRoute + "/api_keys/" + keyToDelete.toHexString())
       .withRefreshToken()
       .withShouldRefreshOnFailure(false);
-    testClientCall(
-      client => {
-        return client.deleteApiKey(keyToDelete);
-      },
-      true,
-      expectedRequestBuilder.build()
-    );
+    testClientCall(client => {
+      return client.deleteApiKey(keyToDelete);
+    }, expectedRequestBuilder.build());
   });
 });
