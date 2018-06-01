@@ -1,9 +1,9 @@
+import { stringify } from "mongodb-extjson";
+import ContentTypes from "./ContentTypes";
+import Headers from "./Headers";
 import Method from "./Method";
 import { StitchAuthRequest } from "./StitchAuthRequest";
 import { StitchRequest } from "./StitchRequest";
-import Headers from "./Headers";
-import ContentTypes from "./ContentTypes";
-import { stringify } from "mongodb-extjson";
 
 export class StitchAuthDocRequest extends StitchAuthRequest {
   public readonly document: object;

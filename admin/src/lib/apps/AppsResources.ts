@@ -1,7 +1,7 @@
 import { Apps, checkEmpty, App } from "../Resources";
 import * as EJSON from "mongodb-extjson";
 import { Method, StitchAuthRequest } from "stitch-core";
-import { Codec } from "../Codec";
+import { Codec } from "stitch-core";
 
 enum Fields {
   Id = "_id",
@@ -36,28 +36,3 @@ export class AppResponseCodec implements Codec<AppResponse> {
     };
   }
 }
-/// POST a new application
-/// - parameter name: name of the new application
-/// - parameter defaults: whether or not to enable default values
-Apps.prototype["create"] = (
-  name: string,
-  defaults: boolean
-): Promise<AppResponse> => {
-  const encodedApp = { name };
-  const req = StitchAuthRequest.Builder()
-    .withMethod(Method.POST)
-    .withPath(`${this.url}?defaults=${defaults}`)
-    .withBody(encodedApp)
-    .build();
-
-  return this.adminAuth.doAuthenticatedRequest(req).then(response => {
-    checkEmpty(response);
-    return new AppResponseCodec().decode(EJSON.parse(response.body));
-  });
-};
-
-/// GET an application
-/// - parameter id: id for the application
-Apps.prototype["app"] = (appId: string): App => {
-  return new App(this.adminAuth, `${this.url}/${appId}`);
-};

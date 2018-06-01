@@ -1,4 +1,4 @@
-import { Codec } from "../Codec";
+import { Codec } from "stitch-core";
 
 // / For creating or updating a function of an application
 enum FunctionCreatorFields {

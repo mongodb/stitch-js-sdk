@@ -26,14 +26,14 @@ export default class StitchAdminAuthRoutes implements StitchAuthRoutes {
   /**
    * Returns the route on the server for a particular authentication provider.
    */
-  getAuthProviderRoute(providerName: string): string {
+  public getAuthProviderRoute(providerName: string): string {
     return `${this.baseAuthRoute}/providers/${providerName}`;
   }
 
   /**
    * Returns the route on the server for logging in with a particular authentication provider.
    */
-  getAuthProviderLoginRoute(providerName: string): string {
+  public getAuthProviderLoginRoute(providerName: string): string {
     return `${this.getAuthProviderRoute(providerName)}/login`;
   }
 
@@ -41,7 +41,14 @@ export default class StitchAdminAuthRoutes implements StitchAuthRoutes {
    * Returns the route on the server for linking the currently authenticated user with an identity associated with a
    * particular authentication provider.
    */
-  getAuthProviderLinkRoute(providerName: string): string {
+  public getAuthProviderLinkRoute(providerName: string): string {
     return `${this.getAuthProviderLoginRoute(providerName)}?link=true`;
+  }
+
+  public getAuthProviderExtensionRoute(
+    providerName: string,
+    path: string
+  ): string {
+    return `${this.getAuthProviderRoute(providerName)}/${path}`;
   }
 }

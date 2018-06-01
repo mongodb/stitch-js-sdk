@@ -142,7 +142,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    * - returns: An `any` representing the decoded response body.
    */
   public doAuthenticatedJSONRequest<T>(
-    stitchReq: StitchAuthDocRequest,
+    stitchReq: StitchAuthRequest,
     codec?: Decoder<T>
   ): Promise<T> {
     return this.doAuthenticatedRequest(stitchReq)
@@ -234,17 +234,19 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    * still attempt to clear local authentication state. This method will only throw if clearing authentication state
    * fails.
    */
-  public logoutInternal() {
+  public logoutInternal(): Promise<void> {
     if (!this.isLoggedIn) {
-      return;
+      return Promise.resolve();
     }
-    try {
-      this.doLogout();
-    } catch (ex) {
-      // Do nothing
-    } finally {
+
+    // Promise.finally needs to be added as a shim
+    // to TS. Until we need another .finally, we
+    // will need this workaround for cleanup
+    return this.doLogout().then(() => {
       this.clearAuth();
-    }
+    }).catch(() => {
+      this.clearAuth();
+    });
   }
 
   /**

@@ -1,20 +1,20 @@
 import {
   FetchTransport,
-  StitchRequestClientImpl,
-  StitchAuthRequest,
-  Method,
   MemoryStorage,
-  StitchCredential
+  Method,
+  StitchAuthRequest,
+  StitchCredential,
+  StitchRequestClient,
+  Transport
 } from "stitch-core";
+import { Apps } from "./Resources";
 import StitchAdminAuth from "./StitchAdminAuth";
 import StitchAdminAuthRoutes from "./StitchAdminAuthRoutes";
+import { StitchAdminUser } from "./StitchAdminUser";
 import {
   StitchAdminUserProfile,
   StitchAdminUserProfileCodec
 } from "./StitchAdminUserProfile";
-import Transport from "../../../core/dist/internal/net/Transport";
-import { Apps } from "./Resources";
-import { StitchAdminUser } from "./StitchAdminUser";
 
 export default class StitchAdminClient {
   public static readonly apiPath = "/api/admin/v3.0";
@@ -29,23 +29,19 @@ export default class StitchAdminClient {
     transport: Transport = new FetchTransport(),
     requestTimeout: number = StitchAdminClient.defaultRequestTimeout
   ) {
-    let requestClient = StitchRequestClientImpl(
-      baseUrl,
-      transport,
-      requestTimeout
-    );
+    const requestClient = new StitchRequestClient(baseUrl, transport);
 
     this.authRoutes = new StitchAdminAuthRoutes();
 
     this.adminAuth = new StitchAdminAuth(
       requestClient,
       this.authRoutes,
-      MemoryStorage()
+      new MemoryStorage()
     );
   }
 
   public adminProfile(): Promise<StitchAdminUserProfile> {
-    let req = StitchAuthRequest.Builder()
+    const req = new StitchAuthRequest.Builder()
       .withMethod(Method.GET)
       .withPath(this.authRoutes.profileRoute)
       .build();
@@ -56,18 +52,20 @@ export default class StitchAdminClient {
     );
   }
 
-  public apps(groupId: String): Apps {
+  public apps(groupId: string): Apps {
     return new Apps(
       this.adminAuth,
       `${StitchAdminClient.apiPath}/groups/${groupId}/apps`
     );
   }
 
-  public loginWithCredential(credential: StitchCredential): StitchAdminUser {
+  public loginWithCredential(
+    credential: StitchCredential
+  ): Promise<StitchAdminUser> {
     return this.adminAuth.loginWithCredentialInternal(credential);
   }
 
-  public logout() {
+  public logout(): Promise<void> {
     return this.adminAuth.logoutInternal();
   }
 }

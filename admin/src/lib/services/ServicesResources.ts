@@ -1,4 +1,4 @@
-import { Codec } from "../Codec";
+import { Codec } from "stitch-core";
 
 enum Fields {
   Id = "_id",

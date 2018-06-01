@@ -27,20 +27,28 @@ import UserPasswordCredential from "./auth/providers/userpass/UserPasswordCreden
 import StitchCredential from "./auth/StitchCredential";
 import StitchUserIdentity from "./auth/StitchUserIdentity";
 import StitchUserProfile from "./auth/StitchUserProfile";
+import { Codec, Decoder, Encoder} from "./internal/common/Codec";
 import { MemoryStorage, Storage } from "./internal/common/Storage";
 import CoreStitchAppClient from "./internal/CoreStitchAppClient";
 import FetchTransport from "./internal/net/FetchTransport";
+import Method from "./internal/net/Method";
+import Response from "./internal/net/Response";
 import { StitchAppRoutes } from "./internal/net/StitchAppRoutes";
+import { StitchAuthRequest } from "./internal/net/StitchAuthRequest";
 import StitchRequestClient from "./internal/net/StitchRequestClient";
+import Transport from "./internal/net/Transport";
 import CoreStitchServiceClient from "./services/internal/CoreStitchServiceClient";
 import StitchServiceClient from "./services/internal/StitchServiceClient";
 import StitchServiceRoutes from "./services/internal/StitchServiceRoutes";
 import { StitchAppClientConfiguration } from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";
+import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
+import StitchServiceException from "./StitchServiceException";
 
 export {
   AnonymousAuthProvider,
   AnonymousCredential,
+  APIStitchUserIdentity,
   CustomAuthProvider,
   CustomCredential,
   FacebookAuthProvider,
@@ -52,6 +60,9 @@ export {
   UserAPIKeyAuthProvider,
   UserAPIKey,
   UserAPIKeyCredential,
+  Codec,
+  Decoder,
+  Encoder,
   CoreUserAPIKeyAuthProviderClient,
   UserPasswordAuthProvider,
   UserPasswordCredential,
@@ -66,15 +77,22 @@ export {
   StitchAppClientInfo,
   StitchAppClientConfiguration,
   StitchAppRoutes,
+  StitchAuthRequest,
   StitchAuthRequestClient,
   StitchAuthRoutes,
   StitchCredential,
   StitchRequestClient,
   StitchServiceRoutes,
+  StitchServiceException,
+  StitchServiceErrorCode,
   StitchUserFactory,
   StitchUserProfile,
   StitchUserProfileImpl,
   StitchServiceClient,
+  StitchUserIdentity,
   Storage,
-  MemoryStorage
+  Method,
+  Response,
+  MemoryStorage,
+  Transport
 };

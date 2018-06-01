@@ -1,5 +1,5 @@
 import { User } from "../Resources";
-import { Codec } from "../Codec";
+import { Codec } from "stitch-core";
 
 // / Creates a new user for an application
 export interface UserCreator {

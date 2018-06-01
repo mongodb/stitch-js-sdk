@@ -1,4 +1,4 @@
-import { Codec, Encoder } from "../../Codec";
+import { Codec, Encoder } from "stitch-core";
 
 export enum AwsS3Actions {
   Put = "put",

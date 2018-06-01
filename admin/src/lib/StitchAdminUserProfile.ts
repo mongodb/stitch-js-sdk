@@ -1,5 +1,4 @@
-import { APIStitchUserIdentity } from "stitch-core";
-import { Codec, Decoder } from "./Codec";
+import { APIStitchUserIdentity, Codec, Decoder } from "stitch-core";
 
 enum StitchAdminUserProfileFields {
   UserType = "type",
@@ -36,18 +35,18 @@ export interface StitchAdminUserProfile {
 
 export class StitchAdminUserProfileCodec
   implements Decoder<StitchAdminUserProfile> {
-  decode(from: object): StitchAdminUserProfile {
+  public decode(from: object): StitchAdminUserProfile {
     const roleCodec = new StitchAdminRoleCodec();
 
     return {
-      userType: from[StitchAdminUserProfileFields.UserType],
-      identities: from[StitchAdminUserProfileFields.Identities].map(identity =>
-        APIStitchUserIdentity.decodeFrom(identity)
-      ),
       data: from[StitchAdminUserProfileFields.Data],
+      identities: from[StitchAdminUserProfileFields.Identities].map(identity =>
+        APIStitchUserIdentity.fromJSON(identity)
+      ),
       roles: from[StitchAdminUserProfileFields.Roles].map(role =>
         roleCodec.decode(role)
-      )
+      ),
+      userType: from[StitchAdminUserProfileFields.UserType]
     };
   }
 }
@@ -63,10 +62,10 @@ export interface StitchAdminRole {
 }
 
 export class StitchAdminRoleCodec implements Decoder<StitchAdminRole> {
-  decode(from: object): StitchAdminRole {
+  public decode(from: object): StitchAdminRole {
     return {
-      name: from[StitchAdminRoleFields.Name],
-      groupId: from[StitchAdminRoleFields.GroupId]
+      groupId: from[StitchAdminRoleFields.GroupId],
+      name: from[StitchAdminRoleFields.Name]
     };
   }
 }

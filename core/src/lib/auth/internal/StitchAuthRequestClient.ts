@@ -1,5 +1,4 @@
 import Response from "../../internal/net/Response";
-import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 
 /**
@@ -20,5 +19,5 @@ export default interface StitchAuthRequestClient {
    *
    * - returns: An `Any` representing the response body as decoded JSON.
    */
-  doAuthenticatedJSONRequest(stitchReq: StitchAuthDocRequest): Promise<any>;
+  doAuthenticatedJSONRequest<T>(stitchReq: StitchAuthRequest): Promise<T>;
 }

@@ -1,8 +1,16 @@
 import StitchAdminAuth from "./StitchAdminAuth";
-import { Method, StitchAuthRequest } from "stitch-core";
+import {
+  Method,
+  StitchAuthRequest,
+  Codec,
+  Decoder,
+  Encoder,
+  StitchServiceException,
+  StitchServiceErrorCode,
+  Response
+} from "stitch-core";
 import * as EJSON from "mongodb-extjson";
 import { AppResponse, AppResponseCodec } from "./apps/AppsResources";
-import { Codec, Decoder, Encoder } from "./Codec";
 import {
   AuthProviderResponse,
   AuthProviderResponseCodec
@@ -62,7 +70,7 @@ function checkEmpty(response: Response) {
   if (response.body === undefined) {
     throw new StitchServiceException(
       "unexpected empty response",
-      StitchErrorCodes.UNKNOWN
+      StitchServiceErrorCode.Unknown
     );
   }
 }
@@ -72,7 +80,7 @@ class Listable<T> extends BasicResource {
   readonly codec: Codec<T>;
 
   list(): Promise<T[]> {
-    const reqBuilder = StitchAuthRequest.Builder();
+    const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder.withMethod(Method.GET).withPath(this.url);
 
     return this.adminAuth
@@ -88,7 +96,7 @@ class Gettable<T> extends BasicResource {
   readonly codec: Codec<T>;
 
   get(): Promise<T> {
-    const reqBuilder = StitchAuthRequest.Builder();
+    const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder.withMethod(Method.GET).withPath(this.url);
 
     return this.adminAuth
@@ -102,7 +110,7 @@ class Gettable<T> extends BasicResource {
 // / Adds an endpoint method that DELETEs some id
 class Removable extends BasicResource {
   remove(): Promise<void> {
-    const reqBuilder = StitchAuthRequest.Builder();
+    const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder.withMethod(Method.DELETE).withPath(this.url);
 
     return this.adminAuth
@@ -119,7 +127,7 @@ class Creatable<Creator, T> extends BasicResource {
   readonly creatorCodec: Encoder<Creator>;
 
   create(data: Creator): Promise<T> {
-    const reqBuilder = StitchAuthRequest.Builder();
+    const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
       .withMethod(Method.POST)
       .withPath(this.url)
@@ -153,7 +161,7 @@ class Updatable<T> extends BasicResource {
 // / Adds an endpoint that enables a given resource
 class Enablable extends BasicResource {
   enable(): Promise<void> {
-    const reqBuilder = StitchAuthRequest.Builder();
+    const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder.withMethod(Method.PUT).withPath("${this.url}/enable");
 
     return this.adminAuth
@@ -167,7 +175,7 @@ class Enablable extends BasicResource {
 // / Adds an endpoint that disables a given resource
 class Disablable extends BasicResource {
   disable(): Promise<void> {
-    const reqBuilder = StitchAuthRequest.Builder();
+    const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder.withMethod(Method.PUT).withPath("${this.url}/disable");
 
     return this.adminAuth
@@ -329,6 +337,29 @@ class Apps extends BasicResource implements Listable<AppResponse> {
   readonly codec = new AppResponseCodec();
 
   list: () => Promise<AppResponse[]>;
+
+  /// POST a new application
+  /// - parameter name: name of the new application
+  /// - parameter defaults: whether or not to enable default values
+  create(name: string, defaults: boolean): Promise<AppResponse> {
+    const encodedApp = { name };
+    const req = new StitchAuthRequest.Builder()
+      .withMethod(Method.POST)
+      .withPath(`${this.url}?defaults=${defaults}`)
+      .withBody(JSON.stringify(encodedApp))
+      .build();
+
+    return this.adminAuth.doAuthenticatedRequest(req).then(response => {
+      checkEmpty(response);
+      return new AppResponseCodec().decode(EJSON.parse(response.body));
+    });
+  }
+
+  /// GET an application
+  /// - parameter id: id for the application
+  app(appId: string): App {
+    return new App(this.adminAuth, `${this.url}/${appId}`);
+  }
 }
 
 export {

@@ -1,5 +1,5 @@
 import { AuthProvider, AuthProviders } from "../Resources";
-import { Codec } from "../Codec";
+import { Codec } from "stitch-core";
 
 /// View into a specific auth provider
 enum Fields {

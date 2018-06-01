@@ -3,14 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
-    "test": "jest",
-    "lint": "tslint src/**/*.ts",
-    "prettier": "prettier --write \"{,!(node_modules)/**/}*.ts\"",
-    "tslint-check": "tslint-config-prettier-check ./tslint.json"
-  },
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -24,5 +16,14 @@
     "prettier": "1.12.0",
     "tslint-config-prettier": "^1.10.0",
     "tslint": "^5.9.1"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "lint": "tslint -c tslint.json src/**/*.ts",
+    "lint-fix": "tslint --fix src/**/*.ts",
+    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\"",
+    "tslint-check": "tslint-config-prettier-check ./tslint.json"
   }
 }

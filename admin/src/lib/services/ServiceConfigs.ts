@@ -1,4 +1,4 @@
-import { Codec } from "../Codec";
+import { Codec } from "stitch-core";
 
 export interface ServiceConfig {
   readonly name: string;

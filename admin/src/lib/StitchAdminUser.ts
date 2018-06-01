@@ -1,8 +1,8 @@
 import {
   CoreStitchUser,
-  StitchUserProfile,
-  StitchUserIdentity,
   StitchUserFactory,
+  StitchUserIdentity,
+  StitchUserProfile,
   StitchUserProfileImpl
 } from "stitch-core";
 

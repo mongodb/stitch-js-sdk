@@ -9,7 +9,7 @@
         "removeComments": true
     },
     "exclude": [
-        "./node_modules/**",
+        "./core/node_modules/**",
         "./dist"
     ]
 }
