@@ -2,6 +2,7 @@ import CoreStitchAuth from "./auth/internal/CoreStitchAuth";
 import CoreStitchUser from "./auth/internal/CoreStitchUser";
 import CoreStitchUserImpl from "./auth/internal/CoreStitchUserImpl";
 import DeviceFields from "./auth/internal/DeviceFields";
+import APIStitchUserIdentity from "./auth/internal/models/APIStitchUserIdentity";
 import StitchAuthRequestClient from "./auth/internal/StitchAuthRequestClient";
 import { StitchAuthRoutes } from "./auth/internal/StitchAuthRoutes";
 import StitchUserFactory from "./auth/internal/StitchUserFactory";
@@ -24,21 +25,30 @@ import CoreUserPassAuthProviderClient from "./auth/providers/userpass/CoreUserPa
 import UserPasswordAuthProvider from "./auth/providers/userpass/UserPasswordAuthProvider";
 import UserPasswordCredential from "./auth/providers/userpass/UserPasswordCredential";
 import StitchCredential from "./auth/StitchCredential";
+import StitchUserIdentity from "./auth/StitchUserIdentity";
 import StitchUserProfile from "./auth/StitchUserProfile";
+import { Codec, Decoder, Encoder} from "./internal/common/Codec";
 import { MemoryStorage, Storage } from "./internal/common/Storage";
 import CoreStitchAppClient from "./internal/CoreStitchAppClient";
 import FetchTransport from "./internal/net/FetchTransport";
+import Method from "./internal/net/Method";
+import Response from "./internal/net/Response";
 import { StitchAppRoutes } from "./internal/net/StitchAppRoutes";
+import { StitchAuthRequest } from "./internal/net/StitchAuthRequest";
 import StitchRequestClient from "./internal/net/StitchRequestClient";
+import Transport from "./internal/net/Transport";
 import CoreStitchServiceClient from "./services/internal/CoreStitchServiceClient";
 import StitchServiceClient from "./services/internal/StitchServiceClient";
 import StitchServiceRoutes from "./services/internal/StitchServiceRoutes";
 import { StitchAppClientConfiguration } from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";
+import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
+import StitchServiceException from "./StitchServiceException";
 
 export {
   AnonymousAuthProvider,
   AnonymousCredential,
+  APIStitchUserIdentity,
   CustomAuthProvider,
   CustomCredential,
   FacebookAuthProvider,
@@ -50,6 +60,9 @@ export {
   UserAPIKeyAuthProvider,
   UserAPIKey,
   UserAPIKeyCredential,
+  Codec,
+  Decoder,
+  Encoder,
   CoreUserAPIKeyAuthProviderClient,
   UserPasswordAuthProvider,
   UserPasswordCredential,
@@ -64,15 +77,22 @@ export {
   StitchAppClientInfo,
   StitchAppClientConfiguration,
   StitchAppRoutes,
+  StitchAuthRequest,
   StitchAuthRequestClient,
   StitchAuthRoutes,
   StitchCredential,
   StitchRequestClient,
   StitchServiceRoutes,
+  StitchServiceException,
+  StitchServiceErrorCode,
   StitchUserFactory,
   StitchUserProfile,
   StitchUserProfileImpl,
   StitchServiceClient,
+  StitchUserIdentity,
   Storage,
-  MemoryStorage
+  Method,
+  Response,
+  MemoryStorage,
+  Transport
 };

@@ -1,5 +1,5 @@
-import Assertions from "../../../../internal/common/Assertions";
 import { ObjectID } from "bson";
+import Assertions from "../../../../internal/common/Assertions";
 
 enum Fields {
   ID = "_id",
@@ -12,6 +12,25 @@ enum Fields {
  * A class containing the fields returned by the Stitch client API in an authentication request.
  */
 export default class UserAPIKey {
+  /**
+   * Decodes a response from the Stitch client API into a User API key.
+   *
+   * @param body The body of the response from the Stitch client API
+   */
+  public static readFromAPI(json: string | object): UserAPIKey {
+    const body = typeof json === "string" ? JSON.parse(json) : json;
+
+    Assertions.keyPresent(Fields.ID, body);
+    Assertions.keyPresent(Fields.NAME, body);
+    Assertions.keyPresent(Fields.DISABLED, body);
+    return new UserAPIKey(
+      body[Fields.ID],
+      body[Fields.KEY],
+      body[Fields.NAME],
+      body[Fields.DISABLED]
+    );
+  }
+  
   /**
    * The id of the key.
    */
@@ -31,25 +50,6 @@ export default class UserAPIKey {
    * Whether or not the key is disabled.
    */
   public readonly disabled: boolean;
-
-  /**
-   * Decodes a response from the Stitch client API into a User API key.
-   *
-   * @param body The body of the response from the Stitch client API
-   */
-  public static readFromAPI(json: string | object): UserAPIKey {
-    var body = typeof json === "string" ? JSON.parse(json) : json;
-
-    Assertions.keyPresent(Fields.ID, body);
-    Assertions.keyPresent(Fields.NAME, body);
-    Assertions.keyPresent(Fields.DISABLED, body);
-    return new UserAPIKey(
-      body[Fields.ID],
-      body[Fields.KEY],
-      body[Fields.NAME],
-      body[Fields.DISABLED]
-    );
-  }
 
   public constructor(
     id: string,

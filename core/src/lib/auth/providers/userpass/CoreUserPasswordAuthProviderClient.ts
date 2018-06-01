@@ -3,8 +3,8 @@ import { StitchDocRequest } from "../../../internal/net/StitchDocRequest";
 import StitchRequestClient from "../../../internal/net/StitchRequestClient";
 import { StitchAuthRoutes } from "../../internal/StitchAuthRoutes";
 import CoreAuthProviderClient from "../internal/CoreAuthProviderClient";
-import UserPasswordCredential from "./UserPasswordCredential";
 import UserPasswordAuthProvider from "./UserPasswordAuthProvider";
+import UserPasswordCredential from "./UserPasswordCredential";
 
 enum RegistrationFields {
   EMAIL = "email",
@@ -26,7 +26,7 @@ export default class CoreUserPasswordAuthProviderClient extends CoreAuthProvider
     requestClient: StitchRequestClient,
     authRoutes: StitchAuthRoutes
   ) {
-    let baseRoute = authRoutes.getAuthProviderRoute(providerName);
+    const baseRoute = authRoutes.getAuthProviderRoute(providerName);
     super(providerName, requestClient, baseRoute);
   }
 

@@ -6,6 +6,7 @@ import {
 } from "../../../lib";
 import Method from "../../../lib/internal/net/Method";
 import { StitchAuthDocRequest } from "../../../lib/internal/net/StitchAuthDocRequest";
+import { StitchAuthRequest } from "../../../lib/internal/net/StitchAuthRequest";
 import StitchServiceClient from "../../../lib/services/internal/StitchServiceClient";
 
 describe("CoreStitchServiceUnitTests", () => {
@@ -17,7 +18,7 @@ describe("CoreStitchServiceUnitTests", () => {
 
     when(
       requestClientMock.doAuthenticatedJSONRequest(
-        anyOfClass(StitchAuthDocRequest)
+        anyOfClass(StitchAuthRequest)
       )
     ).thenReturn(Promise.resolve(42));
 
@@ -47,7 +48,7 @@ describe("CoreStitchServiceUnitTests", () => {
         ).last();
         verify(
           requestClientMock.doAuthenticatedJSONRequest(
-            anyOfClass(StitchAuthDocRequest)
+            anyOfClass(StitchAuthRequest)
           )
         ).called();
 

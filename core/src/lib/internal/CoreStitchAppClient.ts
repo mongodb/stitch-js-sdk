@@ -2,6 +2,7 @@ import StitchAuthRequestClient from "../auth/internal/StitchAuthRequestClient";
 import { StitchAppRoutes } from "../internal/net/StitchAppRoutes";
 import Method from "./net/Method";
 import { StitchAuthDocRequest } from "./net/StitchAuthDocRequest";
+import { StitchAuthRequest } from "./net/StitchAuthRequest";
 
 export default class CoreStitchAppClient {
   private readonly authRequestClient: StitchAuthRequestClient;
@@ -24,10 +25,10 @@ export default class CoreStitchAppClient {
   private getCallFunctionRequest(
     name: string,
     args: any[]
-  ): StitchAuthDocRequest {
+  ): StitchAuthRequest {
     const body = {
+      arguments: args,
       name,
-      arguments: args
     };
 
     const reqBuilder = new StitchAuthDocRequest.Builder();

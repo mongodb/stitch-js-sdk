@@ -5,6 +5,7 @@ import {
 } from "../..";
 import Method from "../../internal/net/Method";
 import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
+import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 
 export default class StitchServiceClient implements CoreStitchServiceClient {
   private readonly requestClient: StitchAuthRequestClient;
@@ -30,7 +31,7 @@ export default class StitchServiceClient implements CoreStitchServiceClient {
   private getCallServiceFunctionRequest(
     name: string,
     args: any[]
-  ): StitchAuthDocRequest {
+  ): StitchAuthRequest {
     const body = { name };
     if (this.serviceName !== undefined) {
       body["service"] = this.serviceName;

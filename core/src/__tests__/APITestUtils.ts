@@ -195,6 +195,17 @@ export function getMockedRequestClient(): StitchRequestClient {
     statusCode: 200
   });
 
+  // Any /login works
+  when(
+    requestClientMock.doRequest(new RequestClassMatcher(
+      new RegExp(".*/session")
+    ) as any)
+  ).thenResolve({
+    body: JSON.stringify(TEST_LOGIN_RESPONSE),
+    headers: {},
+    statusCode: 200
+  });
+
   // Profile works if the access token is the same as the above
   when(
     requestClientMock.doRequest(new RequestClassMatcher(

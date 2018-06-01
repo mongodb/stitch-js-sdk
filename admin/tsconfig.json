@@ -5,11 +5,9 @@
         "sourceMap": true,
         "strictNullChecks": true,
         "outDir": "dist",
-        "declaration": true,
-        "removeComments": true
+        "rootDir": "src"
     },
     "exclude": [
-        "./node_modules/**",
-        "./dist"
+        "node_modules"
     ]
 }

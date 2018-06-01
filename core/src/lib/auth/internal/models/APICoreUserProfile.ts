@@ -1,6 +1,6 @@
+import Assertions from "../../../internal/common/Assertions";
 import StitchUserProfileImpl from "../StitchUserProfileImpl";
 import APIStitchUserIdentity from "./APIStitchUserIdentity";
-import Assertions from "../../../internal/common/Assertions";
 
 enum Fields {
   DATA = "data",
