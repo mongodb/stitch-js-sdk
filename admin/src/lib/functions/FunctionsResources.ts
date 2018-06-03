@@ -9,23 +9,23 @@ enum FunctionCreatorFields {
 }
 
 export interface FunctionCreator {
-  readonly name: string;
-  readonly source: string;
   readonly canEvaluate?: string;
+  readonly name: string;
   readonly private: boolean;
+  readonly source: string;
 }
 
 export class FunctionCreatorCodec implements Codec<FunctionCreator> {
-  decode(from: object): FunctionCreator {
+  public decode(from: object): FunctionCreator {
     return {
-      name: from[FunctionCreatorFields.Name],
-      source: from[FunctionCreatorFields.Source],
       canEvaluate: from[FunctionCreatorFields.CanEvaluate],
-      private: from[FunctionCreatorFields.Private]
+      name: from[FunctionCreatorFields.Name],
+      private: from[FunctionCreatorFields.Private],
+      source: from[FunctionCreatorFields.Source],
     };
   }
 
-  encode(from: FunctionCreator): object {
+  public encode(from: FunctionCreator): object {
     return {
       [FunctionCreatorFields.Name]: from.name,
       [FunctionCreatorFields.Source]: from.source,
@@ -47,14 +47,14 @@ export interface FunctionResponse {
 }
 
 export class FunctionResponseCodec implements Codec<FunctionResponse> {
-  decode(from: object): FunctionResponse {
+  public decode(from: object): FunctionResponse {
     return {
       id: from[FunctionResponseFields.Id],
       name: from[FunctionResponseFields.Name]
     };
   }
 
-  encode(from: FunctionResponse): object {
+  public encode(from: FunctionResponse): object {
     return {
       [FunctionResponseFields.Id]: from.id,
       [FunctionResponseFields.Name]: from.name

@@ -1,47 +1,48 @@
-import StitchAdminAuth from "./StitchAdminAuth";
+import * as EJSON from "mongodb-extjson";
 import {
-  Method,
-  StitchAuthRequest,
   Codec,
   Decoder,
   Encoder,
-  StitchServiceException,
+  Method,
+  Response,
+  StitchAuthRequest,
   StitchServiceErrorCode,
-  Response
+  StitchServiceException
 } from "stitch-core";
-import * as EJSON from "mongodb-extjson";
 import { AppResponse, AppResponseCodec } from "./apps/AppsResources";
 import {
   AuthProviderResponse,
   AuthProviderResponseCodec
 } from "./authProviders/AuthProvidersResources";
 import {
-  UserResponse,
-  UserCreator,
-  UserResponseCodec,
-  UserCreatorCodec
-} from "./users/UsersResources";
-import {
   ProviderConfig,
   ProviderConfigCodec
 } from "./authProviders/ProviderConfigs";
 import {
   FunctionCreator,
+  FunctionCreatorCodec,
   FunctionResponse,
-  FunctionResponseCodec,
-  FunctionCreatorCodec
+  FunctionResponseCodec
 } from "./functions/FunctionsResources";
+import {
+  RuleCreator,
+  RuleCreatorCodec,
+  RuleResponse,
+  RuleResponseCodec
+} from "./services/rules/RulesResources";
+import { ServiceConfig, ServiceConfigCodec } from "./services/ServiceConfigs";
 import {
   ServiceResponse,
   ServiceResponseCodec
 } from "./services/ServicesResources";
-import { ServiceConfig, ServiceConfigCodec } from "./services/ServiceConfigs";
+import StitchAdminAuth from "./StitchAdminAuth";
+import { ConfirmationEmail, ConfirmationEmailCodec } from "./userRegistrations/UserRegistrationsResources";
 import {
-  RuleResponse,
-  RuleCreator,
-  RuleCreatorCodec,
-  RuleResponseCodec
-} from "./services/rules/RulesResources";
+  UserCreator,
+  UserCreatorCodec,
+  UserResponse,
+  UserResponseCodec
+} from "./users/UsersResources";
 
 /// Any endpoint that can be described with basic
 /// CRUD operations
@@ -77,9 +78,9 @@ function checkEmpty(response: Response) {
 
 /// Adds an endpoint method that GETs some list
 class Listable<T> extends BasicResource {
-  readonly codec: Codec<T>;
+  public readonly codec: Codec<T>;
 
-  list(): Promise<T[]> {
+  public list(): Promise<T[]> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder.withMethod(Method.GET).withPath(this.url);
 
@@ -93,9 +94,9 @@ class Listable<T> extends BasicResource {
 
 // / Adds an endpoint method that GETs some id
 class Gettable<T> extends BasicResource {
-  readonly codec: Codec<T>;
+  public readonly codec: Codec<T>;
 
-  get(): Promise<T> {
+  public get(): Promise<T> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder.withMethod(Method.GET).withPath(this.url);
 
@@ -109,7 +110,7 @@ class Gettable<T> extends BasicResource {
 
 // / Adds an endpoint method that DELETEs some id
 class Removable extends BasicResource {
-  remove(): Promise<void> {
+  public remove(): Promise<void> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder.withMethod(Method.DELETE).withPath(this.url);
 
@@ -123,10 +124,10 @@ class Removable extends BasicResource {
 
 // / Adds an endpoint method that POSTs new data
 class Creatable<Creator, T> extends BasicResource {
-  readonly codec: Codec<T>;
-  readonly creatorCodec: Encoder<Creator>;
+  public readonly codec: Codec<T>;
+  public readonly creatorCodec: Encoder<Creator>;
 
-  create(data: Creator): Promise<T> {
+  public create(data: Creator): Promise<T> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
       .withMethod(Method.POST)
@@ -143,9 +144,9 @@ class Creatable<Creator, T> extends BasicResource {
 
 // / Adds an endpoint method that PUTs some data
 class Updatable<T> extends BasicResource {
-  readonly updatableCodec: Codec<T>;
+  public readonly updatableCodec: Codec<T>;
 
-  update(data: T): Promise<T> {
+  public update(data: T): Promise<T> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
       .withMethod(Method.PUT)
@@ -160,7 +161,7 @@ class Updatable<T> extends BasicResource {
 
 // / Adds an endpoint that enables a given resource
 class Enablable extends BasicResource {
-  enable(): Promise<void> {
+  public enable(): Promise<void> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder.withMethod(Method.PUT).withPath("${this.url}/enable");
 
@@ -174,7 +175,7 @@ class Enablable extends BasicResource {
 
 // / Adds an endpoint that disables a given resource
 class Disablable extends BasicResource {
-  disable(): Promise<void> {
+  public disable(): Promise<void> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder.withMethod(Method.PUT).withPath("${this.url}/disable");
 
@@ -194,14 +195,14 @@ class AuthProvider extends BasicResource
     Removable,
     Enablable,
     Disablable {
-  readonly codec = new AuthProviderResponseCodec();
-  readonly updatableCodec = new AuthProviderResponseCodec();
+  public readonly codec = new AuthProviderResponseCodec();
+  public readonly updatableCodec = new AuthProviderResponseCodec();
 
-  get: () => Promise<AuthProviderResponse>;
-  update: (data: AuthProviderResponse) => Promise<AuthProviderResponse>;
-  remove: () => Promise<void>;
-  enable: () => Promise<void>;
-  disable: () => Promise<void>;
+  public get: () => Promise<AuthProviderResponse>;
+  public update: (data: AuthProviderResponse) => Promise<AuthProviderResponse>;
+  public remove: () => Promise<void>;
+  public enable: () => Promise<void>;
+  public disable: () => Promise<void>;
 }
 
 // / Resource for listing the auth providers of an application
@@ -209,89 +210,111 @@ class AuthProviders extends BasicResource
   implements
     Listable<AuthProviderResponse>,
     Creatable<ProviderConfig, AuthProviderResponse> {
-  readonly codec = new AuthProviderResponseCodec();
-  readonly creatorCodec = new ProviderConfigCodec();
+  public readonly codec = new AuthProviderResponseCodec();
+  public readonly creatorCodec = new ProviderConfigCodec();
 
-  create: (data: ProviderConfig) => Promise<AuthProviderResponse>;
-  list: () => Promise<AuthProviderResponse[]>;
+  public create: (data: ProviderConfig) => Promise<AuthProviderResponse>;
+  public list: () => Promise<AuthProviderResponse[]>;
+
+  /// GET an auth provider
+  /// - parameter providerId: id of the provider
+  public authProvider(
+    providerId: string
+  ): AuthProvider {
+    return new AuthProvider(this.adminAuth, `${this.url}/${providerId}`);
+  };
 }
 
 // / Resource for user registrations of an application
-class UserRegistrations extends BasicResource {}
+class UserRegistrations extends BasicResource {
+  public sendConfirmation(email: string): Promise<ConfirmationEmail> {
+    const reqBuilder = new StitchAuthRequest.Builder()
+    reqBuilder
+            .withMethod(Method.POST)
+            .withPath(`${this.url}/by_email/${email}/send_confirm`)
+
+    return this.adminAuth.doAuthenticatedRequest(reqBuilder.build()).then((response) => 
+      new ConfirmationEmailCodec().decode(JSON.parse(response.body!))
+    )
+  }
+}
 
 // / Resource for a single user of an application
 class User extends BasicResource implements Gettable<UserResponse>, Removable {
-  readonly codec = new UserResponseCodec();
+  public readonly codec = new UserResponseCodec();
 
-  get: () => Promise<AuthProviderResponse>;
-  remove: () => Promise<void>;
+  public get: () => Promise<AuthProviderResponse>;
+  public remove: () => Promise<void>;
 }
 
 // / Resource for a list of users of an application
 class Users extends BasicResource
   implements Listable<UserResponse>, Creatable<UserCreator, UserResponse> {
-  readonly codec = new UserResponseCodec();
-  readonly creatorCodec = new UserCreatorCodec();
+  public readonly codec = new UserResponseCodec();
+  public readonly creatorCodec = new UserCreatorCodec();
 
-  user(uid: string): User {
+  public create: (data: UserCreator) => Promise<UserResponse>;
+  public list: () => Promise<UserResponse[]>;
+  
+  public user(uid: string): User {
     return new User(this.adminAuth, `${this.url}/${uid}`);
   }
-
-  create: (data: UserCreator) => Promise<UserResponse>;
-  list: () => Promise<UserResponse[]>;
 }
 
 class Function extends BasicResource
   implements Gettable<FunctionResponse>, Updatable<FunctionCreator>, Removable {
-  readonly codec = new FunctionResponseCodec();
-  readonly updatableCodec = new FunctionCreatorCodec();
+  public readonly codec = new FunctionResponseCodec();
+  public readonly updatableCodec = new FunctionCreatorCodec();
 
-  get: () => Promise<FunctionResponse>;
-  update: (data: FunctionCreator) => Promise<FunctionCreator>;
-  remove: () => Promise<void>;
+  public get: () => Promise<FunctionResponse>;
+  public update: (data: FunctionCreator) => Promise<FunctionCreator>;
+  public remove: () => Promise<void>;
 }
 
 class Functions extends BasicResource
   implements
     Listable<FunctionResponse>,
     Creatable<FunctionCreator, FunctionResponse> {
-  readonly codec = new FunctionResponseCodec();
-  readonly creatorCodec = new FunctionCreatorCodec();
+  public readonly codec = new FunctionResponseCodec();
+  public readonly creatorCodec = new FunctionCreatorCodec();
 
-  create: (data: FunctionCreator) => Promise<FunctionResponse>;
-  list: () => Promise<FunctionResponse[]>;
-
-  function(fid: string): Function {
+  public create: (data: FunctionCreator) => Promise<FunctionResponse>;
+  public list: () => Promise<FunctionResponse[]>;
+  
+  // TSLint has an issue that the name of our class is Function
+  /* tslint:disable */
+  public function(fid: string): Function {
     return new Function(this.adminAuth, `${this.url}/${fid}`);
   }
+  /* tslint:enable */
 }
 
 // / Resource for a specific rule of a service
 class Rule extends BasicResource implements Gettable<RuleResponse>, Removable {
-  codec = new RuleResponseCodec();
+  public codec = new RuleResponseCodec();
 
-  get: () => Promise<RuleResponse>;
-  remove: () => Promise<void>;
+  public get: () => Promise<RuleResponse>;
+  public remove: () => Promise<void>;
 }
 
 // / Resource for listing the rules of a service
 class Rules extends BasicResource
   implements Listable<RuleResponse>, Creatable<RuleCreator, RuleResponse> {
-  creatorCodec = new RuleCreatorCodec();
-  codec = new RuleResponseCodec();
+  public creatorCodec = new RuleCreatorCodec();
+  public codec = new RuleResponseCodec();
 
-  create: (data: RuleCreator) => Promise<RuleResponse>;
-  list: () => Promise<RuleResponse[]>;
+  public create: (data: RuleCreator) => Promise<RuleResponse>;
+  public list: () => Promise<RuleResponse[]>;
 }
 
 // / Resource for a specific service of an application. Can fetch rules
 // / of the service
 class Service extends BasicResource
   implements Gettable<ServiceResponse>, Removable {
-  codec = new ServiceResponseCodec();
+  public codec = new ServiceResponseCodec();
 
-  get: () => Promise<ServiceResponse>;
-  remove: () => Promise<void>;
+  public get: () => Promise<ServiceResponse>;
+  public remove: () => Promise<void>;
 
   public readonly rules = new Rules(this.adminAuth, `${this.url}/rules`);
 }
@@ -301,21 +324,21 @@ class Services extends BasicResource
   implements
     Listable<ServiceResponse>,
     Creatable<ServiceConfig, ServiceResponse> {
-  creatorCodec = new ServiceConfigCodec();
-  codec = new ServiceResponseCodec();
+  public creatorCodec = new ServiceConfigCodec();
+  public codec = new ServiceResponseCodec();
 
-  list: () => Promise<ServiceResponse[]>;
-  create: (data: ServiceConfig) => Promise<ServiceResponse>;
+  public list: () => Promise<ServiceResponse[]>;
+  public create: (data: ServiceConfig) => Promise<ServiceResponse>;
 
   // / GET a service
   // / - parameter id: id of the requested service
-  service(id: string): Service {
+  public service(id: string): Service {
     return new Service(this.adminAuth, `${this.url}/${id}`);
   }
 }
 
 class App extends BasicResource implements Gettable<AppResponse>, Removable {
-  readonly codec = new AppResponseCodec();
+  public readonly codec = new AppResponseCodec();
 
   public readonly authProviders = new AuthProviders(
     this.adminAuth,
@@ -329,19 +352,19 @@ class App extends BasicResource implements Gettable<AppResponse>, Removable {
     "$url/user_registrations"
   );
 
-  get: () => Promise<AppResponse>;
-  remove: () => Promise<void>;
+  public get: () => Promise<AppResponse>;
+  public remove: () => Promise<void>;
 }
 
 class Apps extends BasicResource implements Listable<AppResponse> {
-  readonly codec = new AppResponseCodec();
+  public readonly codec = new AppResponseCodec();
 
-  list: () => Promise<AppResponse[]>;
+  public list: () => Promise<AppResponse[]>;
 
   /// POST a new application
   /// - parameter name: name of the new application
   /// - parameter defaults: whether or not to enable default values
-  create(name: string, defaults: boolean): Promise<AppResponse> {
+  public create(name: string, defaults: boolean = false): Promise<AppResponse> {
     const encodedApp = { name };
     const req = new StitchAuthRequest.Builder()
       .withMethod(Method.POST)
@@ -357,7 +380,7 @@ class Apps extends BasicResource implements Listable<AppResponse> {
 
   /// GET an application
   /// - parameter id: id for the application
-  app(appId: string): App {
+  public app(appId: string): App {
     return new App(this.adminAuth, `${this.url}/${appId}`);
   }
 }
@@ -365,6 +388,15 @@ class Apps extends BasicResource implements Listable<AppResponse> {
 export {
   Apps,
   App,
+  BasicResource,
+  Gettable,
+  Updatable,
+  Listable,
+  Creatable,
+  Enablable,
+  Disablable,
+  Resource,
+  Removable,
   Services,
   Service,
   Rules,

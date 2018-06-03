@@ -9,7 +9,7 @@ export interface ServiceConfig {
 }
 
 export class ServiceConfigCodec implements Codec<ServiceConfig> {
-  decode(from: object): ServiceConfig {
+  public decode(from: object): ServiceConfig {
     const type = from["type"];
     let config: object = from["config"];
     if (type === "twilio") {
@@ -17,49 +17,49 @@ export class ServiceConfigCodec implements Codec<ServiceConfig> {
     }
 
     return {
+      config,
       name: from["name"],
       type: from["type"],
-      config
     };
   }
 
-  encode(from: ServiceConfig): object {
+  public encode(from: ServiceConfig): object {
     return {
-      name: from.name,
-      type: from.type,
       config: from.configCodec
         ? from.configCodec.encode(from.config)
-        : from.config
+        : from.config,
+      name: from.name,
+      type: from.type,
     };
   }
 }
 
 export class Http implements ServiceConfig {
-  readonly config = {};
-  readonly type = "http";
+  public readonly config = {};
+  public readonly type = "http";
 
   constructor(readonly name: string) {}
 }
 
 export interface AwsS3Config {
-  readonly region: String;
-  readonly accessKeyId: String;
-  readonly secretAccessKey: String;
+  readonly region: string;
+  readonly accessKeyId: string;
+  readonly secretAccessKey: string;
 }
 
 export class AwsS3 implements ServiceConfig {
-  readonly type = "aws-s3";
+  public readonly type = "aws-s3";
   constructor(readonly name, readonly config: AwsS3Config) {}
 }
 
 export interface AwsSesConfig {
-  readonly region: String;
-  readonly accessKeyId: String;
-  readonly secretAccessKey: String;
+  readonly region: string;
+  readonly accessKeyId: string;
+  readonly secretAccessKey: string;
 }
 
 export class AwsSes implements ServiceConfig {
-  readonly type = "aws-ses";
+  public readonly type = "aws-ses";
   constructor(readonly name, readonly config: AwsSesConfig) {}
 }
 
@@ -69,19 +69,19 @@ export enum TwilioConfigFields {
 }
 
 export interface TwilioConfig {
-  readonly authToken: String;
-  readonly accountSid: String;
+  readonly authToken: string;
+  readonly accountSid: string;
 }
 
 export class TwilioConfigCodec implements Codec<TwilioConfig> {
-  decode(from: object): TwilioConfig {
+  public decode(from: object): TwilioConfig {
     return {
+      accountSid: from[TwilioConfigFields.AccountSid],
       authToken: from[TwilioConfigFields.AuthToken],
-      accountSid: from[TwilioConfigFields.AccountSid]
     };
   }
 
-  encode(from: TwilioConfig): object {
+  public encode(from: TwilioConfig): object {
     return {
       [TwilioConfigFields.AuthToken]: from.authToken,
       [TwilioConfigFields.AccountSid]: from.accountSid
@@ -90,8 +90,8 @@ export class TwilioConfigCodec implements Codec<TwilioConfig> {
 }
 
 export class Twilio implements ServiceConfig {
-  readonly configCodec = new TwilioConfigCodec();
-  readonly type = "twilio";
+  public readonly configCodec = new TwilioConfigCodec();
+  public readonly type = "twilio";
   constructor(readonly name, readonly config: TwilioConfig) {}
 }
 

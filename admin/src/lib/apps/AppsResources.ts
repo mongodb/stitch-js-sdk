@@ -1,7 +1,7 @@
-import { Apps, checkEmpty, App } from "../Resources";
 import * as EJSON from "mongodb-extjson";
 import { Method, StitchAuthRequest } from "stitch-core";
 import { Codec } from "stitch-core";
+import { App, Apps, checkEmpty } from "../Resources";
 
 enum Fields {
   Id = "_id",
@@ -12,23 +12,23 @@ enum Fields {
 /// View into a specific application
 export interface AppResponse {
   /// unique, internal id of this application
-  readonly id: String;
+  readonly id: string;
   /// name of this application
-  readonly name: String;
+  readonly name: string;
   /// public, client app id (for `StitchClient`) of this application
-  readonly clientAppId: String;
+  readonly clientAppId: string;
 }
 
 export class AppResponseCodec implements Codec<AppResponse> {
-  decode(from: object): AppResponse {
+  public decode(from: object): AppResponse {
     return {
+      clientAppId: from[Fields.ClientAppId],
       id: from[Fields.Id],
       name: from[Fields.Name],
-      clientAppId: from[Fields.ClientAppId]
     };
   }
 
-  encode(from: AppResponse): object {
+  public encode(from: AppResponse): object {
     return {
       [Fields.Id]: from.id,
       [Fields.Name]: from.name,

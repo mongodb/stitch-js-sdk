@@ -1,9 +1,9 @@
 import {
   CoreStitchAuth,
-  StitchUserFactory,
   DeviceFields,
-  StitchRequestClient,
   StitchAuthRoutes,
+  StitchRequestClient,
+  StitchUserFactory,
   Storage
 } from "stitch-core";
 import { StitchAdminUser, StitchAdminUserFactory } from "./StitchAdminUser";
@@ -17,7 +17,7 @@ export default class StitchAdminAuth extends CoreStitchAuth<StitchAdminUser> {
   }
 
   public get deviceInfo(): { [key: string]: string } {
-    var info = {};
+    const info = {};
 
     if (this.hasDeviceId) {
       info[DeviceFields.DEVICE_ID] = this.deviceId;

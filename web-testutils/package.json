@@ -1,17 +1,22 @@
 {
-  "name": "stitch-admin",
-  "version": "4.0.0",
-  "description": "Module that provides client access to the Stitch Admin API.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "author": "Jason Flax",
+  "name": "web-testutils",
+  "version": "1.0.0",
+  "description": "",
+  "main": "BaseStitchIntTestWebHarness.js",
+  "types": "BaseStitchIntTestWebHarness.d.ts",
+  "author": "",
   "license": "ISC",
   "dependencies": {
+    "stitch-admin": "file:../admin",
     "stitch-core": "file:../core",
-    "mongodb-extjson": "^2.1.0"
+    "stitch-core-testutils": "file:../core-testutils",
+    "stitch-web": "file:../web"
   },
   "devDependencies": {
+    "@types/stitch-admin": "file:../admin",
     "@types/stitch-core": "file:../core",
+    "@types/stitch-core-testutils": "file:../core-testutils",
+    "@types/stitch-web": "file:../web",
     "ts-loader": "^4.0.0",
     "typescript": "^2.8.1",
     "prettier": "1.12.0",

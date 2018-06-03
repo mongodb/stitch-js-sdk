@@ -1,5 +1,5 @@
-import { AuthProvider, AuthProviders } from "../Resources";
 import { Codec } from "stitch-core";
+import { AuthProvider, AuthProviders } from "../Resources";
 
 /// View into a specific auth provider
 enum Fields {
@@ -21,16 +21,16 @@ export interface AuthProviderResponse {
 }
 
 export class AuthProviderResponseCodec implements Codec<AuthProviderResponse> {
-  decode(from: object): AuthProviderResponse {
+  public decode(from: object): AuthProviderResponse {
     return {
-      id: from[Fields.ID],
       disabled: from[Fields.DISABLED],
+      id: from[Fields.ID],
       name: from[Fields.NAME],
       type: from[Fields.TYPE]
     };
   }
 
-  encode(from: AuthProviderResponse): object {
+  public encode(from: AuthProviderResponse): object {
     return {
       [Fields.ID]: from.id,
       [Fields.DISABLED]: from.disabled,
@@ -40,10 +40,3 @@ export class AuthProviderResponseCodec implements Codec<AuthProviderResponse> {
   }
 }
 
-/// GET an auth provider
-/// - parameter providerId: id of the provider
-AuthProviders.prototype["authProvider"] = (
-  providerId: string
-): AuthProvider => {
-  return new AuthProvider(this.adminAuth, `${this.url}/${providerId}`);
-};

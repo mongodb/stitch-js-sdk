@@ -8,21 +8,12 @@ const TAG = "Stitch";
 const appClients: { [key: string]: StitchAppClientImpl } = {};
 
 export default class Stitch {
-  private static ensureInitialized() {
-    if (!Stitch.initialized) {
-      throw new Error(
-        "Stitch not initialized yet; please call initialize() first"
-      );
-    }
-  }
-
   public static initialize() {
     if (Stitch.initialized) {
       return;
     }
 
     // TODO: get app info
-
     Stitch.initialized = true;
   }
 
@@ -41,6 +32,10 @@ export default class Stitch {
       );
     }
     return appClients[clientAppId];
+  }
+
+  public static hasAppClient(clientAppId: string): boolean {
+    return appClients[clientAppId] !== undefined;
   }
 
   public static initializeDefaultAppClient(
@@ -83,18 +78,18 @@ export default class Stitch {
     if (configBuilder.transport == null) {
       configBuilder.withTransport(new FetchTransport());
     }
-    if (configBuilder.baseURL == null || configBuilder.baseURL == "") {
+    if (configBuilder.baseURL == null || configBuilder.baseURL === "") {
       configBuilder.withBaseURL(DEFAULT_BASE_URL);
     }
     if (
       configBuilder.localAppName == null ||
-      configBuilder.localAppName == ""
+      configBuilder.localAppName === ""
     ) {
       configBuilder.withLocalAppName(Stitch.localAppName);
     }
     if (
       configBuilder.localAppVersion == null ||
-      configBuilder.localAppVersion == ""
+      configBuilder.localAppVersion === ""
     ) {
       configBuilder.withLocalAppVersion(Stitch.localAppVersion);
     }
@@ -113,4 +108,12 @@ export default class Stitch {
   private static localAppVersion: string;
   private static defaultClientAppId: string;
   private static localAppName: string;
+
+  private static ensureInitialized() {
+    if (!Stitch.initialized) {
+      throw new Error(
+        "Stitch not initialized yet; please call initialize() first"
+      );
+    }
+  }
 }

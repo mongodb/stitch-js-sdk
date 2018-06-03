@@ -13,7 +13,7 @@ export interface ServiceResponse {
 }
 
 export class ServiceResponseCodec implements Codec<ServiceResponse> {
-  decode(from: object): ServiceResponse {
+  public decode(from: object): ServiceResponse {
     return {
       id: from[Fields.Id],
       name: from[Fields.Name],
@@ -21,7 +21,7 @@ export class ServiceResponseCodec implements Codec<ServiceResponse> {
     };
   }
 
-  encode(from: ServiceResponse): object {
+  public encode(from: ServiceResponse): object {
     return {
       [Fields.Id]: from.id,
       [Fields.Name]: from.name,
