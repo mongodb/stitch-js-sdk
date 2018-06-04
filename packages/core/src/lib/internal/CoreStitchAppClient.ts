@@ -22,13 +22,10 @@ export default class CoreStitchAppClient {
     );
   }
 
-  private getCallFunctionRequest(
-    name: string,
-    args: any[]
-  ): StitchAuthRequest {
+  private getCallFunctionRequest(name: string, args: any[]): StitchAuthRequest {
     const body = {
       arguments: args,
-      name,
+      name
     };
 
     const reqBuilder = new StitchAuthDocRequest.Builder();

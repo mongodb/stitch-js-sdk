@@ -19,7 +19,7 @@ export class ServiceConfigCodec implements Codec<ServiceConfig> {
     return {
       config,
       name: from["name"],
-      type: from["type"],
+      type: from["type"]
     };
   }
 
@@ -29,7 +29,7 @@ export class ServiceConfigCodec implements Codec<ServiceConfig> {
         ? from.configCodec.encode(from.config)
         : from.config,
       name: from.name,
-      type: from.type,
+      type: from.type
     };
   }
 }
@@ -77,7 +77,7 @@ export class TwilioConfigCodec implements Codec<TwilioConfig> {
   public decode(from: object): TwilioConfig {
     return {
       accountSid: from[TwilioConfigFields.AccountSid],
-      authToken: from[TwilioConfigFields.AuthToken],
+      authToken: from[TwilioConfigFields.AuthToken]
     };
   }
 

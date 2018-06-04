@@ -24,7 +24,7 @@ export class AppResponseCodec implements Codec<AppResponse> {
     return {
       clientAppId: from[Fields.ClientAppId],
       id: from[Fields.Id],
-      name: from[Fields.Name],
+      name: from[Fields.Name]
     };
   }
 

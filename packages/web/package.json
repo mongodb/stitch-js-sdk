@@ -20,7 +20,7 @@
     "watch": "tsc -w",
     "lint": "tslint src/**/*.ts",
     "lint-fix": "tslint --fix src/**/*.ts",
-    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\"",
-    "tslint-check": "tslint-config-prettier-check ./tslint.json"
+    "lint-check": "tslint-config-prettier-check ./tslint.json",
+    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\""
   }
 }

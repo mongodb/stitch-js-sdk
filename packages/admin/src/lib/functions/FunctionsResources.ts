@@ -21,7 +21,7 @@ export class FunctionCreatorCodec implements Codec<FunctionCreator> {
       canEvaluate: from[FunctionCreatorFields.CanEvaluate],
       name: from[FunctionCreatorFields.Name],
       private: from[FunctionCreatorFields.Private],
-      source: from[FunctionCreatorFields.Source],
+      source: from[FunctionCreatorFields.Source]
     };
   }
 

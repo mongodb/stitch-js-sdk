@@ -31,11 +31,7 @@ function testClientCall(
 
   const routes = new StitchAppRoutes(clientAppId).authRoutes;
 
-  const client = new class extends CoreUserAPIKeyAuthProviderClient {
-    constructor() {
-      super(requestClient, routes);
-    }
-  }();
+  const client = new CoreUserAPIKeyAuthProviderClient(requestClient, routes);
 
   when(
     requestClientMock.doAuthenticatedRequest(new RequestClassMatcher(

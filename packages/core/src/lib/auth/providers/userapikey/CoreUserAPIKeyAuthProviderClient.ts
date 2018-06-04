@@ -22,12 +22,13 @@ enum ApiKeyFields {
 export default class CoreUserAPIKeyAuthProviderClient extends CoreAuthProviderClient<
   StitchAuthRequestClient
 > {
-  protected constructor(
+  public constructor(
     requestClient: StitchAuthRequestClient,
     authRoutes: StitchAuthRoutes
   ) {
     const baseRoute = `${authRoutes.baseAuthRoute}/api_keys`;
-    super(UserAPIKeyAuthProvider.TYPE, requestClient, baseRoute);
+    const name = UserAPIKeyAuthProvider.DEFAULT_NAME;
+    super(name, requestClient, baseRoute);
   }
 
   /**
@@ -37,7 +38,8 @@ export default class CoreUserAPIKeyAuthProviderClient extends CoreAuthProviderCl
    */
   public createApiKey(name: string): Promise<UserAPIKey> {
     const reqBuilder = new StitchAuthDocRequest.Builder();
-    reqBuilder.withMethod(Method.POST)
+    reqBuilder
+      .withMethod(Method.POST)
       .withPath(this.baseRoute)
       .withDocument({
         [ApiKeyFields.NAME]: name

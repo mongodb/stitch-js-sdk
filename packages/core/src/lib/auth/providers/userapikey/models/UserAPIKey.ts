@@ -30,7 +30,7 @@ export default class UserAPIKey {
       body[Fields.DISABLED]
     );
   }
-  
+
   /**
    * The id of the key.
    */

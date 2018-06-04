@@ -7,10 +7,11 @@ import { StitchRequest } from "./StitchRequest";
 
 export class StitchAuthDocRequest extends StitchAuthRequest {
   public constructor(
-    request: StitchRequest, 
+    request: StitchRequest,
     public readonly document: object,
     public readonly shouldUseRefreshToken: boolean,
-    public readonly shouldRefreshOnFailure: boolean) {
+    public readonly shouldRefreshOnFailure: boolean
+  ) {
     super(request, shouldUseRefreshToken, shouldRefreshOnFailure);
   }
 
@@ -57,7 +58,10 @@ export namespace StitchAuthDocRequest {
       this.headers![Headers.CONTENT_TYPE] = ContentTypes.APPLICATION_JSON;
       this.withBody(stringify(this.document));
       return new StitchAuthDocRequest(
-        super.build(), this.document, this.useRefreshToken, this.shouldRefreshOnFailure
+        super.build(),
+        this.document,
+        this.useRefreshToken,
+        this.shouldRefreshOnFailure
       );
     }
   }

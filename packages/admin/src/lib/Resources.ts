@@ -36,7 +36,10 @@ import {
   ServiceResponseCodec
 } from "./services/ServicesResources";
 import StitchAdminAuth from "./StitchAdminAuth";
-import { ConfirmationEmail, ConfirmationEmailCodec } from "./userRegistrations/UserRegistrationsResources";
+import {
+  ConfirmationEmail,
+  ConfirmationEmailCodec
+} from "./userRegistrations/UserRegistrationsResources";
 import {
   UserCreator,
   UserCreatorCodec,
@@ -46,9 +49,9 @@ import {
 
 function applyMixins(derivedCtor: any, baseCtors: any[]) {
   baseCtors.forEach(baseCtor => {
-      Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
-          derivedCtor.prototype[name] = baseCtor.prototype[name];
-      });
+    Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
+      derivedCtor.prototype[name] = baseCtor.prototype[name];
+    });
   });
 }
 
@@ -163,7 +166,9 @@ class Updatable<T> extends BasicResource {
 
     return this.adminAuth
       .doAuthenticatedRequest(reqBuilder.build())
-      .then(response => this.updatableCodec.decode(EJSON.parse(response.body!)));
+      .then(response =>
+        this.updatableCodec.decode(EJSON.parse(response.body!))
+      );
   }
 }
 
@@ -212,7 +217,13 @@ class AuthProvider extends BasicResource
   public enable: () => Promise<void>;
   public disable: () => Promise<void>;
 }
-applyMixins(AuthProvider, [Gettable, Updatable, Removable, Enablable, Disablable])
+applyMixins(AuthProvider, [
+  Gettable,
+  Updatable,
+  Removable,
+  Enablable,
+  Disablable
+]);
 
 // / Resource for listing the auth providers of an application
 class AuthProviders extends BasicResource
@@ -227,25 +238,25 @@ class AuthProviders extends BasicResource
 
   /// GET an auth provider
   /// - parameter providerId: id of the provider
-  public authProvider(
-    providerId: string
-  ): AuthProvider {
+  public authProvider(providerId: string): AuthProvider {
     return new AuthProvider(this.adminAuth, `${this.url}/${providerId}`);
-  };
+  }
 }
-applyMixins(AuthProviders, [Listable, Creatable])
+applyMixins(AuthProviders, [Listable, Creatable]);
 
 // / Resource for user registrations of an application
 class UserRegistrations extends BasicResource {
   public sendConfirmation(email: string): Promise<ConfirmationEmail> {
-    const reqBuilder = new StitchAuthRequest.Builder()
+    const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
-            .withMethod(Method.POST)
-            .withPath(`${this.url}/by_email/${email}/send_confirm`)
+      .withMethod(Method.POST)
+      .withPath(`${this.url}/by_email/${email}/send_confirm`);
 
-    return this.adminAuth.doAuthenticatedRequest(reqBuilder.build()).then((response) => 
-      new ConfirmationEmailCodec().decode(JSON.parse(response.body!))
-    )
+    return this.adminAuth
+      .doAuthenticatedRequest(reqBuilder.build())
+      .then(response =>
+        new ConfirmationEmailCodec().decode(JSON.parse(response.body!))
+      );
   }
 }
 
@@ -259,20 +270,19 @@ class User extends BasicResource implements Gettable<UserResponse>, Removable {
 applyMixins(User, [Gettable, Removable]);
 
 // / Resource for a list of users of an application
-class Users extends 
-  BasicResource
+class Users extends BasicResource
   implements Listable<UserResponse>, Creatable<UserCreator, UserResponse> {
   public readonly codec = new UserResponseCodec();
   public readonly creatorCodec = new UserCreatorCodec();
 
   public create: (data: UserCreator) => Promise<UserResponse>;
   public list: () => Promise<UserResponse[]>;
-  
+
   public user(uid: string): User {
     return new User(this.adminAuth, `${this.url}/${uid}`);
   }
 }
-applyMixins(Users, [Listable, Creatable])
+applyMixins(Users, [Listable, Creatable]);
 
 class Function extends BasicResource
   implements Gettable<FunctionResponse>, Updatable<FunctionCreator>, Removable {
@@ -283,7 +293,7 @@ class Function extends BasicResource
   public update: (data: FunctionCreator) => Promise<FunctionCreator>;
   public remove: () => Promise<void>;
 }
-applyMixins(Function, [Gettable, Updatable, Removable])
+applyMixins(Function, [Gettable, Updatable, Removable]);
 
 class Functions extends BasicResource
   implements
@@ -294,7 +304,7 @@ class Functions extends BasicResource
 
   public create: (data: FunctionCreator) => Promise<FunctionResponse>;
   public list: () => Promise<FunctionResponse[]>;
-  
+
   // TSLint has an issue that the name of our class is Function
   /* tslint:disable */
   public function(fid: string): Function {
@@ -302,7 +312,7 @@ class Functions extends BasicResource
   }
   /* tslint:enable */
 }
-applyMixins(Functions, [Creatable, Listable])
+applyMixins(Functions, [Creatable, Listable]);
 
 // / Resource for a specific rule of a service
 class Rule extends BasicResource implements Gettable<RuleResponse>, Removable {
@@ -311,7 +321,7 @@ class Rule extends BasicResource implements Gettable<RuleResponse>, Removable {
   public get: () => Promise<RuleResponse>;
   public remove: () => Promise<void>;
 }
-applyMixins(Rule, [Gettable, Removable])
+applyMixins(Rule, [Gettable, Removable]);
 
 // / Resource for listing the rules of a service
 class Rules extends BasicResource
@@ -322,7 +332,7 @@ class Rules extends BasicResource
   public create: (data: RuleCreator) => Promise<RuleResponse>;
   public list: () => Promise<RuleResponse[]>;
 }
-applyMixins(Rules, [Creatable, Listable])
+applyMixins(Rules, [Creatable, Listable]);
 
 // / Resource for a specific service of an application. Can fetch rules
 // / of the service
@@ -335,7 +345,7 @@ class Service extends BasicResource
 
   public readonly rules = new Rules(this.adminAuth, `${this.url}/rules`);
 }
-applyMixins(Service, [Gettable, Removable])
+applyMixins(Service, [Gettable, Removable]);
 
 // / Resource for listing services of an application
 class Services extends BasicResource
@@ -354,7 +364,7 @@ class Services extends BasicResource
     return new Service(this.adminAuth, `${this.url}/${id}`);
   }
 }
-applyMixins(Services, [Listable, Creatable])
+applyMixins(Services, [Listable, Creatable]);
 
 class App extends BasicResource implements Gettable<AppResponse>, Removable {
   public readonly codec = new AppResponseCodec();
@@ -363,8 +373,14 @@ class App extends BasicResource implements Gettable<AppResponse>, Removable {
     this.adminAuth,
     `${this.url}/auth_providers`
   );
-  public readonly functions = new Functions(this.adminAuth, `${this.url}/functions`);
-  public readonly services = new Services(this.adminAuth, `${this.url}/services`);
+  public readonly functions = new Functions(
+    this.adminAuth,
+    `${this.url}/functions`
+  );
+  public readonly services = new Services(
+    this.adminAuth,
+    `${this.url}/services`
+  );
   public readonly users = new Users(this.adminAuth, `${this.url}/users`);
   public readonly userRegistrations = new UserRegistrations(
     this.adminAuth,
@@ -374,7 +390,7 @@ class App extends BasicResource implements Gettable<AppResponse>, Removable {
   public get: () => Promise<AppResponse>;
   public remove: () => Promise<void>;
 }
-applyMixins(App, [Gettable, Removable])
+applyMixins(App, [Gettable, Removable]);
 
 class Apps extends BasicResource implements Listable<AppResponse> {
   public readonly codec = new AppResponseCodec();
@@ -404,7 +420,7 @@ class Apps extends BasicResource implements Listable<AppResponse> {
     return new App(this.adminAuth, `${this.url}/${appId}`);
   }
 }
-applyMixins(Apps, [Listable])
+applyMixins(Apps, [Listable]);
 
 export {
   Apps,

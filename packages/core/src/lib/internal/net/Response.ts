@@ -8,9 +8,8 @@ export default class Response {
   ) {
     // preprocess headers
 
-    Object.keys(headers).map(
-      (key, index) => {
-        this.headers[key.toLocaleLowerCase()] = headers[key]
-      });
+    Object.keys(headers).map((key, index) => {
+      this.headers[key.toLocaleLowerCase()] = headers[key];
+    });
   }
 }

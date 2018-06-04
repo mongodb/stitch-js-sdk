@@ -9,14 +9,14 @@ export class ProviderConfigCodec implements Codec<ProviderConfig> {
   public decode(from: object): ProviderConfig {
     return {
       config: from["config"],
-      type: from["type"],
+      type: from["type"]
     };
   }
 
   public encode(from: ProviderConfig): object {
     return {
       config: from.config,
-      type: from.type,
+      type: from.type
     };
   }
 }
@@ -35,7 +35,7 @@ export class Userpass implements ProviderConfig {
     confirmEmailSubject: this.confirmEmailSubject,
     emailConfirmationUrl: this.emailConfirmationUrl,
     resetPasswordSubject: this.resetPasswordSubject,
-    resetPasswordUrl: this.resetPasswordUrl,
+    resetPasswordUrl: this.resetPasswordUrl
   };
   constructor(
     readonly emailConfirmationUrl: string,

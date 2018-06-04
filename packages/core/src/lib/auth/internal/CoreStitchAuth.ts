@@ -242,11 +242,13 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     // Promise.finally needs to be added as a shim
     // to TS. Until we need another .finally, we
     // will need this workaround for cleanup
-    return this.doLogout().then(() => {
-      this.clearAuth();
-    }).catch(() => {
-      this.clearAuth();
-    });
+    return this.doLogout()
+      .then(() => {
+        this.clearAuth();
+      })
+      .catch(() => {
+        this.clearAuth();
+      });
   }
 
   /**

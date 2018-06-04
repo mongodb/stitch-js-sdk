@@ -28,7 +28,7 @@ import StitchCredential from "./auth/StitchCredential";
 import StitchUserIdentity from "./auth/StitchUserIdentity";
 import StitchUserProfile from "./auth/StitchUserProfile";
 import UserType from "./auth/UserType";
-import { Codec, Decoder, Encoder} from "./internal/common/Codec";
+import { Codec, Decoder, Encoder } from "./internal/common/Codec";
 import { MemoryStorage, Storage } from "./internal/common/Storage";
 import CoreStitchAppClient from "./internal/CoreStitchAppClient";
 import FetchTransport from "./internal/net/FetchTransport";
@@ -45,7 +45,6 @@ import { StitchAppClientConfiguration } from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";
 import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
 import StitchServiceException from "./StitchServiceException";
-
 
 export {
   AnonymousAuthProvider,

@@ -15,19 +15,9 @@
     "mongodb-extjson": "^2.1.0"
   },
   "devDependencies": {
-    "jest": "^22.4.3",
-    "jest-cli": "^22.4.2",
     "jsonwebtoken": "8.2.1",
     "@types/jsonwebtoken": "^7.2.6",
-    "prettier": "1.12.0",
-    "ts-jest": "^22.4.2",
-    "ts-loader": "^4.0.0",
-    "ts-mockito": "^2.3.0",
-    "tslint": "^5.9.1",
-    "tslint-config-prettier": "^1.10.0",
-    "typescript": "^2.8.1",
-    "webpack": "^4.0.0",
-    "webpack-cli": "^2.0.9"
+    "ts-mockito": "^2.3.0"
   },
   "scripts": {
     "build": "tsc",

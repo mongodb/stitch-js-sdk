@@ -10,12 +10,12 @@ import { UserAPIKeyAuthProviderClient } from "../UserAPIKeyAuthProviderClient";
 export default class UserAPIKeyAuthProviderClientImpl
   extends CoreUserAPIKeyAuthProviderClient
   implements UserAPIKeyAuthProviderClient {
-    public constructor(
-      requestClient: StitchAuthRequestClient,
-      routes: StitchAuthRoutes
-    ) {
-      super(requestClient, routes);
-    }
+  public constructor(
+    requestClient: StitchAuthRequestClient,
+    routes: StitchAuthRoutes
+  ) {
+    super(requestClient, routes);
+  }
 
   public createApiKey(name: string): Promise<UserAPIKey> {
     return super.createApiKey(name);

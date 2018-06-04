@@ -39,4 +39,3 @@ export class AuthProviderResponseCodec implements Codec<AuthProviderResponse> {
     };
   }
 }
-

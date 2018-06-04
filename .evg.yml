@@ -65,8 +65,9 @@ functions:
           export STITCH_PATH=$GOPATH/src/github.com/10gen/stitch
           export PATH="$PATH:$STITCH_PATH/etc/transpiler/bin"
           which transpiler
-          cd stitch-js-sdk/test/bin
+          # cd stitch-js-sdk/test/bin
           echo "running stitch"
+          go run $STITCH_PATH/cmd/auth/user.go addUser -domainID 000000000000000000000000 -mongoURI mongodb://localhost:26000 -salt 'DQOWene1723baqD!_@#' -id "unique_user@domain.com" -password "password"
           go run $STITCH_PATH/cmd/server/main.go --configFile $STITCH_PATH/etc/configs/test_config.json
     - command: shell.exec
       params:
@@ -85,8 +86,8 @@ tasks:
   - name: run_tests
     commands:
       - func: "fetch_source"
-      # - func: "setup_mongod"
-      # - func: "setup_stitch"
+      - func: "setup_mongod"
+      - func: "setup_stitch"
       - command: shell.exec
         params: 
           script: | # NOTE: Using yarn for install instead of npm due to evergreen permission issue with chromedriver devDependency
@@ -94,12 +95,11 @@ tasks:
             echo "running client tests"
             #source ./creds
             cd stitch-js-sdk
-            cd core
+            npm install --global lerna
             npm install
-            npm run build
-            ls -l
-            ls dist
-            npm run test
+            lerna bootstrap
+            lerna run build
+            lerna run --parallel test
 
   - name: check_import
     commands:
