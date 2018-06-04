@@ -1,0 +1,28 @@
+{
+  "name": "stitch-admin",
+  "version": "4.0.0",
+  "description": "Module that provides client access to the Stitch Admin API.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "Jason Flax",
+  "license": "ISC",
+  "dependencies": {
+    "stitch-core": "^4.0.0",
+    "mongodb-extjson": "^2.1.0"
+  },
+  "devDependencies": {
+    "ts-loader": "^4.0.0",
+    "typescript": "^2.8.1",
+    "prettier": "1.12.0",
+    "tslint-config-prettier": "^1.10.0",
+    "tslint": "^5.9.1"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "lint": "tslint -c tslint.json src/**/*.ts",
+    "lint-fix": "tslint --fix src/**/*.ts",
+    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\"",
+    "tslint-check": "tslint-config-prettier-check ./tslint.json"
+  }
+}

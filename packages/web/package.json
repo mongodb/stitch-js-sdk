@@ -1,0 +1,26 @@
+{
+  "name": "stitch-web",
+  "version": "4.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "description": "web",
+  "author": "",
+  "license": "Apache2",
+  "dependencies": {
+    "bson": "^2.0.6",
+    "detect-browser": "^2.4.0",
+    "stitch-core": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/bson": "^1.0.8",
+    "@types/detect-browser": "^2.0.1"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "lint": "tslint src/**/*.ts",
+    "lint-fix": "tslint --fix src/**/*.ts",
+    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\"",
+    "tslint-check": "tslint-config-prettier-check ./tslint.json"
+  }
+}

@@ -57,8 +57,4 @@ typings/
 # dotenv environment variables file
 .env
 
-/core/dist/
-/web/dist/
-/admin/dist/
-/core-testutils/dist/
-/web-testutils/dist/
+dist/

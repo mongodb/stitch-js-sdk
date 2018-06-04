@@ -1,0 +1,76 @@
+import { Codec, Encoder } from "stitch-core";
+
+export enum AwsS3Actions {
+  Put = "put",
+  SignPolicy = "signPolicy"
+}
+
+export enum AwsSesActions {
+  Send = "send"
+}
+
+export enum HttpActions {
+  Get = "get",
+  Post = "post",
+  Put = "put",
+  Delete = "delete",
+  Head = "head",
+  Patch = "patch"
+}
+
+export enum TwilioActions {
+  Send = "send"
+}
+
+export class AwsS3 {
+  public type = "aws-s3";
+  constructor(readonly name: string, readonly actions: Set<AwsS3Actions>) {}
+}
+export class AwsSes {
+  public type = "aws-ses";
+  constructor(readonly name: string, readonly actions: Set<AwsSesActions>) {}
+}
+export class Http {
+  public type = "http";
+  constructor(readonly name: string, readonly actions: Set<HttpActions>) {}
+}
+export class MongoDb {
+  public type = "mongodb";
+  constructor(readonly namespace: string, readonly rule: object) {}
+}
+export class Twilio {
+  public type = "twilio";
+  constructor(readonly name: string, readonly actions: Set<TwilioActions>) {}
+}
+
+export type RuleCreator = AwsS3 | AwsSes | Http | MongoDb;
+
+export class RuleCreatorCodec implements Encoder<RuleCreator> {
+  public encode(from: RuleCreator): object {
+    switch (from.type) {
+      case "mongodb":
+        return new MongoDbCodec().encode(from as MongoDb);
+      default:
+        return from;
+    }
+  }
+}
+
+export class MongoDbCodec implements Encoder<MongoDb> {
+  public encode(from: MongoDb): object {
+    from.rule["namespace"] = from.namespace;
+    return from.rule;
+  }
+}
+
+export class RuleResponse {}
+
+export class RuleResponseCodec implements Codec<RuleResponse> {
+  public encode(from: RuleResponse): object {
+    return {};
+  }
+
+  public decode(from: object): RuleResponse {
+    return {};
+  }
+}
