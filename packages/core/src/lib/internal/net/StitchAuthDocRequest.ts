@@ -54,7 +54,7 @@ export namespace StitchAuthDocRequest {
       if (this.headers === undefined) {
         this.withHeaders({});
       }
-      
+
       this.headers![Headers.CONTENT_TYPE] = ContentTypes.APPLICATION_JSON;
 
       this.withBody(stringify(this.document));

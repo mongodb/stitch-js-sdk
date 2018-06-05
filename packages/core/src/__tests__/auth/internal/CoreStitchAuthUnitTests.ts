@@ -462,7 +462,7 @@ describe("CoreStitchAuthUnitTests", () => {
           statusCode: 200
         });
 
-        return auth.doAuthenticatedJSONRequest(reqBuilder.build());
+        return auth.doAuthenticatedRequestWithDecoder(reqBuilder.build());
       })
       .then((res: number) => {
         expect(res).toEqual(42);
@@ -473,7 +473,7 @@ describe("CoreStitchAuthUnitTests", () => {
           statusCode: 200
         });
 
-        return auth.doAuthenticatedJSONRequest(reqBuilder.build());
+        return auth.doAuthenticatedRequestWithDecoder(reqBuilder.build());
       })
       .then((res: { [key: string]: string }) => {
         expect(expectedObjectId).toEqual(res["_id"]);
@@ -492,7 +492,7 @@ describe("CoreStitchAuthUnitTests", () => {
           intValue: number;
         }
 
-        return auth.doAuthenticatedJSONRequest(
+        return auth.doAuthenticatedRequestWithDecoder(
           reqBuilder.build(),
           new class implements Decoder<TestDoc> {
             public decode(from: object): TestDoc {
