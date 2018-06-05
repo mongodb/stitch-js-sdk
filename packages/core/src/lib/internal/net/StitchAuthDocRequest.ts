@@ -11,9 +11,9 @@ export class StitchAuthDocRequest extends StitchAuthRequest {
     request: StitchAuthRequest | StitchRequest,
     document: object
   ) {
-    request instanceof StitchAuthRequest ? 
-      super(request, request.useRefreshToken, request.shouldRefreshOnFailure) :
-      super(request);
+    request instanceof StitchAuthRequest
+      ? super(request, request.useRefreshToken, request.shouldRefreshOnFailure)
+      : super(request);
 
     this.document = document;
   }
@@ -52,10 +52,7 @@ export namespace StitchAuthDocRequest {
       }
 
       this.withBody(stringify(this.document));
-      return new StitchAuthDocRequest(
-        super.build(),
-        this.document
-      );
+      return new StitchAuthDocRequest(super.build(), this.document);
     }
   }
 }

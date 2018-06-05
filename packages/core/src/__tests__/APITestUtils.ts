@@ -8,7 +8,12 @@ import {
   when
 } from "ts-mockito";
 import { Matcher } from "ts-mockito/lib/matcher/type/Matcher";
-import { CoreStitchAuth, CoreUserAPIKeyAuthProviderClient, StitchAppRoutes, StitchRequestClient } from "../lib";
+import {
+  CoreStitchAuth,
+  CoreUserAPIKeyAuthProviderClient,
+  StitchAppRoutes,
+  StitchRequestClient
+} from "../lib";
 import APIAuthInfo from "../lib/auth/internal/models/APIAuthInfo";
 import APICoreUserProfile from "../lib/auth/internal/models/APICoreUserProfile";
 import APIStitchUserIdentity from "../lib/auth/internal/models/APIStitchUserIdentity";
