@@ -9,7 +9,7 @@ describe("StitchAppClientConfigurationUnitTests", () => {
     const localAppVersion = "bar";
     const localAppName = "baz";
     const baseUrl = "qux";
-    const storage = new MemoryStorage();
+    const storage = new MemoryStorage("storage");
     const transport = new class implements Transport {
       public roundTrip(request: BasicRequest): Promise<Response> {
         return Promise.resolve({ statusCode: 200, headers: {}, body: "good" });

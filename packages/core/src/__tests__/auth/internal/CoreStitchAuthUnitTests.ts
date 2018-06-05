@@ -75,11 +75,13 @@ class StitchAuth extends CoreStitchAuth<CoreStitchUserImpl> {
 }
 
 describe("CoreStitchAuthUnitTests", () => {
+  const appId = "my_app-12345";
+
   it("should login with credentials", () => {
     const requestClientMock = getMockedRequestClient();
     const requestClient = instance(requestClientMock);
-    const routes = new StitchAppRoutes("my_app-12345").authRoutes;
-    const auth = new StitchAuth(requestClient, routes, new MemoryStorage());
+    const routes = new StitchAppRoutes(appId).authRoutes;
+    const auth = new StitchAuth(requestClient, routes, new MemoryStorage(appId));
 
     return auth
       .loginWithCredentialInternal(new AnonymousCredential())
@@ -138,7 +140,7 @@ describe("CoreStitchAuthUnitTests", () => {
     const requestClientMock = getMockedRequestClient();
     const requestClient = instance(requestClientMock);
     const routes = new StitchAppRoutes("my_app-12345").authRoutes;
-    const auth = new StitchAuth(requestClient, routes, new MemoryStorage());
+    const auth = new StitchAuth(requestClient, routes, new MemoryStorage(appId));
 
     let testUser: CoreStitchUser;
     return auth
@@ -204,8 +206,8 @@ describe("CoreStitchAuthUnitTests", () => {
   it("should be logged in", () => {
     const requestClientMock = getMockedRequestClient();
     const requestClient = instance(requestClientMock);
-    const routes = new StitchAppRoutes("my_app-12345").authRoutes;
-    const auth = new StitchAuth(requestClient, routes, new MemoryStorage());
+    const routes = new StitchAppRoutes(appId).authRoutes;
+    const auth = new StitchAuth(requestClient, routes, new MemoryStorage(appId));
 
     expect(auth.isLoggedIn).toBeFalsy();
 
@@ -220,7 +222,7 @@ describe("CoreStitchAuthUnitTests", () => {
     const requestClientMock = getMockedRequestClient();
     const requestClient = instance(requestClientMock);
     const routes = new StitchAppRoutes("my_app-12345").authRoutes;
-    const auth = new StitchAuth(requestClient, routes, new MemoryStorage());
+    const auth = new StitchAuth(requestClient, routes, new MemoryStorage(appId));
 
     expect(auth.isLoggedIn).toBeFalsy();
 
@@ -256,7 +258,7 @@ describe("CoreStitchAuthUnitTests", () => {
     const requestClientMock = getMockedRequestClient();
     const requestClient = instance(requestClientMock);
     const routes = new StitchAppRoutes("my_app-12345").authRoutes;
-    const auth = new StitchAuth(requestClient, routes, new MemoryStorage());
+    const auth = new StitchAuth(requestClient, routes, new MemoryStorage(appId));
 
     expect(auth.hasDeviceId).toBeFalsy();
 
@@ -271,7 +273,7 @@ describe("CoreStitchAuthUnitTests", () => {
     const requestClientMock = getMockedRequestClient();
     const requestClient = instance(requestClientMock);
     const routes = new StitchAppRoutes("my_app-12345").authRoutes;
-    const auth = new StitchAuth(requestClient, routes, new MemoryStorage());
+    const auth = new StitchAuth(requestClient, routes, new MemoryStorage(appId));
 
     const jwtDoc = {
       iat: new Date().getMilliseconds() - 5 * 60 * 1000,
@@ -411,7 +413,7 @@ describe("CoreStitchAuthUnitTests", () => {
     const requestClientMock = getMockedRequestClient();
     const requestClient = instance(requestClientMock);
     const routes = new StitchAppRoutes("my_app-12345").authRoutes;
-    const auth = new StitchAuth(requestClient, routes, new MemoryStorage());
+    const auth = new StitchAuth(requestClient, routes, new MemoryStorage(appId));
 
     const expectedObjectId = new ObjectID();
     const docRaw = `{\"_id\": {\"$oid\": \"${expectedObjectId.toHexString()}\"}, \"intValue\": {\"$numberInt\": \"42\"}}`;

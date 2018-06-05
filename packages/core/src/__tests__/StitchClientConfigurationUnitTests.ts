@@ -7,7 +7,7 @@ import { StitchClientConfiguration } from "../lib/StitchClientConfiguration";
 describe("StitchClientConfigurationUnitTests", () => {
   it("should build", () => {
     const baseUrl = "http://domain.com";
-    const storage = new MemoryStorage();
+    const storage = new MemoryStorage("storage");
     const transport = new class implements Transport {
       public roundTrip(request: BasicRequest): Promise<Response> {
         return Promise.resolve({ statusCode: 200, headers: {}, body: "good" });

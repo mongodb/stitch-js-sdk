@@ -8,17 +8,18 @@ interface Storage {
 
 class MemoryStorage implements Storage {
   private readonly storage = {};
+  constructor(private readonly suiteName: string) {}
 
   public get(key: string): string {
-    return this.storage[key];
+    return this.storage[`${this.suiteName}.${key}`];
   }
 
   public set(key: string, value: string) {
-    this.storage[key] = value;
+    this.storage[`${this.suiteName}.${key}`] = value;
   }
 
   public remove(key: string) {
-    this.storage[key] = undefined;
+    delete this.storage[`${this.suiteName}.${key}`];
   }
 }
 

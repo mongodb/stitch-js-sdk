@@ -2,6 +2,7 @@ import { fail } from "assert";
 import { App, AppResponse } from "stitch-admin";
 import BaseStitchIntTestHarness from "stitch-core-testutils";
 import {
+  MemoryStorage,
   Stitch,
   StitchAppClient,
   StitchAppClientConfiguration,
@@ -51,6 +52,7 @@ export default class BaseStitchIntWebTestHarness extends BaseStitchIntTestHarnes
       new StitchAppClientConfiguration.Builder()
         .withClientAppId(app.clientAppId)
         .withBaseURL(this.stitchBaseUrl)
+        .withStorage(new MemoryStorage(app.clientAppId))
     );
     this.clients.push(client);
     return client;

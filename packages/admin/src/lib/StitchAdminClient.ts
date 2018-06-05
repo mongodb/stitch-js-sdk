@@ -36,7 +36,7 @@ export default class StitchAdminClient {
     this.adminAuth = new StitchAdminAuth(
       requestClient,
       this.authRoutes,
-      new MemoryStorage()
+      new MemoryStorage("<admin>")
     );
   }
 
