@@ -3,7 +3,7 @@
   "version": "4.0.0",
   "description": "",
   "main": "index.js",
-  "author": "",
+  "author": "MongoDB",
   "license": "Apache2",
   "dependencies": {
     "stitch-admin": "^4.0.0",

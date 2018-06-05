@@ -51,6 +51,10 @@ export namespace StitchAuthDocRequest {
         throw new Error("document must be set: " + this.document);
       }
 
+      if (this.headers === undefined) {
+        this.withHeaders({});
+      }
+      
       this.withBody(stringify(this.document));
       return new StitchAuthDocRequest(super.build(), this.document);
     }
