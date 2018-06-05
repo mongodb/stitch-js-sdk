@@ -4,6 +4,30 @@
 
 This project follows [Semantic Versioning 2.0](https://semver.org/). In general, every release is associated with a tag and a changelog. `master` serves as the mainline branch for the project and represent the latest state of development.
 
+### Developing
+
+This project uses Lerna to manage multiple modules: https://github.com/lerna/lerna.
+Once lerna is installed, run the following to begin development:
+```bash
+# install global devDependencies
+npm install
+# install external dependencies, and link shared modules
+lerna bootstrap
+# build modules
+lerna run build
+```
+
+New modules must be added to the `packages` directory, and `lerna bootstrap` must be ran again.
+
+### Testing
+
+To run tests, run:
+```bash
+lerna run test
+```
+
+See https://github.com/lerna/lerna for more info.
+
 ### Publishing a New SDK version
 ```bash
 # run bump_version.bash with either patch, minor, or major
