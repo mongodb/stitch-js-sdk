@@ -4,8 +4,8 @@
   "description": "",
   "main": "dist/BaseStitchIntTestWebHarness.js",
   "types": "dist/BaseStitchIntTestWebHarness.d.ts",
-  "author": "",
-  "license": "ISC",
+  "author": "MongoDB",
+  "license": "Apache2",
   "dependencies": {
     "stitch-admin": "^4.0.0",
     "stitch-core": "^4.0.0",
