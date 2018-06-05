@@ -5,8 +5,8 @@ import {
   StitchAppRoutes,
   StitchRequestClient
 } from "stitch-core";
-import NamedServiceClientProvider from "../../services/internal/NamedServiceClientProvider";
-import ServiceClientProvider from "../../services/internal/ServiceClientProvider";
+import NamedServiceClientFactory from "../../services/internal/NamedServiceClientFactory";
+import ServiceClientFactory from "../../services/internal/ServiceClientFactory";
 import StitchServiceImpl from "../../services/internal/StitchServiceImpl";
 import StitchAuthImpl from "../auth/internal/StitchAuthImpl";
 import StitchAppClient from "../StitchAppClient";
@@ -40,7 +40,7 @@ export default class StitchAppClientImpl implements StitchAppClient {
   }
 
   public getServiceClientWithName<T>(
-    provider: NamedServiceClientProvider<T>,
+    provider: NamedServiceClientFactory<T>,
     serviceName: string
   ): T {
     return provider.getClient(
@@ -49,7 +49,7 @@ export default class StitchAppClientImpl implements StitchAppClient {
     );
   }
 
-  public getServiceClient<T>(provider: ServiceClientProvider<T>): T {
+  public getServiceClient<T>(provider: ServiceClientFactory<T>): T {
     return provider.getClient(
       new StitchServiceImpl(this.auth, this.routes.serviceRoutes, ""),
       this.info

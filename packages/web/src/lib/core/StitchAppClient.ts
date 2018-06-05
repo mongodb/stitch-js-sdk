@@ -1,18 +1,16 @@
-import NamedServiceClientProvider from "../services/internal/NamedServiceClientProvider";
-import ServiceClientProvider from "../services/internal/ServiceClientProvider";
+import NamedServiceClientFactory from "../services/internal/NamedServiceClientFactory";
+import ServiceClientFactory from "../services/internal/ServiceClientFactory";
 import StitchAuth from "./auth/StitchAuth";
 
-interface StitchAppClient {
+export default interface StitchAppClient {
   auth: StitchAuth;
 
   getServiceClientWithName<T>(
-    provider: NamedServiceClientProvider<T>,
+    provider: NamedServiceClientFactory<T>,
     serviceName: string
   ): T;
 
-  getServiceClient<T>(provider: ServiceClientProvider<T>): T;
+  getServiceClient<T>(provider: ServiceClientFactory<T>): T;
 
   callFunction(name: string, args: any[]): Promise<any>;
 }
-
-export default StitchAppClient;

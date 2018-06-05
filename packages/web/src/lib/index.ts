@@ -16,6 +16,8 @@ import StitchAuthListener from "./core/auth/StitchAuthListener";
 import StitchUser from "./core/auth/StitchUser";
 import Stitch from "./core/Stitch";
 import StitchAppClient from "./core/StitchAppClient";
+import NamedServiceClientFactory from "./services/internal/NamedServiceClientFactory";
+import StitchServiceClient from "./services/internal/StitchServiceClient";
 
 export {
   AnonymousCredential,
@@ -26,12 +28,14 @@ export {
   UserAPIKeyCredential,
   UserPasswordCredential,
   MemoryStorage,
+  NamedServiceClientFactory,
   Stitch,
   StitchAppClient,
   StitchAppClientConfiguration,
   StitchAuth,
   StitchAuthListener,
   StitchUser,
+  StitchServiceClient,
   UserAPIKeyAuthProviderClient,
   UserPasswordAuthProviderClient
 };

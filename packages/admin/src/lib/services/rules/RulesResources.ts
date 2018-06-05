@@ -22,42 +22,48 @@ export enum TwilioActions {
   Send = "send"
 }
 
-export class AwsS3 {
+export class AwsS3RuleCreator {
   public type = "aws-s3";
   constructor(readonly name: string, readonly actions: Set<AwsS3Actions>) {}
 }
-export class AwsSes {
+export class AwsSesRuleCreator {
   public type = "aws-ses";
   constructor(readonly name: string, readonly actions: Set<AwsSesActions>) {}
 }
-export class Http {
+export class HttpRuleCreator {
   public type = "http";
   constructor(readonly name: string, readonly actions: Set<HttpActions>) {}
 }
-export class MongoDb {
+export class MongoDbRuleCreator {
   public type = "mongodb";
   constructor(readonly namespace: string, readonly rule: object) {}
 }
-export class Twilio {
+export class TwilioRuleCreator {
   public type = "twilio";
-  constructor(readonly name: string, readonly actions: Set<TwilioActions>) {}
+
+  constructor(readonly name: string, readonly actions: TwilioActions[]) {}
 }
 
-export type RuleCreator = AwsS3 | AwsSes | Http | MongoDb;
+export type RuleCreator =
+  | AwsS3RuleCreator
+  | AwsSesRuleCreator
+  | HttpRuleCreator
+  | MongoDbRuleCreator
+  | TwilioRuleCreator;
 
 export class RuleCreatorCodec implements Encoder<RuleCreator> {
   public encode(from: RuleCreator): object {
     switch (from.type) {
       case "mongodb":
-        return new MongoDbCodec().encode(from as MongoDb);
+        return new MongoDbCodec().encode(from as MongoDbRuleCreator);
       default:
         return from;
     }
   }
 }
 
-export class MongoDbCodec implements Encoder<MongoDb> {
-  public encode(from: MongoDb): object {
+export class MongoDbCodec implements Encoder<MongoDbRuleCreator> {
+  public encode(from: MongoDbRuleCreator): object {
     from.rule["namespace"] = from.namespace;
     return from.rule;
   }

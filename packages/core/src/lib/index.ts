@@ -39,7 +39,7 @@ import { StitchAuthRequest } from "./internal/net/StitchAuthRequest";
 import StitchRequestClient from "./internal/net/StitchRequestClient";
 import Transport from "./internal/net/Transport";
 import CoreStitchServiceClient from "./services/internal/CoreStitchServiceClient";
-import StitchServiceClient from "./services/internal/StitchServiceClient";
+import CoreStitchServiceClientImpl from "./services/internal/CoreStitchServiceClientImpl";
 import StitchServiceRoutes from "./services/internal/StitchServiceRoutes";
 import { StitchAppClientConfiguration } from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";
@@ -89,7 +89,7 @@ export {
   StitchUserFactory,
   StitchUserProfile,
   StitchUserProfileImpl,
-  StitchServiceClient,
+  CoreStitchServiceClientImpl,
   StitchUserIdentity,
   Storage,
   Method,

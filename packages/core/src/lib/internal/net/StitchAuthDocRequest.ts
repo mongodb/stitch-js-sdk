@@ -54,7 +54,7 @@ export namespace StitchAuthDocRequest {
       if (this.headers === undefined) {
         this.withHeaders({});
       }
-      
+
       this.withBody(stringify(this.document));
       return new StitchAuthDocRequest(super.build(), this.document);
     }
