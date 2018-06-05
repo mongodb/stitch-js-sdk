@@ -1,6 +1,7 @@
 import {
   CoreStitchServiceClient,
   CoreStitchServiceClientImpl,
+  Decoder,
   StitchAuthRequestClient,
   StitchServiceRoutes
 } from "stitch-core";
@@ -16,9 +17,9 @@ export default class StitchServiceImpl extends CoreStitchServiceClientImpl
     super(requestClient, routes, name);
   }
 
-  public callFunction(name: string, args: any[]): Promise<any> {
+  public callFunction<T>(name: string, args: any[], codec?: Decoder<T>): Promise<T> {
     return new Promise((resolve, reject) => {
-      resolve(this.callFunctionInternal(name, args));
+      resolve(this.callFunctionInternal(name, args, codec));
     });
   }
 }

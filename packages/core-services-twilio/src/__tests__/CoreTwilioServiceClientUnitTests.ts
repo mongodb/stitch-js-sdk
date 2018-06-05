@@ -30,11 +30,15 @@ describe("CoreTwilioServiceClientUnitTests", () => {
     expect(funcArgsArg[0]).toEqual(expectedArgs);
 
     // Should pass along errors
-    when(serviceMock.callFunctionInternal(anything(), anything())).thenReject(
+    when(serviceMock.callFunctionInternal(anything(), anything())).thenThrow(
       new Error("whoops")
     );
 
-    expect(client.sendMessage(to, from, body)).rejects.toThrow();
+    try {
+      await expect(client.sendMessage(to, from, body))
+      fail();
+    } catch (_) {
+    }
   });
 
   it("should send message with media", async () => {
@@ -66,10 +70,14 @@ describe("CoreTwilioServiceClientUnitTests", () => {
     expect(funcArgsArg[0]).toEqual(expectedArgs);
 
     // Should pass along errors
-    when(serviceMock.callFunctionInternal(anything(), anything())).thenReject(
+    when(serviceMock.callFunctionInternal(anything(), anything())).thenThrow(
       new Error("whoops")
     );
 
-    expect(client.sendMessage(to, from, body)).rejects.toThrow();
+    try {
+      await expect(client.sendMessage(to, from, body))
+      fail();
+    } catch (_) {
+    }
   });
 });

@@ -1,4 +1,4 @@
-import { anyOfClass, capture, instance, mock, verify, when } from "ts-mockito";
+import { anyOfClass, anything, capture, instance, mock, verify, when } from "ts-mockito";
 import {
   CoreStitchAuth,
   StitchAuthRequestClient,
@@ -18,7 +18,7 @@ describe("CoreStitchServiceUnitTests", () => {
 
     when(
       requestClientMock.doAuthenticatedJSONRequest(
-        anyOfClass(StitchAuthRequest)
+        anyOfClass(StitchAuthRequest), anything()
       )
     ).thenReturn(Promise.resolve(42));
 
@@ -48,7 +48,8 @@ describe("CoreStitchServiceUnitTests", () => {
         ).last();
         verify(
           requestClientMock.doAuthenticatedJSONRequest(
-            anyOfClass(StitchAuthRequest)
+            anyOfClass(StitchAuthRequest),
+            anything()
           )
         ).called();
 

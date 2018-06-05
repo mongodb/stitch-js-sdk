@@ -1,5 +1,6 @@
 import {
   CoreStitchServiceClient,
+  Decoder,
   StitchAuthRequestClient,
   StitchServiceRoutes
 } from "../..";
@@ -23,9 +24,10 @@ export default class CoreStitchServiceClientImpl
     this.serviceName = name;
   }
 
-  public callFunctionInternal<T>(name: string, args: any[]): Promise<T> {
+  public callFunctionInternal<T>(name: string, args: any[], decoder?: Decoder<T>): Promise<T> {
     return this.requestClient.doAuthenticatedJSONRequest(
-      this.getCallServiceFunctionRequest(name, args)
+      this.getCallServiceFunctionRequest(name, args),
+      decoder
     );
   }
 
