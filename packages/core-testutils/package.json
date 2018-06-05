@@ -2,8 +2,8 @@
   "name": "stitch-core-testutils",
   "version": "4.0.0",
   "description": "",
-  "main": "dist/BaseStitchIntTest.js",
-  "types": "dist/BaseStitchIntTest.d.ts",
+  "main": "dist/BaseStitchIntTestHarness.js",
+  "types": "dist/BaseStitchIntTestHarness.d.ts",
   "author": "MongoDB",
   "license": "Apache2",
   "dependencies": {
