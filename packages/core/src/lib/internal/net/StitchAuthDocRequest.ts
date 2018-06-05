@@ -55,6 +55,8 @@ export namespace StitchAuthDocRequest {
         this.withHeaders({});
       }
       
+      this.headers![Headers.CONTENT_TYPE] = ContentTypes.APPLICATION_JSON;
+
       this.withBody(stringify(this.document));
       return new StitchAuthDocRequest(super.build(), this.document);
     }

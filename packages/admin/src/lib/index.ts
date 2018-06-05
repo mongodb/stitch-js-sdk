@@ -22,8 +22,13 @@ import {
   UserRegistrations,
   Users
 } from "./Resources";
-import { RuleCreator, RuleResponse } from "./services/rules/RulesResources";
-import { ServiceConfig } from "./services/ServiceConfigs";
+import {
+  RuleCreator,
+  RuleResponse,
+  TwilioActions,
+  TwilioRuleCreator
+} from "./services/rules/RulesResources";
+import { ServiceConfig, Twilio, TwilioConfig } from "./services/ServiceConfigs";
 import { ServiceResponse } from "./services/ServicesResources";
 import StitchAdminClient from "./StitchAdminClient";
 import { ConfirmationEmail } from "./userRegistrations/UserRegistrationsResources";
@@ -54,5 +59,9 @@ export {
   AuthProviderResponse,
   RuleResponse,
   ProviderConfig,
-  ConfirmationEmail
+  ConfirmationEmail,
+  Twilio,
+  TwilioConfig,
+  TwilioActions,
+  TwilioRuleCreator
 };

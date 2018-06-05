@@ -36,8 +36,8 @@ functions:
           set -e
           echo export AWS_ACCESS_KEY_ID=${test_aws_key} >> creds
           echo export AWS_SECRET_ACCESS_KEY=${test_aws_secret} >> creds
-          echo export TWILIO_SID=${test_twilio_sid} >> creds
-          echo export TWILIO_AUTHTOKEN=${test_twilio_authtoken} >> creds
+          echo export TEST_STITCH_TWILIO_SID=${test_twilio_sid} >> creds
+          echo export TEST_STITCH_TWILIO_AUTH_TOKEN=${test_twilio_authtoken} >> creds
           echo export FB_APP_ID=${test_facebook_app_id} >> creds
           echo export FB_APP_SECRET=${test_facebook_app_secret} >> creds
 
@@ -92,7 +92,7 @@ tasks:
           script: | # NOTE: Using yarn for install instead of npm due to evergreen permission issue with chromedriver devDependency
             set -e
             echo "running client tests"
-            #source ./creds
+            source ./creds
             cd stitch-js-sdk
             npm install --global lerna
             npm install

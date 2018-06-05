@@ -1,13 +1,13 @@
 import {
   CoreStitchServiceClient,
+  CoreStitchServiceClientImpl,
   StitchAuthRequestClient,
-  StitchServiceClient,
   StitchServiceRoutes
 } from "stitch-core";
-import StitchService from "../StitchService";
+import StitchServiceClient from "./StitchServiceClient";
 
-export default class StitchServiceImpl extends StitchServiceClient
-  implements StitchService {
+export default class StitchServiceImpl extends CoreStitchServiceClientImpl
+  implements StitchServiceClient {
   public constructor(
     requestClient: StitchAuthRequestClient,
     routes: StitchServiceRoutes,

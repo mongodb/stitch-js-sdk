@@ -7,7 +7,8 @@ import Method from "../../internal/net/Method";
 import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 
-export default class StitchServiceClient implements CoreStitchServiceClient {
+export default class CoreStitchServiceClientImpl
+  implements CoreStitchServiceClient {
   private readonly requestClient: StitchAuthRequestClient;
   private readonly serviceRoutes: StitchServiceRoutes;
   private readonly serviceName: string;
