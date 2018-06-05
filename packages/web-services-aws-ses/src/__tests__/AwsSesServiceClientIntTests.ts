@@ -1,12 +1,12 @@
 import {
-    Anon,
-    App,
-    AppResponse,
-    AwsSes,
-    AwsSesActions,
-    AwsSesRuleCreator,
-    Service,
-  } from "stitch-admin";
+  Anon,
+  App,
+  AppResponse,
+  AwsSes,
+  AwsSesActions,
+  AwsSesRuleCreator,
+  Service
+} from "stitch-admin";
 import { StitchServiceErrorCode, StitchServiceException } from "stitch-core";
 import { AnonymousCredential } from "stitch-web";
 import BaseStitchIntWebTestHarness from "stitch-web-testutils";
@@ -31,54 +31,58 @@ afterAll(() => harness.teardown());
 const test = awsAccessKeyId && awsSecretAccessKey ? it : it.skip;
 
 describe("AwsSesService should", () => {
-    test("should send message", async () => {
-        const [appResponse, app] = await harness.createApp()
-        await harness.addProvider(app as App, new Anon())
-        const [svcResponse, svc] = await harness.addService(
-                app as App,
-                "aws-ses",
-                new AwsSes(
-                    "awsses1",
-                    {accessKeyId:awsAccessKeyId!, secretAccessKey: awsSecretAccessKey!, region: "us-east-1"}
-                ));
-        await harness.addRule(
-            svc as Service,
-            new AwsSesRuleCreator(
-                "default",
-                [AwsSesActions.Send]));
+  test("should send message", async () => {
+    const [appResponse, app] = await harness.createApp();
+    await harness.addProvider(app as App, new Anon());
+    const [svcResponse, svc] = await harness.addService(
+      app as App,
+      "aws-ses",
+      new AwsSes("awsses1", {
+        accessKeyId: awsAccessKeyId!,
+        region: "us-east-1",
+        secretAccessKey: awsSecretAccessKey!,
+      })
+    );
+    await harness.addRule(
+      svc as Service,
+      new AwsSesRuleCreator("default", [AwsSesActions.Send])
+    );
 
-        const client = harness.getAppClient(appResponse as AppResponse)
-        await client.auth.loginWithCredential(new AnonymousCredential())
+    const client = harness.getAppClient(appResponse as AppResponse);
+    await client.auth.loginWithCredential(new AnonymousCredential());
 
-        const awsSes = client.getServiceClientWithName(AwsSesService.Factory, "awsses1");
+    const awsSes = client.getServiceClientWithName(
+      AwsSesService.Factory,
+      "awsses1"
+    );
 
-        // Sending a random email to an invalid email should fail
-        const to = "eliot@stitch-dev.10gen.cc"
-        const from = "dwight@10gen"
-        const subject = "Hello"
-        const body = "again friend"
+    // Sending a random email to an invalid email should fail
+    const to = "eliot@stitch-dev.10gen.cc";
+    const from = "dwight@10gen";
+    const subject = "Hello";
+    const body = "again friend";
 
-        try {
-            await awsSes.sendEmail(to, from, subject, body)
-            fail()
-        } catch (error) {
-            expect(error instanceof StitchServiceException);
-            expect(error.errorCode).toEqual(StitchServiceErrorCode.AWSError);
-        }
+    try {
+      await awsSes.sendEmail(to, from, subject, body);
+      fail();
+    } catch (error) {
+      expect(error instanceof StitchServiceException);
+      expect(error.errorCode).toEqual(StitchServiceErrorCode.AWSError);
+    }
 
-        // Sending with all good params for SES should work
-        const fromGood = "dwight@baas-dev.10gen.cc"
+    // Sending with all good params for SES should work
+    const fromGood = "dwight@baas-dev.10gen.cc";
 
-        const result = await awsSes.sendEmail(to, fromGood, subject, body);
-        expect(result.messageId).toBeDefined();
+    const result = await awsSes.sendEmail(to, fromGood, subject, body);
+    expect(result.messageId).toBeDefined();
 
-        // Excluding any required parameters should fail
-        try {
-            await awsSes.sendEmail(to, "", subject, body);
-            fail()
-        } catch (error) {
-            expect(error instanceof StitchServiceException);
-            expect(error.errorCode).toEqual(StitchServiceErrorCode.InvalidParameter);
-        }
-    })
-})
+    // Excluding any required parameters should fail
+    try {
+      await awsSes.sendEmail(to, "", subject, body);
+      fail();
+    } catch (error) {
+      expect(error instanceof StitchServiceException);
+      expect(error.errorCode).toEqual(StitchServiceErrorCode.InvalidParameter);
+    }
+  });
+});

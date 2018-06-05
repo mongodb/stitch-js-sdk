@@ -28,7 +28,7 @@ export class AwsS3RuleCreator {
 }
 export class AwsSesRuleCreator {
   public type = "aws-ses";
-  
+
   constructor(readonly name: string, readonly actions: AwsSesActions[]) {}
 }
 export class HttpRuleCreator {

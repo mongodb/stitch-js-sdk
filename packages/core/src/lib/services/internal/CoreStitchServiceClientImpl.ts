@@ -24,7 +24,11 @@ export default class CoreStitchServiceClientImpl
     this.serviceName = name;
   }
 
-  public callFunctionInternal<T>(name: string, args: any[], decoder?: Decoder<T>): Promise<T> {
+  public callFunctionInternal<T>(
+    name: string,
+    args: any[],
+    decoder?: Decoder<T>
+  ): Promise<T> {
     return this.requestClient.doAuthenticatedJSONRequest(
       this.getCallServiceFunctionRequest(name, args),
       decoder

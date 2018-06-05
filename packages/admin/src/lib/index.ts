@@ -28,9 +28,15 @@ import {
   RuleCreator,
   RuleResponse,
   TwilioActions,
-  TwilioRuleCreator,
+  TwilioRuleCreator
 } from "./services/rules/RulesResources";
-import { AwsSes, AwsSesConfig, ServiceConfig, Twilio, TwilioConfig } from "./services/ServiceConfigs";
+import {
+  AwsSes,
+  AwsSesConfig,
+  ServiceConfig,
+  Twilio,
+  TwilioConfig
+} from "./services/ServiceConfigs";
 import { ServiceResponse } from "./services/ServicesResources";
 import StitchAdminClient from "./StitchAdminClient";
 import { ConfirmationEmail } from "./userRegistrations/UserRegistrationsResources";
@@ -69,5 +75,5 @@ export {
   AwsSes,
   AwsSesConfig,
   AwsSesActions,
-  AwsSesRuleCreator,
+  AwsSesRuleCreator
 };

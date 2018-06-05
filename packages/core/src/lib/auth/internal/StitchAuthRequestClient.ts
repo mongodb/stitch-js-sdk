@@ -20,5 +20,8 @@ export default interface StitchAuthRequestClient {
    *
    * - returns: An `Any` representing the response body as decoded JSON.
    */
-  doAuthenticatedJSONRequest<T>(stitchReq: StitchAuthRequest, decoder?: Decoder<T>): Promise<T>;
+  doAuthenticatedJSONRequest<T>(
+    stitchReq: StitchAuthRequest,
+    decoder?: Decoder<T>
+  ): Promise<T>;
 }

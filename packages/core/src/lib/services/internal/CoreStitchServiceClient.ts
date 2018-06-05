@@ -5,5 +5,9 @@ import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 import StitchServiceRoutes from "./StitchServiceRoutes";
 
 export default interface CoreStitchServiceClient {
-  callFunctionInternal<T>(name: string, args: any[], decoder?: Decoder<T>): Promise<T>;
+  callFunctionInternal<T>(
+    name: string,
+    args: any[],
+    decoder?: Decoder<T>
+  ): Promise<T>;
 }

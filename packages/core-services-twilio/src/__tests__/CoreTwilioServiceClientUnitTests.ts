@@ -35,10 +35,9 @@ describe("CoreTwilioServiceClientUnitTests", () => {
     );
 
     try {
-      await expect(client.sendMessage(to, from, body))
+      await expect(client.sendMessage(to, from, body));
       fail();
-    } catch (_) {
-    }
+    } catch (_) {}
   });
 
   it("should send message with media", async () => {
@@ -75,9 +74,8 @@ describe("CoreTwilioServiceClientUnitTests", () => {
     );
 
     try {
-      await expect(client.sendMessage(to, from, body))
+      await expect(client.sendMessage(to, from, body));
       fail();
-    } catch (_) {
-    }
+    } catch (_) {}
   });
 });
