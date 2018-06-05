@@ -29,7 +29,7 @@ export default class CoreStitchServiceClientImpl
     args: any[],
     decoder?: Decoder<T>
   ): Promise<T> {
-    return this.requestClient.doAuthenticatedJSONRequest(
+    return this.requestClient.doAuthenticatedRequestWithDecoder(
       this.getCallServiceFunctionRequest(name, args),
       decoder
     );

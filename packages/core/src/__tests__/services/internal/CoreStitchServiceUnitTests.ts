@@ -25,7 +25,7 @@ describe("CoreStitchServiceUnitTests", () => {
     const requestClientMock = mock(CoreStitchAuth);
 
     when(
-      requestClientMock.doAuthenticatedJSONRequest(
+      requestClientMock.doAuthenticatedRequestWithDecoder(
         anyOfClass(StitchAuthRequest),
         anything()
       )
@@ -53,10 +53,10 @@ describe("CoreStitchServiceUnitTests", () => {
         expect(response).toBe(42);
 
         const [docArgument] = capture(
-          requestClientMock.doAuthenticatedJSONRequest
+          requestClientMock.doAuthenticatedRequestWithDecoder
         ).last();
         verify(
-          requestClientMock.doAuthenticatedJSONRequest(
+          requestClientMock.doAuthenticatedRequestWithDecoder(
             anyOfClass(StitchAuthRequest),
             anything()
           )

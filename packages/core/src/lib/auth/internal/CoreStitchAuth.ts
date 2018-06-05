@@ -141,7 +141,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    *
    * - returns: An `any` representing the decoded response body.
    */
-  public doAuthenticatedJSONRequest<T>(
+  public doAuthenticatedRequestWithDecoder<T>(
     stitchReq: StitchAuthRequest,
     codec?: Decoder<T>
   ): Promise<T> {

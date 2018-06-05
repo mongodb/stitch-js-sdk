@@ -46,7 +46,7 @@ export default class StitchAdminClient {
       .withPath(this.authRoutes.profileRoute)
       .build();
 
-    return this.adminAuth.doAuthenticatedJSONRequest(
+    return this.adminAuth.doAuthenticatedRequestWithDecoder(
       req,
       new StitchAdminUserProfileCodec()
     );
