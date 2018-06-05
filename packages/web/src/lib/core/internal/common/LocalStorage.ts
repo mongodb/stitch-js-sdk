@@ -14,6 +14,10 @@ export default class LocalStorage implements Storage {
   }
 }
 
+/**
+ * Adds localStorage functionality for browsers that do not have localStorage.
+ * @see: https://developer.mozilla.org/en-US/docs/Web/API/Storage/LocalStorage
+ */
 if (!window.localStorage) {
   Object.defineProperty(
     window,

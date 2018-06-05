@@ -7,7 +7,6 @@ export default class Response {
     public readonly body?: string
   ) {
     // preprocess headers
-
     Object.keys(headers).map((key, index) => {
       this.headers[key.toLocaleLowerCase()] = headers[key];
     });

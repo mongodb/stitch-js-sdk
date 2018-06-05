@@ -429,9 +429,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     }
     const linkRequest = new StitchAuthDocRequest(
       reqBuilder.build(),
-      reqBuilder.document,
-      false,
-      true
+      reqBuilder.document
     );
 
     return this.doAuthenticatedRequest(linkRequest);

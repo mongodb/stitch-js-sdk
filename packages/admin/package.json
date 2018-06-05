@@ -4,8 +4,8 @@
   "description": "Module that provides client access to the Stitch Admin API.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "author": "Jason Flax",
-  "license": "ISC",
+  "author": "MongoDB",
+  "license": "Apache2",
   "dependencies": {
     "stitch-core": "^4.0.0",
     "mongodb-extjson": "^2.1.0"

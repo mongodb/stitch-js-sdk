@@ -13,7 +13,7 @@ export default class Stitch {
       return;
     }
 
-    // TODO: get app info
+    // TODO: STITCH-1615 Web SDK: Get Application info on Initialization
     Stitch.initialized = true;
   }
 

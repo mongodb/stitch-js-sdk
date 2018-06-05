@@ -21,8 +21,8 @@ export default class FetchTransport implements Transport {
       const response = values[0];
       const body = values[1];
       const headers: { [key: string]: string } = {};
-      response.headers.forEach((key, value) => {
-        headers[value] = key;
+      response.headers.forEach((value, key) => {
+        headers[key] = value;
       });
       return new Response(headers, response.status, body);
     });

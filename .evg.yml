@@ -65,7 +65,6 @@ functions:
           export STITCH_PATH=$GOPATH/src/github.com/10gen/stitch
           export PATH="$PATH:$STITCH_PATH/etc/transpiler/bin"
           which transpiler
-          # cd stitch-js-sdk/test/bin
           echo "running stitch"
           go run $STITCH_PATH/cmd/auth/user.go addUser -domainID 000000000000000000000000 -mongoURI mongodb://localhost:26000 -salt 'DQOWene1723baqD!_@#' -id "unique_user@domain.com" -password "password"
           go run $STITCH_PATH/cmd/server/main.go --configFile $STITCH_PATH/etc/configs/test_config.json

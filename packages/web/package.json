@@ -4,7 +4,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "web",
-  "author": "",
+  "author": "MongoDB",
   "license": "Apache2",
   "dependencies": {
     "bson": "^2.0.6",

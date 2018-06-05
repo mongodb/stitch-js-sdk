@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "author": "",
-  "license": "ISC",
+  "license": "Apache2",
   "dependencies": {
     "stitch-admin": "^4.0.0",
     "stitch-core": "^4.0.0",

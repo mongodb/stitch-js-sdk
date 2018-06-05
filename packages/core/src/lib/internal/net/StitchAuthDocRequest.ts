@@ -6,13 +6,16 @@ import { StitchAuthRequest } from "./StitchAuthRequest";
 import { StitchRequest } from "./StitchRequest";
 
 export class StitchAuthDocRequest extends StitchAuthRequest {
+  public readonly document: object;
   public constructor(
-    request: StitchRequest,
-    public readonly document: object,
-    public readonly shouldUseRefreshToken: boolean,
-    public readonly shouldRefreshOnFailure: boolean
+    request: StitchAuthRequest | StitchRequest,
+    document: object
   ) {
-    super(request, shouldUseRefreshToken, shouldRefreshOnFailure);
+    request instanceof StitchAuthRequest ? 
+      super(request, request.useRefreshToken, request.shouldRefreshOnFailure) :
+      super(request);
+
+    this.document = document;
   }
 
   public get builder(): StitchAuthDocRequest.Builder {
@@ -23,7 +26,6 @@ export class StitchAuthDocRequest extends StitchAuthRequest {
 export namespace StitchAuthDocRequest {
   export class Builder extends StitchAuthRequest.Builder {
     public document: object;
-    public useRefreshToken: boolean;
 
     public constructor(request?: StitchAuthDocRequest) {
       super(request);
@@ -48,20 +50,11 @@ export namespace StitchAuthDocRequest {
       if (this.document === undefined || !(this.document instanceof Object)) {
         throw new Error("document must be set: " + this.document);
       }
-      if (this.headers === undefined) {
-        this.withHeaders({});
-      }
-      if (this.useRefreshToken) {
-        this.shouldRefreshOnFailure = false;
-      }
 
-      this.headers![Headers.CONTENT_TYPE] = ContentTypes.APPLICATION_JSON;
       this.withBody(stringify(this.document));
       return new StitchAuthDocRequest(
         super.build(),
-        this.document,
-        this.useRefreshToken,
-        this.shouldRefreshOnFailure
+        this.document
       );
     }
   }
