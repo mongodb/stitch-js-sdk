@@ -1,16 +1,21 @@
 {
-  "name": "stitch-core-services-aws-ses",
+  "name": "stitch-web-services-aws-s3",
   "version": "4.0.0",
-  "main": "dist/lib/index.js",
-  "types": "dist/lib/index.d.ts",
-  "description": "core aws ses service",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "description": "web aws s3 service",
   "author": "MongoDB",
   "license": "Apache2",
   "dependencies": {
-    "stitch-core": "^4.0.0"
+    "stitch-web": "^4.0.0",
+    "stitch-core-services-aws-s3": "^4.0.0",
+    "bson": "^2.0.7"
   },
   "devDependencies": {
-    "ts-mockito": "^2.3.0"
+    "stitch-web-testutils": "^4.0.0",
+    "stitch-admin": "^4.0.0",
+    "stitch-core": "^4.0.0",
+    "@types/bson": "^1.0.8"
   },
   "scripts": {
     "build": "tsc",
