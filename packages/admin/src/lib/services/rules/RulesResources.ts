@@ -24,7 +24,7 @@ export enum TwilioActions {
 
 export class AwsS3RuleCreator {
   public type = "aws-s3";
-  constructor(readonly name: string, readonly actions: Set<AwsS3Actions>) {}
+  constructor(readonly name: string, readonly actions: AwsS3Actions[]) {}
 }
 export class AwsSesRuleCreator {
   public type = "aws-ses";

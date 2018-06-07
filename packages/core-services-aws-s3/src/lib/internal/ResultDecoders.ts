@@ -1,6 +1,6 @@
 import { Decoder } from "stitch-core";
-import AwsS3PutObjectResult from "../AwsS3PutObjectResult";
-import AwsS3SignPolicyResult from "../AwsS3SignPolicyResult";
+import { AwsS3PutObjectResult } from "../AwsS3PutObjectResult";
+import { AwsS3SignPolicyResult } from "../AwsS3SignPolicyResult";
 
 enum AwsS3PutObjectFields {
   Location = "location"
