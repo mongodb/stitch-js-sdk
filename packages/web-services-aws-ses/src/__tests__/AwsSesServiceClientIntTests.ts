@@ -40,7 +40,7 @@ describe("AwsSesService should", () => {
       new AwsSes("awsses1", {
         accessKeyId: awsAccessKeyId!,
         region: "us-east-1",
-        secretAccessKey: awsSecretAccessKey!,
+        secretAccessKey: awsSecretAccessKey!
       })
     );
     await harness.addRule(
