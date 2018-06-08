@@ -10,7 +10,8 @@
     "stitch-core": "^4.0.0",
     "stitch-core-testutils": "^4.0.0",
     "stitch-web": "^4.0.0",
-    "stitch-web-testutils": "^4.0.0"
+    "stitch-web-testutils": "^4.0.0",
+    "bson": "^1.0.9"
   },
   "devDependencies": {
     "jsonwebtoken": "8.2.1",

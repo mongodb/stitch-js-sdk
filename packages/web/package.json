@@ -9,7 +9,8 @@
   "dependencies": {
     "mongodb-extjson": "^2.1.0",
     "detect-browser": "^2.4.0",
-    "stitch-core": "^4.0.0"
+    "stitch-core": "^4.0.0",
+    "bson": "^1.0.9"
   },
   "devDependencies": {
     "@types/bson": "^1.0.8",

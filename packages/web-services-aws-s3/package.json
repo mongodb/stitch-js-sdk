@@ -8,7 +8,8 @@
   "license": "Apache2",
   "dependencies": {
     "stitch-web": "^4.0.0",
-    "stitch-core-services-aws-s3": "^4.0.0"
+    "stitch-core-services-aws-s3": "^4.0.0",
+    "bson": "^1.0.9"
   },
   "devDependencies": {
     "stitch-web-testutils": "^4.0.0",
