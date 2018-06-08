@@ -6,14 +6,10 @@
         "strictNullChecks": true,
         "outDir": "dist",
         "declaration": true,
-        "removeComments": true,
-        "lib": [
-            "es2015",
-            "dom"
-        ]
+        "removeComments": true
     },
     "exclude": [
-        "./node_modules/**",
+        "node_modules",
         "./dist"
     ]
 }

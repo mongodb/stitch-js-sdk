@@ -1,7 +1,7 @@
 {
   "name": "stitch-web-coretest",
   "version": "4.0.0",
-  "description": "",
+  "description": "web core test",
   "main": "index.js",
   "author": "MongoDB",
   "license": "Apache2",
@@ -10,13 +10,12 @@
     "stitch-core": "^4.0.0",
     "stitch-core-testutils": "^4.0.0",
     "stitch-web": "^4.0.0",
-    "stitch-web-testutils": "^4.0.0",
-    "bson": "^2.0.7",
-    "@types/bson": "^1.0.8"
+    "stitch-web-testutils": "^4.0.0"
   },
   "devDependencies": {
     "jsonwebtoken": "8.2.1",
-    "@types/jsonwebtoken": "^7.2.6"
+    "@types/jsonwebtoken": "^7.2.6",
+    "@types/bson": "^1.0.8"
   },
   "scripts": {
     "build": "tsc",

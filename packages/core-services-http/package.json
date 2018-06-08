@@ -1,20 +1,16 @@
 {
-  "name": "stitch-web-services-aws-s3",
+  "name": "stitch-core-services-http",
   "version": "4.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "description": "web aws s3 service",
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
+  "description": "core http service",
   "author": "MongoDB",
   "license": "Apache2",
   "dependencies": {
-    "stitch-web": "^4.0.0",
-    "stitch-core-services-aws-s3": "^4.0.0"
+    "stitch-core": "^4.0.0"
   },
   "devDependencies": {
-    "stitch-web-testutils": "^4.0.0",
-    "stitch-admin": "^4.0.0",
-    "stitch-core": "^4.0.0",
-    "@types/bson": "^1.0.8"
+    "ts-mockito": "^2.3.0"
   },
   "scripts": {
     "build": "tsc",

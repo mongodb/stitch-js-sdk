@@ -1,20 +1,20 @@
 {
-  "name": "stitch-web-services-aws-s3",
+  "name": "stitch-web-services-http",
   "version": "4.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "description": "web aws s3 service",
+  "description": "web aws ses service",
   "author": "MongoDB",
   "license": "Apache2",
   "dependencies": {
     "stitch-web": "^4.0.0",
-    "stitch-core-services-aws-s3": "^4.0.0"
+    "stitch-core-services-http": "^4.0.0"
   },
   "devDependencies": {
     "stitch-web-testutils": "^4.0.0",
     "stitch-admin": "^4.0.0",
     "stitch-core": "^4.0.0",
-    "@types/bson": "^1.0.8"
+    "mongodb-extjson": "^2.1.0"
   },
   "scripts": {
     "build": "tsc",

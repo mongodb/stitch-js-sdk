@@ -11,4 +11,6 @@ declare module "mongodb-extjson" {
     indents?: (string | number) | Options,
     options?: Options
   );
+
+  export var BSON;
 }

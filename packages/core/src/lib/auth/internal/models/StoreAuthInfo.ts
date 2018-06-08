@@ -16,7 +16,7 @@ enum Fields {
 
 function readFromStorage(storage: Storage): AuthInfo | undefined {
   const rawInfo = storage.get(StoreAuthInfo.STORAGE_NAME);
-  if (rawInfo === undefined) {
+  if (!rawInfo) {
     return undefined;
   }
 

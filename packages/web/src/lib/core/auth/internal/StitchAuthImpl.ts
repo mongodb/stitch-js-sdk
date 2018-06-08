@@ -3,12 +3,12 @@ import {
   CoreStitchUser,
   DeviceFields,
   StitchAppClientInfo,
+  StitchAuthRequestClient,
   StitchAuthRoutes,
   StitchCredential,
   StitchRequestClient,
   StitchUserFactory,
-  Storage,
-  StitchAuthRequestClient
+  Storage
 } from "stitch-core";
 
 import { detect } from "detect-browser";

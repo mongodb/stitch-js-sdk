@@ -33,7 +33,7 @@ export class AwsSesRuleCreator {
 }
 export class HttpRuleCreator {
   public type = "http";
-  constructor(readonly name: string, readonly actions: Set<HttpActions>) {}
+  constructor(readonly name: string, readonly actions: HttpActions[]) {}
 }
 export class MongoDbRuleCreator {
   public type = "mongodb";
