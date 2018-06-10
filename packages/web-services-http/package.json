@@ -1,28 +1,26 @@
 {
-  "name": "stitch-web-coretest",
+  "name": "stitch-web-services-http",
   "version": "4.0.0",
-  "description": "web core test",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "description": "web aws ses service",
   "author": "MongoDB",
   "license": "Apache2",
   "dependencies": {
-    "stitch-admin": "^4.0.0",
-    "stitch-core": "^4.0.0",
-    "stitch-core-testutils": "^4.0.0",
     "stitch-web": "^4.0.0",
-    "stitch-web-testutils": "^4.0.0",
-    "bson": "^1.0.9"
+    "stitch-core-services-http": "^4.0.0"
   },
   "devDependencies": {
-    "jsonwebtoken": "8.2.1",
-    "@types/jsonwebtoken": "^7.2.6",
-    "@types/bson": "^1.0.8"
+    "stitch-web-testutils": "^4.0.0",
+    "stitch-admin": "^4.0.0",
+    "stitch-core": "^4.0.0",
+    "mongodb-extjson": "^2.1.0"
   },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "lint": "tslint -c tslint.json src/**/*.ts",
+    "lint": "tslint src/**/*.ts",
     "lint-fix": "tslint --fix src/**/*.ts",
     "lint-check": "tslint-config-prettier-check ./tslint.json",
     "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\""

@@ -27,6 +27,8 @@ import {
   AwsS3RuleCreator,
   AwsSesActions,
   AwsSesRuleCreator,
+  HttpActions,
+  HttpRuleCreator,
   RuleCreator,
   RuleResponse,
   TwilioActions,
@@ -37,6 +39,7 @@ import {
   AwsS3Config,
   AwsSes,
   AwsSesConfig,
+  Http,
   ServiceConfig,
   Twilio,
   TwilioConfig
@@ -83,5 +86,8 @@ export {
   AwsS3,
   AwsS3Config,
   AwsS3Actions,
-  AwsS3RuleCreator
+  AwsS3RuleCreator,
+  Http,
+  HttpActions,
+  HttpRuleCreator
 };
