@@ -63,7 +63,3 @@ ReactDOM.render(
   <Hello compiler="JS" framework="React" />,
   document.getElementById("root")
 );
-
-
-
-
