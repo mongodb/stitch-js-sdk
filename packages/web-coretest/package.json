@@ -11,7 +11,7 @@
     "stitch-core-testutils": "^4.0.0",
     "stitch-web": "^4.0.0",
     "stitch-web-testutils": "^4.0.0",
-    "bson": "^3.0.0"
+    "bson": "git://github.com/mongodb/js-bson.git#3.0"
   },
   "devDependencies": {
     "jsonwebtoken": "8.2.1",

@@ -8,7 +8,7 @@
   "license": "Apache2",
   "dependencies": {
     "stitch-core": "^4.0.0",
-    "bson": "^3.0.0"
+    "bson": "git://github.com/mongodb/js-bson.git#3.0"
   },
   "devDependencies": {
     "ts-mockito": "^2.3.0",
