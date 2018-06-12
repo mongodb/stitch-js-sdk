@@ -1,9 +1,9 @@
 {
-  "name": "stitch-core-services-aws-s3",
+  "name": "stitch-core-services-mongodb-remote",
   "version": "4.0.0",
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
-  "description": "core aws s3 service",
+  "description": "core remote mongodb service",
   "author": "MongoDB",
   "license": "Apache2",
   "dependencies": {

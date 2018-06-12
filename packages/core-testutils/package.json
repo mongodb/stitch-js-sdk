@@ -9,7 +9,7 @@
   "dependencies": {
     "stitch-admin": "^4.0.0",
     "stitch-core": "^4.0.0",
-    "bson": "^2.0.7",
+    "bson": "^3.0.0",
     "@types/bson": "^1.0.8"
   },
   "scripts": {

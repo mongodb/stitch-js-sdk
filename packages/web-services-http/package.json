@@ -14,7 +14,7 @@
     "stitch-web-testutils": "^4.0.0",
     "stitch-admin": "^4.0.0",
     "stitch-core": "^4.0.0",
-    "mongodb-extjson": "^2.1.0"
+    "mongodb-extjson": "^2.1.4"
   },
   "scripts": {
     "build": "tsc",
