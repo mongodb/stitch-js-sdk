@@ -7,7 +7,7 @@
   "author": "MongoDB",
   "license": "Apache2",
   "dependencies": {
-    "mongodb-extjson": "^2.1.4",
+    "mongodb-extjson": "git://github.com/mongodb-js/mongodb-extjson.git#3.0",
     "detect-browser": "^2.4.0",
     "stitch-core": "^4.0.0",
     "bson": "git://github.com/mongodb/js-bson.git#3.0"
