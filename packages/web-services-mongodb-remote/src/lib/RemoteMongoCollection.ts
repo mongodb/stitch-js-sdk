@@ -22,7 +22,7 @@ export default interface RemoteMongoCollection<DocumentT> {
    * Create a new CoreRemoteMongoCollection instance with a different default class to cast any
    * documents returned from the database into.
    *
-   * @param clazz the default class to cast any documents returned from the database into.
+   * @param codec the default class to cast any documents returned from the database into.
    * @param <NewDocumentT> the type that the new collection will encode documents from and decode
    *                      documents to.
    * @return a new CoreRemoteMongoCollection instance with the different default class
