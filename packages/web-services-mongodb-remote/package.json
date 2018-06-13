@@ -1,20 +1,20 @@
 {
-  "name": "stitch-web-services-aws-s3",
+  "name": "stitch-web-services-mongodb-remote",
   "version": "4.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "description": "web aws s3 service",
+  "description": "web mongodb remote service",
   "author": "MongoDB",
   "license": "Apache2",
   "dependencies": {
     "stitch-web": "^4.0.0",
-    "stitch-core-services-aws-s3": "^4.0.0",
-    "bson": "git://github.com/mongodb/js-bson.git#3.0"
+    "stitch-core-services-mongodb-remote": "^4.0.0"
   },
   "devDependencies": {
     "stitch-web-testutils": "^4.0.0",
     "stitch-admin": "^4.0.0",
     "stitch-core": "^4.0.0",
+    "bson": "git://github.com/mongodb/js-bson.git#3.0",
     "@types/bson": "^1.0.8"
   },
   "scripts": {

@@ -29,6 +29,7 @@ import {
   AwsSesRuleCreator,
   HttpActions,
   HttpRuleCreator,
+  MongoDbRuleCreator,
   RuleCreator,
   RuleResponse,
   TwilioActions,
@@ -89,5 +90,6 @@ export {
   AwsS3RuleCreator,
   Http,
   HttpActions,
-  HttpRuleCreator
+  HttpRuleCreator,
+  MongoDbRuleCreator
 };
