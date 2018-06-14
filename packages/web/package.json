@@ -9,6 +9,7 @@
   "dependencies": {
     "mongodb-extjson": "git://github.com/mongodb-js/mongodb-extjson.git#3.0",
     "detect-browser": "^2.4.0",
+    "pkginfo": "0.4.1",
     "stitch-core": "^4.0.0",
     "bson": "git://github.com/mongodb/js-bson.git#3.0"
   },
