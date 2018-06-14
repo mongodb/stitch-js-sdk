@@ -70,7 +70,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   /**
    * The `IStorage` object indicating where authentication information should be persisted.
    */
-  private readonly storage: Storage;
+  protected readonly storage: Storage;
   /**
    * A `TStitchUser` object that represents the
    * currently authenticated user, or `undefined` if no one is authenticated.
@@ -277,6 +277,86 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   protected abstract onAuthEvent();
 
   /**
+   * Processes the response of the login/link request, setting the authentication state if appropriate, and
+   * requesting the user profile in a separate request.
+   */
+  protected processLoginResponse(
+    credential: StitchCredential,
+    response: Response
+  ): Promise<TStitchUser> {
+    let newAuthInfo: AuthInfo;
+    try {
+      newAuthInfo = APIAuthInfo.fromJSON(JSON.parse(response.body!));
+    } catch (err) {
+      throw new StitchRequestException(
+        err,
+        StitchRequestErrorCode.DECODING_ERROR
+      );
+    }
+
+    newAuthInfo = this.authInfo.merge(
+      new AuthInfo(
+        newAuthInfo.userId,
+        newAuthInfo.deviceId,
+        newAuthInfo.accessToken,
+        newAuthInfo.refreshToken,
+        credential.providerType,
+        credential.providerName,
+        undefined
+      )
+    );
+
+    // Provisionally set so we can make a profile request
+    const oldInfo = this.authInfo;
+    this.authInfo = newAuthInfo;
+    this.currentUser = this.userFactory.makeUser(
+      this.authInfo.userId!,
+      credential.providerType,
+      credential.providerName,
+      undefined
+    );
+
+    return this.doGetUserProfile()
+      .then(profile => {
+        // readonlyly set the info and user
+        newAuthInfo = newAuthInfo.merge(
+          new AuthInfo(
+            newAuthInfo.userId,
+            newAuthInfo.deviceId,
+            newAuthInfo.accessToken,
+            newAuthInfo.refreshToken,
+            credential.providerType,
+            credential.providerName,
+            profile
+          )
+        );
+
+        try {
+          writeToStorage(newAuthInfo, this.storage);
+        } catch (err) {
+          throw new StitchClientException(
+            StitchClientErrorCode.CouldNotPersistAuthInfo
+          );
+        }
+
+        this.authInfo = newAuthInfo;
+        this.currentUser = this.userFactory.makeUser(
+          this.authInfo.userId!,
+          credential.providerType,
+          credential.providerName,
+          profile
+        );
+
+        return this.currentUser;
+      })
+      .catch(err => {
+        this.authInfo = oldInfo;
+        this.currentUser = undefined;
+        throw err;
+      });
+  }
+  
+  /**
    * Prepares an authenticated Stitch request by attaching the `CoreStitchAuth`'s current access or refresh token
    * (depending on the type of request) to the request's `"Authorization"` header.
    */
@@ -433,86 +513,6 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     );
 
     return this.doAuthenticatedRequest(linkRequest);
-  }
-
-  /**
-   * Processes the response of the login/link request, setting the authentication state if appropriate, and
-   * requesting the user profile in a separate request.
-   */
-  private processLoginResponse(
-    credential: StitchCredential,
-    response: Response
-  ): Promise<TStitchUser> {
-    let newAuthInfo: AuthInfo;
-    try {
-      newAuthInfo = APIAuthInfo.fromJSON(JSON.parse(response.body!));
-    } catch (err) {
-      throw new StitchRequestException(
-        err,
-        StitchRequestErrorCode.DECODING_ERROR
-      );
-    }
-
-    newAuthInfo = this.authInfo.merge(
-      new AuthInfo(
-        newAuthInfo.userId,
-        newAuthInfo.deviceId,
-        newAuthInfo.accessToken,
-        newAuthInfo.refreshToken,
-        credential.providerType,
-        credential.providerName,
-        undefined
-      )
-    );
-
-    // Provisionally set so we can make a profile request
-    const oldInfo = this.authInfo;
-    this.authInfo = newAuthInfo;
-    this.currentUser = this.userFactory.makeUser(
-      this.authInfo.userId!,
-      credential.providerType,
-      credential.providerName,
-      undefined
-    );
-
-    return this.doGetUserProfile()
-      .then(profile => {
-        // readonlyly set the info and user
-        newAuthInfo = newAuthInfo.merge(
-          new AuthInfo(
-            newAuthInfo.userId,
-            newAuthInfo.deviceId,
-            newAuthInfo.accessToken,
-            newAuthInfo.refreshToken,
-            credential.providerType,
-            credential.providerName,
-            profile
-          )
-        );
-
-        try {
-          writeToStorage(newAuthInfo, this.storage);
-        } catch (err) {
-          throw new StitchClientException(
-            StitchClientErrorCode.CouldNotPersistAuthInfo
-          );
-        }
-
-        this.authInfo = newAuthInfo;
-        this.currentUser = this.userFactory.makeUser(
-          this.authInfo.userId!,
-          credential.providerType,
-          credential.providerName,
-          profile
-        );
-
-        return this.currentUser;
-      })
-      .catch(err => {
-        this.authInfo = oldInfo;
-        this.currentUser = undefined;
-        throw err;
-      });
   }
 
   /**

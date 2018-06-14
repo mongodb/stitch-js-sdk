@@ -1,3 +1,4 @@
+import AuthInfo from "./auth/internal/AuthInfo";
 import CoreStitchAuth from "./auth/internal/CoreStitchAuth";
 import CoreStitchUser from "./auth/internal/CoreStitchUser";
 import CoreStitchUserImpl from "./auth/internal/CoreStitchUserImpl";
@@ -96,5 +97,6 @@ export {
   Response,
   MemoryStorage,
   Transport,
-  UserType
+  UserType,
+  AuthInfo
 };

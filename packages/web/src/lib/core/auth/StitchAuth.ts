@@ -1,7 +1,5 @@
 import {
   StitchCredential,
-  StitchRequestClient,
-  StitchAuthRequestClient
 } from "stitch-core";
 import AuthProviderClientFactory from "./providers/internal/AuthProviderClientFactory";
 import NamedAuthProviderClientFactory from "./providers/internal/NamedAuthProviderClientFactory";
