@@ -3,7 +3,6 @@ import {
   CoreStitchUser,
   DeviceFields,
   StitchAppClientInfo,
-  StitchAuthRequestClient,
   StitchAuthRoutes,
   StitchCredential,
   StitchRequestClient,
@@ -12,13 +11,14 @@ import {
 } from "stitch-core";
 
 import { detect } from "detect-browser";
-import Stitch from "../../Stitch";
 import AuthProviderClientFactory from "../providers/internal/AuthProviderClientFactory";
 import NamedAuthProviderClientFactory from "../providers/internal/NamedAuthProviderClientFactory";
 import StitchAuth from "../StitchAuth";
 import StitchAuthListener from "../StitchAuthListener";
 import StitchUser from "../StitchUser";
 import StitchUserFactoryImpl from "./StitchUserFactoryImpl";
+
+const version = "@VERSION@"
 
 export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   implements StitchAuth {
@@ -95,8 +95,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
       info[DeviceFields.PLATFORM_VERSION] = "0.0.0";
     }
 
-    // TODO: STITCH-1528 JS SDK: Read version of SDK dynamically
-    info[DeviceFields.SDK_VERSION] = "4.0.0";
+    info[DeviceFields.SDK_VERSION] = version;
 
     return info;
   }
