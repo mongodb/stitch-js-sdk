@@ -18,8 +18,7 @@ import StitchAuthListener from "../StitchAuthListener";
 import StitchUser from "../StitchUser";
 import StitchUserFactoryImpl from "./StitchUserFactoryImpl";
 
-import * as pkginfo from "pkginfo";
-pkginfo(module, "version");
+const version = "@VERSION@"
 
 export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   implements StitchAuth {
@@ -96,7 +95,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
       info[DeviceFields.PLATFORM_VERSION] = "0.0.0";
     }
 
-    info[DeviceFields.SDK_VERSION] = module.exports.version;
+    info[DeviceFields.SDK_VERSION] = version;
 
     return info;
   }
