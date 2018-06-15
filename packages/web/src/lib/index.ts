@@ -9,6 +9,7 @@ import {
   UserAPIKeyCredential,
   UserPasswordCredential
 } from "stitch-core";
+import FacebookRedirectCredential from "./core/auth/providers/facebook/FacebookRedirectCredential";
 import GoogleRedirectCredential from "./core/auth/providers/google/GoogleRedirectCredental";
 import { UserAPIKeyAuthProviderClient } from "./core/auth/providers/userapikey/UserAPIKeyAuthProviderClient";
 import { UserPasswordAuthProviderClient } from "./core/auth/providers/userpassword/UserPasswordAuthProviderClient";
@@ -20,9 +21,11 @@ import StitchAppClient from "./core/StitchAppClient";
 import NamedServiceClientFactory from "./services/internal/NamedServiceClientFactory";
 import StitchServiceClient from "./services/internal/StitchServiceClient";
 
+
 export {
   AnonymousCredential,
   GoogleRedirectCredential,
+  FacebookRedirectCredential,
   CustomCredential,
   FacebookCredential,
   GoogleCredential,
