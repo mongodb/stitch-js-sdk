@@ -1,3 +1,4 @@
+import { StitchAuthRoutes } from "../..";
 import StitchServiceRoutes from "../../services/internal/StitchServiceRoutes";
 import StitchAppAuthRoutes from "./StitchAppAuthRoutes";
 
@@ -12,7 +13,7 @@ function getFunctionCallRoute(clientAppId: string): string {
 }
 
 class StitchAppRoutes {
-  public readonly authRoutes: StitchAppAuthRoutes;
+  public readonly authRoutes: StitchAuthRoutes;
   public readonly serviceRoutes: StitchServiceRoutes;
 
   public readonly functionCallRoute: string;

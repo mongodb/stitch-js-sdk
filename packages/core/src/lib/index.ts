@@ -4,10 +4,12 @@ import CoreStitchUser from "./auth/internal/CoreStitchUser";
 import CoreStitchUserImpl from "./auth/internal/CoreStitchUserImpl";
 import DeviceFields from "./auth/internal/DeviceFields";
 import APIStitchUserIdentity from "./auth/internal/models/APIStitchUserIdentity";
+import { StoreAuthInfoCodec } from "./auth/internal/models/StoreAuthInfo";
 import StitchAuthRequestClient from "./auth/internal/StitchAuthRequestClient";
 import { StitchAuthRoutes } from "./auth/internal/StitchAuthRoutes";
 import StitchUserFactory from "./auth/internal/StitchUserFactory";
 import StitchUserProfileImpl from "./auth/internal/StitchUserProfileImpl";
+import ProviderCapabilities from "./auth/ProviderCapabilities";
 import AnonymousAuthProvider from "./auth/providers/anonymous/AnonymousAuthProvider";
 import AnonymousCredential from "./auth/providers/anonymous/AnonymousCredential";
 import CustomAuthProvider from "./auth/providers/custom/CustomAuthProvider";
@@ -35,6 +37,7 @@ import CoreStitchAppClient from "./internal/CoreStitchAppClient";
 import FetchTransport from "./internal/net/FetchTransport";
 import Method from "./internal/net/Method";
 import Response from "./internal/net/Response";
+import StitchAppAuthRoutes from "./internal/net/StitchAppAuthRoutes";
 import { StitchAppRoutes } from "./internal/net/StitchAppRoutes";
 import { StitchAuthRequest } from "./internal/net/StitchAuthRequest";
 import StitchRequestClient from "./internal/net/StitchRequestClient";
@@ -49,6 +52,8 @@ import StitchServiceException from "./StitchServiceException";
 
 export {
   AnonymousAuthProvider,
+  StitchAppAuthRoutes,
+  ProviderCapabilities,
   AnonymousCredential,
   APIStitchUserIdentity,
   CustomAuthProvider,
@@ -98,5 +103,6 @@ export {
   MemoryStorage,
   Transport,
   UserType,
-  AuthInfo
+  AuthInfo,
+  StoreAuthInfoCodec
 };

@@ -3,14 +3,17 @@ import Response from "./Response";
 import Transport from "./Transport";
 
 require("es6-promise").polyfill();
-require("fetch-everywhere");
+if (!self.fetch) {
+  require("fetch-everywhere");
+}
 
 export default class FetchTransport implements Transport {
   public roundTrip(request: BasicRequest): Promise<Response> {
     const responsePromise = fetch(request.url, {
       body: request.body,
       headers: request.headers,
-      method: request.method
+      method: request.method,
+      redirect: "manual"
     });
 
     const responseTextPromise = responsePromise.then(response =>

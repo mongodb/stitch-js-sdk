@@ -1,5 +1,5 @@
 import { StitchUserFactory, StitchUserProfileImpl } from "stitch-core";
-import StitchUser from "../StitchUser";
+import { StitchUser } from "../StitchUser";
 import StitchAuthImpl from "./StitchAuthImpl";
 import StitchUserImpl from "./StitchUserImpl";
 

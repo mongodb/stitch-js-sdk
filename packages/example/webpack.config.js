@@ -18,6 +18,14 @@ module.exports = {
               path.resolve(__dirname, "node_modules"), 
               path.resolve(__dirname, "dist")
           ]
+      },
+      {
+        test: /\.css$/,
+        loaders: ['style-loader', 'css-loader'],
+        exclude: [
+          path.resolve(__dirname, "node_modules"), 
+          path.resolve(__dirname, "dist")
+        ]
       }
     ]
   }

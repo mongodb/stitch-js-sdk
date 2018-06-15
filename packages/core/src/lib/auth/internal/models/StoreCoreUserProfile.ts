@@ -1,10 +1,11 @@
+import { Codec } from "../../..";
 import StitchUserProfileImpl from "../StitchUserProfileImpl";
-import StoreStitchUserIdentity from "./StoreStitchUserIdentity";
+import { StoreStitchUserIdentity, StoreStitchUserIdentityCodec } from "./StoreStitchUserIdentity";
 
 enum Fields {
-  DATA = "data",
-  USER_TYPE = "user_type",
-  IDENTITIES = "identities"
+  Data = "data",
+  UserType = "user_type",
+  Identities = "identities"
 }
 
 /**
@@ -24,4 +25,24 @@ export default class StoreCoreUserProfile extends StitchUserProfileImpl {
    * to this user which can be used to log in as this user.
    */
   public identities: StoreStitchUserIdentity[];
+}
+
+const storeStitchUserIdentityCodec = new StoreStitchUserIdentityCodec();
+
+export class StoreCoreUserProfileCodec implements Codec<StoreCoreUserProfile> {
+  public decode(from: object): StoreCoreUserProfile {
+    return new StoreCoreUserProfile(
+      from[Fields.UserType],
+      from[Fields.Data],
+      from[Fields.Identities].map(it => storeStitchUserIdentityCodec.decode(it))
+    );
+  }
+
+  public encode(from: StoreCoreUserProfile): object {
+    return {
+      [Fields.Data]: from.data,
+      [Fields.Identities]: from.identities.map(it => storeStitchUserIdentityCodec.encode(it)),
+      [Fields.UserType]: from.userType,
+    }
+  }
 }

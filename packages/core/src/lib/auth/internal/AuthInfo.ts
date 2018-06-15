@@ -1,4 +1,4 @@
-import { Storage } from "../../internal/common/Storage";
+import StitchUserProfile from "../StitchUserProfile";
 import StitchUserProfileImpl from "./StitchUserProfileImpl";
 
 /**

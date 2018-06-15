@@ -1,7 +1,7 @@
-import { StitchRequest } from "./StitchRequest";
-import Headers from "./Headers";
-import ContentTypes from "./ContentTypes";
 import { stringify } from "mongodb-extjson";
+import ContentTypes from "./ContentTypes";
+import Headers from "./Headers";
+import { StitchRequest } from "./StitchRequest";
 
 export class StitchDocRequest extends StitchRequest {
   public readonly document: object;

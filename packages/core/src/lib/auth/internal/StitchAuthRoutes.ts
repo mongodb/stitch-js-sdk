@@ -5,17 +5,17 @@ export interface StitchAuthRoutes {
   /**
    * The route on the server for getting a new access token.
    */
-  sessionRoute: string;
+  readonly sessionRoute: string;
 
   /**
    * The route on the server for fetching the currently authenticated user's profile.
    */
-  profileRoute: string;
+  readonly profileRoute: string;
 
   /**
    * The base route on the server for authentication-related actions.
    */
-  baseAuthRoute: string;
+  readonly baseAuthRoute: string;
 
   /**
    * Returns the route on the server for getting information about a particular authentication provider.

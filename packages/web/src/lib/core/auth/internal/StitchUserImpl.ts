@@ -3,7 +3,7 @@ import {
   StitchCredential,
   StitchUserProfileImpl
 } from "stitch-core";
-import StitchUser from "../StitchUser";
+import { StitchUser } from "../StitchUser";
 import StitchAuthImpl from "./StitchAuthImpl";
 
 export default class StitchUserImpl extends CoreStitchUserImpl

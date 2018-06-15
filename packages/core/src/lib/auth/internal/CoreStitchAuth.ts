@@ -286,7 +286,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   ): Promise<TStitchUser> {
     let newAuthInfo: AuthInfo;
     try {
-      newAuthInfo = APIAuthInfo.fromJSON(JSON.parse(response.body!));
+      newAuthInfo = credential.materialContainsAuthInfo ? credential.material as any : APIAuthInfo.fromJSON(JSON.parse(response.body!));
     } catch (err) {
       throw new StitchRequestException(
         err,
@@ -471,6 +471,14 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     credential: StitchCredential,
     asLinkRequest: boolean
   ): Promise<TStitchUser> {
+    if (credential.materialContainsAuthInfo && !asLinkRequest) {
+      return this.processLoginResponse(credential, {statusCode: 200, headers: {}})
+        .then(user => {
+          this.onAuthEvent();
+          return user;
+        });
+    }
+
     return this.doLoginRequest(credential, asLinkRequest)
       .then(response => this.processLoginResponse(credential, response))
       .then(user => {

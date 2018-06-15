@@ -1,6 +1,6 @@
 import { StitchUserProfileImpl } from "../../../../lib";
 import AuthInfo from "../../../../lib/auth/internal/AuthInfo";
-import StoreStitchUserIdentity from "../../../../lib/auth/internal/models/StoreStitchUserIdentity";
+import { StoreStitchUserIdentity } from "../../../../lib/auth/internal/models/StoreStitchUserIdentity";
 
 describe("AuthInfo", () => {
   const userId = "foo";

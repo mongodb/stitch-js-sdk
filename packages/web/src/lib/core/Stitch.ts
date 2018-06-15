@@ -75,21 +75,17 @@ export default class Stitch {
     if (configBuilder.storage === undefined) {
       configBuilder.withStorage(new LocalStorage(configBuilder.clientAppId));
     }
-    if (configBuilder.transport == null) {
+    if (!configBuilder.transport) {
       configBuilder.withTransport(new FetchTransport());
     }
-    if (configBuilder.baseURL == null || configBuilder.baseURL === "") {
+    if (!configBuilder.baseURL) {
       configBuilder.withBaseURL(DEFAULT_BASE_URL);
     }
-    if (
-      configBuilder.localAppName == null ||
-      configBuilder.localAppName === ""
-    ) {
+    if (!configBuilder.localAppName) {
       configBuilder.withLocalAppName(Stitch.localAppName);
     }
     if (
-      configBuilder.localAppVersion == null ||
-      configBuilder.localAppVersion === ""
+      !configBuilder.localAppVersion
     ) {
       configBuilder.withLocalAppVersion(Stitch.localAppVersion);
     }

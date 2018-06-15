@@ -10,7 +10,8 @@
     "mongodb-extjson": "git://github.com/mongodb-js/mongodb-extjson.git#3.0",
     "detect-browser": "^2.4.0",
     "stitch-core": "^4.0.0",
-    "bson": "git://github.com/mongodb/js-bson.git#3.0"
+    "bson": "git://github.com/mongodb/js-bson.git#3.0",
+    "Base64": "^1.0.1"
   },
   "devDependencies": {
     "@types/bson": "^1.0.8",
@@ -24,11 +25,12 @@
     "ts-loader": "^4.0.0"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run add-version",
     "watch": "tsc -w",
     "lint": "tslint src/**/*.ts",
     "lint-fix": "tslint --fix src/**/*.ts",
     "lint-check": "tslint-config-prettier-check ./tslint.json",
-    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\""
+    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\"",
+    "add-version": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" dist/core/auth/internal/StitchAuthImpl.js"
   }
 }

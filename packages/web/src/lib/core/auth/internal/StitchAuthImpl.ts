@@ -3,10 +3,7 @@ import {
   CoreStitchAuth,
   CoreStitchUser,
   DeviceFields,
-  GoogleAuthProvider,
-  GoogleCredential,
   StitchAppClientInfo,
-  StitchAuthRoutes,
   StitchCredential,
   StitchRequestClient,
   StitchUserFactory,
@@ -14,20 +11,29 @@ import {
 } from "stitch-core";
 
 import { detect } from "detect-browser";
-import Stitch from "../../Stitch";
 import AuthProviderClientFactory from "../providers/internal/AuthProviderClientFactory";
 import NamedAuthProviderClientFactory from "../providers/internal/NamedAuthProviderClientFactory";
+import StitchRedirectCredentialImpl from "../providers/internal/StitchRedirectCredentialImpl";
+import StitchRedirectCredential from "../providers/StitchRedirectCredential";
 import StitchAuth from "../StitchAuth";
 import StitchAuthListener from "../StitchAuthListener";
-import StitchUser from "../StitchUser";
+import { StitchUser, StitchUserCodec } from "../StitchUser";
+import StitchBrowserAppAuthRoutes from "./StitchBrowserAppAuthRoutes";
 import StitchUserFactoryImpl from "./StitchUserFactoryImpl";
 
 enum RedirectKeys {
-  State = "state",
+  State = "_stitch_state",
   RedirectProvider = "redirectProvider",
-  StitchError = "stitchError",
-  StitchLink = "stitchLink",
-  UserAuth = "userAuth",
+  StitchError = "_stitch_error",
+  StitchLink = "_stitch_link",
+  Type = "_stitch_redirect_type",
+  UserAuth = "_stitch_ua",
+  LinkUser = "_stitch_link_user",
+}
+
+enum RedirectTypes {
+  Link = "isLink",
+  Login = "isLogin",
 }
 
 interface ParsedRedirectFragment {
@@ -37,19 +43,25 @@ interface ParsedRedirectFragment {
   lastError?: string
 }
 
+const version = "@VERSION@"
+
+const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
 export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   implements StitchAuth {
   private readonly appInfo: StitchAppClientInfo;
   private readonly listeners: Set<StitchAuthListener> = new Set();
+  private readonly browserAuthRoutes: StitchBrowserAppAuthRoutes;
 
   public constructor(
     requestClient: StitchRequestClient,
-    authRoutes: StitchAuthRoutes,
+    authRoutes: StitchBrowserAppAuthRoutes,
     storage: Storage,
     appInfo: StitchAppClientInfo
   ) {
     super(requestClient, authRoutes, storage);
     this.appInfo = appInfo;
+    this.browserAuthRoutes = authRoutes;
   }
 
   protected get userFactory(): StitchUserFactory<StitchUser> {
@@ -73,13 +85,96 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     );
   }
 
-  public loginWithOAuth(type: string) {
-    switch (type) {
-      case GoogleAuthProvider.TYPE: {
+  public loginWithRedirect(credential: StitchRedirectCredential) {
+    const { redirectUrl, state } = this.prepareRedirect(credential, RedirectTypes.Login);
 
-        break;
+    window.location.replace(
+      this.browserAuthRoutes.getAuthProviderRedirectRoute(credential, redirectUrl, state, this.deviceInfo)
+    )
+  }
+
+  public linkUserWithRedirect(user: StitchUser, credential: StitchRedirectCredential) {
+    this.storage.set(
+      RedirectKeys.LinkUser, 
+      JSON.stringify(new StitchUserCodec(this).encode(user))
+    );
+
+    const { redirectUrl, state } = this.prepareRedirect(credential, RedirectTypes.Login);
+
+    const link = this.browserAuthRoutes.getAuthProviderLinkRedirectRoute(credential, redirectUrl, state, this.deviceInfo)
+    
+    fetch(new Request(link + `&providerRedirectHeader=true`, {
+      credentials: "include",
+      headers: {
+        "Authorization": "Bearer "+this.authInfo.accessToken,
       }
+    })).then(response => {
+      window.location.replace(response.headers.get("X-Stitch-Location")!);
+    });
+  }
+
+  public hasRedirect(): boolean {
+    return !!this.storage.get(RedirectKeys.State)
+  }
+
+  public handleRedirect(): Promise<StitchUser> {
+    const cleanup = () => {
+      this.storage.remove(RedirectKeys.State);
+      this.storage.remove(RedirectKeys.RedirectProvider)
     }
+
+    if (typeof (window) === 'undefined') {
+      // This means we're running in some environment other
+      // than a browser - so handling a redirect makes no sense here.
+      cleanup();
+      return Promise.reject();
+    }
+
+    if (!window.location || !window.location.hash) {
+      cleanup();
+      return Promise.reject();
+    }
+
+    const ourState = this.storage.get(RedirectKeys.State)
+    const redirectProvider  = this.storage.get(RedirectKeys.RedirectProvider)
+    
+    cleanup();
+
+    const redirectFragment = window.location.hash.substring(1);
+    const redirectState = this.parseRedirectFragment(redirectFragment, ourState);
+
+    if (redirectState.lastError || (redirectState.found && !redirectProvider)) {
+      // this._error = redirectState.lastError;
+      window.history.replaceState(null, '', this.pageRootUrl());
+      return Promise.reject(`StitchClient: error from redirect: ${redirectState.lastError ?
+        redirectState.lastError : 'provider type not set'}`);
+    }
+
+    if (!redirectState.found) {
+      return Promise.reject(`no redirect state found`);
+    }
+
+    
+
+    if (!redirectState.stateValid) {
+      window.history.replaceState(null, '', this.pageRootUrl());
+      return Promise.reject('StitchClient: state values did not match!');
+    }
+
+    if (!redirectState.ua) {
+      return Promise.reject('StitchClient: no UA value was returned from redirect!');
+    }
+
+    // If we get here, the state is valid - set auth appropriately.
+    
+    return this.loginWithCredentialInternal(
+      new StitchRedirectCredentialImpl(
+        redirectProvider, redirectProvider, redirectState.ua!
+      )
+    ).then(user => {
+      window.history.replaceState(null, '', this.pageRootUrl())
+      return user;
+    });
   }
 
   public loginWithCredential(
@@ -121,8 +216,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
       info[DeviceFields.PLATFORM_VERSION] = "0.0.0";
     }
 
-    // TODO: STITCH-1528 JS SDK: Read version of SDK dynamically
-    info[DeviceFields.SDK_VERSION] = "4.0.0";
+    info[DeviceFields.SDK_VERSION] = version;
 
     return info;
   }
@@ -153,8 +247,42 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     }
   }
 
+  // The state we generate is to be used for any kind of request where we will
+  // complete an authentication flow via a redirect. We store the generate in
+  // a local storage bound to the app's origin. This ensures that any time we
+  // receive a redirect, there must be a state parameter and it must match
+  // what we ourselves have generated. This state MUST only be sent to
+  // a trusted Stitch endpoint in order to preserve its integrity. Stitch will
+  // store it in some way on its origin (currently a cookie stored on this client)
+  // and use that state at the end of an auth flow as a parameter in the redirect URI.
+  private generateState() {
+    let state = '';
+    for (let i = 0; i < 64; ++i) {
+      state += alpha.charAt(Math.floor(Math.random() * alpha.length));
+    }
+  
+    return state;
+  }
+
   private pageRootUrl() {
     return [window.location.protocol, '//', window.location.host, window.location.pathname].join('');
+  }
+
+  private prepareRedirect(
+    credential: StitchRedirectCredential, 
+    redirectType: RedirectTypes
+  ): { redirectUrl: string, state: string } {
+    this.storage.set(RedirectKeys.RedirectProvider, credential.providerType);
+    let redirectUrl = credential.redirectUrl
+    if (redirectUrl === undefined) {
+      redirectUrl = this.pageRootUrl();
+    }
+  
+    const state = this.generateState();
+    this.storage.set(RedirectKeys.State, state);
+    this.storage.set(RedirectKeys.Type, redirectType);
+
+    return { redirectUrl, state }
   }
 
   private unmarshallUserAuth(data): AuthInfo {
@@ -207,57 +335,5 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     }
 
     return result;
-  }
-
-  private handleRedirect() {
-    if (typeof (window) === 'undefined') {
-      // This means we're running in some environment other
-      // than a browser - so handling a redirect makes no sense here.
-      return;
-    }
-
-    if (!window.location || !window.location.hash) {
-      return;
-    }
-
-    const ourState = this.storage.get(RedirectKeys.State)
-    const redirectProvider  = this.storage.get(RedirectKeys.RedirectProvider)
-
-    const redirectFragment = window.location.hash.substring(1);
-    const redirectState = this.parseRedirectFragment(redirectFragment, ourState);
-    if (redirectState.lastError || (redirectState.found && !redirectProvider)) {
-      console.error(`StitchClient: error from redirect: ${redirectState.lastError ?
-      redirectState.lastError : 'provider type not set'}`);
-      this._error = redirectState.lastError;
-      window.history.replaceState(null, '', this.pageRootUrl());
-      return Promise.reject();
-    }
-
-    if (!redirectState.found) {
-      return;
-      }
-
-    this.storage.remove(RedirectKeys.State),
-    this.storage.remove(RedirectKeys.RedirectProvider)
-
-    if (!redirectState.stateValid) {
-      console.error('StitchClient: state values did not match!');
-      window.history.replaceState(null, '', this.pageRootUrl());
-      return;
-    }
-
-    if (!redirectState.ua) {
-      console.error('StitchClient: no UA value was returned from redirect!');
-      return;
-    }
-
-    // If we get here, the state is valid - set auth appropriately.
-    
-    this.processLoginResponse(
-      new GoogleCredential(""),
-      redirectState.ua
-    );
-
-    window.history.replaceState(null, '', this.pageRootUrl())
   }
 }

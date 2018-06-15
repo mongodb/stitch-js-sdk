@@ -22,6 +22,11 @@ export default interface StitchCredential {
   readonly material: { [key: string]: string };
 
   /**
+   * The contents of this credential contain authentication information.
+   */
+  readonly materialContainsAuthInfo?: boolean;
+
+  /**
    * A `ProviderCapabilities` object describing the behavior of this credential when logging in.
    */
   providerCapabilities: ProviderCapabilities;
