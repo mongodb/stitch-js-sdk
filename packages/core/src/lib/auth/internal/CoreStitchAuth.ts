@@ -286,7 +286,9 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   ): Promise<TStitchUser> {
     let newAuthInfo: AuthInfo;
     try {
-      newAuthInfo = credential.materialContainsAuthInfo ? credential.material as any : APIAuthInfo.fromJSON(JSON.parse(response.body!));
+      newAuthInfo = credential.materialContainsAuthInfo
+        ? (credential.material as any)
+        : APIAuthInfo.fromJSON(JSON.parse(response.body!));
     } catch (err) {
       throw new StitchRequestException(
         err,
@@ -355,7 +357,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         throw err;
       });
   }
-  
+
   /**
    * Prepares an authenticated Stitch request by attaching the `CoreStitchAuth`'s current access or refresh token
    * (depending on the type of request) to the request's `"Authorization"` header.
@@ -472,11 +474,13 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     asLinkRequest: boolean
   ): Promise<TStitchUser> {
     if (credential.materialContainsAuthInfo && !asLinkRequest) {
-      return this.processLoginResponse(credential, {statusCode: 200, headers: {}})
-        .then(user => {
-          this.onAuthEvent();
-          return user;
-        });
+      return this.processLoginResponse(credential, {
+        statusCode: 200,
+        headers: {}
+      }).then(user => {
+        this.onAuthEvent();
+        return user;
+      });
     }
 
     return this.doLoginRequest(credential, asLinkRequest)

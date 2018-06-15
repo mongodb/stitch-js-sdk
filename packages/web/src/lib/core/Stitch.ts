@@ -84,9 +84,7 @@ export default class Stitch {
     if (!configBuilder.localAppName) {
       configBuilder.withLocalAppName(Stitch.localAppName);
     }
-    if (
-      !configBuilder.localAppVersion
-    ) {
+    if (!configBuilder.localAppVersion) {
       configBuilder.withLocalAppVersion(Stitch.localAppVersion);
     }
 

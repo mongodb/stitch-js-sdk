@@ -92,9 +92,9 @@ describe("CoreRemoteMongoCollection", () => {
 
     const docs = [doc1, doc2];
 
-    when(serviceMock.callFunctionInternal(anything(), anything(), anything())).thenResolve(
-      docs
-    );
+    when(
+      serviceMock.callFunctionInternal(anything(), anything(), anything())
+    ).thenResolve(docs);
 
     let iter = await coll.find().iterator();
 
@@ -129,7 +129,9 @@ describe("CoreRemoteMongoCollection", () => {
     expect(iter.next().value).toEqual(docs[0]);
     expect(iter.next().value).toEqual(docs[1]);
 
-    verify(serviceMock.callFunctionInternal(anything(), anything(), anything())).times(2);
+    verify(
+      serviceMock.callFunctionInternal(anything(), anything(), anything())
+    ).times(2);
 
     const [funcNameArg2, funcArgsArg2, resultClassArg2]: any[] = capture(
       serviceMock.callFunctionInternal
@@ -144,11 +146,9 @@ describe("CoreRemoteMongoCollection", () => {
 
     expect(funcArgsArg2[0]).toEqual(expectedArgs);
 
-    when(serviceMock.callFunctionInternal(anything(), anything(), anything())).thenResolve([
-      1,
-      2,
-      3
-    ]);
+    when(
+      serviceMock.callFunctionInternal(anything(), anything(), anything())
+    ).thenResolve([1, 2, 3]);
 
     iter = await coll.find(expectedFilter).iterator();
     expect(iter.next().value).toEqual(1);
@@ -156,9 +156,9 @@ describe("CoreRemoteMongoCollection", () => {
     expect(iter.next().value).toEqual(3);
 
     // Should pass along errors
-    when(serviceMock.callFunctionInternal(anything(), anything(), anything())).thenReject(
-      new Error("whoops")
-    );
+    when(
+      serviceMock.callFunctionInternal(anything(), anything(), anything())
+    ).thenReject(new Error("whoops"));
 
     try {
       await coll.find().first();
@@ -178,9 +178,9 @@ describe("CoreRemoteMongoCollection", () => {
 
     const docs = [doc1, doc2];
 
-    when(serviceMock.callFunctionInternal(anything(), anything(), anything())).thenResolve(
-      docs
-    );
+    when(
+      serviceMock.callFunctionInternal(anything(), anything(), anything())
+    ).thenResolve(docs);
 
     let iter = await coll.aggregate([]).iterator();
 
@@ -209,7 +209,9 @@ describe("CoreRemoteMongoCollection", () => {
     expect(iter.next().value).toEqual(docs[0]);
     expect(iter.next().value).toEqual(docs[1]);
 
-    verify(serviceMock.callFunctionInternal(anything(), anything(), anything())).times(2);
+    verify(
+      serviceMock.callFunctionInternal(anything(), anything(), anything())
+    ).times(2);
 
     const [funcNameArg2, funcArgsArg2, resultClassArg2]: any[] = capture(
       serviceMock.callFunctionInternal
@@ -221,9 +223,9 @@ describe("CoreRemoteMongoCollection", () => {
     expect(expectedArgs).toEqual(funcArgsArg2[0]);
 
     // Should pass along errors
-    when(serviceMock.callFunctionInternal(anything(), anything(), anything())).thenReject(
-      new Error("whoops")
-    );
+    when(
+      serviceMock.callFunctionInternal(anything(), anything(), anything())
+    ).thenReject(new Error("whoops"));
 
     try {
       await coll.aggregate([]).first();

@@ -26,18 +26,19 @@ export class StoreStitchUserIdentity extends StitchUserIdentity {
   }
 }
 
-export class StoreStitchUserIdentityCodec implements Codec<StoreStitchUserIdentity> {
+export class StoreStitchUserIdentityCodec
+  implements Codec<StoreStitchUserIdentity> {
   public decode(from: object): StoreStitchUserIdentity {
     return {
       id: from[Fields.Id],
       providerType: from[Fields.ProviderType]
-    }
+    };
   }
 
   public encode(from: StoreStitchUserIdentity): object {
     return {
       [Fields.Id]: from.id,
       [Fields.ProviderType]: from.providerType
-    }
+    };
   }
 }

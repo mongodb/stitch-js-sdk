@@ -1,6 +1,4 @@
-import {
-  StitchCredential,
-} from "stitch-core";
+import { StitchCredential } from "stitch-core";
 import AuthProviderClientFactory from "./providers/internal/AuthProviderClientFactory";
 import NamedAuthProviderClientFactory from "./providers/internal/NamedAuthProviderClientFactory";
 import StitchRedirectCredential from "./providers/StitchRedirectCredential";
@@ -24,7 +22,7 @@ interface StitchAuth {
   loginWithCredential(credential: StitchCredential): Promise<StitchUser>;
 
   loginWithRedirect(credential: StitchRedirectCredential);
-  
+
   linkUserWithRedirect(user: StitchUser, credential: StitchRedirectCredential);
 
   handleRedirect(): Promise<StitchUser>;

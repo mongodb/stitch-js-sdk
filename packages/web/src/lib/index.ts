@@ -20,7 +20,6 @@ import StitchAppClient from "./core/StitchAppClient";
 import NamedServiceClientFactory from "./services/internal/NamedServiceClientFactory";
 import StitchServiceClient from "./services/internal/StitchServiceClient";
 
-
 export {
   AnonymousCredential,
   GoogleRedirectCredential,

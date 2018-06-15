@@ -4,6 +4,5 @@ export default class StitchAppClientInfo {
     public readonly dataDirectory: string,
     public readonly localAppName: string,
     public readonly localAppVersion: string
-  ) {
-  }
+  ) {}
 }

@@ -1,6 +1,9 @@
 import { Codec } from "../../..";
 import StitchUserProfileImpl from "../StitchUserProfileImpl";
-import { StoreStitchUserIdentity, StoreStitchUserIdentityCodec } from "./StoreStitchUserIdentity";
+import {
+  StoreStitchUserIdentity,
+  StoreStitchUserIdentityCodec
+} from "./StoreStitchUserIdentity";
 
 enum Fields {
   Data = "data",
@@ -41,8 +44,10 @@ export class StoreCoreUserProfileCodec implements Codec<StoreCoreUserProfile> {
   public encode(from: StoreCoreUserProfile): object {
     return {
       [Fields.Data]: from.data,
-      [Fields.Identities]: from.identities.map(it => storeStitchUserIdentityCodec.encode(it)),
-      [Fields.UserType]: from.userType,
-    }
+      [Fields.Identities]: from.identities.map(it =>
+        storeStitchUserIdentityCodec.encode(it)
+      ),
+      [Fields.UserType]: from.userType
+    };
   }
 }

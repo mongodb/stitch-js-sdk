@@ -14,8 +14,7 @@ enum Fields {
 }
 
 export class StitchUserCodec implements Codec<StitchUser> {
-  constructor(private readonly auth: StitchAuthImpl) {
-  }
+  constructor(private readonly auth: StitchAuthImpl) {}
 
   public decode(from: object): StitchUser {
     return new StitchUserImpl(
@@ -24,7 +23,7 @@ export class StitchUserCodec implements Codec<StitchUser> {
       from[Fields.LoggedInProviderName],
       from[Fields.UserProfile],
       this.auth
-    )
+    );
   }
 
   public encode(from: StitchUser): object {
@@ -33,6 +32,6 @@ export class StitchUserCodec implements Codec<StitchUser> {
       [Fields.LoggedInProviderType]: from.loggedInProviderType,
       [Fields.LoggedInProviderName]: from.loggedInProviderName,
       [Fields.UserProfile]: from.profile
-    }
+    };
   }
 }

@@ -3,7 +3,9 @@ import { Storage } from "../../../internal/common/Storage";
 import { Codec } from "../../../internal/common/Codec";
 import AuthInfo from "../AuthInfo";
 import StitchUserProfileImpl from "../StitchUserProfileImpl";
-import StoreCoreUserProfile, { StoreCoreUserProfileCodec } from "./StoreCoreUserProfile";
+import StoreCoreUserProfile, {
+  StoreCoreUserProfileCodec
+} from "./StoreCoreUserProfile";
 
 enum Fields {
   UserId = "user_id",
@@ -75,13 +77,12 @@ class StoreAuthInfoCodec implements Codec<StoreAuthInfo> {
     if (storeAuthInfo.userProfile) {
       to[Fields.UserProfile] = storeCoreUserProfileCodec.encode(
         new StoreCoreUserProfile(
-          storeAuthInfo.userProfile.userType, 
-          storeAuthInfo.userProfile.data, 
+          storeAuthInfo.userProfile.userType,
+          storeAuthInfo.userProfile.data,
           storeAuthInfo.userProfile.identities
         )
       );
     }
-   
 
     return to;
   }
@@ -108,7 +109,10 @@ function writeToStorage(authInfo: AuthInfo, storage: Storage) {
     authInfo.loggedInProviderName!,
     authInfo.userProfile!
   );
-  storage.set(StoreAuthInfo.STORAGE_NAME, JSON.stringify(storeAuthInfoCodec.encode(info)));
+  storage.set(
+    StoreAuthInfo.STORAGE_NAME,
+    JSON.stringify(storeAuthInfoCodec.encode(info))
+  );
 }
 
 export { StoreAuthInfo, StoreAuthInfoCodec, readFromStorage, writeToStorage };
