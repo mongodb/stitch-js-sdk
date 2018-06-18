@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "module": "ES2015",
+        "moduleResolution": "Node",
+        "sourceMap": true,
+        "strictNullChecks": true,
+        "outDir": "lib/esm",
+        "declaration": true,
+        "removeComments": true,
+        "lib": [
+            "es2015",
+            "es2017.object",
+            "dom"
+        ]
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "./node_modules/**",
+        "./lib"
+    ]
+}

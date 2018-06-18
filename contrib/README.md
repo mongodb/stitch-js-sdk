@@ -7,12 +7,14 @@ This project follows [Semantic Versioning 2.0](https://semver.org/). In general,
 ### Developing
 
 This project uses Lerna to manage multiple modules: https://github.com/lerna/lerna.
-Once lerna is installed, run the following to begin development:
+Run the following to begin development:
 ```bash
-# install global devDependencies
+# install lergna globally
+npm install --global lerna
+# install dependencies
 npm install
 # install external dependencies, and link shared modules
-lerna bootstrap
+lerna bootstrap --hoist
 # build modules
 lerna run build
 ```
