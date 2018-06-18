@@ -29,7 +29,7 @@ function buildEventSubscriptionData(functionId) {
     function_id: functionId,
     config: {
       action_type: 'LOGIN',
-      provider: 'api-key',
+      provider: 'api-key'
     }
   };
 }
