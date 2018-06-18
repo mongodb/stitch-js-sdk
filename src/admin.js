@@ -282,7 +282,8 @@ export class StitchAdminClient extends StitchClient {
             eventSubscription: (eventSubscriptionId) => ({
               get: () => api._get(`${appUrl}/event_subscriptions/${eventSubscriptionId}`),
               update: (data) => api._put(`${appUrl}/event_subscriptions/${eventSubscriptionId}`, data),
-              remove: () => api._delete(`${appUrl}/event_subscriptions/${eventSubscriptionId}`)
+              remove: () => api._delete(`${appUrl}/event_subscriptions/${eventSubscriptionId}`),
+              resume: () => api._put(`${appUrl}/event_subscriptions/${eventSubscriptionId}/resume`)
             })
           })
         };
