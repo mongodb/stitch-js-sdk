@@ -44,7 +44,7 @@ function buildDBEventSubscriptionData(functionId, mongodbServiceId) {
       database: 'db',
       collection: 'col',
       operation_types: ['INSERT'],
-      service_id: mongodbServiceId,
+      service_id: mongodbServiceId
     }
   };
 }
