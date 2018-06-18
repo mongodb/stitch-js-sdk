@@ -1,0 +1,26 @@
+{
+  "name": "mongodb-stitch-browser-core",
+  "version": "4.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "description": "web",
+  "author": "MongoDB",
+  "license": "Apache2",
+  "dependencies": {
+    "detect-browser": "^2.4.0",
+    "mongodb-stitch-core-sdk": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/detect-browser": "^2.0.1",
+    "typescript": "^2.9.2"
+  },
+  "scripts": {
+    "build": "tsc && npm run add-version",
+    "watch": "tsc -w",
+    "lint": "tslint src/**/*.ts",
+    "lint-fix": "tslint --fix src/**/*.ts",
+    "lint-check": "tslint-config-prettier-check ./tslint.json",
+    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\"",
+    "add-version": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" dist/core/auth/internal/StitchAuthImpl.js"
+  }
+}

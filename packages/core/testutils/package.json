@@ -1,0 +1,24 @@
+{
+  "name": "mongodb-stitch-core-testutils",
+  "version": "4.0.0",
+  "description": "",
+  "main": "dist/BaseStitchIntTestHarness.js",
+  "types": "dist/BaseStitchIntTestHarness.d.ts",
+  "author": "MongoDB",
+  "license": "Apache2",
+  "dependencies": {
+    "mongodb-stitch-core-admin-client": "^4.0.0",
+    "mongodb-stitch-core-sdk": "^4.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^2.9.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "lint": "tslint -c tslint.json src/**/*.ts",
+    "lint-fix": "tslint --fix src/**/*.ts",
+    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\"",
+    "lint-check": "tslint-config-prettier-check ./tslint.json"
+  }
+}

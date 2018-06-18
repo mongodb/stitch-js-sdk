@@ -1,0 +1,24 @@
+{
+  "name": "mongodb-stitch-core-services-twilio",
+  "version": "4.0.0",
+  "main": "dist/lib/CoreTwilioServiceClient.js",
+  "types": "dist/lib/CoreTwilioServiceClient.d.ts",
+  "description": "core twilio service",
+  "author": "MongoDB",
+  "license": "Apache2",
+  "dependencies": {
+    "mongodb-stitch-core-sdk": "^4.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^2.9.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "lint": "tslint src/**/*.ts",
+    "lint-fix": "tslint --fix src/**/*.ts",
+    "lint-check": "tslint-config-prettier-check ./tslint.json",
+    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\""
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "mongodb-stitch-browser-examples-basic",
+  "version": "4.0.0",
+  "description": "This is an example JS application using the stitch-browser module",
+  "main": "index.js",
+  "dependencies": {
+    "mongodb-stitch-browser-sdk": "^4.0.0",
+    "mongodb-stitch-browser-services-aws-s3": "^4.0.0"
+  },
+  "scripts": {
+    "build": "webpack -p",
+    "start": "webpack-dev-server -d --content-base ./public"
+  },
+  "author": "MongoDB",
+  "license": "Apache2",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.4",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "webpack": "4.11.1",
+    "webpack-cli": "3.0.3",
+    "webpack-dev-server": "3.1.4",
+    "react": "16.4.0",
+    "react-dom": "16.4.0"
+  }
+}
