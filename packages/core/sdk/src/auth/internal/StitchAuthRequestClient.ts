@@ -1,4 +1,4 @@
-import { Decoder } from "../..";
+import { Decoder } from "../../internal/common/Codec";
 import Response from "../../internal/net/Response";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 

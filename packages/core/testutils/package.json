@@ -2,7 +2,8 @@
   "name": "mongodb-stitch-core-testutils",
   "version": "4.0.0",
   "description": "",
-  "main": "lib/BaseStitchIntTestHarness.js",
+  "main": "lib/BaseStitchIntTestHarness.umd.js",
+  "module": "lib/BaseStitchIntTestHarness.esm.js",
   "types": "lib/BaseStitchIntTestHarness.d.ts",
   "author": "MongoDB Inc.",
   "contributors": [
@@ -26,13 +27,15 @@
     "mongodb-stitch-core-sdk": "^4.0.0"
   },
   "devDependencies": {
+    "fetch-everywhere": "^1.0.5",
     "prettier": "^1.13.5",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
-    "typescript": "^2.9.2"
+    "typescript": "^2.9.2",
+    "rollup": "^0.60.7"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rollup -c",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json src/**/*.ts",
     "lint-fix": "tslint --fix src/**/*.ts",

@@ -1,9 +1,7 @@
-import {
-  CoreStitchServiceClient,
-  Decoder,
-  StitchAuthRequestClient,
-  StitchServiceRoutes
-} from "../..";
+import CoreStitchServiceClient from "./CoreStitchServiceClient"
+import StitchServiceRoutes from "./StitchServiceRoutes"
+import StitchAuthRequestClient from "../../auth/internal/StitchAuthRequestClient";
+import { Decoder } from "../../internal/common/Codec";
 import Method from "../../internal/net/Method";
 import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";

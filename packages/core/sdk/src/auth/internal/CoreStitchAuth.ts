@@ -1,5 +1,5 @@
 import * as EJSON from "mongodb-extjson";
-import { CoreUserApiKeyAuthProviderClient } from "../..";
+import CoreUserApiKeyAuthProviderClient from "../providers/userapikey/CoreUserApiKeyAuthProviderClient";
 import { Codec, Decoder } from "../../internal/common/Codec";
 import { Storage } from "../../internal/common/Storage";
 import ContentTypes from "../../internal/net/ContentTypes";

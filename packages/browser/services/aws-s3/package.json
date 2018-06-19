@@ -1,7 +1,8 @@
 {
   "name": "mongodb-stitch-browser-services-aws-s3",
   "version": "4.0.0",
-  "main": "lib/index.js",
+  "main": "lib/index.umd.js",
+  "module": "lib/index.esm.js",
   "types": "lib/index.d.ts",
   "description": "MongoDB Stitch JavaScript SDK - Browser AWS S3 Service",
   "author": "MongoDB Inc.",
@@ -33,10 +34,11 @@
     "ts-jest": "^22.4.6",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
-    "typescript": "^2.9.2"
+    "typescript": "^2.9.2",
+    "rollup": "^0.60.7"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rollup -c",
     "watch": "tsc -w",
     "test": "jest",
     "lint": "tslint src/**/*.ts",

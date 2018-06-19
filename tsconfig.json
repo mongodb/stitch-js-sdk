@@ -1,7 +1,8 @@
 {
     "compilerOptions": {
-        "target": "es2015",
-        "module": "commonjs",
+        "target": "ES5",
+        "module": "ES2015",
+        "moduleResolution": "Node",
         "sourceMap": true,
         "strictNullChecks": true,
         "outDir": "lib",

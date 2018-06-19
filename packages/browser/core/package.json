@@ -1,7 +1,8 @@
 {
   "name": "mongodb-stitch-browser-core",
   "version": "4.0.0",
-  "main": "lib/index.js",
+  "main": "lib/index.umd.js",
+  "module": "lib/index.esm.js",
   "types": "lib/index.d.ts",
   "description": "MongoDB Stitch JavaScript SDK - Browser Core",
   "author": "MongoDB Inc.",
@@ -30,7 +31,8 @@
     "ts-jest": "^22.4.6",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
-    "typescript": "^2.9.2"
+    "typescript": "^2.9.2",
+    "rollup": "^0.60.7"
   },
   "scripts": {
     "build": "tsc && npm run add-version",
@@ -39,6 +41,6 @@
     "lint-fix": "tslint --fix src/**/*.ts",
     "lint-check": "tslint-config-prettier-check ./tslint.json",
     "prettier": "prettier --write \"{,!(node_modules),!(lib)/**/}*.ts\"",
-    "add-version": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" lib/core/auth/internal/StitchAuthImpl.js"
+    "add-version": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" lib/core/internal/common/Version.js"
   }
 }

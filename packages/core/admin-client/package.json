@@ -2,7 +2,8 @@
   "name": "mongodb-stitch-core-admin-client",
   "version": "4.0.0",
   "description": "Module that provides client access to the Stitch Admin API.",
-  "main": "lib/index.js",
+  "main": "lib/index.umd.js",
+  "module": "lib/index.esm.js",
   "types": "lib/index.d.ts",
   "author": "MongoDB Inc.",
   "contributors": [
@@ -29,10 +30,11 @@
     "prettier": "^1.13.5",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
-    "typescript": "^2.9.2"
+    "typescript": "^2.9.2",
+    "rollup": "^0.60.7"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rollup -c",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json src/**/*.ts",
     "lint-fix": "tslint --fix src/**/*.ts",

@@ -1,9 +1,7 @@
 import { BasicRequest } from "./BasicRequest";
 import Response from "./Response";
 import Transport from "./Transport";
-
-require("es6-promise").polyfill();
-require("fetch-everywhere");
+import fetch from "fetch-everywhere"
 
 export default class FetchTransport implements Transport {
   public roundTrip(request: BasicRequest): Promise<Response> {

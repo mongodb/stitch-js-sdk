@@ -17,8 +17,7 @@ import StitchAuth from "../StitchAuth";
 import StitchAuthListener from "../StitchAuthListener";
 import StitchUser from "../StitchUser";
 import StitchUserFactoryImpl from "./StitchUserFactoryImpl";
-
-const version = "@VERSION@";
+import version from "../../internal/common/Version";
 
 export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   implements StitchAuth {

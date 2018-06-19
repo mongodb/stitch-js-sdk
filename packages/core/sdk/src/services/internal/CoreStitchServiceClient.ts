@@ -1,5 +1,5 @@
-import { Decoder } from "../..";
 import StitchAuthRequestClient from "../../auth/internal/StitchAuthRequestClient";
+import { Decoder } from "../../internal/common/Codec";
 import Method from "../../internal/net/Method";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 import StitchServiceRoutes from "./StitchServiceRoutes";

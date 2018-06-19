@@ -1,8 +1,9 @@
 {
   "name": "mongodb-stitch-browser-testutils",
   "version": "4.0.0",
-  "main": "lib/BaseStitchWebIntTestHarness.js",
-  "types": "lib/BaseStitchWebIntTestHarness.d.ts",
+  "main": "lib/index.umd.js",
+  "module": "lib/index.esm.js",
+  "types": "lib/index.d.ts",
   "description": "",
   "author": "MongoDB Inc.",
   "contributors": [
@@ -28,10 +29,11 @@
     "mongodb-stitch-browser-core": "^4.0.0"
   },
   "devDependencies": {
-    "typescript": "^2.9.2"
+    "typescript": "^2.9.2",
+    "rollup": "^0.60.7"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rollup -c",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json src/**/*.ts",
     "lint-fix": "tslint --fix src/**/*.ts",

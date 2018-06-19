@@ -1,15 +1,10 @@
 import StitchClientException from "../../StitchClientException";
+import { toByteArray } from "base64-js"
+import { TextDecoderLite } from "text-encoder-lite"
 
-function b64DecodeUnicode(str) {
-  // Going backwards: from bytestream, to percent-encoding, to original string.
-  return decodeURIComponent(
-    atob(str)
-      .split("")
-      .map(c => {
-        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-      })
-      .join("")
-  );
+function b64DecodeUnicode(str, encoding = 'utf-8') {
+    var bytes = toByteArray(str);
+    return new TextDecoderLite(encoding).decode(bytes);
 }
 
 const EXPIRES = "exp";
