@@ -1,7 +1,7 @@
 import { ObjectID } from "bson";
 import { App, AppResponse, Userpass } from "mongodb-stitch-core-admin-client";
 import { StitchServiceErrorCode, StitchServiceException } from "mongodb-stitch-core-sdk";
-import { UserAPIKeyAuthProviderClient, UserAPIKeyCredential } from "mongodb-stitch-browser-core";
+import { UserApiKeyAuthProviderClient, UserApiKeyCredential } from "mongodb-stitch-browser-core";
 import BaseStitchWebIntTestHarness from "mongodb-stitch-browser-testutils";
 
 const harness = new BaseStitchWebIntTestHarness();
@@ -36,7 +36,7 @@ describe("UserApiKeyAuthProviderClient", () => {
     );
 
     const apiKeyClient = client.auth.getProviderClient(
-      UserAPIKeyAuthProviderClient.factory
+      UserApiKeyAuthProviderClient.factory
     );
 
     const key = await apiKeyClient.createApiKey("key_test");
@@ -47,7 +47,7 @@ describe("UserApiKeyAuthProviderClient", () => {
     await client.auth.logout();
 
     const user = await client.auth.loginWithCredential(
-      new UserAPIKeyCredential(key.key!)
+      new UserApiKeyCredential(key.key!)
     );
     expect(originalUserId).toEqual(user.id);
   });
@@ -63,7 +63,7 @@ describe("UserApiKeyAuthProviderClient", () => {
     );
 
     const apiKeyClient = client.auth.getProviderClient(
-      UserAPIKeyAuthProviderClient.factory
+      UserApiKeyAuthProviderClient.factory
     );
 
     const key = await apiKeyClient.createApiKey("key_test");
@@ -88,7 +88,7 @@ describe("UserApiKeyAuthProviderClient", () => {
       "hunter2"
     );
     const apiKeyClient = client.auth.getProviderClient(
-      UserAPIKeyAuthProviderClient.factory
+      UserApiKeyAuthProviderClient.factory
     );
 
     const key = await apiKeyClient.createApiKey("key_test");
@@ -116,7 +116,7 @@ describe("UserApiKeyAuthProviderClient", () => {
     );
 
     const apiKeyClient = client.auth.getProviderClient(
-      UserAPIKeyAuthProviderClient.factory
+      UserApiKeyAuthProviderClient.factory
     );
 
     try {
@@ -139,7 +139,7 @@ describe("UserApiKeyAuthProviderClient", () => {
     );
 
     const apiKeyClient = client.auth.getProviderClient(
-      UserAPIKeyAuthProviderClient.factory
+      UserApiKeyAuthProviderClient.factory
     );
 
     try {
@@ -147,7 +147,7 @@ describe("UserApiKeyAuthProviderClient", () => {
       fail("found a nonexistent key");
     } catch (e) {
       expect(e instanceof StitchServiceException).toBeTruthy();
-      expect(StitchServiceErrorCode.APIKeyNotFound).toEqual(e.errorCode);
+      expect(StitchServiceErrorCode.ApiKeyNotFound).toEqual(e.errorCode);
     }
   });
 });

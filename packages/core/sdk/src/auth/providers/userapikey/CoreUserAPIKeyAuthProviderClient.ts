@@ -8,9 +8,9 @@ import StitchException from "../../../StitchException";
 import { StitchRequestErrorCode } from "../../../StitchRequestErrorCode";
 import StitchRequestException from "../../../StitchRequestException";
 import CoreAuthProviderClient from "../internal/CoreAuthProviderClient";
-import UserAPIKey from "./models/UserAPIKey";
-import UserAPIKeyAuthProvider from "./UserAPIKeyAuthProvider";
-import UserAPIKeyCredential from "./UserAPIKeyCredential";
+import UserApiKey from "./models/UserApiKey";
+import UserApiKeyAuthProvider from "./UserApiKeyAuthProvider";
+import UserApiKeyCredential from "./UserApiKeyCredential";
 
 enum ApiKeyFields {
   NAME = "name"
@@ -19,7 +19,7 @@ enum ApiKeyFields {
 /**
  * A client for the user API key authentication provider which can be used to obtain a credential for logging in.
  */
-export default class CoreUserAPIKeyAuthProviderClient extends CoreAuthProviderClient<
+export default class CoreUserApiKeyAuthProviderClient extends CoreAuthProviderClient<
   StitchAuthRequestClient
 > {
   public constructor(
@@ -27,7 +27,7 @@ export default class CoreUserAPIKeyAuthProviderClient extends CoreAuthProviderCl
     authRoutes: StitchAuthRoutes
   ) {
     const baseRoute = `${authRoutes.baseAuthRoute}/api_keys`;
-    const name = UserAPIKeyAuthProvider.DEFAULT_NAME;
+    const name = UserApiKeyAuthProvider.DEFAULT_NAME;
     super(name, requestClient, baseRoute);
   }
 
@@ -36,7 +36,7 @@ export default class CoreUserAPIKeyAuthProviderClient extends CoreAuthProviderCl
    *
    * @param name the name of the API key to be created.
    */
-  public createApiKey(name: string): Promise<UserAPIKey> {
+  public createApiKey(name: string): Promise<UserApiKey> {
     const reqBuilder = new StitchAuthDocRequest.Builder();
     reqBuilder
       .withMethod(Method.POST)
@@ -49,7 +49,7 @@ export default class CoreUserAPIKeyAuthProviderClient extends CoreAuthProviderCl
     return this.requestClient
       .doAuthenticatedRequest(reqBuilder.build())
       .then(response => {
-        return UserAPIKey.readFromAPI(response.body!);
+        return UserApiKey.readFromAPI(response.body!);
       })
       .catch(err => {
         throw StitchError.wrapDecodingError(err);
@@ -61,7 +61,7 @@ export default class CoreUserAPIKeyAuthProviderClient extends CoreAuthProviderCl
    *
    * @param keyId the id of the API key to fetch.
    */
-  public fetchApiKey(keyId: ObjectID): Promise<UserAPIKey> {
+  public fetchApiKey(keyId: ObjectID): Promise<UserApiKey> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
       .withMethod(Method.GET)
@@ -71,7 +71,7 @@ export default class CoreUserAPIKeyAuthProviderClient extends CoreAuthProviderCl
     return this.requestClient
       .doAuthenticatedRequest(reqBuilder.build())
       .then(response => {
-        return UserAPIKey.readFromAPI(response.body!);
+        return UserApiKey.readFromAPI(response.body!);
       })
       .catch(err => {
         throw StitchError.wrapDecodingError(err);
@@ -81,7 +81,7 @@ export default class CoreUserAPIKeyAuthProviderClient extends CoreAuthProviderCl
   /**
    * Fetches the user API keys associated with the current user.
    */
-  public fetchApiKeys(): Promise<UserAPIKey[]> {
+  public fetchApiKeys(): Promise<UserApiKey[]> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder.withMethod(Method.GET).withPath(this.baseRoute);
     reqBuilder.withRefreshToken();
@@ -91,7 +91,7 @@ export default class CoreUserAPIKeyAuthProviderClient extends CoreAuthProviderCl
       .then(response => {
         const json = JSON.parse(response.body!);
         if (Array.isArray(json)) {
-          return json.map(value => UserAPIKey.readFromAPI(value));
+          return json.map(value => UserApiKey.readFromAPI(value));
         }
 
         throw new StitchRequestException(

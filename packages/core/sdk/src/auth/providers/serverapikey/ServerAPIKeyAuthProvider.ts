@@ -1,4 +1,4 @@
-export default class ServerAPIKeyAuthProvider {
+export default class ServerApiKeyAuthProvider {
   public static TYPE: string = "api-key";
   public static DEFAULT_NAME: string = "api-key";
 

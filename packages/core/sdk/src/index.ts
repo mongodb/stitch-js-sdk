@@ -15,12 +15,12 @@ import FacebookAuthProvider from "./auth/providers/facebook/FacebookAuthProvider
 import FacebookCredential from "./auth/providers/facebook/FacebookCredential";
 import GoogleAuthProvider from "./auth/providers/google/GoogleAuthProvider";
 import GoogleCredential from "./auth/providers/google/GoogleCredential";
-import ServerAPIKeyAuthProvider from "./auth/providers/serverapikey/ServerAPIKeyAuthProvider";
-import ServerAPIKeyCredential from "./auth/providers/serverapikey/ServerAPIKeyCredential";
-import CoreUserAPIKeyAuthProviderClient from "./auth/providers/userapikey/CoreUserAPIKeyAuthProviderClient";
-import UserAPIKey from "./auth/providers/userapikey/models/UserAPIKey";
-import UserAPIKeyAuthProvider from "./auth/providers/userapikey/UserAPIKeyAuthProvider";
-import UserAPIKeyCredential from "./auth/providers/userapikey/UserAPIKeyCredential";
+import ServerApiKeyAuthProvider from "./auth/providers/serverapikey/ServerApiKeyAuthProvider";
+import ServerApiKeyCredential from "./auth/providers/serverapikey/ServerApiKeyCredential";
+import CoreUserApiKeyAuthProviderClient from "./auth/providers/userapikey/CoreUserApiKeyAuthProviderClient";
+import UserApiKey from "./auth/providers/userapikey/models/UserApiKey";
+import UserApiKeyAuthProvider from "./auth/providers/userapikey/UserApiKeyAuthProvider";
+import UserApiKeyCredential from "./auth/providers/userapikey/UserApiKeyCredential";
 import CoreUserPassAuthProviderClient from "./auth/providers/userpass/CoreUserPasswordAuthProviderClient";
 import UserPasswordAuthProvider from "./auth/providers/userpass/UserPasswordAuthProvider";
 import UserPasswordCredential from "./auth/providers/userpass/UserPasswordCredential";
@@ -56,15 +56,15 @@ export {
   FacebookCredential,
   GoogleAuthProvider,
   GoogleCredential,
-  ServerAPIKeyAuthProvider,
-  ServerAPIKeyCredential,
-  UserAPIKeyAuthProvider,
-  UserAPIKey,
-  UserAPIKeyCredential,
+  ServerApiKeyAuthProvider,
+  ServerApiKeyCredential,
+  UserApiKeyAuthProvider,
+  UserApiKey,
+  UserApiKeyCredential,
   Codec,
   Decoder,
   Encoder,
-  CoreUserAPIKeyAuthProviderClient,
+  CoreUserApiKeyAuthProviderClient,
   UserPasswordAuthProvider,
   UserPasswordCredential,
   CoreUserPassAuthProviderClient,

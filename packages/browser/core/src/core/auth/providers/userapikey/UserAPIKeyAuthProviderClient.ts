@@ -3,30 +3,30 @@ import {
   StitchAuthRequestClient,
   StitchAuthRoutes,
   StitchRequestClient,
-  UserAPIKey
+  UserApiKey
 } from "mongodb-stitch-core-sdk";
 import AuthProviderClientFactory from "../internal/AuthProviderClientFactory";
-import UserAPIKeyAuthProviderClientImpl from "./internal/UserAPIKeyAuthProviderClientImpl";
+import UserApiKeyAuthProviderClientImpl from "./internal/UserApiKeyAuthProviderClientImpl";
 
-export interface UserAPIKeyAuthProviderClient {
+export interface UserApiKeyAuthProviderClient {
   /**
    * Creates a user API key that can be used to authenticate as the current user.
    *
    * @param name the name of the API key to be created.
    */
-  createApiKey(name: string): Promise<UserAPIKey>;
+  createApiKey(name: string): Promise<UserApiKey>;
 
   /**
    * Fetches a user API key associated with the current user.
    *
    * @param keyId the id of the API key to fetch.
    */
-  fetchApiKey(keyId: ObjectID): Promise<UserAPIKey>;
+  fetchApiKey(keyId: ObjectID): Promise<UserApiKey>;
 
   /**
    * Fetches the user API keys associated with the current user.
    */
-  fetchApiKeys(): Promise<UserAPIKey[]>;
+  fetchApiKeys(): Promise<UserApiKey[]>;
 
   /**
    * Deletes a user API key associated with the current user.
@@ -50,17 +50,17 @@ export interface UserAPIKeyAuthProviderClient {
   disableApiKey(keyId: ObjectID): Promise<void>;
 }
 
-export namespace UserAPIKeyAuthProviderClient {
+export namespace UserApiKeyAuthProviderClient {
   export const factory: AuthProviderClientFactory<
-    UserAPIKeyAuthProviderClient
+    UserApiKeyAuthProviderClient
   > = new class
-    implements AuthProviderClientFactory<UserAPIKeyAuthProviderClient> {
+    implements AuthProviderClientFactory<UserApiKeyAuthProviderClient> {
     public getClient(
       authRequestClient: StitchAuthRequestClient,
       requestClient: StitchRequestClient, // this arg is ignored
       routes: StitchAuthRoutes
-    ): UserAPIKeyAuthProviderClient {
-      return new UserAPIKeyAuthProviderClientImpl(authRequestClient, routes);
+    ): UserApiKeyAuthProviderClient {
+      return new UserApiKeyAuthProviderClientImpl(authRequestClient, routes);
     }
   }();
 }

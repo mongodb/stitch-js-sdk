@@ -322,13 +322,16 @@ describe("RemoteMongoClient", () => {
     const doc1 = { hello: "world" };
     let result = await coll.updateOne({}, doc1);
     expect(0).toEqual(result.matchedCount);
+    expect(0).toEqual(result.modifiedCount);
     expect(result.upsertedId).toBeUndefined();
 
     result = await coll.updateOne({}, doc1, { upsert: true });
     expect(0).toEqual(result.matchedCount);
+    expect(0).toEqual(result.modifiedCount);
     expect(result.upsertedId).toBeDefined();
     result = await coll.updateOne({}, { $set: { woof: "meow" } });
     expect(1).toEqual(result.matchedCount);
+    expect(1).toEqual(result.modifiedCount);
     expect(result.upsertedId).toBeUndefined();
     const expectedDoc = { hello: "world" };
     expectedDoc["woof"] = "meow";
@@ -350,18 +353,22 @@ describe("RemoteMongoClient", () => {
     const doc1 = { hello: "world" };
     let result = await coll.updateMany({}, doc1);
     expect(0).toEqual(result.matchedCount);
+    expect(0).toEqual(result.modifiedCount);
     expect(result.upsertedId).toBeUndefined();
 
     result = await coll.updateMany({}, doc1, { upsert: true });
     expect(0).toEqual(result.matchedCount);
+    expect(0).toEqual(result.modifiedCount);
     expect(result.upsertedId).toBeDefined();
     result = await coll.updateMany({}, { $set: { woof: "meow" } });
     expect(1).toEqual(result.matchedCount);
+    expect(1).toEqual(result.modifiedCount);
     expect(result.upsertedId).toBeUndefined();
 
     await coll.insertOne({});
     result = await coll.updateMany({}, { $set: { woof: "meow" } });
     expect(2).toEqual(result.matchedCount);
+    expect(2).toEqual(result.modifiedCount);
 
     const expectedDoc1 = { hello: "world" };
     expectedDoc1["woof"] = "meow";

@@ -10,7 +10,7 @@ import {
 import { Matcher } from "ts-mockito/lib/matcher/type/Matcher";
 import {
   CoreStitchAuth,
-  CoreUserAPIKeyAuthProviderClient,
+  CoreUserApiKeyAuthProviderClient,
   StitchAppRoutes,
   StitchRequestClient
 } from "../src";

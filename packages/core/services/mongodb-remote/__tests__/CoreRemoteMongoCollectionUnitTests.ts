@@ -419,12 +419,13 @@ describe("CoreRemoteMongoCollection", () => {
 
     when(
       serviceMock.callFunctionInternal(anything(), anything(), anything())
-    ).thenResolve({ matchedCount: 1, upsertedId: id.toHexString() });
+    ).thenResolve({ matchedCount: 1, modifiedCount: 1, upsertedId: id.toHexString() });
 
     const expectedFilter = { one: 2 };
     const expectedUpdate = { three: 4 };
     let result = await coll.updateOne(expectedFilter, expectedUpdate);
     expect(1).toEqual(result.matchedCount);
+    expect(1).toEqual(result.modifiedCount);
     expect(id.toHexString()).toEqual(result.upsertedId);
 
     const [funcNameArg, funcArgsArg, resultClassArg]: any[] = capture(
@@ -447,6 +448,7 @@ describe("CoreRemoteMongoCollection", () => {
       upsert: true
     });
     expect(1).toEqual(result.matchedCount);
+    expect(1).toEqual(result.modifiedCount);
     expect(id.toHexString()).toEqual(result.upsertedId);
 
     verify(
@@ -483,12 +485,13 @@ describe("CoreRemoteMongoCollection", () => {
 
     when(
       serviceMock.callFunctionInternal(anything(), anything(), anything())
-    ).thenResolve({ matchedCount: 1, upsertedId: id.toHexString() });
+    ).thenResolve({ matchedCount: 1, modifiedCount: 1, upsertedId: id.toHexString() });
 
     const expectedFilter = { one: 2 };
     const expectedUpdate = { three: 4 };
     let result = await coll.updateMany(expectedFilter, expectedUpdate);
     expect(1).toEqual(result.matchedCount);
+    expect(1).toEqual(result.modifiedCount);
     expect(id.toHexString()).toEqual(result.upsertedId);
 
     const [funcNameArg, funcArgsArg, resultClassArg]: any[] = capture(
@@ -509,6 +512,7 @@ describe("CoreRemoteMongoCollection", () => {
       upsert: true
     });
     expect(1).toEqual(result.matchedCount);
+    expect(1).toEqual(result.modifiedCount);
     expect(id.toHexString()).toEqual(result.upsertedId);
 
     verify(

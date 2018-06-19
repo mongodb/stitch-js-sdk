@@ -14,6 +14,7 @@ enum RemoteInsertOneResultFields {
 
 enum RemoteUpdateResultFields {
   MatchedCount = "matchedCount",
+  ModifiedCount = "modifiedCount",
   UpsertedId = "upsertedId"
 }
 
@@ -41,6 +42,7 @@ class RemoteUpdateResultDecoder implements Decoder<RemoteUpdateResult> {
   public decode(from: object) {
     return {
       matchedCount: from[RemoteUpdateResultFields.MatchedCount],
+      modifiedCount: from[RemoteUpdateResultFields.ModifiedCount],
       upsertedId: from[RemoteUpdateResultFields.UpsertedId]
     };
   }

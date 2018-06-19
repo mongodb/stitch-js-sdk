@@ -11,7 +11,7 @@ import {
   ServiceResponse,
   StitchAdminClient
 } from "mongodb-stitch-core-admin-client";
-import { UserAPIKeyAuthProvider, UserPasswordCredential } from "mongodb-stitch-core-sdk";
+import { UserApiKeyAuthProvider, UserPasswordCredential } from "mongodb-stitch-core-sdk";
 
 export default abstract class BaseStitchIntTestHarness {
   protected abstract readonly stitchBaseUrl: string;
@@ -92,7 +92,7 @@ export default abstract class BaseStitchIntTestHarness {
   public async enableApiKeyProvider(app: App): Promise<void> {
     return app.authProviders.list().then(responses => {
       const apiKeyProvider = responses.find(
-        it => it.name === UserAPIKeyAuthProvider.DEFAULT_NAME
+        it => it.name === UserApiKeyAuthProvider.DEFAULT_NAME
       )!;
       return app.authProviders.authProvider(apiKeyProvider.id).enable();
     });

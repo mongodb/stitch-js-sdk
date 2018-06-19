@@ -1,6 +1,6 @@
 import ProviderCapabilities from "../../ProviderCapabilities";
 import StitchCredential from "../../StitchCredential";
-import ServerAPIKeyAuthProvider from "./ServerAPIKeyAuthProvider";
+import ServerApiKeyAuthProvider from "./ServerApiKeyAuthProvider";
 
 enum Fields {
   KEY = "key"
@@ -10,7 +10,7 @@ enum Fields {
  * A credential which can be used to log in as a Stitch user
  * using the Server API Key authentication provider.
  */
-export default class ServerAPIKeyCredential implements StitchCredential {
+export default class ServerApiKeyCredential implements StitchCredential {
   /**
    * The name of the provider for this credential.
    */
@@ -18,7 +18,7 @@ export default class ServerAPIKeyCredential implements StitchCredential {
   /**
    * The type of the provider for this credential.
    */
-  public readonly providerType = ServerAPIKeyAuthProvider.TYPE;
+  public readonly providerType = ServerApiKeyAuthProvider.TYPE;
   /**
    * The contents of this credential as they will be passed to the Stitch server.
    */
@@ -36,7 +36,7 @@ export default class ServerAPIKeyCredential implements StitchCredential {
 
   constructor(
     key: string,
-    providerName: string = ServerAPIKeyAuthProvider.DEFAULT_NAME
+    providerName: string = ServerApiKeyAuthProvider.DEFAULT_NAME
   ) {
     this.providerName = providerName;
     this.key = key;

@@ -1,15 +1,15 @@
 import { ObjectID } from "bson";
 import {
-  CoreUserAPIKeyAuthProviderClient,
+  CoreUserApiKeyAuthProviderClient,
   StitchAuthRequestClient,
   StitchAuthRoutes,
-  UserAPIKey
+  UserApiKey
 } from "mongodb-stitch-core-sdk";
-import { UserAPIKeyAuthProviderClient } from "../UserAPIKeyAuthProviderClient";
+import { UserApiKeyAuthProviderClient } from "../UserApiKeyAuthProviderClient";
 
-export default class UserAPIKeyAuthProviderClientImpl
-  extends CoreUserAPIKeyAuthProviderClient
-  implements UserAPIKeyAuthProviderClient {
+export default class UserApiKeyAuthProviderClientImpl
+  extends CoreUserApiKeyAuthProviderClient
+  implements UserApiKeyAuthProviderClient {
   public constructor(
     requestClient: StitchAuthRequestClient,
     routes: StitchAuthRoutes
@@ -17,15 +17,15 @@ export default class UserAPIKeyAuthProviderClientImpl
     super(requestClient, routes);
   }
 
-  public createApiKey(name: string): Promise<UserAPIKey> {
+  public createApiKey(name: string): Promise<UserApiKey> {
     return super.createApiKey(name);
   }
 
-  public fetchApiKey(keyId: ObjectID): Promise<UserAPIKey> {
+  public fetchApiKey(keyId: ObjectID): Promise<UserApiKey> {
     return super.fetchApiKey(keyId);
   }
 
-  public fetchApiKeys(): Promise<UserAPIKey[]> {
+  public fetchApiKeys(): Promise<UserApiKey[]> {
     return super.fetchApiKeys();
   }
 

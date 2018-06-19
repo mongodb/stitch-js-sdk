@@ -7,11 +7,11 @@ import {
   FacebookCredential,
   GoogleAuthProvider,
   GoogleCredential,
-  ServerAPIKeyAuthProvider,
-  ServerAPIKeyCredential,
-  UserAPIKeyAuthProvider,
-  UserAPIKey,
-  UserAPIKeyCredential,
+  ServerApiKeyAuthProvider,
+  ServerApiKeyCredential,
+  UserApiKeyAuthProvider,
+  UserApiKey,
+  UserApiKeyCredential,
   Codec,
   Decoder,
   Encoder,
@@ -29,7 +29,7 @@ import {
   Transport,
   UserType
 } from "mongodb-stitch-core-sdk";
-import { UserAPIKeyAuthProviderClient } from "./core/auth/providers/userapikey/UserAPIKeyAuthProviderClient";
+import { UserApiKeyAuthProviderClient } from "./core/auth/providers/userapikey/UserApiKeyAuthProviderClient";
 import { UserPasswordAuthProviderClient } from "./core/auth/providers/userpassword/UserPasswordAuthProviderClient";
 import StitchAuth from "./core/auth/StitchAuth";
 import StitchAuthListener from "./core/auth/StitchAuthListener";
@@ -48,11 +48,11 @@ export {
   FacebookCredential,
   GoogleAuthProvider,
   GoogleCredential,
-  ServerAPIKeyAuthProvider,
-  ServerAPIKeyCredential,
-  UserAPIKeyAuthProvider,
-  UserAPIKey,
-  UserAPIKeyCredential,
+  ServerApiKeyAuthProvider,
+  ServerApiKeyCredential,
+  UserApiKeyAuthProvider,
+  UserApiKey,
+  UserApiKeyCredential,
   Codec,
   Decoder,
   Encoder,
@@ -76,6 +76,6 @@ export {
   StitchAuthListener,
   StitchUser,
   StitchServiceClient,
-  UserAPIKeyAuthProviderClient,
+  UserApiKeyAuthProviderClient,
   UserPasswordAuthProviderClient
 };

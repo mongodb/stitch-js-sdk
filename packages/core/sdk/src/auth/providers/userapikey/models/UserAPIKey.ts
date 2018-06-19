@@ -11,19 +11,19 @@ enum Fields {
 /**
  * A class containing the fields returned by the Stitch client API in an authentication request.
  */
-export default class UserAPIKey {
+export default class UserApiKey {
   /**
    * Decodes a response from the Stitch client API into a User API key.
    *
    * @param body The body of the response from the Stitch client API
    */
-  public static readFromAPI(json: string | object): UserAPIKey {
+  public static readFromAPI(json: string | object): UserApiKey {
     const body = typeof json === "string" ? JSON.parse(json) : json;
 
     Assertions.keyPresent(Fields.ID, body);
     Assertions.keyPresent(Fields.NAME, body);
     Assertions.keyPresent(Fields.DISABLED, body);
-    return new UserAPIKey(
+    return new UserApiKey(
       body[Fields.ID],
       body[Fields.KEY],
       body[Fields.NAME],

@@ -9,9 +9,9 @@ import {
 } from "ts-mockito";
 import {
   CoreStitchAuth,
-  CoreUserAPIKeyAuthProviderClient,
+  CoreUserApiKeyAuthProviderClient,
   StitchAppRoutes,
-  UserAPIKey
+  UserApiKey
 } from "../../../../src";
 import Method from "../../../../src/internal/net/Method";
 import { StitchAuthDocRequest } from "../../../../src/internal/net/StitchAuthDocRequest";
@@ -31,7 +31,7 @@ function testClientCall(
 
   const routes = new StitchAppRoutes(clientAppId).authRoutes;
 
-  const client = new CoreUserAPIKeyAuthProviderClient(requestClient, routes);
+  const client = new CoreUserApiKeyAuthProviderClient(requestClient, routes);
 
   when(
     requestClientMock.doAuthenticatedRequest(new RequestClassMatcher(
@@ -40,7 +40,7 @@ function testClientCall(
     ) as any)
   ).thenResolve({
     body: JSON.stringify(
-      new UserAPIKey(new ObjectID().toHexString(), "2", "3", false)
+      new UserApiKey(new ObjectID().toHexString(), "2", "3", false)
     ),
     headers: {},
     statusCode: 200
@@ -53,7 +53,7 @@ function testClientCall(
     ) as any)
   ).thenResolve({
     body: JSON.stringify([
-      new UserAPIKey(new ObjectID().toHexString(), "2", "3", false)
+      new UserApiKey(new ObjectID().toHexString(), "2", "3", false)
     ]),
     headers: {},
     statusCode: 200
@@ -66,7 +66,7 @@ function testClientCall(
     ) as any)
   ).thenResolve({
     body: JSON.stringify(
-      new UserAPIKey(new ObjectID().toHexString(), "2", "3", false)
+      new UserApiKey(new ObjectID().toHexString(), "2", "3", false)
     ),
     headers: {},
     statusCode: 200
@@ -137,7 +137,7 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       .withShouldRefreshOnFailure(false)
       .withDocument({ name: apiKeyName });
 
-    return testClientCall((client: CoreUserAPIKeyAuthProviderClient) => {
+    return testClientCall((client: CoreUserApiKeyAuthProviderClient) => {
       return client.createApiKey(apiKeyName);
     }, expectedRequestBuilder.build());
   });
@@ -153,7 +153,7 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       .withShouldRefreshOnFailure(false);
 
     return testClientCall(
-      (client: CoreUserAPIKeyAuthProviderClient) => {
+      (client: CoreUserApiKeyAuthProviderClient) => {
         return client.fetchApiKey(keyToFetch);
       },
       expectedRequestBuilder.build(),
@@ -188,7 +188,7 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       )
       .withRefreshToken()
       .withShouldRefreshOnFailure(false);
-    testClientCall((client: CoreUserAPIKeyAuthProviderClient) => {
+    testClientCall((client: CoreUserApiKeyAuthProviderClient) => {
       return client.enableApiKey(keyToEnable);
     }, expectedRequestBuilder.build());
   });

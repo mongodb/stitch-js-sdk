@@ -3,6 +3,9 @@ export default interface RemoteUpdateResult {
   /// The number of documents that matched the filter.
   readonly matchedCount: number;
 
+  /// The number of documents matched by the query.
+  readonly modifiedCount: number;
+
   /// The identifier of the inserted document if an upsert took place.
   readonly upsertedId: any;
 }
