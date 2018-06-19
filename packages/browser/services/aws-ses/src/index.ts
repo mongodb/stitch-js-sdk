@@ -1,3 +1,9 @@
+import {
+  AwsSesSendResult
+} from "mongodb-stitch-core-services-aws-ses";
 import { AwsSesServiceClient } from "./AwsSesServiceClient";
 
-export { AwsSesServiceClient };
+export {
+	AwsSesSendResult,
+	AwsSesServiceClient
+};

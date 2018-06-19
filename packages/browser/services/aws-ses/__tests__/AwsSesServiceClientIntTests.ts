@@ -10,7 +10,7 @@ import {
   Service
 } from "mongodb-stitch-core-admin-client";
 import { StitchServiceErrorCode, StitchServiceException } from "mongodb-stitch-core-sdk";
-import { AwsSesService } from "../src/AwsSesServiceClient";
+import { AwsSesServiceClient } from "../src";
 
 const harness = new BaseStitchWebIntTestHarness();
 
@@ -51,8 +51,8 @@ describe("AwsSesService should", () => {
     const client = harness.getAppClient(appResponse as AppResponse);
     await client.auth.loginWithCredential(new AnonymousCredential());
 
-    const awsSes = client.getServiceClientWithName(
-      AwsSesService.Factory,
+    const awsSes = client.getServiceClient(
+      AwsSesServiceClient.factory,
       "awsses1"
     );
 

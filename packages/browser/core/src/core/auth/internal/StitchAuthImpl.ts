@@ -40,20 +40,22 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   }
 
   public getProviderClient<ClientT>(
-    provider: AuthProviderClientFactory<ClientT>
+    factory: AuthProviderClientFactory<ClientT> | NamedAuthProviderClientFactory<ClientT>,
+    providerName?: string
   ): ClientT {
-    return provider.getClient(this, this.requestClient, this.authRoutes);
-  }
-
-  public getProviderClientWithName<T>(
-    provider: NamedAuthProviderClientFactory<T>,
-    providerName: string
-  ): T {
-    return provider.getClient(
-      providerName,
-      this.requestClient,
-      this.authRoutes
-    );
+    if (isAuthProviderClientFactory(factory)) {
+      return factory.getClient(
+        this,
+        this.requestClient,
+        this.authRoutes
+      );
+    } else {
+      return factory.getNamedClient(
+        providerName!,
+        this.requestClient,
+        this.authRoutes
+      );
+    }
   }
 
   public loginWithCredential(
@@ -126,3 +128,10 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     }
   }
 }
+
+function isAuthProviderClientFactory<ClientT>(
+  factory: AuthProviderClientFactory<ClientT> | NamedAuthProviderClientFactory<ClientT>
+): factory is AuthProviderClientFactory<ClientT> {
+    return (<AuthProviderClientFactory<ClientT>>factory).getClient !== undefined;
+}
+

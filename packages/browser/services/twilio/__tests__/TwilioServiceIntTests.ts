@@ -14,7 +14,7 @@ import {
   StitchServiceErrorCode,
   StitchServiceException
 } from "mongodb-stitch-core-sdk";
-import { TwilioService } from "../src/TwilioServiceClient";
+import { TwilioServiceClient } from "../src";
 
 const harness = new BaseStitchWebIntTestHarness();
 
@@ -55,8 +55,8 @@ describe("TwilioService", () => {
     const client = harness.getAppClient(appResponse as AppResponse);
     await client.auth.loginWithCredential(new AnonymousCredential());
 
-    const twilio = client.getServiceClientWithName(
-      TwilioService.Factory,
+    const twilio = client.getServiceClient(
+      TwilioServiceClient.factory,
       "twilio1"
     );
 

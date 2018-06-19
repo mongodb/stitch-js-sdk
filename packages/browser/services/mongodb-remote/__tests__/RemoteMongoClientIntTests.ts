@@ -17,9 +17,8 @@ import {
 } from "mongodb-stitch-core-sdk";
 import {
   RemoteMongoClient,
-  RemoteMongoService
-} from "../src/RemoteMongoClient";
-import RemoteMongoCollection from "../src/RemoteMongoCollection";
+  RemoteMongoCollection
+} from "../src";
 
 const mongodbUriProp = "TEST_STITCH_MONGODBURI";
 
@@ -87,8 +86,8 @@ beforeEach(async () => {
 
   const client = harness.getAppClient(appResponse as AppResponse);
   await client.auth.loginWithCredential(new AnonymousCredential());
-  mongoClient = client.getServiceClientWithName(
-    RemoteMongoService.Factory,
+  mongoClient = client.getServiceClient(
+    RemoteMongoClient.factory,
     "mongodb1"
   );
 });

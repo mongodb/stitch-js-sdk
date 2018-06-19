@@ -1,6 +1,6 @@
 import { CoreStitchServiceClientImpl } from "mongodb-stitch-core-sdk";
 import { anything, capture, instance, mock, when } from "ts-mockito";
-import CoreTwilioServiceClient from "../lib/CoreTwilioServiceClient";
+import { CoreTwilioServiceClient } from "../src";
 
 describe("CoreTwilioServiceClientUnitTests", () => {
   it("should send message", async () => {

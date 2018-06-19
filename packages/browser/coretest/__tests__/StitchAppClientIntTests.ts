@@ -155,7 +155,7 @@ describe("StitchAppClient", () => {
 
     const client = harness.getAppClient(appResponse as AppResponse);
     const userPassClient = client.auth.getProviderClient(
-      UserPasswordAuthProviderClient.Factory
+      UserPasswordAuthProviderClient.factory
     );
 
     const email = "user@10gen.com";

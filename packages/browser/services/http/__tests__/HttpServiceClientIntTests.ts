@@ -12,8 +12,7 @@ import {
 } from "mongodb-stitch-core-admin-client";
 import { StitchServiceErrorCode, StitchServiceException } from "mongodb-stitch-core-sdk";
 import { HttpMethod, HttpRequest } from "mongodb-stitch-core-services-http";
-import { HttpService } from "../src/HttpServiceClient";
-import HttpServiceClientImpl from "../src/internal/HttpServiceClientImpl";
+import { HttpServiceClient } from "../src/HttpServiceClient";
 
 const harness = new BaseStitchWebIntTestHarness();
 
@@ -38,8 +37,8 @@ describe("HttpServiceClient", () => {
     const client = harness.getAppClient(appResponse as AppResponse);
     await client.auth.loginWithCredential(new AnonymousCredential());
 
-    const httpClient = client.getServiceClientWithName(
-      HttpService.Factory,
+    const httpClient = client.getServiceClient(
+      HttpServiceClient.factory,
       "http1"
     );
 

@@ -36,7 +36,7 @@ describe("UserApiKeyAuthProviderClient", () => {
     );
 
     const apiKeyClient = client.auth.getProviderClient(
-      UserAPIKeyAuthProviderClient.Factory
+      UserAPIKeyAuthProviderClient.factory
     );
 
     const key = await apiKeyClient.createApiKey("key_test");
@@ -63,7 +63,7 @@ describe("UserApiKeyAuthProviderClient", () => {
     );
 
     const apiKeyClient = client.auth.getProviderClient(
-      UserAPIKeyAuthProviderClient.Factory
+      UserAPIKeyAuthProviderClient.factory
     );
 
     const key = await apiKeyClient.createApiKey("key_test");
@@ -88,7 +88,7 @@ describe("UserApiKeyAuthProviderClient", () => {
       "hunter2"
     );
     const apiKeyClient = client.auth.getProviderClient(
-      UserAPIKeyAuthProviderClient.Factory
+      UserAPIKeyAuthProviderClient.factory
     );
 
     const key = await apiKeyClient.createApiKey("key_test");
@@ -116,7 +116,7 @@ describe("UserApiKeyAuthProviderClient", () => {
     );
 
     const apiKeyClient = client.auth.getProviderClient(
-      UserAPIKeyAuthProviderClient.Factory
+      UserAPIKeyAuthProviderClient.factory
     );
 
     try {
@@ -139,7 +139,7 @@ describe("UserApiKeyAuthProviderClient", () => {
     );
 
     const apiKeyClient = client.auth.getProviderClient(
-      UserAPIKeyAuthProviderClient.Factory
+      UserAPIKeyAuthProviderClient.factory
     );
 
     try {

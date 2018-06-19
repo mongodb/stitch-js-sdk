@@ -5,12 +5,13 @@ import StitchAuth from "./auth/StitchAuth";
 export default interface StitchAppClient {
   auth: StitchAuth;
 
-  getServiceClientWithName<T>(
-    provider: NamedServiceClientFactory<T>,
+
+  getServiceClient<T>(
+    factory: NamedServiceClientFactory<T>,
     serviceName: string
   ): T;
 
-  getServiceClient<T>(provider: ServiceClientFactory<T>): T;
+  getServiceClient<T>(factory: ServiceClientFactory<T>): T;
 
   callFunction(name: string, args: any[]): Promise<any>;
 }

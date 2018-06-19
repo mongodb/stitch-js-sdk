@@ -17,11 +17,12 @@ export interface RemoteMongoClient {
   db(name: string): RemoteMongoDatabase;
 }
 
-export class RemoteMongoService {
-  public static readonly Factory: NamedServiceClientFactory<
+export namespace RemoteMongoClient {
+  export const factory: NamedServiceClientFactory<
     RemoteMongoClient
-  > = new class implements NamedServiceClientFactory<RemoteMongoClient> {
-    public getClient(
+  > = new class
+    implements NamedServiceClientFactory<RemoteMongoClient> {
+    public getNamedClient(
       service: StitchServiceClient,
       client: StitchAppClientInfo
     ): RemoteMongoClient {

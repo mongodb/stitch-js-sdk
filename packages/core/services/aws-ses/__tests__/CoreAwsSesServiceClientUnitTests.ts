@@ -7,8 +7,7 @@ import {
   mock,
   when
 } from "ts-mockito";
-import AwsSesSendResult from "../src/AwsSesSendResult";
-import CoreAwsSesServiceClient from "../src/internal/CoreAwsSesServiceClient";
+import { AwsSesSendResult, CoreAwsSesServiceClient } from "../src";
 
 describe("CoreAwsSesServiceClient", () => {
   it("should send message", async () => {

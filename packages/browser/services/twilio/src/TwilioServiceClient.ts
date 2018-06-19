@@ -1,6 +1,6 @@
 import { NamedServiceClientFactory, StitchServiceClient } from "mongodb-stitch-browser-core";
 import { CoreStitchServiceClient, StitchAppClientInfo } from "mongodb-stitch-core-sdk";
-import CoreTwilioServiceClient from "mongodb-stitch-core-services-twilio";
+import { CoreTwilioServiceClient } from "mongodb-stitch-core-services-twilio";
 import TwilioServiceClientImpl from "./internal/TwilioServiceClientImpl";
 
 /**
@@ -24,18 +24,16 @@ export interface TwilioServiceClient {
   ): Promise<void>;
 }
 
-class TwilioNamedServiceClientFactory
-  implements NamedServiceClientFactory<TwilioServiceClient> {
-  public getClient(
-    service: StitchServiceClient,
-    client: StitchAppClientInfo
-  ): TwilioServiceClient {
-    return new TwilioServiceClientImpl(new CoreTwilioServiceClient(service));
-  }
-}
-
-export class TwilioService {
-  public static readonly Factory: NamedServiceClientFactory<
+export namespace TwilioServiceClient {
+  export const factory: NamedServiceClientFactory<
     TwilioServiceClient
-  > = new TwilioNamedServiceClientFactory();
+  > = new class
+    implements NamedServiceClientFactory<TwilioServiceClient> {
+    public getNamedClient(
+      service: StitchServiceClient,
+      client: StitchAppClientInfo
+    ): TwilioServiceClient {
+      return new TwilioServiceClientImpl(new CoreTwilioServiceClient(service));
+    }
+  }();
 }

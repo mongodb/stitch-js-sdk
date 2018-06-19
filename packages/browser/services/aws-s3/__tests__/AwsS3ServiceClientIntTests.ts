@@ -16,7 +16,7 @@ import {
   StitchServiceErrorCode,
   StitchServiceException
 } from "mongodb-stitch-core-sdk";
-import { AwsS3Service } from "../src";
+import { AwsS3ServiceClient } from "../src";
 
 const harness = new BaseStitchWebIntTestHarness();
 
@@ -57,8 +57,8 @@ describe("AwsS3ServiceClient", () => {
     const client = harness.getAppClient(appResponse as AppResponse);
     await client.auth.loginWithCredential(new AnonymousCredential());
 
-    const awsS3 = client.getServiceClientWithName(
-      AwsS3Service.Factory,
+    const awsS3 = client.getServiceClient(
+      AwsS3ServiceClient.factory,
       "awss31"
     );
 

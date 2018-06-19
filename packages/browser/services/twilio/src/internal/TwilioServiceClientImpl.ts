@@ -1,4 +1,4 @@
-import CoreTwilioServiceClient from "mongodb-stitch-core-services-twilio";
+import { CoreTwilioServiceClient } from "mongodb-stitch-core-services-twilio";
 import { TwilioServiceClient } from "../TwilioServiceClient";
 
 export default class TwilioServiceClientImpl implements TwilioServiceClient {

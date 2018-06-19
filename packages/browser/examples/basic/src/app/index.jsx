@@ -6,7 +6,7 @@ import {
     UserPasswordAuthProviderClient, 
     MemoryStorage, 
     AnonymousCredential
-} from "mongodb-stitch-browser-core";
+} from "mongodb-stitch-browser-sdk";
 
 class Hello extends React.Component {
     callSomeFunction(client) {
@@ -39,7 +39,7 @@ class Hello extends React.Component {
             console.log(err)
         })
 
-        let userPassClient = client.auth.getProviderClient(UserPasswordAuthProviderClient.Factory)
+        let userPassClient = client.auth.getProviderClient(UserPasswordAuthProviderClient.factory)
 
         console.log(userPassClient);
 

@@ -1,5 +1,5 @@
-import { HttpMethod } from "../src/HttpMethod";
-import { HttpRequest } from "../src/HttpRequest";
+import { HttpMethod } from "../src";
+import { HttpRequest } from "../src";
 
 describe("HttpRequest", () => {
   it("should build", () => {

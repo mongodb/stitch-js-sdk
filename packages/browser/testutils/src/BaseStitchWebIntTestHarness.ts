@@ -66,7 +66,7 @@ export default class BaseStitchWebIntTestHarness extends BaseStitchIntTestHarnes
     pass: string
   ): Promise<string> {
     const emailPassClient = client.auth.getProviderClient(
-      UserPasswordAuthProviderClient.Factory
+      UserPasswordAuthProviderClient.factory
     );
 
     return emailPassClient

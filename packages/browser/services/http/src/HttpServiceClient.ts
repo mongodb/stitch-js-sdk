@@ -20,13 +20,14 @@ export interface HttpServiceClient {
   execute(request: HttpRequest): Promise<HttpResponse>;
 }
 
-export class HttpService {
-  public static readonly Factory: NamedServiceClientFactory<
+export namespace HttpServiceClient {
+  export const factory: NamedServiceClientFactory<
     HttpServiceClient
-  > = new class implements NamedServiceClientFactory<HttpServiceClient> {
-    public getClient(
+  > = new class
+    implements NamedServiceClientFactory<HttpServiceClient> {
+    public getNamedClient(
       service: StitchServiceClient,
-      appInfo: StitchAppClientInfo
+      client: StitchAppClientInfo
     ): HttpServiceClient {
       return new HttpServiceClientImpl(new CoreHttpServiceClient(service));
     }

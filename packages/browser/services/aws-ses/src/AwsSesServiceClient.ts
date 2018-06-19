@@ -27,15 +27,16 @@ export interface AwsSesServiceClient {
   ): Promise<AwsSesSendResult>;
 }
 
-class AwsSesServiceClientFactory
-  implements NamedServiceClientFactory<AwsSesServiceClient> {
-  public getClient(service: StitchServiceClient, appInfo: StitchAppClientInfo) {
-    return new AwsSesServiceClientImpl(new CoreAwsSesServiceClient(service));
-  }
-}
-
-export class AwsSesService {
-  public static Factory: NamedServiceClientFactory<
+export namespace AwsSesServiceClient {
+  export const factory: NamedServiceClientFactory<
     AwsSesServiceClient
-  > = new AwsSesServiceClientFactory();
+  > = new class
+    implements NamedServiceClientFactory<AwsSesServiceClient> {
+    public getNamedClient(
+      service: StitchServiceClient,
+      client: StitchAppClientInfo
+    ): AwsSesServiceClient {
+      return new AwsSesServiceClientImpl(new CoreAwsSesServiceClient(service));
+    }
+  }();
 }

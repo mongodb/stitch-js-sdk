@@ -1,9 +1,9 @@
 {
-  "name": "mongodb-stitch-browser-core",
+  "name": "mongodb-stitch-browser-sdk",
   "version": "4.0.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "description": "MongoDB Stitch JavaScript SDK - Browser Core",
+  "description": "MongoDB Stitch JavaScript SDK - Browser SDK",
   "author": "MongoDB Inc.",
   "contributors": [
     {
@@ -21,11 +21,10 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "detect-browser": "^2.4.0",
-    "mongodb-stitch-core-sdk": "^4.0.0"
+    "mongodb-stitch-browser-core": "^4.0.0",
+    "mongodb-stitch-browser-services-mongodb-remote": "^4.0.0"
   },
   "devDependencies": {
-    "@types/detect-browser": "^2.0.1",
     "prettier": "^1.13.5",
     "ts-jest": "^22.4.6",
     "tslint": "^5.10.0",
@@ -33,12 +32,11 @@
     "typescript": "^2.9.2"
   },
   "scripts": {
-    "build": "tsc && npm run add-version",
+    "build": "tsc",
     "watch": "tsc -w",
     "lint": "tslint src/**/*.ts",
     "lint-fix": "tslint --fix src/**/*.ts",
     "lint-check": "tslint-config-prettier-check ./tslint.json",
-    "prettier": "prettier --write \"{,!(node_modules),!(lib)/**/}*.ts\"",
-    "add-version": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" lib/core/auth/internal/StitchAuthImpl.js"
+    "prettier": "prettier --write \"{,!(node_modules),!(lib)/**/}*.ts\""
   }
 }

@@ -11,12 +11,13 @@ interface StitchAuth {
 
   user?: StitchUser;
 
+
   getProviderClient<ClientT>(
-    provider: AuthProviderClientFactory<ClientT>
+    factory: AuthProviderClientFactory<ClientT>
   ): ClientT;
 
-  getProviderClientWithName<T>(
-    provider: NamedAuthProviderClientFactory<T>,
+  getProviderClient<T>(
+    factory: NamedAuthProviderClientFactory<T>,
     providerName: string
   ): T;
 

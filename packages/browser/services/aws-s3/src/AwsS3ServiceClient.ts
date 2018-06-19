@@ -50,12 +50,14 @@ export interface AwsS3ServiceClient {
   ): Promise<AwsS3SignPolicyResult>;
 }
 
-export class AwsS3Service {
-  public static readonly Factory = new class
+export namespace AwsS3ServiceClient {
+  export const factory: NamedServiceClientFactory<
+    AwsS3ServiceClient
+  > = new class
     implements NamedServiceClientFactory<AwsS3ServiceClient> {
-    public getClient(
+    public getNamedClient(
       service: StitchServiceClient,
-      appInfo: StitchAppClientInfo
+      client: StitchAppClientInfo
     ): AwsS3ServiceClient {
       return new AwsS3ServiceClientImpl(new CoreAwsS3ServiceClient(service));
     }

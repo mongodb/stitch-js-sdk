@@ -1,7 +1,7 @@
 import { StitchAuthRoutes, StitchRequestClient } from "mongodb-stitch-core-sdk";
 
 interface NamedAuthProviderClientFactory<T> {
-  getClient(
+  getNamedClient(
     providerName: string,
     requestClient: StitchRequestClient,
     routes: StitchAuthRoutes

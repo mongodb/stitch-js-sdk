@@ -39,24 +39,30 @@ export default class StitchAppClientImpl implements StitchAppClient {
     this.coreClient = new CoreStitchAppClient(this.auth, this.routes);
   }
 
-  public getServiceClientWithName<T>(
-    provider: NamedServiceClientFactory<T>,
-    serviceName: string
+  public getServiceClient<T>(
+    factory: ServiceClientFactory<T> | NamedServiceClientFactory<T>,
+    serviceName?: string
   ): T {
-    return provider.getClient(
-      new StitchServiceImpl(this.auth, this.routes.serviceRoutes, serviceName),
-      this.info
-    );
-  }
-
-  public getServiceClient<T>(provider: ServiceClientFactory<T>): T {
-    return provider.getClient(
-      new StitchServiceImpl(this.auth, this.routes.serviceRoutes, ""),
-      this.info
-    );
+    if (isServiceClientFactory(factory)) {
+      return factory.getClient(
+        new StitchServiceImpl(this.auth, this.routes.serviceRoutes, ""),
+        this.info
+      );
+    } else {
+      return factory.getNamedClient(
+        new StitchServiceImpl(this.auth, this.routes.serviceRoutes, serviceName!),
+        this.info
+      );
+    }
   }
 
   public callFunction(name: string, args: any[]): Promise<any> {
     return this.coreClient.callFunctionInternal(name, args);
   }
+}
+
+function isServiceClientFactory<T>(
+  factory: ServiceClientFactory<T> | NamedServiceClientFactory<T>
+): factory is ServiceClientFactory<T> {
+    return (<ServiceClientFactory<T>>factory).getClient !== undefined;
 }

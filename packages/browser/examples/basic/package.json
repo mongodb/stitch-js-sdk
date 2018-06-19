@@ -5,7 +5,7 @@
   "private": true,
   "main": "index.js",
   "dependencies": {
-    "mongodb-stitch-browser-core": "^4.0.0",
+    "mongodb-stitch-browser-sdk": "^4.0.0",
     "mongodb-stitch-browser-services-aws-s3": "^4.0.0"
   },
   "scripts": {

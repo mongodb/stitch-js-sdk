@@ -51,7 +51,7 @@ export interface UserAPIKeyAuthProviderClient {
 }
 
 export namespace UserAPIKeyAuthProviderClient {
-  export const Factory: AuthProviderClientFactory<
+  export const factory: AuthProviderClientFactory<
     UserAPIKeyAuthProviderClient
   > = new class
     implements AuthProviderClientFactory<UserAPIKeyAuthProviderClient> {

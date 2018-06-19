@@ -1,8 +1,7 @@
 import { Binary } from "bson";
 import { CoreStitchServiceClientImpl } from "mongodb-stitch-core-sdk";
 import { anything, capture, instance, mock, verify, when } from "ts-mockito";
-import { AwsS3PutObjectResult, AwsS3SignPolicyResult } from "../src/";
-import CoreAwsS3ServiceClient from "../src/internal/CoreAwsS3ServiceClient";
+import { AwsS3PutObjectResult, AwsS3SignPolicyResult, CoreAwsS3ServiceClient } from "../src";
 import ResultDecoders from "../src/internal/ResultDecoders";
 
 describe("CoreAwsS3ServiceClient", () => {

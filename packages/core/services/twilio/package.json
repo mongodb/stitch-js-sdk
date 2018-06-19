@@ -1,8 +1,8 @@
 {
   "name": "mongodb-stitch-core-services-twilio",
   "version": "4.0.0",
-  "main": "lib/CoreTwilioServiceClient.js",
-  "types": "lib/CoreTwilioServiceClient.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "description": "MongoDB Stitch JavaScript SDK - Core Twilio Service",
   "author": "MongoDB Inc.",
   "contributors": [
