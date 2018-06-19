@@ -491,6 +491,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                     },
                     remove: function remove() {
                       return api._delete(appUrl + '/event_subscriptions/' + eventSubscriptionId);
+                    },
+                    resume: function resume() {
+                      return api._put(appUrl + '/event_subscriptions/' + eventSubscriptionId + '/resume');
                     }
                   };
                 }
