@@ -1,6 +1,4 @@
-import {
-  StitchCredential
-} from "mongodb-stitch-core-sdk";
+import { StitchCredential } from "mongodb-stitch-core-sdk";
 import AuthProviderClientFactory from "./providers/internal/AuthProviderClientFactory";
 import NamedAuthProviderClientFactory from "./providers/internal/NamedAuthProviderClientFactory";
 import StitchAuthListener from "./StitchAuthListener";
@@ -10,7 +8,6 @@ interface StitchAuth {
   isLoggedIn: boolean;
 
   user?: StitchUser;
-
 
   getProviderClient<ClientT>(
     factory: AuthProviderClientFactory<ClientT>

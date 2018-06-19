@@ -11,7 +11,10 @@ import {
   ServiceResponse,
   StitchAdminClient
 } from "mongodb-stitch-core-admin-client";
-import { UserApiKeyAuthProvider, UserPasswordCredential } from "mongodb-stitch-core-sdk";
+import {
+  UserApiKeyAuthProvider,
+  UserPasswordCredential
+} from "mongodb-stitch-core-sdk";
 
 export default abstract class BaseStitchIntTestHarness {
   protected abstract readonly stitchBaseUrl: string;

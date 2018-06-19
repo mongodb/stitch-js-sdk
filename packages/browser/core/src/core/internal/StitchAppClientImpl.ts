@@ -50,7 +50,11 @@ export default class StitchAppClientImpl implements StitchAppClient {
       );
     } else {
       return factory.getNamedClient(
-        new StitchServiceImpl(this.auth, this.routes.serviceRoutes, serviceName!),
+        new StitchServiceImpl(
+          this.auth,
+          this.routes.serviceRoutes,
+          serviceName!
+        ),
         this.info
       );
     }
@@ -64,5 +68,5 @@ export default class StitchAppClientImpl implements StitchAppClient {
 function isServiceClientFactory<T>(
   factory: ServiceClientFactory<T> | NamedServiceClientFactory<T>
 ): factory is ServiceClientFactory<T> {
-    return (<ServiceClientFactory<T>>factory).getClient !== undefined;
+  return (<ServiceClientFactory<T>>factory).getClient !== undefined;
 }

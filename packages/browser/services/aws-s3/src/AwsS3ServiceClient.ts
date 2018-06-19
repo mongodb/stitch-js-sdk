@@ -1,5 +1,8 @@
 import { Binary } from "bson";
-import { NamedServiceClientFactory, StitchServiceClient } from "mongodb-stitch-browser-core";
+import {
+  NamedServiceClientFactory,
+  StitchServiceClient
+} from "mongodb-stitch-browser-core";
 import { StitchAppClientInfo } from "mongodb-stitch-core-sdk";
 import {
   AwsS3PutObjectResult,
@@ -53,8 +56,7 @@ export interface AwsS3ServiceClient {
 export namespace AwsS3ServiceClient {
   export const factory: NamedServiceClientFactory<
     AwsS3ServiceClient
-  > = new class
-    implements NamedServiceClientFactory<AwsS3ServiceClient> {
+  > = new class implements NamedServiceClientFactory<AwsS3ServiceClient> {
     public getNamedClient(
       service: StitchServiceClient,
       client: StitchAppClientInfo

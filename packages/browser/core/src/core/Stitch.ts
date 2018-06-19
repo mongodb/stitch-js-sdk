@@ -1,4 +1,7 @@
-import { FetchTransport, StitchAppClientConfiguration } from "mongodb-stitch-core-sdk";
+import {
+  FetchTransport,
+  StitchAppClientConfiguration
+} from "mongodb-stitch-core-sdk";
 import LocalStorage from "./internal/common/LocalStorage";
 import StitchAppClientImpl from "./internal/StitchAppClientImpl";
 import StitchAppClient from "./StitchAppClient";

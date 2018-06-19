@@ -1,4 +1,7 @@
-import { NamedServiceClientFactory, StitchServiceClient } from "mongodb-stitch-browser-core";
+import {
+  NamedServiceClientFactory,
+  StitchServiceClient
+} from "mongodb-stitch-browser-core";
 import { StitchAppClientInfo } from "mongodb-stitch-core-sdk";
 import {
   AwsSesSendResult,
@@ -30,8 +33,7 @@ export interface AwsSesServiceClient {
 export namespace AwsSesServiceClient {
   export const factory: NamedServiceClientFactory<
     AwsSesServiceClient
-  > = new class
-    implements NamedServiceClientFactory<AwsSesServiceClient> {
+  > = new class implements NamedServiceClientFactory<AwsSesServiceClient> {
     public getNamedClient(
       service: StitchServiceClient,
       client: StitchAppClientInfo

@@ -18,7 +18,7 @@ import StitchAuthListener from "../StitchAuthListener";
 import StitchUser from "../StitchUser";
 import StitchUserFactoryImpl from "./StitchUserFactoryImpl";
 
-const version = "@VERSION@"
+const version = "@VERSION@";
 
 export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   implements StitchAuth {
@@ -40,15 +40,13 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   }
 
   public getProviderClient<ClientT>(
-    factory: AuthProviderClientFactory<ClientT> | NamedAuthProviderClientFactory<ClientT>,
+    factory:
+      | AuthProviderClientFactory<ClientT>
+      | NamedAuthProviderClientFactory<ClientT>,
     providerName?: string
   ): ClientT {
     if (isAuthProviderClientFactory(factory)) {
-      return factory.getClient(
-        this,
-        this.requestClient,
-        this.authRoutes
-      );
+      return factory.getClient(this, this.requestClient, this.authRoutes);
     } else {
       return factory.getNamedClient(
         providerName!,
@@ -130,8 +128,9 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
 }
 
 function isAuthProviderClientFactory<ClientT>(
-  factory: AuthProviderClientFactory<ClientT> | NamedAuthProviderClientFactory<ClientT>
+  factory:
+    | AuthProviderClientFactory<ClientT>
+    | NamedAuthProviderClientFactory<ClientT>
 ): factory is AuthProviderClientFactory<ClientT> {
-    return (<AuthProviderClientFactory<ClientT>>factory).getClient !== undefined;
+  return (<AuthProviderClientFactory<ClientT>>factory).getClient !== undefined;
 }
-

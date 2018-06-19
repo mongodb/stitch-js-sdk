@@ -15,10 +15,7 @@ import {
   StitchServiceErrorCode,
   StitchServiceException
 } from "mongodb-stitch-core-sdk";
-import {
-  RemoteMongoClient,
-  RemoteMongoCollection
-} from "../src";
+import { RemoteMongoClient, RemoteMongoCollection } from "../src";
 
 const mongodbUriProp = "TEST_STITCH_MONGODBURI";
 
@@ -86,10 +83,7 @@ beforeEach(async () => {
 
   const client = harness.getAppClient(appResponse as AppResponse);
   await client.auth.loginWithCredential(new AnonymousCredential());
-  mongoClient = client.getServiceClient(
-    RemoteMongoClient.factory,
-    "mongodb1"
-  );
+  mongoClient = client.getServiceClient(RemoteMongoClient.factory, "mongodb1");
 });
 
 describe("RemoteMongoClient", () => {

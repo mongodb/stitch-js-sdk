@@ -1,5 +1,11 @@
-import { NamedServiceClientFactory, StitchServiceClient } from "mongodb-stitch-browser-core";
-import { CoreStitchServiceClient, StitchAppClientInfo } from "mongodb-stitch-core-sdk";
+import {
+  NamedServiceClientFactory,
+  StitchServiceClient
+} from "mongodb-stitch-browser-core";
+import {
+  CoreStitchServiceClient,
+  StitchAppClientInfo
+} from "mongodb-stitch-core-sdk";
 import { CoreTwilioServiceClient } from "mongodb-stitch-core-services-twilio";
 import TwilioServiceClientImpl from "./internal/TwilioServiceClientImpl";
 
@@ -27,8 +33,7 @@ export interface TwilioServiceClient {
 export namespace TwilioServiceClient {
   export const factory: NamedServiceClientFactory<
     TwilioServiceClient
-  > = new class
-    implements NamedServiceClientFactory<TwilioServiceClient> {
+  > = new class implements NamedServiceClientFactory<TwilioServiceClient> {
     public getNamedClient(
       service: StitchServiceClient,
       client: StitchAppClientInfo

@@ -1,11 +1,5 @@
 import { parse } from "mongodb-extjson";
-import {
-  anything,
-  capture,
-  instance,
-  mock,
-  when
-} from "ts-mockito";
+import { anything, capture, instance, mock, when } from "ts-mockito";
 import { FetchTransport, StitchRequestClient } from "../../../src";
 import { BasicRequest } from "../../../src/internal/net/BasicRequest";
 import ContentTypes from "../../../src/internal/net/ContentTypes";

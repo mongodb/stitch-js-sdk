@@ -1,6 +1,11 @@
 import { CoreStitchServiceClientImpl } from "mongodb-stitch-core-sdk";
 import { anything, capture, instance, mock, when } from "ts-mockito";
-import { HttpMethod, HttpRequest, HttpResponse, CoreHttpServiceClient } from "../../src";
+import {
+  HttpMethod,
+  HttpRequest,
+  HttpResponse,
+  CoreHttpServiceClient
+} from "../../src";
 import ResultDecoders from "../../src/internal/ResultDecoders";
 
 describe("CoreHttpServiceClient", () => {

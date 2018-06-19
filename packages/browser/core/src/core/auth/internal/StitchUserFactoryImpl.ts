@@ -1,4 +1,7 @@
-import { StitchUserFactory, StitchUserProfileImpl } from "mongodb-stitch-core-sdk";
+import {
+  StitchUserFactory,
+  StitchUserProfileImpl
+} from "mongodb-stitch-core-sdk";
 import StitchUser from "../StitchUser";
 import StitchAuthImpl from "./StitchAuthImpl";
 import StitchUserImpl from "./StitchUserImpl";

@@ -1,11 +1,4 @@
-import {
-  anything,
-  capture,
-  instance,
-  mock,
-  verify,
-  when
-} from "ts-mockito";
+import { anything, capture, instance, mock, verify, when } from "ts-mockito";
 import {
   CoreUserPassAuthProviderClient,
   StitchAppRoutes,

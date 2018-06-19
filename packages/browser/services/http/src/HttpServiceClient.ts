@@ -1,4 +1,7 @@
-import { NamedServiceClientFactory, StitchServiceClient } from "mongodb-stitch-browser-core";
+import {
+  NamedServiceClientFactory,
+  StitchServiceClient
+} from "mongodb-stitch-browser-core";
 import { StitchAppClientInfo } from "mongodb-stitch-core-sdk";
 import {
   CoreHttpServiceClient,
@@ -21,9 +24,7 @@ export interface HttpServiceClient {
 }
 
 export namespace HttpServiceClient {
-  export const factory: NamedServiceClientFactory<
-    HttpServiceClient
-  > = new class
+  export const factory: NamedServiceClientFactory<HttpServiceClient> = new class
     implements NamedServiceClientFactory<HttpServiceClient> {
     public getNamedClient(
       service: StitchServiceClient,

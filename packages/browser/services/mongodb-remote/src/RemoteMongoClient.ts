@@ -1,4 +1,7 @@
-import { NamedServiceClientFactory, StitchServiceClient } from "mongodb-stitch-browser-core";
+import {
+  NamedServiceClientFactory,
+  StitchServiceClient
+} from "mongodb-stitch-browser-core";
 import { StitchAppClientInfo } from "mongodb-stitch-core-sdk";
 import { CoreRemoteMongoClientImpl } from "mongodb-stitch-core-services-mongodb-remote";
 import RemoteMongoClientImpl from "./internal/RemoteMongoClientImpl";
@@ -18,9 +21,7 @@ export interface RemoteMongoClient {
 }
 
 export namespace RemoteMongoClient {
-  export const factory: NamedServiceClientFactory<
-    RemoteMongoClient
-  > = new class
+  export const factory: NamedServiceClientFactory<RemoteMongoClient> = new class
     implements NamedServiceClientFactory<RemoteMongoClient> {
     public getNamedClient(
       service: StitchServiceClient,

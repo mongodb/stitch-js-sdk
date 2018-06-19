@@ -1,13 +1,6 @@
 import { ObjectID } from "bson";
 import { CoreStitchServiceClientImpl } from "mongodb-stitch-core-sdk";
-import {
-  anything,
-  capture,
-  instance,
-  mock,
-  verify,
-  when
-} from "ts-mockito";
+import { anything, capture, instance, mock, verify, when } from "ts-mockito";
 import {
   CoreRemoteMongoClientImpl,
   CoreRemoteMongoCollectionImpl,
@@ -92,9 +85,9 @@ describe("CoreRemoteMongoCollection", () => {
 
     const docs = [doc1, doc2];
 
-    when(serviceMock.callFunctionInternal(anything(), anything(), anything())).thenResolve(
-      docs
-    );
+    when(
+      serviceMock.callFunctionInternal(anything(), anything(), anything())
+    ).thenResolve(docs);
 
     let iter = await coll.find().iterator();
 
@@ -129,7 +122,9 @@ describe("CoreRemoteMongoCollection", () => {
     expect(iter.next().value).toEqual(docs[0]);
     expect(iter.next().value).toEqual(docs[1]);
 
-    verify(serviceMock.callFunctionInternal(anything(), anything(), anything())).times(2);
+    verify(
+      serviceMock.callFunctionInternal(anything(), anything(), anything())
+    ).times(2);
 
     const [funcNameArg2, funcArgsArg2, resultClassArg2]: any[] = capture(
       serviceMock.callFunctionInternal
@@ -144,11 +139,9 @@ describe("CoreRemoteMongoCollection", () => {
 
     expect(funcArgsArg2[0]).toEqual(expectedArgs);
 
-    when(serviceMock.callFunctionInternal(anything(), anything(), anything())).thenResolve([
-      1,
-      2,
-      3
-    ]);
+    when(
+      serviceMock.callFunctionInternal(anything(), anything(), anything())
+    ).thenResolve([1, 2, 3]);
 
     iter = await coll.find(expectedFilter).iterator();
     expect(iter.next().value).toEqual(1);
@@ -156,9 +149,9 @@ describe("CoreRemoteMongoCollection", () => {
     expect(iter.next().value).toEqual(3);
 
     // Should pass along errors
-    when(serviceMock.callFunctionInternal(anything(), anything(), anything())).thenReject(
-      new Error("whoops")
-    );
+    when(
+      serviceMock.callFunctionInternal(anything(), anything(), anything())
+    ).thenReject(new Error("whoops"));
 
     try {
       await coll.find().first();
@@ -178,9 +171,9 @@ describe("CoreRemoteMongoCollection", () => {
 
     const docs = [doc1, doc2];
 
-    when(serviceMock.callFunctionInternal(anything(), anything(), anything())).thenResolve(
-      docs
-    );
+    when(
+      serviceMock.callFunctionInternal(anything(), anything(), anything())
+    ).thenResolve(docs);
 
     let iter = await coll.aggregate([]).iterator();
 
@@ -209,7 +202,9 @@ describe("CoreRemoteMongoCollection", () => {
     expect(iter.next().value).toEqual(docs[0]);
     expect(iter.next().value).toEqual(docs[1]);
 
-    verify(serviceMock.callFunctionInternal(anything(), anything(), anything())).times(2);
+    verify(
+      serviceMock.callFunctionInternal(anything(), anything(), anything())
+    ).times(2);
 
     const [funcNameArg2, funcArgsArg2, resultClassArg2]: any[] = capture(
       serviceMock.callFunctionInternal
@@ -221,9 +216,9 @@ describe("CoreRemoteMongoCollection", () => {
     expect(expectedArgs).toEqual(funcArgsArg2[0]);
 
     // Should pass along errors
-    when(serviceMock.callFunctionInternal(anything(), anything(), anything())).thenReject(
-      new Error("whoops")
-    );
+    when(
+      serviceMock.callFunctionInternal(anything(), anything(), anything())
+    ).thenReject(new Error("whoops"));
 
     try {
       await coll.aggregate([]).first();
@@ -419,7 +414,11 @@ describe("CoreRemoteMongoCollection", () => {
 
     when(
       serviceMock.callFunctionInternal(anything(), anything(), anything())
-    ).thenResolve({ matchedCount: 1, modifiedCount: 1, upsertedId: id.toHexString() });
+    ).thenResolve({
+      matchedCount: 1,
+      modifiedCount: 1,
+      upsertedId: id.toHexString()
+    });
 
     const expectedFilter = { one: 2 };
     const expectedUpdate = { three: 4 };
@@ -485,7 +484,11 @@ describe("CoreRemoteMongoCollection", () => {
 
     when(
       serviceMock.callFunctionInternal(anything(), anything(), anything())
-    ).thenResolve({ matchedCount: 1, modifiedCount: 1, upsertedId: id.toHexString() });
+    ).thenResolve({
+      matchedCount: 1,
+      modifiedCount: 1,
+      upsertedId: id.toHexString()
+    });
 
     const expectedFilter = { one: 2 };
     const expectedUpdate = { three: 4 };

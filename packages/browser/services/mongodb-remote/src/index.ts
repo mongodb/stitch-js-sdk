@@ -13,15 +13,15 @@ import RemoteMongoReadOperation from "./RemoteMongoReadOperation";
 import { RemoteMongoClient } from "./RemoteMongoClient";
 
 export {
-	RemoteCountOptions,
-	RemoteDeleteResult,
-	RemoteFindOptions,
-	RemoteInsertManyResult,
-	RemoteInsertOneResult,
-	RemoteUpdateOptions,
-	RemoteUpdateResult,
-	RemoteMongoCollection,
-	RemoteMongoDatabase,
-	RemoteMongoReadOperation,
-	RemoteMongoClient,
+  RemoteCountOptions,
+  RemoteDeleteResult,
+  RemoteFindOptions,
+  RemoteInsertManyResult,
+  RemoteInsertOneResult,
+  RemoteUpdateOptions,
+  RemoteUpdateResult,
+  RemoteMongoCollection,
+  RemoteMongoDatabase,
+  RemoteMongoReadOperation,
+  RemoteMongoClient
 };

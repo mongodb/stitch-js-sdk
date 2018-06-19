@@ -9,7 +9,10 @@ import {
   AwsSesRuleCreator,
   Service
 } from "mongodb-stitch-core-admin-client";
-import { StitchServiceErrorCode, StitchServiceException } from "mongodb-stitch-core-sdk";
+import {
+  StitchServiceErrorCode,
+  StitchServiceException
+} from "mongodb-stitch-core-sdk";
 import { AwsSesServiceClient } from "../src";
 
 const harness = new BaseStitchWebIntTestHarness();

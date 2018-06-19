@@ -10,7 +10,10 @@ import {
   HttpRuleCreator,
   Service
 } from "mongodb-stitch-core-admin-client";
-import { StitchServiceErrorCode, StitchServiceException } from "mongodb-stitch-core-sdk";
+import {
+  StitchServiceErrorCode,
+  StitchServiceException
+} from "mongodb-stitch-core-sdk";
 import { HttpMethod, HttpRequest } from "mongodb-stitch-core-services-http";
 import { HttpServiceClient } from "../src/HttpServiceClient";
 

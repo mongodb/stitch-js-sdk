@@ -1,5 +1,3 @@
 import CoreTwilioServiceClient from "./CoreTwilioServiceClient";
 
-export {
-  CoreTwilioServiceClient
-};
+export { CoreTwilioServiceClient };

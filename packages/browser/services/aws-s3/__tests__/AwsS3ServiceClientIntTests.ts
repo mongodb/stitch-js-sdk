@@ -57,10 +57,7 @@ describe("AwsS3ServiceClient", () => {
     const client = harness.getAppClient(appResponse as AppResponse);
     await client.auth.loginWithCredential(new AnonymousCredential());
 
-    const awsS3 = client.getServiceClient(
-      AwsS3ServiceClient.factory,
-      "awss31"
-    );
+    const awsS3 = client.getServiceClient(AwsS3ServiceClient.factory, "awss31");
 
     // Putting to an bad bucket should fail
     const bucket = "notmystuff";

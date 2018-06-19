@@ -5,7 +5,6 @@ import StitchAuth from "./auth/StitchAuth";
 export default interface StitchAppClient {
   auth: StitchAuth;
 
-
   getServiceClient<T>(
     factory: NamedServiceClientFactory<T>,
     serviceName: string
