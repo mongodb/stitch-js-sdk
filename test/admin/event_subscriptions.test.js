@@ -11,6 +11,16 @@ function createSampleFunction(functions) {
   });
 }
 
+function createSampleMongodbService(services) {
+  return services.create({
+    type: 'mongodb',
+    name: 'mdb',
+    config: {
+      uri: 'mongodb://localhost:26000'
+    }
+  });
+}
+
 function buildEventSubscriptionData(functionId) {
   return {
     name: testEventSubscriptionName,
@@ -24,11 +34,27 @@ function buildEventSubscriptionData(functionId) {
   };
 }
 
-describe('Event Subscriptions', ()=>{
+function buildDBEventSubscriptionData(functionId, mongodbServiceId) {
+  return {
+    name: testEventSubscriptionName,
+    type: 'DATABASE',
+    disabled: true,
+    function_id: functionId,
+    config: {
+      database: 'db',
+      collection: 'col',
+      operation_types: ['INSERT'],
+      service_id: mongodbServiceId
+    }
+  };
+}
+
+describe('Event Subscriptions', () =>{
   let test = new StitchMongoFixture();
   let th;
   let eventSubscriptions;
   let functions;
+  let services;
 
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
@@ -38,6 +64,7 @@ describe('Event Subscriptions', ()=>{
     th = await buildAdminTestHarness(true, apiKey, groupId, serverUrl);
     eventSubscriptions = th.app().eventSubscriptions();
     functions = th.app().functions();
+    services = th.app().services();
   });
 
   afterEach(async() => th.cleanup());
@@ -100,6 +127,17 @@ describe('Event Subscriptions', ()=>{
         }
       )
     );
+  });
+
+  it('can resume an event subscription', async() => {
+    const fn = await createSampleFunction(functions);
+    const mongodbService = await createSampleMongodbService(services);
+
+    const eventSubscriptionData = buildDBEventSubscriptionData(fn._id, mongodbService._id);
+    const eventSubscription = await eventSubscriptions.create(eventSubscriptionData);
+
+    const resumedSubscription = await eventSubscriptions.eventSubscription(eventSubscription._id).resume();
+    expect(resumedSubscription.status).toEqual(204);
   });
 
   it('can delete an event subscription', async() => {
