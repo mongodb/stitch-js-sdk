@@ -14,8 +14,7 @@ npm install --global lerna
 # install dependencies
 npm install
 # install external dependencies, and link shared modules
-lerna bootstrap --hoist?
-lerna bootstrap
+lerna bootstrap --hoist
 # build modules
 lerna run build
 ```

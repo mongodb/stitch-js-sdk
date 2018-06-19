@@ -1,29 +1,14 @@
 {
+	"private": true,
 	"dependencies": {
-		"@types/base64-js": "^1.2.5",
-		"@types/bson": "^1.0.8",
-		"@types/detect-browser": "^2.0.1",
-		"base64-js": "^1.2.3",
-		"bson": "^3.0.0",
-		"detect-browser": "^2.4.0",
-		"es6-promise": "^4.2.4",
-		"fetch-everywhere": "^1.0.5",
-		"mongodb-extjson": "^3.0.0",
 		"npm": "^6.1.0"
 	},
 	"devDependencies": {
 		"@types/jest": "^23.1.0",
 		"@types/jsonwebtoken": "^7.2.6",
-		"jest": "^23.1.0",
-		"jest-cli": "^23.1.0",
 		"jsonwebtoken": "8.2.1",
 		"lerna": "^2.11.0",
 		"npm": "^6.1.0",
-		"prettier": "^1.13.5",
-		"ts-jest": "^22.4.6",
-		"ts-loader": "^4.4.1",
-		"ts-mockito": "^2.3.0",
-		"tslint": "^5.10.0",
-		"tslint-config-prettier": "^1.13.0"
+		"ts-mockito": "^2.3.0"
 	}
 }

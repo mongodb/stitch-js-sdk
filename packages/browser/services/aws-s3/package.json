@@ -1,11 +1,25 @@
 {
   "name": "mongodb-stitch-browser-services-aws-s3",
   "version": "4.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "description": "web aws s3 service",
-  "author": "MongoDB",
-  "license": "Apache2",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "description": "MongoDB Stitch JavaScript SDK - Browser AWS S3 Service",
+  "author": "MongoDB Inc.",
+  "contributors": [
+    {
+        "name": "Adam Chelminski",
+        "email": "adam.chelminski@mongodb.com"
+    },
+    {
+        "name": "Eric Daniels",
+        "email": "eric.daniels@mongodb.com"
+    },
+    {
+        "name": "Jason Flax",
+        "email": "jason.flax@mongodb.com"
+    }
+  ],
+  "license": "Apache-2.0",
   "dependencies": {
     "mongodb-stitch-browser-core": "^4.0.0",
     "mongodb-stitch-core-services-aws-s3": "^4.0.0"
@@ -13,9 +27,12 @@
   "devDependencies": {
     "mongodb-stitch-browser-testutils": "^4.0.0",
     "mongodb-stitch-core-admin-client": "^4.0.0",
-    "mongodb-stitch-core-sdk": "^4.0.0"
-  },
-  "devDependencies": {
+    "mongodb-stitch-core-sdk": "^4.0.0",
+    "jest": "^23.1.0",
+    "prettier": "^1.13.5",
+    "ts-jest": "^22.4.6",
+    "tslint": "^5.10.0",
+    "tslint-config-prettier": "^1.13.0",
     "typescript": "^2.9.2"
   },
   "scripts": {
@@ -25,6 +42,15 @@
     "lint": "tslint src/**/*.ts",
     "lint-fix": "tslint --fix src/**/*.ts",
     "lint-check": "tslint-config-prettier-check ./tslint.json",
-    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\""
+    "prettier": "prettier --write \"{,!(node_modules),!(lib)/**/}*.ts\""
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "testPathIgnorePatterns": ["/lib/", "/node_modules/"],
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
+    "collectCoverage": true
   }
 }

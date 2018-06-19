@@ -4,7 +4,7 @@
         "module": "commonjs",
         "sourceMap": true,
         "strictNullChecks": true,
-        "outDir": "dist",
+        "outDir": "lib",
         "declaration": true,
         "removeComments": true
     },

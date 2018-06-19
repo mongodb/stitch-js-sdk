@@ -34,9 +34,12 @@
      */
   ],
   "linterOptions": {
+        "include": [
+        "src/**/*"
+    ],
     "exclude": [
-        "node_modules",
-        "./dist"
+        "./node_modules/**",
+        "./lib"
     ]
   }
 }

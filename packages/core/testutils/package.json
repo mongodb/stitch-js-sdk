@@ -2,15 +2,33 @@
   "name": "mongodb-stitch-core-testutils",
   "version": "4.0.0",
   "description": "",
-  "main": "dist/BaseStitchIntTestHarness.js",
-  "types": "dist/BaseStitchIntTestHarness.d.ts",
-  "author": "MongoDB",
-  "license": "Apache2",
+  "main": "lib/BaseStitchIntTestHarness.js",
+  "types": "lib/BaseStitchIntTestHarness.d.ts",
+  "author": "MongoDB Inc.",
+  "contributors": [
+    {
+        "name": "Adam Chelminski",
+        "email": "adam.chelminski@mongodb.com"
+    },
+    {
+        "name": "Eric Daniels",
+        "email": "eric.daniels@mongodb.com"
+    },
+    {
+        "name": "Jason Flax",
+        "email": "jason.flax@mongodb.com"
+    }
+  ],
+  "license": "Apache-2.0",
+  "private": true,
   "dependencies": {
     "mongodb-stitch-core-admin-client": "^4.0.0",
     "mongodb-stitch-core-sdk": "^4.0.0"
   },
   "devDependencies": {
+    "prettier": "^1.13.5",
+    "tslint": "^5.10.0",
+    "tslint-config-prettier": "^1.13.0",
     "typescript": "^2.9.2"
   },
   "scripts": {
@@ -18,7 +36,7 @@
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json src/**/*.ts",
     "lint-fix": "tslint --fix src/**/*.ts",
-    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\"",
+    "prettier": "prettier --write \"{,!(node_modules),!(lib)/**/}*.ts\"",
     "lint-check": "tslint-config-prettier-check ./tslint.json"
   }
 }

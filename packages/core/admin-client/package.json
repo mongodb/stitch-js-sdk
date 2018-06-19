@@ -2,15 +2,33 @@
   "name": "mongodb-stitch-core-admin-client",
   "version": "4.0.0",
   "description": "Module that provides client access to the Stitch Admin API.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "author": "MongoDB",
-  "license": "Apache2",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "author": "MongoDB Inc.",
+  "contributors": [
+    {
+        "name": "Adam Chelminski",
+        "email": "adam.chelminski@mongodb.com"
+    },
+    {
+        "name": "Eric Daniels",
+        "email": "eric.daniels@mongodb.com"
+    },
+    {
+        "name": "Jason Flax",
+        "email": "jason.flax@mongodb.com"
+    }
+  ],
+  "license": "Apache-2.0",
+  "private": true,
   "dependencies": {
     "mongodb-stitch-core-sdk": "^4.0.0",
     "mongodb-extjson": "^3.0.0"
   },
   "devDependencies": {
+    "prettier": "^1.13.5",
+    "tslint": "^5.10.0",
+    "tslint-config-prettier": "^1.13.0",
     "typescript": "^2.9.2"
   },
   "scripts": {
@@ -19,6 +37,6 @@
     "lint": "tslint -c tslint.json src/**/*.ts",
     "lint-fix": "tslint --fix src/**/*.ts",
     "lint-check": "tslint-config-prettier-check ./tslint.json",
-    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\""
+    "prettier": "prettier --write \"{,!(node_modules),!(lib)/**/}*.ts\""
   }
 }
