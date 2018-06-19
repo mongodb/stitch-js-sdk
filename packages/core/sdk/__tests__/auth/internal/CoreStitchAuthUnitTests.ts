@@ -43,7 +43,7 @@ class StitchAuth extends CoreStitchAuth<CoreStitchUserImpl> {
     authRoutes: StitchAuthRoutes,
     storage: Storage
   ) {
-    super(requestClient, authRoutes, storage);
+    super(requestClient, authRoutes, storage, false);
   }
 
   get deviceInfo() {
@@ -289,7 +289,7 @@ describe("CoreStitchAuthUnitTests", () => {
       });
   });
 
-  it("should handle auth failure", () => {
+  it("should handle auth failure", async () => {
     const requestClientMock = getMockedRequestClient();
     const requestClient = instance(requestClientMock);
     const routes = new StitchAppRoutes("my_app-12345").authRoutes;
@@ -308,129 +308,117 @@ describe("CoreStitchAuthUnitTests", () => {
 
     const refreshedJwt = sign(jwtDoc, "abcdefghijklmnopqrstuvwxyz1234567890");
 
-    return auth
-      .loginWithCredentialInternal(new AnonymousCredential())
-      .then(user => {
-        when(
-          requestClientMock.doRequest(new RequestClassMatcher(
-            new RegExp(".*/session$")
-          ) as any)
-        ).thenResolve({
-          body: JSON.stringify({ access_token: refreshedJwt }),
-          headers: {},
-          statusCode: 200
-        });
+    const user = await auth.loginWithCredentialInternal(new AnonymousCredential());
+    when(
+      requestClientMock.doRequest(new RequestClassMatcher(
+        new RegExp(".*/session$")
+      ) as any)
+    ).thenResolve({
+      body: JSON.stringify({ access_token: refreshedJwt }),
+      headers: {},
+      statusCode: 200
+    });
 
-        let hasBeenCalled = false;
-        when(
-          requestClientMock.doRequest(new RequestClassMatcher(
-            new RegExp(".*/login\\?link=true$")
-          ) as any)
-        ).thenCall(() => {
-          if (hasBeenCalled) {
-            return Promise.resolve({
-              body: JSON.stringify(TEST_LINK_RESPONE),
-              headers: {},
-              statusCode: 200
-            });
-          } else {
-            hasBeenCalled = true;
-            return Promise.reject(
-              new StitchServiceException(
-                "bad",
-                StitchServiceErrorCode.InvalidSession
-              )
-            );
-          }
-        });
+    let hasBeenCalled = false;
+    when(
+      requestClientMock.doRequest(new RequestClassMatcher(
+        new RegExp(".*/login\\?link=true$")
+      ) as any)
+    ).thenReject(new StitchServiceException(
+      "bad",
+      StitchServiceErrorCode.InvalidSession
+    )).thenResolve({
+      body: JSON.stringify(TEST_LINK_RESPONE),
+      headers: {},
+      statusCode: 200
+    });
 
-        return auth.linkUserWithCredentialInternal(
-          user,
-          new UserPasswordCredential("foo@foo.com", "bar")
-        );
-      })
-      .then(linkedUser => {
-        verify(requestClientMock.doRequest(anything())).times(6);
+    const linkedUser = await auth.linkUserWithCredentialInternal(
+      user,
+      new UserPasswordCredential("foo@foo.com", "bar")
+    )
 
-        const expectedRequest = new StitchRequest.Builder();
-        expectedRequest.withMethod(Method.POST).withPath(routes.sessionRoute);
-        const headers = {
-          [Headers.AUTHORIZATION]: Headers.getAuthorizationBearer(
-            TEST_REFRESH_TOKEN
-          )
-        };
+    verify(requestClientMock.doRequest(anything())).times(6);
 
-        expectedRequest.withHeaders(headers);
+    const expectedRequest = new StitchRequest.Builder();
+    expectedRequest.withMethod(Method.POST).withPath(routes.sessionRoute);
+    const headers = {
+      [Headers.AUTHORIZATION]: Headers.getAuthorizationBearer(
+        TEST_REFRESH_TOKEN
+      )
+    };
 
-        const [actualRequest] = capture(
-          requestClientMock.doRequest
-        ).byCallIndex(3);
-        expect(expectedRequest.build()).toEqualRequest(actualRequest);
+    expectedRequest.withHeaders(headers);
 
-        const expectedRequest2 = new StitchRequest.Builder();
-        expectedRequest2
-          .withMethod(Method.POST)
-          .withBody(
-            `{\"username\":\"foo@foo.com\",\"password\":\"bar\",\"options\":{\"device\":{\"deviceId\":\"${
-              TEST_LOGIN_RESPONSE.deviceId
-            }\"}}}`
-          )
-          .withPath(
-            routes.getAuthProviderLinkRoute(
-              UserPasswordAuthProvider.DEFAULT_NAME
-            )
-          );
-        const headers2 = {
-          [Headers.CONTENT_TYPE]: ContentTypes.APPLICATION_JSON,
-          [Headers.AUTHORIZATION]: Headers.getAuthorizationBearer(refreshedJwt)
-        };
-        expectedRequest2.withHeaders(headers2);
+    const [actualRequest] = capture(
+      requestClientMock.doRequest
+    ).byCallIndex(3);
+    expect(expectedRequest.build()).toEqualRequest(actualRequest);
 
-        const [actualRequest2] = capture(
-          requestClientMock.doRequest
-        ).byCallIndex(4);
-        expect(expectedRequest2.build()).toEqualRequest(actualRequest2);
+    const expectedRequest2 = new StitchRequest.Builder();
+    expectedRequest2
+      .withMethod(Method.POST)
+      .withBody(
+        `{\"username\":\"foo@foo.com\",\"password\":\"bar\",\"options\":{\"device\":{\"deviceId\":\"${
+          TEST_LOGIN_RESPONSE.deviceId
+        }\"}}}`
+      )
+      .withPath(
+        routes.getAuthProviderLinkRoute(
+          UserPasswordAuthProvider.DEFAULT_NAME
+        )
+      );
+    const headers2 = {
+      [Headers.CONTENT_TYPE]: ContentTypes.APPLICATION_JSON,
+      [Headers.AUTHORIZATION]: Headers.getAuthorizationBearer(refreshedJwt)
+    };
+    expectedRequest2.withHeaders(headers2);
 
-        expect(auth.isLoggedIn).toBeTruthy();
+    const [actualRequest2] = capture(
+      requestClientMock.doRequest
+    ).byCallIndex(4);
+    expect(expectedRequest2.build()).toEqualRequest(actualRequest2);
 
-        // This should log the user out
-        when(
-          requestClientMock.doRequest(new RequestClassMatcher(
-            new RegExp(".*/session$")
-          ) as any)
-        ).thenReject(
-          new StitchServiceException(
-            "beep",
-            StitchServiceErrorCode.InvalidSession
-          )
-        );
+    expect(auth.isLoggedIn).toBeTruthy();
 
-        when(
-          requestClientMock.doRequest(new RequestClassMatcher(
-            new RegExp(".*/login\\?link=true$")
-          ) as any)
-        ).thenReject(
-          new StitchServiceException(
-            "boop",
-            StitchServiceErrorCode.InvalidSession
-          )
-        );
+    // This should log the user out
+    when(
+      requestClientMock.doRequest(new RequestClassMatcher(
+        new RegExp(".*/session$")
+      ) as any)
+    ).thenReject(
+      new StitchServiceException(
+        "beep",
+        StitchServiceErrorCode.InvalidSession
+      )
+    );
 
-        return auth.linkUserWithCredentialInternal(
-          linkedUser,
-          new UserPasswordCredential("foo@foo.com", "bar")
-        );
-      })
-      .catch(error => {
-        expect(error).toEqual(
-          new StitchServiceException(
-            "beep",
-            StitchServiceErrorCode.InvalidSession
-          )
-        );
+    when(
+      requestClientMock.doRequest(new RequestClassMatcher(
+        new RegExp(".*/login\\?link=true$")
+      ) as any)
+    ).thenReject(
+      new StitchServiceException(
+        "boop",
+        StitchServiceErrorCode.InvalidSession
+      )
+    );
 
-        expect(auth.isLoggedIn).toBeFalsy();
-      });
+    try {
+      await auth.linkUserWithCredentialInternal(
+        linkedUser,
+        new UserPasswordCredential("foo@foo.com", "bar")
+      );
+    } catch (e) {
+      expect(e).toEqual(
+        new StitchServiceException(
+          "beep",
+          StitchServiceErrorCode.InvalidSession
+        )
+      );
+
+      expect(auth.isLoggedIn).toBeFalsy();
+    }
   });
 
   it("should do authenticated json request", () => {

@@ -1,4 +1,4 @@
-import BaseStitchWebIntTestHarness from "mongodb-stitch-browser-testutils";
+import { BaseStitchWebIntTestHarness } from "mongodb-stitch-browser-testutils";
 import {
   Anon,
   App,

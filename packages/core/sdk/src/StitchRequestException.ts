@@ -28,7 +28,7 @@ export default class StitchRequestException extends StitchException {
     underlyingError: Error,
     errorCode: StitchRequestErrorCode
   ) {
-    super();
+    super("");
     this.underlyingError = underlyingError;
     this.errorCode = errorCode;
   }

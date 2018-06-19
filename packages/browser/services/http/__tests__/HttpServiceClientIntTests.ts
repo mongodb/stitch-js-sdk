@@ -1,6 +1,6 @@
 import * as EJSON from "mongodb-extjson";
 import { AnonymousCredential } from "mongodb-stitch-browser-core";
-import BaseStitchWebIntTestHarness from "mongodb-stitch-browser-testutils";
+import { BaseStitchWebIntTestHarness } from "mongodb-stitch-browser-testutils";
 import {
   Anon,
   App,

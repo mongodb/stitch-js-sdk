@@ -28,7 +28,7 @@ export default class StitchServiceException extends StitchException {
     message: string,
     errorCode: StitchServiceErrorCode = StitchServiceErrorCode.Unknown
   ) {
-    super();
+    super(message);
     this.message = message;
     this.errorCode = errorCode;
   }

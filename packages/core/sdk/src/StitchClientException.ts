@@ -15,7 +15,7 @@ export default class StitchClientException extends StitchException {
    * Constructs a client exception with the given error code.
    */
   public constructor(errorCode: StitchClientErrorCode) {
-    super();
+    super("");
     this.errorCode = errorCode;
   }
 }

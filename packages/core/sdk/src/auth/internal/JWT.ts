@@ -1,10 +1,11 @@
 import StitchClientException from "../../StitchClientException";
 import { toByteArray } from "base64-js"
-import { TextDecoderLite } from "text-encoder-lite"
 
-function b64DecodeUnicode(str, encoding = 'utf-8') {
-    var bytes = toByteArray(str);
-    return new TextDecoderLite(encoding).decode(bytes);
+function b64DecodeUnicode(str) {
+    const paddingNeeded = 4 - (str.length % 4);
+    const strToDecode = str + '='.repeat(paddingNeeded);
+    const bytes = toByteArray(strToDecode);
+    return utf8Slice(bytes, 0, bytes.length);
 }
 
 const EXPIRES = "exp";
@@ -62,5 +63,32 @@ export default class JWT {
   private constructor(expires: number, issuedAt: number) {
     this.expires = expires;
     this.issuedAt = issuedAt;
+  }
+}
+
+// sourced from https://github.com/feross/buffer
+function utf8Slice (buf, start, end) {
+  var res = ''
+  var tmp = ''
+  end = Math.min(buf.length, end || Infinity)
+  start = start || 0;
+
+  for (var i = start; i < end; i++) {
+    if (buf[i] <= 0x7F) {
+      res += decodeUtf8Char(tmp) + String.fromCharCode(buf[i])
+      tmp = ''
+    } else {
+      tmp += '%' + buf[i].toString(16)
+    }
+  }
+
+  return res + decodeUtf8Char(tmp)
+}
+
+function decodeUtf8Char (str) {
+  try {
+    return decodeURIComponent(str)
+  } catch (err) {
+    return String.fromCharCode(0xFFFD) // UTF 8 invalid char
   }
 }

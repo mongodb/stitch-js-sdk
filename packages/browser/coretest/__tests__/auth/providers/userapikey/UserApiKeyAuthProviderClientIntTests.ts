@@ -2,7 +2,7 @@ import { ObjectID } from "bson";
 import { App, AppResponse, Userpass } from "mongodb-stitch-core-admin-client";
 import { StitchServiceErrorCode, StitchServiceException } from "mongodb-stitch-core-sdk";
 import { UserApiKeyAuthProviderClient, UserApiKeyCredential } from "mongodb-stitch-browser-core";
-import BaseStitchWebIntTestHarness from "mongodb-stitch-browser-testutils";
+import { BaseStitchWebIntTestHarness } from "mongodb-stitch-browser-testutils";
 
 const harness = new BaseStitchWebIntTestHarness();
 

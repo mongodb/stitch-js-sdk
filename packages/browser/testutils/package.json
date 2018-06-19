@@ -1,9 +1,9 @@
 {
   "name": "mongodb-stitch-browser-testutils",
   "version": "4.0.0",
-  "main": "lib/index.umd.js",
-  "module": "lib/index.esm.js",
-  "types": "lib/index.d.ts",
+  "main": "lib/umd/index.js",
+  "module": "lib/esm/index.js",
+  "types": "lib/esm/index.d.ts",
   "description": "",
   "author": "MongoDB Inc.",
   "contributors": [
@@ -26,14 +26,17 @@
     "mongodb-stitch-core-admin-client": "^4.0.0",
     "mongodb-stitch-core-sdk": "^4.0.0",
     "mongodb-stitch-core-testutils": "^4.0.0",
-    "mongodb-stitch-browser-core": "^4.0.0"
+    "mongodb-stitch-browser-core": "^4.0.0",
+    "fetch-everywhere": "^1.0.5"
   },
   "devDependencies": {
     "typescript": "^2.9.2",
     "rollup": "^0.60.7"
   },
   "scripts": {
-    "build": "rollup -c",
+    "build": "npm run build-main && npm run build-module",
+    "build-main": "tsc -p tsconfig.umd.json",
+    "build-module": "tsc -p tsconfig.esm.json",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json src/**/*.ts",
     "lint-fix": "tslint --fix src/**/*.ts",
@@ -41,6 +44,11 @@
     "tslint-check": "tslint-config-prettier-check ./tslint.json"
   },
   "jest": {
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "tsconfig.umd.json"
+      }
+    },
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },

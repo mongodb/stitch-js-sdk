@@ -1,6 +1,6 @@
 import { sign } from "jsonwebtoken";
 import { UserPasswordAuthProviderClient } from "mongodb-stitch-browser-core";
-import BaseStitchWebIntTestHarness from "mongodb-stitch-browser-testutils";
+import { BaseStitchWebIntTestHarness } from "mongodb-stitch-browser-testutils";
 import {
   Anon,
   App,

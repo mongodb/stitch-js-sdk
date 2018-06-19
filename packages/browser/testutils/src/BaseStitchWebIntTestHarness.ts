@@ -8,7 +8,7 @@ import {
   UserPasswordCredential
 } from "mongodb-stitch-browser-core";
 import { App, AppResponse } from "mongodb-stitch-core-admin-client";
-import BaseStitchIntTestHarness from "mongodb-stitch-core-testutils";
+import { BaseStitchIntTestHarness } from "mongodb-stitch-core-testutils";
 
 const stitchBaseURLEnvVar = "STITCH_BASE_URL";
 

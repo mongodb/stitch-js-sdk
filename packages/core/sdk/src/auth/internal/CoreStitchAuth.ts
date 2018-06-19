@@ -80,7 +80,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   protected constructor(
     requestClient: StitchRequestClient,
     authRoutes: StitchAuthRoutes,
-    storage: Storage
+    storage: Storage,
+    useTokenRefresher: boolean = true
   ) {
     this.requestClient = requestClient;
     this.authRoutes = authRoutes;
@@ -102,7 +103,9 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
     this.prepUser();
 
-    new AccessTokenRefresher(this).run();
+    if (useTokenRefresher) {
+      new AccessTokenRefresher(this).run();
+    }
   }
 
   /**
