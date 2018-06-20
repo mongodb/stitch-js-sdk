@@ -96,138 +96,11 @@ tasks:
             cd stitch-js-sdk
             npm install --global lerna
             npm install
-            lerna bootstrap
+            lerna bootstrap --hoist
             lerna run build
-            lerna run --parallel test
+            lerna run test
 
-  - name: check_import
-    commands:
-      - func: "fetch_source"
-      - command: shell.exec
-        params:
-          script: |
-            set -e
-            cd stitch-js-sdk
-            yarn install
-            npm run build
-            npm run build-web
-            npm run build-web-dev
-            mkdir tmp
-            cd tmp
-            npm pack ../
-            mv mongodb-stitch-*.tgz mongodb-stitch.tgz
-            cd ../../
-            mkdir test_app
-            cd test_app
-            npm install --save ../stitch-js-sdk/tmp/mongodb-stitch.tgz
-            node -e 'process.on("unhandledRejection", err => { throw err }); const stitch = require("mongodb-stitch"); stitch.StitchClientFactory.create("stitchtest-vsfmv").then(client => client.login());'
-
-  - name: dist
-    commands:
-      - func: "fetch_source"
-      - command: shell.exec
-        params:
-          script: |
-            set -e
-            cd stitch-js-sdk
-            yarn install
-            npm run build
-            npm run build-web
-            npm run build-web-dev
-            mkdir tmp
-            cd tmp
-            npm pack ../
-            mv mongodb-stitch-*.tgz mongodb-stitch.tgz
-
-      - command: s3.put
-        params:
-          aws_key: ${sdks_aws_key}
-          aws_secret: ${sdks_aws_secret}
-          local_file: stitch-js-sdk/dist/web/stitch.js
-          remote_file: js/library/${version_id}/stitch.js
-          bucket: stitch-sdks
-          permissions: public-read
-          content_type: application/javascript
-          display_name: Stitch Javascript Library for Web
-
-      - command: s3.put
-        params:
-          aws_key: ${sdks_aws_key}
-          aws_secret: ${sdks_aws_secret}
-          local_file: stitch-js-sdk/dist/web/stitch.min.js
-          remote_file: js/library/${version_id}/stitch.min.js
-          bucket: stitch-sdks
-          permissions: public-read
-          content_type: application/javascript
-          display_name: Stitch Javascript Library for Web (minified)
-
-      - command: s3.put
-        params:
-          aws_key: ${sdks_aws_key}
-          aws_secret: ${sdks_aws_secret}
-          local_file: stitch-js-sdk/dist/web/stitch.min.js.map
-          remote_file: js/library/${version_id}/stitch.min.js.map
-          bucket: stitch-sdks
-          permissions: public-read
-          content_type: application/javascript
-          display_name: Stitch Javascript Library for Web Source Map
-
-      - command: s3.put
-        params:
-          aws_key: ${sdks_aws_key}
-          aws_secret: ${sdks_aws_secret}
-          local_file: stitch-js-sdk/tmp/mongodb-stitch.tgz
-          remote_file: js/npm/${version_id}/stitch.tgz
-          bucket: stitch-sdks
-          permissions: public-read
-          content_type: application/gzip
-          display_name: Stitch NPM package
-
-  - name: docs_dist
-    depends_on:
-      - name: run_tests
-      - name: check_import
-    commands:
-      - func: "fetch_source"
-      - command: shell.exec
-        params:
-          script: |
-            set -e
-            cd stitch-js-sdk
-            yarn install
-            npm run docs
-
-      - command: shell.exec
-        params:
-          script: |
-            set -e
-            echo "setting up AWS CLI"
-            curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
-            unzip awscli-bundle.zip
-            ./awscli-bundle/install -b ~/bin/aws
-            echo "uploading docs for ${branch_name}/${revision}"
-
-      - command: shell.exec
-        params:
-          silent: true
-          script: |
-            set -e
-            export PATH=$HOME/bin:$PATH
-            export AWS_ACCESS_KEY_ID=${sdks_aws_key}
-            export AWS_SECRET_ACCESS_KEY=${sdks_aws_secret}
-            
-            if [ "${is_patch|}" = "true" ]; then
-                # Avoids clobbering docs from other patches or non-patch tasks under the same base commit.
-                aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/${version_id} --recursive --acl public-read
-            else
-                cd stitch-js-sdk 
-                export TAG_OR_REV="$(git describe --exact-match || echo ${revision})"
-                cd ..
-                aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/$TAG_OR_REV --recursive --acl public-read
-                aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/${branch_name} --recursive --acl public-read
-            fi
-
-  - name: eslint
+  - name: lint
     commands:
       - func: "fetch_source"
       - command: shell.exec
@@ -236,8 +109,11 @@ tasks:
             set -e
             cd stitch-js-sdk
             echo "linting"
-            yarn install
-            npm run lint --quiet
+            npm install --global lerna
+            npm install
+            lerna bootstrap --hoist
+            lerna run lint
+            lerna run tslint-check
 
 buildvariants:
 - name: linux-64
@@ -249,7 +125,4 @@ buildvariants:
     transpiler_target: node8-linux
   tasks:
     - name: run_tests
-    # - name: dist
-    # - name: check_import
-    # - name: docs_dist
-    # - name: eslint
+    - name: lint

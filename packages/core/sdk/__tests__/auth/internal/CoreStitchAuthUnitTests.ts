@@ -25,7 +25,7 @@ import {
   TEST_LOGIN_RESPONSE,
   TEST_REFRESH_TOKEN,
   TEST_USER_PROFILE
-} from "../../../__tests__/APITestUtils";
+} from "../../../__tests__/ApiTestUtils";
 import {
   AnonymousAuthProvider,
   AnonymousCredential,

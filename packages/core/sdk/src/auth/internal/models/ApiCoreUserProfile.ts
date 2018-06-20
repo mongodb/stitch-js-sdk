@@ -16,7 +16,7 @@
 
 import Assertions from "../../../internal/common/Assertions";
 import StitchUserProfileImpl from "../StitchUserProfileImpl";
-import APIStitchUserIdentity from "./APIStitchUserIdentity";
+import ApiStitchUserIdentity from "./ApiStitchUserIdentity";
 
 enum Fields {
   DATA = "data",
@@ -28,22 +28,22 @@ enum Fields {
  * A class containing the fields returned by the Stitch client API in the
  * `data` field of a user profile request.
  */
-export default class APICoreUserProfile extends StitchUserProfileImpl {
+export default class ApiCoreUserProfile extends StitchUserProfileImpl {
   public static fromJSON(json: object) {
     Assertions.keyPresent(Fields.USER_TYPE, json);
     Assertions.keyPresent(Fields.DATA, json);
     Assertions.keyPresent(Fields.IDENTITIES, json);
-    return new APICoreUserProfile(
+    return new ApiCoreUserProfile(
       json[Fields.USER_TYPE],
       json[Fields.DATA],
-      json[Fields.IDENTITIES].map(APIStitchUserIdentity.fromJSON)
+      json[Fields.IDENTITIES].map(ApiStitchUserIdentity.fromJSON)
     );
   }
 
   public constructor(
     userType: string,
     data: { [key: string]: any },
-    identities: APIStitchUserIdentity[]
+    identities: ApiStitchUserIdentity[]
   ) {
     super(userType, data, identities);
   }

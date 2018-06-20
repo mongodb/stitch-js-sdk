@@ -66,7 +66,7 @@ export default class CoreUserApiKeyAuthProviderClient extends CoreAuthProviderCl
     return this.requestClient
       .doAuthenticatedRequest(reqBuilder.build())
       .then(response => {
-        return UserApiKey.readFromAPI(response.body!);
+        return UserApiKey.readFromApi(response.body!);
       })
       .catch(err => {
         throw StitchError.wrapDecodingError(err);
@@ -88,7 +88,7 @@ export default class CoreUserApiKeyAuthProviderClient extends CoreAuthProviderCl
     return this.requestClient
       .doAuthenticatedRequest(reqBuilder.build())
       .then(response => {
-        return UserApiKey.readFromAPI(response.body!);
+        return UserApiKey.readFromApi(response.body!);
       })
       .catch(err => {
         throw StitchError.wrapDecodingError(err);
@@ -108,7 +108,7 @@ export default class CoreUserApiKeyAuthProviderClient extends CoreAuthProviderCl
       .then(response => {
         const json = JSON.parse(response.body!);
         if (Array.isArray(json)) {
-          return json.map(value => UserApiKey.readFromAPI(value));
+          return json.map(value => UserApiKey.readFromApi(value));
         }
 
         throw new StitchRequestException(

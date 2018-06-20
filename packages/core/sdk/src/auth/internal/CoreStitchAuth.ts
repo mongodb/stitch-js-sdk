@@ -40,8 +40,8 @@ import AccessTokenRefresher from "./AccessTokenRefresher";
 import AuthInfo from "./AuthInfo";
 import CoreStitchUser from "./CoreStitchUser";
 import JWT from "./JWT";
-import APIAuthInfo from "./models/APIAuthInfo";
-import APICoreUserProfile from "./models/APICoreUserProfile";
+import ApiAuthInfo from "./models/ApiAuthInfo";
+import ApiCoreUserProfile from "./models/ApiCoreUserProfile";
 import { readFromStorage, writeToStorage } from "./models/StoreAuthInfo";
 import StitchAuthRequestClient from "./StitchAuthRequestClient";
 import { StitchAuthRoutes } from "./StitchAuthRoutes";
@@ -190,7 +190,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
     return this.doAuthenticatedRequest(reqBuilder.build()).then(response => {
       try {
-        const partialInfo = APIAuthInfo.fromJSON(JSON.parse(response.body!));
+        const partialInfo = ApiAuthInfo.fromJSON(JSON.parse(response.body!));
         this.authInfo = this.authInfo.merge(partialInfo);
       } catch (err) {
         throw new StitchRequestException(
@@ -464,7 +464,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   ): Promise<TStitchUser> {
     let newAuthInfo: AuthInfo;
     try {
-      newAuthInfo = APIAuthInfo.fromJSON(JSON.parse(response.body!));
+      newAuthInfo = ApiAuthInfo.fromJSON(JSON.parse(response.body!));
     } catch (err) {
       throw new StitchRequestException(
         err,
@@ -542,7 +542,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     reqBuilder.withMethod(Method.GET).withPath(this.authRoutes.profileRoute);
 
     return this.doAuthenticatedRequest(reqBuilder.build())
-      .then(response => APICoreUserProfile.fromJSON(JSON.parse(response.body!)))
+      .then(response => ApiCoreUserProfile.fromJSON(JSON.parse(response.body!)))
       .catch(err => {
         throw new StitchRequestException(
           err,

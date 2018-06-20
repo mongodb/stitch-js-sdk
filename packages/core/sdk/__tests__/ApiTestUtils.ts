@@ -30,9 +30,9 @@ import {
   StitchAppRoutes,
   StitchRequestClient
 } from "../src";
-import APIAuthInfo from "../src/auth/internal/models/APIAuthInfo";
-import APICoreUserProfile from "../src/auth/internal/models/APICoreUserProfile";
-import APIStitchUserIdentity from "../src/auth/internal/models/APIStitchUserIdentity";
+import ApiAuthInfo from "../src/auth/internal/models/ApiAuthInfo";
+import ApiCoreUserProfile from "../src/auth/internal/models/ApiCoreUserProfile";
+import ApiStitchUserIdentity from "../src/auth/internal/models/ApiStitchUserIdentity";
 import { BasicRequest } from "../src/internal/net/BasicRequest";
 import Method from "../src/internal/net/Method";
 import { StitchRequest } from "../src/internal/net/StitchRequest";
@@ -120,8 +120,8 @@ export const TEST_REFRESH_TOKEN: string = (() => {
 /**
  * Gets a login response for testing that is always the same.
  */
-export const TEST_LOGIN_RESPONSE: APIAuthInfo = (() => {
-  return new class extends APIAuthInfo {
+export const TEST_LOGIN_RESPONSE: ApiAuthInfo = (() => {
+  return new class extends ApiAuthInfo {
     constructor() {
       super(
         "some-unique-user-id",
@@ -136,8 +136,8 @@ export const TEST_LOGIN_RESPONSE: APIAuthInfo = (() => {
 /**
  * Gets a link response for testing that is always the same.
  */
-export const TEST_LINK_RESPONE: APIAuthInfo = (() => {
-  return new class extends APIAuthInfo {
+export const TEST_LINK_RESPONE: ApiAuthInfo = (() => {
+  return new class extends ApiAuthInfo {
     constructor() {
       super(
         "some-unique-user-id",
@@ -152,16 +152,16 @@ export const TEST_LINK_RESPONE: APIAuthInfo = (() => {
 /**
  * Gets a user profile for testing that is always the same.
  */
-export const TEST_USER_PROFILE: APICoreUserProfile = (() => {
+export const TEST_USER_PROFILE: ApiCoreUserProfile = (() => {
   const identities = [
-    new class extends APIStitchUserIdentity {
+    new class extends ApiStitchUserIdentity {
       constructor() {
         super("bar", "baz");
       }
     }()
   ];
 
-  return new class extends APICoreUserProfile {
+  return new class extends ApiCoreUserProfile {
     constructor() {
       super("normal", {}, identities);
     }

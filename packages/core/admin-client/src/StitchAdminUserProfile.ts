@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { APIStitchUserIdentity, Codec, Decoder } from "mongodb-stitch-core-sdk";
+import { ApiStitchUserIdentity, Codec, Decoder } from "mongodb-stitch-core-sdk";
 
 enum StitchAdminUserProfileFields {
   UserType = "type",
@@ -36,7 +36,7 @@ export interface StitchAdminUserProfile {
    * An array of `StitchUserIdentity` objects representing the identities linked
    * to this user which can be used to log in as this user.
    */
-  readonly identities: APIStitchUserIdentity[];
+  readonly identities: ApiStitchUserIdentity[];
 
   /**
    * An object containing extra metadata about the user as supplied by the authentication provider.
@@ -57,7 +57,7 @@ export class StitchAdminUserProfileCodec
     return {
       data: from[StitchAdminUserProfileFields.Data],
       identities: from[StitchAdminUserProfileFields.Identities].map(identity =>
-        APIStitchUserIdentity.fromJSON(identity)
+        ApiStitchUserIdentity.fromJSON(identity)
       ),
       roles: from[StitchAdminUserProfileFields.Roles].map(role =>
         roleCodec.decode(role)
