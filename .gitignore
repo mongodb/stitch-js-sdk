@@ -57,5 +57,11 @@ typings/
 # dotenv environment variables file
 .env
 
+# rollup
+.rpt2_cache
+
+.DS_Store
+
+lib/
 dist/
 build/

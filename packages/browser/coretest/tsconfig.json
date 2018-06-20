@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "module": "UMD",
+        "moduleResolution": "Node",
+        "sourceMap": true,
+        "strictNullChecks": true,
+        "outDir": "dist",
+        "declaration": true,
+        "removeComments": true,
+        "lib": [
+            "es2015",
+            "es2017.object",
+            "dom"
+        ]
+    },
+    "exclude": [
+        "./node_modules/**",
+        "./dist"
+    ]
+}
