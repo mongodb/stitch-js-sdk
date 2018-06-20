@@ -28,21 +28,21 @@ const EXPIRATION_WINDOW_SECS = 300;
  */
 export default class AccessTokenRefresher<T extends CoreStitchUser> {
   /**
-   * A weak reference to the `CoreStitchAuth` for which this refresher will attempt to refresh tokens.
+   * A `CoreStitchAuth` for which this refresher will attempt to refresh tokens.
    */
-  public readonly authRef?: CoreStitchAuth<T>;
+  public readonly auth: CoreStitchAuth<T>;
 
-  constructor(authRef?: CoreStitchAuth<T>) {
-    this.authRef = authRef;
+  constructor(auth: CoreStitchAuth<T>) {
+    this.auth = auth;
   }
 
   /**
-   * Checks if the access token in the `CoreStitchAuth` referenced by `authRef` needs to be refreshed.
+   * Checks if the access token in the `CoreStitchAuth` referenced by `auth` needs to be refreshed.
    *
-   * - returns: false if `authRef` has been deallocated, true otherwise
+   * - returns: false if the access token does not need to be refreshed.
    */
   public shouldRefresh(): boolean {
-    const auth = this.authRef;
+    const auth = this.auth;
     if (auth === undefined) {
       return false;
     }
@@ -74,13 +74,13 @@ export default class AccessTokenRefresher<T extends CoreStitchUser> {
   /**
    * Infinitely loops, checking if a proactive token refresh is necessary,
    * every `sleepMillis` milliseconds. If the `CoreStitchAuth` referenced in `
-   * authRef` is deallocated, the loop will end.
+   * auth` is deallocated, the loop will end.
    */
   public run() {
     if (!this.shouldRefresh()) {
       setTimeout(() => this.run(), SLEEP_MILLIS);
     } else {
-      this.authRef!.refreshAccessToken().then(() => {
+      this.auth.refreshAccessToken().then(() => {
         setTimeout(() => this.run(), SLEEP_MILLIS);
       });
     }
