@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-browser-services-aws-s3",
-  "version": "4.0.0-beta-1",
+  "version": "4.0.0-beta-2",
   "main": "lib/umd/index.js",
   "module": "lib/esm/index.js",
   "types": "lib/esm/index.d.ts",
@@ -25,14 +25,14 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "mongodb-stitch-browser-core": "^4.0.0-beta-1",
-    "mongodb-stitch-core-services-aws-s3": "^4.0.0-beta-1"
+    "mongodb-stitch-browser-core": "^4.0.0-beta-2",
+    "mongodb-stitch-core-services-aws-s3": "^4.0.0-beta-2"
   },
   "devDependencies": {
     "jest": "^23.1.0",
-    "mongodb-stitch-browser-testutils": "^4.0.0-beta-1",
-    "mongodb-stitch-core-admin-client": "^4.0.0-beta-1",
-    "mongodb-stitch-core-sdk": "^4.0.0-beta-1",
+    "mongodb-stitch-browser-testutils": "^4.0.0-beta-2",
+    "mongodb-stitch-core-admin-client": "^4.0.0-beta-2",
+    "mongodb-stitch-core-sdk": "^4.0.0-beta-2",
     "prettier": "^1.13.5",
     "rollup": "^0.60.7",
     "ts-jest": "^22.4.6",

@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-browser-testutils",
-  "version": "4.0.0-beta-1",
+  "version": "4.0.0-beta-2",
   "main": "lib/umd/index.js",
   "module": "lib/esm/index.js",
   "types": "lib/esm/index.d.ts",
@@ -26,10 +26,10 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "mongodb-stitch-browser-core": "^4.0.0-beta-1",
-    "mongodb-stitch-core-admin-client": "^4.0.0-beta-1",
-    "mongodb-stitch-core-sdk": "^4.0.0-beta-1",
-    "mongodb-stitch-core-testutils": "^4.0.0-beta-1"
+    "mongodb-stitch-browser-core": "^4.0.0-beta-2",
+    "mongodb-stitch-core-admin-client": "^4.0.0-beta-2",
+    "mongodb-stitch-core-sdk": "^4.0.0-beta-2",
+    "mongodb-stitch-core-testutils": "^4.0.0-beta-2"
   },
   "devDependencies": {
     "typescript": "^2.9.2"
