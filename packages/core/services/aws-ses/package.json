@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-core-services-aws-ses",
-  "version": "4.0.0",
+  "version": "4.0.0-beta-1",
   "main": "lib/umd/index.js",
   "module": "lib/esm/index.js",
   "types": "lib/esm/index.d.ts",
@@ -11,21 +11,21 @@
   "author": "MongoDB Inc.",
   "contributors": [
     {
-        "name": "Adam Chelminski",
-        "email": "adam.chelminski@mongodb.com"
+      "name": "Adam Chelminski",
+      "email": "adam.chelminski@mongodb.com"
     },
     {
-        "name": "Eric Daniels",
-        "email": "eric.daniels@mongodb.com"
+      "name": "Eric Daniels",
+      "email": "eric.daniels@mongodb.com"
     },
     {
-        "name": "Jason Flax",
-        "email": "jason.flax@mongodb.com"
+      "name": "Jason Flax",
+      "email": "jason.flax@mongodb.com"
     }
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "mongodb-stitch-core-sdk": "^4.0.0"
+    "mongodb-stitch-core-sdk": "^4.0.0-beta-1"
   },
   "devDependencies": {
     "jest": "^23.1.0",
@@ -56,8 +56,18 @@
       "^.+\\.tsx?$": "ts-jest"
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "testPathIgnorePatterns": ["/lib/", "/node_modules/"],
-    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
+    "testPathIgnorePatterns": [
+      "/lib/",
+      "/node_modules/"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
     "collectCoverage": true
   }
 }

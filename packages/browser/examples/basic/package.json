@@ -1,12 +1,12 @@
 {
   "name": "mongodb-stitch-browser-examples-basic",
-  "version": "4.0.0",
+  "version": "4.0.0-beta-1",
   "description": "This is an example JS application using the stitch-browser module",
   "private": true,
   "main": "index.js",
   "dependencies": {
-    "mongodb-stitch-browser-sdk": "^4.0.0",
-    "mongodb-stitch-browser-services-aws-s3": "^4.0.0"
+    "mongodb-stitch-browser-sdk": "^4.0.0-beta-1",
+    "mongodb-stitch-browser-services-aws-s3": "^4.0.0-beta-1"
   },
   "scripts": {
     "build": "webpack -p",
@@ -15,16 +15,16 @@
   "author": "MongoDB Inc.",
   "contributors": [
     {
-        "name": "Adam Chelminski",
-        "email": "adam.chelminski@mongodb.com"
+      "name": "Adam Chelminski",
+      "email": "adam.chelminski@mongodb.com"
     },
     {
-        "name": "Eric Daniels",
-        "email": "eric.daniels@mongodb.com"
+      "name": "Eric Daniels",
+      "email": "eric.daniels@mongodb.com"
     },
     {
-        "name": "Jason Flax",
-        "email": "jason.flax@mongodb.com"
+      "name": "Jason Flax",
+      "email": "jason.flax@mongodb.com"
     }
   ],
   "license": "Apache-2.0",
@@ -33,10 +33,10 @@
     "babel-loader": "^7.1.4",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
+    "react": "16.4.0",
+    "react-dom": "16.4.0",
     "webpack": "4.11.1",
     "webpack-cli": "3.0.3",
-    "webpack-dev-server": "3.1.4",
-    "react": "16.4.0",
-    "react-dom": "16.4.0"
+    "webpack-dev-server": "3.1.4"
   }
 }

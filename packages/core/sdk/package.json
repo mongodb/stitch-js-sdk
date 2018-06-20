@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-core-sdk",
-  "version": "4.0.0",
+  "version": "4.0.0-beta-1",
   "main": "lib/umd/index.js",
   "module": "lib/esm/index.js",
   "types": "lib/esm/index.d.ts",
@@ -11,23 +11,23 @@
   "author": "MongoDB Inc.",
   "contributors": [
     {
-        "name": "Adam Chelminski",
-        "email": "adam.chelminski@mongodb.com"
+      "name": "Adam Chelminski",
+      "email": "adam.chelminski@mongodb.com"
     },
     {
-        "name": "Eric Daniels",
-        "email": "eric.daniels@mongodb.com"
+      "name": "Eric Daniels",
+      "email": "eric.daniels@mongodb.com"
     },
     {
-        "name": "Jason Flax",
-        "email": "jason.flax@mongodb.com"
+      "name": "Jason Flax",
+      "email": "jason.flax@mongodb.com"
     }
   ],
   "license": "Apache-2.0",
   "dependencies": {
     "base64-js": "^1.3.0",
-    "fetch-everywhere": "^1.0.5",
     "bson": "^3.0.0",
+    "fetch-everywhere": "^1.0.5",
     "mongodb-extjson": "^3.0.0"
   },
   "devDependencies": {
@@ -60,8 +60,19 @@
       "^.+\\.tsx?$": "ts-jest"
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "testPathIgnorePatterns": ["/lib/", "/node_modules/", "ApiTestUtils.*"],
-    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
+    "testPathIgnorePatterns": [
+      "/lib/",
+      "/node_modules/",
+      "ApiTestUtils.*"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
     "setupTestFrameworkScriptFile": "<rootDir>/__tests__/ApiTestUtils.ts"
   }
 }

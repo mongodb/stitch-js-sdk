@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-browser-services-mongodb-remote",
-  "version": "4.0.0",
+  "version": "4.0.0-beta-1",
   "main": "lib/umd/index.js",
   "module": "lib/esm/index.js",
   "types": "lib/esm/index.d.ts",
@@ -11,34 +11,34 @@
   "author": "MongoDB Inc.",
   "contributors": [
     {
-        "name": "Adam Chelminski",
-        "email": "adam.chelminski@mongodb.com"
+      "name": "Adam Chelminski",
+      "email": "adam.chelminski@mongodb.com"
     },
     {
-        "name": "Eric Daniels",
-        "email": "eric.daniels@mongodb.com"
+      "name": "Eric Daniels",
+      "email": "eric.daniels@mongodb.com"
     },
     {
-        "name": "Jason Flax",
-        "email": "jason.flax@mongodb.com"
+      "name": "Jason Flax",
+      "email": "jason.flax@mongodb.com"
     }
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "mongodb-stitch-browser-core": "^4.0.0",
-    "mongodb-stitch-core-services-mongodb-remote": "^4.0.0"
+    "mongodb-stitch-browser-core": "^4.0.0-beta-1",
+    "mongodb-stitch-core-services-mongodb-remote": "^4.0.0-beta-1"
   },
   "devDependencies": {
-    "mongodb-stitch-browser-testutils": "^4.0.0",
-    "mongodb-stitch-core-admin-client": "^4.0.0",
-    "mongodb-stitch-core-sdk": "^4.0.0",
     "jest": "^23.1.0",
+    "mongodb-stitch-browser-testutils": "^4.0.0-beta-1",
+    "mongodb-stitch-core-admin-client": "^4.0.0-beta-1",
+    "mongodb-stitch-core-sdk": "^4.0.0-beta-1",
     "prettier": "^1.13.5",
+    "rollup": "^0.60.7",
     "ts-jest": "^22.4.6",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
-    "typescript": "^2.9.2",
-    "rollup": "^0.60.7"
+    "typescript": "^2.9.2"
   },
   "scripts": {
     "build": "npm run build-main && npm run build-module && npm run build-browser",
@@ -62,8 +62,18 @@
       "^.+\\.tsx?$": "ts-jest"
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "testPathIgnorePatterns": ["/lib/", "/node_modules/"],
-    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
+    "testPathIgnorePatterns": [
+      "/lib/",
+      "/node_modules/"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
     "collectCoverage": true
   }
 }
