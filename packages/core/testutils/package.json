@@ -5,6 +5,9 @@
   "main": "lib/umd/index.js",
   "module": "lib/esm/index.js",
   "types": "lib/esm/index.d.ts",
+  "files": [
+    "lib"
+  ],
   "author": "MongoDB Inc.",
   "contributors": [
     {
@@ -39,7 +42,7 @@
     "build-module": "tsc -p tsconfig.esm.json",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json src/**/*.ts",
-    "lint-fix": "tslint --fix src/**/*.ts",
+    "lint-fix": "tslint --fix src/**/*.ts __tests__/**/*.ts",
     "prettier": "prettier --write \"{,!(node_modules),!(lib)/**/}*.ts\"",
     "lint-check": "tslint-config-prettier-check ./tslint.json"
   }

@@ -4,6 +4,9 @@
   "main": "lib/umd/index.js",
   "module": "lib/esm/index.js",
   "types": "lib/esm/index.d.ts",
+  "files": [
+    "lib"
+  ],
   "description": "MongoDB Stitch JavaScript SDK - Browser Core",
   "author": "MongoDB Inc.",
   "contributors": [
@@ -35,15 +38,17 @@
     "rollup": "^0.60.7"
   },
   "scripts": {
-    "build": "npm run build-main && npm run build-module",
+    "build": "npm run build-main && npm run build-module && npm run build-browser",
     "build-main": "tsc -p tsconfig.umd.json && npm run add-version-umd",
     "build-module": "tsc -p tsconfig.esm.json && npm run add-version-esm",
+    "build-browser": "rollup -c && npm run add-version-browser",
     "watch": "tsc -w",
     "lint": "tslint src/**/*.ts",
-    "lint-fix": "tslint --fix src/**/*.ts",
+    "lint-fix": "tslint --fix src/**/*.ts __tests__/**/*.ts",
     "lint-check": "tslint-config-prettier-check ./tslint.json",
     "prettier": "prettier --write \"{,!(node_modules),!(lib)/**/}*.ts\"",
     "add-version-esm": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" lib/esm/core/internal/common/Version.js",
-    "add-version-umd": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" lib/umd/core/internal/common/Version.js"
+    "add-version-umd": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" lib/umd/core/internal/common/Version.js",
+    "add-version-browser": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" lib/browser/stitch-core.js"
   }
 }

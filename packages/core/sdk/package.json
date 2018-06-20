@@ -4,6 +4,9 @@
   "main": "lib/umd/index.js",
   "module": "lib/esm/index.js",
   "types": "lib/esm/index.d.ts",
+  "files": [
+    "lib"
+  ],
   "description": "MongoDB Stitch JavaScript SDK - Core SDK",
   "author": "MongoDB Inc.",
   "contributors": [
@@ -43,7 +46,7 @@
     "watch": "tsc -w",
     "test": "jest",
     "lint": "tslint src/**/*.ts __tests__/**/*.ts",
-    "lint-fix": "tslint --fix src/**/*.ts",
+    "lint-fix": "tslint --fix src/**/*.ts __tests__/**/*.ts",
     "prettier": "prettier --write \"{,!(node_modules),!(lib)/**/}*.ts\"",
     "tslint-check": "tslint-config-prettier-check ./tslint.json"
   },

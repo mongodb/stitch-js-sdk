@@ -8,7 +8,6 @@
         "outDir": "lib/esm",
         "declaration": true,
         "removeComments": true,
-        "allowSyntheticDefaultImports": true,
         "lib": [
             "es2015",
             "es2017.object"

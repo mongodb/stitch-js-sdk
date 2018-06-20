@@ -5,6 +5,9 @@
   "main": "lib/umd/index.js",
   "module": "lib/esm/index.js",
   "types": "lib/esm/index.d.ts",
+  "files": [
+    "lib"
+  ],
   "author": "MongoDB Inc.",
   "contributors": [
     {
