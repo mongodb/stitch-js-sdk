@@ -32,13 +32,7 @@ export default class BaseStitchWebIntTestHarness extends BaseStitchIntTestHarnes
   public readonly clients: StitchAppClient[] = [];
 
   public setup(): Promise<void> {
-    return super.setup().then(() => {
-      try {
-        Stitch.initialize();
-      } catch (error) {
-        fail(error);
-      }
-    });
+    return super.setup();
   }
 
   public tearDown(): Promise<void> {

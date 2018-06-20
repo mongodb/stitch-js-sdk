@@ -27,17 +27,7 @@ const TAG = "Stitch";
 const appClients: { [key: string]: StitchAppClientImpl } = {};
 
 export default class Stitch {
-  public static initialize() {
-    if (Stitch.initialized) {
-      return;
-    }
-
-    // TODO: STITCH-1615 Web SDK: Get Application info on Initialization
-    Stitch.initialized = true;
-  }
-
   public static get defaultAppClient(): StitchAppClient {
-    Stitch.ensureInitialized();
     if (Stitch.defaultClientAppId === undefined) {
       throw new Error("default app client has not yet been initialized/set");
     }
@@ -123,16 +113,7 @@ export default class Stitch {
     return client;
   }
 
-  private static initialized: boolean;
   private static localAppVersion: string;
   private static defaultClientAppId: string;
   private static localAppName: string;
-
-  private static ensureInitialized() {
-    if (!Stitch.initialized) {
-      throw new Error(
-        "Stitch not initialized yet; please call initialize() first"
-      );
-    }
-  }
 }

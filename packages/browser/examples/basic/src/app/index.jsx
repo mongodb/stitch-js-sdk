@@ -22,8 +22,6 @@ class Hello extends React.Component {
     constructor(props) {
         super(props);
 
-        Stitch.initialize()
-
         const config = StitchAppClientConfiguration.Builder
                         .forApp("test-js-sdk-ikwas")
 
