@@ -4,7 +4,7 @@ import Response from "./internal/net/Response";
 import StitchException from "./StitchException";
 import { StitchRequestErrorCode } from "./StitchRequestErrorCode";
 import StitchRequestException from "./StitchRequestException";
-import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
+import { StitchServiceErrorCode, stitchServiceErrorCodeFromApi } from "./StitchServiceErrorCode";
 import StitchServiceException from "./StitchServiceException";
 
 enum Fields {
@@ -99,7 +99,7 @@ export default class StitchError {
 
     throw new StitchServiceException(
       errorMsg,
-      StitchServiceErrorCode[errorCode]
+      stitchServiceErrorCodeFromApi(errorCode)
     );
   }
 }

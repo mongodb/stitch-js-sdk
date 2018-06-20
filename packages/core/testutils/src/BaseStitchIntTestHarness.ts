@@ -15,7 +15,7 @@ import {
   UserApiKeyAuthProvider,
   UserPasswordCredential
 } from "mongodb-stitch-core-sdk";
-import fetch from "fetch-everywhere"
+import * as fetch from "fetch-everywhere"
 
 export default abstract class BaseStitchIntTestHarness {
   protected abstract readonly stitchBaseUrl: string;

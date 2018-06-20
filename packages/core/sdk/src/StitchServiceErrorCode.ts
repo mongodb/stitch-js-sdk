@@ -34,12 +34,12 @@ export enum StitchServiceErrorCode {
   IncomingWebhookAlreadyExists = "IncomingWebhookAlreadyExists",
   IncomingWebhookDuplicateName = "IncomingWebhookDuplicateName",
   RuleNotFound = "RuleNotFound",
-  ApiKeyNotFound = "ApiKeyNotFound",
+  ApiKeyNotFound = "APIKeyNotFound",
   RuleAlreadyExists = "RuleAlreadyExists",
   RuleDuplicateName = "RuleDuplicateName",
   AuthProviderDuplicateName = "AuthProviderDuplicateName",
   RestrictedHost = "RestrictedHost",
-  ApiKeyAlreadyExists = "ApiKeyAlreadyExists",
+  ApiKeyAlreadyExists = "APIKeyAlreadyExists",
   IncomingWebhookAuthFailed = "IncomingWebhookAuthFailed",
   ExecutionTimeLimitExceeded = "ExecutionTimeLimitExceeded",
   FunctionNotCallable = "FunctionNotCallable",
@@ -47,4 +47,16 @@ export enum StitchServiceErrorCode {
   UserNotFound = "UserNotFound",
   UserDisabled = "UserDisabled",
   Unknown = "Unknown"
+}
+
+const apiErrorCodes: { [id: string] : StitchServiceErrorCode } = {};
+Object.entries(StitchServiceErrorCode).forEach(([key, value]) => {
+  apiErrorCodes[value] = StitchServiceErrorCode[key];
+});
+
+export function stitchServiceErrorCodeFromApi(code : string) : StitchServiceErrorCode {
+  if (!(code in apiErrorCodes)) {
+    return StitchServiceErrorCode.Unknown;
+  }
+  return apiErrorCodes[code];
 }

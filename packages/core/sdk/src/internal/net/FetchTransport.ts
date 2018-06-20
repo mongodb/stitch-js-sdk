@@ -1,7 +1,7 @@
 import { BasicRequest } from "./BasicRequest";
 import Response from "./Response";
 import Transport from "./Transport";
-import fetch from "fetch-everywhere"
+import * as fetch from "fetch-everywhere"
 
 export default class FetchTransport implements Transport {
   public roundTrip(request: BasicRequest): Promise<Response> {
