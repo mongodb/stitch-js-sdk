@@ -22,13 +22,7 @@ class Hello extends React.Component {
     constructor(props) {
         super(props);
 
-        const config = StitchAppClientConfiguration.Builder
-                        .forApp("test-js-sdk-ikwas")
-
-        Stitch.initializeDefaultAppClient(config);
-
-        let client = Stitch.defaultAppClient
-
+        let client = Stitch.initializeDefaultAppClient("test-js-sdk-ikwas");
         client.auth.loginWithCredential(new AnonymousCredential()).then(user => {
             console.log(`successfully logged in as anonymous user with id: ${user.id}`)
             console.log(`profile: ${JSON.stringify(user.profile)}`)

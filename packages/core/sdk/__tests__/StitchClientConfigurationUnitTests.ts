@@ -30,44 +30,7 @@ describe("StitchClientConfigurationUnitTests", () => {
       }
     }();
 
-    // A minimum of baseUrl, storage, and transport must be set
     let builder = new StitchClientConfiguration.Builder();
-    expect(builder.build).toThrow();
-
-    builder.withBaseURL(baseUrl);
-
-    expect(builder.build).toThrow();
-
-    builder = new StitchClientConfiguration.Builder();
-    builder.withStorage(storage);
-
-    expect(builder.build).toThrow();
-
-    builder = new StitchClientConfiguration.Builder();
-    builder.withTransport(transport);
-
-    expect(builder.build).toThrow();
-
-    builder = new StitchClientConfiguration.Builder();
-    builder.withBaseURL(baseUrl);
-    builder.withStorage(storage);
-
-    expect(builder.build).toThrow();
-
-    builder = new StitchClientConfiguration.Builder();
-    builder.withBaseURL(baseUrl);
-    builder.withTransport(transport);
-
-    expect(builder.build).toThrow();
-
-    builder = new StitchClientConfiguration.Builder();
-    builder.withStorage(storage);
-    builder.withTransport(transport);
-
-    expect(builder.build).toThrow();
-
-    // Minimum satisfied
-    builder = new StitchClientConfiguration.Builder();
     builder.withBaseURL(baseUrl);
     builder.withStorage(storage);
     builder.withTransport(transport);

@@ -48,9 +48,9 @@ export default class Stitch {
   }
 
   public static initializeDefaultAppClient(
-    configBuilder: StitchAppClientConfiguration.Builder
+    clientAppId: string,
+    config: StitchAppClientConfiguration = new StitchAppClientConfiguration.Builder().build()
   ): StitchAppClient {
-    const clientAppId = configBuilder.clientAppId;
     if (clientAppId === undefined || clientAppId === "") {
       throw new Error("clientAppId must be set to a non-empty string");
     }
@@ -61,55 +61,52 @@ export default class Stitch {
         }'`
       );
     }
-    const client = Stitch.initializeAppClient(configBuilder);
+    const client = Stitch.initializeAppClient(clientAppId, config);
     Stitch.defaultClientAppId = clientAppId;
     return client;
   }
 
   public static initializeAppClient(
-    configBuilder: StitchAppClientConfiguration.Builder
+    clientAppId: string,
+    config: StitchAppClientConfiguration = new StitchAppClientConfiguration.Builder().build()
   ): StitchAppClient {
-    if (!configBuilder.clientAppId) {
+    if (clientAppId === undefined || clientAppId === "") {
       throw new Error("clientAppId must be set to a non-empty string");
     }
 
-    if (appClients[configBuilder.clientAppId] !== undefined) {
+    if (appClients[clientAppId] !== undefined) {
       throw new Error(
         `client for app '${
-          configBuilder.clientAppId
+          clientAppId
         }' has already been initialized`
       );
     }
 
-    if (configBuilder.storage === undefined) {
-      configBuilder.withStorage(new LocalStorage(configBuilder.clientAppId));
+    const builder = config.builder();
+    if (builder.storage === undefined) {
+      builder.withStorage(new LocalStorage(clientAppId));
     }
-    if (configBuilder.transport == null) {
-      configBuilder.withTransport(new FetchTransport());
+    if (builder.transport == null) {
+      builder.withTransport(new FetchTransport());
     }
-    if (configBuilder.baseURL == null || configBuilder.baseURL === "") {
-      configBuilder.withBaseURL(DEFAULT_BASE_URL);
-    }
-    if (
-      configBuilder.localAppName == null ||
-      configBuilder.localAppName === ""
-    ) {
-      configBuilder.withLocalAppName(Stitch.localAppName);
+    if (builder.baseURL == null || builder.baseURL === "") {
+      builder.withBaseURL(DEFAULT_BASE_URL);
     }
     if (
-      configBuilder.localAppVersion == null ||
-      configBuilder.localAppVersion === ""
+      builder.localAppName == null ||
+      builder.localAppName === ""
     ) {
-      configBuilder.withLocalAppVersion(Stitch.localAppVersion);
+      builder.withLocalAppName(Stitch.localAppName);
+    }
+    if (
+      builder.localAppVersion == null ||
+      builder.localAppVersion === ""
+    ) {
+      builder.withLocalAppVersion(Stitch.localAppVersion);
     }
 
-    const config = configBuilder.build();
-    if (appClients[config.clientAppId]) {
-      return appClients[config.clientAppId];
-    }
-
-    const client = new StitchAppClientImpl(configBuilder.build());
-    appClients[config.clientAppId] = client;
+    const client = new StitchAppClientImpl(clientAppId, builder.build());
+    appClients[clientAppId] = client;
     return client;
   }
 

@@ -59,10 +59,11 @@ export default class BaseStitchWebIntTestHarness extends BaseStitchIntTestHarnes
     }
 
     const client = Stitch.initializeAppClient(
+      app.clientAppId,
       new StitchAppClientConfiguration.Builder()
-        .withClientAppId(app.clientAppId)
         .withBaseURL(this.stitchBaseUrl)
         .withStorage(new MemoryStorage(app.clientAppId))
+        .build()
     );
     this.clients.push(client);
     return client;

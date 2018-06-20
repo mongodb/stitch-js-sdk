@@ -34,9 +34,12 @@ export default class StitchAppClientImpl implements StitchAppClient {
   private readonly info: StitchAppClientInfo;
   private readonly routes: StitchAppRoutes;
 
-  public constructor(config: StitchAppClientConfiguration) {
+  public constructor(
+    clientAppId: string,
+    config: StitchAppClientConfiguration
+   ) {
     this.info = new StitchAppClientInfo(
-      config.clientAppId,
+      clientAppId,
       config.dataDirectory,
       config.localAppName,
       config.localAppVersion

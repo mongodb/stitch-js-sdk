@@ -78,18 +78,6 @@ export namespace StitchClientConfiguration {
     }
 
     public build(): StitchClientConfiguration {
-      if (!this.baseURL) {
-        throw new Error("baseURL must be set");
-      }
-
-      if (!this.storage) {
-        throw new Error("storage must be set");
-      }
-
-      if (!this.transport) {
-        throw new Error("transport must be set");
-      }
-
       return new StitchClientConfiguration(
         this.baseURL,
         this.storage,
