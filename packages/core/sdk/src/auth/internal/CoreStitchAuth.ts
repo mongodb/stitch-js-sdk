@@ -531,8 +531,13 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
   private processLoginResponse(credential: StitchCredential, response: Response): Promise<TStitchUser> {
     try {
-      if (!response || !response.body) {
-        throw new StitchError("response was undefined");
+      if (!response) {
+        throw new StitchServiceError("response was undefined");
+      }
+      if (!response.body) {
+        throw new StitchServiceError(
+          `response with status code ${response.statusCode} has empty body`
+        );
       }
       return this.processLogin(
         credential,
