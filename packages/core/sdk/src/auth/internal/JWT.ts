@@ -21,7 +21,7 @@ function b64DecodeUnicode(str) {
     const unevenBytes = str.length % 4;
     let strToDecode;
     if (unevenBytes != 0) {
-      const paddingNeeded = 4 - (str.length % 4);
+      const paddingNeeded = 4 - unevenBytes;
       strToDecode = str + '='.repeat(paddingNeeded);
     } else {
       strToDecode = str;
