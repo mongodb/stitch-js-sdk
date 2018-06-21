@@ -123,6 +123,7 @@ tasks:
             set -e
             source ./creds
             cd stitch-js-sdk
+            npm install --global coveralls
             export COVERALLS_GIT_COMMIT=${revision}
             if [ -z "${github_pr_number}" ]
             then
