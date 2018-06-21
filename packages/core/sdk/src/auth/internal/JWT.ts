@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import StitchClientException from "../../StitchClientException";
+import StitchClientError from "../../StitchClientError";
 import { toByteArray } from "base64-js"
 
 function b64DecodeUnicode(str) {

@@ -51,7 +51,7 @@ import { StitchAuthDocRequest } from "../../../src/internal/net/StitchAuthDocReq
 import { StitchDocRequest } from "../../../src/internal/net/StitchDocRequest";
 import { StitchRequest } from "../../../src/internal/net/StitchRequest";
 import { StitchServiceErrorCode } from "../../../src/StitchServiceErrorCode";
-import StitchServiceException from "../../../src/StitchServiceException";
+import StitchServiceError from "../../../src/StitchServiceError";
 
 class StitchAuth extends CoreStitchAuth<CoreStitchUserImpl> {
   constructor(
@@ -340,7 +340,7 @@ describe("CoreStitchAuthUnitTests", () => {
       requestClientMock.doRequest(new RequestClassMatcher(
         new RegExp(".*/login\\?link=true$")
       ) as any)
-    ).thenReject(new StitchServiceException(
+    ).thenReject(new StitchServiceError(
       "bad",
       StitchServiceErrorCode.InvalidSession
     )).thenResolve({
@@ -403,7 +403,7 @@ describe("CoreStitchAuthUnitTests", () => {
         new RegExp(".*/session$")
       ) as any)
     ).thenReject(
-      new StitchServiceException(
+      new StitchServiceError(
         "beep",
         StitchServiceErrorCode.InvalidSession
       )
@@ -414,7 +414,7 @@ describe("CoreStitchAuthUnitTests", () => {
         new RegExp(".*/login\\?link=true$")
       ) as any)
     ).thenReject(
-      new StitchServiceException(
+      new StitchServiceError(
         "boop",
         StitchServiceErrorCode.InvalidSession
       )
@@ -427,7 +427,7 @@ describe("CoreStitchAuthUnitTests", () => {
       );
     } catch (e) {
       expect(e).toEqual(
-        new StitchServiceException(
+        new StitchServiceError(
           "beep",
           StitchServiceErrorCode.InvalidSession
         )

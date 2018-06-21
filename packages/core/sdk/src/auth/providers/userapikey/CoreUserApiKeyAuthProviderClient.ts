@@ -21,9 +21,9 @@ import Method from "../../../internal/net/Method";
 import { StitchAuthDocRequest } from "../../../internal/net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "../../../internal/net/StitchAuthRequest";
 import StitchError from "../../../StitchError";
-import StitchException from "../../../StitchException";
+import { wrapDecodingError } from "../../../internal/common/StitchErrorUtils";
 import { StitchRequestErrorCode } from "../../../StitchRequestErrorCode";
-import StitchRequestException from "../../../StitchRequestException";
+import StitchRequestError from "../../../StitchRequestError";
 import CoreAuthProviderClient from "../internal/CoreAuthProviderClient";
 import UserApiKey from "./models/UserApiKey";
 import UserApiKeyAuthProvider from "./UserApiKeyAuthProvider";
@@ -69,7 +69,7 @@ export default class CoreUserApiKeyAuthProviderClient extends CoreAuthProviderCl
         return UserApiKey.readFromApi(response.body!);
       })
       .catch(err => {
-        throw StitchError.wrapDecodingError(err);
+        throw wrapDecodingError(err);
       });
   }
 
@@ -91,7 +91,7 @@ export default class CoreUserApiKeyAuthProviderClient extends CoreAuthProviderCl
         return UserApiKey.readFromApi(response.body!);
       })
       .catch(err => {
-        throw StitchError.wrapDecodingError(err);
+        throw wrapDecodingError(err);
       });
   }
 
@@ -111,13 +111,13 @@ export default class CoreUserApiKeyAuthProviderClient extends CoreAuthProviderCl
           return json.map(value => UserApiKey.readFromApi(value));
         }
 
-        throw new StitchRequestException(
+        throw new StitchRequestError(
           new Error("unexpected non-array response from server"),
           StitchRequestErrorCode.DECODING_ERROR
         );
       })
       .catch(err => {
-        throw StitchError.wrapDecodingError(err);
+        throw wrapDecodingError(err);
       });
   }
 

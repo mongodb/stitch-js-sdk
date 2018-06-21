@@ -15,13 +15,13 @@
  */
 
 import { StitchClientErrorCode } from "./StitchClientErrorCode";
-import StitchException from "./StitchException";
+import StitchError from "./StitchError";
 
 /**
  * An exception indicating that an error occurred when using the Stitch client, typically before the
  * client performed a request. An error code indicating the reason for the error is included.
  */
-export default class StitchClientException extends StitchException {
+export default class StitchClientError extends StitchError {
   /**
    * The StitchClientErrorCode associated with the request.
    */

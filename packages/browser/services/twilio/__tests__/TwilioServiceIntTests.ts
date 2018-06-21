@@ -28,7 +28,7 @@ import {
 import {
   AnonymousCredential,
   StitchServiceErrorCode,
-  StitchServiceException
+  StitchServiceError
 } from "mongodb-stitch-core-sdk";
 import { TwilioServiceClient } from "../src";
 
@@ -86,7 +86,7 @@ describe("TwilioService", () => {
       await twilio.sendMessage(to, from, body);
       fail();
     } catch (error) {
-      expect(error instanceof StitchServiceException).toBeTruthy();
+      expect(error instanceof StitchServiceError).toBeTruthy();
       expect(error.errorCode).toEqual(StitchServiceErrorCode.TwilioError);
     }
 
@@ -94,7 +94,7 @@ describe("TwilioService", () => {
       await twilio.sendMessage(to, from, body, mediaUrl);
       fail();
     } catch (error) {
-      expect(error instanceof StitchServiceException).toBeTruthy();
+      expect(error instanceof StitchServiceError).toBeTruthy();
       expect(error.errorCode).toEqual(StitchServiceErrorCode.TwilioError);
     }
 
@@ -109,7 +109,7 @@ describe("TwilioService", () => {
       await twilio.sendMessage(to, "", body, mediaUrl);
       fail();
     } catch (error) {
-      expect(error instanceof StitchServiceException).toBeTruthy();
+      expect(error instanceof StitchServiceError).toBeTruthy();
       expect(error.errorCode).toEqual(StitchServiceErrorCode.InvalidParameter);
     }
   });

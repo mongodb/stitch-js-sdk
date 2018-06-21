@@ -60,7 +60,7 @@ import StitchServiceRoutes from "./services/internal/StitchServiceRoutes";
 import { StitchAppClientConfiguration } from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";
 import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
-import StitchServiceException from "./StitchServiceException";
+import StitchServiceError from "./StitchServiceError";
 
 export {
   AnonymousAuthProvider,
@@ -100,7 +100,7 @@ export {
   StitchCredential,
   StitchRequestClient,
   StitchServiceRoutes,
-  StitchServiceException,
+  StitchServiceError,
   StitchServiceErrorCode,
   StitchUserFactory,
   StitchUserProfile,

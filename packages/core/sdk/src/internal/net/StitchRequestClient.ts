@@ -15,9 +15,9 @@
  */
 
 import * as EJSON from "mongodb-extjson";
-import StitchError from "../../StitchError";
+import { handleRequestError } from "../../internal/common/StitchErrorUtils";
 import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
-import StitchRequestException from "../../StitchRequestException";
+import StitchRequestError from "../../StitchRequestError";
 import { BasicRequest } from "./BasicRequest";
 import ContentTypes from "./ContentTypes";
 import Headers from "./Headers";
@@ -31,7 +31,7 @@ function inspectResponse(response: Response): Response {
     return response;
   }
 
-  return StitchError.handleRequestError(response);
+  return handleRequestError(response);
 }
 
 export default class StitchRequestClient {
@@ -47,7 +47,7 @@ export default class StitchRequestClient {
     return this.transport
       .roundTrip(this.buildRequest(stitchReq))
       .catch(error => {
-        throw new StitchRequestException(
+        throw new StitchRequestError(
           error,
           StitchRequestErrorCode.TRANSPORT_ERROR
         );

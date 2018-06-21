@@ -30,7 +30,7 @@ import {
   FetchTransport,
   Method,
   StitchServiceErrorCode,
-  StitchServiceException
+  StitchServiceError
 } from "mongodb-stitch-core-sdk";
 import { AwsS3ServiceClient } from "../src";
 
@@ -86,7 +86,7 @@ describe("AwsS3ServiceClient", () => {
       await awsS3.putObject(bucket, key, acl, contentType, body);
       fail();
     } catch (error) {
-      expect(error instanceof StitchServiceException).toBeTruthy();
+      expect(error instanceof StitchServiceError).toBeTruthy();
       expect(error.errorCode).toEqual(StitchServiceErrorCode.AWSError);
     }
 
@@ -157,7 +157,7 @@ describe("AwsS3ServiceClient", () => {
       await awsS3.putObject("", key, acl, contentType, body);
       fail();
     } catch (error) {
-      expect(error instanceof StitchServiceException).toBeTruthy();
+      expect(error instanceof StitchServiceError).toBeTruthy();
       expect(error.errorCode).toEqual(StitchServiceErrorCode.InvalidParameter);
     }
   });
