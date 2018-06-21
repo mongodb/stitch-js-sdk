@@ -40,6 +40,7 @@ functions:
           echo export TEST_STITCH_TWILIO_AUTH_TOKEN=${test_twilio_authtoken} >> creds
           echo export FB_APP_ID=${test_facebook_app_id} >> creds
           echo export FB_APP_SECRET=${test_facebook_app_secret} >> creds
+          echo export COVERALLS_REPO_TOKEN=${coveralls_repo_token} >> creds
 
     - command: shell.exec
       params:
@@ -81,6 +82,23 @@ functions:
             fi
           done
 
+post:
+  - command: attach.xunit_results
+    params:
+      files:
+        - "./stitch-js-sdk/core/sdk/build/test-results/*.xml"
+        - "./stitch-js-sdk/core/services/mongodb-remote/build/test-results/*.xml"
+        - "./stitch-js-sdk/core/services/aws-s3/build/test-results/*.xml"
+        - "./stitch-js-sdk/core/services/aws-ses/build/test-results/*.xml"
+        - "./stitch-js-sdk/core/services/http/build/test-results/*.xml"
+        - "./stitch-js-sdk/core/services/twilio/build/test-results/*.xml"
+        - "./stitch-js-sdk/packages/browser/coretest/build/test-results/*.xml"
+        - "./stitch-js-sdk/packages/browser/services/mongodb-remote/build/test-results/*.xml"
+        - "./stitch-js-sdk/packages/browser/services/aws-s3/build/test-results/*.xml"
+        - "./stitch-js-sdk/packages/browser/services/aws-ses/build/test-results/*.xml"
+        - "./stitch-js-sdk/packages/browser/services/http/build/test-results/*.xml"
+        - "./stitch-js-sdk/packages/browser/services/twilio/build/test-results/*.xml"
+
 tasks:
   - name: run_tests
     commands:
@@ -99,6 +117,25 @@ tasks:
             lerna bootstrap --hoist
             lerna run build
             lerna run test
+      - command: shell.exec
+        params:
+          script: |
+            set -e
+            source ./creds
+            cd stitch-js-sdk
+            export COVERALLS_GIT_COMMIT=${revision}
+            if [ -z "${github_pr_number}" ]
+            then
+              if [ "${is_patch}" = "true" ]; then
+                exit 0
+              fi
+            else
+              PR_INFO=`curl https://api.github.com/repos/${github_org}/${github_repo}/pulls/${github_pr_number}`
+              BRANCH=`echo $PR_INFO | python -c "import sys, json; print json.load(sys.stdin)['head']['ref']"`
+              export COVERALLS_GIT_BRANCH=$BRANCH
+              export CI_PULL_REQUEST=${github_pr_number}
+            fi
+            npm run test:coverage
 
   - name: lint
     commands:

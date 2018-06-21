@@ -58,6 +58,10 @@
         "tsConfigFile": "tsconfig.umd.json"
       }
     },
+    "reporters": [
+      "default",
+      [ "jest-junit", { "output": "./build/test-results/junit.xml" } ]
+    ],
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
