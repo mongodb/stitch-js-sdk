@@ -20,9 +20,10 @@ import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
 /**
  * A StitchServiceError is an exception indicating that an error came from the Stitch server
  * after a request was completed, with an error message and an error code defined in the
- * `StitchServiceErrorCode` enum.
+ * {@link StitchServiceErrorCode} enum.
  *
- * It is possible that the error code will be `UNKNOWN`, which can mean one of several
+ * It is possible that the error code will be 
+ * {@link StitchServiceErrorCode.Unknown}, which can mean one of several
  * possibilities: the Stitch server returned a message that this version of the SDK does not yet
  * recognize, the server is not a Stitch server and returned an unexpected message, or the response
  * was corrupted. In these cases, the associated message will be the plain text body of the

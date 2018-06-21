@@ -16,6 +16,12 @@
 
 import StitchAuth from "./StitchAuth";
 
+/**
+ * An interface to be inherited by classes that need to take action whenever a 
+ * particular {@link StitchAppClient} performs an authentication event. An 
+ * instance of a {@link StitchAuthListener} must be registered with a 
+ * {@link StitchAuth} for this to work correctly.
+ */
 export default interface StitchAuthListener {
   /**
    * onAuthEvent is called any time a notable event regarding authentication happens. These events are:

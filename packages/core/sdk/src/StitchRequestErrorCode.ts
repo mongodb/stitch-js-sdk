@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-/** StitchRequestErrorCode represents the reasons that a request may fail. */
+/**
+ * An enumeration indicating the types of errors that may occur when carrying 
+ * out a Stitch request.
+ */
 export enum StitchRequestErrorCode {
   TRANSPORT_ERROR,
   DECODING_ERROR,

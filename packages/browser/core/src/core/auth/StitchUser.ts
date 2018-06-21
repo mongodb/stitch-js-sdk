@@ -14,10 +14,55 @@
  * limitations under the License.
  */
 
-import { CoreStitchUser, StitchCredential } from "mongodb-stitch-core-sdk";
+import { 
+  CoreStitchUser, 
+  StitchCredential, 
+  StitchUserProfile, 
+  StitchUserIdentity } from "mongodb-stitch-core-sdk";
+    
 import StitchRedirectCredential from "./providers/StitchRedirectCredential";
 
-export default interface StitchUser extends CoreStitchUser
+export default interface StitchUser extends CoreStitchUser {
+  /**
+   * The String representation of the ID of this Stitch user.
+   */
+  readonly id: string;
+
+  /**
+   * The type of authentication provider used to log in as this user.
+   */
+  readonly loggedInProviderType: string;
+
+  /**
+   * The name of the authentication provider used to log in as this user.
+   */
+  readonly loggedInProviderName: string;
+
+  /**
+   * A string describing the type of this user. (Either `server` or `normal`)
+   */
+  readonly userType?: string;
+
+  /**
+   * A {@link StitchUserProfile} object describing this user.
+   */
+  readonly profile: StitchUserProfile;
+
+  /**
+   * An array of {@link StitchUserIdentity} objects representing the identities 
+   * linked to this user which can be used to log in as this user.
+   */
+  readonly identities: StitchUserIdentity[];
+
   linkUserWithRedirect(credential: StitchRedirectCredential): Promise<void>;
+
+  /**
+   * Links this {@link StitchUser} with a new identity, where the identity is 
+   * defined by the credential specified as a parameter. This will only be 
+   * successful if this {@link StitchUser} is the currently authenticated 
+   * {@link StitchUser} for the client from which it was created.
+   * 
+   * @param credential The credential to use to link this user to a new identity.
+   */
   linkWithCredential(credential: StitchCredential): Promise<StitchUser>;
 }

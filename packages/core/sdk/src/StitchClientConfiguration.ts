@@ -19,9 +19,25 @@ import Transport from "./internal/net/Transport";
 
 /** @hidden */
 export class StitchClientConfiguration {
+
+  /**
+   * The base URL of the Stitch server that the client will communicate with.
+   */
   public readonly baseUrl: string;
+
+  /**
+   * The underlying storage for persisting authentication and app state.
+   */
   public readonly storage: Storage;
+
+  /**
+   * The local directory in which Stitch can store any data (e.g. embedded MongoDB data directory).
+   */
   public readonly dataDirectory: string;
+
+  /**
+   * The `Transport` that the client will use to make HTTP round trips to the Stitch server.
+   */
   public readonly transport: Transport;
 
   public constructor(

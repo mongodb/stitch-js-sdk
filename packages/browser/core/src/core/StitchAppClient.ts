@@ -18,15 +18,50 @@ import NamedServiceClientFactory from "../services/internal/NamedServiceClientFa
 import ServiceClientFactory from "../services/internal/ServiceClientFactory";
 import StitchAuth from "./auth/StitchAuth";
 
+/**
+ * The fundamental set of methods for communicating with a MongoDB Stitch 
+ * application. Contains methods for executing Stitch functions and retrieving 
+ * clients for Stitch services, and contains a `StitchAuth` object to manage 
+ * the authentication state of the client. An implementation can be 
+ * instantiated using the `Stitch` utility class.
+ */
 export default interface StitchAppClient {
+  /**
+   * The {@link StitchAuth} object representing the authentication state of 
+   * this client. Includes methods for logging in and logging out.
+   *
+   * Authentication state can be persisted beyond the lifetime of a browser 
+   * session. A StitchAppClient retrieved from the `Stitch` singleton may or 
+   * may not be already authenticated when first initialized.
+   */
   auth: StitchAuth;
 
+  /**
+   * Retrieves the service client for the Stitch service associated with the 
+   * specified name and factory.
+   * 
+   * @param factory The factory that produces the desired service client.
+   * @param serviceName The name of the desired service in MongoDB Stitch.
+   */
   getServiceClient<T>(
     factory: NamedServiceClientFactory<T>,
     serviceName: string
   ): T;
 
+  /**
+   * Retrieves the service client for the Stitch service associated with the 
+   * specificed factory.
+   * 
+   * @param factory The factory that produces the desired service client.
+   */
   getServiceClient<T>(factory: ServiceClientFactory<T>): T;
 
+  /**
+   * Calls the MongoDB Stitch function with the provided name and arguments,
+   * and returns the result as decoded extended JSON.
+   * 
+   * @param name The name of the function to call.
+   * @param args The arguments to the function.
+   */
   callFunction(name: string, args: any[]): Promise<any>;
 }

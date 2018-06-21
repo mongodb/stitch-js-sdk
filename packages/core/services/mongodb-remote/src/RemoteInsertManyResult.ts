@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-/// The result of an `insertMany` command on a `RemoteMongoCollection`.
+/**
+ * The result of an `insertMany` command on a {@link RemoteMongoCollection}.
+ */
 export default class RemoteInsertManyResult {
-  /// Map of the index of the inserted document to the id of the inserted document.
+  /**
+   * Map of the index of the inserted document to the id of the inserted 
+   * document.
+   */
   public readonly insertedIds: Record<number, any>;
 
-  /// Given an ordered array of insertedIds, creates a corresponding `RemoteInsertManyResult`.
+  /**
+   * Given an ordered array of insertedIds, creates a corresponding 
+   * {@link RemoteInsertManyResult}.
+   */
   constructor(arr: any[]) {
     const inserted = {};
     arr.forEach((value, index) => {

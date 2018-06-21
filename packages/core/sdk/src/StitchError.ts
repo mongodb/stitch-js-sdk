@@ -29,7 +29,8 @@ const _Error = (function(message: string) {
 _Error.prototype = Object.create(Error.prototype);
 
 /**
- * StitchErrors represent a class of exceptions that happen while utilizing the Stitch SDK and
- * communicating Stitch. Most Stitch exception types will inherit from this base class.
+ * StitchErrors represent a class of exceptions that happen while utilizing the 
+ * Stitch SDK and communicating Stitch. Most Stitch exception types will 
+ * inherit from this base class.
  */
 export default class StitchError extends _Error {}

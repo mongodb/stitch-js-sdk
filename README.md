@@ -52,7 +52,7 @@ npm install mongodb-stitch-browser-services-twilio
 3. Copy your app's client app id by going to Clients on the left side pane and clicking copy on the App ID section.
 4. Go to Providers from Users in the left side pane and edit and enable "Allow users to log in anonymously".
 
-#### Set up a project in Android Studio using Stitch
+<!--TODO make this a barebones webpack example #### Set up a project in Android Studio using Stitch
 1. Download and install [Android Studio](https://developer.android.com/studio/index.html).
 2. Start a new Android Studio project.
 	* Note: The minimum supported API level is 21 (Android 5.0 Lollipop)
@@ -125,9 +125,9 @@ You can use the client returned there or anywhere else in your app you can use t
 
 ```java
 final StitchAppClient client = Stitch.getAppClient("YOUR_APP_ID");
-```
+``` -->
 
-# mongodb-stitch-browser-sdk
+<!-- # mongodb-stitch-browser-sdk
 
 [![Join the chat at https://gitter.im/mongodb/stitch](https://badges.gitter.im/mongodb/stitch.svg)](https://gitter.im/mongodb/stitch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -197,5 +197,5 @@ stitchClientPromise.then(stitchClient =>
   stitchClient.executeServiceFunction('http1', 'get', {url: 'https://domain.org'})
 ).then(result => console.log('success: ', result))
   .catch(e => console.log('error: ', e));
-```
+``` -->
 

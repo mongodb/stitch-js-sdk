@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-/// The result of a `delete` command on a `RemoteMongoCollection`.
+
+/**
+ * The result of a `delete` command on a {@link RemoteMongoCollection}.
+ */
 export default interface RemoteDeleteResult {
-  /// The number of documents that were deleted.
+  /**
+   * The number of documents that were deleted.
+   */
   readonly deletedCount: number;
 }

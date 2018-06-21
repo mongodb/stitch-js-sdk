@@ -16,8 +16,20 @@
 
 import { StitchClientConfiguration } from "./StitchClientConfiguration";
 
+/**
+ * Properties representing the configuration of a client that communicate with 
+ * a particular MongoDB Stitch application.
+ */
 export class StitchAppClientConfiguration extends StitchClientConfiguration {
+
+  /**
+   * The name of the local application.
+   */
   public readonly localAppName: string;
+
+  /**
+   * The current version of the local application.
+   */
   public readonly localAppVersion: string;
 
   public constructor(
@@ -42,6 +54,11 @@ export class StitchAppClientConfiguration extends StitchClientConfiguration {
 
 /* tslint:disable:no-namespace max-classes-per-file */
 export namespace StitchAppClientConfiguration {
+  /**
+   * A builder that can build a `StitchAppClientConfiguration` object. Use this 
+   * class to prepare a configuration to pass into client initialization 
+   * methods on the `Stitch` utility class.
+   */
   export class Builder extends StitchClientConfiguration.Builder {
     public localAppName: string;
     public localAppVersion: string;
