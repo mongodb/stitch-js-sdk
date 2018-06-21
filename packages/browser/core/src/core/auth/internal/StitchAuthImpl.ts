@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { detect } from "detect-browser";
 import {
   AuthInfo,
   CoreStitchAuth,
@@ -24,13 +25,11 @@ import {
   StitchClientError,
   StitchClientErrorCode,
   StitchCredential,
-  StitchError,
   StitchRequestClient,
   StitchUserFactory,
   Storage,
 } from "mongodb-stitch-core-sdk";
 
-import { detect } from "detect-browser";
 import version from "../../internal/common/Version";
 import AuthProviderClientFactory from "../providers/internal/AuthProviderClientFactory";
 import NamedAuthProviderClientFactory from "../providers/internal/NamedAuthProviderClientFactory";
@@ -41,13 +40,10 @@ import StitchUser from "../StitchUser";
 import RedirectFragmentFields from "./RedirectFragmentFields";
 import RedirectKeys from "./RedirectKeys";
 import StitchBrowserAppAuthRoutes from "./StitchBrowserAppAuthRoutes";
+import StitchRedirectError from "./StitchRedirectError";
 import StitchUserFactoryImpl from "./StitchUserFactoryImpl";
 
 const alphaNumericCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-class StitchRedirectError extends StitchError {
-  constructor(msg: string) { super(msg); }
-}
 
 export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   implements StitchAuth {
