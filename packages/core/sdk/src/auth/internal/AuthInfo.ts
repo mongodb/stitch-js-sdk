@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { Storage } from "../../internal/common/Storage";
 import StitchUserProfileImpl from "./StitchUserProfileImpl";
 
 /**

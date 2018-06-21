@@ -25,6 +25,13 @@ enum Fields {
  * A class describing the structure of how user identity information is stored in persisted `Storage`.
  */
 export default class StoreStitchUserIdentity extends StitchUserIdentity {
+  public static decode(from: object): StoreStitchUserIdentity {
+    return new StoreStitchUserIdentity(
+      from[Fields.ID],
+      from[Fields.PROVIDER_TYPE]
+    )
+  }
+
   /**
    * The id of this identity in MongoDB Stitch
    *
@@ -38,5 +45,12 @@ export default class StoreStitchUserIdentity extends StitchUserIdentity {
 
   public constructor(id: string, providerType: string) {
     super(id, providerType);
+  }
+
+  public encode(): object {
+    return {
+      [Fields.ID]: this.id,
+      [Fields.PROVIDER_TYPE]: this.providerType
+    }
   }
 }

@@ -491,7 +491,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
     return this.doGetUserProfile()
       .then(profile => {
-        // readonlyly set the info and user
+        // readonly set the info and user
         newAuthInfo = newAuthInfo.merge(
           new AuthInfo(
             newAuthInfo.userId,

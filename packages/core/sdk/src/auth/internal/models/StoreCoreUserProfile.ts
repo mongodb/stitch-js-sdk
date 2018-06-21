@@ -19,7 +19,7 @@ import StoreStitchUserIdentity from "./StoreStitchUserIdentity";
 
 enum Fields {
   DATA = "data",
-  USER_TYPE = "user_type",
+  USER_TYPE = "type",
   IDENTITIES = "identities"
 }
 
@@ -27,17 +27,34 @@ enum Fields {
  * A class describing the structure of how user profile information is stored in persisted `Storage`.
  */
 export default class StoreCoreUserProfile extends StitchUserProfileImpl {
+  public static decode(from: object): StoreCoreUserProfile {
+    return new StoreCoreUserProfile(
+      from[Fields.USER_TYPE],
+      from[Fields.DATA],
+      from[Fields.IDENTITIES].map(identity => StoreStitchUserIdentity.decode(identity))
+    )
+  }
+
   /**
-   * A string describing the type of this user. (Either `server` or `normal`)
-   */
-  public userType: string;
-  /**
-   * An object containing extra metadata about the user as supplied by the authentication provider.
-   */
-  public data: { [key: string]: string };
-  /**
-   * An array of `StitchUserIdentity` objects representing the identities linked
+   * New class for storing core user profile.
+   * @param userType A string describing the type of this user. (Either `server` or `normal`)
+   * @param data An object containing extra metadata about the user as supplied by the authentication provider.
+   * @param identities An array of `StitchUserIdentity` objects representing the identities linked
    * to this user which can be used to log in as this user.
    */
-  public identities: StoreStitchUserIdentity[];
+  public constructor(
+    public readonly userType: string,
+    public readonly data: { [key: string]: string },
+    public readonly identities: StoreStitchUserIdentity[]
+  ) {
+    super(userType, data, identities)
+  }
+
+  public encode(): object {
+    return {
+      [Fields.DATA]: this.data,
+      [Fields.USER_TYPE]: this.userType,
+      [Fields.IDENTITIES]: this.identities.map(identity => identity.encode())
+    }
+  }
 }
