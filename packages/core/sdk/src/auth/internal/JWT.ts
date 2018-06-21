@@ -18,8 +18,14 @@ import StitchClientException from "../../StitchClientException";
 import { toByteArray } from "base64-js"
 
 function b64DecodeUnicode(str) {
-    const paddingNeeded = 4 - (str.length % 4);
-    const strToDecode = str + '='.repeat(paddingNeeded);
+    const unevenBytes = str.length % 4;
+    const strToDecode;
+    if (unevenBytes != 0) {
+      const paddingNeeded = 4 - (str.length % 4);
+      strToDecode = str + '='.repeat(paddingNeeded);
+    } else {
+      strToDecode = str;
+    }
     const bytes = toByteArray(strToDecode);
     return utf8Slice(bytes, 0, bytes.length);
 }
