@@ -60,6 +60,7 @@ export default class AccessTokenRefresher<T extends CoreStitchUser> {
     try {
       jwt = JWT.fromEncoded(info.accessToken!);
     } catch (e) {
+      console.log(e);
       return false;
     }
 

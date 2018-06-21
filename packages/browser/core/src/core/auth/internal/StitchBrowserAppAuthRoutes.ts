@@ -1,5 +1,4 @@
-import * as base64 from "Base64";
-import { StitchAppAuthRoutes } from "mongodb-stitch-core-sdk";
+import { StitchAppAuthRoutes, base64Encode } from "mongodb-stitch-core-sdk";
 import StitchRedirectCredential from "../providers/StitchRedirectCredential";
 
 export default class StitchBrowserAppAuthRoutes extends StitchAppAuthRoutes {
@@ -45,6 +44,6 @@ export default class StitchBrowserAppAuthRoutes extends StitchAppAuthRoutes {
    * @returns {string} The encoded object
    */
   private uriEncodeObject(obj: object): string {
-    return encodeURIComponent(base64.btoa(JSON.stringify(obj)));
+    return encodeURIComponent(base64Encode(JSON.stringify(obj)));
   }
 }

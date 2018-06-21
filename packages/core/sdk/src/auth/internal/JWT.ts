@@ -15,20 +15,7 @@
  */
 
 import StitchClientError from "../../StitchClientError";
-import { toByteArray } from "base64-js"
-
-function b64DecodeUnicode(str) {
-    const unevenBytes = str.length % 4;
-    let strToDecode;
-    if (unevenBytes != 0) {
-      const paddingNeeded = 4 - unevenBytes;
-      strToDecode = str + '='.repeat(paddingNeeded);
-    } else {
-      strToDecode = str;
-    }
-    const bytes = toByteArray(strToDecode);
-    return utf8Slice(bytes, 0, bytes.length);
-}
+import { base64Decode } from "../../internal/common/Base64"
 
 const EXPIRES = "exp";
 const ISSUED_AT = "iat";
@@ -42,7 +29,7 @@ export default class JWT {
    */
   public static fromEncoded(encodedJWT: string): JWT {
     const parts = JWT.splitToken(encodedJWT);
-    const json = JSON.parse(b64DecodeUnicode(parts[1]));
+    const json = JSON.parse(base64Decode(parts[1]));
     const expires = json[EXPIRES];
     const iat = json[ISSUED_AT];
     return new JWT(expires, iat);
@@ -85,32 +72,5 @@ export default class JWT {
   private constructor(expires: number, issuedAt: number) {
     this.expires = expires;
     this.issuedAt = issuedAt;
-  }
-}
-
-// sourced from https://github.com/feross/buffer
-function utf8Slice (buf, start, end) {
-  var res = ''
-  var tmp = ''
-  end = Math.min(buf.length, end || Infinity)
-  start = start || 0;
-
-  for (var i = start; i < end; i++) {
-    if (buf[i] <= 0x7F) {
-      res += decodeUtf8Char(tmp) + String.fromCharCode(buf[i])
-      tmp = ''
-    } else {
-      tmp += '%' + buf[i].toString(16)
-    }
-  }
-
-  return res + decodeUtf8Char(tmp)
-}
-
-function decodeUtf8Char (str) {
-  try {
-    return decodeURIComponent(str)
-  } catch (err) {
-    return String.fromCharCode(0xFFFD) // UTF 8 invalid char
   }
 }

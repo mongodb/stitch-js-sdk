@@ -47,6 +47,7 @@ import StitchCredential from "./auth/StitchCredential";
 import StitchUserIdentity from "./auth/StitchUserIdentity";
 import StitchUserProfile from "./auth/StitchUserProfile";
 import UserType from "./auth/UserType";
+import { base64Decode, base64Encode } from "./internal/common/Base64";
 import { Codec, Decoder, Encoder } from "./internal/common/Codec";
 import { MemoryStorage, Storage } from "./internal/common/Storage";
 import CoreStitchAppClient from "./internal/CoreStitchAppClient";
@@ -122,5 +123,7 @@ export {
   Response,
   MemoryStorage,
   Transport,
-  UserType
+  UserType,
+  base64Decode,
+  base64Encode
 };
