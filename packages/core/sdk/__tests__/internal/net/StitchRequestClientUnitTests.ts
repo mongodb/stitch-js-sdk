@@ -23,9 +23,9 @@ import Headers from "../../../src/internal/net/Headers";
 import Method from "../../../src/internal/net/Method";
 import { StitchDocRequest } from "../../../src/internal/net/StitchDocRequest";
 import { StitchRequest } from "../../../src/internal/net/StitchRequest";
-import StitchException from "../../../src/StitchException";
+import StitchError from "../../../src/StitchError";
 import { StitchServiceErrorCode } from "../../../src/StitchServiceErrorCode";
-import StitchServiceException from "../../../src/StitchServiceException";
+import StitchServiceError from "../../../src/StitchServiceError";
 
 describe("StitchRequestClientUnitTests", () => {
   it("should doRequest", () => {
@@ -49,7 +49,7 @@ describe("StitchRequestClientUnitTests", () => {
     return stitchRequestClient
       .doRequest(builder.build())
       .catch(error => {
-        expect(error instanceof StitchServiceException).toBeTruthy();
+        expect(error instanceof StitchServiceError).toBeTruthy();
       })
       .then(() => {
         const [actualRequest] = capture(transportMock.roundTrip).first();
@@ -84,7 +84,7 @@ describe("StitchRequestClientUnitTests", () => {
 
         return stitchRequestClient.doRequest(builder.build());
       })
-      .catch((error: StitchServiceException) => {
+      .catch((error: StitchServiceError) => {
         expect(error.errorCode).toEqual(StitchServiceErrorCode.Unknown);
         expect(error.message).toContain("received unexpected status");
       })
@@ -97,7 +97,7 @@ describe("StitchRequestClientUnitTests", () => {
 
         return stitchRequestClient.doRequest(builder.build());
       })
-      .catch((error: StitchServiceException) => {
+      .catch((error: StitchServiceError) => {
         expect(error.errorCode).toEqual(StitchServiceErrorCode.Unknown);
         expect(error.message).toEqual("whoops");
       })
@@ -114,7 +114,7 @@ describe("StitchRequestClientUnitTests", () => {
 
         return stitchRequestClient.doRequest(builder.build());
       })
-      .catch((error: StitchServiceException) => {
+      .catch((error: StitchServiceError) => {
         expect(error.errorCode).toEqual(StitchServiceErrorCode.Unknown);
         expect(error.message).toEqual("whoops");
       })
@@ -131,12 +131,12 @@ describe("StitchRequestClientUnitTests", () => {
 
         return stitchRequestClient.doRequest(builder.build());
       })
-      .catch((error: StitchServiceException) => {
+      .catch((error: StitchServiceError) => {
         expect(error.errorCode).toEqual(StitchServiceErrorCode.InvalidSession);
         expect(error.message).toEqual("bad");
       })
       .then(() => {
-        when(transport.roundTrip(anything())).thenReject(new StitchException());
+        when(transport.roundTrip(anything())).thenReject(new StitchError());
 
         return stitchRequestClient.doRequest(builder.build());
       })
@@ -165,8 +165,8 @@ describe("StitchRequestClientUnitTests", () => {
 
     return stitchRequestClient
       .doRequest(builder.build())
-      .catch((error: StitchServiceException) => {
-        expect(error instanceof StitchServiceException).toBeTruthy();
+      .catch((error: StitchServiceError) => {
+        expect(error instanceof StitchServiceError).toBeTruthy();
         const [actualRequest] = capture(transportMock.roundTrip).first();
         const expectedHeaders = {
           [Headers.CONTENT_TYPE_CANON]: ContentTypes.APPLICATION_JSON
@@ -204,7 +204,7 @@ describe("StitchRequestClientUnitTests", () => {
         });
         return stitchRequestClient.doRequest(builder.build());
       })
-      .catch((error: StitchServiceException) => {
+      .catch((error: StitchServiceError) => {
         expect(error.errorCode).toEqual(StitchServiceErrorCode.Unknown);
         expect(error.message).toContain("received unexpected status");
       })
@@ -217,7 +217,7 @@ describe("StitchRequestClientUnitTests", () => {
         });
         return stitchRequestClient.doRequest(builder.build());
       })
-      .catch((error: StitchServiceException) => {
+      .catch((error: StitchServiceError) => {
         expect(error.errorCode).toEqual(StitchServiceErrorCode.Unknown);
         expect(error.message).toEqual("whoops");
       })
@@ -233,7 +233,7 @@ describe("StitchRequestClientUnitTests", () => {
         });
         stitchRequestClient.doRequest(builder.build());
       })
-      .catch((error: StitchServiceException) => {
+      .catch((error: StitchServiceError) => {
         expect(error.errorCode).toEqual(StitchServiceErrorCode.Unknown);
         expect(error.message).toEqual("whoops");
       })
@@ -248,12 +248,12 @@ describe("StitchRequestClientUnitTests", () => {
           statusCode: 500
         });
       })
-      .catch((error: StitchServiceException) => {
+      .catch((error: StitchServiceError) => {
         expect(error.errorCode).toEqual(StitchServiceErrorCode.InvalidSession);
         expect(error.message).toEqual("bad");
       })
       .then(() => {
-        when(transport.roundTrip(anything())).thenReject(new StitchException());
+        when(transport.roundTrip(anything())).thenReject(new StitchError());
 
         return stitchRequestClient.doRequest(builder.build());
       })
@@ -291,7 +291,7 @@ describe("StitchRequestClientUnitTests", () => {
     });
 
     expect(stitchRequestClient.doRequest(builder.build())).rejects.toEqual(
-      new StitchServiceException("bad", StitchServiceErrorCode.InvalidSession)
+      new StitchServiceError("bad", StitchServiceErrorCode.InvalidSession)
     );
 
     headers[Headers.CONTENT_TYPE_CANON] = ContentTypes.APPLICATION_JSON;
@@ -304,7 +304,7 @@ describe("StitchRequestClientUnitTests", () => {
     });
 
     expect(stitchRequestClient.doRequest(builder.build())).rejects.toEqual(
-      new StitchServiceException("bad", StitchServiceErrorCode.InvalidSession)
+      new StitchServiceError("bad", StitchServiceErrorCode.InvalidSession)
     );
   });
 });

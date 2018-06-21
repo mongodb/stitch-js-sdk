@@ -28,20 +28,20 @@ import { StitchDocRequest } from "../../internal/net/StitchDocRequest";
 import { StitchRequest } from "../../internal/net/StitchRequest";
 import StitchRequestClient from "../../internal/net/StitchRequestClient";
 import { StitchClientErrorCode } from "../../StitchClientErrorCode";
-import StitchClientException from "../../StitchClientException";
+import StitchClientError from "../../StitchClientError";
 import StitchError from "../../StitchError";
-import StitchException from "../../StitchException";
+import { wrapDecodingError } from "../../internal/common/StitchErrorUtils";
 import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
-import StitchRequestException from "../../StitchRequestException";
+import StitchRequestError from "../../StitchRequestError";
 import { StitchServiceErrorCode } from "../../StitchServiceErrorCode";
-import StitchServiceException from "../../StitchServiceException";
+import StitchServiceError from "../../StitchServiceError";
 import StitchCredential from "../StitchCredential";
 import AccessTokenRefresher from "./AccessTokenRefresher";
 import AuthInfo from "./AuthInfo";
 import CoreStitchUser from "./CoreStitchUser";
 import JWT from "./JWT";
-import APIAuthInfo from "./models/APIAuthInfo";
-import APICoreUserProfile from "./models/APICoreUserProfile";
+import ApiAuthInfo from "./models/ApiAuthInfo";
+import ApiCoreUserProfile from "./models/ApiCoreUserProfile";
 import { readFromStorage, writeToStorage } from "./models/StoreAuthInfo";
 import StitchAuthRequestClient from "./StitchAuthRequestClient";
 import { StitchAuthRoutes } from "./StitchAuthRoutes";
@@ -108,7 +108,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     try {
       info = readFromStorage(storage);
     } catch (e) {
-      throw new StitchClientException(
+      throw new StitchClientError(
         StitchClientErrorCode.CouldNotLoadPersistedAuthInfo
       );
     }
@@ -176,7 +176,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         return obj;
       })
       .catch(err => {
-        throw StitchError.wrapDecodingError(err);
+        throw wrapDecodingError(err);
       });
   }
 
@@ -191,10 +191,10 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
     return this.doAuthenticatedRequest(reqBuilder.build()).then(response => {
       try {
-        const partialInfo = APIAuthInfo.fromJSON(JSON.parse(response.body!));
+        const partialInfo = ApiAuthInfo.fromJSON(JSON.parse(response.body!));
         this.authInfo = this.authInfo.merge(partialInfo);
       } catch (err) {
-        throw new StitchRequestException(
+        throw new StitchRequestError(
           err,
           StitchRequestErrorCode.DECODING_ERROR
         );
@@ -203,7 +203,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       try {
         writeToStorage(this.authInfo, this.storage);
       } catch (err) {
-        throw new StitchClientException(
+        throw new StitchClientError(
           StitchClientErrorCode.CouldNotPersistAuthInfo
         );
       }
@@ -245,7 +245,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   ): Promise<TStitchUser> {
     if (this.currentUser !== undefined && user.id !== this.currentUser.id) {
       return Promise.reject(
-        new StitchClientException(StitchClientErrorCode.UserNoLongerValid)
+        new StitchClientError(StitchClientErrorCode.UserNoLongerValid)
       );
     }
 
@@ -306,7 +306,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    */
   private prepareAuthRequest(stitchReq: StitchAuthRequest): StitchRequest {
     if (!this.isLoggedIn) {
-      throw new StitchClientException(
+      throw new StitchClientError(
         StitchClientErrorCode.MustAuthenticateFirst
       );
     }
@@ -328,17 +328,17 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   }
 
   /**
-   * Checks the `StitchServiceException` object provided in the `forError` parameter, and if it's an error indicating an invalid
+   * Checks the `StitchServiceError` object provided in the `forError` parameter, and if it's an error indicating an invalid
    * Stitch session, it will handle the error by attempting to refresh the access token if it hasn't been attempted
    * already. If the error is not a Stitch error, or the error is a Stitch error not related to an invalid session,
    * it will be re-thrown.
    */
   private handleAuthFailure(
-    ex: StitchException,
+    ex: StitchError,
     req: StitchAuthRequest
   ): Promise<Response> {
     if (
-      !(ex instanceof StitchServiceException) ||
+      !(ex instanceof StitchServiceError) ||
       ex.errorCode !== StitchServiceErrorCode.InvalidSession
     ) {
       throw ex;
@@ -367,7 +367,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     // that should wait on the result of doing a token refresh or logout. This will
     // prevent too many refreshes happening one after the other.
     if (!this.isLoggedIn) {
-      throw new StitchClientException(
+      throw new StitchClientError(
         StitchClientErrorCode.LoggedOutDuringRequest
       );
     }
@@ -475,10 +475,10 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         if (!response || !response.body) {
           throw new StitchException("response was undefined");
         }
-        newAuthInfo = APIAuthInfo.fromJSON(JSON.parse(response.body!));
+        newAuthInfo = ApiAuthInfo.fromJSON(JSON.parse(response.body!));
       }
     } catch (err) {
-      throw new StitchRequestException(
+      throw new StitchRequestError(
         err,
         StitchRequestErrorCode.DECODING_ERROR
       );
@@ -524,7 +524,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         try {
           writeToStorage(newAuthInfo, this.storage);
         } catch (err) {
-          throw new StitchClientException(
+          throw new StitchClientError(
             StitchClientErrorCode.CouldNotPersistAuthInfo
           );
         }
@@ -554,9 +554,9 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     reqBuilder.withMethod(Method.GET).withPath(this.authRoutes.profileRoute);
 
     return this.doAuthenticatedRequest(reqBuilder.build())
-      .then(response => APICoreUserProfile.fromJSON(JSON.parse(response.body!)))
+      .then(response => ApiCoreUserProfile.fromJSON(JSON.parse(response.body!)))
       .catch(err => {
-        throw new StitchRequestException(
+        throw new StitchRequestError(
           err,
           StitchRequestErrorCode.DECODING_ERROR
         );
@@ -589,7 +589,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     try {
       writeToStorage(this.authInfo, this.storage);
     } catch (e) {
-      throw new StitchClientException(
+      throw new StitchClientError(
         StitchClientErrorCode.CouldNotPersistAuthInfo
       );
     }

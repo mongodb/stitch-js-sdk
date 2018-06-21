@@ -29,7 +29,7 @@ import {
   AnonymousCredential,
   Codec,
   StitchServiceErrorCode,
-  StitchServiceException
+  StitchServiceError
 } from "mongodb-stitch-core-sdk";
 import { RemoteMongoClient, RemoteMongoCollection } from "../src";
 
@@ -123,7 +123,7 @@ describe("RemoteMongoClient", () => {
       await coll.count({ $who: 1 });
       fail();
     } catch (error) {
-      expect(error instanceof StitchServiceException);
+      expect(error instanceof StitchServiceError);
       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
     }
   });
@@ -188,7 +188,7 @@ describe("RemoteMongoClient", () => {
       await coll.find({ $who: 1 }).first();
       fail();
     } catch (error) {
-      expect(error instanceof StitchServiceException).toBeTruthy();
+      expect(error instanceof StitchServiceError).toBeTruthy();
       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
     }
   });
@@ -220,7 +220,7 @@ describe("RemoteMongoClient", () => {
       await coll.aggregate([{ $who: 1 }]).first();
       fail();
     } catch (error) {
-      expect(error instanceof StitchServiceException).toBeTruthy();
+      expect(error instanceof StitchServiceError).toBeTruthy();
       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
     }
   });
@@ -235,7 +235,7 @@ describe("RemoteMongoClient", () => {
       await coll.insertOne(doc);
       fail();
     } catch (error) {
-      expect(error instanceof StitchServiceException);
+      expect(error instanceof StitchServiceError);
       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
       expect((error.message as string).indexOf("duplicate")).toBeGreaterThan(0);
     }
@@ -253,7 +253,7 @@ describe("RemoteMongoClient", () => {
     try {
       await coll.insertMany([doc1]);
     } catch (error) {
-      expect(error instanceof StitchServiceException);
+      expect(error instanceof StitchServiceError);
       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
       expect((error.message as string).indexOf("duplicate")).toBeGreaterThan(0);
     }
@@ -295,7 +295,7 @@ describe("RemoteMongoClient", () => {
       await coll.deleteOne({ $who: 1 });
       fail();
     } catch (error) {
-      expect(error instanceof StitchServiceException);
+      expect(error instanceof StitchServiceError);
       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
     }
   });
@@ -322,7 +322,7 @@ describe("RemoteMongoClient", () => {
       await coll.deleteMany({ $who: 1 });
       fail();
     } catch (error) {
-      expect(error instanceof StitchServiceException);
+      expect(error instanceof StitchServiceError);
       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
     }
   });
@@ -353,7 +353,7 @@ describe("RemoteMongoClient", () => {
       await coll.updateOne({ $who: 1 }, {});
       fail();
     } catch (error) {
-      expect(error instanceof StitchServiceException);
+      expect(error instanceof StitchServiceError);
       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
     }
   });
@@ -391,7 +391,7 @@ describe("RemoteMongoClient", () => {
       await coll.updateOne({ $who: 1 }, {});
       fail();
     } catch (error) {
-      expect(error instanceof StitchServiceException);
+      expect(error instanceof StitchServiceError);
       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
     }
   });

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import StitchException from "./StitchException";
-import StitchRequestException from "./StitchRequestException";
+import StitchError from "./StitchError";
+import StitchRequestError from "./StitchRequestError";
 import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
 
 /**
- * A StitchServiceException is an exception indicating that an error came from the Stitch server
+ * A StitchServiceError is an exception indicating that an error came from the Stitch server
  * after a request was completed, with an error message and an error code defined in the
  * `StitchServiceErrorCode` enum.
  *
@@ -29,7 +29,7 @@ import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
  * was corrupted. In these cases, the associated message will be the plain text body of the
  * response, or an empty string if the body is empty or not decodable as plain text.
  */
-export default class StitchServiceException extends StitchException {
+export default class StitchServiceError extends StitchError {
   /**
    * The StitchServiceErrorCode indicating the reason for this exception.
    */

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import StitchException from "./StitchException";
+import StitchError from "./StitchError";
 import { StitchRequestErrorCode } from "./StitchRequestErrorCode";
 
 /**
@@ -22,11 +22,11 @@ import { StitchRequestErrorCode } from "./StitchRequestErrorCode";
  * is not limited to) an unreachable server, a connection timeout, or an inability to decode the
  * result. An error code is included, which indicates whether the error was a transport error or
  * decoding error. The underlyingError property can be read to see that underlying error that caused
- * a StitchRequestException. In the case of transport errors, these errors are thrown by the
+ * a StitchRequestError. In the case of transport errors, these errors are thrown by the
  * underlying Transport of the Stitch client. An error in decoding the result from the server
  * is typically an Error thrown internally by the Stitch SDK.
  */
-export default class StitchRequestException extends StitchException {
+export default class StitchRequestError extends StitchError {
   /**
    * The StitchRequestErrorCode indicating the reason for this exception.
    */

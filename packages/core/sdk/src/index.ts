@@ -19,7 +19,7 @@ import CoreStitchAuth from "./auth/internal/CoreStitchAuth";
 import CoreStitchUser from "./auth/internal/CoreStitchUser";
 import CoreStitchUserImpl from "./auth/internal/CoreStitchUserImpl";
 import DeviceFields from "./auth/internal/DeviceFields";
-import APIStitchUserIdentity from "./auth/internal/models/APIStitchUserIdentity";
+import ApiStitchUserIdentity from "./auth/internal/models/ApiStitchUserIdentity";
 import StitchAuthRequestClient from "./auth/internal/StitchAuthRequestClient";
 import { StitchAuthRoutes } from "./auth/internal/StitchAuthRoutes";
 import StitchUserFactory from "./auth/internal/StitchUserFactory";
@@ -65,14 +65,14 @@ import { StitchAppClientConfiguration } from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";
 import StitchException from "./StitchException";
 import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
-import StitchServiceException from "./StitchServiceException";
+import StitchServiceError from "./StitchServiceError";
 
 export {
   AuthInfo,
   StitchAuthResponseCredential,
   AnonymousAuthProvider,
   AnonymousCredential,
-  APIStitchUserIdentity,
+  ApiStitchUserIdentity,
   CustomAuthProvider,
   CustomCredential,
   FacebookAuthProvider,
@@ -109,7 +109,7 @@ export {
   StitchCredential,
   StitchRequestClient,
   StitchServiceRoutes,
-  StitchServiceException,
+  StitchServiceError,
   StitchServiceErrorCode,
   StitchUserFactory,
   StitchUserProfile,

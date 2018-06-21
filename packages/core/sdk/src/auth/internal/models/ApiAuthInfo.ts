@@ -26,9 +26,9 @@ enum Fields {
 /**
  * A class containing the fields returned by the Stitch client API in an authentication request.
  */
-export default class APIAuthInfo extends AuthInfo {
-  public static fromJSON(json: object): APIAuthInfo {
-    return new APIAuthInfo(
+export default class ApiAuthInfo extends AuthInfo {
+  public static fromJSON(json: object): ApiAuthInfo {
+    return new ApiAuthInfo(
       json[Fields.USER_ID],
       json[Fields.DEVICE_ID],
       json[Fields.ACCESS_TOKEN],

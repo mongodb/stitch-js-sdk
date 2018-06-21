@@ -28,7 +28,7 @@ import {
 } from "mongodb-stitch-core-admin-client";
 import {
   StitchServiceErrorCode,
-  StitchServiceException
+  StitchServiceError
 } from "mongodb-stitch-core-sdk";
 import { HttpMethod, HttpRequest } from "mongodb-stitch-core-services-http";
 import { HttpServiceClient } from "../src/HttpServiceClient";
@@ -84,7 +84,7 @@ describe("HttpServiceClient", () => {
       await httpClient.execute(badRequest);
       fail();
     } catch (error) {
-      expect(error instanceof StitchServiceException).toBeTruthy();
+      expect(error instanceof StitchServiceError).toBeTruthy();
       expect(error.errorCode).toEqual(StitchServiceErrorCode.InvalidParameter);
     }
 
@@ -103,7 +103,7 @@ describe("HttpServiceClient", () => {
       await httpClient.execute(badRequest);
       fail();
     } catch (error) {
-      expect(error instanceof StitchServiceException).toBeTruthy();
+      expect(error instanceof StitchServiceError).toBeTruthy();
       expect(error.errorCode).toEqual(StitchServiceErrorCode.HTTPError);
     }
 

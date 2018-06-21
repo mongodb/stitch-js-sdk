@@ -23,7 +23,7 @@ import {
   Response,
   StitchAuthRequest,
   StitchServiceErrorCode,
-  StitchServiceException
+  StitchServiceError
 } from "mongodb-stitch-core-sdk";
 import { AppResponse, AppResponseCodec } from "./apps/AppsResources";
 import {
@@ -96,7 +96,7 @@ class BasicResource implements Resource {
  */
 function checkEmpty(response: Response) {
   if (response.body === undefined) {
-    throw new StitchServiceException(
+    throw new StitchServiceError(
       "unexpected empty response",
       StitchServiceErrorCode.Unknown
     );

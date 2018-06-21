@@ -26,7 +26,7 @@ import Method from "../../../../src/internal/net/Method";
 import { StitchAuthDocRequest } from "../../../../src/internal/net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "../../../../src/internal/net/StitchAuthRequest";
 import { StitchRequest } from "../../../../src/internal/net/StitchRequest";
-import { RequestClassMatcher } from "../../../APITestUtils";
+import { RequestClassMatcher } from "../../../ApiTestUtils";
 
 function testClientCall(
   fun: (CoreUserApiKeyAuthProviderClient) => Promise<any>,

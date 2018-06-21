@@ -33,7 +33,7 @@ export default class UserApiKey {
    *
    * @param body The body of the response from the Stitch client API
    */
-  public static readFromAPI(json: string | object): UserApiKey {
+  public static readFromApi(json: string | object): UserApiKey {
     const body = typeof json === "string" ? JSON.parse(json) : json;
 
     Assertions.keyPresent(Fields.ID, body);

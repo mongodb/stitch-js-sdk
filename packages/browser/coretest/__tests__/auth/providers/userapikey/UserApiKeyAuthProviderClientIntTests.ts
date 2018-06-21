@@ -16,7 +16,7 @@
 
 import { ObjectID } from "bson";
 import { App, AppResponse, Userpass } from "mongodb-stitch-core-admin-client";
-import { StitchServiceErrorCode, StitchServiceException } from "mongodb-stitch-core-sdk";
+import { StitchServiceErrorCode, StitchServiceError } from "mongodb-stitch-core-sdk";
 import { UserApiKeyAuthProviderClient, UserApiKeyCredential } from "mongodb-stitch-browser-core";
 import { BaseStitchWebIntTestHarness } from "mongodb-stitch-browser-testutils";
 
@@ -139,7 +139,7 @@ describe("UserApiKeyAuthProviderClient", () => {
       await apiKeyClient.createApiKey("$()!$");
       fail("did not fail when creating key with invalid name");
     } catch (e) {
-      expect(e instanceof StitchServiceException);
+      expect(e instanceof StitchServiceError);
       expect(StitchServiceErrorCode.InvalidParameter).toEqual(e.errorCode);
     }
   });
@@ -162,7 +162,7 @@ describe("UserApiKeyAuthProviderClient", () => {
       await apiKeyClient.fetchApiKey(new ObjectID());
       fail("found a nonexistent key");
     } catch (e) {
-      expect(e instanceof StitchServiceException).toBeTruthy();
+      expect(e instanceof StitchServiceError).toBeTruthy();
       expect(StitchServiceErrorCode.ApiKeyNotFound).toEqual(e.errorCode);
     }
   });

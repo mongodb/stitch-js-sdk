@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-import StitchClientException from "../../StitchClientException";
+import StitchClientError from "../../StitchClientError";
 import { toByteArray } from "base64-js"
 
 function b64DecodeUnicode(str) {
-    const paddingNeeded = 4 - (str.length % 4);
-    const strToDecode = str + '='.repeat(paddingNeeded);
+    const unevenBytes = str.length % 4;
+    let strToDecode;
+    if (unevenBytes != 0) {
+      const paddingNeeded = 4 - unevenBytes;
+      strToDecode = str + '='.repeat(paddingNeeded);
+    } else {
+      strToDecode = str;
+    }
     const bytes = toByteArray(strToDecode);
     return utf8Slice(bytes, 0, bytes.length);
 }

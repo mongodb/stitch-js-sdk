@@ -27,7 +27,7 @@ import {
 } from "mongodb-stitch-core-admin-client";
 import {
   StitchServiceErrorCode,
-  StitchServiceException
+  StitchServiceError
 } from "mongodb-stitch-core-sdk";
 import { AwsSesServiceClient } from "../src";
 
@@ -85,7 +85,7 @@ describe("AwsSesService should", () => {
       await awsSes.sendEmail(to, from, subject, body);
       fail();
     } catch (error) {
-      expect(error instanceof StitchServiceException);
+      expect(error instanceof StitchServiceError);
       expect(error.errorCode).toEqual(StitchServiceErrorCode.AWSError);
     }
 
@@ -100,7 +100,7 @@ describe("AwsSesService should", () => {
       await awsSes.sendEmail(to, "", subject, body);
       fail();
     } catch (error) {
-      expect(error instanceof StitchServiceException);
+      expect(error instanceof StitchServiceError);
       expect(error.errorCode).toEqual(StitchServiceErrorCode.InvalidParameter);
     }
   });
