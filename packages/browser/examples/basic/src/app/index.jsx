@@ -38,7 +38,7 @@ class Hello extends React.Component {
     loginWithCredential() {
         this.state.client.auth.loginWithCredential(new AnonymousCredential()).then(user => {
             console.log(user);
-            //this.callSomeFunction(this.state.client)
+            this.callSomeFunction(this.state.client)
         }).catch(err => {
             console.log(err)
         })

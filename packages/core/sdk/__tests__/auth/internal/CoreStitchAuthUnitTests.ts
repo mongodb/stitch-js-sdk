@@ -50,8 +50,8 @@ import Method from "../../../src/internal/net/Method";
 import { StitchAuthDocRequest } from "../../../src/internal/net/StitchAuthDocRequest";
 import { StitchDocRequest } from "../../../src/internal/net/StitchDocRequest";
 import { StitchRequest } from "../../../src/internal/net/StitchRequest";
-import { StitchServiceErrorCode } from "../../../src/StitchServiceErrorCode";
 import StitchServiceError from "../../../src/StitchServiceError";
+import { StitchServiceErrorCode } from "../../../src/StitchServiceErrorCode";
 
 class StitchAuth extends CoreStitchAuth<CoreStitchUserImpl> {
   constructor(
@@ -335,7 +335,7 @@ describe("CoreStitchAuthUnitTests", () => {
       statusCode: 200
     });
 
-    let hasBeenCalled = false;
+    const hasBeenCalled = false;
     when(
       requestClientMock.doRequest(new RequestClassMatcher(
         new RegExp(".*/login\\?link=true$")
