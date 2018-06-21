@@ -40,7 +40,7 @@ describe("StitchAuthImpl", () => {
             instance(mock(StitchBrowserAppAuthRoutes)),
             {
                 get(key: string): string {
-                    if (key === RedirectKeys.RedirectProvider) {
+                    if (key === RedirectKeys.ProviderName) {
                         return "test_provider"
                     }
     
