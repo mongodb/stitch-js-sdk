@@ -24,7 +24,9 @@ import {
 import NamedServiceClientFactory from "../../services/internal/NamedServiceClientFactory";
 import ServiceClientFactory from "../../services/internal/ServiceClientFactory";
 import StitchServiceImpl from "../../services/internal/StitchServiceImpl";
-import StitchAuthImpl from "../auth/internal/StitchAuthImpl";
+import { StitchAuthImpl } from "../auth/internal/StitchAuthImpl";
+import StitchBrowserAppRoutes from "../auth/internal/StitchBrowserAppRoutes";
+
 import StitchAppClient from "../StitchAppClient";
 
 export default class StitchAppClientImpl implements StitchAppClient {
@@ -32,7 +34,7 @@ export default class StitchAppClientImpl implements StitchAppClient {
 
   private readonly coreClient: CoreStitchAppClient;
   private readonly info: StitchAppClientInfo;
-  private readonly routes: StitchAppRoutes;
+  private readonly routes: StitchBrowserAppRoutes;
 
   public constructor(
     clientAppId: string,
@@ -44,7 +46,7 @@ export default class StitchAppClientImpl implements StitchAppClient {
       config.localAppName,
       config.localAppVersion
     );
-    this.routes = new StitchAppRoutes(this.info.clientAppId);
+    this.routes = new StitchBrowserAppRoutes(this.info.clientAppId, config.baseURL);
     const requestClient = new StitchRequestClient(
       config.baseURL,
       config.transport
@@ -87,5 +89,5 @@ export default class StitchAppClientImpl implements StitchAppClient {
 function isServiceClientFactory<T>(
   factory: ServiceClientFactory<T> | NamedServiceClientFactory<T>
 ): factory is ServiceClientFactory<T> {
-  return (<ServiceClientFactory<T>>factory).getClient !== undefined;
+  return (factory as ServiceClientFactory<T>).getClient !== undefined;
 }

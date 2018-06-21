@@ -17,6 +17,7 @@
 import { StitchCredential } from "mongodb-stitch-core-sdk";
 import AuthProviderClientFactory from "./providers/internal/AuthProviderClientFactory";
 import NamedAuthProviderClientFactory from "./providers/internal/NamedAuthProviderClientFactory";
+import StitchRedirectCredential from "./providers/StitchRedirectCredential";
 import StitchAuthListener from "./StitchAuthListener";
 import StitchUser from "./StitchUser";
 
@@ -35,6 +36,10 @@ interface StitchAuth {
   ): T;
 
   loginWithCredential(credential: StitchCredential): Promise<StitchUser>;
+
+  loginWithRedirect(credential: StitchRedirectCredential): void;
+
+  handleRedirectResult(): Promise<StitchUser>;
 
   logout(): Promise<void>;
 

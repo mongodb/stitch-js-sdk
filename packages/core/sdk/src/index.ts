@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import AuthInfo from "./auth/internal/AuthInfo";
 import CoreStitchAuth from "./auth/internal/CoreStitchAuth";
 import CoreStitchUser from "./auth/internal/CoreStitchUser";
 import CoreStitchUserImpl from "./auth/internal/CoreStitchUserImpl";
@@ -31,6 +32,8 @@ import FacebookAuthProvider from "./auth/providers/facebook/FacebookAuthProvider
 import FacebookCredential from "./auth/providers/facebook/FacebookCredential";
 import GoogleAuthProvider from "./auth/providers/google/GoogleAuthProvider";
 import GoogleCredential from "./auth/providers/google/GoogleCredential";
+import StitchAuthCredential from "./auth/providers/internal/StitchAuthResponseCredential";
+import StitchAuthResponseCredential from "./auth/providers/internal/StitchAuthResponseCredential";
 import ServerApiKeyAuthProvider from "./auth/providers/serverapikey/ServerApiKeyAuthProvider";
 import ServerApiKeyCredential from "./auth/providers/serverapikey/ServerApiKeyCredential";
 import CoreUserApiKeyAuthProviderClient from "./auth/providers/userapikey/CoreUserApiKeyAuthProviderClient";
@@ -50,6 +53,7 @@ import CoreStitchAppClient from "./internal/CoreStitchAppClient";
 import FetchTransport from "./internal/net/FetchTransport";
 import Method from "./internal/net/Method";
 import Response from "./internal/net/Response";
+import StitchAppAuthRoutes from "./internal/net/StitchAppAuthRoutes";
 import { StitchAppRoutes } from "./internal/net/StitchAppRoutes";
 import { StitchAuthRequest } from "./internal/net/StitchAuthRequest";
 import StitchRequestClient from "./internal/net/StitchRequestClient";
@@ -59,10 +63,13 @@ import CoreStitchServiceClientImpl from "./services/internal/CoreStitchServiceCl
 import StitchServiceRoutes from "./services/internal/StitchServiceRoutes";
 import { StitchAppClientConfiguration } from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";
+import StitchException from "./StitchException";
 import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
 import StitchServiceException from "./StitchServiceException";
 
 export {
+  AuthInfo,
+  StitchAuthResponseCredential,
   AnonymousAuthProvider,
   AnonymousCredential,
   APIStitchUserIdentity,
@@ -77,6 +84,7 @@ export {
   UserApiKeyAuthProvider,
   UserApiKey,
   UserApiKeyCredential,
+  StitchAuthCredential,
   Codec,
   Decoder,
   Encoder,
@@ -90,6 +98,7 @@ export {
   CoreStitchUser,
   CoreStitchUserImpl,
   DeviceFields,
+  StitchException,
   FetchTransport,
   StitchAppClientInfo,
   StitchAppClientConfiguration,
@@ -107,6 +116,7 @@ export {
   StitchUserProfileImpl,
   CoreStitchServiceClientImpl,
   StitchUserIdentity,
+  StitchAppAuthRoutes,
   Storage,
   Method,
   Response,

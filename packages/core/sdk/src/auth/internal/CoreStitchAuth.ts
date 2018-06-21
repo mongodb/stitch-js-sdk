@@ -47,6 +47,7 @@ import StitchAuthRequestClient from "./StitchAuthRequestClient";
 import { StitchAuthRoutes } from "./StitchAuthRoutes";
 import StitchUserFactory from "./StitchUserFactory";
 import StitchUserProfileImpl from "./StitchUserProfileImpl";
+import StitchAuthResponseCredential from "../providers/internal/StitchAuthResponseCredential";
 
 const OPTIONS = "options";
 const DEVICE = "device";
@@ -216,6 +217,10 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   public loginWithCredentialInternal(
     credential: StitchCredential
   ): Promise<TStitchUser> {
+    if (credential instanceof StitchAuthResponseCredential) {
+      return this.processLogin(credential);
+    }
+    
     if (!this.isLoggedIn) {
       return this.doLogin(credential, false);
     }
@@ -411,7 +416,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     asLinkRequest: boolean
   ): Promise<TStitchUser> {
     return this.doLoginRequest(credential, asLinkRequest)
-      .then(response => this.processLoginResponse(credential, response))
+      .then(response => this.processLogin(credential, response))
       .then(user => {
         this.onAuthEvent();
         return user;
@@ -458,13 +463,20 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    * Processes the response of the login/link request, setting the authentication state if appropriate, and
    * requesting the user profile in a separate request.
    */
-  private processLoginResponse(
+  private processLogin(
     credential: StitchCredential,
-    response: Response
+    response?: Response
   ): Promise<TStitchUser> {
     let newAuthInfo: AuthInfo;
     try {
-      newAuthInfo = APIAuthInfo.fromJSON(JSON.parse(response.body!));
+      if (credential instanceof StitchAuthResponseCredential) {
+        newAuthInfo = credential.authInfo;
+      } else {
+        if (!response || !response.body) {
+          throw new StitchException("response was undefined");
+        }
+        newAuthInfo = APIAuthInfo.fromJSON(JSON.parse(response.body!));
+      }
     } catch (err) {
       throw new StitchRequestException(
         err,
