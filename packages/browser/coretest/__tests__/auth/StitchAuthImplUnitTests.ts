@@ -33,31 +33,6 @@ Object.defineProperty(
     }
 );
 
-export class RequestClassMatcher extends Matcher {
-    constructor(
-      private readonly pathRegEx?: RegExp,
-      private readonly method?: Method
-    ) {
-      super();
-    }
-  
-    public match(value: any): boolean {
-        if (this.pathRegEx && !this.pathRegEx.test(value.path)) {
-          return false;
-        }
-  
-        if (this.method && this.method !== value.method) {
-          return false;
-        }
-  
-        return true;
-    }
-  
-    public toString(): string {
-      return `Did not match ${this.pathRegEx} or method ${this.method}`;
-    }
-  }
-
 describe("StitchAuthImpl", () => {
     it("should handleRedirect", async () => {
         const impl = new StitchAuthImpl(

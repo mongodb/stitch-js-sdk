@@ -35,7 +35,6 @@ import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
 import StitchServiceError from "../../StitchServiceError";
 import { StitchServiceErrorCode } from "../../StitchServiceErrorCode";
 import StitchAuthResponseCredential from "../providers/internal/StitchAuthResponseCredential";
-import CoreUserApiKeyAuthProviderClient from "../providers/userapikey/CoreUserApiKeyAuthProviderClient";
 import StitchCredential from "../StitchCredential";
 import AccessTokenRefresher from "./AccessTokenRefresher";
 import AuthInfo from "./AuthInfo";

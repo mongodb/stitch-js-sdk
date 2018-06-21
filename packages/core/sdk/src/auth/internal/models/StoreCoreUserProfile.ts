@@ -27,12 +27,12 @@ enum Fields {
  * A class describing the structure of how user profile information is stored in persisted `Storage`.
  */
 export default class StoreCoreUserProfile extends StitchUserProfileImpl {
-  public static decode(from: object): StoreCoreUserProfile {
-    return new StoreCoreUserProfile(
+  public static decode(from: object): StoreCoreUserProfile | undefined {
+    return from ? new StoreCoreUserProfile(
       from[Fields.USER_TYPE],
       from[Fields.DATA],
       from[Fields.IDENTITIES].map(identity => StoreStitchUserIdentity.decode(identity))
-    )
+    ) : undefined
   }
 
   /**
