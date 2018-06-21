@@ -64,6 +64,8 @@ import CoreStitchServiceClientImpl from "./services/internal/CoreStitchServiceCl
 import StitchServiceRoutes from "./services/internal/StitchServiceRoutes";
 import { StitchAppClientConfiguration } from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";
+import StitchClientError from "./StitchClientError";
+import { StitchClientErrorCode } from "./StitchClientErrorCode";
 import StitchError from "./StitchError";
 import StitchServiceError from "./StitchServiceError";
 import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
@@ -90,6 +92,8 @@ export {
   Decoder,
   Encoder,
   StitchError,
+  StitchClientError,
+  StitchClientErrorCode,
   CoreUserApiKeyAuthProviderClient,
   UserPasswordAuthProvider,
   UserPasswordCredential,

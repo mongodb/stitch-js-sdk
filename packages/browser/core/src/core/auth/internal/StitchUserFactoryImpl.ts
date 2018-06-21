@@ -19,7 +19,7 @@ import {
   StitchUserProfileImpl
 } from "mongodb-stitch-core-sdk";
 import StitchUser from "../StitchUser";
-import { StitchAuthImpl } from "./StitchAuthImpl";
+import StitchAuthImpl from "./StitchAuthImpl";
 import StitchUserImpl from "./StitchUserImpl";
 
 export default class StitchUserFactoryImpl

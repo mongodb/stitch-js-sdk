@@ -15,8 +15,8 @@
  */
 
 import * as EJSON from "mongodb-extjson";
-import CoreUserApiKeyAuthProviderClient from "../providers/userapikey/CoreUserApiKeyAuthProviderClient";
 import { Codec, Decoder } from "../../internal/common/Codec";
+import { wrapDecodingError } from "../../internal/common/StitchErrorUtils";
 import { Storage } from "../../internal/common/Storage";
 import ContentTypes from "../../internal/net/ContentTypes";
 import Headers from "../../internal/net/Headers";
@@ -27,14 +27,15 @@ import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 import { StitchDocRequest } from "../../internal/net/StitchDocRequest";
 import { StitchRequest } from "../../internal/net/StitchRequest";
 import StitchRequestClient from "../../internal/net/StitchRequestClient";
-import { StitchClientErrorCode } from "../../StitchClientErrorCode";
 import StitchClientError from "../../StitchClientError";
+import { StitchClientErrorCode } from "../../StitchClientErrorCode";
 import StitchError from "../../StitchError";
-import { wrapDecodingError } from "../../internal/common/StitchErrorUtils";
-import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
 import StitchRequestError from "../../StitchRequestError";
-import { StitchServiceErrorCode } from "../../StitchServiceErrorCode";
+import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
 import StitchServiceError from "../../StitchServiceError";
+import { StitchServiceErrorCode } from "../../StitchServiceErrorCode";
+import StitchAuthResponseCredential from "../providers/internal/StitchAuthResponseCredential";
+import CoreUserApiKeyAuthProviderClient from "../providers/userapikey/CoreUserApiKeyAuthProviderClient";
 import StitchCredential from "../StitchCredential";
 import AccessTokenRefresher from "./AccessTokenRefresher";
 import AuthInfo from "./AuthInfo";
@@ -47,7 +48,6 @@ import StitchAuthRequestClient from "./StitchAuthRequestClient";
 import { StitchAuthRoutes } from "./StitchAuthRoutes";
 import StitchUserFactory from "./StitchUserFactory";
 import StitchUserProfileImpl from "./StitchUserProfileImpl";
-import StitchAuthResponseCredential from "../providers/internal/StitchAuthResponseCredential";
 
 const OPTIONS = "options";
 const DEVICE = "device";
@@ -218,7 +218,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     credential: StitchCredential
   ): Promise<TStitchUser> {
     if (credential instanceof StitchAuthResponseCredential) {
-      return this.processLogin(credential);
+      return this.processLogin(credential, credential.authInfo);
     }
     
     if (!this.isLoggedIn) {
@@ -416,7 +416,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     asLinkRequest: boolean
   ): Promise<TStitchUser> {
     return this.doLoginRequest(credential, asLinkRequest)
-      .then(response => this.processLogin(credential, response))
+      .then(response => this.processLoginResponse(credential, response))
       .then(user => {
         this.onAuthEvent();
         return user;
@@ -465,25 +465,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    */
   private processLogin(
     credential: StitchCredential,
-    response?: Response
+    newAuthInfo: AuthInfo
   ): Promise<TStitchUser> {
-    let newAuthInfo: AuthInfo;
-    try {
-      if (credential instanceof StitchAuthResponseCredential) {
-        newAuthInfo = credential.authInfo;
-      } else {
-        if (!response || !response.body) {
-          throw new StitchError("response was undefined");
-        }
-        newAuthInfo = ApiAuthInfo.fromJSON(JSON.parse(response.body!));
-      }
-    } catch (err) {
-      throw new StitchRequestError(
-        err,
-        StitchRequestErrorCode.DECODING_ERROR
-      );
-    }
-
     newAuthInfo = this.authInfo.merge(
       new AuthInfo(
         newAuthInfo.userId,
@@ -544,6 +527,23 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         this.currentUser = undefined;
         throw err;
       });
+  }
+
+  private processLoginResponse(credential: StitchCredential, response: Response): Promise<TStitchUser> {
+    try {
+      if (!response || !response.body) {
+        throw new StitchError("response was undefined");
+      }
+      return this.processLogin(
+        credential,
+        ApiAuthInfo.fromJSON(JSON.parse(response.body!))
+      );
+    } catch (err) {
+      throw new StitchRequestError(
+        err,
+        StitchRequestErrorCode.DECODING_ERROR
+      );
+    }
   }
 
   /**

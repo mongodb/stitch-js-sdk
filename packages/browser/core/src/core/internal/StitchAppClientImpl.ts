@@ -18,13 +18,12 @@ import {
   CoreStitchAppClient,
   StitchAppClientConfiguration,
   StitchAppClientInfo,
-  StitchAppRoutes,
   StitchRequestClient
 } from "mongodb-stitch-core-sdk";
 import NamedServiceClientFactory from "../../services/internal/NamedServiceClientFactory";
 import ServiceClientFactory from "../../services/internal/ServiceClientFactory";
 import StitchServiceImpl from "../../services/internal/StitchServiceImpl";
-import { StitchAuthImpl } from "../auth/internal/StitchAuthImpl";
+import StitchAuthImpl from "../auth/internal/StitchAuthImpl";
 import StitchBrowserAppRoutes from "../auth/internal/StitchBrowserAppRoutes";
 
 import StitchAppClient from "../StitchAppClient";

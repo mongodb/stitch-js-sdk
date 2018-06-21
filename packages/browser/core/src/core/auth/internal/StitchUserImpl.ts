@@ -20,8 +20,8 @@ import {
   StitchUserProfileImpl
 } from "mongodb-stitch-core-sdk";
 import StitchRedirectCredential from "../providers/StitchRedirectCredential";
-import StitchUser, { StitchUserCodec } from "../StitchUser";
-import { prepareRedirect, RedirectFragmentFields, RedirectTypes, StitchAuthImpl } from "./StitchAuthImpl";
+import StitchUser from "../StitchUser";
+import StitchAuthImpl from "./StitchAuthImpl";
 
 export default class StitchUserImpl extends CoreStitchUserImpl
   implements StitchUser {
@@ -43,34 +43,6 @@ export default class StitchUserImpl extends CoreStitchUserImpl
   public linkUserWithRedirect(
     credential: StitchRedirectCredential
   ): Promise<void> {
-    this.auth.setRedirectFragment(
-      RedirectFragmentFields.LinkUser,
-      JSON.stringify(new StitchUserCodec(this.auth).encode(this))
-    );
-
-    const { redirectUrl, state } = prepareRedirect(
-      this.auth,
-      credential,
-      RedirectTypes.Login
-    );
-
-    console.log(credential);
-    const link = this.auth.browserAuthRoutes.getAuthProviderLinkRedirectRoute(
-      credential,
-      redirectUrl,
-      state,
-      this.auth.deviceInfo
-    );
-
-    return fetch(
-      new Request(link, {
-        credentials: "include",
-        headers: {
-          Authorization: "Bearer " + this.auth.authInfo.accessToken
-        }
-      })
-    ).then(response => {
-      window.location.replace(response.headers.get("X-Stitch-Location")!);
-    });
+    return this.auth.linkWithRedirect(this, credential);
   }
 }

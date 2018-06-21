@@ -1,4 +1,4 @@
-import { StitchAppAuthRoutes, base64Encode } from "mongodb-stitch-core-sdk";
+import { base64Encode, StitchAppAuthRoutes } from "mongodb-stitch-core-sdk";
 import StitchRedirectCredential from "../providers/StitchRedirectCredential";
 
 export default class StitchBrowserAppAuthRoutes extends StitchAppAuthRoutes {

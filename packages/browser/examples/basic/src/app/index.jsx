@@ -55,7 +55,7 @@ class Hello extends React.Component {
                 .build()
         );
 
-        if (client.auth.hasRedirect()) {
+        if (client.auth.hasRedirectResult()) {
             client.auth.handleRedirectResult().then(user => {
                 console.log(`successfully logged in as redirected user with id: ${user.id}`)
                 console.log(`profile: ${JSON.stringify(user.profile)}`)
