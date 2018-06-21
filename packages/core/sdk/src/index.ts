@@ -61,6 +61,7 @@ import { StitchAppClientConfiguration } from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";
 import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
 import StitchServiceError from "./StitchServiceError";
+import { base64Decode, base64Encode } from "./internal/common/Base64";
 
 export {
   AnonymousAuthProvider,
@@ -112,5 +113,7 @@ export {
   Response,
   MemoryStorage,
   Transport,
-  UserType
+  UserType,
+  base64Decode,
+  base64Encode
 };
