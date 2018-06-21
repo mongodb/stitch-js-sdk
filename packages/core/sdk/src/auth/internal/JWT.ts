@@ -19,7 +19,7 @@ import { toByteArray } from "base64-js"
 
 function b64DecodeUnicode(str) {
     const unevenBytes = str.length % 4;
-    const strToDecode;
+    let strToDecode;
     if (unevenBytes != 0) {
       const paddingNeeded = 4 - (str.length % 4);
       strToDecode = str + '='.repeat(paddingNeeded);
