@@ -34,7 +34,6 @@ import {
   StitchCredential,
   StitchServiceError,
   StitchServiceErrorCode,
-  StitchServiceException,
   StitchUserIdentity,
   StitchUserProfile,
   Storage,

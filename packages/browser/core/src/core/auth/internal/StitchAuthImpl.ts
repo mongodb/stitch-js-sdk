@@ -22,7 +22,7 @@ import {
   StitchAppClientInfo,
   StitchAuthResponseCredential,
   StitchCredential,
-  StitchException,
+  StitchError,
   StitchRequestClient,
   StitchUserFactory,
   Storage,
@@ -66,7 +66,7 @@ interface ParsedRedirectFragment {
 
 const alphaNumericCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-class StitchRedirectError extends StitchException {
+class StitchRedirectError extends StitchError {
   constructor(msg: string) { super(msg); }
 }
 

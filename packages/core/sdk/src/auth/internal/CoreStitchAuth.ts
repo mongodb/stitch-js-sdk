@@ -473,7 +473,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         newAuthInfo = credential.authInfo;
       } else {
         if (!response || !response.body) {
-          throw new StitchException("response was undefined");
+          throw new StitchError("response was undefined");
         }
         newAuthInfo = ApiAuthInfo.fromJSON(JSON.parse(response.body!));
       }

@@ -63,9 +63,9 @@ import CoreStitchServiceClientImpl from "./services/internal/CoreStitchServiceCl
 import StitchServiceRoutes from "./services/internal/StitchServiceRoutes";
 import { StitchAppClientConfiguration } from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";
-import StitchException from "./StitchException";
-import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
+import StitchError from "./StitchError";
 import StitchServiceError from "./StitchServiceError";
+import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
 
 export {
   AuthInfo,
@@ -88,6 +88,7 @@ export {
   Codec,
   Decoder,
   Encoder,
+  StitchError,
   CoreUserApiKeyAuthProviderClient,
   UserPasswordAuthProvider,
   UserPasswordCredential,
@@ -98,7 +99,6 @@ export {
   CoreStitchUser,
   CoreStitchUserImpl,
   DeviceFields,
-  StitchException,
   FetchTransport,
   StitchAppClientInfo,
   StitchAppClientConfiguration,
