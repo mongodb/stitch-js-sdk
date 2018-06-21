@@ -17,6 +17,7 @@
 import { fromByteArray, toByteArray } from "base64-js";
 
 // sourced from https://github.com/coolaj86/TextEncoderLite
+/** @hidden */
 export function base64Decode(str: string) {
   const unevenBytes = str.length % 4;
   let strToDecode;
@@ -30,6 +31,7 @@ export function base64Decode(str: string) {
   return utf8Slice(bytes, 0, bytes.length);
 }
 
+/** @hidden */
 export function base64Encode(str: string) {
   let result;
   if ("undefined" === typeof Uint8Array) {

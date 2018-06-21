@@ -18,6 +18,7 @@ import CoreStitchUser from "./CoreStitchUser";
 import StitchUserProfileImpl from "./StitchUserProfileImpl";
 
 /**
+ * @hidden
  * An interface describing a factory that produces a generic Stitch user object conforming to `CoreStitchUser`.
  */
 interface StitchUserFactory<T extends CoreStitchUser> {

@@ -21,6 +21,7 @@ import {
 } from "mongodb-stitch-core-services-http";
 import { HttpServiceClient } from "../HttpServiceClient";
 
+/** @hidden */
 export default class HttpServiceClientImpl implements HttpServiceClient {
   public constructor(private readonly proxy: CoreHttpServiceClient) {}
 

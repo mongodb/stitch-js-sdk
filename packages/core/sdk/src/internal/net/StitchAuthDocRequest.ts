@@ -21,6 +21,7 @@ import Method from "./Method";
 import { StitchAuthRequest } from "./StitchAuthRequest";
 import { StitchRequest } from "./StitchRequest";
 
+/** @hidden */
 export class StitchAuthDocRequest extends StitchAuthRequest {
   public readonly document: object;
   public constructor(
@@ -39,6 +40,7 @@ export class StitchAuthDocRequest extends StitchAuthRequest {
   }
 }
 
+/** @hidden */
 export namespace StitchAuthDocRequest {
   export class Builder extends StitchAuthRequest.Builder {
     public document: object;

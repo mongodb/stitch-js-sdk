@@ -20,6 +20,7 @@ import Transport from "./Transport";
 import * as fetchLib from "fetch-everywhere";
 const fetch: any = (<any>fetchLib).default || fetchLib;
 
+/** @hidden */
 export default class FetchTransport implements Transport {
   public roundTrip(request: BasicRequest): Promise<Response> {
     const responsePromise = fetch(request.url, {

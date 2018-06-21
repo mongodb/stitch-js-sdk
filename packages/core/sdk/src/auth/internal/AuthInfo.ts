@@ -17,6 +17,7 @@
 import StitchUserProfileImpl from "./StitchUserProfileImpl";
 
 /**
+ * @hidden
  * A class representing the combined information represented by a user.
  */
 export default class AuthInfo {

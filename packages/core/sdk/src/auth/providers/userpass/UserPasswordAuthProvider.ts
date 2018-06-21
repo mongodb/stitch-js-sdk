@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+<<<<<<< HEAD
+=======
+/** @hidden */
+>>>>>>> initial docs generation
 export default class UserPasswordAuthProvider {
   public static TYPE: string = "local-userpass";
   public static DEFAULT_NAME: string = "local-userpass";

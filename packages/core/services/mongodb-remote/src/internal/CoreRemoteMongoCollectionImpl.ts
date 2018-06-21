@@ -27,6 +27,7 @@ import CoreRemoteMongoCollection from "./CoreRemoteMongoCollection";
 import CoreRemoteMongoReadOperation from "./CoreRemoteMongoReadOperation";
 import ResultDecoders from "./ResultDecoders";
 
+/** @hidden */
 export default class CoreRemoteMongoCollectionImpl<T>
   implements CoreRemoteMongoCollection<T> {
   public readonly namespace = this.databaseName + "." + this.name;

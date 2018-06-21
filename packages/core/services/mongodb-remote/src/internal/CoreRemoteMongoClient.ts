@@ -17,6 +17,7 @@
 import { CoreStitchServiceClient } from "mongodb-stitch-core-sdk";
 import { CoreRemoteMongoDatabase } from "..";
 
+/** @hidden */
 export default interface CoreRemoteMongoClient {
   readonly service: CoreStitchServiceClient;
 

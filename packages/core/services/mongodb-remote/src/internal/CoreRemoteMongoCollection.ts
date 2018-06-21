@@ -24,6 +24,7 @@ import RemoteUpdateOptions from "../RemoteUpdateOptions";
 import RemoteUpdateResult from "../RemoteUpdateResult";
 import CoreRemoteMongoReadOperation from "./CoreRemoteMongoReadOperation";
 
+/** @hidden */
 export default interface CoreRemoteMongoCollection<DocumentT> {
   /**
    * Gets the namespace of this collection.

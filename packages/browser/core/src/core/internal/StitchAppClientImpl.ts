@@ -28,6 +28,7 @@ import StitchBrowserAppRoutes from "../auth/internal/StitchBrowserAppRoutes";
 
 import StitchAppClient from "../StitchAppClient";
 
+/** @hidden */
 export default class StitchAppClientImpl implements StitchAppClient {
   public readonly auth: StitchAuthImpl;
 

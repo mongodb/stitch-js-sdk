@@ -21,6 +21,7 @@ enum Fields {
   PROVIDER_TYPE = "provider_type"
 }
 
+/** @hidden */
 export default class ApiStitchUserIdentity extends StitchUserIdentity {
   public static fromJSON(json: object): ApiStitchUserIdentity {
     return new ApiStitchUserIdentity(

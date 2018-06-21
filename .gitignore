@@ -65,3 +65,7 @@ typings/
 lib/
 dist/
 build/
+
+# docs
+**/docs
+**/doc

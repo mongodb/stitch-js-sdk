@@ -19,6 +19,7 @@ import Response from "../../internal/net/Response";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 
 /**
+ * @hidden
  * An interface defining the methods necessary to make authenticated requests to the Stitch server.
  */
 export default interface StitchAuthRequestClient {

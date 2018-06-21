@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+/** @hidden */
 export default class Assertions {
   /**
    * Throws an Error if the provided key does not exist in the provided object.

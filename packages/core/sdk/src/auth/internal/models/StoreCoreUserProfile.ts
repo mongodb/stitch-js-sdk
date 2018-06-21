@@ -24,6 +24,7 @@ enum Fields {
 }
 
 /**
+ * @hidden
  * A class describing the structure of how user profile information is stored in persisted `Storage`.
  */
 export default class StoreCoreUserProfile extends StitchUserProfileImpl {

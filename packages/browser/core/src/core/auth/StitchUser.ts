@@ -17,9 +17,7 @@
 import { CoreStitchUser, StitchCredential } from "mongodb-stitch-core-sdk";
 import StitchRedirectCredential from "./providers/StitchRedirectCredential";
 
-interface StitchUser extends CoreStitchUser {
+export default interface StitchUser extends CoreStitchUser
   linkUserWithRedirect(credential: StitchRedirectCredential): Promise<void>;
   linkWithCredential(credential: StitchCredential): Promise<StitchUser>;
 }
-
-export default StitchUser;

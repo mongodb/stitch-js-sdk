@@ -19,6 +19,7 @@ import CoreRemoteMongoCollection from "./CoreRemoteMongoCollection";
 import CoreRemoteMongoCollectionImpl from "./CoreRemoteMongoCollectionImpl";
 import CoreRemoteMongoDatabase from "./CoreRemoteMongoDatabase";
 
+/** @hidden */
 export default class CoreRemoteMongoDatabaseImpl
   implements CoreRemoteMongoDatabase {
   public constructor(

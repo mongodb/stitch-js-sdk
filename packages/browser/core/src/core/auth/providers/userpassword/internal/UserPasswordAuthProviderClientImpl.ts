@@ -22,6 +22,7 @@ import {
 } from "mongodb-stitch-core-sdk";
 import { UserPasswordAuthProviderClient } from "../UserPasswordAuthProviderClient";
 
+/** @hidden */
 export default class UserPasswordAuthProviderClientImpl
   extends CoreUserPassAuthProviderClient
   implements UserPasswordAuthProviderClient {

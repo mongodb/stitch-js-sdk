@@ -39,6 +39,7 @@ enum SignPolicyAction {
   ContentTypeParam = "contentType"
 }
 
+/** @hidden */
 export default class CoreAwsS3ServiceClient {
   public constructor(private readonly service: CoreStitchServiceClient) {}
 

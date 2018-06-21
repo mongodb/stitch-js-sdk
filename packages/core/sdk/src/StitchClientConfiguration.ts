@@ -17,6 +17,7 @@
 import { Storage } from "./internal/common/Storage";
 import Transport from "./internal/net/Transport";
 
+/** @hidden */
 export class StitchClientConfiguration {
   public readonly baseUrl: string;
   public readonly storage: Storage;
@@ -41,6 +42,7 @@ export class StitchClientConfiguration {
 }
 
 /* tslint:disable:no-namespace max-classes-per-file */
+/** @hidden */
 export namespace StitchClientConfiguration {
   export class Builder {
     public baseUrl: string;

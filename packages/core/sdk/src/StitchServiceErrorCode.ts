@@ -116,6 +116,7 @@ const apiErrorCodes: { [id: string]: StitchServiceErrorCode } = {
   UserDisabled: StitchServiceErrorCode.UserDisabled
 };
 
+/** @hidden */
 export function stitchServiceErrorCodeFromApi(
   code: string
 ): StitchServiceErrorCode {

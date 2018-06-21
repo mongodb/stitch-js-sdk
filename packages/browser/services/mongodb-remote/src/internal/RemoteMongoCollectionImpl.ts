@@ -28,6 +28,7 @@ import {
 import RemoteMongoCollection from "../RemoteMongoCollection";
 import RemoteMongoReadOperation from "../RemoteMongoReadOperation";
 
+/** @hidden */
 export default class RemoteMongoCollectionImpl<DocumentT> {
   /**
    * Gets the namespace of this collection.

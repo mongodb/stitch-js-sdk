@@ -17,6 +17,7 @@
 import { CoreTwilioServiceClient } from "mongodb-stitch-core-services-twilio";
 import { TwilioServiceClient } from "../TwilioServiceClient";
 
+/** @hidden */
 export default class TwilioServiceClientImpl implements TwilioServiceClient {
   public constructor(private readonly proxy: CoreTwilioServiceClient) {}
   /**

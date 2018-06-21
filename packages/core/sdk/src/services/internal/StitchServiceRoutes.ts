@@ -16,6 +16,7 @@
 
 import { getFunctionCallRoute } from "../../internal/net/StitchAppRoutes";
 
+/** @hidden */
 export default class StitchServiceRoutes {
   public readonly functionCallRoute: string;
   private readonly clientAppId: string;

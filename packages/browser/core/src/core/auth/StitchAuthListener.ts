@@ -16,7 +16,7 @@
 
 import StitchAuth from "./StitchAuth";
 
-interface StitchAuthListener {
+export default interface StitchAuthListener {
   /**
    * onAuthEvent is called any time a notable event regarding authentication happens. These events are:
    * * When a user logs in.
@@ -28,5 +28,3 @@ interface StitchAuthListener {
    */
   onAuthEvent(auth: StitchAuth);
 }
-
-export default StitchAuthListener;

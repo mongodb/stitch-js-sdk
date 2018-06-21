@@ -38,6 +38,7 @@ enum RequestAction {
   HttpFollowRedirectsParam = "followRedirects"
 }
 
+/** @hidden */
 export default class CoreHttpServiceClient {
   public constructor(private readonly service: CoreStitchServiceClient) {
     this.service = service;

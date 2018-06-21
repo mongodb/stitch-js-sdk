@@ -16,6 +16,7 @@
 
 import { CoreStitchServiceClient, Decoder } from "mongodb-stitch-core-sdk";
 
+/** @hidden */
 export default class CoreRemoteMongoReadOperation<T> {
   private readonly collectionDecoder?: Decoder<T[]>;
 

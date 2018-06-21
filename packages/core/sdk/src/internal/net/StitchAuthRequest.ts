@@ -16,6 +16,7 @@
 
 import { StitchRequest } from "./StitchRequest";
 
+/** @hidden */
 export class StitchAuthRequest extends StitchRequest {
   public constructor(
     request: StitchRequest,
@@ -36,6 +37,7 @@ export class StitchAuthRequest extends StitchRequest {
   }
 }
 
+/** @hidden */
 export namespace StitchAuthRequest {
   export class Builder extends StitchRequest.Builder {
     public useRefreshToken: boolean;

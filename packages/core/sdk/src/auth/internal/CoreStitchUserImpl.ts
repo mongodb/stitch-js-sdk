@@ -19,6 +19,7 @@ import CoreStitchUser from "./CoreStitchUser";
 import StitchUserProfileImpl from "./StitchUserProfileImpl";
 
 /**
+ * @hidden
  * The set of properties that describe an authenticated Stitch user.
  */
 export default class CoreStitchUserImpl implements CoreStitchUser {

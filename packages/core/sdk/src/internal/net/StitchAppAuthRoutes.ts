@@ -38,6 +38,7 @@ function getAuthProviderLinkRoute(
   return getAuthProviderLoginRoute(clientAppId, providerName) + "?link=true";
 }
 
+/** @hidden */
 export default class StitchAppAuthRoutes implements StitchAuthRoutes {
   public readonly baseAuthRoute: string = `${BASE_ROUTE}/auth`;
 

@@ -17,6 +17,7 @@
 import { CoreStitchServiceClient } from "mongodb-stitch-core-sdk";
 import AwsSesSendResult from "../AwsSesSendResult";
 
+/** @hidden */
 export default class CoreAwsSesServiceClient {
   public constructor(private readonly service: CoreStitchServiceClient) {}
 

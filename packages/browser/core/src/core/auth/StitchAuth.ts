@@ -21,7 +21,7 @@ import StitchRedirectCredential from "./providers/StitchRedirectCredential";
 import StitchAuthListener from "./StitchAuthListener";
 import StitchUser from "./StitchUser";
 
-interface StitchAuth {
+export default interface StitchAuth {
   isLoggedIn: boolean;
 
   user?: StitchUser;
@@ -49,5 +49,3 @@ interface StitchAuth {
 
   removeAuthListener(listener: StitchAuthListener);
 }
-
-export default StitchAuth;

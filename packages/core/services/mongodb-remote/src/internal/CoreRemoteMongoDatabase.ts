@@ -17,6 +17,7 @@
 import { Codec } from "mongodb-stitch-core-sdk";
 import CoreRemoteMongoCollection from "./CoreRemoteMongoCollection";
 
+/** @hidden */
 export default interface CoreRemoteMongoDatabase {
   /**
    * Gets the name of the database.

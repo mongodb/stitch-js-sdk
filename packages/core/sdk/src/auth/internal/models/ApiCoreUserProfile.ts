@@ -25,6 +25,7 @@ enum Fields {
 }
 
 /**
+ * @hidden
  * A class containing the fields returned by the Stitch client API in the
  * `data` field of a user profile request.
  */

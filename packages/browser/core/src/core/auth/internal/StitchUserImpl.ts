@@ -23,6 +23,7 @@ import StitchRedirectCredential from "../providers/StitchRedirectCredential";
 import StitchUser from "../StitchUser";
 import StitchAuthImpl from "./StitchAuthImpl";
 
+/** @hidden */
 export default class StitchUserImpl extends CoreStitchUserImpl
   implements StitchUser {
   public constructor(

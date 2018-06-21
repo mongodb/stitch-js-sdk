@@ -32,6 +32,7 @@ enum Fields {
 }
 
 /**
+ * @hidden
  * Static utility method that accepts an error object, and returns it
  * as is if it's a StitchError, or wraps it in a StitchRequestError
  * decoding error if it's not.
@@ -47,6 +48,7 @@ export function wrapDecodingError(err: any): StitchError {
 }
 
 /**
+ * @hidden
  * Static utility method that accepts an HTTP response object, and throws the
  * StitchServiceError representing the the error in the response. If the error cannot be
  * recognized, this will throw a StitchServiceError with the "UNKNOWN" error code.

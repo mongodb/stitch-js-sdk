@@ -24,6 +24,7 @@ enum Fields {
 }
 
 /**
+ * @hidden
  * A class containing the fields returned by the Stitch client API in an authentication request.
  */
 export default class ApiAuthInfo extends AuthInfo {

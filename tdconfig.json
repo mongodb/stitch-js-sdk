@@ -1,0 +1,26 @@
+{ 
+    "compilerOptions": {
+        "target": "ES5",
+        "module": "ES2015",
+        "moduleResolution": "Node",
+        "sourceMap": true,
+        "strictNullChecks": true,
+        "outDir": "lib/doc",
+        "declaration": true,
+        "lib": [
+            "es2015",
+            "es2017.object"
+        ]
+    },
+    "include": [
+        "packages/core/sdk/src/**/*",
+        "packages/core/servivces/*/src/**/*",
+        "packages/browser/core/src/**/*",
+        "packages/browser/services/*/src/**/*"
+    ],
+    "exclude": [
+        "**/node_modules/**",
+        "**/lib/**",
+        "**/dist/**"
+    ]
+}

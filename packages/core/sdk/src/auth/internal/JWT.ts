@@ -21,6 +21,7 @@ const EXPIRES = "exp";
 const ISSUED_AT = "iat";
 
 /**
+ * @hidden
  * A simple class representing a JWT issued by the Stitch server. Only contains claims relevant to the SDK.
  */
 export default class JWT {

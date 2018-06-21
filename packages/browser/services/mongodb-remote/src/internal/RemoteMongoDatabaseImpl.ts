@@ -20,6 +20,7 @@ import RemoteMongoCollection from "../RemoteMongoCollection";
 import RemoteMongoCollectionImpl from "./RemoteMongoCollectionImpl";
 
 /**
+ * @hidden
  * The RemoteMongoDatabase interface.
  */
 export default class RemoteMongoDatabaseImpl {

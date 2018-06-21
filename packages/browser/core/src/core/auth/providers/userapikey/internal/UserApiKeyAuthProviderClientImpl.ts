@@ -23,6 +23,7 @@ import {
 } from "mongodb-stitch-core-sdk";
 import { UserApiKeyAuthProviderClient } from "../UserApiKeyAuthProviderClient";
 
+/** @hidden */
 export default class UserApiKeyAuthProviderClientImpl
   extends CoreUserApiKeyAuthProviderClient
   implements UserApiKeyAuthProviderClient {
