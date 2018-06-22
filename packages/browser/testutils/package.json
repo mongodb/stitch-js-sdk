@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-browser-testutils",
-  "version": "4.0.0-beta-2",
+  "version": "4.0.0-beta-3",
   "main": "lib/umd/index.js",
   "module": "lib/esm/index.js",
   "types": "lib/esm/index.d.ts",
@@ -8,7 +8,16 @@
     "lib"
   ],
   "description": "",
-  "keywords": ["mongodb", "aws", "twilio", "http", "mobile", "serverless", "stitch", "atlas"],
+  "keywords": [
+    "mongodb",
+    "aws",
+    "twilio",
+    "http",
+    "mobile",
+    "serverless",
+    "stitch",
+    "atlas"
+  ],
   "homepage": "https://github.com/mongodb/stitch-js-sdk#readme",
   "repository": "mongodb/stitch-js-sdk",
   "author": "MongoDB Inc.",
@@ -29,10 +38,10 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "mongodb-stitch-browser-core": "^4.0.0-beta-2",
-    "mongodb-stitch-core-admin-client": "^4.0.0-beta-2",
-    "mongodb-stitch-core-sdk": "^4.0.0-beta-2",
-    "mongodb-stitch-core-testutils": "^4.0.0-beta-2"
+    "mongodb-stitch-browser-core": "^4.0.0-beta-3",
+    "mongodb-stitch-core-admin-client": "^4.0.0-beta-3",
+    "mongodb-stitch-core-sdk": "^4.0.0-beta-3",
+    "mongodb-stitch-core-testutils": "^4.0.0-beta-3"
   },
   "devDependencies": {
     "typescript": "^2.9.2"
@@ -55,7 +64,12 @@
     },
     "reporters": [
       "default",
-      [ "jest-junit", { "output": "./build/test-results/junit.xml" } ]
+      [
+        "jest-junit",
+        {
+          "output": "./build/test-results/junit.xml"
+        }
+      ]
     ],
     "transform": {
       "^.+\\.tsx?$": "ts-jest"

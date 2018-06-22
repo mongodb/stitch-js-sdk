@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-core-sdk",
-  "version": "4.0.0-beta-2",
+  "version": "4.0.0-beta-3",
   "main": "lib/umd/index.js",
   "module": "lib/esm/index.js",
   "types": "lib/esm/index.d.ts",
@@ -8,7 +8,16 @@
     "lib"
   ],
   "description": "MongoDB Stitch JavaScript SDK - Core SDK",
-  "keywords": ["mongodb", "aws", "twilio", "http", "mobile", "serverless", "stitch", "atlas"],
+  "keywords": [
+    "mongodb",
+    "aws",
+    "twilio",
+    "http",
+    "mobile",
+    "serverless",
+    "stitch",
+    "atlas"
+  ],
   "homepage": "https://github.com/mongodb/stitch-js-sdk#readme",
   "repository": "mongodb/stitch-js-sdk",
   "author": "MongoDB Inc.",
@@ -61,7 +70,12 @@
     },
     "reporters": [
       "default",
-      [ "jest-junit", { "output": "./build/test-results/junit.xml" } ]
+      [
+        "jest-junit",
+        {
+          "output": "./build/test-results/junit.xml"
+        }
+      ]
     ],
     "transform": {
       "^.+\\.tsx?$": "ts-jest"

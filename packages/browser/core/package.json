@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-browser-core",
-  "version": "4.0.0-beta-2",
+  "version": "4.0.0-beta-3",
   "main": "lib/umd/index.js",
   "module": "lib/esm/index.js",
   "types": "lib/esm/index.d.ts",
@@ -8,7 +8,16 @@
     "lib"
   ],
   "description": "MongoDB Stitch JavaScript SDK - Browser Core",
-  "keywords": ["mongodb", "aws", "twilio", "http", "mobile", "serverless", "stitch", "atlas"],
+  "keywords": [
+    "mongodb",
+    "aws",
+    "twilio",
+    "http",
+    "mobile",
+    "serverless",
+    "stitch",
+    "atlas"
+  ],
   "homepage": "https://github.com/mongodb/stitch-js-sdk#readme",
   "repository": "mongodb/stitch-js-sdk",
   "author": "MongoDB Inc.",
@@ -29,7 +38,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "detect-browser": "^2.4.0",
-    "mongodb-stitch-core-sdk": "^4.0.0-beta-2"
+    "mongodb-stitch-core-sdk": "^4.0.0-beta-3"
   },
   "devDependencies": {
     "@types/detect-browser": "^2.0.1",
