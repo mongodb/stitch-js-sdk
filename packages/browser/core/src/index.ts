@@ -17,34 +17,36 @@
 import {
   AnonymousAuthProvider,
   AnonymousCredential,
+  Codec,
   CustomAuthProvider,
   CustomCredential,
+  Decoder,
+  Encoder,
   FacebookAuthProvider,
   FacebookCredential,
   GoogleAuthProvider,
   GoogleCredential,
+  MemoryStorage,
   ServerApiKeyAuthProvider,
   ServerApiKeyCredential,
-  UserApiKeyAuthProvider,
-  UserApiKey,
-  UserApiKeyCredential,
-  Codec,
-  Decoder,
-  Encoder,
-  UserPasswordAuthProvider,
-  UserPasswordCredential,
-  StitchAppClientInfo,
   StitchAppClientConfiguration,
+  StitchAppClientInfo,
   StitchCredential,
   StitchServiceError,
   StitchServiceErrorCode,
-  StitchUserProfile,
   StitchUserIdentity,
+  StitchUserProfile,
   Storage,
-  MemoryStorage,
   Transport,
+  UserApiKey,
+  UserApiKeyAuthProvider,
+  UserApiKeyCredential,
+  UserPasswordAuthProvider,
+  UserPasswordCredential,
   UserType
 } from "mongodb-stitch-core-sdk";
+import FacebookRedirectCredential from "./core/auth/providers/facebook/FacebookRedirectCredential";
+import GoogleRedirectCredential from "./core/auth/providers/google/GoogleRedirectCredential";
 import { UserApiKeyAuthProviderClient } from "./core/auth/providers/userapikey/UserApiKeyAuthProviderClient";
 import { UserPasswordAuthProviderClient } from "./core/auth/providers/userpassword/UserPasswordAuthProviderClient";
 import StitchAuth from "./core/auth/StitchAuth";
@@ -93,5 +95,7 @@ export {
   StitchUser,
   StitchServiceClient,
   UserApiKeyAuthProviderClient,
-  UserPasswordAuthProviderClient
+  UserPasswordAuthProviderClient,
+  FacebookRedirectCredential,
+  GoogleRedirectCredential
 };

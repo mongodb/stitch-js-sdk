@@ -17,8 +17,8 @@
 import { Storage } from "../../../internal/common/Storage";
 
 import AuthInfo from "../AuthInfo";
-import StitchUserProfileImpl from "../StitchUserProfileImpl";
 import StoreCoreUserProfile from "./StoreCoreUserProfile";
+import StoreStitchUserIdentity from "./StoreStitchUserIdentity";
 
 enum Fields {
   USER_ID = "user_id",
@@ -47,7 +47,16 @@ function writeToStorage(authInfo: AuthInfo, storage: Storage) {
     authInfo.refreshToken!,
     authInfo.loggedInProviderType!,
     authInfo.loggedInProviderName!,
-    authInfo.userProfile!
+    authInfo.userProfile
+      ? new StoreCoreUserProfile(
+          authInfo.userProfile!.userType!,
+          authInfo.userProfile!.data,
+          authInfo.userProfile!.identities.map(
+            identity =>
+              new StoreStitchUserIdentity(identity.id, identity.providerType)
+          )
+        )
+      : undefined
   );
   storage.set(StoreAuthInfo.STORAGE_NAME, JSON.stringify(info.encode()));
 }
@@ -71,7 +80,7 @@ class StoreAuthInfo extends AuthInfo {
       refreshToken,
       loggedInProviderType,
       loggedInProviderName,
-      userProfile
+      StoreCoreUserProfile.decode(userProfile)
     );
   }
 
@@ -82,7 +91,7 @@ class StoreAuthInfo extends AuthInfo {
     refreshToken: string,
     loggedInProviderType: string,
     loggedInProviderName: string,
-    userProfile: StitchUserProfileImpl
+    public readonly userProfile?: StoreCoreUserProfile
   ) {
     super(
       userId,
@@ -104,7 +113,9 @@ class StoreAuthInfo extends AuthInfo {
     to[Fields.DEVICE_ID] = this.deviceId;
     to[Fields.LOGGED_IN_PROVIDER_NAME] = this.loggedInProviderName;
     to[Fields.LOGGED_IN_PROVIDER_TYPE] = this.loggedInProviderType;
-    to[Fields.USER_PROFILE] = this.userProfile;
+    to[Fields.USER_PROFILE] = this.userProfile
+      ? this.userProfile.encode()
+      : undefined;
 
     return to;
   }

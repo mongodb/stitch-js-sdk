@@ -19,25 +19,29 @@ import {
   StitchCredential,
   StitchUserProfileImpl
 } from "mongodb-stitch-core-sdk";
+import StitchRedirectCredential from "../providers/StitchRedirectCredential";
 import StitchUser from "../StitchUser";
 import StitchAuthImpl from "./StitchAuthImpl";
 
 export default class StitchUserImpl extends CoreStitchUserImpl
   implements StitchUser {
-  private readonly auth: StitchAuthImpl;
-
   public constructor(
     id: string,
     loggedInProviderType: string,
     loggedInProviderName: string,
     profile: StitchUserProfileImpl,
-    auth: StitchAuthImpl
+    private readonly auth: StitchAuthImpl
   ) {
     super(id, loggedInProviderType, loggedInProviderName, profile);
-    this.auth = auth;
   }
 
   public linkWithCredential(credential: StitchCredential): Promise<StitchUser> {
     return this.auth.linkWithCredential(this, credential);
+  }
+
+  public linkUserWithRedirect(
+    credential: StitchRedirectCredential
+  ): Promise<void> {
+    return this.auth.linkWithRedirectInternal(this, credential);
   }
 }

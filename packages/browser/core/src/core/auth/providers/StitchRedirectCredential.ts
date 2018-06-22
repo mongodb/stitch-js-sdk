@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-import { CoreStitchUser, StitchCredential } from "mongodb-stitch-core-sdk";
-import StitchRedirectCredential from "./providers/StitchRedirectCredential";
-
-interface StitchUser extends CoreStitchUser {
-  linkUserWithRedirect(credential: StitchRedirectCredential): Promise<void>;
-  linkWithCredential(credential: StitchCredential): Promise<StitchUser>;
+export default interface StitchRedirectCredential {
+  readonly providerName: string;
+  readonly providerType: string;
+  readonly redirectUrl?: string;
 }
-
-export default StitchUser;

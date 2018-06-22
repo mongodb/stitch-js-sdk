@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-import { CoreStitchUser, StitchCredential } from "mongodb-stitch-core-sdk";
-import StitchRedirectCredential from "./providers/StitchRedirectCredential";
-
-interface StitchUser extends CoreStitchUser {
-  linkUserWithRedirect(credential: StitchRedirectCredential): Promise<void>;
-  linkWithCredential(credential: StitchCredential): Promise<StitchUser>;
+enum RedirectFragmentFields {
+  StitchError = "_stitch_error",
+  State = "_stitch_state",
+  UserAuth = "_stitch_ua",
+  LinkUser = "_stitch_link_user",
+  StitchLink = "_stitch_link",
+  ClientAppId = "_stitch_client_app_id"
 }
 
-export default StitchUser;
+export default RedirectFragmentFields;

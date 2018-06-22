@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import AuthInfo from "./auth/internal/AuthInfo";
 import CoreStitchAuth from "./auth/internal/CoreStitchAuth";
 import CoreStitchUser from "./auth/internal/CoreStitchUser";
 import CoreStitchUserImpl from "./auth/internal/CoreStitchUserImpl";
@@ -31,6 +32,8 @@ import FacebookAuthProvider from "./auth/providers/facebook/FacebookAuthProvider
 import FacebookCredential from "./auth/providers/facebook/FacebookCredential";
 import GoogleAuthProvider from "./auth/providers/google/GoogleAuthProvider";
 import GoogleCredential from "./auth/providers/google/GoogleCredential";
+import StitchAuthCredential from "./auth/providers/internal/StitchAuthResponseCredential";
+import StitchAuthResponseCredential from "./auth/providers/internal/StitchAuthResponseCredential";
 import ServerApiKeyAuthProvider from "./auth/providers/serverapikey/ServerApiKeyAuthProvider";
 import ServerApiKeyCredential from "./auth/providers/serverapikey/ServerApiKeyCredential";
 import CoreUserApiKeyAuthProviderClient from "./auth/providers/userapikey/CoreUserApiKeyAuthProviderClient";
@@ -44,12 +47,14 @@ import StitchCredential from "./auth/StitchCredential";
 import StitchUserIdentity from "./auth/StitchUserIdentity";
 import StitchUserProfile from "./auth/StitchUserProfile";
 import UserType from "./auth/UserType";
+import { base64Decode, base64Encode } from "./internal/common/Base64";
 import { Codec, Decoder, Encoder } from "./internal/common/Codec";
 import { MemoryStorage, Storage } from "./internal/common/Storage";
 import CoreStitchAppClient from "./internal/CoreStitchAppClient";
 import FetchTransport from "./internal/net/FetchTransport";
 import Method from "./internal/net/Method";
 import Response from "./internal/net/Response";
+import StitchAppAuthRoutes from "./internal/net/StitchAppAuthRoutes";
 import { StitchAppRoutes } from "./internal/net/StitchAppRoutes";
 import { StitchAuthRequest } from "./internal/net/StitchAuthRequest";
 import StitchRequestClient from "./internal/net/StitchRequestClient";
@@ -59,11 +64,15 @@ import CoreStitchServiceClientImpl from "./services/internal/CoreStitchServiceCl
 import StitchServiceRoutes from "./services/internal/StitchServiceRoutes";
 import { StitchAppClientConfiguration } from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";
-import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
+import StitchClientError from "./StitchClientError";
+import { StitchClientErrorCode } from "./StitchClientErrorCode";
+import StitchError from "./StitchError";
 import StitchServiceError from "./StitchServiceError";
-import { base64Decode, base64Encode } from "./internal/common/Base64";
+import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
 
 export {
+  AuthInfo,
+  StitchAuthResponseCredential,
   AnonymousAuthProvider,
   AnonymousCredential,
   ApiStitchUserIdentity,
@@ -78,9 +87,13 @@ export {
   UserApiKeyAuthProvider,
   UserApiKey,
   UserApiKeyCredential,
+  StitchAuthCredential,
   Codec,
   Decoder,
   Encoder,
+  StitchError,
+  StitchClientError,
+  StitchClientErrorCode,
   CoreUserApiKeyAuthProviderClient,
   UserPasswordAuthProvider,
   UserPasswordCredential,
@@ -108,6 +121,7 @@ export {
   StitchUserProfileImpl,
   CoreStitchServiceClientImpl,
   StitchUserIdentity,
+  StitchAppAuthRoutes,
   Storage,
   Method,
   Response,

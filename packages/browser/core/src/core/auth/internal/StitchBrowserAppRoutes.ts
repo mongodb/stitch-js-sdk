@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import { CoreStitchUser, StitchCredential } from "mongodb-stitch-core-sdk";
-import StitchRedirectCredential from "./providers/StitchRedirectCredential";
+import { StitchAppRoutes } from "mongodb-stitch-core-sdk";
+import StitchBrowserAppAuthRoutes from "./StitchBrowserAppAuthRoutes";
 
-interface StitchUser extends CoreStitchUser {
-  linkUserWithRedirect(credential: StitchRedirectCredential): Promise<void>;
-  linkWithCredential(credential: StitchCredential): Promise<StitchUser>;
+export default class StitchBrowserAppRoutes extends StitchAppRoutes {
+  public readonly authRoutes: StitchBrowserAppAuthRoutes;
+
+  public constructor(clientAppId: string, baseUrl: string) {
+    super(clientAppId);
+    this.authRoutes = new StitchBrowserAppAuthRoutes(clientAppId, baseUrl);
+  }
 }
-
-export default StitchUser;

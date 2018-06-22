@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-import { CoreStitchUser, StitchCredential } from "mongodb-stitch-core-sdk";
-import StitchRedirectCredential from "./providers/StitchRedirectCredential";
+import { StitchError } from "mongodb-stitch-core-sdk";
 
-interface StitchUser extends CoreStitchUser {
-  linkUserWithRedirect(credential: StitchRedirectCredential): Promise<void>;
-  linkWithCredential(credential: StitchCredential): Promise<StitchUser>;
+export default class StitchRedirectError extends StitchError {
+  constructor(msg: string) {
+    super(msg);
+  }
 }
-
-export default StitchUser;

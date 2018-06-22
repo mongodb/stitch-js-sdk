@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import { CoreStitchUser, StitchCredential } from "mongodb-stitch-core-sdk";
-import StitchRedirectCredential from "./providers/StitchRedirectCredential";
+import { GoogleAuthProvider } from "mongodb-stitch-core-sdk";
+import StitchRedirectCredential from "../StitchRedirectCredential";
 
-interface StitchUser extends CoreStitchUser {
-  linkUserWithRedirect(credential: StitchRedirectCredential): Promise<void>;
-  linkWithCredential(credential: StitchCredential): Promise<StitchUser>;
+export default class GoogleRedirectCredential
+  implements StitchRedirectCredential {
+  public constructor(
+    public readonly redirectUrl?: string,
+    public readonly providerName = GoogleAuthProvider.DEFAULT_NAME,
+    public readonly providerType = GoogleAuthProvider.TYPE
+  ) {}
 }
-
-export default StitchUser;
