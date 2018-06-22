@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { StitchClientErrorCode } from "./StitchClientErrorCode";
+import { StitchClientErrorCode, clientErrorCodeDescs } from "./StitchClientErrorCode";
 import StitchError from "./StitchError";
 
 /**
@@ -31,7 +31,8 @@ export default class StitchClientError extends StitchError {
    * Constructs a client exception with the given error code.
    */
   public constructor(errorCode: StitchClientErrorCode) {
-    super("");
+    const message = `(${StitchClientErrorCode[errorCode]}): ${clientErrorCodeDescs[errorCode]}`;
+    super(message);
     this.errorCode = errorCode;
   }
 }

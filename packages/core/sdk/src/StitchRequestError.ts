@@ -15,7 +15,7 @@
  */
 
 import StitchError from "./StitchError";
-import { StitchRequestErrorCode } from "./StitchRequestErrorCode";
+import { StitchRequestErrorCode, requestErrorCodeDescs } from "./StitchRequestErrorCode";
 
 /**
  * Indicates that an error occurred while a request was being carried out. This could be due to (but
@@ -35,7 +35,7 @@ export default class StitchRequestError extends StitchError {
   /**
    * The underlying Error that caused this request exception.
    */
-  private readonly underlyingError: Error;
+  public readonly underlyingError: Error;
 
   /**
    * Constructs a request exception from the underlying exception and error code.
@@ -44,7 +44,8 @@ export default class StitchRequestError extends StitchError {
     underlyingError: Error,
     errorCode: StitchRequestErrorCode
   ) {
-    super("");
+    const message = `${underlyingError.message}(${StitchRequestErrorCode[errorCode]}): ${requestErrorCodeDescs[errorCode]}`;
+    super(message);
     this.underlyingError = underlyingError;
     this.errorCode = errorCode;
   }
