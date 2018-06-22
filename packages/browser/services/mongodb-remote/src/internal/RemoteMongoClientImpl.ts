@@ -20,7 +20,7 @@ import RemoteMongoDatabase from "../RemoteMongoDatabase";
 import RemoteMongoDatabaseImpl from "./RemoteMongoDatabaseImpl";
 
 export default class RemoteMongoClientImpl implements RemoteMongoClient {
-  constructor(private readonly proxy: CoreRemoteMongoClient) {}
+  public constructor(private readonly proxy: CoreRemoteMongoClient) {}
 
   /**
    * Gets a {@link RemoteMongoDatabase} instance for the given database name.

@@ -26,8 +26,8 @@ export interface UserCreator {
 export class UserCreatorCodec implements Codec<UserCreator> {
   public decode(from: object): UserCreator {
     return {
-      email: from["email"],
-      password: from["password"]
+      email: from.email,
+      password: from.password
     };
   }
 

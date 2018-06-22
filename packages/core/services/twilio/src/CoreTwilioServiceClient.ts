@@ -32,7 +32,7 @@ export default class CoreTwilioServiceClient {
     };
 
     if (mediaUrl !== undefined) {
-      args["mediaUrl"] = mediaUrl;
+      args.mediaUrl = mediaUrl;
     }
 
     return this.service.callFunctionInternal("send", [args]);

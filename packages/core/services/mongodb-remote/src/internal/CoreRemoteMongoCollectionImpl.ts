@@ -31,12 +31,10 @@ export default class CoreRemoteMongoCollectionImpl<T>
   implements CoreRemoteMongoCollection<T> {
   public readonly namespace = this.databaseName + "." + this.name;
 
-  private readonly baseOperationArgs: object = (() => {
-    return {
-      collection: this.name,
-      database: this.databaseName
-    };
-  })();
+  private readonly baseOperationArgs: object = (() => ({
+    collection: this.name,
+    database: this.databaseName
+  }))();
 
   public constructor(
     public readonly name: string,
@@ -75,19 +73,19 @@ export default class CoreRemoteMongoCollectionImpl<T>
     filter: object = {},
     options?: RemoteFindOptions
   ): CoreRemoteMongoReadOperation<T> {
-    const args = Object.assign({}, this.baseOperationArgs);
+    const args = { ...this.baseOperationArgs };
 
-    args["query"] = filter;
+    args.query = filter;
 
     if (options) {
       if (options.limit) {
-        args["limit"] = options.limit;
+        args.limit = options.limit;
       }
       if (options.projection) {
-        args["project"] = options.projection;
+        args.project = options.projection;
       }
       if (options.sort) {
-        args["sort"] = options.sort;
+        args.sort = options.sort;
       }
     }
 
@@ -112,9 +110,9 @@ export default class CoreRemoteMongoCollectionImpl<T>
    * - returns: A `CoreRemoteMongoReadOperation` that allows retrieval of the resulting documents.
    */
   public aggregate(pipeline: object[]): CoreRemoteMongoReadOperation<T> {
-    const args = Object.assign({}, this.baseOperationArgs);
+    const args = { ...this.baseOperationArgs };
 
-    args["pipeline"] = pipeline;
+    args.pipeline = pipeline;
 
     return new CoreRemoteMongoReadOperation<T>(
       "aggregate",
@@ -137,11 +135,11 @@ export default class CoreRemoteMongoCollectionImpl<T>
     query: object = {},
     options?: RemoteCountOptions
   ): Promise<number> {
-    const args = Object.assign({}, this.baseOperationArgs);
-    args["query"] = query;
+    const args = { ...this.baseOperationArgs };
+    args.query = query;
 
     if (options && options.limit) {
-      args["limit"] = options.limit;
+      args.limit = options.limit;
     }
 
     return this.service.callFunctionInternal("count", [args]);
@@ -157,9 +155,9 @@ export default class CoreRemoteMongoCollectionImpl<T>
    * - Returns: The result of attempting to perform the insert.
    */
   public insertOne(value: T): Promise<RemoteInsertOneResult> {
-    const args = Object.assign({}, this.baseOperationArgs);
+    const args = { ...this.baseOperationArgs };
 
-    args["document"] = this.generateObjectIdIfMissing(
+    args.document = this.generateObjectIdIfMissing(
       this.codec ? this.codec.encode(value) : (value as any)
     );
 
@@ -180,9 +178,9 @@ export default class CoreRemoteMongoCollectionImpl<T>
    * - Returns: The result of attempting to perform the insert.
    */
   public insertMany(docs: T[]): Promise<RemoteInsertManyResult> {
-    const args = Object.assign({}, this.baseOperationArgs);
+    const args = { ...this.baseOperationArgs };
 
-    args["documents"] = docs.map(doc =>
+    args.documents = docs.map(doc =>
       this.generateObjectIdIfMissing(
         this.codec ? this.codec.encode(doc) : (doc as any)
       )
@@ -259,8 +257,8 @@ export default class CoreRemoteMongoCollectionImpl<T>
     query: object,
     multi: boolean
   ): Promise<RemoteDeleteResult> {
-    const args = Object.assign({}, this.baseOperationArgs);
-    args["query"] = query;
+    const args = { ...this.baseOperationArgs };
+    args.query = query;
 
     return this.service.callFunctionInternal(
       multi ? "deleteMany" : "deleteOne",
@@ -273,15 +271,15 @@ export default class CoreRemoteMongoCollectionImpl<T>
     query: object,
     update: object,
     options?: RemoteUpdateOptions,
-    multi: boolean = false
+    multi = false
   ): Promise<RemoteUpdateResult> {
-    const args = Object.assign({}, this.baseOperationArgs);
+    const args = { ...this.baseOperationArgs };
 
-    args["query"] = query;
-    args["update"] = update;
+    args.query = query;
+    args.update = update;
 
     if (options && options.upsert) {
-      args["upsert"] = options.upsert;
+      args.upsert = options.upsert;
     }
 
     return this.service.callFunctionInternal(
@@ -293,9 +291,9 @@ export default class CoreRemoteMongoCollectionImpl<T>
 
   /// Returns a version of the provided document with an ObjectId
   private generateObjectIdIfMissing(doc: object): object {
-    if (!doc["_id"]) {
+    if (!doc._id) {
       const newDoc = doc;
-      newDoc["_id"] = new ObjectID();
+      newDoc._id = new ObjectID();
       return newDoc;
     }
     return doc;

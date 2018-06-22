@@ -31,8 +31,9 @@ describe("EJSON test", () => {
     ).toEqual('{"test":{"$numberInt":"42"}}');
   });
   it("should deserialize Extended JSON correctly", () => {
+    const expected = 42;
     expect(EJSON.parse('{ "$numberLong": "42" }', { strict: false })).toEqual(
-      42
+      expected
     );
   });
 });

@@ -37,7 +37,7 @@ export default class StitchAppClientImpl implements StitchAppClient {
   public constructor(
     clientAppId: string,
     config: StitchAppClientConfiguration
-   ) {
+  ) {
     this.info = new StitchAppClientInfo(
       clientAppId,
       config.dataDirectory,

@@ -28,8 +28,8 @@ import {
 import {
   AnonymousCredential,
   Codec,
-  StitchServiceErrorCode,
-  StitchServiceError
+  StitchServiceError,
+  StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
 import { RemoteMongoClient, RemoteMongoCollection } from "../src";
 
@@ -58,12 +58,12 @@ function getTestColl<ResultT>(
 }
 
 function withoutIds(docs: object[]): object[] {
-  return docs.map(doc => withoutId(doc));
+  return docs.map(withoutId);
 }
 
 function withoutId(doc: object): object {
-  const newDoc = Object.assign({}, doc);
-  delete newDoc["_id"];
+  const newDoc = { ...doc };
+  delete newDoc._id;
   return newDoc;
 }
 
@@ -108,8 +108,8 @@ describe("RemoteMongoClient", () => {
     expect(0).toEqual(await coll.count());
 
     const rawDoc = { hello: "world" };
-    const doc1 = Object.assign({}, rawDoc);
-    const doc2 = Object.assign({}, rawDoc);
+    const doc1 = { ...rawDoc };
+    const doc2 = { ...rawDoc };
     await coll.insertOne(doc1);
     expect(1).toEqual(await coll.count());
     await coll.insertOne(doc2);
@@ -136,7 +136,7 @@ describe("RemoteMongoClient", () => {
 
     const doc1 = { hello: "world" };
     const doc2 = { hello: "friend" };
-    doc2["proj"] = "field";
+    doc2.proj = "field";
     await coll.insertMany([doc1, doc2]);
     expect((await iter.iterator()).next().done).toBeFalsy();
     expect(withoutId(doc1)).toEqual(withoutId((await iter.first()) as any));
@@ -174,9 +174,7 @@ describe("RemoteMongoClient", () => {
     expect(2).toEqual(count);
 
     expect(
-      (await coll.find().asArray()).find(it => {
-        return doc1.hello === it["hello"];
-      })
+      (await coll.find().asArray()).find(it => doc1.hello === it.hello)
     ).toBeDefined();
 
     expect([doc1, doc2]).toEqual(await coll.find().asArray());
@@ -228,9 +226,9 @@ describe("RemoteMongoClient", () => {
   it("should insert one", async () => {
     const coll = getTestColl();
     const doc = { hello: "world" };
-    doc["_id"] = new ObjectId();
+    doc._id = new ObjectId();
 
-    expect(doc["_id"]).toEqual((await coll.insertOne(doc)).insertedId);
+    expect(doc._id).toEqual((await coll.insertOne(doc)).insertedId);
     try {
       await coll.insertOne(doc);
       fail();
@@ -241,15 +239,15 @@ describe("RemoteMongoClient", () => {
     }
 
     const doc2 = { hello: "world" };
-    expect(doc["_id"]).not.toEqual((await coll.insertOne(doc2)).insertedId);
+    expect(doc._id).not.toEqual((await coll.insertOne(doc2)).insertedId);
   });
 
   it("should insert many", async () => {
     const coll = getTestColl();
     const doc1 = { hello: "world" };
-    doc1["_id"] = new ObjectID();
+    doc1._id = new ObjectID();
 
-    expect(doc1["_id"]).toEqual((await coll.insertMany([doc1])).insertedIds[0]);
+    expect(doc1._id).toEqual((await coll.insertMany([doc1])).insertedIds[0]);
     try {
       await coll.insertMany([doc1]);
     } catch (error) {
@@ -259,7 +257,7 @@ describe("RemoteMongoClient", () => {
     }
 
     const doc2 = { hello: "world" };
-    expect(doc1["_id"]).not.toEqual(
+    expect(doc1._id).not.toEqual(
       (await coll.insertMany([doc2])).insertedIds[0]
     );
 
@@ -344,7 +342,7 @@ describe("RemoteMongoClient", () => {
     expect(1).toEqual(result.modifiedCount);
     expect(result.upsertedId).toBeUndefined();
     const expectedDoc = { hello: "world" };
-    expectedDoc["woof"] = "meow";
+    expectedDoc.woof = "meow";
     expect(expectedDoc).toEqual(
       withoutId((await coll.find({}).first()) as any)
     );
@@ -381,7 +379,7 @@ describe("RemoteMongoClient", () => {
     expect(2).toEqual(result.modifiedCount);
 
     const expectedDoc1 = { hello: "world" };
-    expectedDoc1["woof"] = "meow";
+    expectedDoc1.woof = "meow";
     const expectedDoc2 = { woof: "meow" };
     expect([expectedDoc1, expectedDoc2]).toEqual(
       withoutIds(await coll.find({}).asArray())
@@ -405,8 +403,8 @@ describe("RemoteMongoClient", () => {
     const codec = new class implements Codec<CustomType> {
       public decode(from: object): CustomType {
         return {
-          id: from["_id"],
-          intValue: from["intValue"]
+          id: from._id,
+          intValue: from.intValue
         };
       }
 

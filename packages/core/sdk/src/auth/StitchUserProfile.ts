@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 /**
  * The set of properties that describe a MongoDB Stitch user.
  */

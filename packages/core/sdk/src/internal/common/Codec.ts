@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 export interface Decoder<T> {
   decode(from: object): T;
 }

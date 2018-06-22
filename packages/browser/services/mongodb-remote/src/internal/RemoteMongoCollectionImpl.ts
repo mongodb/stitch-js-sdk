@@ -36,7 +36,7 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
    */
   public readonly namespace: string = this.proxy.namespace;
 
-  constructor(
+  public constructor(
     private readonly proxy: CoreRemoteMongoCollection<DocumentT>,
     private readonly codec?: Codec<DocumentT>
   ) {}

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 export default class StitchAppClientInfo {
   public readonly clientAppId: string;
   public readonly dataDirectory: string;

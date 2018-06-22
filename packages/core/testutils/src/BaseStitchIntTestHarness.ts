@@ -15,7 +15,7 @@
  */
 
 import { ObjectID } from "bson";
-import * as fetch from "fetch-everywhere"
+import * as fetch from "fetch-everywhere";
 import {
   App,
   AppResponse,
@@ -36,7 +36,7 @@ import {
 export default abstract class BaseStitchIntTestHarness {
   protected abstract readonly stitchBaseUrl: string;
 
-  private groupId: string = "";
+  private groupId = "";
   private apps: App[] = [];
   private initialized = false;
 
@@ -47,14 +47,12 @@ export default abstract class BaseStitchIntTestHarness {
   public setup(): Promise<void> {
     // Verify stitch is up
     return fetch(this.stitchBaseUrl)
-      .then(result => {
-        return this.adminClient.loginWithCredential(
+      .then(result =>
+        this.adminClient.loginWithCredential(
           new UserPasswordCredential("unique_user@domain.com", "password")
-        );
-      })
-      .then(result => {
-        return this.adminClient.adminProfile();
-      })
+        )
+      )
+      .then(result => this.adminClient.adminProfile())
       .then(profile => {
         this.groupId = profile.roles[0].groupId;
         this.initialized = true;
@@ -81,7 +79,7 @@ export default abstract class BaseStitchIntTestHarness {
   }
 
   public async createApp(
-    appName: string = `test-${new ObjectID().toHexString()}`
+    appName = `test-${new ObjectID().toHexString()}`
   ): Promise<Array<App | AppResponse>> {
     return this.adminClient
       .apps(this.groupId)
@@ -104,9 +102,7 @@ export default abstract class BaseStitchIntTestHarness {
         authProviders = resp;
         return app.authProviders.authProvider(resp.id).enable();
       })
-      .then(() => {
-        return authProviders;
-      });
+      .then(() => authProviders);
   }
 
   public async enableApiKeyProvider(app: App): Promise<void> {

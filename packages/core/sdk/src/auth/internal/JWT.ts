@@ -15,7 +15,7 @@
  */
 
 import StitchClientError from "../../StitchClientError";
-import { base64Decode } from "../../internal/common/Base64"
+import { base64Decode } from "../../internal/common/Base64";
 
 const EXPIRES = "exp";
 const ISSUED_AT = "iat";

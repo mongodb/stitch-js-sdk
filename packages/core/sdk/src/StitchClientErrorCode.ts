@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 /**
  * StitchClientErrorCode represents the errors that can occur when using the Stitch client,
  * typically before a request is made to the Stitch server.
@@ -27,10 +26,15 @@ export enum StitchClientErrorCode {
   CouldNotPersistAuthInfo
 }
 
-export const clientErrorCodeDescs: { [id in StitchClientErrorCode] : string } = {
-  [StitchClientErrorCode.LoggedOutDuringRequest]: "logged out while making a request to Stitch",
-  [StitchClientErrorCode.MustAuthenticateFirst]: "method called requires being authenticated",
-  [StitchClientErrorCode.UserNoLongerValid]: "user instance being accessed is no longer valid; please get a new user with auth.getUser()",
-  [StitchClientErrorCode.CouldNotLoadPersistedAuthInfo]: "failed to load stored auth information for Stitch",
-  [StitchClientErrorCode.CouldNotPersistAuthInfo]: "failed to save auth information for Stitch"
+export const clientErrorCodeDescs: { [id in StitchClientErrorCode]: string } = {
+  [StitchClientErrorCode.LoggedOutDuringRequest]:
+    "logged out while making a request to Stitch",
+  [StitchClientErrorCode.MustAuthenticateFirst]:
+    "method called requires being authenticated",
+  [StitchClientErrorCode.UserNoLongerValid]:
+    "user instance being accessed is no longer valid; please get a new user with auth.getUser()",
+  [StitchClientErrorCode.CouldNotLoadPersistedAuthInfo]:
+    "failed to load stored auth information for Stitch",
+  [StitchClientErrorCode.CouldNotPersistAuthInfo]:
+    "failed to save auth information for Stitch"
 };

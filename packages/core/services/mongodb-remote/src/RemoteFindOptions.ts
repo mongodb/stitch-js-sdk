@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 /// Options to use when executing a `find` command on a `RemoteMongoCollection`.
 export default interface RemoteFindOptions {
   /// The maximum number of documents to return.

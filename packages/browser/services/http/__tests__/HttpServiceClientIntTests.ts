@@ -27,8 +27,8 @@ import {
   Service
 } from "mongodb-stitch-core-admin-client";
 import {
-  StitchServiceErrorCode,
-  StitchServiceError
+  StitchServiceError,
+  StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
 import { HttpMethod, HttpRequest } from "mongodb-stitch-core-services-http";
 import { HttpServiceClient } from "../src/HttpServiceClient";
@@ -66,10 +66,10 @@ describe("HttpServiceClient", () => {
     const method = HttpMethod.DELETE;
     const body = "hello world!";
     const cookies = {};
-    cookies["bob"] = "barker";
+    cookies.bob = "barker";
     const form = {};
     const headers = {};
-    headers["myHeader"] = ["value1", "value2"];
+    headers.myHeader = ["value1", "value2"];
 
     let badRequest = new HttpRequest.Builder()
       .withUrl(badUrl)
@@ -124,9 +124,9 @@ describe("HttpServiceClient", () => {
     expect(response.contentLength).toBeLessThanOrEqual(400);
     expect(response.body).toBeDefined();
     const dataDoc = EJSON.parse(String(response.body!!), { relaxed: true });
-    expect(body).toEqual(dataDoc["data"]);
-    const headersDoc = dataDoc["headers"];
-    expect("value1,value2").toEqual(headersDoc["Myheader"]);
-    expect("bob=barker").toEqual(headersDoc["Cookie"]);
+    expect(body).toEqual(dataDoc.data);
+    const headersDoc = dataDoc.headers;
+    expect("value1,value2").toEqual(headersDoc.Myheader);
+    expect("bob=barker").toEqual(headersDoc.Cookie);
   });
 });

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 /**
  * Defines the behavior of a credential based on its authentication provider.
  */
@@ -27,7 +26,7 @@ export default class ProviderCapabilities {
    */
   public readonly reusesExistingSession: boolean;
 
-  public constructor(reusesExistingSession: boolean = false) {
+  public constructor(reusesExistingSession = false) {
     this.reusesExistingSession = reusesExistingSession;
   }
 }

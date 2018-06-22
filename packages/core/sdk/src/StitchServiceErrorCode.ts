@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 /** StitchServiceErrorCode represents the set of errors that can come back from a Stitch request. */
 export enum StitchServiceErrorCode {
   MissingAuthReq,
@@ -66,56 +65,60 @@ export enum StitchServiceErrorCode {
   Unknown
 }
 
-const apiErrorCodes: { [id: string] : StitchServiceErrorCode } = {
-  "MissingAuthReq": StitchServiceErrorCode.MissingAuthReq,
-  "InvalidSession": StitchServiceErrorCode.InvalidSession,
-  "UserAppDomainMismatch": StitchServiceErrorCode.UserAppDomainMismatch,
-  "DomainNotAllowed": StitchServiceErrorCode.DomainNotAllowed,
-  "ReadSizeLimitExceeded": StitchServiceErrorCode.ReadSizeLimitExceeded,
-  "InvalidParameter": StitchServiceErrorCode.InvalidParameter,
-  "MissingParameter": StitchServiceErrorCode.MissingParameter,
-  "TwilioError": StitchServiceErrorCode.TwilioError,
-  "GCMError": StitchServiceErrorCode.GCMError,
-  "HTTPError": StitchServiceErrorCode.HTTPError,
-  "AWSError": StitchServiceErrorCode.AWSError,
-  "MongoDBError": StitchServiceErrorCode.MongoDBError,
-  "ArgumentsNotAllowed": StitchServiceErrorCode.ArgumentsNotAllowed,
-  "FunctionExecutionError": StitchServiceErrorCode.FunctionExecutionError,
-  "NoMatchingRuleFound": StitchServiceErrorCode.NoMatchingRuleFound,
-  "InternalServerError": StitchServiceErrorCode.InternalServerError,
-  "AuthProviderNotFound": StitchServiceErrorCode.AuthProviderNotFound,
-  "AuthProviderAlreadyExists": StitchServiceErrorCode.AuthProviderAlreadyExists,
-  "ServiceNotFound": StitchServiceErrorCode.ServiceNotFound,
-  "ServiceTypeNotFound": StitchServiceErrorCode.ServiceTypeNotFound,
-  "ServiceAlreadyExists": StitchServiceErrorCode.ServiceAlreadyExists,
-  "ServiceCommandNotFound": StitchServiceErrorCode.ServiceCommandNotFound,
-  "ValueNotFound": StitchServiceErrorCode.ValueNotFound,
-  "ValueAlreadyExists": StitchServiceErrorCode.ValueAlreadyExists,
-  "ValueDuplicateName": StitchServiceErrorCode.ValueDuplicateName,
-  "FunctionNotFound": StitchServiceErrorCode.FunctionNotFound,
-  "FunctionAlreadyExists": StitchServiceErrorCode.FunctionAlreadyExists,
-  "FunctionDuplicateName": StitchServiceErrorCode.FunctionDuplicateName,
-  "FunctionSyntaxError": StitchServiceErrorCode.FunctionSyntaxError,
-  "FunctionInvalid": StitchServiceErrorCode.FunctionInvalid,
-  "IncomingWebhookNotFound": StitchServiceErrorCode.IncomingWebhookNotFound,
-  "IncomingWebhookAlreadyExists": StitchServiceErrorCode.IncomingWebhookAlreadyExists,
-  "IncomingWebhookDuplicateName": StitchServiceErrorCode.IncomingWebhookDuplicateName,
-  "RuleNotFound": StitchServiceErrorCode.RuleNotFound,
-  "APIKeyNotFound": StitchServiceErrorCode.ApiKeyNotFound,
-  "RuleAlreadyExists": StitchServiceErrorCode.RuleAlreadyExists,
-  "RuleDuplicateName": StitchServiceErrorCode.RuleDuplicateName,
-  "AuthProviderDuplicateName": StitchServiceErrorCode.AuthProviderDuplicateName,
-  "RestrictedHost": StitchServiceErrorCode.RestrictedHost,
-  "APIKeyAlreadyExists": StitchServiceErrorCode.ApiKeyAlreadyExists,
-  "IncomingWebhookAuthFailed": StitchServiceErrorCode.IncomingWebhookAuthFailed,
-  "ExecutionTimeLimitExceeded": StitchServiceErrorCode.ExecutionTimeLimitExceeded,
-  "FunctionNotCallable": StitchServiceErrorCode.FunctionNotCallable,
-  "UserAlreadyConfirmed": StitchServiceErrorCode.UserAlreadyConfirmed,
-  "UserNotFound": StitchServiceErrorCode.UserNotFound,
-  "UserDisabled": StitchServiceErrorCode.UserDisabled
+const apiErrorCodes: { [id: string]: StitchServiceErrorCode } = {
+  MissingAuthReq: StitchServiceErrorCode.MissingAuthReq,
+  InvalidSession: StitchServiceErrorCode.InvalidSession,
+  UserAppDomainMismatch: StitchServiceErrorCode.UserAppDomainMismatch,
+  DomainNotAllowed: StitchServiceErrorCode.DomainNotAllowed,
+  ReadSizeLimitExceeded: StitchServiceErrorCode.ReadSizeLimitExceeded,
+  InvalidParameter: StitchServiceErrorCode.InvalidParameter,
+  MissingParameter: StitchServiceErrorCode.MissingParameter,
+  TwilioError: StitchServiceErrorCode.TwilioError,
+  GCMError: StitchServiceErrorCode.GCMError,
+  HTTPError: StitchServiceErrorCode.HTTPError,
+  AWSError: StitchServiceErrorCode.AWSError,
+  MongoDBError: StitchServiceErrorCode.MongoDBError,
+  ArgumentsNotAllowed: StitchServiceErrorCode.ArgumentsNotAllowed,
+  FunctionExecutionError: StitchServiceErrorCode.FunctionExecutionError,
+  NoMatchingRuleFound: StitchServiceErrorCode.NoMatchingRuleFound,
+  InternalServerError: StitchServiceErrorCode.InternalServerError,
+  AuthProviderNotFound: StitchServiceErrorCode.AuthProviderNotFound,
+  AuthProviderAlreadyExists: StitchServiceErrorCode.AuthProviderAlreadyExists,
+  ServiceNotFound: StitchServiceErrorCode.ServiceNotFound,
+  ServiceTypeNotFound: StitchServiceErrorCode.ServiceTypeNotFound,
+  ServiceAlreadyExists: StitchServiceErrorCode.ServiceAlreadyExists,
+  ServiceCommandNotFound: StitchServiceErrorCode.ServiceCommandNotFound,
+  ValueNotFound: StitchServiceErrorCode.ValueNotFound,
+  ValueAlreadyExists: StitchServiceErrorCode.ValueAlreadyExists,
+  ValueDuplicateName: StitchServiceErrorCode.ValueDuplicateName,
+  FunctionNotFound: StitchServiceErrorCode.FunctionNotFound,
+  FunctionAlreadyExists: StitchServiceErrorCode.FunctionAlreadyExists,
+  FunctionDuplicateName: StitchServiceErrorCode.FunctionDuplicateName,
+  FunctionSyntaxError: StitchServiceErrorCode.FunctionSyntaxError,
+  FunctionInvalid: StitchServiceErrorCode.FunctionInvalid,
+  IncomingWebhookNotFound: StitchServiceErrorCode.IncomingWebhookNotFound,
+  IncomingWebhookAlreadyExists:
+    StitchServiceErrorCode.IncomingWebhookAlreadyExists,
+  IncomingWebhookDuplicateName:
+    StitchServiceErrorCode.IncomingWebhookDuplicateName,
+  RuleNotFound: StitchServiceErrorCode.RuleNotFound,
+  APIKeyNotFound: StitchServiceErrorCode.ApiKeyNotFound,
+  RuleAlreadyExists: StitchServiceErrorCode.RuleAlreadyExists,
+  RuleDuplicateName: StitchServiceErrorCode.RuleDuplicateName,
+  AuthProviderDuplicateName: StitchServiceErrorCode.AuthProviderDuplicateName,
+  RestrictedHost: StitchServiceErrorCode.RestrictedHost,
+  APIKeyAlreadyExists: StitchServiceErrorCode.ApiKeyAlreadyExists,
+  IncomingWebhookAuthFailed: StitchServiceErrorCode.IncomingWebhookAuthFailed,
+  ExecutionTimeLimitExceeded: StitchServiceErrorCode.ExecutionTimeLimitExceeded,
+  FunctionNotCallable: StitchServiceErrorCode.FunctionNotCallable,
+  UserAlreadyConfirmed: StitchServiceErrorCode.UserAlreadyConfirmed,
+  UserNotFound: StitchServiceErrorCode.UserNotFound,
+  UserDisabled: StitchServiceErrorCode.UserDisabled
 };
 
-export function stitchServiceErrorCodeFromApi(code : string) : StitchServiceErrorCode {
+export function stitchServiceErrorCodeFromApi(
+  code: string
+): StitchServiceErrorCode {
   if (!(code in apiErrorCodes)) {
     return StitchServiceErrorCode.Unknown;
   }

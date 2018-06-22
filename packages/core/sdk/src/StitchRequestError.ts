@@ -15,7 +15,10 @@
  */
 
 import StitchError from "./StitchError";
-import { StitchRequestErrorCode, requestErrorCodeDescs } from "./StitchRequestErrorCode";
+import {
+  StitchRequestErrorCode,
+  requestErrorCodeDescs
+} from "./StitchRequestErrorCode";
 
 /**
  * Indicates that an error occurred while a request was being carried out. This could be due to (but
@@ -44,7 +47,9 @@ export default class StitchRequestError extends StitchError {
     underlyingError: Error,
     errorCode: StitchRequestErrorCode
   ) {
-    const message = `${underlyingError.message}(${StitchRequestErrorCode[errorCode]}): ${requestErrorCodeDescs[errorCode]}`;
+    const message = `${underlyingError.message}(${
+      StitchRequestErrorCode[errorCode]
+    }): ${requestErrorCodeDescs[errorCode]}`;
     super(message);
     this.underlyingError = underlyingError;
     this.errorCode = errorCode;

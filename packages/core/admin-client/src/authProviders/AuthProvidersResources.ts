@@ -26,13 +26,13 @@ enum Fields {
 }
 
 export interface AuthProviderResponse {
-  /// unique id of this provider
+  /// Unique id of this provider
   readonly id: string;
-  /// whether or not this provider is disabled
+  /// Whether or not this provider is disabled
   readonly disabled: boolean;
-  /// name of this provider
+  /// Name of this provider
   readonly name: string;
-  /// the type of this provider
+  /// The type of this provider
   readonly type: string;
 }
 

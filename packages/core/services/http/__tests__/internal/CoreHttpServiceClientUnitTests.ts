@@ -92,6 +92,8 @@ describe("CoreHttpServiceClient", () => {
     try {
       await client.execute(request);
       fail();
-    } catch (_) {}
+    } catch (_) {
+      // Do nothing
+    }
   });
 });

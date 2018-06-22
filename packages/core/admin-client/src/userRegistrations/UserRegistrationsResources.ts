@@ -21,9 +21,11 @@ enum Fields {
   TokenId = "token_id"
 }
 
-// Class that allows the retrieval of the token
-// and tokenId of a confirmation email, for the sake
-// of skirting email registration
+/**
+ * Class that allows the retrieval of the token
+ * and tokenId of a confirmation email, for the sake
+ * of skirting email registration
+ */
 export interface ConfirmationEmail {
   readonly token: string;
   readonly tokenId: string;

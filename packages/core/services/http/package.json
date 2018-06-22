@@ -31,6 +31,7 @@
     "jest": "^23.1.0",
     "prettier": "^1.13.5",
     "ts-jest": "^22.4.6",
+    "ts-mockito": "^2.3.0",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
     "typescript": "^2.9.2"
@@ -41,7 +42,7 @@
     "build-module": "tsc -p tsconfig.esm.json",
     "watch": "tsc -w -p tsconfig.esm.json",
     "test": "jest",
-    "lint": "tslint src/**/*.ts",
+    "lint": "tslint src/**/*.ts __tests__/**/*.ts",
     "lint-fix": "tslint --fix src/**/*.ts __tests__/**/*.ts",
     "lint-check": "tslint-config-prettier-check ./tslint.json",
     "prettier": "prettier --write \"{,!(node_modules),!(lib)/**/}*.ts\""

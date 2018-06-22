@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 /**
  * The result of an AWS S3 put object request.
  */

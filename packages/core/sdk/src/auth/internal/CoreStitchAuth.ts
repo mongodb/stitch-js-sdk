@@ -301,9 +301,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    */
   private prepareAuthRequest(stitchReq: StitchAuthRequest): StitchRequest {
     if (!this.isLoggedIn) {
-      throw new StitchClientError(
-        StitchClientErrorCode.MustAuthenticateFirst
-      );
+      throw new StitchClientError(StitchClientErrorCode.MustAuthenticateFirst);
     }
 
     const newReq = stitchReq.builder;
@@ -362,9 +360,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     // that should wait on the result of doing a token refresh or logout. This will
     // prevent too many refreshes happening one after the other.
     if (!this.isLoggedIn) {
-      throw new StitchClientError(
-        StitchClientErrorCode.LoggedOutDuringRequest
-      );
+      throw new StitchClientError(StitchClientErrorCode.LoggedOutDuringRequest);
     }
 
     try {
@@ -466,10 +462,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     try {
       newAuthInfo = ApiAuthInfo.fromJSON(JSON.parse(response.body!));
     } catch (err) {
-      throw new StitchRequestError(
-        err,
-        StitchRequestErrorCode.DECODING_ERROR
-      );
+      throw new StitchRequestError(err, StitchRequestErrorCode.DECODING_ERROR);
     }
 
     newAuthInfo = this.authInfo.merge(

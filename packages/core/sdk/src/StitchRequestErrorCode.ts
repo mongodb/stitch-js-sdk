@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 /** StitchRequestErrorCode represents the reasons that a request may fail. */
 export enum StitchRequestErrorCode {
   TRANSPORT_ERROR,
@@ -22,8 +21,13 @@ export enum StitchRequestErrorCode {
   ENCODING_ERROR
 }
 
-export const requestErrorCodeDescs: { [id in StitchRequestErrorCode] : string } = {
-  [StitchRequestErrorCode.TRANSPORT_ERROR]: "the request transport encountered an error communicating with Stitch",
-  [StitchRequestErrorCode.DECODING_ERROR]: "an error occurred while decoding a response from Stitch",
-  [StitchRequestErrorCode.ENCODING_ERROR]: "an error occurred while encoding a request for Stitch"
+export const requestErrorCodeDescs: {
+  [id in StitchRequestErrorCode]: string
+} = {
+  [StitchRequestErrorCode.TRANSPORT_ERROR]:
+    "the request transport encountered an error communicating with Stitch",
+  [StitchRequestErrorCode.DECODING_ERROR]:
+    "an error occurred while decoding a response from Stitch",
+  [StitchRequestErrorCode.ENCODING_ERROR]:
+    "an error occurred while encoding a request for Stitch"
 };

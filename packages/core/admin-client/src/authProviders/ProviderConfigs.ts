@@ -24,8 +24,8 @@ export interface ProviderConfig {
 export class ProviderConfigCodec implements Codec<ProviderConfig> {
   public decode(from: object): ProviderConfig {
     return {
-      config: from["config"],
-      type: from["type"]
+      config: from.config,
+      type: from.type
     };
   }
 
@@ -53,11 +53,11 @@ export class Userpass implements ProviderConfig {
     resetPasswordSubject: this.resetPasswordSubject,
     resetPasswordUrl: this.resetPasswordUrl
   };
-  constructor(
-    readonly emailConfirmationUrl: string,
-    readonly resetPasswordUrl: string,
-    readonly confirmEmailSubject: string,
-    readonly resetPasswordSubject: string
+  public constructor(
+    public readonly emailConfirmationUrl: string,
+    public readonly resetPasswordUrl: string,
+    public readonly confirmEmailSubject: string,
+    public readonly resetPasswordSubject: string
   ) {}
 }
 
@@ -67,5 +67,5 @@ export class Custom implements ProviderConfig {
     signingKey: this.signingKey
   };
 
-  constructor(readonly signingKey: string) {}
+  public constructor(public readonly signingKey: string) {}
 }

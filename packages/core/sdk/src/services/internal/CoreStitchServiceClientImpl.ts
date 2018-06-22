@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import CoreStitchServiceClient from "./CoreStitchServiceClient"
-import StitchServiceRoutes from "./StitchServiceRoutes"
+import CoreStitchServiceClient from "./CoreStitchServiceClient";
+import StitchServiceRoutes from "./StitchServiceRoutes";
 import StitchAuthRequestClient from "../../auth/internal/StitchAuthRequestClient";
 import { Decoder } from "../../internal/common/Codec";
 import Method from "../../internal/net/Method";

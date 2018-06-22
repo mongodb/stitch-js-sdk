@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 declare module "mongodb-extjson" {
   export type Options = {
     relaxed?: boolean;

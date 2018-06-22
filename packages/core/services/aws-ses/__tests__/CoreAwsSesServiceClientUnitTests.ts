@@ -75,6 +75,8 @@ describe("CoreAwsSesServiceClient", () => {
     try {
       await client.sendEmail(toAddress, fromAddress, subject, body);
       fail();
-    } catch (_) {}
+    } catch (_) {
+      // Do nothing
+    }
   });
 });

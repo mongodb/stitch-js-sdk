@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 enum DeviceFields {
   DEVICE_ID = "deviceId",
   APP_ID = "appId",

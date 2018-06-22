@@ -36,19 +36,16 @@ export default class BaseStitchWebIntTestHarness extends BaseStitchIntTestHarnes
   }
 
   public tearDown(): Promise<void> {
-    return super
-      .teardown()
-      .then(() =>
-        Promise.all(
-          this.clients.map(it => {
-            it.auth.logout();
-          })
-        )
+    return super.teardown().then(() =>
+      Promise.all(
+        this.clients.map(it => {
+          it.auth.logout();
+        })
       )
-      .then(() => {});
+    );
   }
 
-  get stitchBaseUrl(): string {
+  public get stitchBaseUrl(): string {
     const envVar = process.env[stitchBaseURLEnvVar];
     return envVar !== undefined ? envVar : "http://localhost:9090";
   }

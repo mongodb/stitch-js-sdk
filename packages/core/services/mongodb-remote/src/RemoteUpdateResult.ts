@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 /// The result of an `updateOne` or `updateMany` operation a `RemoteMongoCollection`.
 export default interface RemoteUpdateResult {
   /// The number of documents that matched the filter.

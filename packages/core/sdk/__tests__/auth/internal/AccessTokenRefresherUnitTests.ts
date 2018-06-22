@@ -30,7 +30,7 @@ describe("AccessTokenRefresherUnitTests", () => {
     // Auth starts out logged in and with a fresh token
     const freshJwt = sign(
       {
-        exp: new Date().getMilliseconds() + (20 * 60 * 1000),
+        exp: new Date().getMilliseconds() + 20 * 60 * 1000,
         iat: new Date().getMilliseconds(),
         sub: "uniqueUserID"
       },
