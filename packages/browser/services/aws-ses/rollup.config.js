@@ -93,7 +93,8 @@ const plugins = [
   nodeBuiltins(),
   typescript({
     tsconfig: "tsconfig.esm.json"
-  })
+  }),
+  uglify()
 ];
 
 export default {
@@ -103,6 +104,7 @@ export default {
       file: 'lib/browser/stitch-services-aws-ses.js',
       format: 'iife',
       name: 'stitch',
+      sourcemap: true,
       extend: true
     }
   ],
