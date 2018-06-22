@@ -1,13 +1,13 @@
 {
     "extends": "../../../../config/tsconfig.umd.base.json",
     "compilerOptions": {
-    	"outDir": "lib/umd"
+    	"outDir": "dist/umd"
     },
     "include": [
         "src/**/*"
     ],
     "exclude": [
         "./node_modules/**",
-        "./lib"
+        "./dist"
     ]
 }

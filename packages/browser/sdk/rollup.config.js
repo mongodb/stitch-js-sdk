@@ -101,7 +101,7 @@ export default {
   input: 'src/index.ts',
   output: [
     {
-      file: 'lib/browser/stitch.js',
+      file: 'dist/browser/stitch.js',
       format: 'iife',
       name: 'stitch',
       sourcemap: true,

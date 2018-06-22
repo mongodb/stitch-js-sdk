@@ -1,11 +1,11 @@
 {
   "name": "mongodb-stitch-browser-core",
   "version": "4.0.0-beta-3",
-  "main": "lib/umd/index.js",
-  "module": "lib/esm/index.js",
-  "types": "lib/esm/index.d.ts",
+  "main": "dist/umd/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "files": [
-    "lib"
+    "dist"
   ],
   "description": "MongoDB Stitch JavaScript SDK - Browser Core",
   "keywords": [
@@ -58,9 +58,9 @@
     "lint": "tslint src/**/*.ts __tests__/**/*.ts",
     "lint-fix": "tslint --fix src/**/*.ts __tests__/**/*.ts",
     "lint-check": "tslint-config-prettier-check ./tslint.json",
-    "prettier": "prettier --write \"{,!(node_modules),!(lib)/**/}*.ts\"",
-    "add-version-esm": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" lib/esm/core/internal/common/Version.js",
-    "add-version-umd": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" lib/umd/core/internal/common/Version.js",
-    "add-version-browser": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" lib/browser/stitch-core.js"
+    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\"",
+    "add-version-esm": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" dist/esm/core/internal/common/Version.js",
+    "add-version-umd": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" dist/umd/core/internal/common/Version.js",
+    "add-version-browser": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" dist/browser/stitch-core.js"
   }
 }

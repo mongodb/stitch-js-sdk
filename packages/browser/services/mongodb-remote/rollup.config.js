@@ -101,7 +101,7 @@ export default {
   input: 'src/index.ts',
   output: [
     {
-      file: 'lib/browser/stitch-services-mongodb-remote.js',
+      file: 'dist/browser/stitch-services-mongodb-remote.js',
       format: 'iife',
       name: 'stitch',
       sourcemap: true,

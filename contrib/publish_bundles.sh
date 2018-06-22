@@ -28,7 +28,7 @@ PACKAGES=(
 
 for package in "${PACKAGES[@]}"
 do
-	path_loc=../packages/browser/$package/lib/browser
+	path_loc=../packages/browser/$package/dist/browser
 	if [ -z "$VERSION_QUALIFIER" ]; then
 		# Publish to MAJOR, MAJOR.MINOR
 		aws s3 cp $path_loc s3://stitch-sdks/js/bundles/$VERSION_MAJOR --exclude "*" --include "stitch*.js" --include "stitch*.map" --recursive --acl public-read

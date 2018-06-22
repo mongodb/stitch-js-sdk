@@ -30,6 +30,7 @@ lerna run test
 
 ### Publishing a New SDK version
 ```bash
+lerna run build
 lerna publish
 ./publish_bundles.sh
 ./publish_docs.sh

@@ -101,7 +101,7 @@ export default {
   input: 'src/index.ts',
   output: [
     {
-      file: 'lib/browser/stitch-services-twilio.js',
+      file: 'dist/browser/stitch-services-twilio.js',
       format: 'iife',
       name: 'stitch',
       sourcemap: true,

@@ -101,7 +101,7 @@ export default {
   input: 'src/index.ts',
   output: [
     {
-      file: 'lib/browser/stitch-services-aws-ses.js',
+      file: 'dist/browser/stitch-services-aws-ses.js',
       format: 'iife',
       name: 'stitch',
       sourcemap: true,
