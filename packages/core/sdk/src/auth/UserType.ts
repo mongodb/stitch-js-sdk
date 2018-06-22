@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 enum UserType {
   Normal = "normal",
   Server = "server",

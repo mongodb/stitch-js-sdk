@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 /// The result of an `insertMany` command on a `RemoteMongoCollection`.
 export default class RemoteInsertManyResult {
   /// Map of the index of the inserted document to the id of the inserted document.

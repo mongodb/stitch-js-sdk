@@ -71,10 +71,10 @@ describe("CoreRemoteMongoCollection", () => {
 
     expect(funcNameArg2).toEqual("count");
     expect(funcArgsArg2.length).toBe(1);
-    expectedArgs["database"] = "dbName1";
-    expectedArgs["collection"] = "collName1";
-    expectedArgs["query"] = expectedFilter;
-    expectedArgs["limit"] = 5;
+    expectedArgs.database = "dbName1";
+    expectedArgs.collection = "collName1";
+    expectedArgs.query = expectedFilter;
+    expectedArgs.limit = 5;
     expect(funcArgsArg2[0]).toEqual(expectedArgs);
     expect(resultClassArg2).toBeUndefined();
 
@@ -86,7 +86,9 @@ describe("CoreRemoteMongoCollection", () => {
     try {
       await coll.count();
       fail();
-    } catch (_) {}
+    } catch (_) {
+      // Do nothing
+    }
   });
 
   it("should find", async () => {
@@ -148,10 +150,10 @@ describe("CoreRemoteMongoCollection", () => {
 
     expect("find").toEqual(funcNameArg2);
     expect(1).toEqual(funcArgsArg2.length);
-    expectedArgs["query"] = expectedFilter;
-    expectedArgs["project"] = expectedProject;
-    expectedArgs["sort"] = expectedSort;
-    expectedArgs["limit"] = 5;
+    expectedArgs.query = expectedFilter;
+    expectedArgs.project = expectedProject;
+    expectedArgs.sort = expectedSort;
+    expectedArgs.limit = 5;
 
     expect(funcArgsArg2[0]).toEqual(expectedArgs);
 
@@ -172,7 +174,9 @@ describe("CoreRemoteMongoCollection", () => {
     try {
       await coll.find().first();
       fail();
-    } catch (_) {}
+    } catch (_) {
+      // Do nothing
+    }
   });
 
   it("should aggregate", async () => {
@@ -203,9 +207,9 @@ describe("CoreRemoteMongoCollection", () => {
     expect(funcNameArg).toEqual("aggregate");
     expect(funcArgsArg.length).toEqual(1);
     const expectedArgs = {};
-    expectedArgs["database"] = "dbName1";
-    expectedArgs["collection"] = "collName1";
-    expectedArgs["pipeline"] = [];
+    expectedArgs.database = "dbName1";
+    expectedArgs.collection = "collName1";
+    expectedArgs.pipeline = [];
     expect(funcArgsArg[0]).toEqual(expectedArgs);
 
     const expectedProject = { two: "four" };
@@ -228,7 +232,7 @@ describe("CoreRemoteMongoCollection", () => {
 
     expect("aggregate").toEqual(funcNameArg2);
     expect(1).toEqual(funcArgsArg2.length);
-    expectedArgs["pipeline"] = expectedPipeline;
+    expectedArgs.pipeline = expectedPipeline;
     expect(expectedArgs).toEqual(funcArgsArg2[0]);
 
     // Should pass along errors
@@ -239,7 +243,9 @@ describe("CoreRemoteMongoCollection", () => {
     try {
       await coll.aggregate([]).first();
       fail();
-    } catch (_) {}
+    } catch (_) {
+      // Do nothing
+    }
   });
 
   it("should insert one", async () => {
@@ -259,7 +265,7 @@ describe("CoreRemoteMongoCollection", () => {
     const result = await coll.insertOne(doc1);
 
     expect(id).toEqual(result.insertedId);
-    expect(id.toHexString()).toEqual(doc1["_id"]);
+    expect(id.toHexString()).toEqual(doc1._id);
 
     const [funcNameArg, funcArgsArg, resultClassArg]: any[] = capture(
       serviceMock.callFunctionInternal
@@ -283,7 +289,9 @@ describe("CoreRemoteMongoCollection", () => {
     try {
       await coll.insertOne({});
       fail();
-    } catch (_) {}
+    } catch (_) {
+      // Do nothing
+    }
   });
 
   it("should insert many", async () => {
@@ -336,7 +344,9 @@ describe("CoreRemoteMongoCollection", () => {
     try {
       await coll.insertMany([{}]);
       fail();
-    } catch (_) {}
+    } catch (_) {
+      // Do nothing
+    }
   });
 
   it("should delete one", async () => {
@@ -377,7 +387,9 @@ describe("CoreRemoteMongoCollection", () => {
     try {
       await coll.deleteOne({});
       fail();
-    } catch (_) {}
+    } catch (_) {
+      // Do nothing
+    }
   });
 
   it("should delete many", async () => {
@@ -417,7 +429,9 @@ describe("CoreRemoteMongoCollection", () => {
     try {
       await coll.deleteMany({});
       fail();
-    } catch (_) {}
+    } catch (_) {
+      // Do nothing
+    }
   });
 
   it("should update one", async () => {
@@ -476,7 +490,7 @@ describe("CoreRemoteMongoCollection", () => {
 
     expect("updateOne").toEqual(funcNameArg2);
     expect(1).toEqual(funcArgsArg2.length);
-    expectedArgs["upsert"] = true;
+    expectedArgs.upsert = true;
     expect(expectedArgs).toEqual(funcArgsArg2[0]);
     expect(ResultDecoders.remoteUpdateResultDecoder).toEqual(resultClassArg2);
 
@@ -487,7 +501,9 @@ describe("CoreRemoteMongoCollection", () => {
     try {
       await coll.updateOne({}, {});
       fail();
-    } catch (_) {}
+    } catch (_) {
+      // Do nothing
+    }
   });
 
   it("should update many", async () => {
@@ -520,10 +536,10 @@ describe("CoreRemoteMongoCollection", () => {
     expect("updateMany").toEqual(funcNameArg);
     expect(1).toEqual(funcArgsArg.length);
     const expectedArgs = {};
-    expectedArgs["database"] = "dbName1";
-    expectedArgs["collection"] = "collName1";
-    expectedArgs["query"] = expectedFilter;
-    expectedArgs["update"] = expectedUpdate;
+    expectedArgs.database = "dbName1";
+    expectedArgs.collection = "collName1";
+    expectedArgs.query = expectedFilter;
+    expectedArgs.update = expectedUpdate;
     expect(expectedArgs).toEqual(funcArgsArg[0]);
     expect(ResultDecoders.remoteUpdateResultDecoder).toEqual(resultClassArg);
 
@@ -544,7 +560,7 @@ describe("CoreRemoteMongoCollection", () => {
 
     expect("updateMany").toEqual(funcNameArg2);
     expect(1).toEqual(funcArgsArg2.length);
-    expectedArgs["upsert"] = true;
+    expectedArgs.upsert = true;
     expect(expectedArgs).toEqual(funcArgsArg2[0]);
     expect(ResultDecoders.remoteUpdateResultDecoder).toEqual(resultClassArg);
 
@@ -555,6 +571,8 @@ describe("CoreRemoteMongoCollection", () => {
     try {
       await coll.updateMany({}, {});
       fail();
-    } catch (_) {}
+    } catch (_) {
+      // Do nothing
+    }
   });
 });

@@ -23,7 +23,7 @@ enum AwsS3PutObjectFields {
 }
 
 class AwsS3PutObjectResultDecoder implements Decoder<AwsS3PutObjectResult> {
-  public decode(from: object): AwsS3PutObjectResult {
+  public decode(from: any): AwsS3PutObjectResult {
     return {
       location: from[AwsS3PutObjectFields.Location]
     };
@@ -39,7 +39,7 @@ enum AwsS3SignPolicyFields {
 }
 
 class AwsS3SignPolicyResultDecoder implements Decoder<AwsS3SignPolicyResult> {
-  public decode(from: object): AwsS3SignPolicyResult {
+  public decode(from: any): AwsS3SignPolicyResult {
     return {
       algorithm: from[AwsS3SignPolicyFields.Algoritm],
       credential: from[AwsS3SignPolicyFields.Credential],

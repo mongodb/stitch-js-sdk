@@ -27,7 +27,7 @@ import {
   StitchCredential,
   StitchRequestClient,
   StitchUserFactory,
-  Storage,
+  Storage
 } from "mongodb-stitch-core-sdk";
 
 import version from "../../internal/common/Version";
@@ -43,7 +43,8 @@ import StitchBrowserAppAuthRoutes from "./StitchBrowserAppAuthRoutes";
 import StitchRedirectError from "./StitchRedirectError";
 import StitchUserFactoryImpl from "./StitchUserFactoryImpl";
 
-const alphaNumericCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+const alphaNumericCharacters =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 /**
  * Partial JSDOM window.location containing only the
@@ -81,7 +82,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
 
   /**
    * Construct a new StitchAuth implementation
-   * 
+   *
    * @param requestClient StitchRequestClient that does request
    * @param browserAuthRoutes pathnames to call for browser routes
    * @param authStorage internal storage
@@ -126,9 +127,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   }
 
   public loginWithRedirect(credential: StitchRedirectCredential): void {
-    const { redirectUrl, state } = this.prepareRedirect(
-      credential,
-    );
+    const { redirectUrl, state } = this.prepareRedirect(credential);
 
     this.jsdomWindow.location.replace(
       this.browserAuthRoutes.getAuthProviderRedirectRoute(
@@ -150,9 +149,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
       );
     }
 
-    const { redirectUrl, state } = this.prepareRedirect(
-      credential
-    );
+    const { redirectUrl, state } = this.prepareRedirect(credential);
 
     const link = this.browserAuthRoutes.getAuthProviderLinkRedirectRoute(
       credential,
@@ -169,7 +166,9 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
         }
       })
     ).then(response => {
-      this.jsdomWindow.location.replace(response.headers.get("X-Stitch-Location")!);
+      this.jsdomWindow.location.replace(
+        response.headers.get("X-Stitch-Location")!
+      );
     });
   }
 
@@ -189,7 +188,6 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
 
   public handleRedirectResult(): Promise<StitchUser> {
     try {
-
       const providerName = this.authStorage.get(RedirectKeys.ProviderName);
       const providerType = this.authStorage.get(RedirectKeys.ProviderType);
 
@@ -203,7 +201,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
         return user;
       });
     } catch (err) {
-      return Promise.reject(err)
+      return Promise.reject(err);
     }
   }
 
@@ -277,17 +275,17 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     this.authStorage.remove(RedirectKeys.State);
     this.authStorage.remove(RedirectKeys.ProviderName);
     this.authStorage.remove(RedirectKeys.ProviderType);
-  };
+  }
 
   private parseRedirect(): ParsedRedirectFragment | never {
     if (typeof this.jsdomWindow === "undefined") {
       // This means we're running in some environment other
       // than a browser - so handling a redirect makes no sense here.
-      throw new StitchRedirectError("running in a non-browser environment")
+      throw new StitchRedirectError("running in a non-browser environment");
     }
 
     if (!this.jsdomWindow.location || !this.jsdomWindow.location.hash) {
-      throw new StitchRedirectError("window location hash was undefined")
+      throw new StitchRedirectError("window location hash was undefined");
     }
 
     const ourState = this.authStorage.get(RedirectKeys.State);
@@ -301,22 +299,18 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   }
 
   private processRedirectResult(): AuthInfo | never {
-    let redirectFragment: ParsedRedirectFragment
+    let redirectFragment: ParsedRedirectFragment;
     try {
-      redirectFragment = this.parseRedirect()
+      redirectFragment = this.parseRedirect();
 
       if (!redirectFragment.isValid) {
-        throw new StitchRedirectError(
-          `invalid redirect result`
-        )
+        throw new StitchRedirectError(`invalid redirect result`);
       }
-      
+
       if (redirectFragment.lastError) {
         // remove the fragment from the window history and reject
         throw new StitchRedirectError(
-            `error handling redirect: ${
-              redirectFragment.lastError
-            }`
+          `error handling redirect: ${redirectFragment.lastError}`
         );
       }
 
@@ -335,7 +329,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   }
 
   private prepareRedirect(
-    credential: StitchRedirectCredential,
+    credential: StitchRedirectCredential
   ): { redirectUrl: string; state: string } {
     this.authStorage.set(RedirectKeys.ProviderName, credential.providerName);
     this.authStorage.set(RedirectKeys.ProviderType, credential.providerType);
@@ -344,10 +338,10 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     if (redirectUrl === undefined) {
       redirectUrl = this.pageRootUrl();
     }
-  
+
     const state = generateState();
     this.authStorage.set(RedirectKeys.State, state);
-  
+
     return { redirectUrl, state };
   }
 
@@ -364,19 +358,20 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
 function generateState(): string {
   let state = "";
   for (let i = 0; i < 64; ++i) {
-    state += alphaNumericCharacters.charAt(Math.floor(Math.random() * alphaNumericCharacters.length));
+    state += alphaNumericCharacters.charAt(
+      Math.floor(Math.random() * alphaNumericCharacters.length)
+    );
   }
   return state;
 }
-
-
 
 function unmarshallUserAuth(data): AuthInfo {
   const parts = data.split("$");
   if (parts.length !== 4) {
     throw new StitchRedirectError(
       "invalid user auth data provided while " +
-      "marshalling user authentication data: " + data
+        "marshalling user authentication data: " +
+        data
     );
   }
 
@@ -395,15 +390,19 @@ class ParsedRedirectFragment {
   }
 }
 
-function parseRedirectFragment(fragment, ourState, ourClientAppId): ParsedRedirectFragment {
+function parseRedirectFragment(
+  fragment,
+  ourState,
+  ourClientAppId
+): ParsedRedirectFragment {
   // After being redirected from oauth, the URL will look like:
   // https://todo.examples.stitch.mongodb.com/#_stitch_state=...&_stitch_ua=...
   // This function parses out stitch-specific tokens from the fragment and
   // builds an object describing the result.
   const vars = fragment.split("&");
   const result: ParsedRedirectFragment = new ParsedRedirectFragment();
-  vars.forEach((kvp) => {
-  // for (let i = 0; i < vars.length; ++i) {
+  vars.forEach(kvp => {
+    // for (let i = 0; i < vars.length; ++i) {
     const pairParts = kvp.split("=");
     const pairKey = decodeURIComponent(pairParts[0]);
 
@@ -448,5 +447,7 @@ function isAuthProviderClientFactory<ClientT>(
     | AuthProviderClientFactory<ClientT>
     | NamedAuthProviderClientFactory<ClientT>
 ): factory is AuthProviderClientFactory<ClientT> {
-  return (factory as AuthProviderClientFactory<ClientT>).getClient !== undefined;
+  return (
+    (factory as AuthProviderClientFactory<ClientT>).getClient !== undefined
+  );
 }

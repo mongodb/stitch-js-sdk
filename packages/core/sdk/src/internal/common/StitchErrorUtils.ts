@@ -20,7 +20,10 @@ import Response from "../net/Response";
 import StitchError from "../../StitchError";
 import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
 import StitchRequestError from "../../StitchRequestError";
-import { StitchServiceErrorCode, stitchServiceErrorCodeFromApi } from "../../StitchServiceErrorCode";
+import {
+  StitchServiceErrorCode,
+  stitchServiceErrorCodeFromApi
+} from "../../StitchServiceErrorCode";
 import StitchServiceError from "../../StitchServiceError";
 
 enum Fields {
@@ -40,10 +43,7 @@ export function wrapDecodingError(err: any): StitchError {
     return err;
   }
 
-  return new StitchRequestError(
-    err,
-    StitchRequestErrorCode.DECODING_ERROR
-  );
+  return new StitchRequestError(err, StitchRequestErrorCode.DECODING_ERROR);
 }
 
 /**
@@ -89,8 +89,7 @@ function handleRichError(response: Response, body: string): string {
   if (
     response.headers[Headers.CONTENT_TYPE] === undefined ||
     (response.headers[Headers.CONTENT_TYPE] !== undefined &&
-      response.headers[Headers.CONTENT_TYPE] !==
-        ContentTypes.APPLICATION_JSON)
+      response.headers[Headers.CONTENT_TYPE] !== ContentTypes.APPLICATION_JSON)
   ) {
     return body;
   }

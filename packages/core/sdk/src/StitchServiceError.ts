@@ -15,7 +15,6 @@
  */
 
 import StitchError from "./StitchError";
-import StitchRequestError from "./StitchRequestError";
 import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
 
 /**

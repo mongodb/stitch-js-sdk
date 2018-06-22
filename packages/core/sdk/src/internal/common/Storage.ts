@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 interface Storage {
   get(key: string): string;
 

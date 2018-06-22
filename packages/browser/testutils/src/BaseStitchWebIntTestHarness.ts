@@ -26,7 +26,7 @@ import {
 import { App, AppResponse } from "mongodb-stitch-core-admin-client";
 import { BaseStitchIntTestHarness } from "mongodb-stitch-core-testutils";
 
-const stitchBaseURLEnvVar = "STITCH_BASE_URL";
+const stitchBaseUrlEnvVar = "STITCH_BASE_Url";
 
 export default class BaseStitchWebIntTestHarness extends BaseStitchIntTestHarness {
   public readonly clients: StitchAppClient[] = [];
@@ -35,21 +35,18 @@ export default class BaseStitchWebIntTestHarness extends BaseStitchIntTestHarnes
     return super.setup();
   }
 
-  public tearDown(): Promise<void> {
-    return super
-      .teardown()
-      .then(() =>
-        Promise.all(
-          this.clients.map(it => {
-            it.auth.logout();
-          })
-        )
+  public tearDown(): Promise<void[]> {
+    return super.teardown().then(() =>
+      Promise.all(
+        this.clients.map(it => {
+          it.auth.logout();
+        })
       )
-      .then(() => {});
+    );
   }
 
-  get stitchBaseUrl(): string {
-    const envVar = process.env[stitchBaseURLEnvVar];
+  public get stitchBaseUrl(): string {
+    const envVar = process.env[stitchBaseUrlEnvVar];
     return envVar !== undefined ? envVar : "http://localhost:9090";
   }
 
@@ -61,7 +58,7 @@ export default class BaseStitchWebIntTestHarness extends BaseStitchIntTestHarnes
     const client = Stitch.initializeAppClient(
       app.clientAppId,
       new StitchAppClientConfiguration.Builder()
-        .withBaseURL(this.stitchBaseUrl)
+        .withBaseUrl(this.stitchBaseUrl)
         .withStorage(new MemoryStorage(app.clientAppId))
         .build()
     );

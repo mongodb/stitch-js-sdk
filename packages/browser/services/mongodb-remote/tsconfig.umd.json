@@ -1,24 +1,13 @@
 {
+    "extends": "../../../../config/tsconfig.umd.browser.base.json",
     "compilerOptions": {
-        "target": "ES5",
-        "module": "UMD",
-        "moduleResolution": "Node",
-        "sourceMap": true,
-        "strictNullChecks": true,
-        "outDir": "lib/umd",
-        "declaration": true,
-        "removeComments": true,
-        "lib": [
-            "es2015",
-            "es2017.object",
-            "dom"
-        ]
+    	"outDir": "dist/umd"
     },
     "include": [
         "src/**/*"
     ],
     "exclude": [
         "./node_modules/**",
-        "./lib"
+        "./dist"
     ]
 }

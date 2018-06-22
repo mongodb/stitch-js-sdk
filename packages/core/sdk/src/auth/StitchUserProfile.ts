@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 /**
  * The set of properties that describe a MongoDB Stitch user.
  */
@@ -30,9 +29,9 @@ export default interface StitchUserProfile {
   readonly email?: string;
 
   /**
-   * A URL to the user's profile picture.
+   * A Url to the user's profile picture.
    */
-  readonly pictureURL?: string;
+  readonly pictureUrl?: string;
 
   /**
    * The first name of the user.

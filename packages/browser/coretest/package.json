@@ -1,7 +1,19 @@
 {
   "name": "mongodb-stitch-browser-coretest",
-  "version": "4.0.0-beta-2",
+  "version": "4.0.0-beta-3",
   "description": "web core test",
+  "keywords": [
+    "mongodb",
+    "aws",
+    "twilio",
+    "http",
+    "mobile",
+    "serverless",
+    "stitch",
+    "atlas"
+  ],
+  "homepage": "https://github.com/mongodb/stitch-js-sdk#readme",
+  "repository": "mongodb/stitch-js-sdk",
   "author": "MongoDB Inc.",
   "contributors": [
     {
@@ -20,11 +32,11 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "mongodb-stitch-browser-core": "^4.0.0-beta-2",
-    "mongodb-stitch-browser-testutils": "^4.0.0-beta-2",
-    "mongodb-stitch-core-admin-client": "^4.0.0-beta-2",
-    "mongodb-stitch-core-sdk": "^4.0.0-beta-2",
-    "mongodb-stitch-core-testutils": "^4.0.0-beta-2"
+    "mongodb-stitch-browser-core": "^4.0.0-beta-3",
+    "mongodb-stitch-browser-testutils": "^4.0.0-beta-3",
+    "mongodb-stitch-core-admin-client": "^4.0.0-beta-3",
+    "mongodb-stitch-core-sdk": "^4.0.0-beta-3",
+    "mongodb-stitch-core-testutils": "^4.0.0-beta-3"
   },
   "devDependencies": {
     "jest": "^23.1.0",

@@ -1,13 +1,25 @@
 {
   "name": "mongodb-stitch-browser-sdk",
-  "version": "4.0.0-beta-2",
-  "main": "lib/umd/index.js",
-  "module": "lib/esm/index.js",
-  "types": "lib/esm/index.d.ts",
+  "version": "4.0.0-beta-3",
+  "main": "dist/umd/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "files": [
-    "lib"
+    "dist"
   ],
   "description": "MongoDB Stitch JavaScript SDK - Browser SDK",
+  "keywords": [
+    "mongodb",
+    "aws",
+    "twilio",
+    "http",
+    "mobile",
+    "serverless",
+    "stitch",
+    "atlas"
+  ],
+  "homepage": "https://github.com/mongodb/stitch-js-sdk#readme",
+  "repository": "mongodb/stitch-js-sdk",
   "author": "MongoDB Inc.",
   "contributors": [
     {
@@ -25,8 +37,8 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "mongodb-stitch-browser-core": "^4.0.0-beta-2",
-    "mongodb-stitch-browser-services-mongodb-remote": "^4.0.0-beta-2"
+    "mongodb-stitch-browser-core": "^4.0.0-beta-3",
+    "mongodb-stitch-browser-services-mongodb-remote": "^4.0.0-beta-3"
   },
   "devDependencies": {
     "prettier": "^1.13.5",
@@ -41,10 +53,10 @@
     "build-main": "tsc -p tsconfig.umd.json",
     "build-module": "tsc -p tsconfig.esm.json",
     "build-browser": "rollup -c",
-    "watch": "tsc -w",
-    "lint": "tslint src/**/*.ts",
+    "watch": "tsc -w -p tsconfig.esm.json",
+    "lint": "tslint src/**/*.ts __tests__/**/*.ts",
     "lint-fix": "tslint --fix src/**/*.ts __tests__/**/*.ts",
     "lint-check": "tslint-config-prettier-check ./tslint.json",
-    "prettier": "prettier --write \"{,!(node_modules),!(lib)/**/}*.ts\""
+    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\""
   }
 }

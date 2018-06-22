@@ -54,7 +54,7 @@ export default class Stitch {
     if (clientAppId === undefined || clientAppId === "") {
       throw new Error("clientAppId must be set to a non-empty string");
     }
-    if (Stitch.defaultClientAppId != null) {
+    if (Stitch.defaultClientAppId !== undefined) {
       throw new Error(
         `default app can only be set once; currently set to '${
           Stitch.defaultClientAppId
@@ -76,9 +76,7 @@ export default class Stitch {
 
     if (appClients[clientAppId] !== undefined) {
       throw new Error(
-        `client for app '${
-          clientAppId
-        }' has already been initialized`
+        `client for app '${clientAppId}' has already been initialized`
       );
     }
 
@@ -86,20 +84,17 @@ export default class Stitch {
     if (builder.storage === undefined) {
       builder.withStorage(new LocalStorage(clientAppId));
     }
-    if (builder.transport == null) {
+    if (builder.transport === undefined) {
       builder.withTransport(new FetchTransport());
     }
-    if (builder.baseURL == null || builder.baseURL === "") {
-      builder.withBaseURL(DEFAULT_BASE_URL);
+    if (builder.baseUrl === undefined || builder.baseUrl === "") {
+      builder.withBaseUrl(DEFAULT_BASE_URL);
     }
-    if (
-      builder.localAppName == null ||
-      builder.localAppName === ""
-    ) {
+    if (builder.localAppName === undefined || builder.localAppName === "") {
       builder.withLocalAppName(Stitch.localAppName);
     }
     if (
-      builder.localAppVersion == null ||
+      builder.localAppVersion === undefined ||
       builder.localAppVersion === ""
     ) {
       builder.withLocalAppVersion(Stitch.localAppVersion);

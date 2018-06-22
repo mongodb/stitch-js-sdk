@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 export default class Response {
   public readonly headers: { [key: string]: string } = {};
 

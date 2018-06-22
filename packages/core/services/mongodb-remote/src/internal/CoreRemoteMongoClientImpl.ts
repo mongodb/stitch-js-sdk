@@ -21,7 +21,7 @@ import CoreRemoteMongoDatabaseImpl from "./CoreRemoteMongoDatabaseImpl";
 
 export default class CoreRemoteMongoClientImpl
   implements CoreRemoteMongoClient {
-  public constructor(readonly service: CoreStitchServiceClient) {}
+  public constructor(public readonly service: CoreStitchServiceClient) {}
 
   /**
    * Gets a `CoreRemoteMongoDatabase` instance for the given database name.

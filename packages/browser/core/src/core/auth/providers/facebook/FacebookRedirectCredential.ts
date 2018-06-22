@@ -22,7 +22,6 @@ export default class FacebookRedirectCredential
   public constructor(
     public readonly redirectUrl?: string,
     public readonly providerName = FacebookAuthProvider.DEFAULT_NAME,
-    public readonly providerType = FacebookAuthProvider.TYPE,
-  ) {
-  }
+    public readonly providerType = FacebookAuthProvider.TYPE
+  ) {}
 }

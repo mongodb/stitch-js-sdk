@@ -22,7 +22,6 @@ export default class GoogleRedirectCredential
   public constructor(
     public readonly redirectUrl?: string,
     public readonly providerName = GoogleAuthProvider.DEFAULT_NAME,
-    public readonly providerType = GoogleAuthProvider.TYPE,
-  ) {
-  }
+    public readonly providerType = GoogleAuthProvider.TYPE
+  ) {}
 }

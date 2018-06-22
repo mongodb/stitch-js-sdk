@@ -31,13 +31,13 @@ describe("StitchClientConfigurationUnitTests", () => {
     }();
 
     let builder = new StitchClientConfiguration.Builder();
-    builder.withBaseURL(baseUrl);
+    builder.withBaseUrl(baseUrl);
     builder.withStorage(storage);
     builder.withTransport(transport);
 
     const config = builder.build();
 
-    expect(config.baseURL).toEqual(baseUrl);
+    expect(config.baseUrl).toEqual(baseUrl);
     expect(config.storage).toEqual(storage);
     expect(config.transport).toEqual(transport);
   });

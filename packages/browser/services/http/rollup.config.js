@@ -93,16 +93,18 @@ const plugins = [
   nodeBuiltins(),
   typescript({
     tsconfig: "tsconfig.esm.json"
-  })
+  }),
+  uglify()
 ];
 
 export default {
   input: 'src/index.ts',
   output: [
     {
-      file: 'lib/browser/stitch-services-http.js',
+      file: 'dist/browser/stitch-services-http.js',
       format: 'iife',
       name: 'stitch',
+      sourcemap: true,
       extend: true
     }
   ],

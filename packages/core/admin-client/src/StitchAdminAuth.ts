@@ -53,6 +53,6 @@ export default class StitchAdminAuth extends CoreStitchAuth<StitchAdminUser> {
   }
 
   public onAuthEvent() {
-    // do nothing
+    // Do nothing
   }
 }

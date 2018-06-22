@@ -55,7 +55,7 @@ class HttpResponseDecoder implements Decoder<HttpResponse> {
         headers[headerKey] = values;
       });
     } else {
-      headers = null;
+      headers = undefined;
     }
 
     let cookies;
@@ -67,42 +67,12 @@ class HttpResponseDecoder implements Decoder<HttpResponse> {
         const cookieValues = headerValue;
         const value = cookieValues[Fields.CookieValue];
 
-        let path;
-        if (cookieValues[Fields.CookiePath]) {
-          path = cookieValues[Fields.CookiePath];
-        } else {
-          path = null;
-        }
-        let domain;
-        if (cookieValues[Fields.CookieDomain]) {
-          domain = cookieValues[Fields.CookieDomain];
-        } else {
-          domain = null;
-        }
-        let expires;
-        if (cookieValues[Fields.CookieExpires]) {
-          expires = cookieValues[Fields.CookieExpires];
-        } else {
-          expires = null;
-        }
-        let maxAge;
-        if (cookieValues[Fields.CookieMaxAge]) {
-          maxAge = cookieValues[Fields.CookieMaxAge];
-        } else {
-          maxAge = null;
-        }
-        let secure;
-        if (cookieValues[Fields.CookieSecure]) {
-          secure = cookieValues[Fields.CookieSecure];
-        } else {
-          secure = null;
-        }
-        let httpOnly;
-        if (cookieValues[Fields.CookieHttpOnly]) {
-          httpOnly = cookieValues[Fields.CookieHttpOnly];
-        } else {
-          httpOnly = null;
-        }
+        const path = cookieValues[Fields.CookiePath] || undefined;
+        const domain = cookieValues[Fields.CookieDomain] || undefined;
+        const expires = cookieValues[Fields.CookieExpires] || undefined;
+        const maxAge = cookieValues[Fields.CookieMaxAge] || undefined;
+        const secure = cookieValues[Fields.CookieSecure] || undefined;
+        const httpOnly = cookieValues[Fields.CookieHttpOnly] || undefined;
 
         cookies.put(
           headerKey,
@@ -119,15 +89,10 @@ class HttpResponseDecoder implements Decoder<HttpResponse> {
         );
       }
     } else {
-      cookies = null;
+      cookies = undefined;
     }
 
-    let body;
-    if (document[Fields.Body]) {
-      body = document[Fields.Body];
-    } else {
-      body = "";
-    }
+    const body = document[Fields.Body] || "";
 
     return new HttpResponse(
       status,

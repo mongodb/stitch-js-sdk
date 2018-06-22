@@ -35,11 +35,11 @@ function inspectResponse(response: Response): Response {
 }
 
 export default class StitchRequestClient {
-  private readonly baseURL: string;
+  private readonly baseUrl: string;
   private readonly transport: Transport;
 
-  public constructor(baseURL: string, transport: Transport) {
-    this.baseURL = baseURL;
+  public constructor(baseUrl: string, transport: Transport) {
+    this.baseUrl = baseUrl;
     this.transport = transport;
   }
 
@@ -58,7 +58,7 @@ export default class StitchRequestClient {
   private buildRequest(stitchReq: StitchRequest): BasicRequest {
     return new BasicRequest.Builder()
       .withMethod(stitchReq.method)
-      .withURL(`${this.baseURL}${stitchReq.path}`)
+      .withUrl(`${this.baseUrl}${stitchReq.path}`)
       .withHeaders(stitchReq.headers)
       .withBody(stitchReq.body)
       .build();

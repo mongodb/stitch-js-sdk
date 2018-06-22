@@ -19,7 +19,7 @@ import IStitchUserProfile from "../StitchUserProfile";
 
 const NAME = "name";
 const EMAIL = "email";
-const PICTURE_URL = "picture";
+const PICTURE_Url = "picture";
 const FIRST_NAME = "first_name";
 const LAST_NAME = "last_name";
 const GENDER = "gender";
@@ -73,10 +73,10 @@ export default class StitchUserProfileImpl implements IStitchUserProfile {
   }
 
   /**
-   * A URL to the user's profile picture.
+   * A Url to the user's profile picture.
    */
-  get pictureURL(): string | undefined {
-    return this.data[PICTURE_URL];
+  get pictureUrl(): string | undefined {
+    return this.data[PICTURE_Url];
   }
 
   /**

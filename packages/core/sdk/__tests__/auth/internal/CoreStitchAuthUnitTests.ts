@@ -324,7 +324,9 @@ describe("CoreStitchAuthUnitTests", () => {
 
     const refreshedJwt = sign(jwtDoc, "abcdefghijklmnopqrstuvwxyz1234567890");
 
-    const user = await auth.loginWithCredentialInternal(new AnonymousCredential());
+    const user = await auth.loginWithCredentialInternal(
+      new AnonymousCredential()
+    );
     when(
       requestClientMock.doRequest(new RequestClassMatcher(
         new RegExp(".*/session$")
@@ -339,19 +341,20 @@ describe("CoreStitchAuthUnitTests", () => {
       requestClientMock.doRequest(new RequestClassMatcher(
         new RegExp(".*/login\\?link=true$")
       ) as any)
-    ).thenReject(new StitchServiceError(
-      "bad",
-      StitchServiceErrorCode.InvalidSession
-    )).thenResolve({
-      body: JSON.stringify(TEST_LINK_RESPONE),
-      headers: {},
-      statusCode: 200
-    });
+    )
+      .thenReject(
+        new StitchServiceError("bad", StitchServiceErrorCode.InvalidSession)
+      )
+      .thenResolve({
+        body: JSON.stringify(TEST_LINK_RESPONE),
+        headers: {},
+        statusCode: 200
+      });
 
     const linkedUser = await auth.linkUserWithCredentialInternal(
       user,
       new UserPasswordCredential("foo@foo.com", "bar")
-    )
+    );
 
     verify(requestClientMock.doRequest(anything())).times(6);
 
@@ -365,9 +368,7 @@ describe("CoreStitchAuthUnitTests", () => {
 
     expectedRequest.withHeaders(headers);
 
-    const [actualRequest] = capture(
-      requestClientMock.doRequest
-    ).byCallIndex(3);
+    const [actualRequest] = capture(requestClientMock.doRequest).byCallIndex(3);
     expect(expectedRequest.build()).toEqualRequest(actualRequest);
 
     const expectedRequest2 = new StitchRequest.Builder();
@@ -379,9 +380,7 @@ describe("CoreStitchAuthUnitTests", () => {
         }\"}}}`
       )
       .withPath(
-        routes.getAuthProviderLinkRoute(
-          UserPasswordAuthProvider.DEFAULT_NAME
-        )
+        routes.getAuthProviderLinkRoute(UserPasswordAuthProvider.DEFAULT_NAME)
       );
     const headers2 = {
       [Headers.CONTENT_TYPE]: ContentTypes.APPLICATION_JSON,
@@ -389,9 +388,9 @@ describe("CoreStitchAuthUnitTests", () => {
     };
     expectedRequest2.withHeaders(headers2);
 
-    const [actualRequest2] = capture(
-      requestClientMock.doRequest
-    ).byCallIndex(4);
+    const [actualRequest2] = capture(requestClientMock.doRequest).byCallIndex(
+      4
+    );
     expect(expectedRequest2.build()).toEqualRequest(actualRequest2);
 
     expect(auth.isLoggedIn).toBeTruthy();
@@ -402,10 +401,7 @@ describe("CoreStitchAuthUnitTests", () => {
         new RegExp(".*/session$")
       ) as any)
     ).thenReject(
-      new StitchServiceError(
-        "beep",
-        StitchServiceErrorCode.InvalidSession
-      )
+      new StitchServiceError("beep", StitchServiceErrorCode.InvalidSession)
     );
 
     when(
@@ -413,10 +409,7 @@ describe("CoreStitchAuthUnitTests", () => {
         new RegExp(".*/login\\?link=true$")
       ) as any)
     ).thenReject(
-      new StitchServiceError(
-        "boop",
-        StitchServiceErrorCode.InvalidSession
-      )
+      new StitchServiceError("boop", StitchServiceErrorCode.InvalidSession)
     );
 
     try {
@@ -426,10 +419,7 @@ describe("CoreStitchAuthUnitTests", () => {
       );
     } catch (e) {
       expect(e).toEqual(
-        new StitchServiceError(
-          "beep",
-          StitchServiceErrorCode.InvalidSession
-        )
+        new StitchServiceError("beep", StitchServiceErrorCode.InvalidSession)
       );
 
       expect(auth.isLoggedIn).toBeFalsy();
@@ -498,7 +488,7 @@ describe("CoreStitchAuthUnitTests", () => {
         return auth.doAuthenticatedRequestWithDecoder(
           reqBuilder.build(),
           new class implements Decoder<TestDoc> {
-            public decode(from: object): TestDoc {
+            public decode(from: any): TestDoc {
               return {
                 id: from["_id"],
                 intValue: from["intValue"]

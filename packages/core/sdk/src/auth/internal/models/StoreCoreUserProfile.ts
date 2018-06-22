@@ -28,11 +28,15 @@ enum Fields {
  */
 export default class StoreCoreUserProfile extends StitchUserProfileImpl {
   public static decode(from: object): StoreCoreUserProfile | undefined {
-    return from ? new StoreCoreUserProfile(
-      from[Fields.USER_TYPE],
-      from[Fields.DATA],
-      from[Fields.IDENTITIES].map(identity => StoreStitchUserIdentity.decode(identity))
-    ) : undefined
+    return from
+      ? new StoreCoreUserProfile(
+          from[Fields.USER_TYPE],
+          from[Fields.DATA],
+          from[Fields.IDENTITIES].map(identity =>
+            StoreStitchUserIdentity.decode(identity)
+          )
+        )
+      : undefined;
   }
 
   /**
@@ -47,7 +51,7 @@ export default class StoreCoreUserProfile extends StitchUserProfileImpl {
     public readonly data: { [key: string]: string },
     public readonly identities: StoreStitchUserIdentity[]
   ) {
-    super(userType, data, identities)
+    super(userType, data, identities);
   }
 
   public encode(): object {
@@ -55,6 +59,6 @@ export default class StoreCoreUserProfile extends StitchUserProfileImpl {
       [Fields.DATA]: this.data,
       [Fields.USER_TYPE]: this.userType,
       [Fields.IDENTITIES]: this.identities.map(identity => identity.encode())
-    }
+    };
   }
 }

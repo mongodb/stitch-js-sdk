@@ -32,14 +32,14 @@ export function getClient(): CoreRemoteMongoClient {
   return new CoreRemoteMongoClientImpl(instance(serviceMock));
 }
 
-export function getDatabase(name: string = "dbName1"): CoreRemoteMongoDatabase {
+export function getDatabase(name = "dbName1"): CoreRemoteMongoDatabase {
   const service = mock(CoreStitchServiceClientImpl);
   const client = new CoreRemoteMongoClientImpl(service);
   return client.db(name);
 }
 
 export function getCollection(
-  name: string = "collName1",
+  name = "collName1",
   client?: CoreRemoteMongoClient
 ): CoreRemoteMongoCollection<object> {
   if (client) {

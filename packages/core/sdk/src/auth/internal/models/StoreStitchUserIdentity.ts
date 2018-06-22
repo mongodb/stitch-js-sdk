@@ -29,7 +29,7 @@ export default class StoreStitchUserIdentity extends StitchUserIdentity {
     return new StoreStitchUserIdentity(
       from[Fields.ID],
       from[Fields.PROVIDER_TYPE]
-    )
+    );
   }
 
   /**
@@ -51,6 +51,6 @@ export default class StoreStitchUserIdentity extends StitchUserIdentity {
     return {
       [Fields.ID]: this.id,
       [Fields.PROVIDER_TYPE]: this.providerType
-    }
+    };
   }
 }

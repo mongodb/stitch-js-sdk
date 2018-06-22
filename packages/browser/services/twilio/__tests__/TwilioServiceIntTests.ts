@@ -27,8 +27,8 @@ import {
 } from "mongodb-stitch-core-admin-client";
 import {
   AnonymousCredential,
-  StitchServiceErrorCode,
-  StitchServiceError
+  StitchServiceError,
+  StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
 import { TwilioServiceClient } from "../src";
 
@@ -37,13 +37,10 @@ const harness = new BaseStitchWebIntTestHarness();
 const twilioSidEnvVar = "TEST_STITCH_TWILIO_SID";
 const twilioAuthEnvVar = "TEST_STITCH_TWILIO_AUTH_TOKEN";
 
-const twilioSid: string | undefined = (() => {
-  return process.env[twilioSidEnvVar];
-})();
+const twilioSid: string | undefined = (() => process.env[twilioSidEnvVar])();
 
-const twilioAuthToken: string | undefined = (() => {
-  return process.env[twilioAuthEnvVar];
-})();
+const twilioAuthToken: string | undefined = (() =>
+  process.env[twilioAuthEnvVar])();
 
 beforeAll(() => harness.setup());
 afterAll(() => harness.teardown());

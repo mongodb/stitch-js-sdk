@@ -25,7 +25,6 @@ import StitchAuthImpl from "./StitchAuthImpl";
 
 export default class StitchUserImpl extends CoreStitchUserImpl
   implements StitchUser {
-
   public constructor(
     id: string,
     loggedInProviderType: string,

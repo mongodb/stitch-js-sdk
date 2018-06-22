@@ -38,16 +38,19 @@ export default class StitchAppClientImpl implements StitchAppClient {
   public constructor(
     clientAppId: string,
     config: StitchAppClientConfiguration
-   ) {
+  ) {
     this.info = new StitchAppClientInfo(
       clientAppId,
       config.dataDirectory,
       config.localAppName,
       config.localAppVersion
     );
-    this.routes = new StitchBrowserAppRoutes(this.info.clientAppId, config.baseURL);
+    this.routes = new StitchBrowserAppRoutes(
+      this.info.clientAppId,
+      config.baseUrl
+    );
     const requestClient = new StitchRequestClient(
-      config.baseURL,
+      config.baseUrl,
       config.transport
     );
     this.auth = new StitchAuthImpl(

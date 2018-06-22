@@ -55,7 +55,7 @@ describe("StitchRequestClientUnitTests", () => {
         const [actualRequest] = capture(transportMock.roundTrip).first();
         const expectedRequest = new BasicRequest.Builder()
           .withMethod(Method.GET)
-          .withURL(domain + path)
+          .withUrl(domain + path)
           .build();
         expect(expectedRequest).toEqual(actualRequest);
 
@@ -173,7 +173,7 @@ describe("StitchRequestClientUnitTests", () => {
         };
         const expectedRequest = new BasicRequest.Builder()
           .withMethod(Method.PATCH)
-          .withURL(domain + path)
+          .withUrl(domain + path)
           .withBody('{"my":{"$numberInt":"24"}}')
           .withHeaders(expectedHeaders)
           .build();

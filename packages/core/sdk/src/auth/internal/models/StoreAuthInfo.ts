@@ -47,14 +47,16 @@ function writeToStorage(authInfo: AuthInfo, storage: Storage) {
     authInfo.refreshToken!,
     authInfo.loggedInProviderType!,
     authInfo.loggedInProviderName!,
-    authInfo.userProfile ?
-    new StoreCoreUserProfile(
-      authInfo.userProfile!.userType!, 
-      authInfo.userProfile!.data,
-      authInfo.userProfile!.identities.map(
-        identity => new StoreStitchUserIdentity(identity.id, identity.providerType)
-      )
-    ) : undefined
+    authInfo.userProfile
+      ? new StoreCoreUserProfile(
+          authInfo.userProfile!.userType!,
+          authInfo.userProfile!.data,
+          authInfo.userProfile!.identities.map(
+            identity =>
+              new StoreStitchUserIdentity(identity.id, identity.providerType)
+          )
+        )
+      : undefined
   );
   storage.set(StoreAuthInfo.STORAGE_NAME, JSON.stringify(info.encode()));
 }
@@ -62,7 +64,7 @@ function writeToStorage(authInfo: AuthInfo, storage: Storage) {
 class StoreAuthInfo extends AuthInfo {
   public static readonly STORAGE_NAME: string = "auth_info";
 
-  public static decode(from: object): StoreAuthInfo {
+  public static decode(from: any): StoreAuthInfo {
     const userId = from[Fields.USER_ID];
     const deviceId = from[Fields.DEVICE_ID];
     const accessToken = from[Fields.ACCESS_TOKEN];
@@ -111,7 +113,9 @@ class StoreAuthInfo extends AuthInfo {
     to[Fields.DEVICE_ID] = this.deviceId;
     to[Fields.LOGGED_IN_PROVIDER_NAME] = this.loggedInProviderName;
     to[Fields.LOGGED_IN_PROVIDER_TYPE] = this.loggedInProviderType;
-    to[Fields.USER_PROFILE] = this.userProfile ? this.userProfile.encode() : undefined;
+    to[Fields.USER_PROFILE] = this.userProfile
+      ? this.userProfile.encode()
+      : undefined;
 
     return to;
   }

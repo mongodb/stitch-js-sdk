@@ -29,7 +29,7 @@ export interface ServiceResponse {
 }
 
 export class ServiceResponseCodec implements Codec<ServiceResponse> {
-  public decode(from: object): ServiceResponse {
+  public decode(from: any): ServiceResponse {
     return {
       id: from[Fields.Id],
       name: from[Fields.Name],

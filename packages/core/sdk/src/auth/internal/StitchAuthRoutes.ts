@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 /**
  * An interface representing the authentication API routes on the Stitch server.
  */

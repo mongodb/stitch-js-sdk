@@ -26,8 +26,8 @@ import {
   Service
 } from "mongodb-stitch-core-admin-client";
 import {
-  StitchServiceErrorCode,
-  StitchServiceError
+  StitchServiceError,
+  StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
 import { AwsSesServiceClient } from "../src";
 
@@ -36,13 +36,11 @@ const harness = new BaseStitchWebIntTestHarness();
 const awsAccessKeyIdEnvVar = "TEST_STITCH_AWS_ACCESS_KEY_ID";
 const awsSecretAccessKeyEnvVar = "TEST_STITCH_AWS_SECRET_ACCESS_KEY";
 
-const awsAccessKeyId: string | undefined = (() => {
-  return process.env[awsAccessKeyIdEnvVar];
-})();
+const awsAccessKeyId: string | undefined = (() =>
+  process.env[awsAccessKeyIdEnvVar])();
 
-const awsSecretAccessKey: string | undefined = (() => {
-  return process.env[awsSecretAccessKeyEnvVar];
-})();
+const awsSecretAccessKey: string | undefined = (() =>
+  process.env[awsSecretAccessKeyEnvVar])();
 
 beforeAll(() => harness.setup());
 afterAll(() => harness.teardown());

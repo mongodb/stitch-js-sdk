@@ -75,7 +75,7 @@ describe("CoreAwsS3ServiceClient", () => {
 
     expect("put").toEqual(funcNameArg2);
     expect(1).toEqual(funcArgsArg2.length);
-    expectedArgs["body"] = bodyBin;
+    expectedArgs.body = bodyBin;
     expect(expectedArgs).toEqual(funcArgsArg2[0]);
     expect(ResultDecoders.PutObjectResultDecoder).toEqual(resultClassArg2);
 
@@ -125,7 +125,7 @@ describe("CoreAwsS3ServiceClient", () => {
 
     expect("put").toEqual(funcNameArg4);
     expect(1).toEqual(funcArgsArg4.length);
-    expectedArgs["body"] = new Binary(new Buffer(bodyUintArray));
+    expectedArgs.body = new Binary(new Buffer(bodyUintArray));
     expect(expectedArgs).toEqual(funcArgsArg4[0]);
     expect(ResultDecoders.PutObjectResultDecoder).toEqual(resultClassArg4);
 
@@ -137,6 +137,8 @@ describe("CoreAwsS3ServiceClient", () => {
     try {
       await client.putObject(bucket, key, acl, contentType, body);
       fail();
-    } catch (_) {}
+    } catch (_) {
+      // Do nothing
+    }
   });
 });

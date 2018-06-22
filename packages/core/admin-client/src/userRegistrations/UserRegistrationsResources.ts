@@ -21,16 +21,18 @@ enum Fields {
   TokenId = "token_id"
 }
 
-// Class that allows the retrieval of the token
-// and tokenId of a confirmation email, for the sake
-// of skirting email registration
+/**
+ * Class that allows the retrieval of the token
+ * and tokenId of a confirmation email, for the sake
+ * of skirting email registration
+ */
 export interface ConfirmationEmail {
   readonly token: string;
   readonly tokenId: string;
 }
 
 export class ConfirmationEmailCodec implements Codec<ConfirmationEmail> {
-  public decode(from: object): ConfirmationEmail {
+  public decode(from: any): ConfirmationEmail {
     return {
       token: from[Fields.Token],
       tokenId: from[Fields.TokenId]

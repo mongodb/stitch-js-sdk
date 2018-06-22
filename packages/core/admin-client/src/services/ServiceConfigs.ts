@@ -25,17 +25,17 @@ export interface ServiceConfig {
 }
 
 export class ServiceConfigCodec implements Codec<ServiceConfig> {
-  public decode(from: object): ServiceConfig {
-    const type = from["type"];
-    let config: object = from["config"];
+  public decode(from: any): ServiceConfig {
+    const type = from.type;
+    let config: object = from.config;
     if (type === "twilio") {
       config = new TwilioConfigCodec().decode(config);
     }
 
     return {
       config,
-      name: from["name"],
-      type: from["type"]
+      name: from.name,
+      type: from.type
     };
   }
 
@@ -54,7 +54,7 @@ export class Http implements ServiceConfig {
   public readonly config = {};
   public readonly type = "http";
 
-  constructor(readonly name: string) {}
+  public constructor(public readonly name: string) {}
 }
 
 export interface AwsS3Config {
@@ -65,7 +65,10 @@ export interface AwsS3Config {
 
 export class AwsS3 implements ServiceConfig {
   public readonly type = "aws-s3";
-  constructor(readonly name, readonly config: AwsS3Config) {}
+  public constructor(
+    public readonly name,
+    public readonly config: AwsS3Config
+  ) {}
 }
 
 export interface AwsSesConfig {
@@ -76,7 +79,10 @@ export interface AwsSesConfig {
 
 export class AwsSes implements ServiceConfig {
   public readonly type = "aws-ses";
-  constructor(readonly name, readonly config: AwsSesConfig) {}
+  public constructor(
+    public readonly name,
+    public readonly config: AwsSesConfig
+  ) {}
 }
 
 export enum TwilioConfigFields {
@@ -90,7 +96,7 @@ export interface TwilioConfig {
 }
 
 export class TwilioConfigCodec implements Codec<TwilioConfig> {
-  public decode(from: object): TwilioConfig {
+  public decode(from: any): TwilioConfig {
     return {
       accountSid: from[TwilioConfigFields.AccountSid],
       authToken: from[TwilioConfigFields.AuthToken]
@@ -108,7 +114,10 @@ export class TwilioConfigCodec implements Codec<TwilioConfig> {
 export class Twilio implements ServiceConfig {
   public readonly configCodec = new TwilioConfigCodec();
   public readonly type = "twilio";
-  constructor(readonly name, readonly config: TwilioConfig) {}
+  public constructor(
+    public readonly name,
+    public readonly config: TwilioConfig
+  ) {}
 }
 
 export interface MongoConfig {
@@ -116,5 +125,9 @@ export interface MongoConfig {
 }
 
 export class Mongo implements ServiceConfig {
-  constructor(readonly name, readonly type, readonly config: MongoConfig) {}
+  public constructor(
+    public readonly name,
+    public readonly type,
+    public readonly config: MongoConfig
+  ) {}
 }

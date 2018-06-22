@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 /**
  * Represents a RFC 6265 cookie.
  */

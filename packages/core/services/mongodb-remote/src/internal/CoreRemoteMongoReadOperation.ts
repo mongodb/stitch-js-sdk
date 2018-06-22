@@ -19,7 +19,7 @@ import { CoreStitchServiceClient, Decoder } from "mongodb-stitch-core-sdk";
 export default class CoreRemoteMongoReadOperation<T> {
   private readonly collectionDecoder?: Decoder<T[]>;
 
-  constructor(
+  public constructor(
     private readonly command: string,
     private readonly args: object,
     private readonly service: CoreStitchServiceClient,
@@ -27,7 +27,7 @@ export default class CoreRemoteMongoReadOperation<T> {
   ) {
     if (decoder) {
       this.collectionDecoder = new class implements Decoder<T[]> {
-        public decode(from: object) {
+        public decode(from: any) {
           if (from instanceof Array) {
             return from.map(t => decoder.decode(t));
           }

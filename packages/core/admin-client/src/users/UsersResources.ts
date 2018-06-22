@@ -24,10 +24,10 @@ export interface UserCreator {
 }
 
 export class UserCreatorCodec implements Codec<UserCreator> {
-  public decode(from: object): UserCreator {
+  public decode(from: any): UserCreator {
     return {
-      email: from["email"],
-      password: from["password"]
+      email: from.email,
+      password: from.password
     };
   }
 
@@ -49,7 +49,7 @@ export interface UserResponse {
 }
 
 export class UserResponseCodec implements Codec<UserResponse> {
-  public decode(from: object): UserResponse {
+  public decode(from: any): UserResponse {
     return {
       id: from[Fields.Id]
     };

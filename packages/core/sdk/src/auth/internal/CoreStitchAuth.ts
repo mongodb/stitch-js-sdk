@@ -219,7 +219,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     if (credential instanceof StitchAuthResponseCredential) {
       return this.processLogin(credential, credential.authInfo);
     }
-    
+
     if (!this.isLoggedIn) {
       return this.doLogin(credential, false);
     }
@@ -305,9 +305,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    */
   private prepareAuthRequest(stitchReq: StitchAuthRequest): StitchRequest {
     if (!this.isLoggedIn) {
-      throw new StitchClientError(
-        StitchClientErrorCode.MustAuthenticateFirst
-      );
+      throw new StitchClientError(StitchClientErrorCode.MustAuthenticateFirst);
     }
 
     const newReq = stitchReq.builder;
@@ -366,9 +364,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     // that should wait on the result of doing a token refresh or logout. This will
     // prevent too many refreshes happening one after the other.
     if (!this.isLoggedIn) {
-      throw new StitchClientError(
-        StitchClientErrorCode.LoggedOutDuringRequest
-      );
+      throw new StitchClientError(StitchClientErrorCode.LoggedOutDuringRequest);
     }
 
     try {
@@ -531,12 +527,16 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    * Processes the response of the login/link request, setting the authentication state if appropriate, and
    * requesting the user profile in a separate request.
    */
-  private processLoginResponse(credential: StitchCredential, response: Response): Promise<TStitchUser> {
+  private processLoginResponse(
+    credential: StitchCredential,
+    response: Response
+  ): Promise<TStitchUser> {
     try {
       if (!response) {
         throw new StitchServiceError(
           `the login response could not be processed for credential: ${credential};` +
-          `response was undefined`);
+            `response was undefined`
+        );
       }
       if (!response.body) {
         throw new StitchServiceError(
@@ -548,10 +548,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         ApiAuthInfo.fromJSON(JSON.parse(response.body!))
       );
     } catch (err) {
-      throw new StitchRequestError(
-        err,
-        StitchRequestErrorCode.DECODING_ERROR
-      );
+      throw new StitchRequestError(err, StitchRequestErrorCode.DECODING_ERROR);
     }
   }
 

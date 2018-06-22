@@ -46,7 +46,7 @@ import {
   UserType
 } from "mongodb-stitch-core-sdk";
 import FacebookRedirectCredential from "./core/auth/providers/facebook/FacebookRedirectCredential";
-import GoogleRedirectCredential from  "./core/auth/providers/google/GoogleRedirectCredential";
+import GoogleRedirectCredential from "./core/auth/providers/google/GoogleRedirectCredential";
 import { UserApiKeyAuthProviderClient } from "./core/auth/providers/userapikey/UserApiKeyAuthProviderClient";
 import { UserPasswordAuthProviderClient } from "./core/auth/providers/userpassword/UserPasswordAuthProviderClient";
 import StitchAuth from "./core/auth/StitchAuth";

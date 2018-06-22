@@ -51,7 +51,7 @@ export interface StitchAdminUserProfile {
 
 export class StitchAdminUserProfileCodec
   implements Decoder<StitchAdminUserProfile> {
-  public decode(from: object): StitchAdminUserProfile {
+  public decode(from: any): StitchAdminUserProfile {
     const roleCodec = new StitchAdminRoleCodec();
 
     return {
@@ -78,7 +78,7 @@ export interface StitchAdminRole {
 }
 
 export class StitchAdminRoleCodec implements Decoder<StitchAdminRole> {
-  public decode(from: object): StitchAdminRole {
+  public decode(from: any): StitchAdminRole {
     return {
       groupId: from[StitchAdminRoleFields.GroupId],
       name: from[StitchAdminRoleFields.Name]

@@ -39,7 +39,7 @@ enum RemoteDeleteResultFields {
 }
 
 class RemoteInsertManyResultDecoder implements Decoder<RemoteInsertManyResult> {
-  public decode(from: object) {
+  public decode(from: any) {
     return new RemoteInsertManyResult(
       from[RemoteInsertManyResultFields.InsertedIds]
     );
@@ -47,7 +47,7 @@ class RemoteInsertManyResultDecoder implements Decoder<RemoteInsertManyResult> {
 }
 
 class RemoteInsertOneResultDecoder implements Decoder<RemoteInsertOneResult> {
-  public decode(from: object) {
+  public decode(from: any) {
     return {
       insertedId: from[RemoteInsertOneResultFields.InsertedId]
     };
@@ -55,7 +55,7 @@ class RemoteInsertOneResultDecoder implements Decoder<RemoteInsertOneResult> {
 }
 
 class RemoteUpdateResultDecoder implements Decoder<RemoteUpdateResult> {
-  public decode(from: object) {
+  public decode(from: any) {
     return {
       matchedCount: from[RemoteUpdateResultFields.MatchedCount],
       modifiedCount: from[RemoteUpdateResultFields.ModifiedCount],
@@ -65,7 +65,7 @@ class RemoteUpdateResultDecoder implements Decoder<RemoteUpdateResult> {
 }
 
 class RemoteDeleteResultDecoder implements Decoder<RemoteDeleteResult> {
-  public decode(from: object) {
+  public decode(from: any) {
     return {
       deletedCount: from[RemoteDeleteResultFields.DeletedCount]
     };

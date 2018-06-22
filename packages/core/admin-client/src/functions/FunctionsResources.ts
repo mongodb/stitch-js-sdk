@@ -32,7 +32,7 @@ export interface FunctionCreator {
 }
 
 export class FunctionCreatorCodec implements Codec<FunctionCreator> {
-  public decode(from: object): FunctionCreator {
+  public decode(from: any): FunctionCreator {
     return {
       canEvaluate: from[FunctionCreatorFields.CanEvaluate],
       name: from[FunctionCreatorFields.Name],
@@ -63,7 +63,7 @@ export interface FunctionResponse {
 }
 
 export class FunctionResponseCodec implements Codec<FunctionResponse> {
-  public decode(from: object): FunctionResponse {
+  public decode(from: any): FunctionResponse {
     return {
       id: from[FunctionResponseFields.Id],
       name: from[FunctionResponseFields.Name]

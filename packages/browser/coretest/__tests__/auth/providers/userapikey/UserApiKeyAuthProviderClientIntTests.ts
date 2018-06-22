@@ -30,8 +30,8 @@ async function prepareApp(): Promise<[AppResponse, App]> {
   await harness.addProvider(
     app as App,
     new Userpass(
-      "http://emailConfirmURL.com",
-      "http://resetPasswordURL.com",
+      "http://emailConfirmUrl.com",
+      "http://resetPasswordUrl.com",
       "email subject",
       "password subject"
     )

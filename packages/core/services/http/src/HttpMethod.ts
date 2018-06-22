@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 /**
  * The series of HTTP methods accepted by the HTTP service.
  */
