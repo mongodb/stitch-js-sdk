@@ -24,6 +24,6 @@
 	},
 	"scripts": {
 		"test:coverage": "lcov-result-merger 'packages/**/lcov.info' | coveralls",
-		"docs": "typedoc --name 'MongoDB Stitch Web SDK' --out ./docs --mode file --tsconfig tdconfig.json --readme README.md  packages/browser/core/src/index.ts packages/core/sdk/src/index.ts packages/core/services/*/src/index.ts packages/browser/services/*/src/index.ts --ignoreCompilerErrors --excludeNotExported --theme minimal"
+		"docs": "typedoc --name 'MongoDB Stitch Browser SDK' --out ./docs --mode file --tsconfig tdconfig.json --readme README.md  packages/browser/core/src/index.ts packages/core/sdk/src/index.ts packages/core/services/*/src/index.ts packages/browser/services/*/src/index.ts --ignoreCompilerErrors --excludeNotExported --theme minimal"
 	}
 }
