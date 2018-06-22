@@ -11,7 +11,7 @@ The official [MongoDB Stitch](https://stitch.mongodb.com/) SDK for JavaScript/Ty
 - [Example Usage](#example-usage)
 
 ## Documentation
-* [API/Javadoc Documentation](https://s3.amazonaws.com/stitch-sdks/browser/docs/4.0.0/index.html)
+* [API/Javadoc Documentation](https://s3.amazonaws.com/stitch-sdks/js/docs/4.0.0/index.html)
 * [MongoDB Stitch Documentation](https://docs.mongodb.com/stitch/)
 
 ## Discussion
