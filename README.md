@@ -52,150 +52,124 @@ npm install mongodb-stitch-browser-services-twilio
 3. Copy your app's client app id by going to Clients on the left side pane and clicking copy on the App ID section.
 4. Go to Providers from Users in the left side pane and edit and enable "Allow users to log in anonymously".
 
-<!--TODO make this a barebones webpack example #### Set up a project in Android Studio using Stitch
-1. Download and install [Android Studio](https://developer.android.com/studio/index.html).
-2. Start a new Android Studio project.
-	* Note: The minimum supported API level is 21 (Android 5.0 Lollipop)
-	* Starting with an empty activity is ideal
-3. In your build.gradle for your app module, add the following to your dependencies block:
+#### Set up an NPM project
+1. Ensure that you have `npm` installed. See [npmjs.com](https://www.npmjs.com).
+2. Initialize a new NPM project with `npm init`.
+3. Add the MongoDB Stitch Browser SDK by running `npm install mongodb-stitch-browser-sdk`.
+4. Install `webpack.js` by running `npm install --save-dev webpack webpack-cli`.
+5. Add the following field to the `"scripts"` field of your `package.json`:
 
-	```gradle
-    implementation 'org.mongodb:stitch-android-sdk:4.0.0'
-    ```
-4. Android Studio will prompt you to sync your changes in your project; hit Sync Now.
-
-#### Set up an Android Virtual Device
-
-1. In Android Studio, go to Tools, Android, AVD manager.
-2. Click Create Virtual Device.
-3. Select a device that should run your app (the default is fine).
-4. Select and download a recommended system image of your choice (the latest is fine).
-	* x86_64 images are available in the x86 tab.
-5. Name your device and hit finish.
-
-#### Using the SDK
-
-##### Set up app info
-1. Create a resource values file in your app (e.g. res/values/mongodb-stitch.xml) and set the following using the app id you copied earlier in place of YOUR_APP_ID:
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="stitch_client_app_id">YOUR_APP_ID</string>
-</resources>
+```json
+"scripts": {
+    "pack": "webpack"
+}
 ```
 
-##### Logging In
-1. Since we enabled anonymous log in, let's log in with it; add the following anywhere in your code:
+6. Create directories for your source files, and your distributed files:
 
-	```java
-	final StitchAppClient client = Stitch.getDefaultAppClient();
-    client.getAuth().loginWithCredential(new AnonymousCredential()).addOnCompleteListener(
-        new OnCompleteListener<StitchUser>() {
-      @Override
-      public void onComplete(@NonNull final Task<StitchUser> task) {
-        if (task.isSuccessful()) {
-          Log.d("myApp", String.format(
-              "logged in as user %s with provider %s",
-              task.getResult().getId(),
-              task.getResult().getLoggedInProviderType()));
-        } else {
-          Log.e("myApp", "failed to log in", task.getException());
-        }
-      }
-    });
-	```
+```bash
+mkdir src dist
+```
 
-2. Now run your app in Android Studio by going to run, Run 'app'. Use the Android Virtual Device you created previously
-3. Once the app is running, open up Logcat in the bottom of Android studio and you should see the following log message:
+7. Create the file `src/index.js` and add the following code, replacing `<your-client-app-id>` with the id you retrieved when setting up the application in MongoDB Stitch:
 
-	```
-	logged in as user 5b0483778f25b978044aca76 with provider anon-user
-	```
+```javascript
+import { Stitch, AnonymousCredential } from 'mongodb-stitch-browser-sdk'
+
+function initializeAndLogin() {
+  const client = Stitch.initializeDefaultAppClient('<your-client-app-id>');
+  client.auth.loginWithCredential(new AnonymousCredential()).then(user => {
+    document.getElementById('auth-status').innerHTML = 
+      `Logged in as anonymous user with id ${user.id}`;
+  });
+}
+
+window.onload = initializeAndLogin;
+```
+
+8. Create the file `dist/index.html` and add the following code:
+
+```html
+<!doctype html>
+  <html>
+   <head>
+     <title>MonogDB Stitch Sample</title>
+   </head>
+   <body>
+     <script src="main.js"></script>
+     <div id="auth-status">Logged Out</div>
+   </body>
+  </html>
+```
+
+9. Run the webpack bundler by running `npm run pack`.
+10. Open `dist/index.html` in your web browser. If everything was configured correctly, you should see a message in the browser window that you are logged in as an anonymous user.
+
+See the [Getting Started](https://webpack.js.org/guides/getting-started/) guide on `webpack`'s website for more information on how to use webpack to bundle your JavaScript or TypeScript code that uses the Stitch SDK.
+
+Additionally, the JavaScript code above utilizes ES6 features. If you'd like your code to run in older browsers, you'll need to use a transpiler like [Babel](https://babeljs.io/) as part of your bundling process. See [babel-loader](https://github.com/babel/babel-loader).
+
+### Using the SDK
+
+#### Initialize the SDK
+1. When your app or webpage is initialized, run the following code to initialize the Stitch SDK, replacing `<your-client-app-id>` with your Stitch application's client app ID:
+
+```javascript
+import { Stitch } from 'mongodb-stitch-browser-sdk'
+
+Stitch.initializeDefaultAppClient('<your-client-app-id>');
+```
+
+2. To get a client to use for logging in and communicating with Stitch, use `Stitch.defaultAppClient`
+
+```javascript
+const stitchClient = Stitch.defaultAppClient;
+```
+
+#### Logging In
+1. We enabled anonymous log in, so let's log in with it; add the following anywhere in your code:
+
+```javascript
+const client = Stitch.defaultAppClient;
+
+console.log("logging in anonymously");
+client.auth.loginWithCredential(new AnonymousCredential()).then(user => {
+  console.log(`logged in anonymously as user ${user.id}`)
+});
+```
+
+2. When running this code, you should see the following in your browser's debug console:
+
+```
+logging in anonymously                                                    	
+logged in anonymously as user 58c5d6ebb9ede022a3d75050
+```
+
+#### Executing a function
+1. Once logged in, executing a function happens via the `StitchAppClient`'s `callFunction()` method
+
+```javascript
+client.callFunction("echoArg", ["Hello world!"]).then(echoedResult => {
+  console.log(`Echoed result: ${echoedResult}`);
+})
+```
+
+2. If you've configured your Stitch application to have a function named "echoArg" that returns its argument, you should see a message like:
+
+```
+Echoed result: Hello world!
+```
 	
-##### Getting a StitchAppClient without Stitch.getDefaultAppClient
+#### Getting a StitchAppClient without Stitch.getDefaultAppClient
 
-In the case that you don't want a default initialized StitchAppClient by setting up the resource values, you can use the following code once to initialize a client for a given app id that you copied earlier:
+In the case that you don't want a single default initialized `StitchAppClient`, you can use the following with as many client app IDs as you'd like to initialize clients for multiple app IDs:
 
-```java
-final StitchAppClient client = Stitch.initializeAppClient("YOUR_APP_ID");
+```javascript
+const client = Stitch.initializeAppClient("<your-client-app-id>");
 ```
 
-You can use the client returned there or anywhere else in your app you can use the following:
+You can use the client returned there or anywhere else in your app by using the following:
 
-```java
-final StitchAppClient client = Stitch.getAppClient("YOUR_APP_ID");
-``` -->
-
-<!-- # mongodb-stitch-browser-sdk
-
-[![Join the chat at https://gitter.im/mongodb/stitch](https://badges.gitter.im/mongodb/stitch.svg)](https://gitter.im/mongodb/stitch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-[MongoDB Stitch Users - Google Group](https://groups.google.com/d/forum/mongodb-stitch-users)
-
-[MongoDB Stitch Announcements - Google Group](https://groups.google.com/d/forum/mongodb-stitch-announce)
-
-The original source is located in `src/`.
-To transpile to pure JS, run `npm run build` which places the output into `dist/`.
-
-### [Documentation](https://s3.amazonaws.com/stitch-sdks/js/docs/master/index.html)
-
-### Usage
-
-#### Construct a simple app-wide client
-
+```javascript
+const client = Stitch.getAppClient("<your-client-app-id>");
 ```
-import { StitchClientFactory } from 'mongodb-stitch';
-let appId = 'sample-app-ovmyj';
-let stitchClientPromise = StitchClientFactory.create(appId);
-```
-
-The `StitchClient` only needs to be resolved once from `StitchClientFactory.create()` and it can be used for the lifetime of an application.
-
-#### Authenticate anonymously
-
-```
-stitchClientPromise.then(stitchClient => stitchClient.login())
-  .then(() => console.log('logged in as: ' + stitchClient.authedId()))
-  .catch(e => console.log('error: ', e));
-```
-
-#### Access MongoDB APIs
-
-```
-stitchClientPromise.then(stitchClient => {
-  let db = stitchClient.service('mongodb', 'mongodb1').db('app-ovmyj'); // mdb1 is the name of the mongodb service registered with the app.
-  let itemsCollection = db.collection('items');
-
-  // CRUD operations:
-  const userId = stitchClient.authedId();
-  return itemsCollection.insertMany(
-    [ 
-      { owner_id: userId, x: 'item1' }, 
-      { owner_id: userId, x: 'item2' }, 
-      { owner_id: userId, x: 'item3' } 
-    ]
-  );
-}).then(result => console.log('success: ', result))
-  .catch(e => console.log('error: ', e));
-```
-
-#### Execute a function
-
-```
-stitchClientPromise.then(stitchClient => 
-  stitchClient.executeFunction('myFunc', 1, 'arg2', {arg3: true})
-).then(result => console.log('success: ', result))
-  .catch(e => console.log('error: ', e));
-```
-
-
-#### Execute a service function
-
-```
-stitchClientPromise.then(stitchClient =>
-  stitchClient.executeServiceFunction('http1', 'get', {url: 'https://domain.org'})
-).then(result => console.log('success: ', result))
-  .catch(e => console.log('error: ', e));
-``` -->
-
