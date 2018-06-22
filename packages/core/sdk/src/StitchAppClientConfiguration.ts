@@ -26,7 +26,7 @@ export class StitchAppClientConfiguration extends StitchClientConfiguration {
     localAppVersion: string
   ) {
     super(
-      config.baseURL,
+      config.baseUrl,
       config.storage,
       config.dataDirectory,
       config.transport

@@ -20,11 +20,11 @@ import Method from "../../../src/internal/net/Method";
 describe("BasicRequest", () => {
   it("should throw if missing Method", () => {
     const builder = new BasicRequest.Builder();
-    builder.withURL("http://localhost:8080");
+    builder.withUrl("http://localhost:8080");
     expect(() => builder.build()).toThrowError();
   });
 
-  it("should throw if missing URL", () => {
+  it("should throw if missing Url", () => {
     const builder = new BasicRequest.Builder();
     builder.withMethod(Method.GET);
     expect(() => builder.build()).toThrowError();
@@ -40,7 +40,7 @@ describe("BasicRequest", () => {
 
     builder
       .withMethod(method)
-      .withURL(url)
+      .withUrl(url)
       .withHeaders(headers)
       .withBody(body);
 

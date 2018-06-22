@@ -22,7 +22,7 @@ export interface ProviderConfig {
 }
 
 export class ProviderConfigCodec implements Codec<ProviderConfig> {
-  public decode(from: object): ProviderConfig {
+  public decode(from: any): ProviderConfig {
     return {
       config: from.config,
       type: from.type

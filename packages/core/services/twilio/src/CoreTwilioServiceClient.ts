@@ -25,7 +25,7 @@ export default class CoreTwilioServiceClient {
     body: string,
     mediaUrl?: string
   ): Promise<void> {
-    const args = {
+    const args: any = {
       body,
       from,
       to

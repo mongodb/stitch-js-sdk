@@ -58,7 +58,7 @@ export namespace BasicRequest {
       return this;
     }
 
-    public withURL(url: string): this {
+    public withUrl(url: string): this {
       this.url = url;
       return this;
     }

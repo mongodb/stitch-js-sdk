@@ -56,7 +56,7 @@ describe("StitchUserProfile", () => {
     expect(stitchUserProfileImpl.email).toEqual(EMAIL);
     expect(stitchUserProfileImpl.gender).toEqual(GENDER);
     expect(stitchUserProfileImpl.birthday).toEqual(BIRTHDAY);
-    expect(stitchUserProfileImpl.pictureURL).toEqual(PICTURE_URL);
+    expect(stitchUserProfileImpl.pictureUrl).toEqual(PICTURE_URL);
     expect(stitchUserProfileImpl.minAge).toEqual(Number.parseInt(MIN_AGE));
     expect(stitchUserProfileImpl.maxAge).toEqual(Number.parseInt(MAX_AGE));
     expect(stitchUserProfileImpl.userType).toEqual("local-userpass");

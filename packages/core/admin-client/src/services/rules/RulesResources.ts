@@ -93,7 +93,7 @@ export class RuleResponseCodec implements Codec<RuleResponse> {
     return {};
   }
 
-  public decode(from: object): RuleResponse {
+  public decode(from: any): RuleResponse {
     return {};
   }
 }

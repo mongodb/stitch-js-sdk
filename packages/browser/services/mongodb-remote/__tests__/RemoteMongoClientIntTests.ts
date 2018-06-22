@@ -401,7 +401,7 @@ describe("RemoteMongoClient", () => {
     }
 
     const codec = new class implements Codec<CustomType> {
-      public decode(from: object): CustomType {
+      public decode(from: any): CustomType {
         return {
           id: from._id,
           intValue: from.intValue

@@ -35,7 +35,7 @@ export interface AppResponse {
 }
 
 export class AppResponseCodec implements Codec<AppResponse> {
-  public decode(from: object): AppResponse {
+  public decode(from: any): AppResponse {
     return {
       clientAppId: from[Fields.ClientAppId],
       id: from[Fields.Id],

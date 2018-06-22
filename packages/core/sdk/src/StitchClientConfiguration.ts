@@ -18,18 +18,18 @@ import { Storage } from "./internal/common/Storage";
 import Transport from "./internal/net/Transport";
 
 export class StitchClientConfiguration {
-  public readonly baseURL: string;
+  public readonly baseUrl: string;
   public readonly storage: Storage;
   public readonly dataDirectory: string;
   public readonly transport: Transport;
 
   public constructor(
-    baseURL: string,
+    baseUrl: string,
     storage: Storage,
     dataDirectory: string,
     transport: Transport
   ) {
-    this.baseURL = baseURL;
+    this.baseUrl = baseUrl;
     this.storage = storage;
     this.dataDirectory = dataDirectory;
     this.transport = transport;
@@ -43,22 +43,22 @@ export class StitchClientConfiguration {
 /* tslint:disable:no-namespace max-classes-per-file */
 export namespace StitchClientConfiguration {
   export class Builder {
-    public baseURL: string;
+    public baseUrl: string;
     public storage: Storage;
     public dataDirectory: string;
     public transport: Transport;
 
     constructor(config?: StitchClientConfiguration) {
       if (config) {
-        this.baseURL = config.baseURL;
+        this.baseUrl = config.baseUrl;
         this.storage = config.storage;
         this.dataDirectory = config.dataDirectory;
         this.transport = config.transport;
       }
     }
 
-    public withBaseURL(baseURL: string): this {
-      this.baseURL = baseURL;
+    public withBaseUrl(baseUrl: string): this {
+      this.baseUrl = baseUrl;
       return this;
     }
 
@@ -79,7 +79,7 @@ export namespace StitchClientConfiguration {
 
     public build(): StitchClientConfiguration {
       return new StitchClientConfiguration(
-        this.baseURL,
+        this.baseUrl,
         this.storage,
         this.dataDirectory,
         this.transport

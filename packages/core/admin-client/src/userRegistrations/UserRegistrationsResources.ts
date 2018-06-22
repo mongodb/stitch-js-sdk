@@ -32,7 +32,7 @@ export interface ConfirmationEmail {
 }
 
 export class ConfirmationEmailCodec implements Codec<ConfirmationEmail> {
-  public decode(from: object): ConfirmationEmail {
+  public decode(from: any): ConfirmationEmail {
     return {
       token: from[Fields.Token],
       tokenId: from[Fields.TokenId]

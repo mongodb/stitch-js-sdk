@@ -489,7 +489,7 @@ describe("CoreStitchAuthUnitTests", () => {
         return auth.doAuthenticatedRequestWithDecoder(
           reqBuilder.build(),
           new class implements Decoder<TestDoc> {
-            public decode(from: object): TestDoc {
+            public decode(from: any): TestDoc {
               return {
                 id: from["_id"],
                 intValue: from["intValue"]

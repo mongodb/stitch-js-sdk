@@ -46,7 +46,7 @@ export default class StitchAppClientImpl implements StitchAppClient {
     );
     this.routes = new StitchAppRoutes(this.info.clientAppId);
     const requestClient = new StitchRequestClient(
-      config.baseURL,
+      config.baseUrl,
       config.transport
     );
     this.auth = new StitchAuthImpl(

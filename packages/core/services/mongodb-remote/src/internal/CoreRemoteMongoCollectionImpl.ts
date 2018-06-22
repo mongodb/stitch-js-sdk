@@ -73,7 +73,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
     filter: object = {},
     options?: RemoteFindOptions
   ): CoreRemoteMongoReadOperation<T> {
-    const args = { ...this.baseOperationArgs };
+    const args: any = { ...this.baseOperationArgs };
 
     args.query = filter;
 
@@ -110,7 +110,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
    * - returns: A `CoreRemoteMongoReadOperation` that allows retrieval of the resulting documents.
    */
   public aggregate(pipeline: object[]): CoreRemoteMongoReadOperation<T> {
-    const args = { ...this.baseOperationArgs };
+    const args: any = { ...this.baseOperationArgs };
 
     args.pipeline = pipeline;
 
@@ -135,7 +135,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
     query: object = {},
     options?: RemoteCountOptions
   ): Promise<number> {
-    const args = { ...this.baseOperationArgs };
+    const args: any = { ...this.baseOperationArgs };
     args.query = query;
 
     if (options && options.limit) {
@@ -155,7 +155,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
    * - Returns: The result of attempting to perform the insert.
    */
   public insertOne(value: T): Promise<RemoteInsertOneResult> {
-    const args = { ...this.baseOperationArgs };
+    const args: any = { ...this.baseOperationArgs };
 
     args.document = this.generateObjectIdIfMissing(
       this.codec ? this.codec.encode(value) : (value as any)
@@ -178,7 +178,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
    * - Returns: The result of attempting to perform the insert.
    */
   public insertMany(docs: T[]): Promise<RemoteInsertManyResult> {
-    const args = { ...this.baseOperationArgs };
+    const args: any = { ...this.baseOperationArgs };
 
     args.documents = docs.map(doc =>
       this.generateObjectIdIfMissing(
@@ -257,7 +257,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
     query: object,
     multi: boolean
   ): Promise<RemoteDeleteResult> {
-    const args = { ...this.baseOperationArgs };
+    const args: any = { ...this.baseOperationArgs };
     args.query = query;
 
     return this.service.callFunctionInternal(
@@ -273,7 +273,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
     options?: RemoteUpdateOptions,
     multi = false
   ): Promise<RemoteUpdateResult> {
-    const args = { ...this.baseOperationArgs };
+    const args: any = { ...this.baseOperationArgs };
 
     args.query = query;
     args.update = update;
@@ -290,7 +290,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
   }
 
   /// Returns a version of the provided document with an ObjectId
-  private generateObjectIdIfMissing(doc: object): object {
+  private generateObjectIdIfMissing(doc: any): object {
     if (!doc._id) {
       const newDoc = doc;
       newDoc._id = new ObjectID();

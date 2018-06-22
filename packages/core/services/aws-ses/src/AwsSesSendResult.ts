@@ -26,7 +26,7 @@ enum Fields {
 export default class AwsSesSendResult {
   public static readonly Decoder = new class
     implements Decoder<AwsSesSendResult> {
-    public decode(from: object): AwsSesSendResult {
+    public decode(from: any): AwsSesSendResult {
       return { messageId: from[Fields.MessageId] };
     }
   }();

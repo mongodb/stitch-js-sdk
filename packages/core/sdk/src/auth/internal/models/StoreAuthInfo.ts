@@ -55,7 +55,7 @@ function writeToStorage(authInfo: AuthInfo, storage: Storage) {
 class StoreAuthInfo extends AuthInfo {
   public static readonly STORAGE_NAME: string = "auth_info";
 
-  public static decode(from: object): StoreAuthInfo {
+  public static decode(from: any): StoreAuthInfo {
     const userId = from[Fields.USER_ID];
     const deviceId = from[Fields.DEVICE_ID];
     const accessToken = from[Fields.ACCESS_TOKEN];

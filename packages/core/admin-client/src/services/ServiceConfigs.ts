@@ -25,7 +25,7 @@ export interface ServiceConfig {
 }
 
 export class ServiceConfigCodec implements Codec<ServiceConfig> {
-  public decode(from: object): ServiceConfig {
+  public decode(from: any): ServiceConfig {
     const type = from.type;
     let config: object = from.config;
     if (type === "twilio") {
@@ -96,7 +96,7 @@ export interface TwilioConfig {
 }
 
 export class TwilioConfigCodec implements Codec<TwilioConfig> {
-  public decode(from: object): TwilioConfig {
+  public decode(from: any): TwilioConfig {
     return {
       accountSid: from[TwilioConfigFields.AccountSid],
       authToken: from[TwilioConfigFields.AuthToken]

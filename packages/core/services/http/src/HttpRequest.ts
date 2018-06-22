@@ -51,9 +51,9 @@ export namespace HttpRequest {
     public constructor() {}
 
     /**
-     * Sets the URL that the request will be performed against.
+     * Sets the Url that the request will be performed against.
      *
-     * @param url the URL that the request will be performed against.
+     * @param url the Url that the request will be performed against.
      * @return the builder.
      */
     public withUrl(url: string): this {
@@ -73,10 +73,10 @@ export namespace HttpRequest {
     }
 
     /**
-     * Sets the URL that will be used to capture cookies for authentication before the
+     * Sets the Url that will be used to capture cookies for authentication before the
      * actual request is executed.
      *
-     * @param authUrl the URL that will be used to capture cookies for authentication before the
+     * @param authUrl the Url that will be used to capture cookies for authentication before the
      *                actual request is executed.
      * @return the builder.
      */

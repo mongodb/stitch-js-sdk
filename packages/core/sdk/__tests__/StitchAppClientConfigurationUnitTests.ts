@@ -32,7 +32,7 @@ describe("StitchAppClientConfigurationUnitTests", () => {
     }();
 
     const builder = new StitchAppClientConfiguration.Builder();
-    builder.withBaseURL(baseUrl);
+    builder.withBaseUrl(baseUrl);
     builder.withStorage(storage);
     builder.withTransport(transport);
     builder.withLocalAppVersion(localAppVersion).withLocalAppName(localAppName);
@@ -40,7 +40,7 @@ describe("StitchAppClientConfigurationUnitTests", () => {
 
     expect(config.localAppVersion).toEqual(localAppVersion);
     expect(config.localAppName).toEqual(localAppName);
-    expect(config.baseURL).toEqual(baseUrl);
+    expect(config.baseUrl).toEqual(baseUrl);
     expect(config.storage).toEqual(storage);
     expect(config.transport).toEqual(transport);
   });

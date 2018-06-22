@@ -87,8 +87,8 @@ export default class Stitch {
     if (builder.transport === undefined) {
       builder.withTransport(new FetchTransport());
     }
-    if (builder.baseURL === undefined || builder.baseURL === "") {
-      builder.withBaseURL(DEFAULT_BASE_URL);
+    if (builder.baseUrl === undefined || builder.baseUrl === "") {
+      builder.withBaseUrl(DEFAULT_BASE_URL);
     }
     if (builder.localAppName === undefined || builder.localAppName === "") {
       builder.withLocalAppName(Stitch.localAppName);

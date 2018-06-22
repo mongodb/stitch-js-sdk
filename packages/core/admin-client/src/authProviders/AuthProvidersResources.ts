@@ -37,7 +37,7 @@ export interface AuthProviderResponse {
 }
 
 export class AuthProviderResponseCodec implements Codec<AuthProviderResponse> {
-  public decode(from: object): AuthProviderResponse {
+  public decode(from: any): AuthProviderResponse {
     return {
       disabled: from[Fields.DISABLED],
       id: from[Fields.ID],
