@@ -54,6 +54,7 @@
     "build-main": "tsc -p tsconfig.umd.json && npm run add-version-umd",
     "build-module": "tsc -p tsconfig.esm.json && npm run add-version-esm",
     "build-browser": "rollup -c && npm run add-version-browser",
+    "prepare": "npm run build",
     "watch": "tsc -w -p tsconfig.esm.json",
     "lint": "tslint src/**/*.ts __tests__/**/*.ts",
     "lint-fix": "tslint --fix src/**/*.ts __tests__/**/*.ts",

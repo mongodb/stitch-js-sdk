@@ -57,6 +57,7 @@
     "build-main": "tsc -p tsconfig.umd.json",
     "build-module": "tsc -p tsconfig.esm.json",
     "build-browser": "rollup -c",
+    "prepare": "npm run build",
     "watch": "tsc -w -p tsconfig.esm.json",
     "test": "jest",
     "lint": "tslint src/**/*.ts __tests__/**/*.ts",
