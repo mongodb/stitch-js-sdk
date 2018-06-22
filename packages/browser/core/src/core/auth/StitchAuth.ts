@@ -69,10 +69,30 @@ export default interface StitchAuth {
    */
   loginWithCredential(credential: StitchCredential): Promise<StitchUser>;
 
+  /**
+   * Authenticates the client as a MongoDB Stitch user using the provided 
+   * {@link StitchRedirectCredential}. This method will redirect the user to
+   * an OAuth2 login page where the login is handled externally. That external
+   * page will redirect the user back to the page specified in the redirect
+   * credential. To complete the login, that page will need to handle the 
+   * redirect by calling {@link handleRedirectResult()}.
+   * 
+   * @param credential The credential to use when logging in.
+   */
   loginWithRedirect(credential: StitchRedirectCredential): void;
 
+  /**
+   * Checks whether or not the page was just redirected to from a login process
+   * initiated by {@link loginWithRedirect()}. Call this method before calling
+   * {@link handleRedirectResult} if you want to avoid errors.
+   */
   hasRedirectResult(): boolean;
 
+  /**
+   * Handles a redirect by completing the login response and authenticating the
+   * client. Should be called by the redirect handling page that 
+   * {@link loginWithRedirect()} redirects to.
+   */
   handleRedirectResult(): Promise<StitchUser>;
 
   /**

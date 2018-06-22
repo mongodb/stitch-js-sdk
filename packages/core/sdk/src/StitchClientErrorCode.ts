@@ -26,6 +26,7 @@ export enum StitchClientErrorCode {
   CouldNotPersistAuthInfo
 }
 
+/** @hidden */
 export const clientErrorCodeDescs: { [id in StitchClientErrorCode]: string } = {
   [StitchClientErrorCode.LoggedOutDuringRequest]:
     "logged out while making a request to Stitch",

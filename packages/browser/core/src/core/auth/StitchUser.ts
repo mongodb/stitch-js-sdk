@@ -54,6 +54,27 @@ export default interface StitchUser extends CoreStitchUser {
    */
   readonly identities: StitchUserIdentity[];
 
+    /**
+   * Authenticates the client as a MongoDB Stitch user using the provided 
+   * {@link StitchRedirectCredential}. This method will redirect the user to
+   * an OAuth2 login page where the login is handled externally. That external
+   * page will redirect the user back to the page specified in the redirect
+   * credential. To complete the login, that page will need to handle the 
+   * redirect by calling {@link handleRedirectResult()}.
+   * 
+   * @param credential The credential to use when logging in.
+   */
+
+  /**
+   * Links this {@link StitchUser} with a new identity, where the identity is 
+   * resolved via an external OAuth2 login process (e.g. Facebook or Google). 
+   * This method will redirect the user to the external login page. That 
+   * external page will redirect the user back to the page specified in the 
+   * redirect credential. To complete the link, that page will need to handle
+   * the redirect by calling {@link StitchAuth.handleRedirectResult()}.
+   * 
+   * @param credential The redirect credential to use to link this user to a new identity.
+   */
   linkUserWithRedirect(credential: StitchRedirectCredential): Promise<void>;
 
   /**

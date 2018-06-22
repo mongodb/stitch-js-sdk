@@ -24,6 +24,7 @@ export enum StitchRequestErrorCode {
   ENCODING_ERROR
 }
 
+/** @hidden */
 export const requestErrorCodeDescs: {
   [id in StitchRequestErrorCode]: string
 } = {
