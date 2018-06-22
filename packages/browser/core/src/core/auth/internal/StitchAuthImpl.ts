@@ -51,7 +51,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
 
   public constructor(
     requestClient: StitchRequestClient,
-    public readonly browserAuthRoutes: StitchBrowserAppAuthRoutes,
+    private readonly browserAuthRoutes: StitchBrowserAppAuthRoutes,
     private readonly authStorage: Storage,
     private readonly appInfo: StitchAppClientInfo
   ) {
@@ -100,7 +100,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     );
   }
 
-  public linkWithRedirect(
+  public linkWithRedirectInternal(
     user: StitchUser,
     credential: StitchRedirectCredential
   ) {
@@ -141,7 +141,9 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     } catch (_) {
       return false;
     } finally {
-      if (!isValid) { this.cleanupRedirect(); }
+      if (!isValid) {
+        this.cleanupRedirect();
+      }
     }
   }
 
@@ -151,21 +153,17 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
       const providerName = this.authStorage.get(RedirectKeys.ProviderName);
       const providerType = this.authStorage.get(RedirectKeys.ProviderType);
 
-      // If we get here, the state is valid - set auth appropriately.
       return this.loginWithCredentialInternal(
         new StitchAuthResponseCredential(
           this.processRedirectResult(),
-          providerName,
-          providerType
+          providerType,
+          providerName
         )
       ).then(user => {
-        window.history.replaceState(null, "", pageRootUrl());
         return user;
       });
     } catch (err) {
       return Promise.reject(err)
-    } finally {
-      this.cleanupRedirect();
     }
   }
 
@@ -278,19 +276,13 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
         throw new StitchRedirectError(
             `error handling redirect: ${
               redirectFragment.lastError
-                ? redirectFragment.lastError
-                : "unknown"
             }`
         );
       }
 
       if (!redirectFragment.authInfo) {
         throw new StitchRedirectError(
-          `no user auth value was found: ${
-            redirectFragment.lastError
-                ? redirectFragment.lastError
-                : "it could not be decoded from fragment"
-          }`
+          "no user auth value was found: it could not be decoded from fragment"
         );
       }
     } catch (err) {

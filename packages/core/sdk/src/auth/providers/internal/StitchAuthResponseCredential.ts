@@ -14,7 +14,8 @@ export default class StitchAuthResponseCredential implements StitchCredential {
     public readonly material: { [key: string]: string };
 
     /**
-     * The contents of this credential as they will be passed to the Stitch server.
+     * The contents of this credential as they will be
+     * processed and stored
      */
     public constructor(
         public readonly authInfo: AuthInfo,

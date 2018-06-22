@@ -39,6 +39,8 @@ interface StitchAuth {
 
   loginWithRedirect(credential: StitchRedirectCredential): void;
 
+  hasRedirectResult(): boolean;
+  
   handleRedirectResult(): Promise<StitchUser>;
 
   logout(): Promise<void>;

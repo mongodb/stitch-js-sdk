@@ -65,10 +65,7 @@ class Hello extends React.Component {
 
     componentDidMount() {
         const client = Stitch.initializeDefaultAppClient(
-            "test-js-sdk-eocey",
-            new StitchAppClientConfiguration.Builder()
-                .withBaseURL("https://stitch-dev.mongodb.com")
-                .build()
+            "<your-app-id>",
         );
 
         if (client.auth.hasRedirectResult()) {

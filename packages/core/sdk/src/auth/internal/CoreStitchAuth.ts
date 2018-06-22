@@ -490,7 +490,6 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
     return this.doGetUserProfile()
       .then(profile => {
-        // readonly set the info and user
         newAuthInfo = newAuthInfo.merge(
           new AuthInfo(
             newAuthInfo.userId,
@@ -531,7 +530,9 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   private processLoginResponse(credential: StitchCredential, response: Response): Promise<TStitchUser> {
     try {
       if (!response) {
-        throw new StitchServiceError("response was undefined");
+        throw new StitchServiceError(
+          `the login response could not be processed for credential: ${credential};` +
+          `response was undefined`);
       }
       if (!response.body) {
         throw new StitchServiceError(

@@ -17,7 +17,6 @@
 import { Storage } from "../../../internal/common/Storage";
 
 import AuthInfo from "../AuthInfo";
-import StitchUserProfileImpl from "../StitchUserProfileImpl";
 import StoreCoreUserProfile from "./StoreCoreUserProfile";
 import StoreStitchUserIdentity from "./StoreStitchUserIdentity";
 

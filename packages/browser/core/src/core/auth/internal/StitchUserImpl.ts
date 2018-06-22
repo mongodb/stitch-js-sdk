@@ -43,6 +43,6 @@ export default class StitchUserImpl extends CoreStitchUserImpl
   public linkUserWithRedirect(
     credential: StitchRedirectCredential
   ): Promise<void> {
-    return this.auth.linkWithRedirect(this, credential);
+    return this.auth.linkWithRedirectInternal(this, credential);
   }
 }
