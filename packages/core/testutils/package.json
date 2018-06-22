@@ -8,6 +8,9 @@
   "files": [
     "lib"
   ],
+  "keywords": ["mongodb", "aws", "twilio", "http", "mobile", "serverless", "stitch", "atlas"],
+  "homepage": "https://github.com/mongodb/stitch-js-sdk#readme",
+  "repository": "mongodb/stitch-js-sdk",
   "author": "MongoDB Inc.",
   "contributors": [
     {
