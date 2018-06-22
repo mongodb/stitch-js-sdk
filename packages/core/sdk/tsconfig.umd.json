@@ -1,17 +1,7 @@
 {
+    "extends": "../../../config/tsconfig.umd.base.json",
     "compilerOptions": {
-        "target": "ES5",
-        "module": "UMD",
-        "moduleResolution": "Node",
-        "sourceMap": true,
-        "strictNullChecks": true,
-        "outDir": "lib/umd",
-        "declaration": true,
-        "removeComments": true,
-        "lib": [
-            "es2015",
-            "es2017.object"
-        ]
+    	"outDir": "lib/umd"
     },
     "include": [
         "src/**/*"
