@@ -256,7 +256,7 @@ describe("StitchAuthImpl", () => {
             userId: "user_id"
         };
 
-        when(spiedImpl['processRedirectResult']()).thenReturn(
+        when(spiedImpl['processRedirectResult'](anything())).thenReturn(
             redirectFragmentResult as any
         )
 
