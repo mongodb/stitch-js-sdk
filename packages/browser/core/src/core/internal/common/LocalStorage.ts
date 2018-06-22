@@ -16,16 +16,22 @@
 
 import { Storage } from "mongodb-stitch-core-sdk";
 
+const stitchPrefixKey = "__stitch.client";
+
 export default class LocalStorage implements Storage {
   constructor(private readonly suiteName: string) {}
 
+  private getKey(forKey: string): string {
+    return `${stitchPrefixKey}.${this.suiteName}.${forKey}`;
+  }
+
   public get(key: string): any {
-    return localStorage.getItem(`${this.suiteName}.${key}`);
+    return localStorage.getItem(this.getKey(key));
   }
   public set(key: string, value: string): any {
-    return localStorage.setItem(`${this.suiteName}.${key}`, value);
+    return localStorage.setItem(this.getKey(key), value);
   }
   public remove(key: string): any {
-    return localStorage.removeItem(`${this.suiteName}.${key}`);
+    return localStorage.removeItem(this.getKey(key));
   }
 }
