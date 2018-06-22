@@ -45,15 +45,55 @@ import StitchUserFactoryImpl from "./StitchUserFactoryImpl";
 
 const alphaNumericCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
+/**
+ * Partial JSDOM window.location containing only the
+ * properties and method we need
+ */
+interface PartialLocaion {
+  hash: string;
+  protocol: string;
+  host: string;
+  pathname: string;
+
+  replace(url: string);
+}
+
+/**
+ * Partial JSDOM window.history containing only the method
+ * we need
+ */
+interface PartialHistory {
+  replaceState(data: any, title?: string, url?: string | null);
+}
+
+/**
+ * Partial JSDOM window interface to contract the functionality
+ * of the window for StitchAuthImpl
+ */
+interface PartialWindow {
+  location: PartialLocaion;
+  history: PartialHistory;
+}
+
 export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   implements StitchAuth {
   private readonly listeners: Set<StitchAuthListener> = new Set();
 
+  /**
+   * Construct a new StitchAuth implementation
+   * 
+   * @param requestClient StitchRequestClient that does request
+   * @param browserAuthRoutes pathnames to call for browser routes
+   * @param authStorage internal storage
+   * @param appInfo info about the current stitch app
+   * @param jsdomWindow window interface to interact with JSDOM window
+   */
   public constructor(
     requestClient: StitchRequestClient,
     private readonly browserAuthRoutes: StitchBrowserAppAuthRoutes,
     private readonly authStorage: Storage,
-    private readonly appInfo: StitchAppClientInfo
+    private readonly appInfo: StitchAppClientInfo,
+    private readonly jsdomWindow: PartialWindow = window
   ) {
     super(requestClient, browserAuthRoutes, authStorage);
   }
@@ -90,7 +130,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
       credential,
     );
 
-    window.location.replace(
+    this.jsdomWindow.location.replace(
       this.browserAuthRoutes.getAuthProviderRedirectRoute(
         credential,
         redirectUrl,
@@ -129,7 +169,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
         }
       })
     ).then(response => {
-      window.location.replace(response.headers.get("X-Stitch-Location")!);
+      this.jsdomWindow.location.replace(response.headers.get("X-Stitch-Location")!);
     });
   }
 
@@ -232,7 +272,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   }
 
   private cleanupRedirect() {
-    window.history.replaceState(null, "", pageRootUrl());
+    this.jsdomWindow.history.replaceState(null, "", this.pageRootUrl());
 
     this.authStorage.remove(RedirectKeys.State);
     this.authStorage.remove(RedirectKeys.ProviderName);
@@ -240,18 +280,18 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   };
 
   private parseRedirect(): ParsedRedirectFragment | never {
-    if (typeof window === "undefined") {
+    if (typeof this.jsdomWindow === "undefined") {
       // This means we're running in some environment other
       // than a browser - so handling a redirect makes no sense here.
       throw new StitchRedirectError("running in a non-browser environment")
     }
 
-    if (!window.location || !window.location.hash) {
+    if (!this.jsdomWindow.location || !this.jsdomWindow.location.hash) {
       throw new StitchRedirectError("window location hash was undefined")
     }
 
     const ourState = this.authStorage.get(RedirectKeys.State);
-    const redirectFragment = window.location.hash.substring(1);
+    const redirectFragment = this.jsdomWindow.location.hash.substring(1);
 
     return parseRedirectFragment(
       redirectFragment,
@@ -302,13 +342,22 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
 
     let redirectUrl = credential.redirectUrl;
     if (redirectUrl === undefined) {
-      redirectUrl = pageRootUrl();
+      redirectUrl = this.pageRootUrl();
     }
   
     const state = generateState();
     this.authStorage.set(RedirectKeys.State, state);
   
     return { redirectUrl, state };
+  }
+
+  private pageRootUrl(): string {
+    return [
+      this.jsdomWindow.location.protocol,
+      "//",
+      this.jsdomWindow.location.host,
+      this.jsdomWindow.location.pathname
+    ].join("");
   }
 }
 
@@ -320,14 +369,7 @@ function generateState(): string {
   return state;
 }
 
-function pageRootUrl(): string {
-  return [
-    window.location.protocol,
-    "//",
-    window.location.host,
-    window.location.pathname
-  ].join("");
-}
+
 
 function unmarshallUserAuth(data): AuthInfo {
   const parts = data.split("$");

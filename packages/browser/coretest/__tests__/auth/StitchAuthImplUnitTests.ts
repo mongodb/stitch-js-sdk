@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// import * as jsdom from 'jsdom';
 import { GoogleRedirectCredential } from "mongodb-stitch-browser-core";
 import { StitchAppClientInfo, StitchAuthCredential, StitchRequestClient, StitchUserProfileImpl } from "mongodb-stitch-core-sdk";
 import { anything, capture, instance, mock, spy, when } from "ts-mockito";
@@ -47,6 +48,21 @@ const emptyStorage = {
     }
 };
 
+const window = {
+    history: {
+        replaceState: (data: any, title?: string, url?: string | null) => {
+            expect(url).toEqual("http://dummy_test.com");
+        }
+    },
+    location: {
+        hash: "",
+        host: "dummy_test.com",
+        pathname: "",
+        protocol: "http:",
+        replace: (url: string) => {}
+    },
+};
+
 describe("StitchAuthImpl", () => {
     it("should handle login with redirect", async () => {
         const authRoutesMock = mock(StitchBrowserAppAuthRoutes)
@@ -56,7 +72,8 @@ describe("StitchAuthImpl", () => {
             instance(mock(StitchRequestClient)),
             authRoutes,
             emptyStorage,
-            instance(mock(StitchAppClientInfo))
+            instance(mock(StitchAppClientInfo)),
+            window
         );
 
         when(authRoutesMock.getAuthProviderRedirectRoute(
@@ -66,30 +83,21 @@ describe("StitchAuthImpl", () => {
             anything()
         )).thenCall((credential, redirectUrl, state) => {
             expect(credential instanceof GoogleRedirectCredential).toBeTruthy();
-            expect(redirectUrl).toEqual("//"); // set in pageRootUrl
             expect(state).toBeDefined();
             
             return "http://dummyRedirectUrl.com";
         });
 
-        Object.defineProperty(
-            window, 
-            "location", 
-            { 
-                value: {
-                    replace: (location: string) => {
-                        expect(location).toEqual("http://dummyRedirectUrl.com");
-                    }
-                }, 
-                writable: true 
-            }
-        );
+        window.location.replace = (location: string) => {
+            expect(location).toEqual("http://dummyRedirectUrl.com");
+        };
+
 
         await impl.loginWithRedirect(
             new GoogleRedirectCredential()
         );
-
-        expect.assertions(4);
+        
+        expect.assertions(3);
     });
 
     it("should handle link with redirect", async () => {
@@ -116,7 +124,8 @@ describe("StitchAuthImpl", () => {
             
                 }
             },
-            instance(mock(StitchAppClientInfo))
+            instance(mock(StitchAppClientInfo)),
+            window
         );
 
         const spiedImpl = spy(impl);
@@ -131,12 +140,10 @@ describe("StitchAuthImpl", () => {
             anything()
         )).thenCall((credential, redirectUrl, state) => {
             expect(credential instanceof GoogleRedirectCredential).toBeTruthy();
-            expect(redirectUrl).toEqual("//"); // set in pageRootUrl
             expect(state).toBeDefined();
             
             return "http://dummyLinkUrl.com";
         });
-
 
         const xStitchLocation = "test_location";
 
@@ -153,24 +160,15 @@ describe("StitchAuthImpl", () => {
             })
         }
 
-        Object.defineProperty(
-            window, 
-            "location", 
-            { 
-                value: {
-                    replace: (location: string) => {
-                        expect(location).toEqual(xStitchLocation);
-                    }
-                }, 
-                writable: true 
-            }
-        );
+        window.location.replace = (location: string) => {
+            expect(location).toEqual(xStitchLocation);
+        };
 
         await impl.linkWithRedirectInternal(
             impl.user!, new GoogleRedirectCredential()
         );
 
-        expect.assertions(6);
+        expect.assertions(5);
     });
 
     it("should have redirect and process result", async () => {
@@ -199,59 +197,27 @@ describe("StitchAuthImpl", () => {
                     expect(expectedKeys.indexOf(key as any)).not.toEqual(-1);
                 },
             },
-            appClientInfo
+            appClientInfo,
+            window
         );
 
         when(appClientInfoMock.clientAppId).thenReturn("dummy_client_app_id");
 
-        Object.defineProperty(
-            window, 
-            "location", 
-            { 
-                value: {
-                    hash: `#${RedirectFragmentFields.ClientAppId}=dummy_client_app_id` +
-                    `&${RedirectFragmentFields.State}=dummy_state`
-                }, 
-                writable: true 
-            }
-        );
-
-        Object.defineProperty(
-            window, 
-            "history", 
-            { 
-                value: {
-                    replaceState: (data, title, url) => {
-                        expect(data).toBe(null);
-                        expect(title).toBe("");
-                        expect(url).toBe("//");
-                    }
-                }, 
-                writable: true 
-            }
-        );
+        window.location.hash = `#${RedirectFragmentFields.ClientAppId}=dummy_client_app_id` +
+        `&${RedirectFragmentFields.State}=dummy_state`;
 
         expect(impl.hasRedirectResult()).toBeTruthy();
-        expect.assertions(5);
+        expect.assertions(3);
 
-        Object.defineProperty(
-            window, 
-            "location", 
-            { 
-                value: {
-                    hash: `#${RedirectFragmentFields.ClientAppId}=bad_client_app_id` +
-                    `&${RedirectFragmentFields.State}=bad_state`
-                }, 
-                writable: true 
-            }
-        );
+        window.location.hash = `https://example.org/#${RedirectFragmentFields.ClientAppId}=bad_client_app_id` +
+        `&${RedirectFragmentFields.State}=bad_state`;
 
         expect(impl.hasRedirectResult()).toBeFalsy();
 
-        expect.assertions(10);
+        expect.assertions(8);
     })
 
-    it("should handleRedirect", async () => {
+    it("should handle redirect", async () => {
         const impl = new StitchAuthImpl(
             instance(mock(StitchRequestClient)),
             instance(mock(StitchBrowserAppAuthRoutes)),
@@ -277,8 +243,10 @@ describe("StitchAuthImpl", () => {
                     expect(expectedKeys.indexOf(key as any)).not.toEqual(-1);
                 },
             },
-            instance(mock(StitchAppClientInfo))
+            instance(mock(StitchAppClientInfo)),
+            window
         )
+        
         const spiedImpl = spy(impl);
 
         const redirectFragmentResult = {

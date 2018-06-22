@@ -459,7 +459,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   }
 
   /**
-   * Processes the response of the login/link request, setting the authentication state if appropriate, and
+   * Processes the authentication info from the login/link request, setting the authentication state, and
    * requesting the user profile in a separate request.
    */
   private processLogin(
@@ -527,6 +527,10 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       });
   }
 
+  /**
+   * Processes the response of the login/link request, setting the authentication state if appropriate, and
+   * requesting the user profile in a separate request.
+   */
   private processLoginResponse(credential: StitchCredential, response: Response): Promise<TStitchUser> {
     try {
       if (!response) {

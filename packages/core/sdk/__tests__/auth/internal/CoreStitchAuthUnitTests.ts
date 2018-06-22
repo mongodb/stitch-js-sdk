@@ -335,7 +335,6 @@ describe("CoreStitchAuthUnitTests", () => {
       statusCode: 200
     });
 
-    const hasBeenCalled = false;
     when(
       requestClientMock.doRequest(new RequestClassMatcher(
         new RegExp(".*/login\\?link=true$")
