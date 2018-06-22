@@ -49,6 +49,14 @@ function buildDBEventSubscriptionData(functionId, mongodbServiceId) {
   };
 }
 
+function comparePartialEventSubscription({ _id, name, type, disabled, function_id: functionId }) {
+  return { _id, name, type, disabled, function_id: functionId };
+}
+
+function compareFullEventSubscription({ _id, name, type, disabled, function_id: functionId, config }) {
+  return { _id, name, type, disabled, function_id: functionId, config };
+}
+
 describe('Event Subscriptions', () =>{
   let test = new StitchMongoFixture();
   let th;
@@ -80,7 +88,7 @@ describe('Event Subscriptions', () =>{
     expect(eventSubscription.name).toEqual(testEventSubscriptionName);
     let subscriptions = await eventSubscriptions.list();
     expect(subscriptions).toHaveLength(1);
-    expect(subscriptions[0]).toEqual(eventSubscription);
+    expect(comparePartialEventSubscription(subscriptions[0])).toEqual(comparePartialEventSubscription(eventSubscription));
   });
 
   it('fetching an event subscription returns the full model', async() => {
@@ -88,7 +96,7 @@ describe('Event Subscriptions', () =>{
     const eventSubscriptionData = buildEventSubscriptionData(fn._id);
     const eventSubscription = await eventSubscriptions.create(eventSubscriptionData);
     const subscription = await eventSubscriptions.eventSubscription(eventSubscription._id).get();
-    expect(subscription).toEqual(
+    expect(compareFullEventSubscription(subscription)).toEqual(
       Object.assign(
         { _id: eventSubscription._id },
         eventSubscriptionData
@@ -114,7 +122,7 @@ describe('Event Subscriptions', () =>{
 
     await eventSubscriptions.eventSubscription(eventSubscription._id).update(updatedEventSubscriptionData);
     const eventSubscriptionUpdated = await eventSubscriptions.eventSubscription(eventSubscription._id).get();
-    expect(eventSubscriptionUpdated).toEqual(
+    expect(compareFullEventSubscription(eventSubscriptionUpdated)).toEqual(
       Object.assign(
         { _id: eventSubscription._id },
         eventSubscriptionData,
