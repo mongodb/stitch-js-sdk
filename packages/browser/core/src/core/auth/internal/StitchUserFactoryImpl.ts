@@ -22,6 +22,7 @@ import StitchUser from "../StitchUser";
 import StitchAuthImpl from "./StitchAuthImpl";
 import StitchUserImpl from "./StitchUserImpl";
 
+/** @hidden */
 export default class StitchUserFactoryImpl
   implements StitchUserFactory<StitchUser> {
   private readonly auth: StitchAuthImpl;

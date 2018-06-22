@@ -22,6 +22,7 @@ import {
 } from "mongodb-stitch-core-services-aws-s3";
 import { AwsS3ServiceClient } from "../AwsS3ServiceClient";
 
+/** @hidden */
 export default class AwsS3ServiceClientImpl implements AwsS3ServiceClient {
   public constructor(private readonly proxy: CoreAwsS3ServiceClient) {}
 

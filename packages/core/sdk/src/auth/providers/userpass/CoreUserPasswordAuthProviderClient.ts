@@ -34,6 +34,7 @@ enum ActionFields {
   TOKEN_ID = "tokenId"
 }
 
+/** @hidden */
 export default class CoreUserPasswordAuthProviderClient extends CoreAuthProviderClient<
   StitchRequestClient
 > {

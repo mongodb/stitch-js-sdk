@@ -19,6 +19,7 @@ import { RemoteMongoClient } from "../RemoteMongoClient";
 import RemoteMongoDatabase from "../RemoteMongoDatabase";
 import RemoteMongoDatabaseImpl from "./RemoteMongoDatabaseImpl";
 
+/** @hidden */
 export default class RemoteMongoClientImpl implements RemoteMongoClient {
   public constructor(private readonly proxy: CoreRemoteMongoClient) {}
 

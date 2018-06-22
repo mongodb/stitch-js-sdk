@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+/** @hidden */
 export interface Decoder<T> {
   decode(from: any): T;
 }
 
+/** @hidden */
 export interface Encoder<T> {
   encode(from: T): object;
 }
 
+/** @hidden */
 export interface Codec<T> extends Decoder<T>, Encoder<T> {}

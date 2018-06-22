@@ -23,6 +23,7 @@ const SLEEP_MILLIS = 60000;
 const EXPIRATION_WINDOW_SECS = 300;
 
 /**
+ * @hidden
  * A class containing functionality to proactively refresh access tokens
  * to prevent the server from getting too many invalid session errors.
  */

@@ -18,6 +18,7 @@ import { Storage } from "mongodb-stitch-core-sdk";
 
 const stitchPrefixKey = "__stitch.client";
 
+/** @hidden */
 export default class LocalStorage implements Storage {
   constructor(private readonly suiteName: string) {}
 

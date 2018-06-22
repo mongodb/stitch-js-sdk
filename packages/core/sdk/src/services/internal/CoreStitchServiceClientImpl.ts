@@ -22,6 +22,7 @@ import Method from "../../internal/net/Method";
 import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 
+/** @hidden */
 export default class CoreStitchServiceClientImpl
   implements CoreStitchServiceClient {
   private readonly requestClient: StitchAuthRequestClient;

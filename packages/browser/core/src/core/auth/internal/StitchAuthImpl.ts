@@ -76,6 +76,7 @@ interface PartialWindow {
   history: PartialHistory;
 }
 
+/** @hidden */
 export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   implements StitchAuth {
   private readonly listeners: Set<StitchAuthListener> = new Set();

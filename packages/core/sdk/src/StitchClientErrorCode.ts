@@ -15,8 +15,8 @@
  */
 
 /**
- * StitchClientErrorCode represents the errors that can occur when using the Stitch client,
- * typically before a request is made to the Stitch server.
+ * An enumeration indicating the types of errors that may occur when using a 
+ * Stitch client, typically before a request is made to the server.
  */
 export enum StitchClientErrorCode {
   LoggedOutDuringRequest,
@@ -26,6 +26,7 @@ export enum StitchClientErrorCode {
   CouldNotPersistAuthInfo
 }
 
+/** @hidden */
 export const clientErrorCodeDescs: { [id in StitchClientErrorCode]: string } = {
   [StitchClientErrorCode.LoggedOutDuringRequest]:
     "logged out while making a request to Stitch",

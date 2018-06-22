@@ -18,8 +18,8 @@ import { Decoder } from "mongodb-stitch-core-sdk";
 import { CoreRemoteMongoReadOperation } from "mongodb-stitch-core-services-mongodb-remote";
 
 /**
- * Represents a `find` or `aggregate` operation against a MongoDB collection. Use the methods in this class to execute
- * the operation and retrieve the results.
+ * Represents a `find` or `aggregate` operation against a MongoDB collection. 
+ * Use the methods in this class to execute the operation and retrieve the results.
  */
 export default class RemoteMongoReadOperation<T> {
   constructor(
@@ -27,14 +27,23 @@ export default class RemoteMongoReadOperation<T> {
     private readonly decoder?: Decoder<T>
   ) {}
 
+  /**
+   * Executes the operation and returns the first document in the result.
+   */
   public first(): Promise<T | undefined> {
     return this.proxy.first();
   }
 
+  /**
+   * Executes the operation and returns the result as an array.
+   */
   public asArray(): Promise<T[]> {
     return this.proxy.asArray();
   }
 
+  /**
+   * Executes the operation and returns a cursor to its resulting documents.
+   */
   public iterator(): Promise<Iterator<T>> {
     return this.proxy.iterator();
   }

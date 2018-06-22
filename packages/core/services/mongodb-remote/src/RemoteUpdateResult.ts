@@ -14,14 +14,24 @@
  * limitations under the License.
  */
 
-/// The result of an `updateOne` or `updateMany` operation a `RemoteMongoCollection`.
+
+/**
+ * The result of an `updateOne` or `updateMany` operation a 
+ * {@link RemoteMongoCollection}.
+ */
 export default interface RemoteUpdateResult {
-  /// The number of documents that matched the filter.
+  /**
+   * The number of documents that matched the filter.
+   */
   readonly matchedCount: number;
 
-  /// The number of documents matched by the query.
+  /**
+   * The number of documents matched by the query.
+   */
   readonly modifiedCount: number;
 
-  /// The identifier of the inserted document if an upsert took place.
+  /**
+   * The identifier of the inserted document if an upsert took place.
+   */
   readonly upsertedId: any;
 }

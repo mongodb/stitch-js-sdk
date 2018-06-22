@@ -52,6 +52,7 @@ const OPTIONS = "options";
 const DEVICE = "device";
 
 /**
+ * @hidden
  * The core class that holds and manages Stitch user authentication state. This class is meant to be inherited.
  *
  * - typeparameters

@@ -16,6 +16,7 @@
 
 import Method from "./Method";
 
+/** @hidden */
 export class StitchRequest {
   public readonly method: Method;
   public readonly path: string;
@@ -42,6 +43,7 @@ export class StitchRequest {
   }
 }
 
+/** @hidden */
 export namespace StitchRequest {
   export class Builder {
     public method?: Method;

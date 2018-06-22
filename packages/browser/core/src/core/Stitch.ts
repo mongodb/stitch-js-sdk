@@ -26,7 +26,14 @@ const DEFAULT_BASE_URL = "https://stitch.mongodb.com";
 const TAG = "Stitch";
 const appClients: { [key: string]: StitchAppClientImpl } = {};
 
+/**
+ * Singleton class with static utility functions for initializing the MongoDB 
+ * Stitch Web SDK, and for retrieving a {@link StitchAppClient}.
+ */
 export default class Stitch {
+  /**
+   * Retrieves the default StitchAppClient associated with the application.
+   */
   public static get defaultAppClient(): StitchAppClient {
     if (Stitch.defaultClientAppId === undefined) {
       throw new Error("default app client has not yet been initialized/set");
@@ -34,6 +41,10 @@ export default class Stitch {
     return appClients[Stitch.defaultClientAppId];
   }
 
+  /**
+   * Retrieves the StitchAppClient associated with the specified client app id.
+   * @param clientAppId The client app id of the desired app client.
+   */
   public static getAppClient(clientAppId: string): StitchAppClient {
     if (appClients[clientAppId] !== undefined) {
       throw new Error(
@@ -43,10 +54,22 @@ export default class Stitch {
     return appClients[clientAppId];
   }
 
+  /**
+   * Returns whether or not a StitchAppClient has been initialized for the
+   * specified clientAppId
+   * 
+   * @param clientAppId The client app id to check for.
+   */
   public static hasAppClient(clientAppId: string): boolean {
     return appClients[clientAppId] !== undefined;
   }
 
+  /**
+   * Initializes the default StitchAppClient associated with the application.
+   * 
+   * @param clientAppId The desired clientAppId for the client.
+   * @param config Additional configuration options (optional).
+   */
   public static initializeDefaultAppClient(
     clientAppId: string,
     config: StitchAppClientConfiguration = new StitchAppClientConfiguration.Builder().build()
@@ -66,6 +89,13 @@ export default class Stitch {
     return client;
   }
 
+  /**
+   * Initializes a new, non-default StitchAppClient associated with the 
+   * application.
+   * 
+   * @param clientAppId The desired clientAppId for the client.
+   * @param config Additional configuration options (optional).
+   */
   public static initializeAppClient(
     clientAppId: string,
     config: StitchAppClientConfiguration = new StitchAppClientConfiguration.Builder().build()

@@ -20,6 +20,7 @@ import Method from "../../internal/net/Method";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 import StitchServiceRoutes from "./StitchServiceRoutes";
 
+/** @hidden */
 export default interface CoreStitchServiceClient {
   callFunctionInternal<T>(
     name: string,

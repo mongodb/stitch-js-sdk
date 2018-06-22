@@ -22,6 +22,7 @@ enum Fields {
 }
 
 /**
+ * @hidden
  * A class describing the structure of how user identity information is stored in persisted `Storage`.
  */
 export default class StoreStitchUserIdentity extends StitchUserIdentity {

@@ -17,6 +17,10 @@
 import { StitchAppClientInfo } from "mongodb-stitch-core-sdk";
 import StitchServiceClient from "./StitchServiceClient";
 
+/**
+ * An interface describing a class that can provide clients for a particular 
+ * Stitch service.
+ */
 export default interface ServiceClientFactory<T> {
   getClient(service: StitchServiceClient, client: StitchAppClientInfo): T;
 }

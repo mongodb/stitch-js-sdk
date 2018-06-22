@@ -18,6 +18,7 @@ import StitchRequestClient from "../../../internal/net/StitchRequestClient";
 import { StitchAuthRoutes } from "../../internal/StitchAuthRoutes";
 
 /**
+ * @hidden
  * The class from which all Core auth provider clients inherit. Only auth
  * provider clients that make requests to the Stitch server need to inherit this class.
  */

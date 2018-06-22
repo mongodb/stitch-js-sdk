@@ -19,6 +19,7 @@ import CoreRemoteMongoClient from "./CoreRemoteMongoClient";
 import CoreRemoteMongoDatabase from "./CoreRemoteMongoDatabase";
 import CoreRemoteMongoDatabaseImpl from "./CoreRemoteMongoDatabaseImpl";
 
+/** @hidden */
 export default class CoreRemoteMongoClientImpl
   implements CoreRemoteMongoClient {
   public constructor(public readonly service: CoreStitchServiceClient) {}

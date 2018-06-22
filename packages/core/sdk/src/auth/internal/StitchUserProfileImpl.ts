@@ -28,6 +28,7 @@ const MIN_AGE = "min_age";
 const MAX_AGE = "max_age";
 
 /**
+ * @hidden
  * A class containing the fields returned by the Stitch client API in a user profile request.
  */
 export default class StitchUserProfileImpl implements IStitchUserProfile {

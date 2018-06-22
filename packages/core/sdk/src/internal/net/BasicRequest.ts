@@ -16,6 +16,7 @@
 
 import Method from "./Method";
 
+/** @hidden */
 export class BasicRequest {
   public readonly method: Method;
   public readonly url: string;
@@ -35,6 +36,7 @@ export class BasicRequest {
   }
 }
 
+/** @hidden */
 export namespace BasicRequest {
   export class Builder {
     public method?: Method;

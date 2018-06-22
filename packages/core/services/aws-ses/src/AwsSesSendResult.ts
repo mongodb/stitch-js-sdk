@@ -24,6 +24,7 @@ enum Fields {
  * The result of an AWS SES send request.
  */
 export default class AwsSesSendResult {
+  /** @hidden */
   public static readonly Decoder = new class
     implements Decoder<AwsSesSendResult> {
     public decode(from: any): AwsSesSendResult {

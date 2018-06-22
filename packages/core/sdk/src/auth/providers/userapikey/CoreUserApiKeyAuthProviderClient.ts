@@ -34,6 +34,7 @@ enum ApiKeyFields {
 }
 
 /**
+ * @hidden
  * A client for the user API key authentication provider which can be used to obtain a credential for logging in.
  */
 export default class CoreUserApiKeyAuthProviderClient extends CoreAuthProviderClient<

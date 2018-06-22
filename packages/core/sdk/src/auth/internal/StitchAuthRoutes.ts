@@ -15,6 +15,7 @@
  */
 
 /**
+ * @hidden
  * An interface representing the authentication API routes on the Stitch server.
  */
 export interface StitchAuthRoutes {

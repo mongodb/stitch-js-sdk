@@ -20,6 +20,7 @@ import Method from "./net/Method";
 import { StitchAuthDocRequest } from "./net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "./net/StitchAuthRequest";
 
+/** @hidden */
 export default class CoreStitchAppClient {
   private readonly authRequestClient: StitchAuthRequestClient;
   private readonly routes: StitchAppRoutes;

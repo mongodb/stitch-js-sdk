@@ -18,6 +18,7 @@ import StitchUserIdentity from "../StitchUserIdentity";
 import StitchUserProfile from "../StitchUserProfile";
 
 /**
+ * @hidden
  * The set of properties that describe an authenticated Stitch user.
  */
 export default interface CoreStitchUser {

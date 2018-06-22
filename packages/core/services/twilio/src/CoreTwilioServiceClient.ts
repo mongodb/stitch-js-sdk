@@ -16,6 +16,7 @@
 
 import { CoreStitchServiceClient } from "mongodb-stitch-core-sdk";
 
+/** @hidden */
 export default class CoreTwilioServiceClient {
   public constructor(private readonly service: CoreStitchServiceClient) {}
 

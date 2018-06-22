@@ -23,6 +23,7 @@ import {
 } from "mongodb-stitch-core-sdk";
 import StitchServiceClient from "./StitchServiceClient";
 
+/** @hidden */
 export default class StitchServiceImpl extends CoreStitchServiceClientImpl
   implements StitchServiceClient {
   public constructor(

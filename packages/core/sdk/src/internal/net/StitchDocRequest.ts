@@ -19,6 +19,7 @@ import Headers from "./Headers";
 import ContentTypes from "./ContentTypes";
 import { stringify } from "mongodb-extjson";
 
+/** @hidden */
 export class StitchDocRequest extends StitchRequest {
   public readonly document: object;
 
@@ -39,6 +40,7 @@ export class StitchDocRequest extends StitchRequest {
   }
 }
 
+/** @hidden */
 export namespace StitchDocRequest {
   export class Builder extends StitchRequest.Builder {
     public document: object;

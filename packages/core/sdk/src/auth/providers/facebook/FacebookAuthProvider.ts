@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+/** @hidden */
 export default class FacebookAuthProvider {
   private constructor() {}
 
