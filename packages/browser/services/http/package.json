@@ -45,7 +45,7 @@
     "build-main": "tsc -p tsconfig.umd.json",
     "build-module": "tsc -p tsconfig.esm.json",
     "build-browser": "rollup -c",
-    "watch": "tsc -w",
+    "watch": "tsc -w -p tsconfig.esm.json",
     "test": "jest",
     "lint": "tslint src/**/*.ts",
     "lint-fix": "tslint --fix src/**/*.ts __tests__/**/*.ts",
