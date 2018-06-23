@@ -192,11 +192,14 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
       const providerName = this.authStorage.get(RedirectKeys.ProviderName);
       const providerType = this.authStorage.get(RedirectKeys.ProviderType);
 
+      const redirectFragment = this.parseRedirect();
+
       return this.loginWithCredentialInternal(
         new StitchAuthResponseCredential(
-          this.processRedirectResult(),
+          this.processRedirectResult(redirectFragment),
           providerType,
-          providerName
+          providerName,
+          redirectFragment.asLink
         )
       ).then(user => {
         return user;
@@ -299,11 +302,8 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     );
   }
 
-  private processRedirectResult(): AuthInfo | never {
-    let redirectFragment: ParsedRedirectFragment;
+  private processRedirectResult(redirectFragment: ParsedRedirectFragment): AuthInfo | never {
     try {
-      redirectFragment = this.parseRedirect();
-
       if (!redirectFragment.isValid) {
         throw new StitchRedirectError(`invalid redirect result`);
       }
@@ -385,6 +385,7 @@ class ParsedRedirectFragment {
   public authInfo?: AuthInfo;
   public lastError?: string;
   public clientAppIdValid: boolean = false;
+  public asLink: boolean = false;
 
   get isValid(): boolean {
     return this.stateValid && this.clientAppIdValid;
@@ -421,6 +422,9 @@ function parseRedirectFragment(
         }
         break;
       case RedirectFragmentFields.StitchLink:
+        if (pairParts[1] == "ok") {
+          result.asLink = true;
+        }
         break;
       case RedirectFragmentFields.State:
         const theirState = decodeURIComponent(pairParts[1]);

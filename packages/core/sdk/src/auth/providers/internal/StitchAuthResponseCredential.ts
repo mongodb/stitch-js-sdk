@@ -20,6 +20,7 @@ export default class StitchAuthResponseCredential implements StitchCredential {
   public constructor(
     public readonly authInfo: AuthInfo,
     public readonly providerType: string,
-    public readonly providerName: string
+    public readonly providerName: string,
+    public readonly asLink: boolean // Whether or not this credential was for a link or login request.
   ) {}
 }

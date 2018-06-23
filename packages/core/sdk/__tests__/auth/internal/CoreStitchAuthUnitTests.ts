@@ -16,7 +16,7 @@
 
 import { ObjectID } from "bson";
 import { sign } from "jsonwebtoken";
-import { anything, capture, instance, verify, when } from "ts-mockito";
+import { anything, capture, instance, verify, mock, when } from "ts-mockito";
 import {
   getMockedRequestClient,
   RequestClassMatcher,
@@ -52,6 +52,8 @@ import { StitchDocRequest } from "../../../src/internal/net/StitchDocRequest";
 import { StitchRequest } from "../../../src/internal/net/StitchRequest";
 import StitchServiceError from "../../../src/StitchServiceError";
 import { StitchServiceErrorCode } from "../../../src/StitchServiceErrorCode";
+import StitchRequestError from "../../../src/StitchRequestError";
+import { StitchRequestErrorCode } from "../../../src/StitchRequestErrorCode";
 
 class StitchAuth extends CoreStitchAuth<CoreStitchUserImpl> {
   constructor(
@@ -501,5 +503,128 @@ describe("CoreStitchAuthUnitTests", () => {
         expect(res.id).toEqual(expectedObjectId);
         expect(res.intValue).toEqual(42);
       });
+  });
+
+  it("should properly handle profile request failure", async () => {
+    const requestClientMock = mock(StitchRequestClient);
+
+    // Any /login works
+    when(
+      requestClientMock.doRequest(new RequestClassMatcher(
+        new RegExp(".*/login")
+      ) as any)
+    ).thenResolve({
+      body: JSON.stringify(TEST_LOGIN_RESPONSE),
+      headers: {},
+      statusCode: 200
+    });
+  
+    // Any /session works
+    when(
+      requestClientMock.doRequest(new RequestClassMatcher(
+        new RegExp(".*/session")
+      ) as any)
+    ).thenResolve({
+      body: JSON.stringify(TEST_LOGIN_RESPONSE),
+      headers: {},
+      statusCode: 200
+    });
+  
+    // Profile works when we want it to for the purposes of the tests
+    const testProfileResponse = {
+      body: JSON.stringify(TEST_USER_PROFILE),
+      headers: {},
+      statusCode: 200
+    };
+
+    const testProfileRequestError = new StitchRequestError(
+      new Error("profile request failed"), 
+      StitchRequestErrorCode.TRANSPORT_ERROR
+    );
+
+    when(
+      requestClientMock.doRequest(new RequestClassMatcher(
+        new RegExp(".*/profile")
+      ) as any)
+    ).thenReject(testProfileRequestError) // first login attempt (scenario 1)
+      .thenResolve(testProfileResponse) // successful login (scenario 2)
+      .thenReject(testProfileRequestError) // failure to login as another user (scenario 2)
+      .thenResolve(testProfileResponse) // successful login (scenario 3)
+      .thenReject(testProfileRequestError); // failure to link to other identity (scenario 3)
+  
+    // Any link works
+    when(
+      requestClientMock.doRequest(new RequestClassMatcher(
+        new RegExp(".*/login?link=true")
+      ) as any)
+    ).thenResolve({
+      body: JSON.stringify(TEST_USER_PROFILE),
+      headers: {},
+      statusCode: 200
+    });
+    const requestClient = instance(requestClientMock);
+    const routes = new StitchAppRoutes("my_app-12345").authRoutes;
+    const auth = new StitchAuth(
+      requestClient,
+      routes,
+      new MemoryStorage(appId)
+    );
+
+    const testProfileRequestMatcher = 
+      new RequestClassMatcher(new RegExp(".*/profile")) as any;
+
+    // Scenario 1: User is logged out -> attempts login -> initial login succeeds
+    //                                -> profile request fails -> user is logged out
+
+    try {
+      await auth.loginWithCredentialInternal(new AnonymousCredential());
+      fail("expected login to fail because of profile request");
+    } catch (e) {
+      // do nothing, this was expected
+    }
+
+    expect(auth.isLoggedIn).toBeFalsy();
+    expect(auth.user).toBeUndefined();
+
+    // Scenario 2: User is logged in -> attempts login into other account -> initial login succeeds
+    //                               -> profile request fails -> original user is logged out
+
+    const user = await auth.loginWithCredentialInternal(new AnonymousCredential());
+
+    expect(user).toBeDefined();
+
+    try {
+      await auth.loginWithCredentialInternal(
+        new UserPasswordCredential("foo", "bar")
+      );
+      fail("expected login to fail because of profile request");
+    } catch {
+      // do nothing, this was expected
+    }
+
+    expect(auth.isLoggedIn).toBeFalsy();
+    expect(auth.user).toBeUndefined();
+
+    // Scenario 3: User is logged in -> attempt to link to other identity
+    //                               -> initial link request succeeds
+    //                               -> profile request fails -> error thrown
+    //                               -> original user is still logged in
+
+    const userToBeLinked = 
+      await auth.loginWithCredentialInternal(new AnonymousCredential());
+
+    expect(userToBeLinked).toBeDefined();
+
+    try {
+      await auth.linkUserWithCredentialInternal(
+        userToBeLinked, new UserPasswordCredential("foo", "bar")
+      );
+      fail("expected link to fail because of profile request");
+    } catch {
+      // do nothing, this was expected
+    }
+
+    expect(auth.isLoggedIn).toBeTruthy();
+    expect(auth.user.id).toEqual(userToBeLinked.id);
   });
 });

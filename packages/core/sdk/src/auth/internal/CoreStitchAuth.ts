@@ -218,7 +218,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     credential: StitchCredential
   ): Promise<TStitchUser> {
     if (credential instanceof StitchAuthResponseCredential) {
-      return this.processLogin(credential, credential.authInfo);
+      return this.processLogin(credential, credential.authInfo, credential.asLink);
     }
 
     if (!this.isLoggedIn) {
@@ -412,7 +412,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     asLinkRequest: boolean
   ): Promise<TStitchUser> {
     return this.doLoginRequest(credential, asLinkRequest)
-      .then(response => this.processLoginResponse(credential, response))
+      .then(response => this.processLoginResponse(credential, response, asLinkRequest))
       .then(user => {
         this.onAuthEvent();
         return user;
@@ -461,8 +461,14 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    */
   private processLogin(
     credential: StitchCredential,
-    newAuthInfo: AuthInfo
+    newAuthInfo: AuthInfo,
+    asLinkRequest: boolean
   ): Promise<TStitchUser> {
+
+    // Preserve old auth info in case of profile request failure
+    const oldInfo = this.authInfo;
+    const oldUser = this.currentUser;
+
     newAuthInfo = this.authInfo.merge(
       new AuthInfo(
         newAuthInfo.userId,
@@ -476,7 +482,6 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     );
 
     // Provisionally set so we can make a profile request
-    const oldInfo = this.authInfo;
     this.authInfo = newAuthInfo;
     this.currentUser = this.userFactory.makeUser(
       this.authInfo.userId!,
@@ -518,8 +523,17 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         return this.currentUser;
       })
       .catch(err => {
-        this.authInfo = oldInfo;
-        this.currentUser = undefined;
+        // If this was a link request, back out of setting authInfo and reset any created user. This
+        // will keep the currently logged in user logged in if the profile request failed, and in
+        // this particular edge case the user is linked, but they are logged in with their older
+        // credentials.
+        if (asLinkRequest) {
+          this.authInfo = oldInfo;
+          this.currentUser = oldUser; 
+        } else { // otherwise this was a normal login request, log the user out
+          this.clearAuth();
+        }
+
         throw err;
       });
   }
@@ -530,7 +544,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    */
   private processLoginResponse(
     credential: StitchCredential,
-    response: Response
+    response: Response,
+    asLinkRequest: boolean
   ): Promise<TStitchUser> {
     try {
       if (!response) {
@@ -546,7 +561,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       }
       return this.processLogin(
         credential,
-        ApiAuthInfo.fromJSON(JSON.parse(response.body!))
+        ApiAuthInfo.fromJSON(JSON.parse(response.body!)),
+        asLinkRequest
       );
     } catch (err) {
       throw new StitchRequestError(err, StitchRequestErrorCode.DECODING_ERROR);
@@ -563,10 +579,14 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     return this.doAuthenticatedRequest(reqBuilder.build())
       .then(response => ApiCoreUserProfile.fromJSON(JSON.parse(response.body!)))
       .catch(err => {
-        throw new StitchRequestError(
-          err,
-          StitchRequestErrorCode.DECODING_ERROR
-        );
+        if (err instanceof StitchError) {
+          throw err;
+        } else {
+          throw new StitchRequestError(
+            err,
+            StitchRequestErrorCode.DECODING_ERROR
+          );
+        }
       });
   }
 
