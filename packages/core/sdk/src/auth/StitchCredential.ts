@@ -38,7 +38,7 @@ export default interface StitchCredential {
   readonly material: { [key: string]: string };
 
   /**
-   * A `ProviderCapabilities` object describing the behavior of this credential when logging in.
+   * A {@link ProviderCapabilities} object describing the behavior of this credential when logging in.
    */
   providerCapabilities: ProviderCapabilities;
 }

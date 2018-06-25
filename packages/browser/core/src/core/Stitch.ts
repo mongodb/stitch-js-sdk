@@ -28,7 +28,7 @@ const appClients: { [key: string]: StitchAppClientImpl } = {};
 
 /**
  * Singleton class with static utility functions for initializing the MongoDB 
- * Stitch Web SDK, and for retrieving a {@link StitchAppClient}.
+ * Stitch Browser SDK, and for retrieving a {@link StitchAppClient}.
  */
 export default class Stitch {
   /**

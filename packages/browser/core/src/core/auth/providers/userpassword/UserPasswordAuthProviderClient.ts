@@ -22,6 +22,10 @@ import {
 import AuthProviderClientFactory from "../internal/AuthProviderClientFactory";
 import UserPasswordAuthProviderClientImpl from "./internal/UserPasswordAuthProviderClientImpl";
 
+/**
+ * A client for interacting with username/password authentication provider in 
+ * Stitch.
+ */
 export interface UserPasswordAuthProviderClient {
   /**
    * Registers a new user with the given email and password.

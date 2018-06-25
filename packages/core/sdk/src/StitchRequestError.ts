@@ -31,7 +31,8 @@ import {
  */
 export default class StitchRequestError extends StitchError {
   /**
-   * The StitchRequestErrorCode indicating the reason for this exception.
+   * The {@link StitchRequestErrorCode} indicating the reason for this 
+   * exception.
    */
   public readonly errorCode: StitchRequestErrorCode;
 

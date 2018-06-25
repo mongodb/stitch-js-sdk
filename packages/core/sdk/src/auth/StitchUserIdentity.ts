@@ -21,7 +21,7 @@ export default class StitchUserIdentity {
   /**
    * The id of this identity in MongoDB Stitch
    *
-   * - important: This is **not** the id of the Stitch user.
+   * This is **not** the id of the Stitch user.
    */
   public readonly id: string;
   /**

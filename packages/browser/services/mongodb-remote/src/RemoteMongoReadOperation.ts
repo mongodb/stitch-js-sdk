@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Decoder } from "mongodb-stitch-core-sdk";
 import { CoreRemoteMongoReadOperation } from "mongodb-stitch-core-services-mongodb-remote";
+import RemoteMongoCursor from "./RemoteMongoCursor";
 
 /**
  * Represents a `find` or `aggregate` operation against a MongoDB collection. 
@@ -23,8 +23,7 @@ import { CoreRemoteMongoReadOperation } from "mongodb-stitch-core-services-mongo
  */
 export default class RemoteMongoReadOperation<T> {
   constructor(
-    private readonly proxy: CoreRemoteMongoReadOperation<T>,
-    private readonly decoder?: Decoder<T>
+    private readonly proxy: CoreRemoteMongoReadOperation<T>
   ) {}
 
   /**
@@ -44,7 +43,7 @@ export default class RemoteMongoReadOperation<T> {
   /**
    * Executes the operation and returns a cursor to its resulting documents.
    */
-  public iterator(): Promise<Iterator<T>> {
-    return this.proxy.iterator();
+  public iterator(): Promise<RemoteMongoCursor<T>> {
+    return this.proxy.iterator().then(res => new RemoteMongoCursor(res));
   }
 }

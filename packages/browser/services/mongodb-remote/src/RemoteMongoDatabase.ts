@@ -18,7 +18,8 @@ import { Codec } from "mongodb-stitch-core-sdk";
 import RemoteMongoCollection from "./RemoteMongoCollection";
 
 /**
- * The RemoteMongoDatabase interface.
+ * An interface representing a MongoDB database accesible via the Stitch 
+ * MongoDB service.
  */
 export default interface RemoteMongoDatabase {
   /**

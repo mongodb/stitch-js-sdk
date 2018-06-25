@@ -17,7 +17,7 @@
 import { HttpMethod } from "./HttpMethod";
 
 /**
- * An HTTPRequest encapsulates the details of an HTTP request over the HTTP service.
+ * An HttpRequest encapsulates the details of an HTTP request over the HTTP service.
  */
 export class HttpRequest {
   public constructor(

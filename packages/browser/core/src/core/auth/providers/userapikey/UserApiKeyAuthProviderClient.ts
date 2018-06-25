@@ -24,6 +24,9 @@ import {
 import AuthProviderClientFactory from "../internal/AuthProviderClientFactory";
 import UserApiKeyAuthProviderClientImpl from "./internal/UserApiKeyAuthProviderClientImpl";
 
+/**
+ * A client for creating, updating, and deleting the API keys of a Stitch user.
+ */
 export interface UserApiKeyAuthProviderClient {
   /**
    * Creates a user API key that can be used to authenticate as the current user.

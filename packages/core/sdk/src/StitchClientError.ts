@@ -26,7 +26,7 @@ import StitchError from "./StitchError";
  */
 export default class StitchClientError extends StitchError {
   /**
-   * The StitchClientErrorCode associated with the request.
+   * The {@link StitchClientErrorCode} associated with the request.
    */
   public readonly errorCode: StitchClientErrorCode;
 

@@ -131,39 +131,41 @@ describe("RemoteMongoClient", () => {
   it("should find", async () => {
     const coll = getTestColl();
     let iter = await coll.find();
-    expect((await iter.iterator()).next().value).toBeUndefined();
+
+    expect(await (await iter.iterator()).next()).toBeUndefined();
     expect(await iter.first()).toBeUndefined();
 
     const doc1 = { hello: "world" };
     const doc2 = { hello: "friend" };
     doc2.proj = "field";
     await coll.insertMany([doc1, doc2]);
-    expect((await iter.iterator()).next().done).toBeFalsy();
+    expect(await (await iter.iterator()).next()).toBeDefined();
     expect(withoutId(doc1)).toEqual(withoutId((await iter.first()) as any));
     expect(withoutId(doc2)).toEqual(
       withoutId(
-        (await coll
+        await (await coll
           .find(undefined, { limit: 1, sort: { _id: -1 } })
-          .iterator()).next().value
+          .iterator()).next()
       )
     );
 
     iter = coll.find(doc1);
-    expect((await iter.iterator()).next().done).toBeFalsy();
+    expect(await (await iter.iterator()).next()).toBeDefined();
     expect(withoutId(doc1)).toEqual(
-      withoutId((await iter.iterator()).next().value)
+      withoutId(await (await iter.iterator()).next())
     );
 
     iter = await coll.find(doc1);
-    expect((await iter.iterator()).next().done).toBeFalsy();
+    expect(await (await iter.iterator()).next()).toBeDefined();
     expect(withoutId(doc1)).toEqual(
-      withoutId((await iter.iterator()).next().value)
+      withoutId(await (await iter.iterator()).next())
     );
 
     expect({ proj: "field" }).toEqual(
       withoutId(
-        (await coll.find(doc2, { projection: { proj: 1 } }).iterator()).next()
-          .value
+        await (await coll.find(doc2, { projection: { proj: 1 } })
+          .iterator())
+          .next()
       )
     );
 
@@ -180,7 +182,7 @@ describe("RemoteMongoClient", () => {
     expect([doc1, doc2]).toEqual(await coll.find().asArray());
 
     const asyncIter = await iter.iterator();
-    expect(doc1).toEqual(await asyncIter.next().value);
+    expect(doc1).toEqual(await asyncIter.next());
 
     try {
       await coll.find({ $who: 1 }).first();
@@ -194,7 +196,7 @@ describe("RemoteMongoClient", () => {
   it("should aggregate", async () => {
     const coll = getTestColl();
     let iter = coll.aggregate([]);
-    expect((await iter.iterator()).next().value).toBeUndefined();
+    expect(await (await iter.iterator()).next()).toBeUndefined();
     expect(await iter.first()).toBeUndefined();
 
     const doc1 = { hello: "world" };
@@ -205,13 +207,13 @@ describe("RemoteMongoClient", () => {
 
     iter = coll.aggregate([{ $sort: { _id: -1 } }, { $limit: 1 }]);
     expect(withoutId(doc2)).toEqual(
-      withoutId((await iter.iterator()).next().value)
+      withoutId(await (await iter.iterator()).next())
     );
 
     iter = coll.aggregate([{ $match: doc1 }]);
-    expect((await iter.iterator()).next().value).toBeDefined();
+    expect(await (await iter.iterator()).next()).toBeDefined();
     expect(withoutId(doc1)).toEqual(
-      withoutId((await iter.iterator()).next().value)
+      withoutId(await (await iter.iterator()).next())
     );
 
     try {
@@ -439,7 +441,7 @@ describe("RemoteMongoClient", () => {
     expect(expected.id).toBeDefined();
 
     const iter = coll2.aggregate([{ $match: {} }]);
-    expect((await iter.iterator()).next().value).toBeDefined();
-    expect(expected).toEqual((await iter.iterator()).next().value);
+    expect(await (await iter.iterator()).next()).toBeDefined();
+    expect(expected).toEqual(await (await iter.iterator()).next());
   });
 });
