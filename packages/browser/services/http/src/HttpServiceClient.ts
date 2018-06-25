@@ -34,7 +34,7 @@ export interface HttpServiceClient {
    * Executes the given {@link HttpRequest}.
    *
    * @param request the request to execute.
-   * @return a task containing the response to executing the request.
+   * @return a Promise containing the response to executing the request.
    */
   execute(request: HttpRequest): Promise<HttpResponse>;
 }

@@ -17,6 +17,10 @@
 import { GoogleAuthProvider } from "mongodb-stitch-core-sdk";
 import StitchRedirectCredential from "../StitchRedirectCredential";
 
+/**
+ * A credential which can be used with {@link StitchAuth.loginWithRedirect} to
+ * login to Stitch via Google OAuth.
+ */
 export default class GoogleRedirectCredential
   implements StitchRedirectCredential {
   public constructor(

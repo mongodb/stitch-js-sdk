@@ -39,7 +39,6 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
 
   public constructor(
     private readonly proxy: CoreRemoteMongoCollection<DocumentT>,
-    private readonly codec?: Codec<DocumentT>
   ) {}
   /**
    * Create a new CoreRemoteMongoCollection instance with a different default class to cast any
@@ -52,8 +51,7 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
    */
   public withCollectionType<U>(codec: Codec<U>): RemoteMongoCollection<U> {
     return new RemoteMongoCollectionImpl(
-      this.proxy.withCollectionType(codec),
-      codec
+      this.proxy.withCollectionType(codec)
     );
   }
 
@@ -79,8 +77,7 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
     options?: RemoteFindOptions
   ): RemoteMongoReadOperation<DocumentT> {
     return new RemoteMongoReadOperation(
-      this.proxy.find(query, options),
-      this.codec
+      this.proxy.find(query, options)
     );
   }
 
@@ -92,8 +89,7 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
    */
   public aggregate(pipeline: object[]): RemoteMongoReadOperation<DocumentT> {
     return new RemoteMongoReadOperation(
-      this.proxy.aggregate(pipeline),
-      this.codec
+      this.proxy.aggregate(pipeline)
     );
   }
 

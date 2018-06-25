@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-import { FacebookAuthProvider } from "mongodb-stitch-core-sdk";
-import StitchRedirectCredential from "../StitchRedirectCredential";
-
 /**
- * A credential which can be used with {@link StitchAuth.loginWithRedirect} to
- * login to Stitch via Facebook OAuth.
+ * A cursor of documents which can be traversed asynchronously. A 
+ * {@link RemoteMongoCursor} can be the result of a `find` or
+ * `aggregate` operation on a {@link RemoteMongoReadOperation}.
  */
-export default class FacebookRedirectCredential
-  implements StitchRedirectCredential {
-  public constructor(
-    public readonly redirectUrl?: string,
-    public readonly providerName = FacebookAuthProvider.DEFAULT_NAME,
-    public readonly providerType = FacebookAuthProvider.TYPE
+export default class RemoteMongoCursor<T> {
+  constructor(
+    private readonly proxy: Iterator<T>,
   ) {}
+
+  /**
+   * Retrieves the next document in this cursor, potentially fetching from the 
+   * server.
+   */
+  public next(): Promise<T | undefined> {
+    return Promise.resolve(this.proxy.next().value);
+  }
 }

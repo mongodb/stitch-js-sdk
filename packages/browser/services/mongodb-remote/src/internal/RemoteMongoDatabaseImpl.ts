@@ -39,8 +39,7 @@ export default class RemoteMongoDatabaseImpl {
     codec?: Codec<T>
   ): RemoteMongoCollection<T> {
     return new RemoteMongoCollectionImpl(
-      this.proxy.collection(name, codec),
-      codec
+      this.proxy.collection(name, codec)
     );
   }
 }

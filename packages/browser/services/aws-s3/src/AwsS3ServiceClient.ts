@@ -39,7 +39,7 @@ export interface AwsS3ServiceClient {
    * @param acl the ACL to apply to the object (e.g. private).
    * @param contentType the content type of the object (e.g. application/json).
    * @param body the body of the object.
-   * @return the result of the put which contains the location of the object.
+   * @return a Promise containing the result of the put, which contains the location of the object.
    */
   putObject(
     bucket: string,
@@ -59,7 +59,7 @@ export interface AwsS3ServiceClient {
    * @param key the key (or name) of the future object.
    * @param acl the ACL to apply to the future object (e.g. private).
    * @param contentType the content type of the object (e.g. application/json).
-   * @return the signed policy details.
+   * @return a Promise containing the signed policy details.
    */
   signPolicy(
     bucket: string,

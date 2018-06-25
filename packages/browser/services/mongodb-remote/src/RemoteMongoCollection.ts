@@ -26,6 +26,10 @@ import {
 } from "mongodb-stitch-core-services-mongodb-remote";
 import RemoteMongoReadOperation from "./RemoteMongoReadOperation";
 
+/**
+ * An interface representing a MongoDB collection accesible via the Stitch 
+ * MongoDB service.
+ */
 export default interface RemoteMongoCollection<DocumentT> {
   /**
    * Gets the namespace of this collection.
@@ -35,7 +39,7 @@ export default interface RemoteMongoCollection<DocumentT> {
   readonly namespace: string;
 
   /**
-   * Create a new CoreRemoteMongoCollection instance with a different default class to cast any
+   * Create a new emoteMongoCollection instance with a different default class to cast any
    * documents returned from the database into.
    *
    * @param codec the default class to cast any documents returned from the database into.
@@ -50,7 +54,7 @@ export default interface RemoteMongoCollection<DocumentT> {
    * @param query the query filter
    * @param options the options describing the count
    *
-   * @return the number of documents in the collection
+   * @return a Promise containing the number of documents in the collection
    */
   count(query?: object, options?: RemoteCountOptions): Promise<number>;
 
@@ -58,7 +62,7 @@ export default interface RemoteMongoCollection<DocumentT> {
    * Finds all documents in the collection.
    *
    * @param query the query filter
-   * @return the find iterable interface
+   * @return a read operation which can be used to execute the query
    */
   find(
     query?: object,
@@ -69,7 +73,7 @@ export default interface RemoteMongoCollection<DocumentT> {
    * Aggregates documents according to the specified aggregation pipeline.
    *
    * @param pipeline the aggregation pipeline
-   * @return an iterable containing the result of the aggregation operation
+   * @return a read operation which can be used to execute the aggregation
    */
   aggregate(pipeline: object[]): RemoteMongoReadOperation<DocumentT>;
 
@@ -78,7 +82,7 @@ export default interface RemoteMongoCollection<DocumentT> {
    * generate one.
    *
    * @param document the document to insert
-   * @return the result of the insert one operation
+   * @return a Promise containing the result of the insert one operation
    */
   insertOne(document: DocumentT): Promise<RemoteInsertOneResult>;
 
@@ -86,7 +90,7 @@ export default interface RemoteMongoCollection<DocumentT> {
    * Inserts one or more documents.
    *
    * @param documents the documents to insert
-   * @return the result of the insert many operation
+   * @return a Promise containing the result of the insert many operation
    */
   insertMany(documents: DocumentT[]): Promise<RemoteInsertManyResult>;
 
@@ -96,7 +100,7 @@ export default interface RemoteMongoCollection<DocumentT> {
    * modified.
    *
    * @param query the query filter to apply the the delete operation
-   * @return the result of the remove one operation
+   * @return a Promise containing the result of the remove one operation
    */
   deleteOne(query: object): Promise<RemoteDeleteResult>;
 
@@ -105,7 +109,7 @@ export default interface RemoteMongoCollection<DocumentT> {
    * match, the collection is not modified.
    *
    * @param query the query filter to apply the the delete operation
-   * @return the result of the remove many operation
+   * @return a Promise containing the result of the remove many operation
    */
   deleteMany(query: object): Promise<RemoteDeleteResult>;
 
@@ -116,7 +120,7 @@ export default interface RemoteMongoCollection<DocumentT> {
    * @param update        a document describing the update, which may not be null. The update to
    *                      apply must include only update operators.
    * @param updateOptions the options to apply to the update operation
-   * @return the result of the update one operation
+   * @return a Promise containing the result of the update one operation
    */
   updateOne(
     query: object,
@@ -131,7 +135,7 @@ export default interface RemoteMongoCollection<DocumentT> {
    * @param update        a document describing the update, which may not be null. The update to
    *                     apply must include only update operators.
    * @param updateOptions the options to apply to the update operation
-   * @return the result of the update many operation
+   * @return a Promise containing the result of the update many operation
    */
   updateMany(
     query: object,

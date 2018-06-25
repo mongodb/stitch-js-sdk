@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+/**
+ * A credential which can be used with {@link StitchAuth.loginWithRedirect} to
+ * login via OAuth. Do not use this credential directly, use one of its 
+ * implementations.
+ */
 export default interface StitchRedirectCredential {
   readonly providerName: string;
   readonly providerType: string;

@@ -20,6 +20,8 @@
  * {@link RemoteMongoCollection}.
  */
 export default interface RemoteCountOptions {
-  /// The maximum number of documents to count.
+  /**
+   *  The maximum number of documents to count.
+   */
   readonly limit?: number;
 }

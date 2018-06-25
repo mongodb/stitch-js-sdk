@@ -36,7 +36,7 @@ export interface TwilioServiceClient {
    * @param from the number that the message is from.
    * @param body the body text of the message.
    * @param mediaUrl the Url of the media to send in an MMS.
-   * @return a task that completes when the send is done.
+   * @return a Promise that resolves when the send is done.
    */
   sendMessage(
     to: string,

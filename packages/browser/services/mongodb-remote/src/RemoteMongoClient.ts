@@ -24,7 +24,8 @@ import RemoteMongoClientImpl from "./internal/RemoteMongoClientImpl";
 import RemoteMongoDatabase from "./RemoteMongoDatabase";
 
 /**
- * The remote MongoClient used for working with data in MongoDB remotely via Stitch.
+ * A client which can be used to get database and collection objects which can 
+ * be used to interact with MongoDB data via the Stitch MongoDB service.
  */
 export interface RemoteMongoClient {
   /**
