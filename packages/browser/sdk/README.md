@@ -41,9 +41,27 @@ npm install mongodb-stitch-browser-services-mongodb-remote
 npm install mongodb-stitch-browser-services-twilio
 ```
 
+### HTML Script Tags
+
+You can also include the SDK directly in your HTML code using script tags. For core SDK functionality and the remote MongoDB service, use the following:
+
+```html
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.0/stitch.js"></script>
+```
+
+For customized dependencies use the following:
+```html
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.0/stitch-core.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.0/stitch-services-aws-s3.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.0/stitch-services-aws-ses.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.0/stitch-services-http.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.0/stitch-services-mongodb-remote.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.0/stitch-services-twilio.js"></script>
+```
+
 ## Example Usage
 
-### Creating a new app with the SDK (Web)
+### Creating a new app with the SDK (NPM)
 
 #### Set up an application on Stitch
 1. Go to [https://stitch.mongodb.com/](https://stitch.mongodb.com/) and log in to MongoDB Atlas.
@@ -93,7 +111,7 @@ window.onload = initializeAndLogin;
 <!doctype html>
   <html>
    <head>
-     <title>MonogDB Stitch Sample</title>
+     <title>MongoDB Stitch Sample</title>
    </head>
    <body>
      <script src="main.js"></script>
