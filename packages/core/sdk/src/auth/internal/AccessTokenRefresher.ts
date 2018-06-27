@@ -84,6 +84,8 @@ export default class AccessTokenRefresher<T extends CoreStitchUser> {
     } else {
       this.auth.refreshAccessToken().then(() => {
         setTimeout(() => this.run(), SLEEP_MILLIS);
+      }).catch(() => {
+        setTimeout(() => this.run(), SLEEP_MILLIS);
       });
     }
   }
