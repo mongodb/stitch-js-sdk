@@ -33,6 +33,8 @@ export default class AccessTokenRefresher<T extends CoreStitchUser> {
    */
   public readonly auth: CoreStitchAuth<T>;
 
+  private nextTimeout: any;
+
   constructor(auth: CoreStitchAuth<T>) {
     this.auth = auth;
   }
@@ -80,13 +82,20 @@ export default class AccessTokenRefresher<T extends CoreStitchUser> {
    */
   public run() {
     if (!this.shouldRefresh()) {
-      setTimeout(() => this.run(), SLEEP_MILLIS);
+      this.nextTimeout = setTimeout(() => this.run(), SLEEP_MILLIS);
     } else {
       this.auth.refreshAccessToken().then(() => {
-        setTimeout(() => this.run(), SLEEP_MILLIS);
+        this.nextTimeout = setTimeout(() => this.run(), SLEEP_MILLIS);
       }).catch(() => {
-        setTimeout(() => this.run(), SLEEP_MILLIS);
+        this.nextTimeout = setTimeout(() => this.run(), SLEEP_MILLIS);
       });
     }
+  }
+
+  /**
+   * Stops the run loop.
+   */
+  public stop() {
+    clearTimeout(this.nextTimeout);
   }
 }

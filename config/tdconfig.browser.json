@@ -1,0 +1,16 @@
+{ 
+    "extends": "./tsconfig.esm.browser.base.json",
+    "compilerOptions": {
+        "outDir": "dist/doc-browser"
+    },
+    "include": [
+        "../packages/core/sdk/src/**/*",
+        "../packages/core/servivces/*/src/**/*",
+        "../packages/browser/core/src/**/*",
+        "../packages/browser/services/*/src/**/*"
+    ],
+    "exclude": [
+        "**/node_modules/**",
+        "**/dist/**"
+    ]
+}

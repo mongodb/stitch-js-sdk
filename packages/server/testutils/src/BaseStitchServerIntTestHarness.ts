@@ -15,6 +15,8 @@
  */
 
 import { fail } from "assert";
+import { App, AppResponse } from "mongodb-stitch-core-admin-client";
+import { BaseStitchIntTestHarness } from "mongodb-stitch-core-testutils";
 import {
   MemoryStorage,
   Stitch,
@@ -22,13 +24,11 @@ import {
   StitchAppClientConfiguration,
   UserPasswordAuthProviderClient,
   UserPasswordCredential
-} from "mongodb-stitch-browser-core";
-import { App, AppResponse } from "mongodb-stitch-core-admin-client";
-import { BaseStitchIntTestHarness } from "mongodb-stitch-core-testutils";
+} from "mongodb-stitch-server-core";
 
-const stitchBaseUrlEnvVar = "STITCH_BASE_Url";
+const stitchBaseUrlEnvVar = "STITCH_BASE_URL";
 
-export default class BaseStitchWebIntTestHarness extends BaseStitchIntTestHarness {
+export default class BaseStitchServerIntTestHarness extends BaseStitchIntTestHarness {
   public readonly clients: StitchAppClient[] = [];
 
   public setup(): Promise<void> {

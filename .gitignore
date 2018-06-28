@@ -68,4 +68,6 @@ build/
 
 # docs
 **/docs
+**/docs-browser
+**/docs-server
 **/doc

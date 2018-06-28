@@ -1,0 +1,38 @@
+{
+  "name": "mongodb-stitch-server-examples-basic",
+  "version": "4.0.2",
+  "description": "This is an example JS application using the stitch-server module",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {
+    "mongodb-stitch-server-sdk": "^4.0.2"
+  },
+  "keywords": [
+    "mongodb",
+    "aws",
+    "twilio",
+    "http",
+    "mobile",
+    "serverless",
+    "stitch",
+    "atlas"
+  ],
+  "homepage": "https://github.com/mongodb/stitch-js-sdk#readme",
+  "repository": "mongodb/stitch-js-sdk",
+  "author": "MongoDB Inc.",
+  "contributors": [
+    {
+      "name": "Adam Chelminski",
+      "email": "adam.chelminski@mongodb.com"
+    },
+    {
+      "name": "Eric Daniels",
+      "email": "eric.daniels@mongodb.com"
+    },
+    {
+      "name": "Jason Flax",
+      "email": "jason.flax@mongodb.com"
+    }
+  ],
+  "license": "Apache-2.0"
+}
