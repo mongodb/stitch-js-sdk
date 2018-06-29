@@ -98,6 +98,12 @@ post:
         - "./stitch-js-sdk/packages/browser/services/aws-ses/build/test-results/*.xml"
         - "./stitch-js-sdk/packages/browser/services/http/build/test-results/*.xml"
         - "./stitch-js-sdk/packages/browser/services/twilio/build/test-results/*.xml"
+        - "./stitch-js-sdk/packages/server/coretest/build/test-results/*.xml"
+        - "./stitch-js-sdk/packages/server/services/mongodb-remote/build/test-results/*.xml"
+        - "./stitch-js-sdk/packages/server/services/aws-s3/build/test-results/*.xml"
+        - "./stitch-js-sdk/packages/server/services/aws-ses/build/test-results/*.xml"
+        - "./stitch-js-sdk/packages/server/services/http/build/test-results/*.xml"
+        - "./stitch-js-sdk/packages/server/services/twilio/build/test-results/*.xml"
 
 tasks:
   - name: run_tests
