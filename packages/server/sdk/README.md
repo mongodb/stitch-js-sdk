@@ -85,7 +85,7 @@ client.auth.loginWithCredential(new AnonymousCredential()).then(user => {
 ### Using the SDK
 
 #### Initialize the SDK
-1. When your app or webpage is initialized, run the following code to initialize the Stitch SDK, replacing `<your-client-app-id>` with your Stitch application's client app ID:
+1. When your app has started, run the following code to initialize the Stitch SDK, replacing `<your-client-app-id>` with your Stitch application's client app ID:
 
 ```javascript
 const { Stitch, AnonymousCredential } = require('mongodb-stitch-server-sdk');

@@ -37,36 +37,6 @@ import StitchAuthListener from "../StitchAuthListener";
 import StitchUser from "../StitchUser";
 import StitchUserFactoryImpl from "./StitchUserFactoryImpl";
 
-/**
- * Partial JSDOM window.location containing only the
- * properties and method we need
- */
-interface PartialLocaion {
-  hash: string;
-  protocol: string;
-  host: string;
-  pathname: string;
-
-  replace(url: string);
-}
-
-/**
- * Partial JSDOM window.history containing only the method
- * we need
- */
-interface PartialHistory {
-  replaceState(data: any, title?: string, url?: string | null);
-}
-
-/**
- * Partial JSDOM window interface to contract the functionality
- * of the window for StitchAuthImpl
- */
-interface PartialWindow {
-  location: PartialLocaion;
-  history: PartialHistory;
-}
-
 /** @hidden */
 export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   implements StitchAuth {
@@ -139,7 +109,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
       info[DeviceFields.APP_VERSION] = this.appInfo.localAppVersion;
     }
 
-    info[DeviceFields.PLATFORM] = "server";
+    info[DeviceFields.PLATFORM] = "js-server";
     info[DeviceFields.PLATFORM_VERSION] = process.version;
     info[DeviceFields.SDK_VERSION] = version;
 
