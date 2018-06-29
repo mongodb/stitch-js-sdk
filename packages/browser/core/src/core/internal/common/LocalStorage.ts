@@ -29,10 +29,12 @@ export default class LocalStorage implements Storage {
   public get(key: string): any {
     return localStorage.getItem(this.getKey(key));
   }
-  public set(key: string, value: string): any {
-    return localStorage.setItem(this.getKey(key), value);
+
+  public set(key: string, value: string) {
+    localStorage.setItem(this.getKey(key), value);
   }
-  public remove(key: string): any {
-    return localStorage.removeItem(this.getKey(key));
+  
+  public remove(key: string) {
+    localStorage.removeItem(this.getKey(key));
   }
 }

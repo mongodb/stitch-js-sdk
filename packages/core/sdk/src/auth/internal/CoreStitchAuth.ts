@@ -94,6 +94,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    */
   private currentUser?: TStitchUser;
 
+  private readonly accessTokenRefresher: AccessTokenRefresher<TStitchUser>;
+
   protected constructor(
     requestClient: StitchRequestClient,
     authRoutes: StitchAuthRoutes,
@@ -121,7 +123,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     this.prepUser();
 
     if (useTokenRefresher) {
-      new AccessTokenRefresher(this).run();
+      this.accessTokenRefresher = new AccessTokenRefresher(this);
+      this.accessTokenRefresher.run();
     }
   }
 
@@ -622,5 +625,15 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     }
     this.currentUser = undefined;
     this.onAuthEvent();
+  }
+
+  /**
+   * Close stops any background processes maintained by auth. This
+   * should be called when auth services are no longer needed.
+   */
+  public close() {
+    if (this.accessTokenRefresher) {
+      this.accessTokenRefresher.stop();
+    }
   }
 }

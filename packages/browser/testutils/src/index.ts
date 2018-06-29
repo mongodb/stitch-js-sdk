@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-import BaseStitchWebIntTestHarness from "./BaseStitchWebIntTestHarness";
+import BaseStitchBrowserIntTestHarness from "./BaseStitchBrowserIntTestHarness";
 
-export { BaseStitchWebIntTestHarness };
+export { BaseStitchBrowserIntTestHarness };

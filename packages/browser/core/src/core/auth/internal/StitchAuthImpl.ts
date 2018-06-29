@@ -50,7 +50,7 @@ const alphaNumericCharacters =
  * Partial JSDOM window.location containing only the
  * properties and method we need
  */
-interface PartialLocaion {
+interface PartialLocation {
   hash: string;
   protocol: string;
   host: string;
@@ -72,7 +72,7 @@ interface PartialHistory {
  * of the window for StitchAuthImpl
  */
 interface PartialWindow {
-  location: PartialLocaion;
+  location: PartialLocation;
   history: PartialHistory;
 }
 

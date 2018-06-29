@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { BaseStitchWebIntTestHarness } from "mongodb-stitch-browser-testutils";
+import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
 import {
   Anon,
   App,
@@ -32,7 +32,7 @@ import {
 } from "mongodb-stitch-core-sdk";
 import { TwilioServiceClient } from "../src";
 
-const harness = new BaseStitchWebIntTestHarness();
+const harness = new BaseStitchBrowserIntTestHarness();
 
 const twilioSidEnvVar = "TEST_STITCH_TWILIO_SID";
 const twilioAuthEnvVar = "TEST_STITCH_TWILIO_AUTH_TOKEN";

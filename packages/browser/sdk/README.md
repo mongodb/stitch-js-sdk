@@ -2,7 +2,7 @@
 
 # MongoDB Stitch Browser SDK 
 
-The official [MongoDB Stitch](https://stitch.mongodb.com/) SDK for JavaScript/TypeScript.
+The official [MongoDB Stitch](https://stitch.mongodb.com/) Browser SDK for JavaScript/TypeScript.
 
 ### Index
 - [Documentation](#documentation)
@@ -11,7 +11,7 @@ The official [MongoDB Stitch](https://stitch.mongodb.com/) SDK for JavaScript/Ty
 - [Example Usage](#example-usage)
 
 ## Documentation
-* [API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js/docs/4.0.0/index.html)
+* [API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js/docs/4.0.3/index.html)
 * [MongoDB Stitch Documentation](https://docs.mongodb.com/stitch/)
 
 ## Discussion
@@ -46,17 +46,17 @@ npm install mongodb-stitch-browser-services-twilio
 You can also include the SDK directly in your HTML code using script tags. For core SDK functionality and the remote MongoDB service, use the following:
 
 ```html
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.0/stitch.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.3/stitch.js"></script>
 ```
 
 For customized dependencies use the following:
 ```html
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.0/stitch-core.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.0/stitch-services-aws-s3.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.0/stitch-services-aws-ses.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.0/stitch-services-http.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.0/stitch-services-mongodb-remote.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.0/stitch-services-twilio.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.3/stitch-core.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.3/stitch-services-aws-s3.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.3/stitch-services-aws-ses.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.3/stitch-services-http.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.3/stitch-services-mongodb-remote.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.3/stitch-services-twilio.js"></script>
 ```
 
 ## Example Usage
@@ -133,7 +133,7 @@ Additionally, the JavaScript code above utilizes ES6 features. If you'd like you
 1. When your app or webpage is initialized, run the following code to initialize the Stitch SDK, replacing `<your-client-app-id>` with your Stitch application's client app ID:
 
 ```javascript
-import { Stitch } from 'mongodb-stitch-browser-sdk'
+import { Stitch, AnonymousCredential } from 'mongodb-stitch-browser-sdk'
 
 Stitch.initializeDefaultAppClient('<your-client-app-id>');
 ```

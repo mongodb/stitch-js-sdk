@@ -15,7 +15,7 @@
  */
 
 import { AnonymousCredential } from "mongodb-stitch-browser-core";
-import { BaseStitchWebIntTestHarness } from "mongodb-stitch-browser-testutils";
+import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
 import {
   Anon,
   App,
@@ -31,7 +31,7 @@ import {
 } from "mongodb-stitch-core-sdk";
 import { AwsSesServiceClient } from "../src";
 
-const harness = new BaseStitchWebIntTestHarness();
+const harness = new BaseStitchBrowserIntTestHarness();
 
 const awsAccessKeyIdEnvVar = "TEST_STITCH_AWS_ACCESS_KEY_ID";
 const awsSecretAccessKeyEnvVar = "TEST_STITCH_AWS_SECRET_ACCESS_KEY";

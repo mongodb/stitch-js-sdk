@@ -1,0 +1,16 @@
+{ 
+    "extends": "./tsconfig.esm.base.json",
+    "compilerOptions": {
+        "outDir": "dist/doc-server"
+    },
+    "include": [
+        "../packages/core/sdk/src/**/*",
+        "../packages/core/servivces/*/src/**/*",
+        "../packages/server/core/src/**/*",
+        "../packages/server/services/*/src/**/*"
+    ],
+    "exclude": [
+        "**/node_modules/**",
+        "**/dist/**"
+    ]
+}

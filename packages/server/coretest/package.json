@@ -1,0 +1,68 @@
+{
+  "name": "mongodb-stitch-server-coretest",
+  "version": "4.0.2",
+  "description": "web core test",
+  "keywords": [
+    "mongodb",
+    "aws",
+    "twilio",
+    "http",
+    "mobile",
+    "serverless",
+    "stitch",
+    "atlas"
+  ],
+  "homepage": "https://github.com/mongodb/stitch-js-sdk#readme",
+  "repository": "mongodb/stitch-js-sdk",
+  "author": "MongoDB Inc.",
+  "contributors": [
+    {
+      "name": "Adam Chelminski",
+      "email": "adam.chelminski@mongodb.com"
+    },
+    {
+      "name": "Eric Daniels",
+      "email": "eric.daniels@mongodb.com"
+    },
+    {
+      "name": "Jason Flax",
+      "email": "jason.flax@mongodb.com"
+    }
+  ],
+  "license": "Apache-2.0",
+  "private": true,
+  "dependencies": {
+    "mongodb-stitch-server-core": "^4.0.2",
+    "mongodb-stitch-server-testutils": "^4.0.2",
+    "mongodb-stitch-core-admin-client": "^4.0.2",
+    "mongodb-stitch-core-sdk": "^4.0.2",
+    "mongodb-stitch-core-testutils": "^4.0.2"
+  },
+  "devDependencies": {
+    "jest": "^23.1.0",
+    "ts-jest": "^22.4.6",
+    "typescript": "^2.9.2"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "testPathIgnorePatterns": [
+      "/lib/",
+      "/node_modules/"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "collectCoverage": true
+  }
+}

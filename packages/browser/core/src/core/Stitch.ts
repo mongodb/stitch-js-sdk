@@ -23,7 +23,6 @@ import StitchAppClientImpl from "./internal/StitchAppClientImpl";
 import StitchAppClient from "./StitchAppClient";
 
 const DEFAULT_BASE_URL = "https://stitch.mongodb.com";
-const TAG = "Stitch";
 const appClients: { [key: string]: StitchAppClientImpl } = {};
 
 /**
