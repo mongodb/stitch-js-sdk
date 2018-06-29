@@ -15,7 +15,7 @@
  */
 
 import { ObjectID, ObjectId } from "bson";
-import { BaseStitchWebIntTestHarness } from "mongodb-stitch-browser-testutils";
+import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
 import {
   Anon,
   App,
@@ -45,7 +45,7 @@ const mongodbUri: string = (() => {
   return prop ? prop : "mongodb://localhost:26000";
 })();
 
-const harness = new BaseStitchWebIntTestHarness();
+const harness = new BaseStitchBrowserIntTestHarness();
 
 function getTestColl<ResultT>(
   codec?: Codec<ResultT>

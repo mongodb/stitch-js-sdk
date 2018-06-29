@@ -16,7 +16,7 @@
 
 import { sign } from "jsonwebtoken";
 import { UserPasswordAuthProviderClient } from "mongodb-stitch-browser-core";
-import { BaseStitchWebIntTestHarness } from "mongodb-stitch-browser-testutils";
+import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
 import {
   Anon,
   App,
@@ -35,7 +35,7 @@ import {
   UserType
 } from "mongodb-stitch-core-sdk";
 
-const harness = new BaseStitchWebIntTestHarness();
+const harness = new BaseStitchBrowserIntTestHarness();
 
 beforeAll(() => harness.setup());
 afterAll(() => harness.teardown());

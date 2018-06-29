@@ -16,7 +16,7 @@
 
 import * as EJSON from "mongodb-extjson";
 import { AnonymousCredential } from "mongodb-stitch-browser-core";
-import { BaseStitchWebIntTestHarness } from "mongodb-stitch-browser-testutils";
+import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
 import {
   Anon,
   App,
@@ -33,7 +33,7 @@ import {
 import { HttpMethod, HttpRequest } from "mongodb-stitch-core-services-http";
 import { HttpServiceClient } from "../src/HttpServiceClient";
 
-const harness = new BaseStitchWebIntTestHarness();
+const harness = new BaseStitchBrowserIntTestHarness();
 
 beforeAll(() => harness.setup());
 afterAll(() => harness.teardown());
