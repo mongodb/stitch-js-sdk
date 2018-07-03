@@ -113,7 +113,7 @@ tasks:
       - func: "setup_stitch"
       - command: shell.exec
         params: 
-          script: | # NOTE: Using yarn for install instead of npm due to evergreen permission issue with chromedriver devDependency
+          script: |
             set -e
             echo "running client tests"
             source ./creds
