@@ -33,6 +33,8 @@ import {
   UserPasswordCredential
 } from "mongodb-stitch-core-sdk";
 
+jest.setTimeout(30000);
+
 export default abstract class BaseStitchIntTestHarness {
   protected abstract readonly stitchBaseUrl: string;
 
