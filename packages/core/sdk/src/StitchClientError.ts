@@ -31,6 +31,11 @@ export default class StitchClientError extends StitchError {
   public readonly errorCode: StitchClientErrorCode;
 
   /**
+   * The name of the {@link StitchClientErrorCode} associated with the request.
+   */
+  public readonly errorCodeName: string;
+
+  /**
    * Constructs a client exception with the given error code.
    */
   public constructor(errorCode: StitchClientErrorCode) {
@@ -39,5 +44,6 @@ export default class StitchClientError extends StitchError {
     }`;
     super(message);
     this.errorCode = errorCode;
+    this.errorCodeName = StitchClientErrorCode[errorCode];
   }
 }

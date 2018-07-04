@@ -36,6 +36,11 @@ export default class StitchServiceError extends StitchError {
   public readonly errorCode: StitchServiceErrorCode;
 
   /**
+   * The name of the {@link StitchServiceErrorCode} indicating the reason for this exception.
+   */
+  public readonly errorCodeName: string;
+
+  /**
    * A string describing the reason for the error.
    */
   public readonly message: string;
@@ -47,5 +52,6 @@ export default class StitchServiceError extends StitchError {
     super(message);
     this.message = message;
     this.errorCode = errorCode;
+    this.errorCodeName = StitchServiceErrorCode[errorCode];
   }
 }

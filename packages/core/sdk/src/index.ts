@@ -67,6 +67,8 @@ import StitchAppClientInfo from "./StitchAppClientInfo";
 import StitchClientError from "./StitchClientError";
 import { StitchClientErrorCode } from "./StitchClientErrorCode";
 import StitchError from "./StitchError";
+import StitchRequestError from "./StitchRequestError";
+import { StitchRequestErrorCode } from "./StitchRequestErrorCode";
 import StitchServiceError from "./StitchServiceError";
 import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
 
@@ -113,6 +115,8 @@ export {
   StitchAuthRoutes,
   StitchCredential,
   StitchRequestClient,
+  StitchRequestError,
+  StitchRequestErrorCode,
   StitchServiceRoutes,
   StitchServiceError,
   StitchServiceErrorCode,
