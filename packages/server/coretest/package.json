@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-server-coretest",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "description": "web core test",
   "keywords": [
     "mongodb",
@@ -34,9 +34,9 @@
   "dependencies": {
     "mongodb-stitch-core-admin-client": "^4.0.3",
     "mongodb-stitch-core-sdk": "^4.0.3",
-    "mongodb-stitch-core-testutils": "^4.0.3",
-    "mongodb-stitch-server-core": "^4.0.3",
-    "mongodb-stitch-server-testutils": "^4.0.3"
+    "mongodb-stitch-core-testutils": "^4.0.4",
+    "mongodb-stitch-server-core": "^4.0.4",
+    "mongodb-stitch-server-testutils": "^4.0.4"
   },
   "devDependencies": {
     "jest": "^23.1.0",
