@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-browser-coretest",
-  "version": "4.0.6",
+  "version": "4.0.7",
   "description": "web core test",
   "keywords": [
     "mongodb",
@@ -32,8 +32,8 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "mongodb-stitch-browser-core": "^4.0.6",
-    "mongodb-stitch-browser-testutils": "^4.0.6",
+    "mongodb-stitch-browser-core": "^4.0.7",
+    "mongodb-stitch-browser-testutils": "^4.0.7",
     "mongodb-stitch-core-admin-client": "^4.0.6",
     "mongodb-stitch-core-sdk": "^4.0.6",
     "mongodb-stitch-core-testutils": "^4.0.6"

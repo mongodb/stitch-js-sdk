@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-server-services-aws-s3",
-  "version": "4.0.6",
+  "version": "4.0.7",
   "main": "dist/umd/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -39,13 +39,13 @@
   "dependencies": {
     "bson": "^3.0.0",
     "mongodb-stitch-core-services-aws-s3": "^4.0.6",
-    "mongodb-stitch-server-core": "^4.0.6"
+    "mongodb-stitch-server-core": "^4.0.7"
   },
   "devDependencies": {
     "jest": "^23.1.0",
     "mongodb-stitch-core-admin-client": "^4.0.6",
     "mongodb-stitch-core-sdk": "^4.0.6",
-    "mongodb-stitch-server-testutils": "^4.0.6",
+    "mongodb-stitch-server-testutils": "^4.0.7",
     "prettier": "^1.13.5",
     "rollup": "^0.60.7",
     "ts-jest": "^22.4.6",
