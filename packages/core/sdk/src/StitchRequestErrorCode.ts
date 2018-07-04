@@ -26,7 +26,7 @@ export enum StitchRequestErrorCode {
 
 /** @hidden */
 export const requestErrorCodeDescs: {
-  [id in StitchRequestErrorCode]: string
+  [key: number]: string
 } = {
   [StitchRequestErrorCode.TRANSPORT_ERROR]:
     "the request transport encountered an error communicating with Stitch",

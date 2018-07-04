@@ -22,7 +22,7 @@ export default class RemoteInsertManyResult {
    * Map of the index of the inserted document to the id of the inserted 
    * document.
    */
-  public readonly insertedIds: Record<number, any>;
+  public readonly insertedIds: {[key: number]: string};
 
   /**
    * Given an ordered array of insertedIds, creates a corresponding 

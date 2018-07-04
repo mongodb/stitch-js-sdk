@@ -27,7 +27,7 @@ export enum StitchClientErrorCode {
 }
 
 /** @hidden */
-export const clientErrorCodeDescs: { [id in StitchClientErrorCode]: string } = {
+export const clientErrorCodeDescs: { [key: number]: string } = {
   [StitchClientErrorCode.LoggedOutDuringRequest]:
     "logged out while making a request to Stitch",
   [StitchClientErrorCode.MustAuthenticateFirst]:
