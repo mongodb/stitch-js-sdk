@@ -121,7 +121,6 @@ tasks:
             npm install --global lerna
             npm install
             lerna bootstrap --hoist
-            lerna run build
             lerna run test
       - command: shell.exec
         params:
