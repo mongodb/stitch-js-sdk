@@ -1,12 +1,12 @@
 {
   "name": "mongodb-stitch-browser-examples-basic",
-  "version": "4.0.7",
+  "version": "4.0.8-0",
   "description": "This is an example JS application using the stitch-browser module",
   "private": true,
   "main": "index.js",
   "dependencies": {
-    "mongodb-stitch-browser-sdk": "^4.0.7",
-    "mongodb-stitch-browser-services-aws-s3": "^4.0.7"
+    "mongodb-stitch-browser-sdk": "^4.0.8-0",
+    "mongodb-stitch-browser-services-aws-s3": "^4.0.8-0"
   },
   "scripts": {
     "build": "webpack -p",
