@@ -7,6 +7,7 @@
         "strictNullChecks": true,
         "declaration": true,
         "removeComments": true,
+        "esModuleInterop": true,
         "lib": [
             "es2015",
             "es2017.object"

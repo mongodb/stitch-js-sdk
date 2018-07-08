@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Binary } from "bson";
+import BSON from "bson";
 import { CoreStitchServiceClientImpl } from "mongodb-stitch-core-sdk";
 import { anything, capture, instance, mock, verify, when } from "ts-mockito";
 import {
@@ -62,7 +62,7 @@ describe("CoreAwsS3ServiceClient", () => {
     expect(expectedArgs).toEqual(funcArgsArg[0]);
     expect(ResultDecoders.PutObjectResultDecoder).toEqual(resultClassArg);
 
-    const bodyBin = new Binary(new Buffer("hello"));
+    const bodyBin = new BSON.Binary(new Buffer("hello"));
     result = await client.putObject(bucket, key, acl, contentType, bodyBin);
     expect(result.location).toEqual(expectedLocation);
 
@@ -125,7 +125,7 @@ describe("CoreAwsS3ServiceClient", () => {
 
     expect("put").toEqual(funcNameArg4);
     expect(1).toEqual(funcArgsArg4.length);
-    expectedArgs.body = new Binary(new Buffer(bodyUintArray));
+    expectedArgs.body = new BSON.Binary(new Buffer(bodyUintArray));
     expect(expectedArgs).toEqual(funcArgsArg4[0]);
     expect(ResultDecoders.PutObjectResultDecoder).toEqual(resultClassArg4);
 

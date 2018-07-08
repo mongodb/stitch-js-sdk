@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ObjectID } from "bson";
+import BSON from "bson";
 import { CoreStitchServiceClientImpl } from "mongodb-stitch-core-sdk";
 import { anything, capture, instance, mock, verify, when } from "ts-mockito";
 import {
@@ -255,7 +255,7 @@ describe("CoreRemoteMongoCollection", () => {
     const client = new CoreRemoteMongoClientImpl(service);
     const coll = getCollection(undefined, client);
 
-    const id = new ObjectID();
+    const id = new BSON.ObjectID();
     const doc1 = { one: 2, _id: id.toHexString() };
 
     when(
@@ -301,8 +301,8 @@ describe("CoreRemoteMongoCollection", () => {
     const client = new CoreRemoteMongoClientImpl(service);
     const coll = getCollection(undefined, client);
 
-    const id1 = new ObjectID();
-    const id2 = new ObjectID();
+    const id1 = new BSON.ObjectID();
+    const id2 = new BSON.ObjectID();
 
     const doc1 = { one: 2, _id: id1.toHexString() };
     const doc2 = { three: 4, _id: id2.toHexString() };
@@ -440,7 +440,7 @@ describe("CoreRemoteMongoCollection", () => {
     const client = new CoreRemoteMongoClientImpl(service);
     const coll = getCollection(undefined, client);
 
-    const id = new ObjectID();
+    const id = new BSON.ObjectID();
 
     when(
       serviceMock.callFunctionInternal(anything(), anything(), anything())
@@ -512,7 +512,7 @@ describe("CoreRemoteMongoCollection", () => {
     const client = new CoreRemoteMongoClientImpl(service);
     const coll = getCollection(undefined, client);
 
-    const id = new ObjectID();
+    const id = new BSON.ObjectID();
 
     when(
       serviceMock.callFunctionInternal(anything(), anything(), anything())

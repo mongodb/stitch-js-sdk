@@ -15,7 +15,7 @@
  */
 
 import { StitchAuthRoutes } from "../../auth/internal/StitchAuthRoutes";
-import { BASE_ROUTE, getAppRoute } from "./StitchAppRoutes";
+import { BASE_ROUTE, getAppRoute } from "./StitchRoutes";
 
 function getAuthProviderRoute(
   clientAppId: string,

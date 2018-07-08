@@ -38,7 +38,7 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "bson": "^3.0.0",
+    "bson": "file:///Users/eric/js/js-bson",
     "fetch-everywhere": "^1.0.5",
     "mongodb-stitch-core-admin-client": "^4.0.6",
     "mongodb-stitch-core-sdk": "^4.0.6"

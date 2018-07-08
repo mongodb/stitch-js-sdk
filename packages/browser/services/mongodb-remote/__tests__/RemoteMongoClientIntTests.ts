@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ObjectID, ObjectId } from "bson";
+import BSON from "bson";
 import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
 import {
   Anon,
@@ -75,8 +75,8 @@ beforeEach(async () => {
     fail(new Error("no MongoDB URI in properties; failing test"));
   }
 
-  dbName = new ObjectID().toHexString();
-  collName = new ObjectId().toHexString();
+  dbName = new BSON.ObjectID().toHexString();
+  collName = new BSON.ObjectId().toHexString();
 
   const [appResponse, app] = await harness.createApp();
   await harness.addProvider(app as App, new Anon());
@@ -228,7 +228,7 @@ describe("RemoteMongoClient", () => {
   it("should insert one", async () => {
     const coll = getTestColl();
     const doc = { hello: "world" };
-    doc._id = new ObjectId();
+    doc._id = new BSON.ObjectId();
 
     expect(doc._id).toEqual((await coll.insertOne(doc)).insertedId);
     try {
@@ -247,7 +247,7 @@ describe("RemoteMongoClient", () => {
   it("should insert many", async () => {
     const coll = getTestColl();
     const doc1 = { hello: "world" };
-    doc1._id = new ObjectID();
+    doc1._id = new BSON.ObjectID();
 
     expect(doc1._id).toEqual((await coll.insertMany([doc1])).insertedIds[0]);
     try {
@@ -398,7 +398,7 @@ describe("RemoteMongoClient", () => {
 
   it("should decode properly", async () => {
     interface CustomType {
-      id?: ObjectID;
+      id?: BSON.ObjectID;
       intValue: number;
     }
 
@@ -420,7 +420,7 @@ describe("RemoteMongoClient", () => {
 
     let coll = getTestColl().withCollectionType(codec);
 
-    const expected: CustomType = { id: new ObjectID(), intValue: 42 };
+    const expected: CustomType = { id: new BSON.ObjectID(), intValue: 42 };
 
     expect(expected.id).toEqual((await coll.insertOne(expected)).insertedId);
     expect(expected).toEqual(await coll.find().first());

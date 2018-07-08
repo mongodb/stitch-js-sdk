@@ -32,6 +32,7 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
+    "bson": "file:///Users/eric/js/js-bson",
     "mongodb-stitch-core-admin-client": "^4.0.6",
     "mongodb-stitch-core-sdk": "^4.0.6",
     "mongodb-stitch-core-testutils": "^4.0.6",
