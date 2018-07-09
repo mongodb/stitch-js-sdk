@@ -107,26 +107,33 @@ describe("HttpServiceClient", () => {
       expect(error.errorCode).toEqual(StitchServiceErrorCode.HTTPError);
     }
 
-    // A correctly specific request should succeed
-    const goodRequest = new HttpRequest.Builder()
-      .withUrl("https://httpbin.org/delete")
-      .withMethod(method)
-      .withBody(body)
-      .withCookies(cookies)
-      .withHeaders(headers)
-      .build();
+    const retryAttempts = 3;
+    for (let i = 1; i <= retryAttempts; i++) {
+      // A correctly specific request should succeed
+      const goodRequest = new HttpRequest.Builder()
+        .withUrl("https://httpbin.org/delete")
+        .withMethod(method)
+        .withBody(body)
+        .withCookies(cookies)
+        .withHeaders(headers)
+        .build();
 
-    const response = await httpClient.execute(goodRequest);
+      const response = await httpClient.execute(goodRequest);
 
-    expect("200 OK").toEqual(response.status);
-    expect(200).toEqual(response.statusCode);
-    expect(response.contentLength).toBeGreaterThanOrEqual(300);
-    expect(response.contentLength).toBeLessThanOrEqual(400);
-    expect(response.body).toBeDefined();
-    const dataDoc = EJSON.parse(String(response.body!!), { relaxed: true });
-    expect(body).toEqual(dataDoc.data);
-    const headersDoc = dataDoc.headers;
-    expect("value1,value2").toEqual(headersDoc.Myheader);
-    expect("bob=barker").toEqual(headersDoc.Cookie);
+      if (i != retryAttempts && response.statusCode != 200) {
+        continue;
+      }
+
+      expect("200 OK").toEqual(response.status);
+      expect(200).toEqual(response.statusCode);
+      expect(response.contentLength).toBeGreaterThanOrEqual(300);
+      expect(response.contentLength).toBeLessThanOrEqual(400);
+      expect(response.body).toBeDefined();
+      const dataDoc = EJSON.parse(String(response.body!!), { relaxed: true });
+      expect(body).toEqual(dataDoc.data);
+      const headersDoc = dataDoc.headers;
+      expect("value1,value2").toEqual(headersDoc.Myheader);
+      expect("bob=barker").toEqual(headersDoc.Cookie);
+    }
   });
 });
