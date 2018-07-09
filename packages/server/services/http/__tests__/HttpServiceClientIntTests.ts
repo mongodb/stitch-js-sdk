@@ -120,7 +120,7 @@ describe("HttpServiceClient", () => {
 
       const response = await httpClient.execute(goodRequest);
 
-      if (i != retryAttempts && response.statusCode != 200) {
+      if (i !== retryAttempts && response.statusCode !== 200) {
         await sleep(5000);
         continue;
       }
@@ -139,7 +139,7 @@ describe("HttpServiceClient", () => {
   });
 });
 
-// sourced from https://stackoverflow.com/a/41957152
+// Sourced from https://stackoverflow.com/a/41957152
 function sleep(ms) {
   return new Promise( resolve => {
     setTimeout(resolve, ms)
