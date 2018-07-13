@@ -163,6 +163,10 @@ logging in anonymously
 logged in anonymously as user 58c5d6ebb9ede022a3d75050
 ```
 
+#### Using BSON and Extended JSON
+
+This library depends on [mongodb-stitch-bson](https://www.npmjs.com/package/mongodb-stitch-bson) and [mongodb-stitch-extjson](https://www.npmjs.com/package/mongodb-stitch-extjson). Usage of both can be see on the respective READMEs.
+
 #### Executing a function
 1. Once logged in, executing a function happens via the `StitchAppClient`'s `callFunction()` method
 

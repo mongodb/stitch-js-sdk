@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as EJSON from "mongodb-extjson";
+import * as EJSON from "mongodb-stitch-extjson";
 import {
   CoreStitchAppClient,
   CoreStitchAuth,

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import BSON from "bson";
+import BSON from "mongodb-stitch-bson";
 import StitchAuthRequestClient from "../../../auth/internal/StitchAuthRequestClient";
 import { StitchAuthRoutes } from "../../../auth/internal/StitchAuthRoutes";
 import Method from "../../../internal/net/Method";

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { stringify } from "mongodb-extjson";
+import { stringify } from "mongodb-stitch-extjson";
 import ContentTypes from "./ContentTypes";
 import Headers from "./Headers";
 import Method from "./Method";

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as EJSON from "mongodb-extjson";
+import * as EJSON from "mongodb-stitch-extjson";
 import { Codec, Decoder } from "../../internal/common/Codec";
 import { wrapDecodingError } from "../../internal/common/StitchErrorUtils";
 import { Storage } from "../../internal/common/Storage";

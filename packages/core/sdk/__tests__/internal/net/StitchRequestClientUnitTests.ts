@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { parse } from "mongodb-extjson";
+import { parse } from "mongodb-stitch-extjson";
 import { anything, capture, instance, mock, when } from "ts-mockito";
 import { FetchTransport, StitchRequestClient } from "../../../src";
 import { BasicRequest } from "../../../src/internal/net/BasicRequest";

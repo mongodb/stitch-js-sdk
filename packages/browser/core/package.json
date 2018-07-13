@@ -37,7 +37,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "bson": "^4.0.0",
+    "mongodb-stitch-bson": "^1.0.0",
     "detect-browser": "^3.0.0",
     "mongodb-stitch-core-sdk": "^4.0.8"
   },

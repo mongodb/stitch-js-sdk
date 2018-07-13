@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import BSON from "bson";
+import BSON from "mongodb-stitch-bson";
 import {
   AwsS3PutObjectResult,
   AwsS3SignPolicyResult,
