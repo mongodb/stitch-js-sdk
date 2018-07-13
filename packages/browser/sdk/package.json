@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-browser-sdk",
-  "version": "4.0.8",
+  "version": "4.0.9",
   "main": "dist/umd/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -37,8 +37,8 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "mongodb-stitch-browser-core": "^4.0.8",
-    "mongodb-stitch-browser-services-mongodb-remote": "^4.0.8"
+    "mongodb-stitch-browser-core": "^4.0.9",
+    "mongodb-stitch-browser-services-mongodb-remote": "^4.0.9"
   },
   "devDependencies": {
     "prettier": "^1.13.5",

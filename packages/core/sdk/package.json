@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-core-sdk",
-  "version": "4.0.8",
+  "version": "4.0.9",
   "main": "dist/umd/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -38,8 +38,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "base64-js": "^1.3.0",
-    "mongodb-stitch-bson": "^1.0.0",
     "fetch-everywhere": "^1.0.5",
+    "mongodb-stitch-bson": "^1.0.0",
     "mongodb-stitch-extjson": "^1.0.0"
   },
   "devDependencies": {
