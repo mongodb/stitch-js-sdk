@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import BSON from "mongodb-stitch-bson";
 import fetch from "fetch-everywhere";
+import BSON from "mongodb-stitch-bson";
 import {
   App,
   AppResponse,

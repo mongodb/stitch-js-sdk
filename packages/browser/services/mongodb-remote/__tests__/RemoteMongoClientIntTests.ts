@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import BSON from "mongodb-stitch-bson";
 import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
+import BSON from "mongodb-stitch-bson";
 import {
   Anon,
   App,
