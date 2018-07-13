@@ -38,7 +38,7 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "mongodb-extjson": "^3.0.2",
+    "mongodb-extjson": "^4.0.0",
     "mongodb-stitch-core-sdk": "^4.0.8"
   },
   "devDependencies": {
