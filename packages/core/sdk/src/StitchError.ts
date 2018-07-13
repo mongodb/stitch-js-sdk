@@ -20,11 +20,13 @@ interface ErrorConstructor {
 }
 
 const _Error = (function(message: string) {
-  Error.call(this, message);
-  Error.captureStackTrace(this);
+	Error.call(this, message);
+	if (Error.captureStackTrace) {
+		Error.captureStackTrace(this);
+	}
 
-  this.message = message;
-  this.name = this.constructor.name;
+	this.message = message;
+	this.name = this.constructor.name;
 } as any) as ErrorConstructor;
 _Error.prototype = Object.create(Error.prototype);
 

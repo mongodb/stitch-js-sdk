@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ObjectID } from "bson";
+import BSON from "bson";
 import {
   CoreUserApiKeyAuthProviderClient,
   StitchAuthRequestClient,
@@ -38,7 +38,7 @@ export default class UserApiKeyAuthProviderClientImpl
     return super.createApiKey(name);
   }
 
-  public fetchApiKey(keyId: ObjectID): Promise<UserApiKey> {
+  public fetchApiKey(keyId: BSON.ObjectID): Promise<UserApiKey> {
     return super.fetchApiKey(keyId);
   }
 
@@ -46,15 +46,15 @@ export default class UserApiKeyAuthProviderClientImpl
     return super.fetchApiKeys();
   }
 
-  public deleteApiKey(keyId: ObjectID): Promise<void> {
+  public deleteApiKey(keyId: BSON.ObjectID): Promise<void> {
     return super.deleteApiKey(keyId);
   }
 
-  public enableApiKey(keyId: ObjectID): Promise<void> {
+  public enableApiKey(keyId: BSON.ObjectID): Promise<void> {
     return super.enableApiKey(keyId);
   }
 
-  public disableApiKey(keyId: ObjectID): Promise<void> {
+  public disableApiKey(keyId: BSON.ObjectID): Promise<void> {
     return super.disableApiKey(keyId);
   }
 }

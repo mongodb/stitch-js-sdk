@@ -15,7 +15,7 @@
  */
 
 import StitchAuthRequestClient from "../auth/internal/StitchAuthRequestClient";
-import { StitchAppRoutes } from "../internal/net/StitchAppRoutes";
+import StitchAppRoutes from "../internal/net/StitchAppRoutes";
 import Method from "./net/Method";
 import { StitchAuthDocRequest } from "./net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "./net/StitchAuthRequest";

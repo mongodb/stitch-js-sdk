@@ -17,16 +17,7 @@
 import { StitchAuthRoutes } from "../../auth/internal/StitchAuthRoutes";
 import StitchServiceRoutes from "../../services/internal/StitchServiceRoutes";
 import StitchAppAuthRoutes from "./StitchAppAuthRoutes";
-
-const BASE_ROUTE = "/api/client/v2.0";
-
-function getAppRoute(clientAppId: string): string {
-  return BASE_ROUTE + `/app/${clientAppId}`;
-}
-
-function getFunctionCallRoute(clientAppId: string): string {
-  return getAppRoute(clientAppId) + "/functions/call";
-}
+import { getFunctionCallRoute } from "./StitchRoutes";
 
 class StitchAppRoutes {
   public readonly authRoutes: StitchAuthRoutes;
@@ -43,4 +34,4 @@ class StitchAppRoutes {
   }
 }
 
-export { BASE_ROUTE, getAppRoute, getFunctionCallRoute, StitchAppRoutes };
+export default StitchAppRoutes;

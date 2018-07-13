@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ObjectID } from "bson";
+import BSON from "bson";
 import { sign } from "jsonwebtoken";
 import { anything, capture, instance, verify, mock, when } from "ts-mockito";
 import {
@@ -438,7 +438,7 @@ describe("CoreStitchAuthUnitTests", () => {
       new MemoryStorage(appId)
     );
 
-    const expectedObjectId = new ObjectID();
+    const expectedObjectId = new BSON.ObjectID();
     const docRaw = `{\"_id\": {\"$oid\": \"${expectedObjectId.toHexString()}\"}, \"intValue\": {\"$numberInt\": \"42\"}}`;
 
     const reqBuilder = new StitchAuthDocRequest.Builder();

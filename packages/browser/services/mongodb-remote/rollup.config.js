@@ -25,99 +25,10 @@ import { uglify } from 'rollup-plugin-uglify';
 const plugins = [
   json(),
   nodeResolve({
-    browser: true
+    browser: true,
+    preferBuiltins: false
   }),
-  commonjs({
-    namedExports: {
-      'node_modules/bson/dist/bson.js': [
-        'BSON_INT32_MAX',
-        'BSON_INT32_MIN',
-        'BSON_INT64_MAX',
-        'BSON_INT64_MIN',
-        'JS_INT_MAX',
-        'JS_INT_MIN',
-        'Binary',
-        'Code',
-        'DBRef',
-        'Decimal128',
-        'Double',
-        'Int32',
-        'Long',
-        'Map',
-        'MaxKey',
-        'MinKey',
-        'ObjectId',
-        'ObjectID',
-        'BSONRegExp',
-        'Symbol',
-        'Timestamp'
-      ],
-      '../../../../node_modules/bson/dist/bson.js': [
-        'BSON_INT32_MAX',
-        'BSON_INT32_MIN',
-        'BSON_INT64_MAX',
-        'BSON_INT64_MIN',
-        'JS_INT_MAX',
-        'JS_INT_MIN',
-        'Binary',
-        'Code',
-        'DBRef',
-        'Decimal128',
-        'Double',
-        'Int32',
-        'Long',
-        'Map',
-        'MaxKey',
-        'MinKey',
-        'ObjectId',
-        'ObjectID',
-        'BSONRegExp',
-        'Symbol',
-        'Timestamp'
-      ],
-      '../../../core/services/mongodb-remote/node_modules/bson/dist/bson.js': [
-        'BSON_INT32_MAX',
-        'BSON_INT32_MIN',
-        'BSON_INT64_MAX',
-        'BSON_INT64_MIN',
-        'JS_INT_MAX',
-        'JS_INT_MIN',
-        'Binary',
-        'Code',
-        'DBRef',
-        'Decimal128',
-        'Double',
-        'Int32',
-        'Long',
-        'Map',
-        'MaxKey',
-        'MinKey',
-        'ObjectId',
-        'ObjectID',
-        'BSONRegExp',
-        'Symbol',
-        'Timestamp'
-      ],
-      'node_modules/mongodb-extjson/dist/mongodb-extjson.js': [
-        'parse',
-        'stringify',
-        'setBSONModule',
-        'BSON'
-      ],
-      '../../../../node_modules/mongodb-extjson/dist/mongodb-extjson.js': [
-        'parse',
-        'stringify',
-        'setBSONModule',
-        'BSON'
-      ],
-      '../../../core/services/mongodb-remote/node_modules/mongodb-extjson/dist/mongodb-extjson.js': [
-        'parse',
-        'stringify',
-        'setBSONModule',
-        'BSON'
-      ]
-    }
-  }),
+  commonjs(),
   nodeGlobals(),
   nodeBuiltins(),
   typescript({

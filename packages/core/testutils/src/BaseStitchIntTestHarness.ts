@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { ObjectID } from "bson";
-import * as fetch from "fetch-everywhere";
+import BSON from "bson";
+import fetch from "fetch-everywhere";
 import {
   App,
   AppResponse,
@@ -81,7 +81,7 @@ export default abstract class BaseStitchIntTestHarness {
   }
 
   public async createApp(
-    appName = `test-${new ObjectID().toHexString()}`
+    appName = `test-${new BSON.ObjectID().toHexString()}`
   ): Promise<Array<App | AppResponse>> {
     return this.adminClient
       .apps(this.groupId)

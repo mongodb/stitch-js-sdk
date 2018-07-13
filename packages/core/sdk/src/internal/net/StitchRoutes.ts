@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-import { getFunctionCallRoute } from "../../internal/net/StitchRoutes";
+const BASE_ROUTE = "/api/client/v2.0";
 
-/** @hidden */
-export default class StitchServiceRoutes {
-  public readonly functionCallRoute: string;
-  private readonly clientAppId: string;
-
-  public constructor(clientAppId: string) {
-    this.clientAppId = clientAppId;
-    this.functionCallRoute = getFunctionCallRoute(clientAppId);
-  }
+function getAppRoute(clientAppId: string): string {
+  return BASE_ROUTE + `/app/${clientAppId}`;
 }
+
+function getFunctionCallRoute(clientAppId: string): string {
+  return getAppRoute(clientAppId) + "/functions/call";
+}
+
+export { BASE_ROUTE, getAppRoute, getFunctionCallRoute };

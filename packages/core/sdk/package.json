@@ -38,9 +38,9 @@
   "license": "Apache-2.0",
   "dependencies": {
     "base64-js": "^1.3.0",
-    "bson": "^3.0.0",
+    "bson": "^3.0.1",
     "fetch-everywhere": "^1.0.5",
-    "mongodb-extjson": "^3.0.0"
+    "mongodb-extjson": "^3.0.2"
   },
   "devDependencies": {
     "jest": "^23.1.0",
