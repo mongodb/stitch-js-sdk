@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ObjectID } from "bson";
+import BSON from "bson";
 import StitchAuthRequestClient from "../../../auth/internal/StitchAuthRequestClient";
 import { StitchAuthRoutes } from "../../../auth/internal/StitchAuthRoutes";
 import Method from "../../../internal/net/Method";
@@ -79,7 +79,7 @@ export default class CoreUserApiKeyAuthProviderClient extends CoreAuthProviderCl
    *
    * @param keyId the id of the API key to fetch.
    */
-  public fetchApiKey(keyId: ObjectID): Promise<UserApiKey> {
+  public fetchApiKey(keyId: BSON.ObjectID): Promise<UserApiKey> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
       .withMethod(Method.GET)
@@ -127,7 +127,7 @@ export default class CoreUserApiKeyAuthProviderClient extends CoreAuthProviderCl
    *
    * @param keyId the id of the API key to delete
    */
-  public deleteApiKey(keyId: ObjectID): Promise<void> {
+  public deleteApiKey(keyId: BSON.ObjectID): Promise<void> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
       .withMethod(Method.DELETE)
@@ -144,7 +144,7 @@ export default class CoreUserApiKeyAuthProviderClient extends CoreAuthProviderCl
    *
    * @param keyId the id of the API key to enable
    */
-  public enableApiKey(keyId: ObjectID): Promise<void> {
+  public enableApiKey(keyId: BSON.ObjectID): Promise<void> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
       .withMethod(Method.PUT)
@@ -161,7 +161,7 @@ export default class CoreUserApiKeyAuthProviderClient extends CoreAuthProviderCl
    *
    * @param keyId the id of the API key to disable
    */
-  public disableApiKey(keyId: ObjectID): Promise<void> {
+  public disableApiKey(keyId: BSON.ObjectID): Promise<void> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
       .withMethod(Method.PUT)

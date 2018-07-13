@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ObjectID } from "bson";
+import BSON from "bson";
 import { Codec, CoreStitchServiceClient } from "mongodb-stitch-core-sdk";
 import RemoteCountOptions from "../RemoteCountOptions";
 import RemoteDeleteResult from "../RemoteDeleteResult";
@@ -294,7 +294,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
   private generateObjectIdIfMissing(doc: any): object {
     if (!doc._id) {
       const newDoc = doc;
-      newDoc._id = new ObjectID();
+      newDoc._id = new BSON.ObjectID();
       return newDoc;
     }
     return doc;

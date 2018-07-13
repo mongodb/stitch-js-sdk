@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Binary } from "bson";
+import BSON from "bson";
 import { CoreStitchServiceClient } from "mongodb-stitch-core-sdk";
 import { AwsS3PutObjectResult } from "../AwsS3PutObjectResult";
 import { AwsS3SignPolicyResult } from "../AwsS3SignPolicyResult";
@@ -48,7 +48,7 @@ export default class CoreAwsS3ServiceClient {
     key: string,
     acl: string,
     contentType: string,
-    body: string | Buffer | Uint8Array | ArrayBuffer | Binary
+    body: string | Buffer | Uint8Array | ArrayBuffer | BSON.Binary
   ): Promise<AwsS3PutObjectResult> {
     const args = {
       [PutAction.BucketParam]: bucket,
@@ -57,17 +57,17 @@ export default class CoreAwsS3ServiceClient {
       [PutAction.ContentTypeParam]: contentType
     };
 
-    const binaryBody: Binary | string = (() => {
+    const binaryBody: BSON.Binary | string = (() => {
       if (body instanceof Buffer) {
-        return new Binary(body);
+        return new BSON.Binary(body);
       }
 
       if (body instanceof Uint8Array) {
-        return new Binary(new Buffer(body));
+        return new BSON.Binary(new Buffer(body));
       }
 
       if (body instanceof ArrayBuffer) {
-        return new Binary(new Buffer(body));
+        return new BSON.Binary(new Buffer(body));
       }
 
       return body;

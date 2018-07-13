@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Binary } from "bson";
+import BSON from "bson";
 import {
   NamedServiceClientFactory,
   StitchServiceClient
@@ -46,7 +46,7 @@ export interface AwsS3ServiceClient {
     key: string,
     acl: string,
     contentType: string,
-    body: string | Binary | Uint8Array | ArrayBuffer | Buffer
+    body: string | BSON.Binary | Uint8Array | ArrayBuffer | Buffer
   ): Promise<AwsS3PutObjectResult>;
 
   /**

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ObjectID } from "bson";
+import BSON from "bson";
 import { App, AppResponse, Userpass } from "mongodb-stitch-core-admin-client";
 import { StitchServiceErrorCode, StitchServiceError } from "mongodb-stitch-core-sdk";
 import { UserApiKeyAuthProviderClient, UserApiKeyCredential } from "mongodb-stitch-server-core";
@@ -159,7 +159,7 @@ describe("UserApiKeyAuthProviderClient", () => {
     );
 
     try {
-      await apiKeyClient.fetchApiKey(new ObjectID());
+      await apiKeyClient.fetchApiKey(new BSON.ObjectID());
       fail("found a nonexistent key");
     } catch (e) {
       expect(e instanceof StitchServiceError).toBeTruthy();

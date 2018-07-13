@@ -55,7 +55,7 @@ import FetchTransport from "./internal/net/FetchTransport";
 import Method from "./internal/net/Method";
 import Response from "./internal/net/Response";
 import StitchAppAuthRoutes from "./internal/net/StitchAppAuthRoutes";
-import { StitchAppRoutes } from "./internal/net/StitchAppRoutes";
+import StitchAppRoutes from "./internal/net/StitchAppRoutes";
 import { StitchAuthRequest } from "./internal/net/StitchAuthRequest";
 import StitchRequestClient from "./internal/net/StitchRequestClient";
 import Transport from "./internal/net/Transport";

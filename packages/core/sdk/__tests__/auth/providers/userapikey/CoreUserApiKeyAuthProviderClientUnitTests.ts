@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ObjectID } from "bson";
+import BSON from "bson";
 import { anything, capture, instance, mock, verify, when } from "ts-mockito";
 import {
   CoreStitchAuth,
@@ -49,7 +49,7 @@ function testClientCall(
     ) as any)
   ).thenResolve({
     body: JSON.stringify(
-      new UserApiKey(new ObjectID().toHexString(), "2", "3", false)
+      new UserApiKey(new BSON.ObjectID().toHexString(), "2", "3", false)
     ),
     headers: {},
     statusCode: 200
@@ -62,7 +62,7 @@ function testClientCall(
     ) as any)
   ).thenResolve({
     body: JSON.stringify([
-      new UserApiKey(new ObjectID().toHexString(), "2", "3", false)
+      new UserApiKey(new BSON.ObjectID().toHexString(), "2", "3", false)
     ]),
     headers: {},
     statusCode: 200
@@ -75,7 +75,7 @@ function testClientCall(
     ) as any)
   ).thenResolve({
     body: JSON.stringify(
-      new UserApiKey(new ObjectID().toHexString(), "2", "3", false)
+      new UserApiKey(new BSON.ObjectID().toHexString(), "2", "3", false)
     ),
     headers: {},
     statusCode: 200
@@ -153,7 +153,7 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
 
   it("should fetch api key", () => {
     const routes = new StitchAppRoutes("my_app-12345").authRoutes;
-    const keyToFetch = new ObjectID();
+    const keyToFetch = new BSON.ObjectID();
     const expectedRequestBuilder = new StitchAuthRequest.Builder();
     expectedRequestBuilder
       .withMethod(Method.GET)
@@ -185,7 +185,7 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
 
   it("should enable api key", () => {
     const routes = new StitchAppRoutes("my_app-12345").authRoutes;
-    const keyToEnable = new ObjectID();
+    const keyToEnable = new BSON.ObjectID();
     const expectedRequestBuilder = new StitchAuthRequest.Builder();
     expectedRequestBuilder
       .withMethod(Method.PUT)
@@ -204,7 +204,7 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
 
   it("should disable api key", () => {
     const routes = new StitchAppRoutes("my_app-12345").authRoutes;
-    const keyToDisable = new ObjectID();
+    const keyToDisable = new BSON.ObjectID();
     const expectedRequestBuilder = new StitchAuthRequest.Builder();
     expectedRequestBuilder
       .withMethod(Method.PUT)
@@ -223,7 +223,7 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
 
   it("should delete api key", () => {
     const routes = new StitchAppRoutes("my_app-12345").authRoutes;
-    const keyToDelete = new ObjectID();
+    const keyToDelete = new BSON.ObjectID();
     const expectedRequestBuilder = new StitchAuthRequest.Builder();
     expectedRequestBuilder
       .withMethod(Method.DELETE)
