@@ -18,7 +18,9 @@ import ProviderCapabilities from "../../ProviderCapabilities";
 import StitchCredential from "../../StitchCredential";
 import FacebookAuthProvider from "./FacebookAuthProvider";
 
-const ACCESS_TOKEN: string = "accessToken";
+enum Fields {
+  ACCESS_TOKEN = "accessToken"
+}
 
 export default class FacebookCredential implements StitchCredential {
   public readonly providerName: string;
@@ -32,13 +34,10 @@ export default class FacebookCredential implements StitchCredential {
   ) {
     this.providerName = providerName;
     this.accessToken = accessToken;
+    this.material = { [Fields.ACCESS_TOKEN]: this.accessToken };
   }
 
-  public get material(): { [key: string]: string } {
-    return {
-      [ACCESS_TOKEN]: this.accessToken
-    };
-  }
+  public readonly material: { [key: string]: string };
 
   public get providerCapabilities(): ProviderCapabilities {
     return new ProviderCapabilities(false);

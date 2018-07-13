@@ -18,7 +18,9 @@ import ProviderCapabilities from "../../ProviderCapabilities";
 import StitchCredential from "../../StitchCredential";
 import CustomAuthProvider from "./CustomAuthProvider";
 
-const TOKEN: string = "token";
+enum Fields {
+  TOKEN = "token"
+}
 
 /**
  * A credential which can be used to log in as a Stitch user
@@ -38,6 +40,10 @@ export default class CustomCredential implements StitchCredential {
    */
   public readonly providerCapabilities = new ProviderCapabilities(false);
   /**
+   * The contents of this credential as they will be passed to the Stitch server.
+   */
+  public readonly material: { [key: string]: string };
+  /**
    * The JWT contained within this credential.
    */
   private token: string;
@@ -48,12 +54,6 @@ export default class CustomCredential implements StitchCredential {
   ) {
     this.providerName = providerName;
     this.token = token;
-  }
-
-  /**
-   * The contents of this credential as they will be passed to the Stitch server.
-   */
-  public get material(): { [key: string]: string } {
-    return { [TOKEN]: this.token };
+    this.material = { [Fields.TOKEN]: this.token };
   }
 }
