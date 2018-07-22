@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import * as EJSON from "mongodb-extjson";
-import { Codec, Method, StitchAuthRequest, Encoder } from "mongodb-stitch-core-sdk";
-import { applyMixins, BasicResource, Listable, Creatable } from "../Resources";
-import { AppResource } from "../app/AppResource";
-import { StitchAdminAppRoutes } from "../StitchAdminResourceRoutes";
+import { Codec, Encoder } from "../../../../sdk/dist/esm";
+import { applyMixins, BasicResource, Creatable, Listable } from "../../Resources";
+import AppRoutes from "../routes/AppRoutes";
+import AppsRoutes from "../routes/AppsRoutes";
+import AppResource from "./AppResource";
 
 enum Fields {
   Id = "_id",
@@ -64,7 +64,10 @@ export class AppResponseCodec implements Codec<AppResponse> {
   }
 }
 
-export class AppsResource extends BasicResource implements Listable<AppResponse>, Creatable<AppCreator, AppResponse> {
+export class AppsResource 
+  extends BasicResource<AppsRoutes>
+  implements Listable<AppResponse, AppsRoutes>, Creatable<AppCreator, AppResponse, AppsRoutes> {
+
   public readonly codec = new AppResponseCodec();
   public readonly creatorCodec = new AppCreatorCodec();
 
@@ -76,7 +79,7 @@ export class AppsResource extends BasicResource implements Listable<AppResponse>
   public app(appId: string): AppResource {
     return new AppResource(
       this.authRequestClient,
-      new StitchAdminAppRoutes(`${this.routes.baseRoute}/${appId}`)
+      new AppRoutes(this.routes, appId)
     );
   }
 }

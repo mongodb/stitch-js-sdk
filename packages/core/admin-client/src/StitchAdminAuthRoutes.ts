@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-import { StitchAuthRoutes } from "mongodb-stitch-core-sdk";
-import StitchAdminClient from "./StitchAdminClient";
+import { StitchAuthRoutes } from "../../sdk/dist/esm";
 
 /**
  * The set of authentication routes on the Stitch server to authenticate as an admin user.
  */
 export default class StitchAdminAuthRoutes implements StitchAuthRoutes {
   get baseAuthRoute(): string {
-    return `${StitchAdminClient.apiPath}/auth`;
+    return `${this.apiPath}/auth`;
   }
 
   /**
@@ -39,6 +38,9 @@ export default class StitchAdminAuthRoutes implements StitchAuthRoutes {
     return `${this.baseAuthRoute}/profile`;
   }
 
+  constructor(private readonly apiPath: string) {
+
+  }
   /**
    * Returns the route on the server for a particular authentication provider.
    */

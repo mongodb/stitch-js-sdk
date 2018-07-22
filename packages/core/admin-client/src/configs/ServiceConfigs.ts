@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
+import { Codec } from "../../../sdk/dist/esm";
 
 export interface ServiceConfig {
   readonly name: string;

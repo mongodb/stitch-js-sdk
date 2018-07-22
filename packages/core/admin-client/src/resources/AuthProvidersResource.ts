@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
-import { AuthProviderResource, AuthProvidersResource } from "../Resources";
+import { Codec } from "../../../../sdk/dist/esm";
+import AuthProvidersRoutes from "../../authProviders/routes/AuthProvidersRoutes";
+import { ProviderConfig, ProviderConfigCodec } from "../../configs/AuthProviderConfigs";
+import { applyMixins, BasicResource, Creatable, Listable } from "../../Resources";
+import AuthProviderRoutes from "../routes/AuthProviderRoutes";
+import AuthProviderResource from "./AuthProviderResource";
 
 /// View into a specific auth provider
 enum Fields {
@@ -55,3 +59,25 @@ export class AuthProviderResponseCodec implements Codec<AuthProviderResponse> {
     };
   }
 }
+
+// / Resource for listing the auth providers of an application
+export class AuthProvidersResource extends BasicResource<AuthProvidersRoutes>
+  implements
+    Listable<AuthProviderResponse, AuthProvidersRoutes>,
+    Creatable<ProviderConfig, AuthProviderResponse, AuthProvidersRoutes> {
+  public readonly codec = new AuthProviderResponseCodec();
+  public readonly creatorCodec = new ProviderConfigCodec();
+
+  public create: (data: ProviderConfig) => Promise<AuthProviderResponse>;
+  public list: () => Promise<AuthProviderResponse[]>;
+
+  /// GET an auth provider
+  /// - parameter providerId: id of the provider
+  public authProvider(providerId: string): AuthProviderResource {
+    return new AuthProviderResource(
+      this.authRequestClient,
+      new AuthProviderRoutes(this.routes, providerId)
+    );
+  }
+}
+applyMixins(AuthProvidersResource, [Listable, Creatable]);

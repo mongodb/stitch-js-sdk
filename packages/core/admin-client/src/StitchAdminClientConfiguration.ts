@@ -1,4 +1,4 @@
-import { Storage, Transport } from "../node_modules/mongodb-stitch-core-sdk";
+import { Storage, Transport } from "../../sdk/dist/esm";
 
 /** @hidden */
 export class StitchAdminClientConfiguration {

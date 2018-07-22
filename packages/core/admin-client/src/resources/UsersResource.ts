@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
-import { UserResource } from "../Resources";
+import { Codec } from "../../../../sdk/dist/esm";
+import { applyMixins, BasicResource, Creatable, Listable, UserResource } from "../../Resources";
+import UsersRoutes from "../routes/UsersRoutes";
 
 // / Creates a new user for an application
 export interface UserCreator {
@@ -62,6 +63,20 @@ export class UserResponseCodec implements Codec<UserResponse> {
   }
 }
 
-interface Users {
-  user(uid: string): UserResource;
+// / Resource for a list of users of an application
+export class UsersResource extends BasicResource<UsersRoutes>
+  implements Listable<UserResponse, UsersRoutes>, Creatable<UserCreator, UserResponse, UsersRoutes> {
+  public readonly codec = new UserResponseCodec();
+  public readonly creatorCodec = new UserCreatorCodec();
+
+  public create: (data: UserCreator) => Promise<UserResponse>;
+  public list: () => Promise<UserResponse[]>;
+
+  public user(uid: string): UserResource {
+    return new UserResource(
+      this.authRequestClient, 
+      this.routes.getUserRoutes(uid)
+    );
+  }
 }
+applyMixins(UsersResource, [Listable, Creatable]);

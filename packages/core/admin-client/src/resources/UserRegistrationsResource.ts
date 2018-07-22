@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
+import { Codec, Method, StitchAuthRequest } from "../../../../sdk/dist/esm";
+import { BasicResource } from "../../Resources";
+import UserRegistrationRoutes from "../routes/UserRegistrationsRoutes";
 
 enum Fields {
   Token = "token",
@@ -44,5 +46,22 @@ export class ConfirmationEmailCodec implements Codec<ConfirmationEmail> {
       [Fields.Token]: from.token,
       [Fields.TokenId]: from.tokenId
     };
+  }
+}
+
+
+// / Resource for user registrations of an application
+export class UserRegistrationsResource extends BasicResource<UserRegistrationRoutes> {
+  public sendConfirmation(email: string): Promise<ConfirmationEmail> {
+    const reqBuilder = new StitchAuthRequest.Builder();
+    reqBuilder
+      .withMethod(Method.POST)
+      .withPath(this.routes.getSendConfirmationRoute(email));
+
+    return this.authRequestClient
+      .doAuthenticatedRequest(reqBuilder.build())
+      .then(response =>
+        new ConfirmationEmailCodec().decode(JSON.parse(response.body!))
+      );
   }
 }

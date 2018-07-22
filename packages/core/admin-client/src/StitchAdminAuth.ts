@@ -22,7 +22,7 @@ import {
   StitchRequestClient,
   StitchUserFactory,
   Storage
-} from "mongodb-stitch-core-sdk";
+} from "../../sdk/dist/esm";
 import { StitchAdminUser, StitchAdminUserFactory } from "./StitchAdminUser";
 
 /**

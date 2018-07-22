@@ -16,13 +16,10 @@
 
 import {
   CoreStitchUser,
-  Method,
-  StitchAuthRequest,
   StitchUserFactory,
   StitchUserIdentity,
-  StitchUserProfile,
   StitchUserProfileImpl
-} from "mongodb-stitch-core-sdk";
+} from "../../sdk/dist/esm";
 import { StitchAdminUserProfile } from "./StitchAdminUserProfile";
 
 class StitchAdminUser implements CoreStitchUser {

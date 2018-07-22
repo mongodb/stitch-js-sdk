@@ -1,3 +1,9 @@
+import { Codec } from "../../../../sdk/dist/esm";
+import { ServiceConfig, ServiceConfigCodec } from "../../configs/ServiceConfigs";
+import { applyMixins, BasicResource, Creatable, Listable } from "../../Resources";
+import ServicesRoutes from "../routes/ServicesRoutes";
+import ServiceResource from "./ServiceResource";
+
 /**
  * Copyright 2018-present MongoDB, Inc.
  *
@@ -13,8 +19,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { Codec } from "mongodb-stitch-core-sdk";
 
 enum Fields {
   Id = "_id",
@@ -45,3 +49,25 @@ export class ServiceResponseCodec implements Codec<ServiceResponse> {
     };
   }
 }
+
+// / Resource for listing services of an application
+export class ServicesResource extends BasicResource<ServicesRoutes>
+  implements
+    Listable<ServiceResponse, ServicesRoutes>,
+    Creatable<ServiceConfig, ServiceResponse, ServicesRoutes> {
+  public creatorCodec = new ServiceConfigCodec();
+  public codec = new ServiceResponseCodec();
+
+  public list: () => Promise<ServiceResponse[]>;
+  public create: (data: ServiceConfig) => Promise<ServiceResponse>;
+
+  // / GET a service
+  // / - parameter id: id of the requested service
+  public service(id: string): ServiceResource {
+    return new ServiceResource(
+      this.authRequestClient,
+      this.routes.getServiceRoutes(id)
+    );
+  }
+}
+applyMixins(ServicesResource, [Listable, Creatable]);

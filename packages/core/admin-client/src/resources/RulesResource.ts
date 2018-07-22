@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import { Codec, Encoder } from "mongodb-stitch-core-sdk";
+import { Codec, Encoder } from "../../../../sdk/dist/esm";
+import { applyMixins, BasicResource, Creatable, Listable } from "../../Resources";
+import RulesRoutes from "../routes/RulesRoutes";
 
 export enum AwsS3Actions {
   Put = "put",
@@ -80,8 +82,10 @@ export class RuleCreatorCodec implements Encoder<RuleCreator> {
 }
 
 export class MongoDbCodec implements Encoder<MongoDbRuleCreator> {
+  private static NamespaceKey = "namespace";
+
   public encode(from: MongoDbRuleCreator): object {
-    from.rule["namespace"] = from.namespace;
+    from.rule[MongoDbCodec.NamespaceKey] = from.namespace;
     return from.rule;
   }
 }
@@ -97,3 +101,14 @@ export class RuleResponseCodec implements Codec<RuleResponse> {
     return {};
   }
 }
+
+// / Resource for listing the rules of a service
+export class RulesResource extends BasicResource<RulesRoutes>
+  implements Listable<RuleResponse, RulesRoutes>, Creatable<RuleCreator, RuleResponse, RulesRoutes> {
+  public creatorCodec = new RuleCreatorCodec();
+  public codec = new RuleResponseCodec();
+
+  public create: (data: RuleCreator) => Promise<RuleResponse>;
+  public list: () => Promise<RuleResponse[]>;
+}
+applyMixins(RulesResource, [Creatable, Listable]);

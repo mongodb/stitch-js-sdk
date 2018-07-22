@@ -18,21 +18,26 @@ import {
   FetchTransport,
   MemoryStorage,
   StitchRequestClient,
-} from "mongodb-stitch-core-sdk";
-import { AppsResource } from "./apps/AppsResources";
+} from "../../sdk/dist/esm";
+import AppsRoutes from "./apps/routes/AppsRoutes";
+import { AppsResource } from "./internal/resources/AppsResource";
 import StitchAdminAuth from "./StitchAdminAuth";
 import StitchAdminAuthRoutes from "./StitchAdminAuthRoutes";
 import { StitchAdminClientConfiguration } from "./StitchAdminClientConfiguration";
+import { StitchAdminResourceRoutes } from "./StitchAdminResourceRoutes";
 import {
   StitchAdminUserProfile,
   StitchAdminUserProfileCodec
 } from "./StitchAdminUserProfile";
 
+const apiPath = "/api/admin/v3.0";
+const defaultServerUrl = "https://stitch.mongodb.com";
+
 export default class StitchAdminClient {
-  public static readonly apiPath = "/api/admin/v3.0";
-  public static readonly defaultServerUrl = "http://localhost:9090";
+  
 
   private readonly adminAuth: StitchAdminAuth;
+  private readonly resourceRoutes = new StitchAdminResourceRoutes(apiPath);
   private readonly authRoutes: StitchAdminAuthRoutes;
 
   public constructor(
@@ -41,7 +46,7 @@ export default class StitchAdminClient {
     const builder = adminClientConfiguration.builder();
 
     if (builder.baseUrl === undefined) {
-      builder.withBaseUrl("https://stitch.mongodb.com")
+      builder.withBaseUrl(defaultServerUrl)
     }
     if (builder.storage === undefined) {
       builder.withStorage(new MemoryStorage("<admin>"))
@@ -64,7 +69,7 @@ export default class StitchAdminClient {
   public apps(groupId: string): AppsResource {
     return new AppsResource(
       this.adminAuth,
-      `${StitchAdminClient.apiPath}/groups/${groupId}/apps`
+      new AppsRoutes(this.resourceRoutes, groupId)
     );
   }
 }
