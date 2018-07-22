@@ -17,16 +17,12 @@
 import {
   FetchTransport,
   MemoryStorage,
-  Method,
-  StitchAuthRequest,
-  StitchCredential,
   StitchRequestClient,
-  Transport
 } from "mongodb-stitch-core-sdk";
-import { Apps } from "./Resources";
+import { AppsResource } from "./apps/AppsResources";
 import StitchAdminAuth from "./StitchAdminAuth";
 import StitchAdminAuthRoutes from "./StitchAdminAuthRoutes";
-import { StitchAdminUser } from "./StitchAdminUser";
+import { StitchAdminClientConfiguration } from "./StitchAdminClientConfiguration";
 import {
   StitchAdminUserProfile,
   StitchAdminUserProfileCodec
@@ -35,53 +31,40 @@ import {
 export default class StitchAdminClient {
   public static readonly apiPath = "/api/admin/v3.0";
   public static readonly defaultServerUrl = "http://localhost:9090";
-  public static readonly defaultRequestTimeout = 15.0;
 
   private readonly adminAuth: StitchAdminAuth;
   private readonly authRoutes: StitchAdminAuthRoutes;
 
   public constructor(
-    baseUrl: string = StitchAdminClient.defaultServerUrl,
-    transport: Transport = new FetchTransport(),
-    requestTimeout: number = StitchAdminClient.defaultRequestTimeout
+    adminClientConfiguration: StitchAdminClientConfiguration
   ) {
-    const requestClient = new StitchRequestClient(baseUrl, transport);
+    const builder = adminClientConfiguration.builder();
+
+    if (builder.baseUrl === undefined) {
+      builder.withBaseUrl("https://stitch.mongodb.com")
+    }
+    if (builder.storage === undefined) {
+      builder.withStorage(new MemoryStorage("<admin>"))
+    }
+    if (builder.transport === undefined) {
+      builder.transport = new FetchTransport();
+    }
+
+    const requestClient = new StitchRequestClient(builder.baseUrl, builder.transport);
 
     this.authRoutes = new StitchAdminAuthRoutes();
 
     this.adminAuth = new StitchAdminAuth(
       requestClient,
       this.authRoutes,
-      new MemoryStorage("<admin>")
+      builder.storage
     );
   }
 
-  public adminProfile(): Promise<StitchAdminUserProfile> {
-    const req = new StitchAuthRequest.Builder()
-      .withMethod(Method.GET)
-      .withPath(this.authRoutes.profileRoute)
-      .build();
-
-    return this.adminAuth.doAuthenticatedRequestWithDecoder(
-      req,
-      new StitchAdminUserProfileCodec()
-    );
-  }
-
-  public apps(groupId: string): Apps {
-    return new Apps(
+  public apps(groupId: string): AppsResource {
+    return new AppsResource(
       this.adminAuth,
       `${StitchAdminClient.apiPath}/groups/${groupId}/apps`
     );
-  }
-
-  public loginWithCredential(
-    credential: StitchCredential
-  ): Promise<StitchAdminUser> {
-    return this.adminAuth.loginWithCredentialInternal(credential);
-  }
-
-  public logout(): Promise<void> {
-    return this.adminAuth.logoutInternal();
   }
 }

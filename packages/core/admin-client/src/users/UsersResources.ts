@@ -15,7 +15,7 @@
  */
 
 import { Codec } from "mongodb-stitch-core-sdk";
-import { User } from "../Resources";
+import { UserResource } from "../Resources";
 
 // / Creates a new user for an application
 export interface UserCreator {
@@ -63,5 +63,5 @@ export class UserResponseCodec implements Codec<UserResponse> {
 }
 
 interface Users {
-  user(uid: string): User;
+  user(uid: string): UserResource;
 }

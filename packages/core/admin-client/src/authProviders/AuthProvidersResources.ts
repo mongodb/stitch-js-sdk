@@ -15,7 +15,7 @@
  */
 
 import { Codec } from "mongodb-stitch-core-sdk";
-import { AuthProvider, AuthProviders } from "../Resources";
+import { AuthProviderResource, AuthProvidersResource } from "../Resources";
 
 /// View into a specific auth provider
 enum Fields {

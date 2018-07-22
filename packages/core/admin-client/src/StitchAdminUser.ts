@@ -16,11 +16,14 @@
 
 import {
   CoreStitchUser,
+  Method,
+  StitchAuthRequest,
   StitchUserFactory,
   StitchUserIdentity,
   StitchUserProfile,
   StitchUserProfileImpl
 } from "mongodb-stitch-core-sdk";
+import { StitchAdminUserProfile } from "./StitchAdminUserProfile";
 
 class StitchAdminUser implements CoreStitchUser {
   /**
@@ -72,6 +75,19 @@ class StitchAdminUser implements CoreStitchUser {
     this.loggedInProviderName = providerName;
     this.profile = userProfile;
   }
+
+  /* TODO: Solve this
+  // public adminProfile(): Promise<StitchAdminUserProfile> {
+  //   const req = new StitchAuthRequest.Builder()
+  //     .withMethod(Method.GET)
+  //     .withPath(this.authRoutes.profileRoute)
+  //     .build();
+
+  //   return this.adminAuth.doAuthenticatedRequestWithDecoder(
+  //     req,
+  //     new StitchAdminUserProfileCodec()
+  //   );
+  // }*/
 }
 
 class StitchAdminUserFactory implements StitchUserFactory<StitchAdminUser> {

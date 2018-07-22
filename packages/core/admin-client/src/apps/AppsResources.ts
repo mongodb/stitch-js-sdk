@@ -15,13 +15,25 @@
  */
 
 import * as EJSON from "mongodb-extjson";
-import { Codec, Method, StitchAuthRequest } from "mongodb-stitch-core-sdk";
-import { App, Apps, checkEmpty } from "../Resources";
+import { Codec, Method, StitchAuthRequest, Encoder } from "mongodb-stitch-core-sdk";
+import { applyMixins, BasicResource, Listable, Creatable } from "../Resources";
+import { AppResource } from "../app/AppResource";
+import { StitchAdminAppRoutes } from "../StitchAdminResourceRoutes";
 
 enum Fields {
   Id = "_id",
   Name = "name",
   ClientAppId = "client_app_id"
+}
+
+export interface AppCreator {
+  readonly name: string;
+}
+
+export class AppCreatorCodec implements Encoder<AppCreator> {
+  public encode(from: AppCreator): object {
+    return {[Fields.Name]: from.name}
+  }
 }
 
 /// View into a specific application
@@ -51,3 +63,21 @@ export class AppResponseCodec implements Codec<AppResponse> {
     };
   }
 }
+
+export class AppsResource extends BasicResource implements Listable<AppResponse>, Creatable<AppCreator, AppResponse> {
+  public readonly codec = new AppResponseCodec();
+  public readonly creatorCodec = new AppCreatorCodec();
+
+  public list: () => Promise<AppResponse[]>;
+  public create: (data: AppCreator) => Promise<AppResponse>;
+
+  /// GET an application
+  /// - parameter id: id for the application
+  public app(appId: string): AppResource {
+    return new AppResource(
+      this.authRequestClient,
+      new StitchAdminAppRoutes(`${this.routes.baseRoute}/${appId}`)
+    );
+  }
+}
+applyMixins(AppsResource, [Listable]);

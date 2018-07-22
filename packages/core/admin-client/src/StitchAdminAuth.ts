@@ -18,6 +18,7 @@ import {
   CoreStitchAuth,
   DeviceFields,
   StitchAuthRoutes,
+  StitchCredential,
   StitchRequestClient,
   StitchUserFactory,
   Storage
@@ -50,6 +51,16 @@ export default class StitchAdminAuth extends CoreStitchAuth<StitchAdminUser> {
     storage: Storage
   ) {
     super(requestClient, authRoutes, storage);
+  }
+
+  public loginWithCredential(
+    credential: StitchCredential
+  ): Promise<StitchAdminUser> {
+    return this.loginWithCredentialInternal(credential);
+  }
+
+  public logout(): Promise<void> {
+    return this.logoutInternal();
   }
 
   public onAuthEvent() {

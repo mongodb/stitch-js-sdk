@@ -17,15 +17,11 @@
 import * as EJSON from "mongodb-extjson";
 import {
   Codec,
-  Decoder,
   Encoder,
   Method,
-  Response,
   StitchAuthRequest,
-  StitchServiceErrorCode,
-  StitchServiceError
+  StitchAuthRequestClient,
 } from "mongodb-stitch-core-sdk";
-import { AppResponse, AppResponseCodec } from "./apps/AppsResources";
 import {
   AuthProviderResponse,
   AuthProviderResponseCodec
@@ -51,7 +47,7 @@ import {
   ServiceResponse,
   ServiceResponseCodec
 } from "./services/ServicesResources";
-import StitchAdminAuth from "./StitchAdminAuth";
+import { StitchAdminRoutes } from "./StitchAdminResourceRoutes";
 import {
   ConfirmationEmail,
   ConfirmationEmailCodec
@@ -63,7 +59,7 @@ import {
   UserResponseCodec
 } from "./users/UsersResources";
 
-function applyMixins(derivedCtor: any, baseCtors: any[]) {
+export function applyMixins(derivedCtor: any, baseCtors: any[]) {
   baseCtors.forEach(baseCtor => {
     Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
       derivedCtor.prototype[name] = baseCtor.prototype[name];
@@ -71,35 +67,14 @@ function applyMixins(derivedCtor: any, baseCtors: any[]) {
   });
 }
 
-/// Any endpoint that can be described with basic
-/// CRUD operations
-interface Resource {
-  /// path to this endpoint
-  url: string;
-  /// stitch admin auth for making requests
-  adminAuth: StitchAdminAuth;
-}
-
 /// Base implementation of Resource Protocol
-class BasicResource implements Resource {
-  public url: string;
-  public adminAuth: StitchAdminAuth;
+export class BasicResource {
+  public routes: StitchAdminRoutes;
+  public authRequestClient: StitchAuthRequestClient;
 
-  constructor(adminAuth: StitchAdminAuth, url: string) {
-    this.adminAuth = adminAuth;
-    this.url = url;
-  }
-}
-
-/**
- * Throws an error if the provided `Response` has an empty body.
- */
-function checkEmpty(response: Response) {
-  if (response.body === undefined) {
-    throw new StitchServiceError(
-      "unexpected empty response",
-      StitchServiceErrorCode.Unknown
-    );
+  constructor(authRequestClient: StitchAuthRequestClient, routes: StitchAdminRoutes) {
+    this.authRequestClient = authRequestClient;
+    this.routes = routes;
   }
 }
 
@@ -109,13 +84,12 @@ class Listable<T> extends BasicResource {
 
   public list(): Promise<T[]> {
     const reqBuilder = new StitchAuthRequest.Builder();
-    reqBuilder.withMethod(Method.GET).withPath(this.url);
+    reqBuilder.withMethod(Method.GET).withPath(this.routes.baseRoute);
 
-    return this.adminAuth
+    return this.authRequestClient
       .doAuthenticatedRequest(reqBuilder.build())
-      .then(response => {
-        return EJSON.parse(response.body!).map(val => this.codec.decode(val));
-      });
+      .then(response =>
+        EJSON.parse(response.body!).map(val => this.codec.decode(val)));
   }
 }
 
@@ -125,13 +99,12 @@ class Gettable<T> extends BasicResource {
 
   public get(): Promise<T> {
     const reqBuilder = new StitchAuthRequest.Builder();
-    reqBuilder.withMethod(Method.GET).withPath(this.url);
+    reqBuilder.withMethod(Method.GET).withPath(this.routes.baseRoute);
 
-    return this.adminAuth
+    return this.authRequestClient
       .doAuthenticatedRequest(reqBuilder.build())
-      .then(response => {
-        return this.codec.decode(EJSON.parse(response.body!));
-      });
+      .then(response =>
+        this.codec.decode(EJSON.parse(response.body!)));
   }
 }
 
@@ -139,9 +112,9 @@ class Gettable<T> extends BasicResource {
 class Removable extends BasicResource {
   public remove(): Promise<void> {
     const reqBuilder = new StitchAuthRequest.Builder();
-    reqBuilder.withMethod(Method.DELETE).withPath(this.url);
+    reqBuilder.withMethod(Method.DELETE).withPath(this.routes.baseRoute);
 
-    return this.adminAuth
+    return this.authRequestClient
       .doAuthenticatedRequest(reqBuilder.build())
       .then(() => {
         return;
@@ -158,14 +131,13 @@ class Creatable<Creator, T> extends BasicResource {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
       .withMethod(Method.POST)
-      .withPath(this.url)
+      .withPath(this.routes.baseRoute)
       .withBody(EJSON.stringify(this.creatorCodec.encode(data)));
 
-    return this.adminAuth
+    return this.authRequestClient
       .doAuthenticatedRequest(reqBuilder.build())
-      .then(response => {
-        return this.codec.decode(EJSON.parse(response.body!));
-      });
+      .then(response =>
+        this.codec.decode(EJSON.parse(response.body!)));
   }
 }
 
@@ -177,10 +149,10 @@ class Updatable<T> extends BasicResource {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
       .withMethod(Method.PUT)
-      .withPath(this.url)
+      .withPath(this.routes.baseRoute)
       .withBody(EJSON.stringify(data));
 
-    return this.adminAuth
+    return this.authRequestClient
       .doAuthenticatedRequest(reqBuilder.build())
       .then(response =>
         this.updatableCodec.decode(EJSON.parse(response.body!))
@@ -192,9 +164,9 @@ class Updatable<T> extends BasicResource {
 class Enablable extends BasicResource {
   public enable(): Promise<void> {
     const reqBuilder = new StitchAuthRequest.Builder();
-    reqBuilder.withMethod(Method.PUT).withPath(`${this.url}/enable`);
+    reqBuilder.withMethod(Method.PUT).withPath(`${this.routes.baseRoute}/enable`);
 
-    return this.adminAuth
+    return this.authRequestClient
       .doAuthenticatedRequest(reqBuilder.build())
       .then(() => {
         return;
@@ -206,9 +178,9 @@ class Enablable extends BasicResource {
 class Disablable extends BasicResource {
   public disable(): Promise<void> {
     const reqBuilder = new StitchAuthRequest.Builder();
-    reqBuilder.withMethod(Method.PUT).withPath(`${this.url}/disable`);
+    reqBuilder.withMethod(Method.PUT).withPath(`${this.routes.baseRoute}/disable`);
 
-    return this.adminAuth
+    return this.authRequestClient
       .doAuthenticatedRequest(reqBuilder.build())
       .then(() => {
         return;
@@ -217,7 +189,7 @@ class Disablable extends BasicResource {
 }
 
 // / Resource for a specific auth provider of an application
-class AuthProvider extends BasicResource
+class AuthProviderResource extends BasicResource
   implements
     Gettable<AuthProviderResponse>,
     Updatable<AuthProviderResponse>,
@@ -233,7 +205,7 @@ class AuthProvider extends BasicResource
   public enable: () => Promise<void>;
   public disable: () => Promise<void>;
 }
-applyMixins(AuthProvider, [
+applyMixins(AuthProviderResource, [
   Gettable,
   Updatable,
   Removable,
@@ -242,7 +214,7 @@ applyMixins(AuthProvider, [
 ]);
 
 // / Resource for listing the auth providers of an application
-class AuthProviders extends BasicResource
+class AuthProvidersResource extends BasicResource
   implements
     Listable<AuthProviderResponse>,
     Creatable<ProviderConfig, AuthProviderResponse> {
@@ -254,21 +226,21 @@ class AuthProviders extends BasicResource
 
   /// GET an auth provider
   /// - parameter providerId: id of the provider
-  public authProvider(providerId: string): AuthProvider {
-    return new AuthProvider(this.adminAuth, `${this.url}/${providerId}`);
+  public authProvider(providerId: string): AuthProviderResource {
+    return new AuthProviderResource(this.authRequestClient, `${this.url}/${providerId}`);
   }
 }
-applyMixins(AuthProviders, [Listable, Creatable]);
+applyMixins(AuthProvidersResource, [Listable, Creatable]);
 
 // / Resource for user registrations of an application
-class UserRegistrations extends BasicResource {
+class UserRegistrationsResource extends BasicResource {
   public sendConfirmation(email: string): Promise<ConfirmationEmail> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
       .withMethod(Method.POST)
       .withPath(`${this.url}/by_email/${email}/send_confirm`);
 
-    return this.adminAuth
+    return this.authRequestClient
       .doAuthenticatedRequest(reqBuilder.build())
       .then(response =>
         new ConfirmationEmailCodec().decode(JSON.parse(response.body!))
@@ -277,16 +249,16 @@ class UserRegistrations extends BasicResource {
 }
 
 // / Resource for a single user of an application
-class User extends BasicResource implements Gettable<UserResponse>, Removable {
+class UserResource extends BasicResource implements Gettable<UserResponse>, Removable {
   public readonly codec = new UserResponseCodec();
 
   public get: () => Promise<AuthProviderResponse>;
   public remove: () => Promise<void>;
 }
-applyMixins(User, [Gettable, Removable]);
+applyMixins(UserResource, [Gettable, Removable]);
 
 // / Resource for a list of users of an application
-class Users extends BasicResource
+class UsersResource extends BasicResource
   implements Listable<UserResponse>, Creatable<UserCreator, UserResponse> {
   public readonly codec = new UserResponseCodec();
   public readonly creatorCodec = new UserCreatorCodec();
@@ -294,13 +266,13 @@ class Users extends BasicResource
   public create: (data: UserCreator) => Promise<UserResponse>;
   public list: () => Promise<UserResponse[]>;
 
-  public user(uid: string): User {
-    return new User(this.adminAuth, `${this.url}/${uid}`);
+  public user(uid: string): UserResource {
+    return new UserResource(this.authRequestClient, `${this.url}/${uid}`);
   }
 }
-applyMixins(Users, [Listable, Creatable]);
+applyMixins(UsersResource, [Listable, Creatable]);
 
-class Function extends BasicResource
+class FunctionResource extends BasicResource
   implements Gettable<FunctionResponse>, Updatable<FunctionCreator>, Removable {
   public readonly codec = new FunctionResponseCodec();
   public readonly updatableCodec = new FunctionCreatorCodec();
@@ -309,9 +281,9 @@ class Function extends BasicResource
   public update: (data: FunctionCreator) => Promise<FunctionCreator>;
   public remove: () => Promise<void>;
 }
-applyMixins(Function, [Gettable, Updatable, Removable]);
+applyMixins(FunctionResource, [Gettable, Updatable, Removable]);
 
-class Functions extends BasicResource
+class FunctionsResource extends BasicResource
   implements
     Listable<FunctionResponse>,
     Creatable<FunctionCreator, FunctionResponse> {
@@ -323,24 +295,24 @@ class Functions extends BasicResource
 
   // TSLint has an issue that the name of our class is Function
   /* tslint:disable */
-  public function(fid: string): Function {
-    return new Function(this.adminAuth, `${this.url}/${fid}`);
+  public function(fid: string): FunctionResource {
+    return new FunctionResource(this.authRequestClient, `${this.url}/${fid}`);
   }
   /* tslint:enable */
 }
-applyMixins(Functions, [Creatable, Listable]);
+applyMixins(FunctionsResource, [Creatable, Listable]);
 
 // / Resource for a specific rule of a service
-class Rule extends BasicResource implements Gettable<RuleResponse>, Removable {
+class RuleResource extends BasicResource implements Gettable<RuleResponse>, Removable {
   public codec = new RuleResponseCodec();
 
   public get: () => Promise<RuleResponse>;
   public remove: () => Promise<void>;
 }
-applyMixins(Rule, [Gettable, Removable]);
+applyMixins(RuleResource, [Gettable, Removable]);
 
 // / Resource for listing the rules of a service
-class Rules extends BasicResource
+class RulesResource extends BasicResource
   implements Listable<RuleResponse>, Creatable<RuleCreator, RuleResponse> {
   public creatorCodec = new RuleCreatorCodec();
   public codec = new RuleResponseCodec();
@@ -348,23 +320,23 @@ class Rules extends BasicResource
   public create: (data: RuleCreator) => Promise<RuleResponse>;
   public list: () => Promise<RuleResponse[]>;
 }
-applyMixins(Rules, [Creatable, Listable]);
+applyMixins(RulesResource, [Creatable, Listable]);
 
 // / Resource for a specific service of an application. Can fetch rules
 // / of the service
-class Service extends BasicResource
+class ServiceResource extends BasicResource
   implements Gettable<ServiceResponse>, Removable {
   public codec = new ServiceResponseCodec();
 
   public get: () => Promise<ServiceResponse>;
   public remove: () => Promise<void>;
 
-  public readonly rules = new Rules(this.adminAuth, `${this.url}/rules`);
+  public readonly rules = new RulesResource(this.authRequestClient, `${this.url}/rules`);
 }
-applyMixins(Service, [Gettable, Removable]);
+applyMixins(ServiceResource, [Gettable, Removable]);
 
 // / Resource for listing services of an application
-class Services extends BasicResource
+class ServicesResource extends BasicResource
   implements
     Listable<ServiceResponse>,
     Creatable<ServiceConfig, ServiceResponse> {
@@ -376,90 +348,29 @@ class Services extends BasicResource
 
   // / GET a service
   // / - parameter id: id of the requested service
-  public service(id: string): Service {
-    return new Service(this.adminAuth, `${this.url}/${id}`);
+  public service(id: string): ServiceResource {
+    return new ServiceResource(this.authRequestClient, `${this.url}/${id}`);
   }
 }
-applyMixins(Services, [Listable, Creatable]);
-
-class App extends BasicResource implements Gettable<AppResponse>, Removable {
-  public readonly codec = new AppResponseCodec();
-
-  public readonly authProviders = new AuthProviders(
-    this.adminAuth,
-    `${this.url}/auth_providers`
-  );
-  public readonly functions = new Functions(
-    this.adminAuth,
-    `${this.url}/functions`
-  );
-  public readonly services = new Services(
-    this.adminAuth,
-    `${this.url}/services`
-  );
-  public readonly users = new Users(this.adminAuth, `${this.url}/users`);
-  public readonly userRegistrations = new UserRegistrations(
-    this.adminAuth,
-    `${this.url}/user_registrations`
-  );
-
-  public get: () => Promise<AppResponse>;
-  public remove: () => Promise<void>;
-}
-applyMixins(App, [Gettable, Removable]);
-
-class Apps extends BasicResource implements Listable<AppResponse> {
-  public readonly codec = new AppResponseCodec();
-
-  public list: () => Promise<AppResponse[]>;
-
-  /// POST a new application
-  /// - parameter name: name of the new application
-  /// - parameter defaults: whether or not to enable default values
-  public create(name: string, defaults: boolean = false): Promise<AppResponse> {
-    const encodedApp = { name };
-    const req = new StitchAuthRequest.Builder()
-      .withMethod(Method.POST)
-      .withPath(`${this.url}?defaults=${defaults}`)
-      .withBody(JSON.stringify(encodedApp))
-      .build();
-
-    return this.adminAuth.doAuthenticatedRequest(req).then(response => {
-      checkEmpty(response);
-      return new AppResponseCodec().decode(EJSON.parse(response.body!));
-    });
-  }
-
-  /// GET an application
-  /// - parameter id: id for the application
-  public app(appId: string): App {
-    return new App(this.adminAuth, `${this.url}/${appId}`);
-  }
-}
-applyMixins(Apps, [Listable]);
+applyMixins(ServicesResource, [Listable, Creatable]);
 
 export {
-  Apps,
-  App,
-  BasicResource,
   Gettable,
   Updatable,
   Listable,
   Creatable,
   Enablable,
   Disablable,
-  Resource,
   Removable,
-  Services,
-  Service,
-  Rules,
-  Rule,
-  Functions,
-  Function,
-  Users,
-  User,
-  UserRegistrations,
-  AuthProvider,
-  AuthProviders,
-  checkEmpty
+  ServicesResource,
+  ServiceResource,
+  RulesResource,
+  RuleResource,
+  FunctionsResource,
+  FunctionResource,
+  UsersResource,
+  UserResource,
+  UserRegistrationsResource,
+  AuthProviderResource,
+  AuthProvidersResource
 };
