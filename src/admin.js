@@ -1,21 +1,26 @@
 /* global window, fetch */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
-import 'fetch-everywhere';
-import { newStitchClient, StitchClient } from './client';
-import ADMIN_CLIENT_TYPE from './common';
-import { ADMIN_CLIENT_CODEC } from './auth/common';
-import { StitchError } from './errors';
+import "fetch-everywhere";
+import { newStitchClient, StitchClient } from "./client";
+import ADMIN_CLIENT_TYPE from "./common";
+import { ADMIN_CLIENT_CODEC } from "./auth/common";
+import { StitchError } from "./errors";
 
 const v3 = 3;
 
 /** @private **/
 export class StitchAdminClientFactory {
   constructor() {
-    throw new StitchError('StitchAdminClient can only be made from the StitchAdminClientFactory.create function');
+    throw new StitchError(
+      "StitchAdminClient can only be made from the StitchAdminClientFactory.create function"
+    );
   }
 
   static create(baseUrl) {
-    return newStitchClient(StitchAdminClient.prototype, '', {baseUrl, authCodec: ADMIN_CLIENT_CODEC});
+    return newStitchClient(StitchAdminClient.prototype, "", {
+      baseUrl,
+      authCodec: ADMIN_CLIENT_CODEC
+    });
   }
 }
 
@@ -31,33 +36,31 @@ export class StitchAdminClient extends StitchClient {
 
   get _v3() {
     const v3do = (url, method, options) =>
-      super._do(
-        url,
-        method,
-        Object.assign({}, { apiVersion: v3 }, options)
-      ).then(response => {
-        const contentHeader = response.headers.get('content-type') || '';
-        if (contentHeader.split(',').indexOf('application/json') >= 0) {
-          return response.json();
-        }
-        return response;
-      });
+      super
+        ._do(url, method, Object.assign({}, { apiVersion: v3 }, options))
+        .then(response => {
+          const contentHeader = response.headers.get("content-type") || "";
+          if (contentHeader.split(",").indexOf("application/json") >= 0) {
+            return response.json();
+          }
+          return response;
+        });
 
     return {
-      _get: (url, queryParams) => v3do(url, 'GET', {queryParams}),
+      _get: (url, queryParams) => v3do(url, "GET", { queryParams }),
       _put: (url, data) =>
-        (data ?
-          v3do(url, 'PUT', {body: JSON.stringify(data)}) :
-          v3do(url, 'PUT')),
+        data
+          ? v3do(url, "PUT", { body: JSON.stringify(data) })
+          : v3do(url, "PUT"),
       _patch: (url, data) =>
-        (data ?
-          v3do(url, 'PATCH', {body: JSON.stringify(data)}) :
-          v3do(url, 'PATCH')),
-      _delete: (url)  => v3do(url, 'DELETE'),
+        data
+          ? v3do(url, "PATCH", { body: JSON.stringify(data) })
+          : v3do(url, "PATCH"),
+      _delete: url => v3do(url, "DELETE"),
       _post: (url, body, queryParams) =>
-        (queryParams ?
-          v3do(url, 'POST', { body: JSON.stringify(body), queryParams }) :
-          v3do(url, 'POST', { body: JSON.stringify(body) }))
+        queryParams
+          ? v3do(url, "POST", { body: JSON.stringify(body), queryParams })
+          : v3do(url, "POST", { body: JSON.stringify(body) })
     };
   }
 
@@ -67,7 +70,12 @@ export class StitchAdminClient extends StitchClient {
    * @returns {Promise}
    */
   logout() {
-    return super._do('/auth/session', 'DELETE', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v3 })
+    return super
+      ._do("/auth/session", "DELETE", {
+        refreshOnFailure: false,
+        useRefreshToken: true,
+        apiVersion: v3
+      })
       .then(() => this.auth.clear());
   }
 
@@ -77,7 +85,7 @@ export class StitchAdminClient extends StitchClient {
    * @returns {Promise}
    */
   userProfile() {
-    return this._v3._get('/auth/profile');
+    return this._v3._get("/auth/profile");
   }
 
   /**
@@ -86,7 +94,8 @@ export class StitchAdminClient extends StitchClient {
    * @returns {Promise}
    */
   getAuthProviders() {
-    return super._do('/auth/providers', 'GET', { noAuth: true, apiVersion: v3 })
+    return super
+      ._do("/auth/providers", "GET", { noAuth: true, apiVersion: v3 })
       .then(response => response.json());
   }
 
@@ -96,7 +105,12 @@ export class StitchAdminClient extends StitchClient {
    * @returns {Promise}
    */
   doSessionPost() {
-    return super._do('/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v3 })
+    return super
+      ._do("/auth/session", "POST", {
+        refreshOnFailure: false,
+        useRefreshToken: true,
+        apiVersion: v3
+      })
       .then(response => response.json());
   }
 
@@ -121,11 +135,11 @@ export class StitchAdminClient extends StitchClient {
     return {
       list: () => api._get(groupUrl),
       create: (data, options) => {
-        let query = (options && options.defaults) ? '?defaults=true' : '';
+        let query = options && options.defaults ? "?defaults=true" : "";
         return api._post(groupUrl + query, data);
       },
 
-      app: (appId) => {
+      app: appId => {
         const appUrl = `${groupUrl}/${appId}`;
         return {
           get: () => api._get(appUrl),
@@ -135,51 +149,63 @@ export class StitchAdminClient extends StitchClient {
 
           values: () => ({
             list: () => api._get(`${appUrl}/values`),
-            create: (data) => api._post( `${appUrl}/values`, data),
-            value: (valueId) => {
+            create: data => api._post(`${appUrl}/values`, data),
+            value: valueId => {
               const valueUrl = `${appUrl}/values/${valueId}`;
               return {
-                get: ()=> api._get(valueUrl),
-                remove: ()=> api._delete(valueUrl),
-                update: (data) => api._put(valueUrl, data)
+                get: () => api._get(valueUrl),
+                remove: () => api._delete(valueUrl),
+                update: data => api._put(valueUrl, data)
               };
             }
           }),
 
           services: () => ({
             list: () => api._get(`${appUrl}/services`),
-            create: (data) => api._post(`${appUrl}/services`, data),
-            service: (serviceId) => ({
+            create: data => api._post(`${appUrl}/services`, data),
+            service: serviceId => ({
               get: () => api._get(`${appUrl}/services/${serviceId}`),
               remove: () => api._delete(`${appUrl}/services/${serviceId}`),
-              update: (data) => api._patch(`${appUrl}/services/${serviceId}`, data),
-              runCommand: (commandName, data) => api._post(`${appUrl}/services/${serviceId}/commands/${commandName}`, data),
-              config: ()=> ({
+              update: data =>
+                api._patch(`${appUrl}/services/${serviceId}`, data),
+              runCommand: (commandName, data) =>
+                api._post(
+                  `${appUrl}/services/${serviceId}/commands/${commandName}`,
+                  data
+                ),
+              config: () => ({
                 get: () => api._get(`${appUrl}/services/${serviceId}/config`),
-                update: (data) => api._patch(`${appUrl}/services/${serviceId}/config`, data)
+                update: data =>
+                  api._patch(`${appUrl}/services/${serviceId}/config`, data)
               }),
 
               rules: () => ({
                 list: () => api._get(`${appUrl}/services/${serviceId}/rules`),
-                create: (data) => api._post(`${appUrl}/services/${serviceId}/rules`, data),
-                rule: (ruleId) => {
+                create: data =>
+                  api._post(`${appUrl}/services/${serviceId}/rules`, data),
+                rule: ruleId => {
                   const ruleUrl = `${appUrl}/services/${serviceId}/rules/${ruleId}`;
                   return {
                     get: () => api._get(ruleUrl),
-                    update: (data) => api._put(ruleUrl, data),
+                    update: data => api._put(ruleUrl, data),
                     remove: () => api._delete(ruleUrl)
                   };
                 }
               }),
 
               incomingWebhooks: () => ({
-                list: () => api._get(`${appUrl}/services/${serviceId}/incoming_webhooks`),
-                create: (data) => api._post(`${appUrl}/services/${serviceId}/incoming_webhooks`, data),
-                incomingWebhook: (incomingWebhookId) => {
+                list: () =>
+                  api._get(`${appUrl}/services/${serviceId}/incoming_webhooks`),
+                create: data =>
+                  api._post(
+                    `${appUrl}/services/${serviceId}/incoming_webhooks`,
+                    data
+                  ),
+                incomingWebhook: incomingWebhookId => {
                   const webhookUrl = `${appUrl}/services/${serviceId}/incoming_webhooks/${incomingWebhookId}`;
                   return {
                     get: () => api._get(webhookUrl),
-                    update: (data) => api._put(webhookUrl, data),
+                    update: data => api._put(webhookUrl, data),
                     remove: () => api._delete(webhookUrl)
                   };
                 }
@@ -188,20 +214,23 @@ export class StitchAdminClient extends StitchClient {
           }),
 
           pushNotifications: () => ({
-            list: (filter) => api._get(`${appUrl}/push/notifications`, filter),
-            create: (data) => api._post(`${appUrl}/push/notifications`, data),
-            pushNotification: (messageId) => ({
+            list: filter => api._get(`${appUrl}/push/notifications`, filter),
+            create: data => api._post(`${appUrl}/push/notifications`, data),
+            pushNotification: messageId => ({
               get: () => api._get(`${appUrl}/push/notifications/${messageId}`),
-              update: (data) => api._put(`${appUrl}/push/notifications/${messageId}`, data),
-              remove: () => api._delete(`${appUrl}/push/notifications/${messageId}`),
-              send: () => api._post(`${appUrl}/push/notifications/${messageId}/send`)
+              update: data =>
+                api._put(`${appUrl}/push/notifications/${messageId}`, data),
+              remove: () =>
+                api._delete(`${appUrl}/push/notifications/${messageId}`),
+              send: () =>
+                api._post(`${appUrl}/push/notifications/${messageId}/send`)
             })
           }),
 
           users: () => ({
-            list: (filter) => api._get(`${appUrl}/users`, filter),
-            create: (user) => api._post(`${appUrl}/users`, user),
-            user: (uid) => ({
+            list: filter => api._get(`${appUrl}/users`, filter),
+            create: user => api._post(`${appUrl}/users`, user),
+            user: uid => ({
               get: () => api._get(`${appUrl}/users/${uid}`),
               devices: () => ({
                 get: () => api._get(`${appUrl}/users/${uid}/devices`)
@@ -214,51 +243,66 @@ export class StitchAdminClient extends StitchClient {
           }),
 
           userRegistrations: () => ({
-            sendConfirmationEmail: (email) => api._post(`${appUrl}/user_registrations/by_email/${email}/send_confirm`)
+            sendConfirmationEmail: email =>
+              api._post(
+                `${appUrl}/user_registrations/by_email/${email}/send_confirm`
+              )
           }),
 
           debug: () => ({
-            executeFunction: (userId, name = '', ...args) => {
+            executeFunction: (userId, name = "", ...args) => {
               return api._post(
                 `${appUrl}/debug/execute_function`,
-                {name, 'arguments': args},
-                { user_id: userId });
+                { name, arguments: args },
+                { user_id: userId }
+              );
             },
-            executeFunctionSource: (userId, source = '', evalSource = '') => {
+            executeFunctionSource: ({
+              userId,
+              source = "",
+              evalSource = "",
+              runAsSystem
+            }) => {
               return api._post(
                 `${appUrl}/debug/execute_function_source`,
-                {source, 'eval_source': evalSource},
-                { user_id: userId });
+                { source, eval_source: evalSource },
+                { user_id: userId, run_as_system: runAsSystem }
+              );
             }
           }),
 
           authProviders: () => ({
             list: () => api._get(`${appUrl}/auth_providers`),
-            create: (data) => api._post(`${appUrl}/auth_providers`, data),
-            authProvider: (providerId) => ({
+            create: data => api._post(`${appUrl}/auth_providers`, data),
+            authProvider: providerId => ({
               get: () => api._get(`${appUrl}/auth_providers/${providerId}`),
-              update: (data) => api._patch(`${appUrl}/auth_providers/${providerId}`, data),
-              enable: () => api._put(`${appUrl}/auth_providers/${providerId}/enable`),
-              disable: () => api._put(`${appUrl}/auth_providers/${providerId}/disable`),
-              remove: () => api._delete(`${appUrl}/auth_providers/${providerId}`)
+              update: data =>
+                api._patch(`${appUrl}/auth_providers/${providerId}`, data),
+              enable: () =>
+                api._put(`${appUrl}/auth_providers/${providerId}/enable`),
+              disable: () =>
+                api._put(`${appUrl}/auth_providers/${providerId}/disable`),
+              remove: () =>
+                api._delete(`${appUrl}/auth_providers/${providerId}`)
             })
           }),
 
           security: () => ({
             allowedRequestOrigins: () => ({
               get: () => api._get(`${appUrl}/security/allowed_request_origins`),
-              update: (data) => api._post(`${appUrl}/security/allowed_request_origins`, data)
+              update: data =>
+                api._post(`${appUrl}/security/allowed_request_origins`, data)
             })
           }),
 
           logs: () => ({
-            list: (filter) => api._get(`${appUrl}/logs`, filter)
+            list: filter => api._get(`${appUrl}/logs`, filter)
           }),
 
           apiKeys: () => ({
             list: () => api._get(`${appUrl}/api_keys`),
-            create: (data) => api._post(`${appUrl}/api_keys`, data),
-            apiKey: (apiKeyId) => ({
+            create: data => api._post(`${appUrl}/api_keys`, data),
+            apiKey: apiKeyId => ({
               get: () => api._get(`${appUrl}/api_keys/${apiKeyId}`),
               remove: () => api._delete(`${appUrl}/api_keys/${apiKeyId}`),
               enable: () => api._put(`${appUrl}/api_keys/${apiKeyId}/enable`),
@@ -268,22 +312,36 @@ export class StitchAdminClient extends StitchClient {
 
           functions: () => ({
             list: () => api._get(`${appUrl}/functions`),
-            create: (data) => api._post(`${appUrl}/functions`, data),
-            function: (functionId) => ({
+            create: data => api._post(`${appUrl}/functions`, data),
+            function: functionId => ({
               get: () => api._get(`${appUrl}/functions/${functionId}`),
-              update: (data) => api._put(`${appUrl}/functions/${functionId}`, data),
+              update: data =>
+                api._put(`${appUrl}/functions/${functionId}`, data),
               remove: () => api._delete(`${appUrl}/functions/${functionId}`)
             })
           }),
 
           eventSubscriptions: () => ({
             list: () => api._get(`${appUrl}/event_subscriptions`),
-            create: (data) => api._post(`${appUrl}/event_subscriptions`, data),
-            eventSubscription: (eventSubscriptionId) => ({
-              get: () => api._get(`${appUrl}/event_subscriptions/${eventSubscriptionId}`),
-              update: (data) => api._put(`${appUrl}/event_subscriptions/${eventSubscriptionId}`, data),
-              remove: () => api._delete(`${appUrl}/event_subscriptions/${eventSubscriptionId}`),
-              resume: () => api._put(`${appUrl}/event_subscriptions/${eventSubscriptionId}/resume`)
+            create: data => api._post(`${appUrl}/event_subscriptions`, data),
+            eventSubscription: eventSubscriptionId => ({
+              get: () =>
+                api._get(
+                  `${appUrl}/event_subscriptions/${eventSubscriptionId}`
+                ),
+              update: data =>
+                api._put(
+                  `${appUrl}/event_subscriptions/${eventSubscriptionId}`,
+                  data
+                ),
+              remove: () =>
+                api._delete(
+                  `${appUrl}/event_subscriptions/${eventSubscriptionId}`
+                ),
+              resume: () =>
+                api._put(
+                  `${appUrl}/event_subscriptions/${eventSubscriptionId}/resume`
+                )
             })
           })
         };
