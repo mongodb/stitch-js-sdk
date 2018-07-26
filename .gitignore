@@ -71,3 +71,5 @@ build/
 **/docs-browser
 **/docs-server
 **/doc
+
+.vscode

@@ -3,5 +3,14 @@
   "packages": [
     "packages/**"
   ],
+  "command": {
+    "bootstrap": {
+      "nohoist": [
+        "react-native",
+        "babel-jest",
+        "babel-preset-react-native"
+      ]
+    }
+  },
   "version": "4.0.9"
 }
