@@ -47,8 +47,6 @@ const mongodbUri: string = (() => {
 
 const harness = new BaseStitchRNIntTestHarness();
 
-console.log(harness);
-
 function getTestColl<ResultT>(
   codec?: Codec<ResultT>
 ): RemoteMongoCollection<ResultT> {

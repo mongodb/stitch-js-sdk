@@ -1,5 +1,5 @@
-# mongodb-stitch-server-services-mongodb-remote
+# mongodb-stitch-react-native-services-mongodb-remote
 
-This package contains the Server Remote MongoDB Service.
+This package contains the React Native Remote MongoDB Service.
 
-**For more information on using this on a server, see the [mongodb-stitch-server-sdk](https://www.npmjs.com/package/mongodb-stitch-server-sdk) package.**
+**For more information on using this in a React Native app, see the [mongodb-stitch-react-native-sdk](https://www.npmjs.com/package/mongodb-stitch-react-native-sdk) package.**

@@ -19,7 +19,11 @@ import { AsyncStorage } from "react-native"
 
 const stitchPrefixKey = "__stitch.client";
 
-/** @hidden */
+/** 
+ * @hidden 
+ * A wrapper over React Native's AsyncStorage that allows synchronous
+ * reads and writes to and from a cache.
+ */
 export default class RNAsyncStorage implements Storage {
   constructor(private readonly suiteName: string) {}
 

@@ -96,6 +96,7 @@
       "node"
     ],
     "collectCoverage": true,
-    "setupTestFrameworkScriptFile": "<rootDir>/__tests__/ApiTestUtils.ts"
+    "setupTestFrameworkScriptFile": "<rootDir>/__tests__/ApiTestUtils.ts",
+    "testURL": "http://localhost/"
   }
 }

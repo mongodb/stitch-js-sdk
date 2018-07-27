@@ -16,7 +16,8 @@
     "mobile",
     "serverless",
     "stitch",
-    "atlas"
+    "atlas",
+    "react-native"
   ],
   "homepage": "https://github.com/mongodb/stitch-js-sdk#readme",
   "repository": "mongodb/stitch-js-sdk",

@@ -2,7 +2,7 @@
 
 # MongoDB Stitch React Native SDK 
 
-The official [MongoDB Stitch](https://stitch.mongodb.com/) Server SDK for JavaScript/TypeScript.
+The official [MongoDB Stitch](https://stitch.mongodb.com/) React Native SDK for JavaScript/TypeScript.
 
 ### Index
 - [Documentation](#documentation)
@@ -25,7 +25,7 @@ The official [MongoDB Stitch](https://stitch.mongodb.com/) Server SDK for JavaSc
 Run the following in the root directory of your NPM project.
 
 ```bash
-npm install mongodb-stitch-server-sdk
+npm install mongodb-stitch-react-native-sdk
 ```
 
 This will start you off with the core SDK functionality as well as the remote MongoDB service.
@@ -33,17 +33,19 @@ This will start you off with the core SDK functionality as well as the remote Mo
 For customized dependencies use the following:
 
 ```bash
-npm install mongodb-stitch-server-core
-npm install mongodb-stitch-server-services-aws-s3
-npm install mongodb-stitch-server-services-aws-ses
-npm install mongodb-stitch-server-services-http
-npm install mongodb-stitch-server-services-mongodb-remote
-npm install mongodb-stitch-server-services-twilio
+npm install mongodb-stitch-react-native-core
+npm install mongodb-stitch-react-native-services-aws-s3
+npm install mongodb-stitch-react-native-services-aws-ses
+npm install mongodb-stitch-react-native-services-http
+npm install mongodb-stitch-react-native-services-mongodb-remote
+npm install mongodb-stitch-react-native-services-twilio
 ```
 
 ## Example Usage
 
-### Creating a new app with the SDK (NPM)
+### Creating a new app with the SDK (React Native)
+
+TODO MAKE THIS A BAREBONES RN APP
 
 #### Set up an application on Stitch
 1. Go to [https://stitch.mongodb.com/](https://stitch.mongodb.com/) and log in to MongoDB Atlas.
