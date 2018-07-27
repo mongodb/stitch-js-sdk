@@ -77,7 +77,10 @@ export default abstract class BaseStitchIntTestHarness {
       this.apps.map(app => {
         app.remove();
       })
-    ).then(() => this.adminClient.logout());
+    ).then(() => {
+      this.adminClient.logout();
+      this.adminClient.close();
+    });
   }
 
   public async createApp(

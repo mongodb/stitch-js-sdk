@@ -1,0 +1,13 @@
+{
+    "extends": "../../../config/tsconfig.umd.base.json",
+    "compilerOptions": {
+    	"outDir": "dist/umd"
+    },
+    "include": [
+        "__tests__/**/*"
+    ],
+    "exclude": [
+        "./node_modules/**",
+        "./dist"
+    ]
+}

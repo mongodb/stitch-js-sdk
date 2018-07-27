@@ -84,4 +84,8 @@ export default class StitchAdminClient {
   public logout(): Promise<void> {
     return this.adminAuth.logoutInternal();
   }
+
+  public close(): void {
+    this.adminAuth.close();
+  }
 }

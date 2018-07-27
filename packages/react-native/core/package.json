@@ -1,0 +1,69 @@
+{
+  "name": "mongodb-stitch-react-native-core",
+  "version": "4.0.9",
+  "main": "dist/umd/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "description": "MongoDB Stitch JavaScript SDK - React Native Core",
+  "keywords": [
+    "mongodb",
+    "aws",
+    "twilio",
+    "http",
+    "mobile",
+    "serverless",
+    "stitch",
+    "atlas",
+    "react-native"
+  ],
+  "homepage": "https://github.com/mongodb/stitch-js-sdk#readme",
+  "repository": "mongodb/stitch-js-sdk",
+  "author": "MongoDB Inc.",
+  "contributors": [
+    {
+      "name": "Adam Chelminski",
+      "email": "adam.chelminski@mongodb.com"
+    },
+    {
+      "name": "Eric Daniels",
+      "email": "eric.daniels@mongodb.com"
+    },
+    {
+      "name": "Jason Flax",
+      "email": "jason.flax@mongodb.com"
+    }
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "mongodb-stitch-bson": "^1.0.0",
+    "mongodb-stitch-core-sdk": "^4.0.9"
+  },
+  "devDependencies": {
+    "prettier": "^1.13.5",
+    "react-native": "^0.56.0",
+    "rollup": "^0.60.7",
+    "ts-jest": "^22.4.6",
+    "tslint": "^5.10.0",
+    "tslint-config-prettier": "^1.13.0",
+    "typescript": "^2.9.2"
+  },
+  "peerDependencies": {
+    "react-native": "^0.56.0"
+  },
+  "scripts": {
+    "build": "npm run build-main && npm run build-module",
+    "build-main": "tsc -p tsconfig.umd.json && npm run add-version-umd",
+    "build-module": "tsc -p tsconfig.esm.json && npm run add-version-esm",
+    "prepare": "npm run build",
+    "watch": "tsc -w -p tsconfig.esm.json",
+    "lint": "tslint src/**/*.ts __tests__/**/*.ts",
+    "lint-fix": "tslint --fix src/**/*.ts __tests__/**/*.ts",
+    "lint-check": "tslint-config-prettier-check ./tslint.json",
+    "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\"",
+    "add-version-esm": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" dist/esm/core/internal/common/Version.js",
+    "add-version-umd": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" dist/umd/core/internal/common/Version.js"
+  }
+}

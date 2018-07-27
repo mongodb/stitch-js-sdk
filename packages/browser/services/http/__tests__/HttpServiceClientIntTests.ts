@@ -128,7 +128,7 @@ describe("HttpServiceClient", () => {
       expect("200 OK").toEqual(response.status);
       expect(200).toEqual(response.statusCode);
       expect(response.contentLength).toBeGreaterThanOrEqual(300);
-      expect(response.contentLength).toBeLessThanOrEqual(400);
+      expect(response.contentLength).toBeLessThanOrEqual(500);
       expect(response.body).toBeDefined();
       const dataDoc = EJSON.parse(String(response.body!!), { relaxed: true });
       expect(body).toEqual(dataDoc.data);

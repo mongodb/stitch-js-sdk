@@ -1,7 +1,7 @@
 {
   "name": "mongodb-stitch-browser-coretest",
   "version": "4.0.9",
-  "description": "web core test",
+  "description": "Tests for mongodb-stitch-browser-core",
   "keywords": [
     "mongodb",
     "aws",
@@ -64,6 +64,7 @@
       "json",
       "node"
     ],
-    "collectCoverage": true
+    "collectCoverage": true,
+    "testURL": "http://localhost/"
   }
 }
