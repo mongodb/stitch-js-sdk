@@ -56,7 +56,7 @@ npm install mongodb-stitch-server-services-twilio
 1. Ensure that you have `npm` installed. See [npmjs.com](https://www.npmjs.com).
 2. Initialize a new NPM project with `npm init`.
 3. Add the MongoDB Stitch Server SDK by running `npm install mongodb-stitch-server-sdk`.
-4. Create directories for your source files, and your distributed files:
+4. Create directories for your source files:
 
 ```bash
 mkdir src
