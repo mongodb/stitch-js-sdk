@@ -18,7 +18,6 @@ import { fail } from "assert";
 import { App, AppResponse } from "mongodb-stitch-core-admin-client";
 import { BaseStitchIntTestHarness } from "mongodb-stitch-core-testutils";
 import {
-  RNAsyncStorage,
   Stitch,
   StitchAppClient,
   StitchAppClientConfiguration,
@@ -60,7 +59,6 @@ export default class BaseStitchRNIntTestHarness extends BaseStitchIntTestHarness
       app.clientAppId,
       new StitchAppClientConfiguration.Builder()
         .withBaseUrl(this.stitchBaseUrl)
-        .withStorage(new RNAsyncStorage(app.clientAppId))
         .build()
     ).then(client => {
       this.clients.push(client);

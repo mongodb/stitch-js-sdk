@@ -1,7 +1,7 @@
 {
   "name": "mongodb-stitch-react-native-coretest",
   "version": "4.0.9",
-  "description": "web core test",
+  "description": "Tests for mongodb-stitch-react-native-core",
   "keywords": [
     "mongodb",
     "aws",

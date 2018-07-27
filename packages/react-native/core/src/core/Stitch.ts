@@ -69,6 +69,7 @@ export default class Stitch {
    * 
    * @param clientAppId The desired clientAppId for the client.
    * @param config Additional configuration options (optional).
+   * @returns A Promise resolving to an initialized StitchAppClient.
    */
   public static initializeDefaultAppClient(
     clientAppId: string,
@@ -98,6 +99,7 @@ export default class Stitch {
    * 
    * @param clientAppId The desired clientAppId for the client.
    * @param config Additional configuration options (optional).
+   * @returns A Promise resolving to an initialized StitchAppClient.
    */
   public static initializeAppClient(
     clientAppId: string,

@@ -55,7 +55,6 @@ import { UserPasswordAuthProviderClient } from "./core/auth/providers/userpasswo
 import StitchAuth from "./core/auth/StitchAuth";
 import StitchAuthListener from "./core/auth/StitchAuthListener";
 import StitchUser from "./core/auth/StitchUser";
-import RNAsyncStorage from "./core/internal/common/RNAsyncStorage";
 import Stitch from "./core/Stitch";
 import StitchAppClient from "./core/StitchAppClient";
 import NamedServiceClientFactory from "./services/internal/NamedServiceClientFactory";
@@ -93,7 +92,6 @@ export {
   StitchUserIdentity,
   Storage,
   MemoryStorage,
-  RNAsyncStorage,
   Transport,
   UserType,
   NamedServiceClientFactory,
