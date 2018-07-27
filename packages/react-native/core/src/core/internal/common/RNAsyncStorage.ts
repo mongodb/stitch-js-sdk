@@ -25,9 +25,9 @@ const stitchPrefixKey = "__stitch.client";
  * reads and writes to and from a cache.
  */
 export default class RNAsyncStorage implements Storage {
-  constructor(private readonly suiteName: string) {}
-
   private cachedStorage: { [key: string]: string } = {};
+
+  constructor(private readonly suiteName: string) {}
 
   private getKey(forKey: string): string {
     return `${stitchPrefixKey}.${this.suiteName}.${forKey}`;

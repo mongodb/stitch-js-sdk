@@ -19,9 +19,9 @@ import {
   StitchAppClientConfiguration
 } from "mongodb-stitch-core-sdk";
 
+import RNAsyncStorage from "./internal/common/RNAsyncStorage";
 import StitchAppClientImpl from "./internal/StitchAppClientImpl";
 import StitchAppClient from "./StitchAppClient";
-import RNAsyncStorage from "./internal/common/RNAsyncStorage";
 
 const DEFAULT_BASE_URL = "https://stitch.mongodb.com";
 const appClients: { [key: string]: StitchAppClientImpl } = {};
