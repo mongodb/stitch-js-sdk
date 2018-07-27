@@ -51,10 +51,11 @@ import {
 } from "mongodb-stitch-core-sdk";
 import { UserApiKeyAuthProviderClient } from "./core/auth/providers/userapikey/UserApiKeyAuthProviderClient";
 import { UserPasswordAuthProviderClient } from "./core/auth/providers/userpassword/UserPasswordAuthProviderClient";
-import RNAsyncStorage from "./core/internal/common/RNAsyncStorage";
+
 import StitchAuth from "./core/auth/StitchAuth";
 import StitchAuthListener from "./core/auth/StitchAuthListener";
 import StitchUser from "./core/auth/StitchUser";
+import RNAsyncStorage from "./core/internal/common/RNAsyncStorage";
 import Stitch from "./core/Stitch";
 import StitchAppClient from "./core/StitchAppClient";
 import NamedServiceClientFactory from "./services/internal/NamedServiceClientFactory";

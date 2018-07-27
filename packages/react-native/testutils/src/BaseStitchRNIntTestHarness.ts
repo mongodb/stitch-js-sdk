@@ -43,7 +43,7 @@ export default class BaseStitchRNIntTestHarness extends BaseStitchIntTestHarness
           it.close();
         })
       )
-    ).then(() => {});
+    ).then(() => { return });
   }
 
   public get stitchBaseUrl(): string {

@@ -29,25 +29,19 @@ export default class RNAsyncStorage implements Storage {
 
   constructor(private readonly suiteName: string) {}
 
-  private getKey(forKey: string): string {
-    return `${stitchPrefixKey}.${this.suiteName}.${forKey}`;
-  }
-
   /**
    * Refreshes the cached storage by loading all keys and values from the 
    * asynchronous storage abstraction.
    */
   public refreshCache(): Promise<void> {
     return AsyncStorage.getAllKeys()
-      .then(keys => {
-        return AsyncStorage.multiGet(keys)
-      })
+      .then(keys => AsyncStorage.multiGet(keys))
       .then(values => {
         this.cachedStorage = {};
 
         values.forEach(element => {
-          let key = element[0];
-          let value = element[1];
+          const key = element[0];
+          const value = element[1];
 
           this.cachedStorage[key] = value;
         });
@@ -79,5 +73,9 @@ export default class RNAsyncStorage implements Storage {
   public remove(key: string) {
     delete this.cachedStorage[this.getKey(key)];
     AsyncStorage.removeItem(this.getKey(key));
+  }
+
+  private getKey(forKey: string): string {
+    return `${stitchPrefixKey}.${this.suiteName}.${forKey}`;
   }
 }

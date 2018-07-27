@@ -42,7 +42,7 @@ export default class BaseStitchServerIntTestHarness extends BaseStitchIntTestHar
           it.auth.logout();
         })
       )
-    ).then(() => {});
+    ).then(() => { return });
   }
 
   public get stitchBaseUrl(): string {
