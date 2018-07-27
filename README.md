@@ -13,9 +13,9 @@ The official [MongoDB Stitch](https://stitch.mongodb.com/) SDK for JavaScript/Ty
 - [Discussion](#discussion)
 
 ## Documentation
-* [Browser SDK API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js/docs/4.0.9/index.html)
-* [Server (Node.js) SDK API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js-server/docs/4.0.9/index.html)
-* [React Native SDK API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js-react-native/docs/4.0.9/index.html)
+* [Browser SDK API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js/docs/4.0.12/index.html)
+* [Server (Node.js) SDK API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js-server/docs/4.0.12/index.html)
+* [React Native SDK API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js-react-native/docs/4.0.12/index.html)
 * [MongoDB Stitch Documentation](https://docs.mongodb.com/stitch/)
 
 ## Discussion
