@@ -133,6 +133,8 @@ export class StitchAdminClient extends StitchClient {
 
           export: () => api._get(`${appUrl}/export`),
 
+          measurements: (filter) => api._get(`${appUrl}/measurements`, filter),
+
           values: () => ({
             list: () => api._get(`${appUrl}/values`),
             create: (data) => api._post( `${appUrl}/values`, data),
