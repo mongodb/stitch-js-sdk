@@ -49,8 +49,8 @@ npm install mongodb-stitch-react-native-services-twilio
 1. Go to [https://stitch.mongodb.com/](https://stitch.mongodb.com/) and log in to MongoDB Atlas.
 2. Create a new app in your project with your desired name.
 3. Go to your app in Stitch via Atlas by clicking Stitch Apps in the left side pane and clicking your app.
-3. Copy your app's client app id by going to Clients on the left side pane and clicking copy on the App ID section.
-4. Go to Providers from Users in the left side pane and edit and enable "Allow users to log in anonymously".
+4. Copy your app's client app id by going to Clients on the left side pane and clicking copy on the App ID section.
+5. Go to Providers from Users in the left side pane and edit and enable "Allow users to log in anonymously".
 
 #### Set up a React Native project
 1. Ensure that you have `npm` installed. See [npmjs.com](https://www.npmjs.com).
@@ -164,8 +164,8 @@ Stitch.initializeDefaultAppClient('<your-client-app-id>').then(client => {
 ```
 
 Please take note that unlike the other Stitch SDKs, this client initialization 
-is asynchronous. This is due to the fact that the client stores persisted 
-authentication information using React Native's 
+method is asynchronous. This is due to the fact that the client stores 
+persisted authentication information using React Native's 
 [AsyncStorage](https://facebook.github.io/react-native/docs/asyncstorage.html)
 system.
 
