@@ -69,7 +69,6 @@ describe("AwsS3ServiceClient", () => {
     );
 
     const client = await harness.getAppClient(appResponse as AppResponse);
-    client.close(); // TODO: see if we can have this happen in teardown logic
     await client.auth.loginWithCredential(new AnonymousCredential());
 
     const awsS3 = client.getServiceClient(AwsS3ServiceClient.factory, "awss31");

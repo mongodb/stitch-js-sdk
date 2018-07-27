@@ -34,9 +34,17 @@ import { BaseStitchRNIntTestHarness } from "mongodb-stitch-react-native-testutil
 import { HttpServiceClient } from "../src/HttpServiceClient";
 
 const harness = new BaseStitchRNIntTestHarness();
+console.log(Object.getOwnPropertyNames(harness));
 
-beforeAll(() => harness.setup());
-afterAll(() => harness.teardown());
+beforeAll(() => {
+  console.log("BEFORE ALL");
+  console.log(harness.setup.toString())
+  return harness.setup()
+  });
+afterAll(() => {
+  console.log("AFTER ALL");
+  return harness.teardown()
+});
 
 describe("HttpServiceClient", () => {
   it("should execute", async () => {
@@ -54,7 +62,6 @@ describe("HttpServiceClient", () => {
     );
 
     const client = await harness.getAppClient(appResponse as AppResponse);
-    client.close(); // TODO: see if we can have this happen in teardown logic
     await client.auth.loginWithCredential(new AnonymousCredential());
 
     const httpClient = client.getServiceClient(

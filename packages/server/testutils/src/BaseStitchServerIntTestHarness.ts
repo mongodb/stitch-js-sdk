@@ -35,7 +35,7 @@ export default class BaseStitchServerIntTestHarness extends BaseStitchIntTestHar
     return super.setup();
   }
 
-  public tearDown(): Promise<void[]> {
+  public teardown(): Promise<void[]> {
     return super.teardown().then(() =>
       Promise.all(
         this.clients.map(it => {

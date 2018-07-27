@@ -35,7 +35,7 @@ export default class BaseStitchRNIntTestHarness extends BaseStitchIntTestHarness
     return super.setup();
   }
 
-  public tearDown(): Promise<void[]> {
+  public teardown(): Promise<void> {
     return super.teardown().then(() =>
       Promise.all(
         this.clients.map(it => {
@@ -43,7 +43,7 @@ export default class BaseStitchRNIntTestHarness extends BaseStitchIntTestHarness
           it.close();
         })
       )
-    );
+    ).then(() => {});
   }
 
   public get stitchBaseUrl(): string {

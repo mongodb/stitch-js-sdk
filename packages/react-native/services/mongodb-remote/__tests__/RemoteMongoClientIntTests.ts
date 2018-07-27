@@ -100,7 +100,6 @@ beforeEach(async () => {
   const client = await harness.getAppClient(appResponse as AppResponse);
   await client.auth.loginWithCredential(new AnonymousCredential());
   mongoClient = client.getServiceClient(RemoteMongoClient.factory, "mongodb1");
-  client.close(); // TODO: see if we can have this happen in teardown logic
 });
 
 describe("RemoteMongoClient", () => {

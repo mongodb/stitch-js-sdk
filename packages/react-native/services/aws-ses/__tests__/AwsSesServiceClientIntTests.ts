@@ -67,7 +67,6 @@ describe("AwsSesService should", () => {
 
     const client = await harness.getAppClient(appResponse as AppResponse);
     await client.auth.loginWithCredential(new AnonymousCredential());
-    client.close(); // TODO: see if we can have this happen in teardown logic
 
     const awsSes = client.getServiceClient(
       AwsSesServiceClient.factory,

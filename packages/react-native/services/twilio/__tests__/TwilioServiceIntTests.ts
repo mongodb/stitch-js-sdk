@@ -66,7 +66,6 @@ describe("TwilioService", () => {
     );
 
     const client = await harness.getAppClient(appResponse as AppResponse);
-    client.close(); // TODO: see if we can have this happen in teardown logic
     await client.auth.loginWithCredential(new AnonymousCredential());
 
     const twilio = client.getServiceClient(
