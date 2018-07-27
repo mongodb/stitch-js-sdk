@@ -69,6 +69,7 @@ build/
 # docs
 **/docs
 **/docs-browser
+**/docs-react-native
 **/docs-server
 **/doc
 
