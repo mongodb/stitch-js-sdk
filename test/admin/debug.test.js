@@ -47,14 +47,25 @@ describe('Debugging functions', () => {
   });
 
   it('Supports executing a function source with an eval script', async() => {
-    const result = await debug.executeFunctionSource(
-      th.user._id,
-      'exports = function(arg1, arg2) { return {sum: 800 + arg1 + arg2, userId: context.user.id } }',
-      'exports(1,5)',
-    );
+    const result = await debug.executeFunctionSource({
+      userId: th.user._id,
+      source: 'exports = function(arg1, arg2) { return {sum: 800 + arg1 + arg2, userId: context.user.id } }',
+      evalSource: 'exports(1,5)',
+    });
 
     expect(result.result.sum).toEqual({'$numberDouble': '806'});
     expect(result.result.userId).toEqual(th.user._id);
   });
-});
 
+  it('Supports executing a function source with an eval script as system user', async() => {
+    const systemUserId = '';
+    const result = await debug.executeFunctionSource({
+      runAsSystem: 'true',
+      source: 'exports = function(arg1, arg2) { return {sum: 800 + arg1 + arg2, userId: context.user.id } }',
+      evalSource: 'exports(1,5)',
+    });
+
+    expect(result.result.sum).toEqual({'$numberDouble': '806'});
+    expect(result.result.userId).toEqual(systemUserId);
+  });
+});
