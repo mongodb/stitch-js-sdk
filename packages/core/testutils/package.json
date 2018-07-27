@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-core-testutils",
-  "version": "4.0.10",
+  "version": "4.0.11",
   "description": "",
   "main": "dist/umd/index.js",
   "module": "dist/esm/index.js",
@@ -40,8 +40,8 @@
   "dependencies": {
     "fetch-everywhere": "^1.0.5",
     "mongodb-stitch-bson": "^1.0.0",
-    "mongodb-stitch-core-admin-client": "^4.0.10",
-    "mongodb-stitch-core-sdk": "^4.0.10"
+    "mongodb-stitch-core-admin-client": "^4.0.11",
+    "mongodb-stitch-core-sdk": "^4.0.11"
   },
   "devDependencies": {
     "prettier": "^1.13.5",

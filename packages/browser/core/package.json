@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-browser-core",
-  "version": "4.0.10",
+  "version": "4.0.11",
   "main": "dist/umd/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -39,7 +39,7 @@
   "dependencies": {
     "detect-browser": "^3.0.0",
     "mongodb-stitch-bson": "^1.0.0",
-    "mongodb-stitch-core-sdk": "^4.0.10"
+    "mongodb-stitch-core-sdk": "^4.0.11"
   },
   "devDependencies": {
     "@types/detect-browser": "^2.0.1",
