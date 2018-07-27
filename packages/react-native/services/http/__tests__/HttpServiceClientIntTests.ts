@@ -34,17 +34,9 @@ import { BaseStitchRNIntTestHarness } from "mongodb-stitch-react-native-testutil
 import { HttpServiceClient } from "../src/HttpServiceClient";
 
 const harness = new BaseStitchRNIntTestHarness();
-console.log(Object.getOwnPropertyNames(harness));
 
-beforeAll(() => {
-  console.log("BEFORE ALL");
-  console.log(harness.setup.toString())
-  return harness.setup()
-  });
-afterAll(() => {
-  console.log("AFTER ALL");
-  return harness.teardown()
-});
+beforeAll(() => harness.setup());
+afterAll(() => harness.teardown());
 
 describe("HttpServiceClient", () => {
   it("should execute", async () => {
