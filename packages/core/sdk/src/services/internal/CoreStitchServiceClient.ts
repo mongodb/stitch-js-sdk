@@ -22,7 +22,7 @@ import StitchServiceRoutes from "./StitchServiceRoutes";
 
 /** @hidden */
 export default interface CoreStitchServiceClient {
-  callFunctionInternal<T>(
+  callFunction<T>(
     name: string,
     args: any[],
     decoder?: Decoder<T>

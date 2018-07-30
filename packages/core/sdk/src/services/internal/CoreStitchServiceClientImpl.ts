@@ -27,19 +27,19 @@ export default class CoreStitchServiceClientImpl
   implements CoreStitchServiceClient {
   private readonly requestClient: StitchAuthRequestClient;
   private readonly serviceRoutes: StitchServiceRoutes;
-  private readonly serviceName: string;
+  private readonly serviceName: string | undefined;
 
   public constructor(
     requestClient: StitchAuthRequestClient,
     routes: StitchServiceRoutes,
-    name: string
+    name?: string
   ) {
     this.requestClient = requestClient;
     this.serviceRoutes = routes;
     this.serviceName = name;
   }
 
-  public callFunctionInternal<T>(
+  public callFunction<T>(
     name: string,
     args: any[],
     decoder?: Decoder<T>

@@ -50,6 +50,9 @@ class AwsS3SignPolicyResultDecoder implements Decoder<AwsS3SignPolicyResult> {
   }
 }
 
+/**
+ * @deprecated use AwsServiceClient instead.
+ */
 export default class ResultDecoders {
   public static PutObjectResultDecoder: Decoder<
     AwsS3PutObjectResult

@@ -52,7 +52,7 @@ export default class CoreRemoteMongoReadOperation<T> {
   }
 
   private executeRead(): Promise<T[]> {
-    return this.service.callFunctionInternal(
+    return this.service.callFunction(
       this.command,
       [this.args],
       this.collectionDecoder

@@ -82,7 +82,7 @@ export default class StitchAppClientImpl implements StitchAppClient {
   }
 
   public callFunction(name: string, args: any[]): Promise<any> {
-    return this.coreClient.callFunctionInternal(name, args);
+    return this.coreClient.callFunction(name, args);
   }
 
   public close() {

@@ -16,6 +16,8 @@
 
 /**
  * The result of an AWS S3 put object request.
+ * 
+ * @deprecated use AwsServiceClient instead.
  */
 export interface AwsS3PutObjectResult {
   /**

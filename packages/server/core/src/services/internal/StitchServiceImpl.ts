@@ -40,7 +40,7 @@ export default class StitchServiceImpl extends CoreStitchServiceClientImpl
     codec?: Decoder<T>
   ): Promise<T> {
     return new Promise((resolve, reject) => {
-      resolve(this.callFunctionInternal(name, args, codec));
+      resolve(this.callFunction(name, args, codec));
     });
   }
 }

@@ -143,7 +143,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
       args.limit = options.limit;
     }
 
-    return this.service.callFunctionInternal("count", [args]);
+    return this.service.callFunction("count", [args]);
   }
 
   /**
@@ -162,7 +162,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
       this.codec ? this.codec.encode(value) : (value as any)
     );
 
-    return this.service.callFunctionInternal(
+    return this.service.callFunction(
       "insertOne",
       [args],
       ResultDecoders.remoteInsertOneResultDecoder
@@ -187,7 +187,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
       )
     );
 
-    return this.service.callFunctionInternal(
+    return this.service.callFunction(
       "insertMany",
       [args],
       ResultDecoders.remoteInsertManyResultDecoder
@@ -261,7 +261,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
     const args: any = { ...this.baseOperationArgs };
     args.query = query;
 
-    return this.service.callFunctionInternal(
+    return this.service.callFunction(
       multi ? "deleteMany" : "deleteOne",
       [args],
       ResultDecoders.remoteDeleteResultDecoder
@@ -283,7 +283,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
       args.upsert = options.upsert;
     }
 
-    return this.service.callFunctionInternal(
+    return this.service.callFunction(
       multi ? "updateMany" : "updateOne",
       [args],
       ResultDecoders.remoteUpdateResultDecoder

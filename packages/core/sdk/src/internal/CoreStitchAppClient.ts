@@ -15,39 +15,32 @@
  */
 
 import StitchAuthRequestClient from "../auth/internal/StitchAuthRequestClient";
+import { Decoder } from "../internal/common/Codec";
 import StitchAppRoutes from "../internal/net/StitchAppRoutes";
 import Method from "./net/Method";
-import { StitchAuthDocRequest } from "./net/StitchAuthDocRequest";
-import { StitchAuthRequest } from "./net/StitchAuthRequest";
+import CoreStitchServiceClient from "../services/internal/CoreStitchServiceClient";
+import CoreStitchServiceClientImpl from "../services/internal/CoreStitchServiceClientImpl";
 
 /** @hidden */
 export default class CoreStitchAppClient {
-  private readonly authRequestClient: StitchAuthRequestClient;
-  private readonly routes: StitchAppRoutes;
+  private readonly functionService: CoreStitchServiceClient
 
   public constructor(
     authRequestClient: StitchAuthRequestClient,
     routes: StitchAppRoutes
   ) {
-    this.authRequestClient = authRequestClient;
-    this.routes = routes;
+    this.functionService = 
+    new CoreStitchServiceClientImpl(
+      authRequestClient, 
+      routes.serviceRoutes
+    )
   }
 
-  public callFunctionInternal<T>(name: string, args: any[]): Promise<T> {
-    return this.authRequestClient.doAuthenticatedRequestWithDecoder(
-      this.getCallFunctionRequest(name, args)
-    );
-  }
-
-  private getCallFunctionRequest(name: string, args: any[]): StitchAuthRequest {
-    const body = {
-      arguments: args,
-      name
-    };
-
-    const reqBuilder = new StitchAuthDocRequest.Builder();
-    reqBuilder.withMethod(Method.POST).withPath(this.routes.functionCallRoute);
-    reqBuilder.withDocument(body);
-    return reqBuilder.build();
+  public callFunction<T>(
+    name: string, 
+    args: any[],
+    decoder?: Decoder<T>
+  ): Promise<T> {
+    return this.functionService.callFunction(name, args, decoder);
   }
 }

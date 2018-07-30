@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import { CoreStitchServiceClient, Decoder } from "mongodb-stitch-core-sdk";
+import { AwsRequest } from "mongodb-stitch-core-services-aws";
+import { AwsServiceClient } from "./AwsServiceClient";
 
-/** @hidden */
-export default interface StitchServiceClient extends CoreStitchServiceClient {
-  callFunction<T>(name: string, args: any[], codec?: Decoder<T>): Promise<T>;
-}
+export { AwsRequest, AwsServiceClient };
+  

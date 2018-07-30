@@ -39,7 +39,11 @@ enum SignPolicyAction {
   ContentTypeParam = "contentType"
 }
 
-/** @hidden */
+/** 
+ * @hidden 
+ * 
+ * @deprecated use AwsServiceClient instead.
+ */
 export default class CoreAwsS3ServiceClient {
   public constructor(private readonly service: CoreStitchServiceClient) {}
 
@@ -75,7 +79,7 @@ export default class CoreAwsS3ServiceClient {
 
     args[PutAction.BodyParam] = binaryBody;
 
-    return this.service.callFunctionInternal(
+    return this.service.callFunction(
       PutAction.ActionName,
       [args],
       ResultDecoders.PutObjectResultDecoder
@@ -95,7 +99,7 @@ export default class CoreAwsS3ServiceClient {
       [SignPolicyAction.ContentTypeParam]: contentType
     };
 
-    return this.service.callFunctionInternal(
+    return this.service.callFunction(
       SignPolicyAction.ActionName,
       [args],
       ResultDecoders.SignPolicyResultDecoder

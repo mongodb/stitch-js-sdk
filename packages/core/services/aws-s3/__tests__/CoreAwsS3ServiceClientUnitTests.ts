@@ -39,14 +39,14 @@ describe("CoreAwsS3ServiceClient", () => {
     const expectedLocation = "awsLocation";
 
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenResolve(new AwsS3PutObjectResult(expectedLocation));
 
     let result = await client.putObject(bucket, key, acl, contentType, body);
     expect(result.location).toEqual(expectedLocation);
 
     const [funcNameArg, funcArgsArg, resultClassArg]: any[] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect("put").toEqual(funcNameArg);
@@ -67,10 +67,10 @@ describe("CoreAwsS3ServiceClient", () => {
     expect(result.location).toEqual(expectedLocation);
 
     verify(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).times(2);
     const [funcNameArg2, funcArgsArg2, resultClassArg2]: any[] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect("put").toEqual(funcNameArg2);
@@ -84,10 +84,10 @@ describe("CoreAwsS3ServiceClient", () => {
     expect(result.location).toEqual(expectedLocation);
 
     verify(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).times(3);
     const [funcNameArg3, funcArgsArg3, resultClassArg3]: any[] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect("put").toEqual(funcNameArg3);
@@ -117,10 +117,10 @@ describe("CoreAwsS3ServiceClient", () => {
     expect(result.location).toEqual(expectedLocation);
 
     verify(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).times(4);
     const [funcNameArg4, funcArgsArg4, resultClassArg4]: any[] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect("put").toEqual(funcNameArg4);
@@ -131,7 +131,7 @@ describe("CoreAwsS3ServiceClient", () => {
 
     // Should pass along errors
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenThrow(new Error("whoops"));
 
     try {

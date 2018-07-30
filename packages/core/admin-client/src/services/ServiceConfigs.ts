@@ -57,6 +57,19 @@ export class Http implements ServiceConfig {
   public constructor(public readonly name: string) {}
 }
 
+export interface AwsConfig {
+  readonly accessKeyId: string;
+  readonly secretAccessKey: string;
+}
+
+export class Aws implements ServiceConfig {
+  public readonly type = "aws";
+  public constructor(
+    public readonly name,
+    public readonly config: AwsS3Config
+  ) {}
+}
+
 export interface AwsS3Config {
   readonly region: string;
   readonly accessKeyId: string;

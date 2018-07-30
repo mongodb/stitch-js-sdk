@@ -39,6 +39,7 @@ import {
   Users
 } from "./Resources";
 import {
+  AwsRuleCreator,
   AwsS3Actions,
   AwsS3RuleCreator,
   AwsSesActions,
@@ -52,6 +53,8 @@ import {
   TwilioRuleCreator
 } from "./services/rules/RulesResources";
 import {
+  Aws,
+  AwsConfig,
   AwsS3,
   AwsS3Config,
   AwsSes,
@@ -97,6 +100,9 @@ export {
   TwilioConfig,
   TwilioActions,
   TwilioRuleCreator,
+  Aws,
+  AwsConfig,
+  AwsRuleCreator,
   AwsSes,
   AwsSesConfig,
   AwsSesActions,
