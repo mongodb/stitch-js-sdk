@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import { Decoder } from "mongodb-stitch-core-sdk"
-import { CoreStitchServiceClient } from "mongodb-stitch-core-sdk";
-import { AwsRequest } from "../AwsRequest"
+import { CoreStitchServiceClient, Decoder } from "mongodb-stitch-core-sdk";
+import { AwsRequest } from "../AwsRequest";
 
 enum Fields {
   ExecuteActionName = "execute",

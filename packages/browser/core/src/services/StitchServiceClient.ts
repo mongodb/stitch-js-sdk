@@ -23,7 +23,6 @@ import { Decoder } from "mongodb-stitch-core-sdk";
  * {@link com.mongodb.stitch.android.core.StitchAppClient#callFunction}.
  */
 export default interface StitchServiceClient {
-
   /**
    * Calls the specified Stitch service function.
    *

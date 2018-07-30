@@ -16,8 +16,8 @@
 
 import { CoreStitchServiceClientImpl } from "mongodb-stitch-core-sdk";
 import { anything, capture, instance, mock, verify, when } from "ts-mockito";
-import CoreAwsServiceClient from "../src/internal/CoreAwsServiceClient";
 import { AwsRequest } from "../src/AwsRequest";
+import CoreAwsServiceClient from "../src/internal/CoreAwsServiceClient";
 
 describe("CoreAwsServiceClient", () => {
   it("should execute", async () => {
@@ -55,10 +55,10 @@ describe("CoreAwsServiceClient", () => {
     expect("execute").toEqual(funcNameArg);
     expect(1).toEqual(funcArgsArg.length);
     const expectedServiceArgs = {
-      "aws_service": expectedService,
       "aws_action": expectedAction,
+      "aws_arguments": expectedArgs,
       "aws_region": expectedRegion,
-      "aws_arguments": expectedArgs
+      "aws_service": expectedService,
     };
     expect(expectedServiceArgs).toEqual(funcArgsArg[0]);
     expect(decoderArg).toBeUndefined();
@@ -82,9 +82,9 @@ describe("CoreAwsServiceClient", () => {
     expect("execute").toEqual(funcNameArg);
     expect(1).toEqual(funcArgsArg.length);
     const expectedServiceArgs2 = {
-      "aws_service": expectedService,
       "aws_action": expectedAction,
-      "aws_arguments": { }
+      "aws_arguments": {},
+      "aws_service": expectedService,
     };
     expect(expectedServiceArgs2).toEqual(funcArgsArg2[0]);
     expect(decoderArg2).toBeUndefined();

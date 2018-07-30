@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import { AnonymousCredential } from "mongodb-stitch-server-core";
-import { BaseStitchServerIntTestHarness } from "mongodb-stitch-server-testutils";
 import BSON from "mongodb-stitch-bson";
 import {
   Anon,
@@ -32,6 +30,8 @@ import {
   StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
 import { AwsRequest } from "mongodb-stitch-core-services-aws";
+import { AnonymousCredential } from "mongodb-stitch-server-core";
+import { BaseStitchServerIntTestHarness } from "mongodb-stitch-server-testutils";
 import { AwsServiceClient } from "../src";
 
 const harness = new BaseStitchServerIntTestHarness();
@@ -78,12 +78,12 @@ describe("AwsServiceClient", () => {
     const acl = "public-read";
     const contentType = "plain/text";
     const body = "hello again friend; did you miss me";
-    let args = {
-      Bucket: bucket,
-      Key: key,
+    const args = {
       ACL: acl,
+      Body: body,
+      Bucket: bucket,
       ContentType: contentType,
-      Body: body
+      Key: key,
     };
 
     try {
@@ -103,7 +103,7 @@ describe("AwsServiceClient", () => {
     // Putting with all good params for S3 should work
     const bucketGood = "stitch-test-sdkfiles";
     const transport = new FetchTransport();
-    args["Bucket"] = bucketGood;
+    args.Bucket = bucketGood;
 
     let result = await awsS3.execute(
       new AwsRequest.Builder()
@@ -122,9 +122,9 @@ describe("AwsServiceClient", () => {
     expect(httpResult.body).toEqual(body);
 
 
-    // with a binary body
+    // With a binary body
     const bodyBin = new BSON.Binary(new Buffer(body));
-    args["Body"] = bodyBin;
+    args.Body = bodyBin;
 
     result = await awsS3.execute(
       new AwsRequest.Builder()
@@ -142,7 +142,7 @@ describe("AwsServiceClient", () => {
     } as any);
     expect(httpResult.body).toEqual(body);
 
-    // with a Uint8Array body
+    // With a Uint8Array body
 
     /** @see: https://developers.google.com/web/updates/2012/06/How-to-convert-ArrayBuffer-to-and-from-String */
     function str2ab(str): Uint8Array {
@@ -155,7 +155,7 @@ describe("AwsServiceClient", () => {
     }
 
     const bodyInput = str2ab(body);
-    args["Body"] = BSON.Binary(new Buffer(bodyInput));
+    args.Body = BSON.Binary(new Buffer(bodyInput));
     result = await awsS3.execute(
       new AwsRequest.Builder()
         .withService("s3")

@@ -16,8 +16,8 @@
 
 import NamedServiceClientFactory from "../services/internal/NamedServiceClientFactory";
 import ServiceClientFactory from "../services/internal/ServiceClientFactory";
-import StitchAuth from "./auth/StitchAuth";
 import StitchServiceClient from "../services/StitchServiceClient";
+import StitchAuth from "./auth/StitchAuth";
 
 /**
  * The fundamental set of methods for communicating with a MongoDB Stitch 

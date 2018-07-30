@@ -17,7 +17,6 @@
 import StitchAuthRequestClient from "../auth/internal/StitchAuthRequestClient";
 import { Decoder } from "../internal/common/Codec";
 import StitchAppRoutes from "../internal/net/StitchAppRoutes";
-import Method from "./net/Method";
 import CoreStitchServiceClient from "../services/internal/CoreStitchServiceClient";
 import CoreStitchServiceClientImpl from "../services/internal/CoreStitchServiceClientImpl";
 

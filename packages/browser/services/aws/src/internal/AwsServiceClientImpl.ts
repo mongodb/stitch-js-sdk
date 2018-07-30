@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+import { Decoder } from "mongodb-stitch-core-sdk";
 import { 
   AwsRequest, 
   CoreAwsServiceClient 
 } from "mongodb-stitch-core-services-aws";
-import { Decoder } from "mongodb-stitch-core-sdk";
 import { AwsServiceClient } from "../AwsServiceClient";
 
  /**
@@ -28,7 +28,7 @@ export default class AwsServiceClientImpl implements AwsServiceClient {
   
   public constructor(private readonly proxy: CoreAwsServiceClient) {}
 
-  execute<T>(
+  public execute<T>(
     request: AwsRequest,
     decoder?: Decoder<T>
   ): Promise<T> {
