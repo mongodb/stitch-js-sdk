@@ -226,11 +226,11 @@ export class StitchAdminClient extends StitchClient {
                 {name, 'arguments': args},
                 { user_id: userId });
             },
-            executeFunctionSource: (userId, source = '', evalSource = '') => {
+            executeFunctionSource: ({userId, source = '', evalSource = '', runAsSystem}) => {
               return api._post(
                 `${appUrl}/debug/execute_function_source`,
                 {source, 'eval_source': evalSource},
-                { user_id: userId });
+                { user_id: userId, run_as_system: runAsSystem });
             }
           }),
 
