@@ -29,6 +29,6 @@ export default class StitchServiceClientImpl implements StitchServiceClient {
     args: any[],
     codec?: Decoder<T>
   ): Promise<T> {
-    return Promise.resolve(this.proxy.callFunction(name, args, codec));
+    return this.proxy.callFunction(name, args, codec);
   }
 }

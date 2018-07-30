@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CoreStitchServiceClient, Decoder } from "mongodb-stitch-core-sdk";
+import { Decoder } from "mongodb-stitch-core-sdk";
 
 /**
  * StitchServiceClient acts as a general purpose client for working with 
@@ -21,7 +21,7 @@ import { CoreStitchServiceClient, Decoder } from "mongodb-stitch-core-sdk";
  * similarly to 
  * {@link com.mongodb.stitch.android.core.StitchAppClient#callFunction}.
  */
-export default interface StitchServiceClient extends CoreStitchServiceClient {
+export default interface StitchServiceClient {
   /**
    * Calls the specified Stitch service function.
    *

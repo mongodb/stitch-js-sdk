@@ -18,4 +18,3 @@ import { AwsRequest } from "mongodb-stitch-core-services-aws";
 import { AwsServiceClient } from "./AwsServiceClient";
 
 export { AwsRequest, AwsServiceClient };
-  
