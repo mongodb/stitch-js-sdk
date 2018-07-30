@@ -17,43 +17,44 @@
 import {
   NamedServiceClientFactory
 } from "mongodb-stitch-react-native-core";
-import {
+import { 
   CoreStitchServiceClient,
-  StitchAppClientInfo
+  StitchAppClientInfo 
 } from "mongodb-stitch-core-sdk";
-import { CoreTwilioServiceClient } from "mongodb-stitch-core-services-twilio";
-import TwilioServiceClientImpl from "./internal/TwilioServiceClientImpl";
+import { 
+  AwsRequest, 
+  CoreAwsServiceClient 
+} from "mongodb-stitch-core-services-aws";
+import { Decoder } from "mongodb-stitch-core-sdk";
+import AwsServiceClientImpl from "./internal/AwsServiceClientImpl";
 
-/**
- * The Twilio service client.
- */
-export interface TwilioServiceClient {
+ /**
+  * The AWS service client.
+  */
+export interface AwsServiceClient {
+  
   /**
-   * Sends an SMS/MMS message.
-   *
-   * @param to the number to send the message to.
-   * @param from the number that the message is from.
-   * @param body the body text of the message.
-   * @param mediaUrl the Url of the media to send in an MMS.
-   * @return a Promise that resolves when the send is done.
+   * Executes the AWS request.
+   * 
+   * @param request the AWS request to execute.
+   * @param decoder the optional decoder to use to decode the result into a 
+   *                value.
    */
-  sendMessage(
-    to: string,
-    from: string,
-    body: string,
-    mediaUrl?: string
-  ): Promise<void>;
+  execute<T>(
+    request: AwsRequest,
+    decoder?: Decoder<T>
+  ): Promise<T>
 }
 
-export namespace TwilioServiceClient {
+export namespace AwsServiceClient {
   export const factory: NamedServiceClientFactory<
-    TwilioServiceClient
-  > = new class implements NamedServiceClientFactory<TwilioServiceClient> {
+    AwsServiceClient
+  > = new class implements NamedServiceClientFactory<AwsServiceClient> {
     public getNamedClient(
       service: CoreStitchServiceClient,
       client: StitchAppClientInfo
-    ): TwilioServiceClient {
-      return new TwilioServiceClientImpl(new CoreTwilioServiceClient(service));
+    ): AwsServiceClient {
+      return new AwsServiceClientImpl(new CoreAwsServiceClient(service));
     }
   }();
 }

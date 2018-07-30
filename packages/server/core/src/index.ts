@@ -57,7 +57,7 @@ import StitchUser from "./core/auth/StitchUser";
 import Stitch from "./core/Stitch";
 import StitchAppClient from "./core/StitchAppClient";
 import NamedServiceClientFactory from "./services/internal/NamedServiceClientFactory";
-import StitchServiceClient from "./services/internal/StitchServiceClient";
+import StitchServiceClient from "./services/StitchServiceClient";
 
 export {
   AnonymousAuthProvider,

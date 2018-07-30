@@ -15,17 +15,23 @@
  */
 
 import { 
-  CoreStitchServiceClient,
-  StitchAppClientInfo 
-} from "mongodb-stitch-core-sdk";
+  AwsRequest, 
+  CoreAwsServiceClient 
+} from "mongodb-stitch-core-services-aws";
+import { Decoder } from "mongodb-stitch-core-sdk";
+import { AwsServiceClient } from "../AwsServiceClient";
 
-/**
- * An interface describing a class that can provide clients for a particular 
- * named Stitch service.
- */
-export default interface NamedServiceClientFactory<T> {
-  getNamedClient(
-    service: CoreStitchServiceClient,
-    client: StitchAppClientInfo
-  ): T;
+ /**
+  * The AWS service client.
+  */
+export default class AwsServiceClientImpl implements AwsServiceClient {
+  
+  public constructor(private readonly proxy: CoreAwsServiceClient) {}
+
+  execute<T>(
+    request: AwsRequest,
+    decoder?: Decoder<T>
+  ): Promise<T> {
+    return this.proxy.execute(request, decoder);
+  }
 }

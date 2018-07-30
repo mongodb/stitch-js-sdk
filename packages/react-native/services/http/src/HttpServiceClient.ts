@@ -15,10 +15,12 @@
  */
 
 import {
-  NamedServiceClientFactory,
-  StitchServiceClient
+  NamedServiceClientFactory
 } from "mongodb-stitch-react-native-core";
-import { StitchAppClientInfo } from "mongodb-stitch-core-sdk";
+import {
+  CoreStitchServiceClient,
+  StitchAppClientInfo
+} from "mongodb-stitch-core-sdk";
 import {
   CoreHttpServiceClient,
   HttpRequest,
@@ -43,7 +45,7 @@ export namespace HttpServiceClient {
   export const factory: NamedServiceClientFactory<HttpServiceClient> = new class
     implements NamedServiceClientFactory<HttpServiceClient> {
     public getNamedClient(
-      service: StitchServiceClient,
+      service: CoreStitchServiceClient,
       client: StitchAppClientInfo
     ): HttpServiceClient {
       return new HttpServiceClientImpl(new CoreHttpServiceClient(service));
