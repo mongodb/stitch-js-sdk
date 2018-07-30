@@ -165,6 +165,10 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
               return api._get(appUrl + '/export');
             },
 
+            measurements: function measurements(filter) {
+              return api._get(appUrl + '/measurements', filter);
+            },
+
             values: function values() {
               return {
                 list: function list() {
@@ -360,11 +364,15 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
 
                   return api._post(appUrl + '/debug/execute_function', { name: name, 'arguments': args }, { user_id: userId });
                 },
-                executeFunctionSource: function executeFunctionSource(userId) {
-                  var source = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-                  var evalSource = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+                executeFunctionSource: function executeFunctionSource(_ref) {
+                  var userId = _ref.userId,
+                      _ref$source = _ref.source,
+                      source = _ref$source === undefined ? '' : _ref$source,
+                      _ref$evalSource = _ref.evalSource,
+                      evalSource = _ref$evalSource === undefined ? '' : _ref$evalSource,
+                      runAsSystem = _ref.runAsSystem;
 
-                  return api._post(appUrl + '/debug/execute_function_source', { source: source, 'eval_source': evalSource }, { user_id: userId });
+                  return api._post(appUrl + '/debug/execute_function_source', { source: source, 'eval_source': evalSource }, { user_id: userId, run_as_system: runAsSystem });
                 }
               };
             },
