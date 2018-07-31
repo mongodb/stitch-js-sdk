@@ -16,31 +16,21 @@
 
 import {
   CoreStitchServiceClient,
-  CoreStitchServiceClientImpl,
   Decoder,
-  StitchAuthRequestClient,
-  StitchServiceRoutes
 } from "mongodb-stitch-core-sdk";
-import StitchServiceClient from "./StitchServiceClient";
+import StitchServiceClient from "../StitchServiceClient";
 
 /** @hidden */
-export default class StitchServiceImpl extends CoreStitchServiceClientImpl
-  implements StitchServiceClient {
+export default class StitchServiceClientImpl implements StitchServiceClient {
   public constructor(
-    requestClient: StitchAuthRequestClient,
-    routes: StitchServiceRoutes,
-    name: string
-  ) {
-    super(requestClient, routes, name);
-  }
+    private readonly proxy: CoreStitchServiceClient
+  ) { }
 
   public callFunction<T>(
     name: string,
     args: any[],
     codec?: Decoder<T>
   ): Promise<T> {
-    return new Promise((resolve, reject) => {
-      resolve(this.callFunctionInternal(name, args, codec));
-    });
+    return this.proxy.callFunction(name, args, codec);
   }
 }

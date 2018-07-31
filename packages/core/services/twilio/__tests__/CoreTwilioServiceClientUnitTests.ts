@@ -32,7 +32,7 @@ describe("CoreTwilioServiceClientUnitTests", () => {
     await client.sendMessage(to, from, body);
 
     const [funcName, funcArgsArg] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect(funcName).toEqual("send");
@@ -46,7 +46,7 @@ describe("CoreTwilioServiceClientUnitTests", () => {
     expect(funcArgsArg[0]).toEqual(expectedArgs);
 
     // Should pass along errors
-    when(serviceMock.callFunctionInternal(anything(), anything())).thenThrow(
+    when(serviceMock.callFunction(anything(), anything())).thenThrow(
       new Error("whoops")
     );
 
@@ -72,7 +72,7 @@ describe("CoreTwilioServiceClientUnitTests", () => {
     await client.sendMessage(to, from, body, mediaUrl);
 
     const [funcName, funcArgsArg] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect(funcName).toEqual("send");
@@ -87,7 +87,7 @@ describe("CoreTwilioServiceClientUnitTests", () => {
     expect(funcArgsArg[0]).toEqual(expectedArgs);
 
     // Should pass along errors
-    when(serviceMock.callFunctionInternal(anything(), anything())).thenThrow(
+    when(serviceMock.callFunction(anything(), anything())).thenThrow(
       new Error("whoops")
     );
 

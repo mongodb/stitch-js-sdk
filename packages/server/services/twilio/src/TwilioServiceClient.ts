@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-import {
-  NamedServiceClientFactory,
-  StitchServiceClient
-} from "mongodb-stitch-server-core";
+import { NamedServiceClientFactory } from "mongodb-stitch-server-core";
 import {
   CoreStitchServiceClient,
   StitchAppClientInfo
@@ -51,7 +48,7 @@ export namespace TwilioServiceClient {
     TwilioServiceClient
   > = new class implements NamedServiceClientFactory<TwilioServiceClient> {
     public getNamedClient(
-      service: StitchServiceClient,
+      service: CoreStitchServiceClient,
       client: StitchAppClientInfo
     ): TwilioServiceClient {
       return new TwilioServiceClientImpl(new CoreTwilioServiceClient(service));

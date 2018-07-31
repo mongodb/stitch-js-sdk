@@ -15,8 +15,7 @@
  */
 
 import {
-  NamedServiceClientFactory,
-  StitchServiceClient
+  NamedServiceClientFactory
 } from "mongodb-stitch-react-native-core";
 import {
   CoreStitchServiceClient,
@@ -51,7 +50,7 @@ export namespace TwilioServiceClient {
     TwilioServiceClient
   > = new class implements NamedServiceClientFactory<TwilioServiceClient> {
     public getNamedClient(
-      service: StitchServiceClient,
+      service: CoreStitchServiceClient,
       client: StitchAppClientInfo
     ): TwilioServiceClient {
       return new TwilioServiceClientImpl(new CoreTwilioServiceClient(service));

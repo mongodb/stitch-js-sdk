@@ -38,6 +38,11 @@ export enum TwilioActions {
   Send = "send"
 }
 
+export class AwsRuleCreator {
+  public type = "aws";
+  constructor(readonly name: string, readonly actions: string[]) {}
+}
+
 export class AwsS3RuleCreator {
   public type = "aws-s3";
   constructor(readonly name: string, readonly actions: AwsS3Actions[]) {}
@@ -62,6 +67,7 @@ export class TwilioRuleCreator {
 }
 
 export type RuleCreator =
+  | AwsRuleCreator
   | AwsS3RuleCreator
   | AwsSesRuleCreator
   | HttpRuleCreator

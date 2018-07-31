@@ -40,14 +40,14 @@ describe("CoreRemoteMongoCollection", () => {
     const client = new CoreRemoteMongoClientImpl(service);
     const coll = getCollection(undefined, client);
 
-    when(serviceMock.callFunctionInternal(anything(), anything())).thenResolve(
+    when(serviceMock.callFunction(anything(), anything())).thenResolve(
       42
     );
 
     expect(await coll.count()).toEqual(42);
 
     const [funcNameArg, funcArgsArg, resultClassArg]: any = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect(funcNameArg).toEqual("count");
@@ -64,9 +64,9 @@ describe("CoreRemoteMongoCollection", () => {
     const expectedFilter = { one: 23 };
     expect(await coll.count(expectedFilter, { limit: 5 })).toEqual(42);
 
-    verify(serviceMock.callFunctionInternal(anything(), anything())).times(2);
+    verify(serviceMock.callFunction(anything(), anything())).times(2);
     const [funcNameArg2, funcArgsArg2, resultClassArg2]: any = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect(funcNameArg2).toEqual("count");
@@ -79,7 +79,7 @@ describe("CoreRemoteMongoCollection", () => {
     expect(resultClassArg2).toBeUndefined();
 
     // Should pass along errors
-    when(serviceMock.callFunctionInternal(anything(), anything())).thenReject(
+    when(serviceMock.callFunction(anything(), anything())).thenReject(
       new Error("whoops")
     );
 
@@ -104,7 +104,7 @@ describe("CoreRemoteMongoCollection", () => {
     const docs = [doc1, doc2];
 
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenResolve(docs);
 
     let iter = await coll.find().iterator();
@@ -113,7 +113,7 @@ describe("CoreRemoteMongoCollection", () => {
     expect(iter.next().value).toEqual(docs[1]);
 
     const [funcNameArg, funcArgsArg, resultClassArg]: any[] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect(funcNameArg).toEqual("find");
@@ -141,11 +141,11 @@ describe("CoreRemoteMongoCollection", () => {
     expect(iter.next().value).toEqual(docs[1]);
 
     verify(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).times(2);
 
     const [funcNameArg2, funcArgsArg2, resultClassArg2]: any[] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect("find").toEqual(funcNameArg2);
@@ -158,7 +158,7 @@ describe("CoreRemoteMongoCollection", () => {
     expect(funcArgsArg2[0]).toEqual(expectedArgs);
 
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenResolve([1, 2, 3]);
 
     iter = await coll.find(expectedFilter).iterator();
@@ -168,7 +168,7 @@ describe("CoreRemoteMongoCollection", () => {
 
     // Should pass along errors
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenReject(new Error("whoops"));
 
     try {
@@ -192,7 +192,7 @@ describe("CoreRemoteMongoCollection", () => {
     const docs = [doc1, doc2];
 
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenResolve(docs);
 
     let iter = await coll.aggregate([]).iterator();
@@ -201,7 +201,7 @@ describe("CoreRemoteMongoCollection", () => {
     expect(iter.next().value).toEqual(docs[1]);
 
     const [funcNameArg, funcArgsArg, resultClassArg]: any[] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect(funcNameArg).toEqual("aggregate");
@@ -223,11 +223,11 @@ describe("CoreRemoteMongoCollection", () => {
     expect(iter.next().value).toEqual(docs[1]);
 
     verify(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).times(2);
 
     const [funcNameArg2, funcArgsArg2, resultClassArg2]: any[] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect("aggregate").toEqual(funcNameArg2);
@@ -237,7 +237,7 @@ describe("CoreRemoteMongoCollection", () => {
 
     // Should pass along errors
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenReject(new Error("whoops"));
 
     try {
@@ -259,7 +259,7 @@ describe("CoreRemoteMongoCollection", () => {
     const doc1 = { one: 2, _id: id.toHexString() };
 
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenResolve({ insertedId: id });
 
     const result = await coll.insertOne(doc1);
@@ -268,7 +268,7 @@ describe("CoreRemoteMongoCollection", () => {
     expect(id.toHexString()).toEqual(doc1._id);
 
     const [funcNameArg, funcArgsArg, resultClassArg]: any[] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect("insertOne").toEqual(funcNameArg);
@@ -283,7 +283,7 @@ describe("CoreRemoteMongoCollection", () => {
 
     // Should pass along errors
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenReject(new Error("whoops"));
 
     try {
@@ -313,14 +313,14 @@ describe("CoreRemoteMongoCollection", () => {
     };
 
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenResolve({ insertedIds: ids });
 
     const result = await coll.insertMany([doc1, doc2]);
     expect(ids).toEqual(result.insertedIds);
 
     const [funcNameArg, funcArgsArg, resultClassArg]: any[] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect("insertMany").toEqual(funcNameArg);
@@ -338,7 +338,7 @@ describe("CoreRemoteMongoCollection", () => {
 
     // Should pass along errors
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenReject(new Error("whoops"));
 
     try {
@@ -357,7 +357,7 @@ describe("CoreRemoteMongoCollection", () => {
     const coll = getCollection(undefined, client);
 
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenResolve({ deletedCount: 1 });
 
     const expectedFilter = { one: 2 };
@@ -365,7 +365,7 @@ describe("CoreRemoteMongoCollection", () => {
     expect(1).toEqual(result.deletedCount);
 
     const [funcNameArg, funcArgsArg, resultClassArg]: any[] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect("deleteOne").toEqual(funcNameArg);
@@ -381,7 +381,7 @@ describe("CoreRemoteMongoCollection", () => {
 
     // Should pass along errors
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenReject(new Error("whoops"));
 
     try {
@@ -400,7 +400,7 @@ describe("CoreRemoteMongoCollection", () => {
     const coll = getCollection(undefined, client);
 
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenResolve({ deletedCount: 1 });
 
     const expectedFilter = { one: 2 };
@@ -408,7 +408,7 @@ describe("CoreRemoteMongoCollection", () => {
     expect(1).toEqual(result.deletedCount);
 
     const [funcNameArg, funcArgsArg, resultClassArg]: any[] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect("deleteMany").toEqual(funcNameArg);
@@ -424,7 +424,7 @@ describe("CoreRemoteMongoCollection", () => {
 
     // Should pass along errors
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenReject(new Error("whoops"));
     try {
       await coll.deleteMany({});
@@ -443,7 +443,7 @@ describe("CoreRemoteMongoCollection", () => {
     const id = new BSON.ObjectID();
 
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenResolve({
       matchedCount: 1,
       modifiedCount: 1,
@@ -458,7 +458,7 @@ describe("CoreRemoteMongoCollection", () => {
     expect(id.toHexString()).toEqual(result.upsertedId);
 
     const [funcNameArg, funcArgsArg, resultClassArg]: any[] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect("updateOne").toEqual(funcNameArg);
@@ -481,11 +481,11 @@ describe("CoreRemoteMongoCollection", () => {
     expect(id.toHexString()).toEqual(result.upsertedId);
 
     verify(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).times(2);
 
     const [funcNameArg2, funcArgsArg2, resultClassArg2]: any[] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect("updateOne").toEqual(funcNameArg2);
@@ -496,7 +496,7 @@ describe("CoreRemoteMongoCollection", () => {
 
     // Should pass along errors
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenReject(new Error("whoops"));
     try {
       await coll.updateOne({}, {});
@@ -515,7 +515,7 @@ describe("CoreRemoteMongoCollection", () => {
     const id = new BSON.ObjectID();
 
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenResolve({
       matchedCount: 1,
       modifiedCount: 1,
@@ -530,7 +530,7 @@ describe("CoreRemoteMongoCollection", () => {
     expect(id.toHexString()).toEqual(result.upsertedId);
 
     const [funcNameArg, funcArgsArg, resultClassArg]: any[] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect("updateMany").toEqual(funcNameArg);
@@ -551,11 +551,11 @@ describe("CoreRemoteMongoCollection", () => {
     expect(id.toHexString()).toEqual(result.upsertedId);
 
     verify(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).times(2);
 
     const [funcNameArg2, funcArgsArg2, resultClassArg2]: any[] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect("updateMany").toEqual(funcNameArg2);
@@ -566,7 +566,7 @@ describe("CoreRemoteMongoCollection", () => {
 
     // Should pass along errors
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenReject(new Error("whoops"));
     try {
       await coll.updateMany({}, {});

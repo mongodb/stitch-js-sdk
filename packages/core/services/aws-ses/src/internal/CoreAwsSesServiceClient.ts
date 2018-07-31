@@ -17,7 +17,11 @@
 import { CoreStitchServiceClient } from "mongodb-stitch-core-sdk";
 import AwsSesSendResult from "../AwsSesSendResult";
 
-/** @hidden */
+/** 
+ * @hidden 
+ * 
+ * @deprecated use AwsServiceClient instead.
+ */
 export default class CoreAwsSesServiceClient {
   public constructor(private readonly service: CoreStitchServiceClient) {}
 
@@ -34,7 +38,7 @@ export default class CoreAwsSesServiceClient {
       toAddress
     };
 
-    return this.service.callFunctionInternal(
+    return this.service.callFunction(
       "send",
       [args],
       AwsSesSendResult.Decoder

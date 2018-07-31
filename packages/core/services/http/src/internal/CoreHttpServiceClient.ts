@@ -93,7 +93,7 @@ export default class CoreHttpServiceClient {
       args[RequestAction.HttpFollowRedirectsParam] = request.followRedirects;
     }
 
-    return this.service.callFunctionInternal(
+    return this.service.callFunction(
       action,
       [args],
       ResultDecoders.HttpResponseDecoder

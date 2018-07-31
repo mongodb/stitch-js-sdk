@@ -34,8 +34,7 @@ For customized dependencies use the following:
 
 ```bash
 npm install mongodb-stitch-react-native-core
-npm install mongodb-stitch-react-native-services-aws-s3
-npm install mongodb-stitch-react-native-services-aws-ses
+npm install mongodb-stitch-react-native-services-aws
 npm install mongodb-stitch-react-native-services-http
 npm install mongodb-stitch-react-native-services-mongodb-remote
 npm install mongodb-stitch-react-native-services-twilio
@@ -148,7 +147,7 @@ const styles = StyleSheet.create({
 
 ```
 
-7. Run the app by running `npm start` and following the instructions in the terminal.
+7. Run the app by running `npm start` and following the instructions in the terminal. You may need to run `npm install` before `npm start` works correctly.
 
 ### Using the SDK
 

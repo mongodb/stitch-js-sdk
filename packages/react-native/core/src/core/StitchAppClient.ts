@@ -16,6 +16,7 @@
 
 import NamedServiceClientFactory from "../services/internal/NamedServiceClientFactory";
 import ServiceClientFactory from "../services/internal/ServiceClientFactory";
+import StitchServiceClient from "../services/StitchServiceClient";
 import StitchAuth from "./auth/StitchAuth";
 
 /**
@@ -55,6 +56,15 @@ export default interface StitchAppClient {
    * @param factory The factory that produces the desired service client.
    */
   getServiceClient<T>(factory: ServiceClientFactory<T>): T;
+  
+  /**
+   * Retrieves a general-purpose service client for the Stitch service
+   * associated with the specified name. Use this for services which do not
+   * have a well-defined interface in the SDK.
+   * 
+   * @param serviceName The name of the desired service in MongoDB Stitch.
+   */
+  getGeneralServiceClient(serviceName: string): StitchServiceClient;
 
   /**
    * Calls the MongoDB Stitch function with the provided name and arguments,

@@ -34,8 +34,7 @@ For customized dependencies use the following:
 
 ```bash
 npm install mongodb-stitch-server-core
-npm install mongodb-stitch-server-services-aws-s3
-npm install mongodb-stitch-server-services-aws-ses
+npm install mongodb-stitch-server-services-aws
 npm install mongodb-stitch-server-services-http
 npm install mongodb-stitch-server-services-mongodb-remote
 npm install mongodb-stitch-server-services-twilio

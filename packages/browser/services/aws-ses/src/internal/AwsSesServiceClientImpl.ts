@@ -20,7 +20,11 @@ import {
 } from "mongodb-stitch-core-services-aws-ses";
 import { AwsSesServiceClient } from "../AwsSesServiceClient";
 
-/** @hidden */
+/** 
+ * @hidden
+ * 
+ * @deprecated use AwsServiceClient instead.
+ */
 export default class AwsSesServiceClientImpl implements AwsSesServiceClient {
   public constructor(private readonly proxy: CoreAwsSesServiceClient) {}
 

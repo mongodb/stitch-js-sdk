@@ -16,17 +16,19 @@
 
 import {
   CoreStitchAppClient,
+  CoreStitchServiceClientImpl,
   StitchAppClientConfiguration,
   StitchAppClientInfo,
   StitchRequestClient
 } from "mongodb-stitch-core-sdk";
 import NamedServiceClientFactory from "../../services/internal/NamedServiceClientFactory";
 import ServiceClientFactory from "../../services/internal/ServiceClientFactory";
-import StitchServiceImpl from "../../services/internal/StitchServiceImpl";
 import StitchAuthImpl from "../auth/internal/StitchAuthImpl";
 import StitchBrowserAppRoutes from "../auth/internal/StitchBrowserAppRoutes";
 
 import StitchAppClient from "../StitchAppClient";
+import StitchServiceClient from "../../services/StitchServiceClient";
+import StitchServiceClientImpl from "../../services/internal/StitchServiceClientImpl";
 
 /** @hidden */
 export default class StitchAppClientImpl implements StitchAppClient {
@@ -69,12 +71,12 @@ export default class StitchAppClientImpl implements StitchAppClient {
   ): T {
     if (isServiceClientFactory(factory)) {
       return factory.getClient(
-        new StitchServiceImpl(this.auth, this.routes.serviceRoutes, ""),
+        new CoreStitchServiceClientImpl(this.auth, this.routes.serviceRoutes, ""),
         this.info
       );
     } else {
       return factory.getNamedClient(
-        new StitchServiceImpl(
+        new CoreStitchServiceClientImpl(
           this.auth,
           this.routes.serviceRoutes,
           serviceName!
@@ -84,8 +86,18 @@ export default class StitchAppClientImpl implements StitchAppClient {
     }
   }
 
+  public getGeneralServiceClient(serviceName: string): StitchServiceClient {
+    return new StitchServiceClientImpl(
+      new CoreStitchServiceClientImpl(
+        this.auth,
+        this.routes.serviceRoutes,
+        serviceName
+      )
+    );
+  }
+
   public callFunction(name: string, args: any[]): Promise<any> {
-    return this.coreClient.callFunctionInternal(name, args);
+    return this.coreClient.callFunction(name, args);
   }
 }
 

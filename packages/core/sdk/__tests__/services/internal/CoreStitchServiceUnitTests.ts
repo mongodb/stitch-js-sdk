@@ -34,7 +34,7 @@ import { StitchAuthRequest } from "../../../src/internal/net/StitchAuthRequest";
 import CoreStitchServiceClientImpl from "../../../src/services/internal/CoreStitchServiceClientImpl";
 
 describe("CoreStitchServiceUnitTests", () => {
-  it("should call function internal", () => {
+  it("should call function", () => {
     const serviceName = "svc1";
     const routes = new StitchServiceRoutes("foo");
 
@@ -64,7 +64,7 @@ describe("CoreStitchServiceUnitTests", () => {
     };
 
     return coreStitchService
-      .callFunctionInternal(funcName, args)
+      .callFunction(funcName, args)
       .then(response => {
         expect(response).toBe(42);
 

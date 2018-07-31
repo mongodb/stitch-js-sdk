@@ -22,6 +22,8 @@ enum Fields {
 
 /**
  * The result of an AWS SES send request.
+ * 
+ * @deprecated use AwsServiceClient instead.
  */
 export default class AwsSesSendResult {
   /** @hidden */

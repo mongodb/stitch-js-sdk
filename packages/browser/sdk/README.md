@@ -34,8 +34,7 @@ For customized dependencies use the following:
 
 ```bash
 npm install mongodb-stitch-browser-core
-npm install mongodb-stitch-browser-services-aws-s3
-npm install mongodb-stitch-browser-services-aws-ses
+npm install mongodb-stitch-browser-services-aws
 npm install mongodb-stitch-browser-services-http
 npm install mongodb-stitch-browser-services-mongodb-remote
 npm install mongodb-stitch-browser-services-twilio
@@ -52,8 +51,7 @@ You can also include the SDK directly in your HTML code using script tags. For c
 For customized dependencies use the following:
 ```html
 <script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.12/stitch-core.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.12/stitch-services-aws-s3.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.12/stitch-services-aws-ses.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.12/stitch-services-aws.js"></script>
 <script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.12/stitch-services-http.js"></script>
 <script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.12/stitch-services-mongodb-remote.js"></script>
 <script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.12/stitch-services-twilio.js"></script>
