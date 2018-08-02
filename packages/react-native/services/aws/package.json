@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-react-native-services-aws",
-  "version": "4.0.12",
+  "version": "4.0.13",
   "main": "dist/umd/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -39,16 +39,16 @@
   "license": "Apache-2.0",
   "dependencies": {
     "mongodb-stitch-bson": "^1.0.0",
-    "mongodb-stitch-core-services-aws": "^4.0.12",
-    "mongodb-stitch-react-native-core": "^4.0.12"
+    "mongodb-stitch-core-services-aws": "^4.0.13",
+    "mongodb-stitch-react-native-core": "^4.0.13"
   },
   "devDependencies": {
     "babel-jest": "^23.4.0",
     "babel-preset-react-native": "^4.0.0",
     "jest": "^23.1.0",
-    "mongodb-stitch-core-admin-client": "^4.0.12",
-    "mongodb-stitch-core-sdk": "^4.0.12",
-    "mongodb-stitch-react-native-testutils": "^4.0.12",
+    "mongodb-stitch-core-admin-client": "^4.0.13",
+    "mongodb-stitch-core-sdk": "^4.0.13",
+    "mongodb-stitch-react-native-testutils": "^4.0.13",
     "prettier": "^1.13.5",
     "react-native": "^0.56.0",
     "rollup": "^0.60.7",

@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-server-core",
-  "version": "4.0.12",
+  "version": "4.0.13",
   "main": "dist/umd/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -39,7 +39,7 @@
   "dependencies": {
     "fs-extra": "^6.0.1",
     "mongodb-stitch-bson": "^1.0.0",
-    "mongodb-stitch-core-sdk": "^4.0.12"
+    "mongodb-stitch-core-sdk": "^4.0.13"
   },
   "devDependencies": {
     "prettier": "^1.13.5",
