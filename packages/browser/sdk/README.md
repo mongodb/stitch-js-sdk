@@ -11,7 +11,7 @@ The official [MongoDB Stitch](https://stitch.mongodb.com/) Browser SDK for JavaS
 - [Example Usage](#example-usage)
 
 ## Documentation
-* [API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js/docs/4.0.12/index.html)
+* [API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js/docs/4.0.13/index.html)
 * [MongoDB Stitch Documentation](https://docs.mongodb.com/stitch/)
 
 ## Discussion
@@ -45,16 +45,16 @@ npm install mongodb-stitch-browser-services-twilio
 You can also include the SDK directly in your HTML code using script tags. For core SDK functionality and the remote MongoDB service, use the following:
 
 ```html
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.12/stitch.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.13/stitch.js"></script>
 ```
 
 For customized dependencies use the following:
 ```html
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.12/stitch-core.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.12/stitch-services-aws.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.12/stitch-services-http.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.12/stitch-services-mongodb-remote.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.12/stitch-services-twilio.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.13/stitch-core.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.13/stitch-services-aws.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.13/stitch-services-http.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.13/stitch-services-mongodb-remote.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.0.13/stitch-services-twilio.js"></script>
 ```
 
 ## Example Usage
