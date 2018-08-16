@@ -483,8 +483,8 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
 
             eventSubscriptions: function eventSubscriptions() {
               return {
-                list: function list() {
-                  return api._get(appUrl + '/event_subscriptions');
+                list: function list(filter) {
+                  return api._get(appUrl + '/event_subscriptions', filter);
                 },
                 create: function create(data) {
                   return api._post(appUrl + '/event_subscriptions', data);
