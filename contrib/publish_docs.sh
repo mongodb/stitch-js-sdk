@@ -6,8 +6,8 @@ VERSION=`node -e 'console.log(require("../lerna.json").version)'`
 VERSION_MAJOR=$(echo $VERSION | cut -d. -f1)
 VERSION_MINOR=$(echo $VERSION | cut -d. -f2)
 VERSION_PATCH=$(echo $VERSION | cut -d. -f3 | cut -d- -f1)
-VERSION_QUALIFIER=$(echo $VERSION | cut -d- -f2)
-VERSION_QUALIFIER_INC=$(echo $VERSION | cut -d- -f3)
+VERSION_QUALIFIER=$(echo $VERSION | cut -d- -f2 -s)
+VERSION_QUALIFIER_INC=$(echo $VERSION | cut -d- -f3 -s)
 
 npm run docs
 
