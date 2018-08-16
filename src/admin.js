@@ -279,7 +279,7 @@ export class StitchAdminClient extends StitchClient {
           }),
 
           eventSubscriptions: () => ({
-            list: () => api._get(`${appUrl}/event_subscriptions`),
+            list: (filter) => api._get(`${appUrl}/event_subscriptions`, filter),
             create: (data) => api._post(`${appUrl}/event_subscriptions`, data),
             eventSubscription: (eventSubscriptionId) => ({
               get: () => api._get(`${appUrl}/event_subscriptions/${eventSubscriptionId}`),
