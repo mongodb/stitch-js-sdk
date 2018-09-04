@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { Codec, Encoder } from "../../../../sdk/dist/esm";
-import { applyMixins, BasicResource, Creatable, Listable } from "../../Resources";
-import AppRoutes from "../routes/AppRoutes";
-import AppsRoutes from "../routes/AppsRoutes";
+import { Codec, Encoder } from "mongodb-stitch-core-sdk";
+import AppRoutes from "../internal/routes/AppRoutes";
+import AppsRoutes from "../internal/routes/AppsRoutes";
+import { applyMixins, BasicResource, Creatable, Listable } from "../Resources";
 import AppResource from "./AppResource";
 
 enum Fields {

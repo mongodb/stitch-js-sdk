@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { StitchAuthRoutes } from "../../sdk/dist/esm";
+import { StitchAuthRoutes } from "mongodb-stitch-core-sdk";
 
 /**
  * The set of authentication routes on the Stitch server to authenticate as an admin user.

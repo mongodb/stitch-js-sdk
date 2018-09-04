@@ -1,5 +1,5 @@
-import { applyMixins, BasicResource, Gettable, Removable } from "../../Resources";
-import ServiceRoutes from "../routes/ServiceRoutes";
+import ServiceRoutes from "../internal/routes/ServiceRoutes";
+import { applyMixins, BasicResource, Gettable, Removable } from "../Resources";
 import { RulesResource } from "./RulesResource";
 import { ServiceResponse, ServiceResponseCodec } from "./ServicesResource";
 

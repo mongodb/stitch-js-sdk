@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "jest": "^23.1.0",
+    "@types/bson": "^1.0.11",
     "prettier": "^1.13.5",
     "ts-jest": "^22.4.6",
     "ts-mockito": "^2.3.0",

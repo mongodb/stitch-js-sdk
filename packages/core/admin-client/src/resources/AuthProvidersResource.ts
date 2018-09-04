@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { Codec } from "../../../../sdk/dist/esm";
-import AuthProvidersRoutes from "../../authProviders/routes/AuthProvidersRoutes";
-import { ProviderConfig, ProviderConfigCodec } from "../../configs/AuthProviderConfigs";
-import { applyMixins, BasicResource, Creatable, Listable } from "../../Resources";
-import AuthProviderRoutes from "../routes/AuthProviderRoutes";
+import { Codec } from "mongodb-stitch-core-sdk";
+import { ProviderConfig, ProviderConfigCodec } from "../configs/AuthProviderConfigs";
+import AuthProviderRoutes from "../internal/routes/AuthProviderRoutes";
+import AuthProvidersRoutes from "../internal/routes/AuthProvidersRoutes";
+import { applyMixins, BasicResource, Creatable, Listable } from "../Resources";
 import AuthProviderResource from "./AuthProviderResource";
 
 /// View into a specific auth provider

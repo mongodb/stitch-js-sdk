@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ApiStitchUserIdentity, Codec, Decoder } from "../../sdk/dist/esm";
+import { ApiStitchUserIdentity, Codec, Decoder } from "mongodb-stitch-core-sdk";
 
 enum StitchAdminUserProfileFields {
   UserType = "type",

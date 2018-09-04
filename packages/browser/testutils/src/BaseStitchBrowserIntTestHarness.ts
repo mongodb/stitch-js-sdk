@@ -23,7 +23,7 @@ import {
   UserPasswordAuthProviderClient,
   UserPasswordCredential
 } from "mongodb-stitch-browser-core";
-import { App, AppResponse } from "mongodb-stitch-core-admin-client";
+import { AppResource, AppResponse } from "mongodb-stitch-core-admin-client";
 import { BaseStitchIntTestHarness } from "mongodb-stitch-core-testutils";
 
 const stitchBaseUrlEnvVar = "STITCH_BASE_URL";
@@ -68,7 +68,7 @@ export default class BaseStitchBrowserIntTestHarness extends BaseStitchIntTestHa
 
   // Registers a new email/password user, and logs them in, returning the user's ID
   public async registerAndLoginWithUserPass(
-    app: App,
+    app: AppResource,
     client: StitchAppClient,
     email: string,
     pass: string

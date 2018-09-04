@@ -6,7 +6,7 @@ export default class ServicesRoutes implements StitchAdminRoutes {
     public readonly baseRoute: string;
 
     constructor(appRoutes: AppRoutes) {
-        this.baseRoute = `${appRoutes}/services`
+        this.baseRoute = `${appRoutes.baseRoute}/services`
     }
 
     public getServiceRoutes(serviceId: string) {

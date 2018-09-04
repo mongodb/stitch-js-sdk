@@ -1,5 +1,5 @@
-import { applyMixins, BasicResource, Disablable, Enablable, Gettable, Removable, Updatable } from "../../Resources";
-import AuthProviderRoutes from "../routes/AuthProviderRoutes";
+import AuthProviderRoutes from "../internal/routes/AuthProviderRoutes";
+import { applyMixins, BasicResource, Disablable, Enablable, Gettable, Removable, Updatable } from "../Resources"
 import { AuthProviderResponse, AuthProviderResponseCodec } from "./AuthProvidersResource";
 
 // / Resource for a specific auth provider of an application

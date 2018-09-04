@@ -15,7 +15,7 @@
  */
 
 import { fail } from "assert";
-import { App, AppResponse } from "mongodb-stitch-core-admin-client";
+import { AppResource, AppResponse } from "mongodb-stitch-core-admin-client";
 import { BaseStitchIntTestHarness } from "mongodb-stitch-core-testutils";
 import {
   MemoryStorage,
@@ -68,7 +68,7 @@ export default class BaseStitchServerIntTestHarness extends BaseStitchIntTestHar
 
   // Registers a new email/password user, and logs them in, returning the user's ID
   public async registerAndLoginWithUserPass(
-    app: App,
+    app: AppResource,
     client: StitchAppClient,
     email: string,
     pass: string

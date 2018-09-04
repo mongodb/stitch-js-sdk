@@ -21,7 +21,7 @@ import {
   Method,
   StitchAuthRequest,
   StitchAuthRequestClient,
-} from "../../sdk/dist/esm";
+} from "mongodb-stitch-core-sdk";
 import { StitchAdminRoutes } from "./StitchAdminResourceRoutes";
 
 export function applyMixins(derivedCtor: any, baseCtors: any[]) {

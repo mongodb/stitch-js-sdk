@@ -17,16 +17,18 @@
 import { ObjectID } from "bson";
 import * as fetch from "fetch-everywhere";
 import {
-  App,
+  AppCreator,
+  AppResource,
   AppResponse,
   AuthProviderResponse,
   ProviderConfig,
   RuleCreator,
   RuleResponse,
-  Service,
   ServiceConfig,
+  ServiceResource,
   ServiceResponse,
-  StitchAdminClient
+  StitchAdminClient,
+  StitchAdminClientConfiguration
 } from "mongodb-stitch-core-admin-client";
 import {
   UserApiKeyAuthProvider,
@@ -39,22 +41,22 @@ export default abstract class BaseStitchIntTestHarness {
   protected abstract readonly stitchBaseUrl: string;
 
   private groupId = "";
-  private apps: App[] = [];
+  private apps: AppResource[] = [];
   private initialized = false;
 
   private readonly adminClient: StitchAdminClient = new StitchAdminClient(
-    this.stitchBaseUrl
+    new StitchAdminClientConfiguration.Builder().withBaseUrl(this.stitchBaseUrl).build()
   );
 
   public setup(): Promise<void> {
     // Verify stitch is up
     return fetch(this.stitchBaseUrl)
       .then(result =>
-        this.adminClient.loginWithCredential(
+        this.adminClient.adminAuth.loginWithCredential(
           new UserPasswordCredential("unique_user@domain.com", "password")
         )
       )
-      .then(result => this.adminClient.adminProfile())
+      .then(result => this.adminClient.adminAuth.user!.profile!)
       .then(profile => {
         this.groupId = profile.roles[0].groupId;
         this.initialized = true;
@@ -77,24 +79,24 @@ export default abstract class BaseStitchIntTestHarness {
       this.apps.map(app => {
         app.remove();
       })
-    ).then(() => this.adminClient.logout());
+    ).then(() => this.adminClient.adminAuth.logout());
   }
 
   public async createApp(
     appName = `test-${new ObjectID().toHexString()}`
-  ): Promise<Array<App | AppResponse>> {
+  ): Promise<Array<AppResource | AppResponse>> {
     return this.adminClient
       .apps(this.groupId)
-      .create(appName)
+      .create({name: appName})
       .then((appInfo: AppResponse) => {
-        const app: App = this.adminClient.apps(this.groupId).app(appInfo.id);
+        const app: AppResource = this.adminClient.apps(this.groupId).app(appInfo.id);
         this.apps.push(app);
         return [appInfo, app];
       });
   }
 
   public async addProvider(
-    app: App,
+    app: AppResource,
     config: ProviderConfig
   ): Promise<AuthProviderResponse> {
     let authProviders;
@@ -107,7 +109,7 @@ export default abstract class BaseStitchIntTestHarness {
       .then(() => authProviders);
   }
 
-  public async enableApiKeyProvider(app: App): Promise<void> {
+  public async enableApiKeyProvider(app: AppResource): Promise<void> {
     return app.authProviders.list().then(responses => {
       const apiKeyProvider = responses.find(
         it => it.name === UserApiKeyAuthProvider.DEFAULT_NAME
@@ -117,10 +119,10 @@ export default abstract class BaseStitchIntTestHarness {
   }
 
   public async addService(
-    app: App,
+    app: AppResource,
     type: string,
     config: ServiceConfig
-  ): Promise<Array<ServiceResponse | Service>> {
+  ): Promise<Array<ServiceResponse | ServiceResource>> {
     return app.services.create(config).then(svcInfo => {
       const svc = app.services.service(svcInfo.id);
       return [svcInfo, svc];
@@ -128,7 +130,7 @@ export default abstract class BaseStitchIntTestHarness {
   }
 
   public async addRule(
-    svc: Service,
+    svc: ServiceResource,
     config: RuleCreator
   ): Promise<RuleResponse> {
     return svc.rules.create(config);

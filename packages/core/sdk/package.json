@@ -43,6 +43,7 @@
     "mongodb-extjson": "^3.0.0"
   },
   "devDependencies": {
+    "@types/bson": "^1.0.11",
     "jest": "^23.1.0",
     "prettier": "^1.13.5",
     "text-encoder-lite": "^1.0.1",

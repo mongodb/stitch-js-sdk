@@ -18,9 +18,9 @@ import {
   FetchTransport,
   MemoryStorage,
   StitchRequestClient,
-} from "../../sdk/dist/esm";
-import AppsRoutes from "./apps/routes/AppsRoutes";
-import { AppsResource } from "./internal/resources/AppsResource";
+} from "mongodb-stitch-core-sdk";
+import AppsRoutes from "./internal/routes/AppsRoutes";
+import { AppsResource } from "./resources/AppsResource";
 import StitchAdminAuth from "./StitchAdminAuth";
 import StitchAdminAuthRoutes from "./StitchAdminAuthRoutes";
 import { StitchAdminClientConfiguration } from "./StitchAdminClientConfiguration";
@@ -34,9 +34,7 @@ const apiPath = "/api/admin/v3.0";
 const defaultServerUrl = "https://stitch.mongodb.com";
 
 export default class StitchAdminClient {
-  
-
-  private readonly adminAuth: StitchAdminAuth;
+  public readonly adminAuth: StitchAdminAuth;
   private readonly resourceRoutes = new StitchAdminResourceRoutes(apiPath);
   private readonly authRoutes: StitchAdminAuthRoutes;
 
@@ -55,14 +53,14 @@ export default class StitchAdminClient {
       builder.transport = new FetchTransport();
     }
 
-    const requestClient = new StitchRequestClient(builder.baseUrl, builder.transport);
+    const requestClient = new StitchRequestClient(builder.baseUrl!, builder.transport!);
 
-    this.authRoutes = new StitchAdminAuthRoutes();
+    this.authRoutes = new StitchAdminAuthRoutes(apiPath);
 
     this.adminAuth = new StitchAdminAuth(
       requestClient,
       this.authRoutes,
-      builder.storage
+      builder.storage!
     );
   }
 

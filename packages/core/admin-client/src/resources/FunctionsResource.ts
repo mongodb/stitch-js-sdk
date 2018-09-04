@@ -1,7 +1,7 @@
-import { Codec } from "../../../../sdk/dist/esm";
-import { applyMixins, BasicResource, Creatable, Listable } from "../../Resources";
-import FunctionRoutes from "../routes/FunctionRoutes";
-import FunctionsRoutes from "../routes/FunctionsRoutes";
+import { Codec } from "mongodb-stitch-core-sdk";
+import FunctionRoutes from "../internal/routes/FunctionRoutes";
+import FunctionsRoutes from "../internal/routes/FunctionsRoutes";
+import { applyMixins, BasicResource, Creatable, Listable } from "../Resources";
 import FunctionResource from "./FunctionResource";
 
 // / For creating or updating a function of an application

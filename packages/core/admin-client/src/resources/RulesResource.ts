@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { Codec, Encoder } from "../../../../sdk/dist/esm";
-import { applyMixins, BasicResource, Creatable, Listable } from "../../Resources";
-import RulesRoutes from "../routes/RulesRoutes";
+import { Codec, Encoder } from "mongodb-stitch-core-sdk";
+import RulesRoutes from "../internal/routes/RulesRoutes";
+import { applyMixins, BasicResource, Creatable, Listable } from "../Resources";
 
 export enum AwsS3Actions {
   Put = "put",

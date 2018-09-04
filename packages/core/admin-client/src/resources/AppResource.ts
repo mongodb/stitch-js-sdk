@@ -1,11 +1,12 @@
-import { applyMixins, BasicResource, Gettable, Removable } from "../../Resources";
-import AppRoutes from "../routes/AppRoutes";
+import AppRoutes from "../internal/routes/AppRoutes";
+import { applyMixins, BasicResource, Gettable, Removable } from "../Resources";
 import { AppResponse, AppResponseCodec } from "./AppsResource";
 import { AuthProvidersResource } from "./AuthProvidersResource";
 import { FunctionsResource } from "./FunctionsResource";
 import { ServicesResource } from "./ServicesResource";
 import { UserRegistrationsResource } from "./UserRegistrationsResource";
 import { UsersResource } from "./UsersResource";
+import { ValuesResource } from "./ValuesResource";
 
 export default class AppResource 
   extends BasicResource<AppRoutes>
@@ -32,6 +33,10 @@ export default class AppResource
       this.authRequestClient,
       this.routes.userRegistrationsRoute
     );
+    public readonly values = new ValuesResource(
+      this.authRequestClient,
+      this.routes.valuesRoute
+    )
   
     public get: () => Promise<AppResponse>;
     public remove: () => Promise<void>;

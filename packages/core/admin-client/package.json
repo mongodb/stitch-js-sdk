@@ -39,13 +39,49 @@
   "private": true,
   "dependencies": {
     "mongodb-extjson": "^3.0.0",
-    "mongodb-stitch-core-sdk": "^4.0.6"
+    "mongodb-stitch-core-sdk": "^4.0.6",
+    "bson": "^3.0.0"
   },
   "devDependencies": {
     "prettier": "^1.13.5",
+    "@types/bson": "^1.0.11",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
     "typescript": "^2.9.2"
+  },
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "tsconfig.umd.json"
+      }
+    },
+    "reporters": [
+      "default",
+      [
+        "jest-junit",
+        {
+          "output": "./build/test-results/junit.xml"
+        }
+      ]
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "testPathIgnorePatterns": [
+      "/lib/",
+      "/node_modules/",
+      "ApiTestUtils.*"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "collectCoverage": true
   },
   "scripts": {
     "build": "npm run build-main && npm run build-module",

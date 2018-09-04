@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "bson": "^3.0.0",
+    "@types/bson": "^1.0.11",
     "jest": "^23.1.0",
     "mongodb-stitch-core-admin-client": "^4.0.6",
     "mongodb-stitch-core-sdk": "^4.0.6",

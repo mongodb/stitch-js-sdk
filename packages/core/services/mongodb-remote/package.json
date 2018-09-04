@@ -43,6 +43,7 @@
   "devDependencies": {
     "jest": "^23.1.0",
     "prettier": "^1.13.5",
+    "@types/bson": "^1.0.11",
     "ts-jest": "^22.4.6",
     "ts-mockito": "^2.3.0",
     "tslint": "^5.10.0",

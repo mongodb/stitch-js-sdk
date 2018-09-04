@@ -14,43 +14,12 @@
  * limitations under the License.
  */
 
-import { AppResponse } from "./apps/AppsResources";
-import { AuthProviderResponse } from "./authProviders/AuthProvidersResources";
 import {
   Anon,
   Custom,
   ProviderConfig,
   Userpass
-} from "./authProviders/ProviderConfigs";
-import { FunctionCreator } from "./functions/FunctionsResources";
-import {
-  App,
-  Apps,
-  AuthProvider,
-  AuthProviders,
-  Function,
-  Functions,
-  Rule,
-  Rules,
-  Service,
-  Services,
-  User,
-  UserRegistrations,
-  Users
-} from "./Resources";
-import {
-  AwsS3Actions,
-  AwsS3RuleCreator,
-  AwsSesActions,
-  AwsSesRuleCreator,
-  HttpActions,
-  HttpRuleCreator,
-  MongoDbRuleCreator,
-  RuleCreator,
-  RuleResponse,
-  TwilioActions,
-  TwilioRuleCreator
-} from "./services/rules/RulesResources";
+} from "./configs/AuthProviderConfigs";
 import {
   AwsS3,
   AwsS3Config,
@@ -61,33 +30,60 @@ import {
   ServiceConfig,
   Twilio,
   TwilioConfig
-} from "./services/ServiceConfigs";
-import { ServiceResponse } from "./services/ServicesResources";
+} from "./configs/ServiceConfigs";
+import AppResource from "./resources/AppResource";
+import { AppCreator, AppResponse, AppsResource } from "./resources/AppsResource";
+import AuthProviderResource from "./resources/AuthProviderResource";
+import { AuthProviderResponse, AuthProvidersResource } from "./resources/AuthProvidersResource";
+import FunctionResource from "./resources/FunctionResource";
+import { FunctionCreator, FunctionsResource } from "./resources/FunctionsResource";
+import RuleResource from "./resources/RuleResource";
+import {
+  AwsS3Actions,
+  AwsS3RuleCreator,
+  AwsSesActions,
+  AwsSesRuleCreator,
+  HttpActions,
+  HttpRuleCreator,
+  MongoDbRuleCreator,
+  RuleCreator,
+  RuleResponse,
+  RulesResource,
+  TwilioActions,
+  TwilioRuleCreator
+} from "./resources/RulesResource";
+import ServiceResource from "./resources/ServiceResource";
+import { ServiceResponse, ServicesResource } from "./resources/ServicesResource";
+import { ConfirmationEmail, UserRegistrationsResource } from "./resources/UserRegistrationsResource";
+import UserResource from "./resources/UserResource";
+import { UsersResource } from "./resources/UsersResource";
 import StitchAdminClient from "./StitchAdminClient";
-import { ConfirmationEmail } from "./userRegistrations/UserRegistrationsResources";
+import { StitchAdminClientConfiguration } from "./StitchAdminClientConfiguration";
 
 export {
+  StitchAdminClientConfiguration,
   Anon,
   Userpass,
-  Apps,
-  App,
+  AppsResource,
+  AppCreator,
+  AppResource,
   Custom,
-  Functions,
-  Function,
+  FunctionsResource,
+  FunctionResource,
   FunctionCreator,
-  Services,
-  Service,
+  ServicesResource,
+  ServiceResource,
   ServiceConfig,
   ServiceResponse,
   StitchAdminClient,
-  User,
-  Users,
-  UserRegistrations,
-  Rule,
+  UserResource,
+  UsersResource,
+  UserRegistrationsResource,
+  RuleResource,
   RuleCreator,
-  Rules,
-  AuthProvider,
-  AuthProviders,
+  RulesResource,
+  AuthProviderResource,
+  AuthProvidersResource,
   AppResponse,
   AuthProviderResponse,
   RuleResponse,

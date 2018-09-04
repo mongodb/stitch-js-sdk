@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { Codec, Method, StitchAuthRequest } from "../../../../sdk/dist/esm";
-import { BasicResource } from "../../Resources";
-import UserRegistrationRoutes from "../routes/UserRegistrationsRoutes";
+import { Codec, Method, StitchAuthRequest } from "mongodb-stitch-core-sdk";
+import UserRegistrationRoutes from "../internal/routes/UserRegistrationsRoutes";
+import { BasicResource } from "../Resources";
 
 enum Fields {
   Token = "token",

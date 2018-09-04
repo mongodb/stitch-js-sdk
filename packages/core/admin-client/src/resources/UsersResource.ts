@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import { Codec } from "../../../../sdk/dist/esm";
-import { applyMixins, BasicResource, Creatable, Listable, UserResource } from "../../Resources";
-import UsersRoutes from "../routes/UsersRoutes";
+import { Codec } from "mongodb-stitch-core-sdk";
+import UsersRoutes from "../internal/routes/UsersRoutes";
+import { applyMixins, BasicResource, Creatable, Listable } from "../Resources";
+import UserResource from "./UserResource";
 
 // / Creates a new user for an application
 export interface UserCreator {

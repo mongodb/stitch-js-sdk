@@ -1,7 +1,7 @@
-import { Codec } from "../../../../sdk/dist/esm";
-import { ServiceConfig, ServiceConfigCodec } from "../../configs/ServiceConfigs";
-import { applyMixins, BasicResource, Creatable, Listable } from "../../Resources";
-import ServicesRoutes from "../routes/ServicesRoutes";
+import { Codec } from "mongodb-stitch-core-sdk";
+import { ServiceConfig, ServiceConfigCodec } from "../configs/ServiceConfigs";
+import ServicesRoutes from "../internal/routes/ServicesRoutes";
+import { applyMixins, BasicResource, Creatable, Listable } from "../Resources";
 import ServiceResource from "./ServiceResource";
 
 /**
