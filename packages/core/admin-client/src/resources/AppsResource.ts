@@ -83,4 +83,4 @@ export class AppsResource
     );
   }
 }
-applyMixins(AppsResource, [Listable]);
+applyMixins(AppsResource, [Listable, Creatable]);
