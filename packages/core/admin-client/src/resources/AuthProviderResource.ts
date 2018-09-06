@@ -1,9 +1,21 @@
 import AuthProviderRoutes from "../internal/routes/AuthProviderRoutes";
-import { applyMixins, BasicResource, Disablable, Enablable, Gettable, Removable, Updatable } from "../Resources"
-import { AuthProviderResponse, AuthProviderResponseCodec } from "./AuthProvidersResource";
+import {
+  applyMixins,
+  BasicResource,
+  Disablable,
+  Enablable,
+  Gettable,
+  Removable,
+  Updatable
+} from "../Resources";
+import {
+  AuthProviderResponse,
+  AuthProviderResponseCodec
+} from "./AuthProvidersResource";
 
 // / Resource for a specific auth provider of an application
-export default class AuthProviderResource extends BasicResource<AuthProviderRoutes>
+export default class AuthProviderResource
+  extends BasicResource<AuthProviderRoutes>
   implements
     Gettable<AuthProviderResponse, AuthProviderRoutes>,
     Updatable<AuthProviderResponse, AuthProviderRoutes>,

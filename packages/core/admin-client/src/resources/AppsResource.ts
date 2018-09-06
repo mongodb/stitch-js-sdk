@@ -32,7 +32,7 @@ export interface AppCreator {
 
 export class AppCreatorCodec implements Encoder<AppCreator> {
   public encode(from: AppCreator): object {
-    return {[Fields.Name]: from.name}
+    return { [Fields.Name]: from.name };
   }
 }
 
@@ -64,10 +64,10 @@ export class AppResponseCodec implements Codec<AppResponse> {
   }
 }
 
-export class AppsResource 
-  extends BasicResource<AppsRoutes>
-  implements Listable<AppResponse, AppsRoutes>, Creatable<AppCreator, AppResponse, AppsRoutes> {
-
+export class AppsResource extends BasicResource<AppsRoutes>
+  implements
+    Listable<AppResponse, AppsRoutes>,
+    Creatable<AppCreator, AppResponse, AppsRoutes> {
   public readonly codec = new AppResponseCodec();
   public readonly creatorCodec = new AppCreatorCodec();
 

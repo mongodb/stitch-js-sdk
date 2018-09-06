@@ -49,9 +49,10 @@ export class ConfirmationEmailCodec implements Codec<ConfirmationEmail> {
   }
 }
 
-
 // / Resource for user registrations of an application
-export class UserRegistrationsResource extends BasicResource<UserRegistrationRoutes> {
+export class UserRegistrationsResource extends BasicResource<
+  UserRegistrationRoutes
+> {
   public sendConfirmation(email: string): Promise<ConfirmationEmail> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder

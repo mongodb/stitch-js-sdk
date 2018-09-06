@@ -1,5 +1,5 @@
 import { ObjectId } from "bson";
-import { Codec, Encoder }  from "mongodb-stitch-core-sdk";
+import { Codec, Encoder } from "mongodb-stitch-core-sdk";
 import ValuesRoutes from "../internal/routes/ValuesRoutes";
 import { applyMixins, BasicResource, Creatable, Listable } from "../Resources";
 import ValueResource from "./ValueResource";
@@ -9,8 +9,8 @@ export class ValueCreatorCodec implements Encoder<ValueCreator> {
     return {
       name: from.name,
       private: from.private,
-      value: from.value,
-    }
+      value: from.value
+    };
   }
 }
 
@@ -28,8 +28,7 @@ enum ValueResponseFields {
 }
 export class ValueResponseCodec implements Codec<ValueResponse> {
   public encode(from: ValueResponse): object {
-    return {
-    }
+    return {};
   }
 
   public decode(from: object): ValueResponse {
@@ -37,12 +36,12 @@ export class ValueResponseCodec implements Codec<ValueResponse> {
       id: new ObjectId(from[ValueResponseFields.Id]),
       name: from[ValueResponseFields.Name],
       private: from[ValueResponseFields.Private],
-      value: from[ValueResponseFields.Value],
-    }
+      value: from[ValueResponseFields.Value]
+    };
   }
 }
 export interface ValueResponse {
-  id: ObjectId
+  id: ObjectId;
   name: string;
   value: any;
   private: boolean;
@@ -50,7 +49,9 @@ export interface ValueResponse {
 
 // / Resource for a list of users of an application
 export class ValuesResource extends BasicResource<ValuesRoutes>
-  implements Listable<ValueResponse, ValuesRoutes>, Creatable<ValueCreator, ValueResponse, ValuesRoutes> {
+  implements
+    Listable<ValueResponse, ValuesRoutes>,
+    Creatable<ValueCreator, ValueResponse, ValuesRoutes> {
   public readonly codec = new ValueResponseCodec();
   public readonly creatorCodec = new ValueCreatorCodec();
 

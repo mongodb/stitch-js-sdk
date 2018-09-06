@@ -66,7 +66,9 @@ export class UserResponseCodec implements Codec<UserResponse> {
 
 // / Resource for a list of users of an application
 export class UsersResource extends BasicResource<UsersRoutes>
-  implements Listable<UserResponse, UsersRoutes>, Creatable<UserCreator, UserResponse, UsersRoutes> {
+  implements
+    Listable<UserResponse, UsersRoutes>,
+    Creatable<UserCreator, UserResponse, UsersRoutes> {
   public readonly codec = new UserResponseCodec();
   public readonly creatorCodec = new UserCreatorCodec();
 
@@ -75,7 +77,7 @@ export class UsersResource extends BasicResource<UsersRoutes>
 
   public user(uid: string): UserResource {
     return new UserResource(
-      this.authRequestClient, 
+      this.authRequestClient,
       this.routes.getUserRoutes(uid)
     );
   }

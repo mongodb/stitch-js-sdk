@@ -104,7 +104,9 @@ export class RuleResponseCodec implements Codec<RuleResponse> {
 
 // / Resource for listing the rules of a service
 export class RulesResource extends BasicResource<RulesRoutes>
-  implements Listable<RuleResponse, RulesRoutes>, Creatable<RuleCreator, RuleResponse, RulesRoutes> {
+  implements
+    Listable<RuleResponse, RulesRoutes>,
+    Creatable<RuleCreator, RuleResponse, RulesRoutes> {
   public creatorCodec = new RuleCreatorCodec();
   public codec = new RuleResponseCodec();
 

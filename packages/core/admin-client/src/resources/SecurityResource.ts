@@ -4,8 +4,8 @@ import { BasicResource } from "../Resources";
 import AllowedRequestOriginsResource from "./AllowedRequestOriginsResource";
 
 export default class SecurityResource extends BasicResource<SecurityRoutes> {
-    public readonly allowedRequestOrigins = new AllowedRequestOriginsResource(
-        this.authRequestClient,
-        new AllowedRequestOriginsRoutes(this.routes)
-    )
+  public readonly allowedRequestOrigins = new AllowedRequestOriginsResource(
+    this.authRequestClient,
+    new AllowedRequestOriginsRoutes(this.routes)
+  );
 }
