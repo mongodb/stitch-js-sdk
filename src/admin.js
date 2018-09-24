@@ -121,7 +121,7 @@ export class StitchAdminClient extends StitchClient {
     return {
       list: () => api._get(groupUrl),
       create: (data, options) => {
-        let query = (options && options.defaults) ? '?defaults=true' : '';
+        let query = (options && options.product) ? `?product=${options.product}` : '';
         return api._post(groupUrl + query, data);
       },
 

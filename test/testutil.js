@@ -66,11 +66,11 @@ class TestHarness {
     });
   }
 
-  async createApp(testAppName) {
+  async createApp(testAppName, options) {
     if (!testAppName) {
       testAppName = `test-${new BSON.ObjectId().toString()}`;
     }
-    this.testApp = await this.apps().create({ name: testAppName });
+    this.testApp = await this.apps().create({ name: testAppName }, options);
     return this.testApp;
   }
 

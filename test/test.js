@@ -35,7 +35,8 @@ const sampleProfile = {
     }
   ],
   data: {},
-  type: 'normal'
+  type: 'normal',
+  roles: [{ roleName: 'groupOwner', groupId }, { roleName: 'GROUP_OWNER', groupId }]
 };
 
 const mockBrowserHarness = {

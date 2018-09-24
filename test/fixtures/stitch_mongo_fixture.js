@@ -69,7 +69,7 @@ export default class StitchFixture {
       userId: new mongodb.ObjectId().toHexString(),
       domainId: rootId,
       identities: [ { id: apiKeyId.toHexString(), providerType: 'api-key', providerId: rootProviderId } ],
-      roles: [{roleName: 'groupOwner', groupId: groupId}]
+      roles: [{ roleName: 'groupOwner', groupId }, { roleName: 'GROUP_OWNER', groupId }]
     };
 
     const key = randomString(64);
