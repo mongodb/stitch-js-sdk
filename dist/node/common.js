@@ -14,8 +14,8 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
-if (typeof "3.2.2" !== 'undefined') {
-  version = "3.2.2";
+if (typeof "3.2.3" !== 'undefined') {
+  version = "3.2.3";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 

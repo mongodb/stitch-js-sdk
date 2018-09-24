@@ -147,7 +147,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
           return api._get(groupUrl);
         },
         create: function create(data, options) {
-          var query = options && options.defaults ? '?defaults=true' : '';
+          var query = options && options.product ? '?product=' + options.product : '';
           return api._post(groupUrl + query, data);
         },
 

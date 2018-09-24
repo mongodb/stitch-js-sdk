@@ -2,7 +2,10 @@
   "presets": [
     ["env", {
       "targets": {
-        "browsers": ["last 2 versions", "ie 10"],
+        "browsers": [
+          "last 2 versions",
+          "ie >= 10"
+        ],
         "node": "6"
       },
       "useBuiltins": "usage",

@@ -10,64 +10,32 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-function _extendableBuiltin(cls) {
-  function ExtendableBuiltin() {
-    var instance = Reflect.construct(cls, Array.from(arguments));
-    Object.setPrototypeOf(instance, Object.getPrototypeOf(this));
-    return instance;
+var _Error = function _Error(message, code) {
+  Error.call(this, message);
+  if (Error.captureStackTrace) {
+    Error.captureStackTrace(this);
   }
 
-  ExtendableBuiltin.prototype = Object.create(cls.prototype, {
-    constructor: {
-      value: cls,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  });
+  this.message = message;
+  this.name = this.constructor.name;
 
-  if (Object.setPrototypeOf) {
-    Object.setPrototypeOf(ExtendableBuiltin, cls);
-  } else {
-    ExtendableBuiltin.__proto__ = cls;
+  if (code !== undefined) {
+    this.code = code;
   }
+};
+_Error.prototype = Object.create(Error.prototype);
 
-  return ExtendableBuiltin;
-}
+var StitchError = function (_Error2) {
+  _inherits(StitchError, _Error2);
 
-/**
- * Creates a new StitchError
- *
- * @class
- * @augments Error
- * @param {String} message The error message.
- * @param {Object} code The error code.
- * @return {StitchError} A StitchError instance.
- */
-var StitchError = function (_extendableBuiltin2) {
-  _inherits(StitchError, _extendableBuiltin2);
-
-  function StitchError(message, code) {
+  function StitchError() {
     _classCallCheck(this, StitchError);
 
-    var _this = _possibleConstructorReturn(this, (StitchError.__proto__ || Object.getPrototypeOf(StitchError)).call(this, message));
-
-    _this.name = 'StitchError';
-    _this.message = message;
-    if (code !== undefined) {
-      _this.code = code;
-    }
-
-    if (typeof Error.captureStackTrace === 'function') {
-      Error.captureStackTrace(_this, _this.constructor);
-    } else {
-      _this.stack = new Error(message).stack;
-    }
-    return _this;
+    return _possibleConstructorReturn(this, (StitchError.__proto__ || Object.getPrototypeOf(StitchError)).apply(this, arguments));
   }
 
   return StitchError;
-}(_extendableBuiltin(Error));
+}(_Error);
 
 var ErrAuthProviderNotFound = 'AuthProviderNotFound';
 var ErrInvalidSession = 'InvalidSession';
