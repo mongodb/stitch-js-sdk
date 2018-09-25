@@ -3,8 +3,10 @@
     ["env", {
       "targets": {
         "browsers": [
-          "last 2 versions",
-          "ie >= 10"
+          ">= 0.5%",
+          "last 1 version",
+          "ie >= 10",
+          "not dead"
         ],
         "node": "6"
       },
