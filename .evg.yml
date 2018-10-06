@@ -51,7 +51,7 @@ functions:
           git clone git@github.com:10gen/stitch src/github.com/10gen/stitch
 
           echo "downloading libmongo"
-          wget --quiet "https://s3.amazonaws.com/stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_1f02b06ec6fd48bad0b725b77bc194c84f839f53_5ab7216fc9ec44724e08f194_18_03_25_04_11_28/libmongo.so"
+          wget --quiet "https://s3.amazonaws.com/stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_a4c34cbf6cdd2036fef442f966e404c8be506e62_5bb3da540305b91647c0dfd9_18_10_02_20_51_32/libmongo.so"
           chmod +x libmongo.so
 
           echo "building transpiler"
