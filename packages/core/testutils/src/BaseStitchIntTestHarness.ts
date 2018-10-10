@@ -15,7 +15,7 @@
  */
 
 import fetch from "fetch-everywhere";
-import BSON from "mongodb-stitch-bson";
+import BSON from "bson";
 import {
   App,
   AppResponse,

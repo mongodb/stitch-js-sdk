@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { parse } from "mongodb-stitch-extjson";
+import { EJSON } from "bson";
 import { anything, capture, instance, mock, when } from "ts-mockito";
 import { FetchTransport, StitchRequestClient } from "../../../src";
 import { BasicRequest } from "../../../src/internal/net/BasicRequest";
@@ -74,7 +74,7 @@ describe("StitchRequestClientUnitTests", () => {
           a: 42,
           hello: "world"
         };
-        expect(expected).toEqual(parse(response.body!, { relaxed: true }));
+        expect(expected).toEqual(EJSON.parse(response.body!, { relaxed: true }));
 
         // Error responses should be handled
         when(transportMock.roundTrip(anything())).thenResolve({
@@ -195,7 +195,7 @@ describe("StitchRequestClientUnitTests", () => {
           a: 42,
           hello: "world"
         };
-        expect(parse(response.body!, { relaxed: true })).toEqual(expected);
+        expect(EJSON.parse(response.body!, { relaxed: true })).toEqual(expected);
 
         // Error responses should be handled
         when(transportMock.roundTrip(anything())).thenResolve({

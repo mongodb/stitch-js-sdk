@@ -15,7 +15,7 @@
  */
 
 import { Codec, Method, StitchAuthRequest } from "mongodb-stitch-core-sdk";
-import * as EJSON from "mongodb-stitch-extjson";
+import { EJSON } from "bson";
 import { App, Apps, checkEmpty } from "../Resources";
 
 enum Fields {

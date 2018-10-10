@@ -47,7 +47,7 @@
     "jest": "^23.1.0",
     "mongodb-stitch-core-admin-client": "^4.0.13",
     "mongodb-stitch-core-sdk": "^4.0.13",
-    "mongodb-stitch-extjson": "^1.0.0",
+    "bson": "4.0.0-rc3",
     "mongodb-stitch-react-native-testutils": "^4.0.13",
     "prettier": "^1.13.5",
     "react-native": "^0.56.0",

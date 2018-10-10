@@ -28,7 +28,7 @@ import {
   StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
 import { HttpMethod, HttpRequest } from "mongodb-stitch-core-services-http";
-import * as EJSON from "mongodb-stitch-extjson";
+import { EJSON } from "bson";
 import { AnonymousCredential } from "mongodb-stitch-react-native-core";
 import { BaseStitchRNIntTestHarness } from "mongodb-stitch-react-native-testutils";
 import { HttpServiceClient } from "../src/HttpServiceClient";

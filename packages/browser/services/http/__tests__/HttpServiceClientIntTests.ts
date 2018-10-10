@@ -30,7 +30,7 @@ import {
   StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
 import { HttpMethod, HttpRequest } from "mongodb-stitch-core-services-http";
-import * as EJSON from "mongodb-stitch-extjson";
+import { EJSON } from "bson";
 import { HttpServiceClient } from "../src/HttpServiceClient";
 
 const harness = new BaseStitchBrowserIntTestHarness();

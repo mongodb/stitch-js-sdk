@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import BSON from "mongodb-stitch-bson";
+import BSON from "bson";
 import {
   NamedServiceClientFactory
 } from "mongodb-stitch-browser-core";

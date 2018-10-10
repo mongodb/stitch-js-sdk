@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import BSON from "mongodb-stitch-bson";
+import BSON from "bson";
 import { anything, capture, instance, mock, verify, when } from "ts-mockito";
 import {
   CoreStitchAuth,

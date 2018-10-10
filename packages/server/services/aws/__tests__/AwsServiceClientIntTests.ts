@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import BSON from "mongodb-stitch-bson";
+import BSON from "bson";
 import {
   Anon,
   App,
@@ -155,7 +155,7 @@ describe("AwsServiceClient", () => {
     }
 
     const bodyInput = str2ab(body);
-    args.Body = BSON.Binary(new Buffer(bodyInput));
+    args.Body = new BSON.Binary(new Buffer(bodyInput));
     result = await awsS3.execute(
       new AwsRequest.Builder()
         .withService("s3")

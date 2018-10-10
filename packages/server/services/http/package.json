@@ -44,7 +44,7 @@
     "jest": "^23.1.0",
     "mongodb-stitch-core-admin-client": "^4.0.13",
     "mongodb-stitch-core-sdk": "^4.0.13",
-    "mongodb-stitch-extjson": "^1.0.0",
+    "bson": "4.0.0-rc3",
     "mongodb-stitch-server-testutils": "^4.0.13",
     "prettier": "^1.13.5",
     "rollup": "^0.60.7",

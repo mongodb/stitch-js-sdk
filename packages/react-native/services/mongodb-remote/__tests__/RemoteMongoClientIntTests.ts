@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ObjectID, ObjectId } from "mongodb-stitch-bson";
+import { ObjectID, ObjectId } from "bson";
 import {
   Anon,
   App,

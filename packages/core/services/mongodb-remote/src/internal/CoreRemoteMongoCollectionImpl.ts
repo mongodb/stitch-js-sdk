@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import BSON from "mongodb-stitch-bson";
+import BSON from "bson";
 import { Codec, CoreStitchServiceClient } from "mongodb-stitch-core-sdk";
 import RemoteCountOptions from "../RemoteCountOptions";
 import RemoteDeleteResult from "../RemoteDeleteResult";

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as EJSON from "mongodb-stitch-extjson";
+import { EJSON } from "bson";
 import { handleRequestError } from "../../internal/common/StitchErrorUtils";
 import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
 import StitchRequestError from "../../StitchRequestError";

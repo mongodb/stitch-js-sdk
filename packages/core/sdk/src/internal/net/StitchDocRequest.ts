@@ -17,7 +17,7 @@
 import { StitchRequest } from "./StitchRequest";
 import Headers from "./Headers";
 import ContentTypes from "./ContentTypes";
-import { stringify } from "mongodb-stitch-extjson";
+import { EJSON } from "bson";
 
 /** @hidden */
 export class StitchDocRequest extends StitchRequest {
@@ -66,7 +66,7 @@ export namespace StitchDocRequest {
         this.withHeaders({});
       }
       this.headers![Headers.CONTENT_TYPE] = ContentTypes.APPLICATION_JSON;
-      this.withBody(stringify(this.document));
+      this.withBody(EJSON.stringify(this.document, { relaxed: false }));
       return new StitchDocRequest(super.build(), this.document);
     }
   }

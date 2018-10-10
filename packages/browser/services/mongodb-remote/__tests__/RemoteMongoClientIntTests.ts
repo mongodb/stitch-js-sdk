@@ -15,7 +15,7 @@
  */
 
 import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
-import BSON from "mongodb-stitch-bson";
+import BSON from "bson";
 import {
   Anon,
   App,
