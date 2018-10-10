@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import BSON from "mongodb-stitch-bson";
+import BSON from "bson";
 import { CoreStitchServiceClient } from "mongodb-stitch-core-sdk";
 import { AwsS3PutObjectResult } from "../AwsS3PutObjectResult";
 import { AwsS3SignPolicyResult } from "../AwsS3SignPolicyResult";

@@ -39,7 +39,7 @@
   "private": true,
   "dependencies": {
     "mongodb-stitch-core-sdk": "^4.0.15-0",
-    "mongodb-stitch-extjson": "^1.0.0"
+    "bson": "4.0.0"
   },
   "devDependencies": {
     "prettier": "^1.13.5",
