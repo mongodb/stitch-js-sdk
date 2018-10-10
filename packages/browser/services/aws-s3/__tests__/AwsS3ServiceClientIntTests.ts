@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+import BSON from "bson";
 import { AnonymousCredential } from "mongodb-stitch-browser-core";
 import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
-import BSON from "bson";
 import {
   Anon,
   App,

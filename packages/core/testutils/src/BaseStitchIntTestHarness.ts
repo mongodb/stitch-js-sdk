@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import fetch from "fetch-everywhere";
 import BSON from "bson";
+import fetch from "fetch-everywhere";
 import {
   App,
   AppResponse,

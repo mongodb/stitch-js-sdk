@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Codec, Method, StitchAuthRequest } from "mongodb-stitch-core-sdk";
 import { EJSON } from "bson";
+import { Codec, Method, StitchAuthRequest } from "mongodb-stitch-core-sdk";
 import { App, Apps, checkEmpty } from "../Resources";
 
 enum Fields {

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { EJSON } from "bson";
 import { AnonymousCredential } from "mongodb-stitch-browser-core";
 import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
 import {
@@ -30,7 +31,6 @@ import {
   StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
 import { HttpMethod, HttpRequest } from "mongodb-stitch-core-services-http";
-import { EJSON } from "bson";
 import { HttpServiceClient } from "../src/HttpServiceClient";
 
 const harness = new BaseStitchBrowserIntTestHarness();
