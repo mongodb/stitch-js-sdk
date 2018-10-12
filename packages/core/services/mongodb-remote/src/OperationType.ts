@@ -14,11 +14,25 @@
  * limitations under the License.
  */
 
-/** 
- * @hidden
- * HTTP Content Types. 
- */
-export default class ContentTypes {
-  public static readonly APPLICATION_JSON = "application/json";
-  public static readonly TEXT_EVENT_STREAM = "text/event-stream";
+export enum OperationType {
+  Insert = "insert",
+  Delete = "delete",
+  Replace = "replace",
+  Update = "update",
+  Unknown = "unknown"
+}
+
+export function operationTypeFromRemote(type: string): OperationType {
+	switch (type) {
+		case "insert":
+			return OperationType.Insert;
+		case "delete":
+			return OperationType.Delete;
+		case "replace":
+			return OperationType.Replace;
+		case "update":
+			return OperationType.Update;
+		default:
+			return OperationType.Unknown;
+	}
 }

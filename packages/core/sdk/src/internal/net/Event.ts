@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
-/** 
- * @hidden
- * HTTP Content Types. 
- */
-export default class ContentTypes {
-  public static readonly APPLICATION_JSON = "application/json";
-  public static readonly TEXT_EVENT_STREAM = "text/event-stream";
+/** @hidden */
+export default class Event {
+  public static readonly MESSAGE_EVENT = "message";
+
+  public readonly eventName: string;
+  public readonly data: string;
+
+  public constructor(
+    eventName: string,
+    data: string
+  ) {
+    this.eventName = eventName;
+    this.data = data;
+  }
 }

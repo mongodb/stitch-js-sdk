@@ -54,9 +54,9 @@ export default class StitchRequestError extends StitchError {
     underlyingError: Error,
     errorCode: StitchRequestErrorCode
   ) {
-    const message = `${underlyingError.message}(${
+    const message = `(${
       StitchRequestErrorCode[errorCode]
-    }): ${requestErrorCodeDescs[errorCode]}`;
+    }): ${requestErrorCodeDescs[errorCode]}: ${underlyingError.message}`;
     super(message);
     this.underlyingError = underlyingError;
     this.errorCode = errorCode;

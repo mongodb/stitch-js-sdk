@@ -47,13 +47,24 @@ import StitchCredential from "./auth/StitchCredential";
 import StitchUserIdentity from "./auth/StitchUserIdentity";
 import StitchUserProfile from "./auth/StitchUserProfile";
 import UserType from "./auth/UserType";
-import { base64Decode, base64Encode } from "./internal/common/Base64";
+import Assertions from "./internal/common/Assertions"
+import { base64Decode, base64Encode, utf8Slice } from "./internal/common/Base64";
 import { Codec, Decoder, Encoder } from "./internal/common/Codec";
 import { MemoryStorage, Storage } from "./internal/common/Storage";
+import { handleRequestError } from "./internal/common/StitchErrorUtils";
 import CoreStitchAppClient from "./internal/CoreStitchAppClient";
+import { BasicRequest } from "./internal/net/BasicRequest";
+import ContentTypes from "./internal/net/ContentTypes";
+import Event from "./internal/net/Event";
+import EventListener from "./internal/net/EventListener";
+import EventStream from "./internal/net/EventStream";
+import BaseEventStream from "./internal/net/BaseEventStream";
+import StitchEvent from "./internal/net/StitchEvent";
 import FetchTransport from "./internal/net/FetchTransport";
+import Headers from "./internal/net/Headers";
 import Method from "./internal/net/Method";
 import Response from "./internal/net/Response";
+import Stream from "./internal/net/Stream";
 import StitchAppAuthRoutes from "./internal/net/StitchAppAuthRoutes";
 import StitchAppRoutes from "./internal/net/StitchAppRoutes";
 import { StitchAuthRequest } from "./internal/net/StitchAuthRequest";
@@ -106,7 +117,16 @@ export {
   CoreStitchUser,
   CoreStitchUserImpl,
   DeviceFields,
+  BasicRequest,
+  ContentTypes,
+  Event,
+  EventListener,
+  EventStream,
+  BaseEventStream,
+  StitchEvent,
   FetchTransport,
+  Headers,
+  Stream,
   StitchAppClientInfo,
   StitchAppClientConfiguration,
   StitchAppRoutes,
@@ -130,8 +150,11 @@ export {
   Method,
   Response,
   MemoryStorage,
+  handleRequestError,
   Transport,
   UserType,
+  Assertions,
   base64Decode,
-  base64Encode
+  base64Encode,
+  utf8Slice
 };

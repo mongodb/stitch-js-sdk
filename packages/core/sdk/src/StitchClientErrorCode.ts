@@ -23,7 +23,9 @@ export enum StitchClientErrorCode {
   MustAuthenticateFirst,
   UserNoLongerValid,
   CouldNotLoadPersistedAuthInfo,
-  CouldNotPersistAuthInfo
+  CouldNotPersistAuthInfo,
+  StreamingNotSupported,
+  StreamClosed
 }
 
 /** @hidden */
@@ -37,5 +39,9 @@ export const clientErrorCodeDescs: { [key: number]: string } = {
   [StitchClientErrorCode.CouldNotLoadPersistedAuthInfo]:
     "failed to load stored auth information for Stitch",
   [StitchClientErrorCode.CouldNotPersistAuthInfo]:
-    "failed to save auth information for Stitch"
+    "failed to save auth information for Stitch",
+  [StitchClientErrorCode.StreamingNotSupported]:
+    "streaming not supported in this SDK",
+  [StitchClientErrorCode.StreamClosed]:
+  "stream is closed"
 };

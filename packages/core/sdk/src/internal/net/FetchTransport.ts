@@ -15,8 +15,13 @@
  */
 
 import { BasicRequest } from "./BasicRequest";
+import ContentTypes from "./ContentTypes";
+import EventStream from "./EventStream";
+import Headers from "./Headers";
 import Response from "./Response";
 import Transport from "./Transport";
+import StitchClientError from "../../StitchClientError";
+import { StitchClientErrorCode } from "../../StitchClientErrorCode";
 import fetch from "fetch-everywhere";
 
 /** @hidden */
@@ -42,5 +47,9 @@ export default class FetchTransport implements Transport {
       });
       return new Response(headers, response.status, body);
     });
+  }
+
+  public stream(request: BasicRequest, open: boolean = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
+    throw new StitchClientError(StitchClientErrorCode.StreamingNotSupported);
   }
 }

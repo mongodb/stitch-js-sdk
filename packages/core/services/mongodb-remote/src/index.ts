@@ -28,6 +28,10 @@ import RemoteInsertManyResult from "./RemoteInsertManyResult";
 import RemoteInsertOneResult from "./RemoteInsertOneResult";
 import RemoteUpdateOptions from "./RemoteUpdateOptions";
 import RemoteUpdateResult from "./RemoteUpdateResult";
+import ChangeEvent from "./ChangeEvent";
+import { OperationType } from "./OperationType";
+import MongoNamespace from "./MongoNamespace";
+import UpdateDescription from "./UpdateDescription";
 
 export {
   CoreRemoteMongoClient,
@@ -43,5 +47,9 @@ export {
   RemoteInsertManyResult,
   RemoteInsertOneResult,
   RemoteUpdateOptions,
-  RemoteUpdateResult
+  RemoteUpdateResult,
+  ChangeEvent,
+  OperationType,
+  MongoNamespace,
+  UpdateDescription
 };

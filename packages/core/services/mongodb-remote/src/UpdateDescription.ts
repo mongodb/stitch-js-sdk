@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-/** 
- * @hidden
- * HTTP Content Types. 
- */
-export default class ContentTypes {
-  public static readonly APPLICATION_JSON = "application/json";
-  public static readonly TEXT_EVENT_STREAM = "text/event-stream";
+export default interface UpdateDescription {
+  readonly updatedFields: object;
+  readonly removedFields: Array<string>;
 }

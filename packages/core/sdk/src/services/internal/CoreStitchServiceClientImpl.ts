@@ -18,9 +18,11 @@ import CoreStitchServiceClient from "./CoreStitchServiceClient";
 import StitchServiceRoutes from "./StitchServiceRoutes";
 import StitchAuthRequestClient from "../../auth/internal/StitchAuthRequestClient";
 import { Decoder } from "../../internal/common/Codec";
+import { base64Encode } from "../../internal/common/Base64";
 import Method from "../../internal/net/Method";
 import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
+import Stream from "../../internal/net/Stream";
 
 /** @hidden */
 export default class CoreStitchServiceClientImpl
@@ -48,6 +50,35 @@ export default class CoreStitchServiceClientImpl
       this.getCallServiceFunctionRequest(name, args),
       decoder
     );
+  }
+
+  public streamFunction<T>(
+    name: string,
+    args: any[],
+    decoder?: Decoder<T>
+  ): Promise<Stream<T>> {
+    return this.requestClient.openAuthenticatedStreamWithDecoder(
+      this.getStreamServiceFunctionRequest(name, args),
+      decoder
+    );
+  }
+
+  private getStreamServiceFunctionRequest(
+    name: string,
+    args: any[]
+  ): StitchAuthRequest {
+    const body = { name };
+    if (this.serviceName !== undefined) {
+      body["service"] = this.serviceName;
+    }
+    body["arguments"] = args;
+
+    const reqBuilder = new StitchAuthRequest.Builder();
+    reqBuilder
+      .withMethod(Method.GET)
+      .withPath(this.serviceRoutes.functionCallRoute +
+        `?stitch_request=${encodeURIComponent(base64Encode(JSON.stringify(body)))}`);
+    return reqBuilder.build();
   }
 
   private getCallServiceFunctionRequest(

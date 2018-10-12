@@ -19,6 +19,7 @@ import {
   StitchAppClientConfiguration
 } from "mongodb-stitch-core-sdk";
 import LocalStorage from "./internal/common/LocalStorage";
+import FetchStreamTransport from "./internal/net/FetchStreamTransport";
 import StitchAppClientImpl from "./internal/StitchAppClientImpl";
 import StitchAppClient from "./StitchAppClient";
 
@@ -114,7 +115,7 @@ export default class Stitch {
       builder.withStorage(new LocalStorage(clientAppId));
     }
     if (builder.transport === undefined) {
-      builder.withTransport(new FetchTransport());
+      builder.withTransport(new FetchStreamTransport());
     }
     if (builder.baseUrl === undefined || builder.baseUrl === "") {
       builder.withBaseUrl(DEFAULT_BASE_URL);

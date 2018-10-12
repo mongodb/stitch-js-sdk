@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-/** 
- * @hidden
- * HTTP Content Types. 
- */
-export default class ContentTypes {
-  public static readonly APPLICATION_JSON = "application/json";
-  public static readonly TEXT_EVENT_STREAM = "text/event-stream";
+
+import { OperationType } from "./OperationType";
+import MongoNamespace from "./MongoNamespace";
+import UpdateDescription from "./UpdateDescription";
+
+export default interface ChangeEvent<T> {
+  readonly id: object;
+  readonly operationType: OperationType;
+  readonly fullDocument?: T;
+  readonly namespace: MongoNamespace;
+  readonly documentKey: object;
+  readonly updateDescription?: UpdateDescription;
 }

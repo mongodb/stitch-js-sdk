@@ -25,6 +25,9 @@ export default class Headers {
   public static readonly AUTHORIZATION_CANON = "Authorization";
   public static readonly AUTHORIZATION = Headers.AUTHORIZATION_CANON.toLocaleLowerCase();
 
+  public static readonly ACCEPT_CANON = "Accept";
+  public static readonly ACCEPT = Headers.ACCEPT_CANON.toLocaleLowerCase();
+
   /**
    * @param value The bearer value
    * @return A standard Authorization Bearer header value.

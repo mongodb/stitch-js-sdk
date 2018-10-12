@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
+import { Codec, Stream } from "mongodb-stitch-core-sdk";
 import {
+  ChangeEvent,
   CoreRemoteMongoCollection,
   RemoteCountOptions,
   RemoteDeleteResult,
@@ -169,5 +170,11 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
     updateOptions?: RemoteUpdateOptions
   ): Promise<RemoteUpdateResult> {
     return this.proxy.updateMany(query, update, updateOptions);
+  }
+
+  public watch(
+    ids: object[]
+  ): Promise<Stream<ChangeEvent<DocumentT>>> {
+    return this.proxy.watch(ids);
   }
 }

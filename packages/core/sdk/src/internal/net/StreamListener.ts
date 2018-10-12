@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-/** 
- * @hidden
- * HTTP Content Types. 
- */
-export default class ContentTypes {
-  public static readonly APPLICATION_JSON = "application/json";
-  public static readonly TEXT_EVENT_STREAM = "text/event-stream";
+import StitchEvent from "./StitchEvent";
+
+interface StreamListener<T> {
+  onNext(data: T): void;
+  onError(error: Error): void;
 }
+
+export default StreamListener;

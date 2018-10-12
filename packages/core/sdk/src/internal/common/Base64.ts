@@ -135,7 +135,7 @@ function utf8ToBytes(string: string) {
   return bytes;
 }
 
-function utf8Slice(buf: Uint8Array, start: number, end: number) {
+export function utf8Slice(buf: Uint8Array, start: number, end: number) {
   let res = "";
   let tmp = "";
   end = Math.min(buf.length, end || Infinity);

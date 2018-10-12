@@ -15,7 +15,8 @@
  */
 
 import BSON from "mongodb-stitch-bson";
-import { Codec, CoreStitchServiceClient } from "mongodb-stitch-core-sdk";
+import { Codec, CoreStitchServiceClient, Stream } from "mongodb-stitch-core-sdk";
+import ChangeEvent from "../ChangeEvent";
 import RemoteCountOptions from "../RemoteCountOptions";
 import RemoteDeleteResult from "../RemoteDeleteResult";
 import RemoteFindOptions from "../RemoteFindOptions";
@@ -252,6 +253,20 @@ export default class CoreRemoteMongoCollectionImpl<T>
     options?: RemoteUpdateOptions
   ): Promise<RemoteUpdateResult> {
     return this.executeUpdate(query, update, options, true);
+  }
+
+  public watch(
+    ids: object[]
+  ): Promise<Stream<ChangeEvent<T>>> {
+    const args: any = { ...this.baseOperationArgs };
+
+    args.ids = ids;
+
+    return this.service.streamFunction(
+      "watch",
+      [args],
+      new ResultDecoders.ChangeEventDecoder(this.codec)
+    );
   }
 
   private executeDelete(

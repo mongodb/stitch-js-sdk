@@ -22,6 +22,8 @@ import ContentTypes from "../../internal/net/ContentTypes";
 import Headers from "../../internal/net/Headers";
 import Method from "../../internal/net/Method";
 import Response from "../../internal/net/Response";
+import Stream from "../../internal/net/Stream";
+import EventStream from "../../internal/net/EventStream";
 import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 import { StitchDocRequest } from "../../internal/net/StitchDocRequest";
@@ -166,14 +168,14 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    */
   public doAuthenticatedRequestWithDecoder<T>(
     stitchReq: StitchAuthRequest,
-    codec?: Decoder<T>
+    decoder?: Decoder<T>
   ): Promise<T> {
     return this.doAuthenticatedRequest(stitchReq)
       .then(response => {
         const obj = EJSON.parse(response.body!, { strict: false });
 
-        if (codec) {
-          return codec.decode(obj);
+        if (decoder) {
+          return decoder.decode(obj);
         }
 
         return obj;
@@ -181,6 +183,42 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       .catch(err => {
         throw wrapDecodingError(err);
       });
+  }
+
+  public openAuthenticatedEventStream(
+    stitchReq: StitchAuthRequest,
+    open: boolean = true
+  ): Promise<EventStream> {
+    if (!this.isLoggedIn) {
+      throw new StitchClientError(StitchClientErrorCode.MustAuthenticateFirst);
+    }
+
+    let authToken;
+    if (stitchReq.useRefreshToken) {
+      authToken = this.authInfo.refreshToken!
+    } else {
+      authToken = this.authInfo.accessToken!
+    }
+
+    return this.requestClient.doStreamRequest(
+      stitchReq.builder
+      .withPath(`${stitchReq.path}&stitch_at=${authToken}`)
+      .build(),
+      open,
+      () => this.openAuthenticatedEventStream(stitchReq, false))
+    .catch(err => {
+      return this.handleAuthFailureForEventStream(err, stitchReq, open);
+    });
+  }
+
+  public openAuthenticatedStreamWithDecoder<T>(
+    stitchReq: StitchAuthRequest,
+    decoder?: Decoder<T>
+  ): Promise<Stream<T>> {
+    return this.openAuthenticatedEventStream(stitchReq)
+    .then(eventStream => {
+      return new Stream<T>(eventStream, decoder)
+    });
   }
 
   /**
@@ -326,6 +364,33 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     }
     newReq.withHeaders(newHeaders);
     return newReq.build();
+  }
+
+  private handleAuthFailureForEventStream(
+    ex: StitchError,
+    req: StitchAuthRequest,
+    open: boolean = true
+  ): Promise<EventStream> {
+    if (
+      !(ex instanceof StitchServiceError) ||
+      ex.errorCode !== StitchServiceErrorCode.InvalidSession
+    ) {
+      throw ex;
+    }
+
+    // using a refresh token implies we cannot refresh anything, so clear auth and
+    // notify
+    if (req.useRefreshToken || !req.shouldRefreshOnFailure) {
+      this.clearAuth();
+      throw ex;
+    }
+
+    return this.tryRefreshAccessToken(req.startedAt).then(() => {
+      return this.openAuthenticatedEventStream(
+        req.builder.withShouldRefreshOnFailure(false).build(),
+        open
+      );
+    });
   }
 
   /**

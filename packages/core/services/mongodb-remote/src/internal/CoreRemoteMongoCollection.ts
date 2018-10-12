@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
+import { Codec, Stream } from "mongodb-stitch-core-sdk";
+import ChangeEvent from "../ChangeEvent";
 import RemoteCountOptions from "../RemoteCountOptions";
 import RemoteDeleteResult from "../RemoteDeleteResult";
 import RemoteFindOptions from "../RemoteFindOptions";
@@ -137,4 +138,8 @@ export default interface CoreRemoteMongoCollection<DocumentT> {
     update: object,
     updateOptions?: RemoteUpdateOptions
   ): Promise<RemoteUpdateResult>;
+
+  watch(
+    ids: object[]
+  ): Promise<Stream<ChangeEvent<DocumentT>>>;
 }

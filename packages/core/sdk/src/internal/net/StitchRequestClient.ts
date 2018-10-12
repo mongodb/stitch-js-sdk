@@ -17,9 +17,11 @@
 import * as EJSON from "mongodb-stitch-extjson";
 import { handleRequestError } from "../../internal/common/StitchErrorUtils";
 import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
+import StitchError from "../../StitchError";
 import StitchRequestError from "../../StitchRequestError";
 import { BasicRequest } from "./BasicRequest";
 import ContentTypes from "./ContentTypes";
+import EventStream from "./EventStream";
 import Headers from "./Headers";
 import Response from "./Response";
 import { StitchDocRequest } from "./StitchDocRequest";
@@ -54,6 +56,21 @@ export default class StitchRequestClient {
         );
       })
       .then(inspectResponse);
+  }
+
+  public doStreamRequest(stitchReq: StitchRequest, open: boolean = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
+    return this.transport
+      .stream(this.buildRequest(stitchReq), open, retryRequest)
+      .catch(error => {
+        // stream can throw StitchErrors itself unlike roundTrip
+        if (error instanceof StitchError) {
+           throw error;
+        }
+        throw new StitchRequestError(
+          error,
+          StitchRequestErrorCode.TRANSPORT_ERROR
+        );
+      });
   }
 
   private buildRequest(stitchReq: StitchRequest): BasicRequest {

@@ -15,6 +15,7 @@
  */
 
 import { Decoder } from "../../internal/common/Codec";
+import Stream from "../../internal/net/Stream";
 
 /** @hidden */
 export default interface CoreStitchServiceClient {
@@ -23,4 +24,10 @@ export default interface CoreStitchServiceClient {
     args: any[],
     decoder?: Decoder<T>
   ): Promise<T>;
+
+  streamFunction<T>(
+    name: string,
+    args: any[],
+    decoder?: Decoder<T>
+  ): Promise<Stream<T>>;
 }

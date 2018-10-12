@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Decoder } from "mongodb-stitch-core-sdk";
+import { Decoder, Stream } from "mongodb-stitch-core-sdk";
 
 /**
  * StitchServiceClient acts as a general purpose client for working with 
@@ -37,4 +37,10 @@ export default interface StitchServiceClient {
     args: any[], 
     codec?: Decoder<T>
   ): Promise<T>;
+
+  streamFunction<T>(
+    name: string,
+    args: any[],
+    decoder?: Decoder<T>
+  ): Promise<Stream<T>>;
 }

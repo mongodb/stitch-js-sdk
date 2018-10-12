@@ -17,6 +17,7 @@
 import {
   CoreStitchServiceClient,
   Decoder,
+  Stream
 } from "mongodb-stitch-core-sdk";
 import StitchServiceClient from "../StitchServiceClient";
 
@@ -32,5 +33,13 @@ export default class StitchServiceClientImpl implements StitchServiceClient {
     codec?: Decoder<T>
   ): Promise<T> {
     return this.proxy.callFunction(name, args, codec);
+  }
+
+  public streamFunction<T>(
+    name: string,
+    args: any[],
+    codec?: Decoder<T>
+  ): Promise<Stream<T>> {
+    return this.proxy.streamFunction(name, args, codec);
   }
 }

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-/** 
- * @hidden
- * HTTP Content Types. 
- */
-export default class ContentTypes {
-  public static readonly APPLICATION_JSON = "application/json";
-  public static readonly TEXT_EVENT_STREAM = "text/event-stream";
+import Event from "./Event";
+
+interface EventListener {
+  onEvent(event: Event): void;
 }
+
+export default EventListener;
