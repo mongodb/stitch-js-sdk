@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-core-admin-client",
-  "version": "4.0.14-1",
+  "version": "4.0.14-2",
   "description": "Module that provides client access to the Stitch Admin API.",
   "main": "dist/umd/index.js",
   "module": "dist/esm/index.js",
@@ -38,8 +38,8 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "bson": "4.0.0-rc3",
-    "mongodb-stitch-core-sdk": "^4.0.14-1"
+    "bson": "4.0.0-rc5",
+    "mongodb-stitch-core-sdk": "^4.0.14-2"
   },
   "devDependencies": {
     "prettier": "^1.13.5",
