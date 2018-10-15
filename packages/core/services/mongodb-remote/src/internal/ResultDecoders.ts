@@ -132,8 +132,8 @@ class ChangeEventDecoder<T> implements Decoder<ChangeEvent<T>> {
       fullDocument,
       id: from[ChangeEventFields.Id],
       namespace: {
-        collection: nsDoc[ChangeEventFields.NamespaceColl]
-        database: nsDoc[ChangeEventFields.NamespaceDb],
+        collection: nsDoc[ChangeEventFields.NamespaceColl],
+        database: nsDoc[ChangeEventFields.NamespaceDb]
       },
       operationType: operationTypeFromRemote(from[ChangeEventFields.OperationType]),
       updateDescription
