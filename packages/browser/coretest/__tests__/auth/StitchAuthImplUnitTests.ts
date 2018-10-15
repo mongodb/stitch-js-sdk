@@ -147,7 +147,7 @@ describe("StitchAuthImpl", () => {
 
         const xStitchLocation = "test_location";
 
-        global['fetch'] = (request: Request) => {
+        StitchAuthImpl.injectedFetch = (request: Request) => {
             expect(request.headers.get("Authorization")).toEqual("Bearer " + "test_access_token");
             return Promise.resolve({
                 headers: {

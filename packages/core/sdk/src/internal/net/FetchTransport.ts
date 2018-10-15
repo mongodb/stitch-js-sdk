@@ -25,7 +25,8 @@ export default class FetchTransport implements Transport {
     const responsePromise = fetch(request.url, {
       body: request.body,
       headers: request.headers,
-      method: request.method
+      method: request.method,
+      mode: 'cors'
     });
 
     const responseTextPromise = responsePromise.then(response =>

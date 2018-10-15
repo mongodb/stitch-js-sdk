@@ -42,6 +42,7 @@ import RedirectKeys from "./RedirectKeys";
 import StitchBrowserAppAuthRoutes from "./StitchBrowserAppAuthRoutes";
 import StitchRedirectError from "./StitchRedirectError";
 import StitchUserFactoryImpl from "./StitchUserFactoryImpl";
+import fetch from "fetch-everywhere";
 
 const alphaNumericCharacters =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -80,6 +81,7 @@ interface PartialWindow {
 export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   implements StitchAuth {
   private readonly listeners: Set<StitchAuthListener> = new Set();
+  public static injectedFetch?: any;
 
   /**
    * Construct a new StitchAuth implementation
@@ -159,12 +161,13 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
       this.deviceInfo
     );
 
-    return fetch(
+    return (StitchAuthImpl.injectedFetch ? StitchAuthImpl.injectedFetch! : fetch)(
       new Request(link, {
         credentials: "include",
         headers: {
           Authorization: "Bearer " + this.authInfo.accessToken
-        }
+        },
+        mode: 'cors'
       })
     ).then(response => {
       this.jsdomWindow.location.replace(
