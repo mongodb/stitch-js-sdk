@@ -325,7 +325,7 @@ var _mongodbExtjson = __webpack_require__(5);
 
 var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
-var _queryString = __webpack_require__(35);
+var _queryString = __webpack_require__(36);
 
 var _queryString2 = _interopRequireDefault(_queryString);
 
@@ -826,6 +826,7 @@ var StitchClient = exports.StitchClient = function () {
       return fetch(url, fetchArgs).then(function (response) {
         // Okay: passthrough
         if (response.status >= 200 && response.status < 300) {
+          console.log(response);
           return Promise.resolve(response);
         }
 
@@ -8699,7 +8700,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
   return jsBson;
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(8).Buffer, __webpack_require__(34)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(8).Buffer, __webpack_require__(35)))
 
 /***/ }),
 /* 7 */
@@ -9168,8 +9169,8 @@ exports.createProviders = createProviders;
 
 
 var base64 = __webpack_require__(24)
-var ieee754 = __webpack_require__(28)
-var isArray = __webpack_require__(29)
+var ieee754 = __webpack_require__(29)
+var isArray = __webpack_require__(30)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -10957,7 +10958,7 @@ function isnan (val) {
 // on the global object (window or self)
 //
 // Return that as the export for use in Webpack, Browserify etc.
-__webpack_require__(37);
+__webpack_require__(38);
 var globalObj = typeof self !== 'undefined' && self || this;
 module.exports = globalObj.fetch.bind(globalObj);
 
@@ -11008,6 +11009,10 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 
 __webpack_require__(9);
+
+var _formData = __webpack_require__(28);
+
+var _formData2 = _interopRequireDefault(_formData);
 
 var _client = __webpack_require__(4);
 
@@ -11183,7 +11188,46 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       return api._delete(valueUrl);
                     },
                     update: function update(data) {
-                      return api._put(valueUrl, data);
+                      return api._put(valueUrl, { body: JSON.stringify(data) });
+                    }
+                  };
+                }
+              };
+            },
+
+            hosting: function hosting() {
+              return {
+                config: function config() {
+                  return {
+                    get: function get() {
+                      return api._get(appUrl + '/hosting/config');
+                    },
+                    patch: function patch(config) {
+                      return api._patch(appUrl + '/hosting/config', config);
+                    }
+                  };
+                },
+                assets: function assets() {
+                  return {
+                    list: function list(params) {
+                      return api._get(appUrl + '/hosting/assets', params);
+                    },
+                    patch: function patch(params) {
+                      return api._patch(appUrl + '/hosting/assets', params);
+                    },
+                    create: function create(metadata, body) {
+                      var form = new _formData2.default();
+                      form.append('meta', metadata);
+                      form.append('file', body);
+                      var headers = { 'Content-Type': form.getHeaders()['content-type'] };
+                      return api._put(appUrl + '/hosting/assets/asset', { body: form, headers: headers });
+                    },
+                    asset: function asset() {
+                      return {
+                        delete: function _delete(params) {
+                          return api._delete(appUrl + '/hosting/assets/asset', params);
+                        }
+                      };
                     }
                   };
                 }
@@ -11238,7 +11282,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                               return api._get(ruleUrl);
                             },
                             update: function update(data) {
-                              return api._put(ruleUrl, data);
+                              return api._put(ruleUrl, { body: JSON.stringify(data) });
                             },
                             remove: function remove() {
                               return api._delete(ruleUrl);
@@ -11263,7 +11307,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                               return api._get(webhookUrl);
                             },
                             update: function update(data) {
-                              return api._put(webhookUrl, data);
+                              return api._put(webhookUrl, { body: JSON.stringify(data) });
                             },
                             remove: function remove() {
                               return api._delete(webhookUrl);
@@ -11291,7 +11335,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       return api._get(appUrl + '/push/notifications/' + messageId);
                     },
                     update: function update(data) {
-                      return api._put(appUrl + '/push/notifications/' + messageId, data);
+                      return api._put(appUrl + '/push/notifications/' + messageId, { body: JSON.stringify(data) });
                     },
                     remove: function remove() {
                       return api._delete(appUrl + '/push/notifications/' + messageId);
@@ -11467,7 +11511,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       return api._get(appUrl + '/functions/' + functionId);
                     },
                     update: function update(data) {
-                      return api._put(appUrl + '/functions/' + functionId, data);
+                      return api._put(appUrl + '/functions/' + functionId, { body: JSON.stringify(data) });
                     },
                     remove: function remove() {
                       return api._delete(appUrl + '/functions/' + functionId);
@@ -11491,13 +11535,13 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       return api._get(appUrl + '/event_subscriptions/' + eventSubscriptionId);
                     },
                     update: function update(data) {
-                      return api._put(appUrl + '/event_subscriptions/' + eventSubscriptionId, data);
+                      return api._put(appUrl + '/event_subscriptions/' + eventSubscriptionId, { body: JSON.stringify(data) });
                     },
                     remove: function remove() {
                       return api._delete(appUrl + '/event_subscriptions/' + eventSubscriptionId);
                     },
                     resume: function resume(data) {
-                      return api._put(appUrl + '/event_subscriptions/' + eventSubscriptionId + '/resume', data);
+                      return api._put(appUrl + '/event_subscriptions/' + eventSubscriptionId + '/resume', { body: JSON.stringify(data) });
                     }
                   };
                 }
@@ -11531,14 +11575,14 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
         _get: function _get(url, queryParams) {
           return v3do(url, 'GET', { queryParams: queryParams });
         },
-        _put: function _put(url, data) {
-          return data ? v3do(url, 'PUT', { body: JSON.stringify(data) }) : v3do(url, 'PUT');
+        _put: function _put(url, options) {
+          return options ? v3do(url, 'PUT', options) : v3do(url, 'PUT');
         },
         _patch: function _patch(url, data) {
           return data ? v3do(url, 'PATCH', { body: JSON.stringify(data) }) : v3do(url, 'PATCH');
         },
-        _delete: function _delete(url) {
-          return v3do(url, 'DELETE');
+        _delete: function _delete(url, queryParams) {
+          return queryParams ? v3do(url, 'DELETE', { queryParams: queryParams }) : v3do(url, 'DELETE');
         },
         _post: function _post(url, body, queryParams) {
           return queryParams ? v3do(url, 'POST', { body: JSON.stringify(body), queryParams: queryParams }) : v3do(url, 'POST', { body: JSON.stringify(body) });
@@ -11663,7 +11707,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var jwtDecode = __webpack_require__(32);
+var jwtDecode = __webpack_require__(33);
 
 var EMBEDDED_USER_AUTH_DATA_PARTS = 4;
 
@@ -13461,6 +13505,14 @@ module.exports = function detectOS(userAgentString) {
 /* 28 */
 /***/ (function(module, exports) {
 
+/* eslint-env browser */
+module.exports = typeof self == 'object' ? self.FormData : window.FormData;
+
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports) {
+
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = nBytes * 8 - mLen - 1
@@ -13548,7 +13600,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -13559,7 +13611,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports) {
 
 /**
@@ -13603,10 +13655,10 @@ module.exports = typeof window !== 'undefined' && window.atob && window.atob.bin
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var atob = __webpack_require__(30);
+var atob = __webpack_require__(31);
 
 function b64DecodeUnicode(str) {
   return decodeURIComponent(atob(str).replace(/(.)/g, function (m, p) {
@@ -13642,13 +13694,13 @@ module.exports = function(str) {
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var base64_url_decode = __webpack_require__(31);
+var base64_url_decode = __webpack_require__(32);
 
 function InvalidTokenError(message) {
   this.message = message;
@@ -13675,7 +13727,7 @@ module.exports.InvalidTokenError = InvalidTokenError;
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13772,7 +13824,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -13962,13 +14014,13 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var strictUriEncode = __webpack_require__(36);
-var objectAssign = __webpack_require__(33);
+var strictUriEncode = __webpack_require__(37);
+var objectAssign = __webpack_require__(34);
 
 function encoderForArrayFormat(opts) {
 	switch (opts.arrayFormat) {
@@ -14174,7 +14226,7 @@ exports.stringify = function (obj, opts) {
 
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14187,7 +14239,7 @@ module.exports = function (str) {
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports) {
 
 (function(self) {
