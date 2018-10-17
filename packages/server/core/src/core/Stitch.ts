@@ -113,7 +113,7 @@ export default class Stitch {
       );
     }
 
-    const builder = config.builder();
+    const builder = config.builder ? config.builder() : new StitchAppClientConfiguration.Builder(config);
     if (builder.dataDirectory === undefined || builder.dataDirectory === "") {
       const dataPath = join(homedir(), DEFAULT_STITCH_DIR, clientAppId);
       ensureDirSync(dataPath);

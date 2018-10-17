@@ -110,7 +110,7 @@ export default class Stitch {
       );
     }
 
-    const builder = config.builder();
+    const builder = config.builder ? config.builder() : new StitchAppClientConfiguration.Builder(config);
     if (builder.storage === undefined) {
       builder.withStorage(new LocalStorage(clientAppId));
     }
