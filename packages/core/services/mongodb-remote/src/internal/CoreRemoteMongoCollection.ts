@@ -140,6 +140,6 @@ export default interface CoreRemoteMongoCollection<DocumentT> {
   ): Promise<RemoteUpdateResult>;
 
   watch(
-    ids: object[]
+    ids: any[]
   ): Promise<Stream<ChangeEvent<DocumentT>>>;
 }

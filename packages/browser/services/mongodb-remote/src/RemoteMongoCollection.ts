@@ -145,6 +145,6 @@ export default interface RemoteMongoCollection<DocumentT> {
   ): Promise<RemoteUpdateResult>;
 
   watch(
-    ids: Array<object>
+    ids: Array<any>
   ): Promise<Stream<ChangeEvent<DocumentT>>>;
 }

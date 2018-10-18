@@ -256,7 +256,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
   }
 
   public watch(
-    ids: object[]
+    ids: any[]
   ): Promise<Stream<ChangeEvent<T>>> {
     const args: any = { ...this.baseOperationArgs };
 

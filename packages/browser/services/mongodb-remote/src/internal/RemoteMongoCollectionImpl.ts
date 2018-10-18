@@ -173,7 +173,7 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
   }
 
   public watch(
-    ids: object[]
+    ids: any[]
   ): Promise<Stream<ChangeEvent<DocumentT>>> {
     return this.proxy.watch(ids);
   }
