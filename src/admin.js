@@ -50,9 +50,9 @@ export class StitchAdminClient extends StitchClient {
         (options ?
           v3do(url, 'PUT', options) :
           v3do(url, 'PUT')),
-      _patch: (url, data) =>
-        (data ?
-          v3do(url, 'PATCH', {body: JSON.stringify(data)}) :
+      _patch: (url, options) =>
+        (options ?
+          v3do(url, 'PATCH', options) :
           v3do(url, 'PATCH')),
       _delete: (url, queryParams)  =>
         (queryParams ?
@@ -155,11 +155,10 @@ export class StitchAdminClient extends StitchClient {
           hosting: () => ({
             config: () => ({
               get: () => api._get(`${appUrl}/hosting/config`),
-              patch: (config) => api._patch(`${appUrl}/hosting/config`, config)
+              patch: (config) => api._patch(`${appUrl}/hosting/config`, { body: JSON.stringify(config) })
             }),
             assets: () => ({
               list: (params) => api._get(`${appUrl}/hosting/assets`, params),
-              patch: (params) => api._patch(`${appUrl}/hosting/assets`, params),
               create: (metadata, body) => {
                 const form = new FormData();
                 form.append('meta', metadata);
@@ -169,6 +168,7 @@ export class StitchAdminClient extends StitchClient {
               },
               post: (data) => api._post(`${appUrl}/hosting/assets`, data),
               asset: () => ({
+                patch: (options) => api._patch(`${appUrl}/hosting/assets/asset`, { body: JSON.stringify({ attributes: options.attributes }), queryParams: { path: options.path } }),
                 get: (params) => api._get(`${appUrl}/hosting/assets/asset`, params),
                 delete: (params) => api._delete(`${appUrl}/hosting/assets/asset`, params)
               })
@@ -181,11 +181,11 @@ export class StitchAdminClient extends StitchClient {
             service: (serviceId) => ({
               get: () => api._get(`${appUrl}/services/${serviceId}`),
               remove: () => api._delete(`${appUrl}/services/${serviceId}`),
-              update: (data) => api._patch(`${appUrl}/services/${serviceId}`, data),
+              update: (data) => api._patch(`${appUrl}/services/${serviceId}`, { body: JSON.stringify(data) }),
               runCommand: (commandName, data) => api._post(`${appUrl}/services/${serviceId}/commands/${commandName}`, data),
               config: ()=> ({
                 get: () => api._get(`${appUrl}/services/${serviceId}/config`),
-                update: (data) => api._patch(`${appUrl}/services/${serviceId}/config`, data)
+                update: (data) => api._patch(`${appUrl}/services/${serviceId}/config`, { body: JSON.stringify(data) })
               }),
 
               rules: () => ({
@@ -266,7 +266,7 @@ export class StitchAdminClient extends StitchClient {
             create: (data) => api._post(`${appUrl}/auth_providers`, data),
             authProvider: (providerId) => ({
               get: () => api._get(`${appUrl}/auth_providers/${providerId}`),
-              update: (data) => api._patch(`${appUrl}/auth_providers/${providerId}`, data),
+              update: (data) => api._patch(`${appUrl}/auth_providers/${providerId}`, { body: JSON.stringify(data) }),
               enable: () => api._put(`${appUrl}/auth_providers/${providerId}/enable`),
               disable: () => api._put(`${appUrl}/auth_providers/${providerId}/disable`),
               remove: () => api._delete(`${appUrl}/auth_providers/${providerId}`)

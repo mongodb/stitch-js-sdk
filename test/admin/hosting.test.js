@@ -21,12 +21,13 @@ describe('Hosting', () => {
 
   const FILE_PATH = '/foo';
   const FILE_BODY = 'testString';
-  const FILE_ATTRS = [{ name: 'Content-Type', value: 'application/txt'}, { name: 'Content-Disposition', value: 'inline' }];
+  const FILE_HASH = md5(FILE_BODY);
+  const FILE_ATTRS = [{ name: 'Content-Type', value: 'application/txt' }, { name: 'Content-Disposition', value: 'inline' }];
   const createTestFile = () => ({
     metadata: {
       appId: th.testApp._id,
       path: FILE_PATH,
-      hash: md5(FILE_BODY),
+      hash: FILE_HASH,
       size: FILE_BODY.length,
       attrs: FILE_ATTRS
     },
@@ -50,7 +51,54 @@ describe('Hosting', () => {
     await hosting.assets().create(JSON.stringify(metadata), body);
 
     let asset = await hosting.assets().asset().get({ path: FILE_PATH });
-    expect(asset.path).toEqual(FILE_PATH);
+    expect(asset.appId).toEqual(metadata.appId);
+    expect(asset.path).toEqual(metadata.path);
+    expect(asset.size).toEqual(metadata.size);
+    expect(asset.hash).toEqual(metadata.hash);
+    expect(asset.attrs).toEqual(metadata.attrs);
+  });
+
+  it('copying an asset should work', async() => {
+    let { metadata, body } = createTestFile();
+    let newPath = '/foo2';
+    await hosting.assets().create(JSON.stringify(metadata), body);
+    await hosting.assets().post({ 'copy_from': FILE_PATH, 'copy_to': newPath });
+
+    let original = await hosting.assets().asset().get({ path: FILE_PATH });
+    let copy = await hosting.assets().asset().get({ path: newPath });
+    expect(copy.appId).toEqual(original.appId);
+    expect(copy.size).toEqual(original.size);
+    expect(copy.hash).toEqual(original.hash);
+    expect(copy.attrs).toEqual(original.attrs);
+  });
+
+  it('moving an asset should work', async() => {
+    let { metadata, body } = createTestFile();
+    let newPath = '/foo2';
+    await hosting.assets().create(JSON.stringify(metadata), body);
+    await hosting.assets().post({ 'move_from': FILE_PATH, 'move_to': newPath });
+
+    await expect(hosting.assets().asset().get({ path: FILE_PATH })).rejects.toBeDefined();
+    let copy = await hosting.assets().asset().get({ path: newPath });
+    expect(copy.appId).toEqual(metadata.appId);
+    expect(copy.size).toEqual(metadata.size);
+    expect(copy.hash).toEqual(metadata.hash);
+    expect(copy.attrs).toEqual(metadata.attrs);
+  });
+
+  it('updating an asset should work', async() => {
+    let { metadata, body } = createTestFile();
+    await hosting.assets().create(JSON.stringify(metadata), body);
+
+    let newAttrs = [{ name: 'Content-Type', value: 'application/json' }];
+    await expect(hosting.assets().asset().patch({ path: FILE_PATH, attributes: newAttrs })).resolves.toBeDefined();
+
+    let newMetadata = await hosting.assets().asset().get({ path: FILE_PATH });
+    expect(newMetadata.appId).toEqual(metadata.appId);
+    expect(newMetadata.path).toEqual(metadata.path);
+    expect(newMetadata.size).toEqual(metadata.size);
+    expect(newMetadata.hash).toEqual(metadata.hash);
+    expect(newMetadata.attrs).toEqual(newAttrs);
   });
 
   it('deleting an asset should work', async() => {
