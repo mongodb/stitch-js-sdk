@@ -23,10 +23,10 @@ describe('Hosting', () => {
   const FILE_BODY = 'testString';
   const FILE_HASH = md5(FILE_BODY);
   const FILE_ATTRS = [{ name: 'Content-Type', value: 'application/txt' }, { name: 'Content-Disposition', value: 'inline' }];
-  const uploadTestFile = () => ({
+  const createTestFile = (filePath = FILE_PATH) => ({
     metadata: {
       appId: th.testApp._id,
-      path: FILE_PATH,
+      path: filePath,
       hash: FILE_HASH,
       size: FILE_BODY.length,
       attrs: FILE_ATTRS
@@ -40,14 +40,14 @@ describe('Hosting', () => {
   });
 
   it('creating an asset should work', async() => {
-    let { metadata, body } = uploadTestFile();
+    let { metadata, body } = createTestFile();
     await hosting.assets().upload(JSON.stringify(metadata), body);
     let assets = await hosting.assets().list({ recursive: true });
     expect(assets).toHaveLength(1);
   });
 
   it('getting an asset should work', async() => {
-    let { metadata, body } = uploadTestFile();
+    let { metadata, body } = createTestFile();
     await hosting.assets().upload(JSON.stringify(metadata), body);
 
     let asset = await hosting.assets().asset().get({ path: FILE_PATH });
@@ -58,8 +58,20 @@ describe('Hosting', () => {
     expect(asset.attrs).toEqual(metadata.attrs);
   });
 
+  it('getting assets by prefix should work', async() => {
+    let file1 = createTestFile('/foo/1');
+    let file2 = createTestFile('/foo/2');
+    let file3 = createTestFile('/bar');
+    await hosting.assets().upload(JSON.stringify(file1.metadata), file1.body);
+    await hosting.assets().upload(JSON.stringify(file2.metadata), file2.body);
+    await hosting.assets().upload(JSON.stringify(file3.metadata), file3.body);
+
+    let assets = await hosting.assets().list({ prefix: '/foo/', recursive: true });
+    expect(assets).toHaveLength(2);
+  });
+
   it('copying an asset should work', async() => {
-    let { metadata, body } = uploadTestFile();
+    let { metadata, body } = createTestFile();
     let newPath = '/foo2';
     await hosting.assets().upload(JSON.stringify(metadata), body);
     await hosting.assets().post({ 'copy_from': FILE_PATH, 'copy_to': newPath });
@@ -73,7 +85,7 @@ describe('Hosting', () => {
   });
 
   it('moving an asset should work', async() => {
-    let { metadata, body } = uploadTestFile();
+    let { metadata, body } = createTestFile();
     let newPath = '/foo2';
     await hosting.assets().upload(JSON.stringify(metadata), body);
     await hosting.assets().post({ 'move_from': FILE_PATH, 'move_to': newPath });
@@ -87,7 +99,7 @@ describe('Hosting', () => {
   });
 
   it('updating an asset should work', async() => {
-    let { metadata, body } = uploadTestFile();
+    let { metadata, body } = createTestFile();
     await hosting.assets().upload(JSON.stringify(metadata), body);
 
     let newAttrs = [{ name: 'Content-Type', value: 'application/json' }];
@@ -102,7 +114,7 @@ describe('Hosting', () => {
   });
 
   it('deleting an asset should work', async() => {
-    let { metadata, body } = uploadTestFile();
+    let { metadata, body } = createTestFile();
     await hosting.assets().upload(JSON.stringify(metadata), body);
     let assets = await hosting.assets().list({ recursive: true });
     expect(assets).toHaveLength(1);

@@ -11211,7 +11211,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                     list: function list(params) {
                       return api._get(appUrl + '/hosting/assets', params);
                     },
-                    create: function create(metadata, body) {
+                    upload: function upload(metadata, body) {
                       var form = new _formData2.default();
                       form.append('meta', metadata);
                       form.append('file', body);
