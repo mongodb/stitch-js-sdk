@@ -159,7 +159,7 @@ export class StitchAdminClient extends StitchClient {
             }),
             assets: () => ({
               list: (params) => api._get(`${appUrl}/hosting/assets`, params),
-              create: (metadata, body) => {
+              upload: (metadata, body) => {
                 const form = new FormData();
                 form.append('meta', metadata);
                 form.append('file', body);
