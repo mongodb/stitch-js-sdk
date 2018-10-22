@@ -1,6 +1,7 @@
 /* global window, fetch */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 import 'fetch-everywhere';
+import FormData from 'form-data';
 import { newStitchClient, StitchClient } from './client';
 import ADMIN_CLIENT_TYPE from './common';
 import { ADMIN_CLIENT_CODEC } from './auth/common';
@@ -45,15 +46,18 @@ export class StitchAdminClient extends StitchClient {
 
     return {
       _get: (url, queryParams) => v3do(url, 'GET', {queryParams}),
-      _put: (url, data) =>
-        (data ?
-          v3do(url, 'PUT', {body: JSON.stringify(data)}) :
+      _put: (url, options) =>
+        (options ?
+          v3do(url, 'PUT', options) :
           v3do(url, 'PUT')),
-      _patch: (url, data) =>
-        (data ?
-          v3do(url, 'PATCH', {body: JSON.stringify(data)}) :
+      _patch: (url, options) =>
+        (options ?
+          v3do(url, 'PATCH', options) :
           v3do(url, 'PATCH')),
-      _delete: (url)  => v3do(url, 'DELETE'),
+      _delete: (url, queryParams)  =>
+        (queryParams ?
+          v3do(url, 'DELETE', {queryParams}) :
+          v3do(url, 'DELETE')),
       _post: (url, body, queryParams) =>
         (queryParams ?
           v3do(url, 'POST', { body: JSON.stringify(body), queryParams }) :
@@ -143,9 +147,32 @@ export class StitchAdminClient extends StitchClient {
               return {
                 get: ()=> api._get(valueUrl),
                 remove: ()=> api._delete(valueUrl),
-                update: (data) => api._put(valueUrl, data)
+                update: (data) => api._put(valueUrl, { body: JSON.stringify(data) })
               };
             }
+          }),
+
+          hosting: () => ({
+            config: () => ({
+              get: () => api._get(`${appUrl}/hosting/config`),
+              patch: (config) => api._patch(`${appUrl}/hosting/config`, { body: JSON.stringify(config) })
+            }),
+            assets: () => ({
+              list: (params) => api._get(`${appUrl}/hosting/assets`, params),
+              upload: (metadata, body) => {
+                const form = new FormData();
+                form.append('meta', metadata);
+                form.append('file', body);
+                const headers = { 'Content-Type': form.getHeaders()['content-type'] };
+                return api._put(`${appUrl}/hosting/assets/asset`, { body: form, headers });
+              },
+              post: (data) => api._post(`${appUrl}/hosting/assets`, data),
+              asset: () => ({
+                patch: (options) => api._patch(`${appUrl}/hosting/assets/asset`, { body: JSON.stringify({ attributes: options.attributes }), queryParams: { path: options.path } }),
+                get: (params) => api._get(`${appUrl}/hosting/assets/asset`, params),
+                delete: (params) => api._delete(`${appUrl}/hosting/assets/asset`, params)
+              })
+            })
           }),
 
           services: () => ({
@@ -154,11 +181,11 @@ export class StitchAdminClient extends StitchClient {
             service: (serviceId) => ({
               get: () => api._get(`${appUrl}/services/${serviceId}`),
               remove: () => api._delete(`${appUrl}/services/${serviceId}`),
-              update: (data) => api._patch(`${appUrl}/services/${serviceId}`, data),
+              update: (data) => api._patch(`${appUrl}/services/${serviceId}`, { body: JSON.stringify(data) }),
               runCommand: (commandName, data) => api._post(`${appUrl}/services/${serviceId}/commands/${commandName}`, data),
               config: ()=> ({
                 get: () => api._get(`${appUrl}/services/${serviceId}/config`),
-                update: (data) => api._patch(`${appUrl}/services/${serviceId}/config`, data)
+                update: (data) => api._patch(`${appUrl}/services/${serviceId}/config`, { body: JSON.stringify(data) })
               }),
 
               rules: () => ({
@@ -168,7 +195,7 @@ export class StitchAdminClient extends StitchClient {
                   const ruleUrl = `${appUrl}/services/${serviceId}/rules/${ruleId}`;
                   return {
                     get: () => api._get(ruleUrl),
-                    update: (data) => api._put(ruleUrl, data),
+                    update: (data) => api._put(ruleUrl, { body: JSON.stringify(data) }),
                     remove: () => api._delete(ruleUrl)
                   };
                 }
@@ -181,7 +208,7 @@ export class StitchAdminClient extends StitchClient {
                   const webhookUrl = `${appUrl}/services/${serviceId}/incoming_webhooks/${incomingWebhookId}`;
                   return {
                     get: () => api._get(webhookUrl),
-                    update: (data) => api._put(webhookUrl, data),
+                    update: (data) => api._put(webhookUrl, { body: JSON.stringify(data) }),
                     remove: () => api._delete(webhookUrl)
                   };
                 }
@@ -194,7 +221,7 @@ export class StitchAdminClient extends StitchClient {
             create: (data) => api._post(`${appUrl}/push/notifications`, data),
             pushNotification: (messageId) => ({
               get: () => api._get(`${appUrl}/push/notifications/${messageId}`),
-              update: (data) => api._put(`${appUrl}/push/notifications/${messageId}`, data),
+              update: (data) => api._put(`${appUrl}/push/notifications/${messageId}`, { body: JSON.stringify(data) }),
               remove: () => api._delete(`${appUrl}/push/notifications/${messageId}`),
               send: () => api._post(`${appUrl}/push/notifications/${messageId}/send`)
             })
@@ -239,7 +266,7 @@ export class StitchAdminClient extends StitchClient {
             create: (data) => api._post(`${appUrl}/auth_providers`, data),
             authProvider: (providerId) => ({
               get: () => api._get(`${appUrl}/auth_providers/${providerId}`),
-              update: (data) => api._patch(`${appUrl}/auth_providers/${providerId}`, data),
+              update: (data) => api._patch(`${appUrl}/auth_providers/${providerId}`, { body: JSON.stringify(data) }),
               enable: () => api._put(`${appUrl}/auth_providers/${providerId}/enable`),
               disable: () => api._put(`${appUrl}/auth_providers/${providerId}/disable`),
               remove: () => api._delete(`${appUrl}/auth_providers/${providerId}`)
@@ -273,7 +300,7 @@ export class StitchAdminClient extends StitchClient {
             create: (data) => api._post(`${appUrl}/functions`, data),
             function: (functionId) => ({
               get: () => api._get(`${appUrl}/functions/${functionId}`),
-              update: (data) => api._put(`${appUrl}/functions/${functionId}`, data),
+              update: (data) => api._put(`${appUrl}/functions/${functionId}`, { body: JSON.stringify(data) }),
               remove: () => api._delete(`${appUrl}/functions/${functionId}`)
             })
           }),
@@ -283,9 +310,9 @@ export class StitchAdminClient extends StitchClient {
             create: (data) => api._post(`${appUrl}/event_subscriptions`, data),
             eventSubscription: (eventSubscriptionId) => ({
               get: () => api._get(`${appUrl}/event_subscriptions/${eventSubscriptionId}`),
-              update: (data) => api._put(`${appUrl}/event_subscriptions/${eventSubscriptionId}`, data),
+              update: (data) => api._put(`${appUrl}/event_subscriptions/${eventSubscriptionId}`, { body: JSON.stringify(data) }),
               remove: () => api._delete(`${appUrl}/event_subscriptions/${eventSubscriptionId}`),
-              resume: (data) => api._put(`${appUrl}/event_subscriptions/${eventSubscriptionId}/resume`, data)
+              resume: (data) => api._put(`${appUrl}/event_subscriptions/${eventSubscriptionId}/resume`, { body: JSON.stringify(data) })
             })
           })
         };
