@@ -532,7 +532,6 @@ var StitchClient = exports.StitchClient = function () {
       return fetch(url, fetchArgs).then(function (response) {
         // Okay: passthrough
         if (response.status >= 200 && response.status < 300) {
-          console.log(response);
           return Promise.resolve(response);
         }
 

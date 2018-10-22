@@ -826,7 +826,6 @@ var StitchClient = exports.StitchClient = function () {
       return fetch(url, fetchArgs).then(function (response) {
         // Okay: passthrough
         if (response.status >= 200 && response.status < 300) {
-          console.log(response);
           return Promise.resolve(response);
         }
 
@@ -11203,7 +11202,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       return api._get(appUrl + '/hosting/config');
                     },
                     patch: function patch(config) {
-                      return api._patch(appUrl + '/hosting/config', config);
+                      return api._patch(appUrl + '/hosting/config', { body: JSON.stringify(config) });
                     }
                   };
                 },
@@ -11212,9 +11211,6 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                     list: function list(params) {
                       return api._get(appUrl + '/hosting/assets', params);
                     },
-                    patch: function patch(params) {
-                      return api._patch(appUrl + '/hosting/assets', params);
-                    },
                     create: function create(metadata, body) {
                       var form = new _formData2.default();
                       form.append('meta', metadata);
@@ -11222,8 +11218,17 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       var headers = { 'Content-Type': form.getHeaders()['content-type'] };
                       return api._put(appUrl + '/hosting/assets/asset', { body: form, headers: headers });
                     },
+                    post: function post(data) {
+                      return api._post(appUrl + '/hosting/assets', data);
+                    },
                     asset: function asset() {
                       return {
+                        patch: function patch(options) {
+                          return api._patch(appUrl + '/hosting/assets/asset', { body: JSON.stringify({ attributes: options.attributes }), queryParams: { path: options.path } });
+                        },
+                        get: function get(params) {
+                          return api._get(appUrl + '/hosting/assets/asset', params);
+                        },
                         delete: function _delete(params) {
                           return api._delete(appUrl + '/hosting/assets/asset', params);
                         }
@@ -11251,7 +11256,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       return api._delete(appUrl + '/services/' + serviceId);
                     },
                     update: function update(data) {
-                      return api._patch(appUrl + '/services/' + serviceId, data);
+                      return api._patch(appUrl + '/services/' + serviceId, { body: JSON.stringify(data) });
                     },
                     runCommand: function runCommand(commandName, data) {
                       return api._post(appUrl + '/services/' + serviceId + '/commands/' + commandName, data);
@@ -11262,7 +11267,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                           return api._get(appUrl + '/services/' + serviceId + '/config');
                         },
                         update: function update(data) {
-                          return api._patch(appUrl + '/services/' + serviceId + '/config', data);
+                          return api._patch(appUrl + '/services/' + serviceId + '/config', { body: JSON.stringify(data) });
                         }
                       };
                     },
@@ -11431,7 +11436,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       return api._get(appUrl + '/auth_providers/' + providerId);
                     },
                     update: function update(data) {
-                      return api._patch(appUrl + '/auth_providers/' + providerId, data);
+                      return api._patch(appUrl + '/auth_providers/' + providerId, { body: JSON.stringify(data) });
                     },
                     enable: function enable() {
                       return api._put(appUrl + '/auth_providers/' + providerId + '/enable');
@@ -11578,8 +11583,8 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
         _put: function _put(url, options) {
           return options ? v3do(url, 'PUT', options) : v3do(url, 'PUT');
         },
-        _patch: function _patch(url, data) {
-          return data ? v3do(url, 'PATCH', { body: JSON.stringify(data) }) : v3do(url, 'PATCH');
+        _patch: function _patch(url, options) {
+          return options ? v3do(url, 'PATCH', options) : v3do(url, 'PATCH');
         },
         _delete: function _delete(url, queryParams) {
           return queryParams ? v3do(url, 'DELETE', { queryParams: queryParams }) : v3do(url, 'DELETE');
