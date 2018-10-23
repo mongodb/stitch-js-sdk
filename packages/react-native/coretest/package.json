@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-react-native-coretest",
-  "version": "4.0.14-3",
+  "version": "4.0.14-4",
   "description": "Tests for mongodb-stitch-react-native-core",
   "keywords": [
     "mongodb",
@@ -32,12 +32,12 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "bson": "4.0.0-rc5",
-    "mongodb-stitch-core-admin-client": "^4.0.14-3",
-    "mongodb-stitch-core-sdk": "^4.0.14-3",
-    "mongodb-stitch-core-testutils": "^4.0.14-3",
-    "mongodb-stitch-react-native-core": "^4.0.14-3",
-    "mongodb-stitch-react-native-testutils": "^4.0.14-3"
+    "bson": "4.0.0-rc6",
+    "mongodb-stitch-core-admin-client": "^4.0.14-4",
+    "mongodb-stitch-core-sdk": "^4.0.14-4",
+    "mongodb-stitch-core-testutils": "^4.0.14-4",
+    "mongodb-stitch-react-native-core": "^4.0.14-4",
+    "mongodb-stitch-react-native-testutils": "^4.0.14-4"
   },
   "devDependencies": {
     "babel-jest": "^23.4.0",
