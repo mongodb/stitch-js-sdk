@@ -173,6 +173,14 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
               return api._get(appUrl + '/measurements', filter);
             },
 
+            commands: function commands() {
+              return {
+                run: function run(command, data) {
+                  return api._post(appUrl + '/commands/' + command, data);
+                }
+              };
+            },
+
             values: function values() {
               return {
                 list: function list() {
