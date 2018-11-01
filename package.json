@@ -19,7 +19,8 @@
     "prepare": "npm run build"
   },
   "jest": {
-    "automock": false
+    "automock": false,
+    "testURL": "http://localhost/"
   },
   "dependencies": {
     "Base64": "^1.0.1",

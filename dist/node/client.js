@@ -584,6 +584,11 @@ var StitchClient = exports.StitchClient = function () {
         url = url + '?' + _queryString2.default.stringify(options.queryParams);
       }
 
+      if (options.multipart) {
+        // fall-back on browser to generate Content-Type for us based on request body (FormData)
+        delete fetchArgs.headers['Content-Type'];
+      }
+
       return { url: url, fetchArgs: fetchArgs };
     }
   }, {

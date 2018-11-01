@@ -167,8 +167,7 @@ export class StitchAdminClient extends StitchClient {
                 const form = new FormData();
                 form.append('meta', metadata);
                 form.append('file', body);
-                const headers = { 'Content-Type': form.getHeaders()['content-type'] };
-                return api._put(`${appUrl}/hosting/assets/asset`, { body: form, headers });
+                return api._put(`${appUrl}/hosting/assets/asset`, { body: form, multipart: true });
               },
               post: (data) => api._post(`${appUrl}/hosting/assets`, data),
               asset: () => ({

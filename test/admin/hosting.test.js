@@ -1,7 +1,7 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
 import md5 from 'md5';
-import { buildAdminTestHarness, extractTestFixtureDataPoints } from '../testutil';
+import { buildAdminTestHarness, extractTestFixtureDataPoints, randomString } from '../testutil';
 
 describe('Hosting', () => {
   let test = new StitchMongoFixture();
@@ -34,23 +34,25 @@ describe('Hosting', () => {
     body: FILE_BODY
   });
 
-  it('listing assets when there are none should return an empty list', async() => {
-    let assets = await hosting.assets().list();
-    expect(assets).toHaveLength(0);
+  it('listing assets of nonexistent directory gives error', () => {
+    expect(hosting.assets().list()).rejects.toThrow();
   });
 
   it('creating an asset should work', async() => {
-    let { metadata, body } = createTestFile();
+    const filePath = `/${randomString()}`;
+    let { metadata, body } = createTestFile(filePath);
     await hosting.assets().upload(JSON.stringify(metadata), body);
     let assets = await hosting.assets().list({ recursive: true });
     expect(assets).toHaveLength(1);
   });
 
   it('getting an asset should work', async() => {
-    let { metadata, body } = createTestFile();
+    const filePath = `/${randomString()}`;
+    let { metadata, body } = createTestFile(filePath);
+    console.log(metadata);
     await hosting.assets().upload(JSON.stringify(metadata), body);
 
-    let asset = await hosting.assets().asset().get({ path: FILE_PATH });
+    let asset = await hosting.assets().asset().get({ path: filePath });
     expect(asset.appId).toEqual(metadata.appId);
     expect(asset.path).toEqual(metadata.path);
     expect(asset.size).toEqual(metadata.size);
@@ -71,12 +73,13 @@ describe('Hosting', () => {
   });
 
   it('copying an asset should work', async() => {
-    let { metadata, body } = createTestFile();
+    const filePath = `/${randomString()}`;
+    let { metadata, body } = createTestFile(filePath);
     let newPath = '/foo2';
     await hosting.assets().upload(JSON.stringify(metadata), body);
-    await hosting.assets().post({ 'copy_from': FILE_PATH, 'copy_to': newPath });
+    await hosting.assets().post({ 'copy_from': filePath, 'copy_to': newPath });
 
-    let original = await hosting.assets().asset().get({ path: FILE_PATH });
+    let original = await hosting.assets().asset().get({ path: filePath });
     let copy = await hosting.assets().asset().get({ path: newPath });
     expect(copy.appId).toEqual(original.appId);
     expect(copy.size).toEqual(original.size);
@@ -85,12 +88,13 @@ describe('Hosting', () => {
   });
 
   it('moving an asset should work', async() => {
-    let { metadata, body } = createTestFile();
+    const filePath = `/${randomString()}`;
+    let { metadata, body } = createTestFile(filePath);
     let newPath = '/foo2';
     await hosting.assets().upload(JSON.stringify(metadata), body);
-    await hosting.assets().post({ 'move_from': FILE_PATH, 'move_to': newPath });
+    await hosting.assets().post({ 'move_from': filePath, 'move_to': newPath });
 
-    await expect(hosting.assets().asset().get({ path: FILE_PATH })).rejects.toBeDefined();
+    await expect(hosting.assets().asset().get({ path: filePath })).rejects.toBeDefined();
     let copy = await hosting.assets().asset().get({ path: newPath });
     expect(copy.appId).toEqual(metadata.appId);
     expect(copy.size).toEqual(metadata.size);
@@ -99,13 +103,14 @@ describe('Hosting', () => {
   });
 
   it('updating an asset should work', async() => {
-    let { metadata, body } = createTestFile();
+    const filePath = `/${randomString()}`;
+    let { metadata, body } = createTestFile(filePath);
     await hosting.assets().upload(JSON.stringify(metadata), body);
 
     let newAttrs = [{ name: 'Content-Type', value: 'application/json' }];
-    await expect(hosting.assets().asset().patch({ path: FILE_PATH, attributes: newAttrs })).resolves.toBeDefined();
+    await expect(hosting.assets().asset().patch({ path: filePath, attributes: newAttrs })).resolves.toBeDefined();
 
-    let newMetadata = await hosting.assets().asset().get({ path: FILE_PATH });
+    let newMetadata = await hosting.assets().asset().get({ path: filePath });
     expect(newMetadata.appId).toEqual(metadata.appId);
     expect(newMetadata.path).toEqual(metadata.path);
     expect(newMetadata.size).toEqual(metadata.size);
@@ -114,12 +119,13 @@ describe('Hosting', () => {
   });
 
   it('deleting an asset should work', async() => {
-    let { metadata, body } = createTestFile();
+    const filePath = `/${randomString()}`;
+    let { metadata, body } = createTestFile(filePath);
     await hosting.assets().upload(JSON.stringify(metadata), body);
     let assets = await hosting.assets().list({ recursive: true });
     expect(assets).toHaveLength(1);
 
-    await hosting.assets().asset().delete({ path: FILE_PATH });
+    await hosting.assets().asset().delete({ path: filePath });
     assets = await hosting.assets().list({ recursive: true });
     expect(assets).toHaveLength(0);
   });
