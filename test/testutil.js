@@ -30,6 +30,15 @@ export const buildClientTestHarness = async(apiKey, groupId, serverUrl) => {
   return harness;
 };
 
+export const randomString = (length=5) => {
+  const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let result = '';
+  for (let i = length; i > 0; i -= 1) {
+    result += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return result;
+};
+
 class TestHarness {
   static async initialize(apiKey, groupId, serverUrl = constants.DEFAULT_SERVER_URL) {
     const testHarness = new TestHarness(apiKey, groupId, serverUrl);

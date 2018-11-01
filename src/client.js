@@ -499,6 +499,11 @@ export class StitchClient {
       url = `${url}?${queryString.stringify(options.queryParams)}`;
     }
 
+    if (options.multipart) {
+      // fall-back on browser to generate Content-Type for us based on request body (FormData)
+      delete fetchArgs.headers['Content-Type'];
+    }
+
     return { url, fetchArgs };
   }
 

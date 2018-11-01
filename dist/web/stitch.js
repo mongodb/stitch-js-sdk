@@ -878,6 +878,11 @@ var StitchClient = exports.StitchClient = function () {
         url = url + '?' + _queryString2.default.stringify(options.queryParams);
       }
 
+      if (options.multipart) {
+        // fall-back on browser to generate Content-Type for us based on request body (FormData)
+        delete fetchArgs.headers['Content-Type'];
+      }
+
       return { url: url, fetchArgs: fetchArgs };
     }
   }, {
@@ -11223,8 +11228,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       var form = new _formData2.default();
                       form.append('meta', metadata);
                       form.append('file', body);
-                      var headers = { 'Content-Type': form.getHeaders()['content-type'] };
-                      return api._put(appUrl + '/hosting/assets/asset', { body: form, headers: headers });
+                      return api._put(appUrl + '/hosting/assets/asset', { body: form, multipart: true });
                     },
                     post: function post(data) {
                       return api._post(appUrl + '/hosting/assets', data);
