@@ -185,7 +185,7 @@ export class Auth {
       if (cookieName === name) {
         let cookieVal = cookie.substring(sepIdx + 1, cookie.length);
         if (cookieVal[cookieVal.length - 1] === ';') {
-          return cookieVal.substring(0, cookie.length - 1);
+          return cookieVal.substring(0, cookieVal.length - 1);
         }
         return cookieVal;
       }
