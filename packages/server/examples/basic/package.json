@@ -1,11 +1,11 @@
 {
   "name": "mongodb-stitch-server-examples-basic",
-  "version": "4.0.14-5",
+  "version": "4.0.14-6",
   "description": "This is an example JS application using the stitch-server module",
   "private": true,
   "main": "index.js",
   "dependencies": {
-    "mongodb-stitch-server-sdk": "^4.0.14-5"
+    "mongodb-stitch-server-sdk": "^4.0.14-6"
   },
   "keywords": [
     "mongodb",
