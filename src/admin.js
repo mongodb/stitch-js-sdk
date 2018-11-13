@@ -45,7 +45,7 @@ export class StitchAdminClient extends StitchClient {
       });
 
     return {
-      _get: (url, queryParams) => v3do(url, 'GET', {queryParams}),
+      _get: (url, queryParams, headers) => v3do(url, 'GET', {queryParams, headers}),
       _put: (url, options) =>
         (options ?
           v3do(url, 'PUT', options) :
@@ -135,7 +135,7 @@ export class StitchAdminClient extends StitchClient {
           get: () => api._get(appUrl),
           remove: () => api._delete(appUrl),
 
-          export: () => api._get(`${appUrl}/export`),
+          export: () => api._get(`${appUrl}/export`, undefined, {Accept: 'application/zip'}),
 
           measurements: (filter) => api._get(`${appUrl}/measurements`, filter),
 
