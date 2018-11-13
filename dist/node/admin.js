@@ -166,7 +166,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
             },
 
             export: function _export() {
-              return api._get(appUrl + '/export');
+              return api._get(appUrl + '/export', undefined, { Accept: 'application/zip' });
             },
 
             measurements: function measurements(filter) {
@@ -588,8 +588,8 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
       };
 
       return {
-        _get: function _get(url, queryParams) {
-          return v3do(url, 'GET', { queryParams: queryParams });
+        _get: function _get(url, queryParams, headers) {
+          return v3do(url, 'GET', { queryParams: queryParams, headers: headers });
         },
         _put: function _put(url, options) {
           return options ? v3do(url, 'PUT', options) : v3do(url, 'PUT');

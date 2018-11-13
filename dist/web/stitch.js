@@ -197,7 +197,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "3.2.9";
+  version = "3.2.10";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -11167,7 +11167,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
             },
 
             export: function _export() {
-              return api._get(appUrl + '/export');
+              return api._get(appUrl + '/export', undefined, { Accept: 'application/zip' });
             },
 
             measurements: function measurements(filter) {
@@ -11589,8 +11589,8 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
       };
 
       return {
-        _get: function _get(url, queryParams) {
-          return v3do(url, 'GET', { queryParams: queryParams });
+        _get: function _get(url, queryParams, headers) {
+          return v3do(url, 'GET', { queryParams: queryParams, headers: headers });
         },
         _put: function _put(url, options) {
           return options ? v3do(url, 'PUT', options) : v3do(url, 'PUT');
@@ -11935,7 +11935,7 @@ var Auth = exports.Auth = function () {
         if (cookieName === name) {
           var cookieVal = cookie.substring(sepIdx + 1, cookie.length);
           if (cookieVal[cookieVal.length - 1] === ';') {
-            return cookieVal.substring(0, cookie.length - 1);
+            return cookieVal.substring(0, cookieVal.length - 1);
           }
           return cookieVal;
         }
