@@ -161,7 +161,11 @@ export class StitchAdminClient extends StitchClient {
               get: () => api._get(`${appUrl}/hosting/config`),
               patch: (config) => api._patch(`${appUrl}/hosting/config`, { body: JSON.stringify(config) })
             }),
+            cache: () => ({
+              invalidate: (path) => api._put(`${appUrl}/hosting/cache`, { body: JSON.stringify({ invalidate: true, path: path }) })
+            }),
             assets: () => ({
+              createDirectory: (folderName) => api._put(`${appUrl}/hosting/assets/asset`, { body: JSON.stringify({ path: `${folderName}/` }) }),
               list: (params) => api._get(`${appUrl}/hosting/assets`, params),
               upload: (metadata, body) => {
                 const form = new FormData();
