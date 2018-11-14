@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { EJSON } from "bson";
 import {
   Anon,
   App,
@@ -28,7 +29,6 @@ import {
   StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
 import { HttpMethod, HttpRequest } from "mongodb-stitch-core-services-http";
-import * as EJSON from "mongodb-stitch-extjson";
 import { AnonymousCredential } from "mongodb-stitch-server-core";
 import { BaseStitchServerIntTestHarness } from "mongodb-stitch-server-testutils";
 import { HttpServiceClient } from "../src/HttpServiceClient";

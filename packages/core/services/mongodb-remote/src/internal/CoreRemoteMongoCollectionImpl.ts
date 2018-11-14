@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import BSON from "mongodb-stitch-bson";
+import BSON from "bson";
 import { Codec, CoreStitchServiceClient, Stream } from "mongodb-stitch-core-sdk";
 import ChangeEvent from "../ChangeEvent";
 import RemoteCountOptions from "../RemoteCountOptions";

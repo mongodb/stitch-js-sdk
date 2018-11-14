@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as EJSON from "mongodb-stitch-extjson";
+import { EJSON } from "bson";
 import {
   Codec,
   Decoder,
@@ -159,7 +159,7 @@ class Creatable<Creator, T> extends BasicResource {
     reqBuilder
       .withMethod(Method.POST)
       .withPath(this.url)
-      .withBody(EJSON.stringify(this.creatorCodec.encode(data)));
+      .withBody(EJSON.stringify(this.creatorCodec.encode(data), { relaxed: false }));
 
     return this.adminAuth
       .doAuthenticatedRequest(reqBuilder.build())
@@ -178,7 +178,7 @@ class Updatable<T> extends BasicResource {
     reqBuilder
       .withMethod(Method.PUT)
       .withPath(this.url)
-      .withBody(EJSON.stringify(data));
+      .withBody(EJSON.stringify(data, { relaxed: false }));
 
     return this.adminAuth
       .doAuthenticatedRequest(reqBuilder.build())

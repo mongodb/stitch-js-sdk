@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ObjectID } from "mongodb-stitch-bson";
+import { ObjectID } from "bson";
 import {
   StitchAuthRequestClient,
   StitchAuthRoutes,

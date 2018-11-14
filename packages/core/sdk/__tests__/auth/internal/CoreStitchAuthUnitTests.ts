@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import BSON from "mongodb-stitch-bson";
+import BSON from "bson";
 import { sign } from "jsonwebtoken";
 import { anything, capture, instance, verify, mock, when } from "ts-mockito";
 import {

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+import BSON from "bson";
 import { AnonymousCredential } from "mongodb-stitch-browser-core";
 import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
-import BSON from "mongodb-stitch-bson";
 import {
   Anon,
   App,
@@ -155,7 +155,7 @@ describe("AwsServiceClient", () => {
     }
 
     const bodyInput = str2ab(body);
-    args.Body = BSON.Binary(new Buffer(bodyInput));
+    args.Body = new BSON.Binary(new Buffer(bodyInput));
     result = await awsS3.execute(
       new AwsRequest.Builder()
         .withService("s3")
