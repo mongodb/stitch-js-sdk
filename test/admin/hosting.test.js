@@ -38,6 +38,21 @@ describe('Hosting', () => {
     expect(hosting.assets().list()).rejects.toThrow();
   });
 
+  it('creating an asset directory should work', async() => {
+    const directoryPath = `/${randomString()}`;
+    await hosting.assets().createDirectory(directoryPath);
+    let assets = await hosting.assets().list({});
+    expect(assets[0].path).toEqual(`${directoryPath}/`);
+  });
+
+  it('invalidating cache should work', async() => {
+    const directoryPath = `/${randomString()}`;
+    await hosting.assets().createDirectory(directoryPath);
+    await hosting.config().patch({ enabled: true });
+    let response = await hosting.cache().invalidate(directoryPath);
+    expect(response.ok).toBeTruthy();
+  });
+
   it('creating an asset should work', async() => {
     const filePath = `/${randomString()}`;
     let { metadata, body } = createTestFile(filePath);
