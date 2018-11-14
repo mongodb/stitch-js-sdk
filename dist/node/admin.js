@@ -218,8 +218,18 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                     }
                   };
                 },
+                cache: function cache() {
+                  return {
+                    invalidate: function invalidate(path) {
+                      return api._put(appUrl + '/hosting/cache', { body: JSON.stringify({ invalidate: true, path: path }) });
+                    }
+                  };
+                },
                 assets: function assets() {
                   return {
+                    createDirectory: function createDirectory(folderName) {
+                      return api._put(appUrl + '/hosting/assets/asset', { body: JSON.stringify({ path: folderName + '/' }) });
+                    },
                     list: function list(params) {
                       return api._get(appUrl + '/hosting/assets', params);
                     },
