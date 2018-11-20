@@ -1,7 +1,7 @@
 {
   "name": "mongodb-stitch-server-services-mongodb-remote",
-  "version": "4.0.15-0",
-  "main": "dist/umd/index.js",
+  "version": "4.0.15-beta-1.0",
+  "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "files": [
@@ -37,15 +37,15 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "mongodb-stitch-core-services-mongodb-remote": "^4.0.15-0",
-    "mongodb-stitch-server-core": "^4.0.15-0"
+    "mongodb-stitch-core-services-mongodb-remote": "^4.0.15-beta-1.0",
+    "mongodb-stitch-server-core": "^4.0.15-beta-1.0"
   },
   "devDependencies": {
     "bson": "4.0.0",
     "jest": "^23.1.0",
-    "mongodb-stitch-core-admin-client": "^4.0.15-0",
-    "mongodb-stitch-core-sdk": "^4.0.15-0",
-    "mongodb-stitch-server-testutils": "^4.0.15-0",
+    "mongodb-stitch-core-admin-client": "^4.0.15-beta-1.0",
+    "mongodb-stitch-core-sdk": "^4.0.15-beta-1.0",
+    "mongodb-stitch-server-testutils": "^4.0.15-beta-1.0",
     "prettier": "^1.13.5",
     "rollup": "^0.60.7",
     "ts-jest": "^22.4.6",
@@ -55,7 +55,7 @@
   },
   "scripts": {
     "build": "npm run build-main && npm run build-module",
-    "build-main": "tsc -p tsconfig.umd.json",
+    "build-main": "tsc -p tsconfig.cjs.json",
     "build-module": "tsc -p tsconfig.esm.json",
     "prepare": "npm run build",
     "watch": "tsc -w -p tsconfig.esm.json",
@@ -68,7 +68,7 @@
   "jest": {
     "globals": {
       "ts-jest": {
-        "tsConfigFile": "tsconfig.umd.json"
+        "tsConfigFile": "tsconfig.cjs.json"
       }
     },
     "reporters": [

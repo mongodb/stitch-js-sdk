@@ -1,7 +1,7 @@
 {
   "name": "mongodb-stitch-react-native-testutils",
-  "version": "4.0.15-0",
-  "main": "dist/umd/index.js",
+  "version": "4.0.15-beta-1.0",
+  "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "files": [
@@ -39,17 +39,17 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "mongodb-stitch-core-admin-client": "^4.0.15-0",
-    "mongodb-stitch-core-sdk": "^4.0.15-0",
-    "mongodb-stitch-core-testutils": "^4.0.15-0",
-    "mongodb-stitch-react-native-core": "^4.0.15-0"
+    "mongodb-stitch-core-admin-client": "^4.0.15-beta-1.0",
+    "mongodb-stitch-core-sdk": "^4.0.15-beta-1.0",
+    "mongodb-stitch-core-testutils": "^4.0.15-beta-1.0",
+    "mongodb-stitch-react-native-core": "^4.0.15-beta-1.0"
   },
   "devDependencies": {
     "typescript": "^2.9.2"
   },
   "scripts": {
     "build": "npm run build-main && npm run build-module",
-    "build-main": "tsc -p tsconfig.umd.json",
+    "build-main": "tsc -p tsconfig.cjs.json",
     "build-module": "tsc -p tsconfig.esm.json",
     "prepare": "npm run build",
     "watch": "tsc -w -p tsconfig.esm.json",
@@ -61,7 +61,7 @@
   "jest": {
     "globals": {
       "ts-jest": {
-        "tsConfigFile": "tsconfig.umd.json"
+        "tsConfigFile": "tsconfig.cjs.json"
       }
     },
     "reporters": [
