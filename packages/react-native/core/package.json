@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "prettier": "^1.13.5",
-    "react-native": "^0.56.0",
+    "react-native": "^0.57.0",
     "rollup": "^0.60.7",
     "ts-jest": "^22.4.6",
     "tslint": "^5.10.0",
@@ -51,7 +51,7 @@
     "typescript": "^2.9.2"
   },
   "peerDependencies": {
-    "react-native": "^0.56.0"
+    "react-native": "^0.57.0"
   },
   "scripts": {
     "build": "npm run build-main && npm run build-module",
