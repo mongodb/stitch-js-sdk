@@ -15,7 +15,7 @@
  */
 
 import BSON from "bson";
-import fetch from "fetch-everywhere";
+import fetch from "cross-fetch";
 import {
   App,
   AppResponse,
