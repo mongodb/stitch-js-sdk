@@ -15,6 +15,9 @@
  */
 
 import { detect } from "detect-browser";
+
+// import cross-fetch as a polyfill so we can also use the Request class
+import "cross-fetch/polyfill"
 import {
   AuthInfo,
   CoreStitchAuth,
@@ -42,7 +45,6 @@ import RedirectKeys from "./RedirectKeys";
 import StitchBrowserAppAuthRoutes from "./StitchBrowserAppAuthRoutes";
 import StitchRedirectError from "./StitchRedirectError";
 import StitchUserFactoryImpl from "./StitchUserFactoryImpl";
-import fetch from "fetch-everywhere";
 
 const alphaNumericCharacters =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

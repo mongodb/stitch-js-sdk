@@ -1,7 +1,7 @@
 {
-    "extends": "../../../config/tsconfig.umd.browser.base.json",
+    "extends": "../../../config/tsconfig.cjs.browser.base.json",
     "compilerOptions": {
-    	"outDir": "dist/umd"
+    	"outDir": "dist/cjs"
     },
     "include": [
         "__tests__/**/*"

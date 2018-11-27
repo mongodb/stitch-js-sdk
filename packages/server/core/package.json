@@ -1,7 +1,7 @@
 {
   "name": "mongodb-stitch-server-core",
-  "version": "4.0.15-0",
-  "main": "dist/umd/index.js",
+  "version": "4.0.15-beta-2.0",
+  "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "files": [
@@ -39,7 +39,7 @@
   "dependencies": {
     "bson": "4.0.0",
     "fs-extra": "^6.0.1",
-    "mongodb-stitch-core-sdk": "^4.0.15-0"
+    "mongodb-stitch-core-sdk": "^4.0.15-beta-2.0"
   },
   "devDependencies": {
     "prettier": "^1.13.5",
@@ -51,7 +51,7 @@
   },
   "scripts": {
     "build": "npm run build-main && npm run build-module",
-    "build-main": "tsc -p tsconfig.umd.json && npm run add-version-umd",
+    "build-main": "tsc -p tsconfig.cjs.json && npm run add-version-cjs",
     "build-module": "tsc -p tsconfig.esm.json && npm run add-version-esm",
     "prepare": "npm run build",
     "watch": "tsc -w -p tsconfig.esm.json",
@@ -60,6 +60,6 @@
     "lint-check": "tslint-config-prettier-check ./tslint.json",
     "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\"",
     "add-version-esm": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" dist/esm/core/internal/common/Version.js",
-    "add-version-umd": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" dist/umd/core/internal/common/Version.js"
+    "add-version-cjs": "sed -i -e \"s/@VERSION@/$npm_package_version/g\" dist/cjs/core/internal/common/Version.js"
   }
 }
