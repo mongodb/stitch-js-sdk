@@ -111,22 +111,22 @@ export default class StitchUserProfileImpl implements IStitchUserProfile {
   /**
    * The minimum age of the user.
    */
-  get minAge(): number | undefined {
+  get minAge(): string | undefined {
     const age = this.data[MIN_AGE];
     if (age === undefined) {
       return undefined;
     }
-    return +age;
+    return age;
   }
 
   /**
    * The maximum age of the user.
    */
-  get maxAge(): number | undefined {
+  get maxAge(): string | undefined {
     const age = this.data[MAX_AGE];
     if (age === undefined) {
       return undefined;
     }
-    return +age;
+    return age;
   }
 }
