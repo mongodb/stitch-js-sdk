@@ -11,7 +11,7 @@ The official [MongoDB Stitch](https://stitch.mongodb.com/) Server SDK for JavaSc
 - [Example Usage](#example-usage)
 
 ## Documentation
-* [API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js-server/docs/4.0.14/index.html)
+* [API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js-server/docs/4.1.0/index.html)
 * [MongoDB Stitch Documentation](https://docs.mongodb.com/stitch/)
 
 ## Discussion

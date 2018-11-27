@@ -10,7 +10,8 @@
         "esModuleInterop": true,
         "lib": [
             "es2015",
-            "es2017.object"
+            "es2017.object",
+            "dom"
         ]
     }
 }

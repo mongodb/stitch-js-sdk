@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-// import * as jsdom from 'jsdom';
 import { GoogleRedirectCredential } from "mongodb-stitch-browser-core";
 import { StitchAppClientInfo, StitchAuthCredential, StitchRequestClient, StitchUserProfileImpl } from "mongodb-stitch-core-sdk";
 import { anything, capture, instance, mock, spy, when } from "ts-mockito";

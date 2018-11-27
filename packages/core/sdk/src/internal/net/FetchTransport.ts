@@ -22,7 +22,7 @@ import Response from "./Response";
 import Transport from "./Transport";
 import StitchClientError from "../../StitchClientError";
 import { StitchClientErrorCode } from "../../StitchClientErrorCode";
-import fetch from "fetch-everywhere";
+import fetch from "cross-fetch";
 
 /** @hidden */
 export default class FetchTransport implements Transport {
