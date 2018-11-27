@@ -49,7 +49,7 @@ export default class Stitch {
    * @param clientAppId The client app id of the desired app client.
    */
   public static getAppClient(clientAppId: string): StitchAppClient {
-    if (appClients[clientAppId] !== undefined) {
+    if (appClients[clientAppId] === undefined) {
       throw new Error(
         `client for app '${clientAppId}' has not yet been initialized`
       );
