@@ -56,10 +56,10 @@ export default interface StitchUserProfile {
   /**
    * The minimum age of the user.
    */
-  readonly minAge?: number;
+  readonly minAge?: string;
 
   /**
    * The maximum age of the user.
    */
-  readonly maxAge?: number;
+  readonly maxAge?: string;
 }
