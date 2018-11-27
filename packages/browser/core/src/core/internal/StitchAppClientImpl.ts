@@ -19,7 +19,7 @@ import {
   CoreStitchServiceClientImpl,
   StitchAppClientConfiguration,
   StitchAppClientInfo,
-  StitchRequestClient
+  StitchAppRequestClient
 } from "mongodb-stitch-core-sdk";
 import NamedServiceClientFactory from "../../services/internal/NamedServiceClientFactory";
 import ServiceClientFactory from "../../services/internal/ServiceClientFactory";
@@ -52,7 +52,8 @@ export default class StitchAppClientImpl implements StitchAppClient {
       this.info.clientAppId,
       config.baseUrl
     );
-    const requestClient = new StitchRequestClient(
+    const requestClient = new StitchAppRequestClient(
+      clientAppId,
       config.baseUrl,
       config.transport
     );

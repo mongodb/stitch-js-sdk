@@ -17,19 +17,21 @@
 import { StitchAuthRoutes } from "../../auth/internal/StitchAuthRoutes";
 import StitchServiceRoutes from "../../services/internal/StitchServiceRoutes";
 import StitchAppAuthRoutes from "./StitchAppAuthRoutes";
-import { getFunctionCallRoute } from "./StitchRoutes";
+import { getAppMetadataRoute, getFunctionCallRoute } from "./StitchRoutes";
 
 class StitchAppRoutes {
   public readonly authRoutes: StitchAuthRoutes;
   public readonly serviceRoutes: StitchServiceRoutes;
 
   public readonly functionCallRoute: string;
+  public readonly appMetadataRoute: string;
   private readonly clientAppId: string;
 
   public constructor(clientAppId: string) {
     this.clientAppId = clientAppId;
     this.authRoutes = new StitchAppAuthRoutes(clientAppId);
     this.serviceRoutes = new StitchServiceRoutes(clientAppId);
+    this.appMetadataRoute = getAppMetadataRoute(clientAppId);
     this.functionCallRoute = getFunctionCallRoute(clientAppId);
   }
 }

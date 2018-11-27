@@ -66,6 +66,7 @@ import Method from "./internal/net/Method";
 import Response from "./internal/net/Response";
 import Stream from "./internal/net/Stream";
 import StitchAppAuthRoutes from "./internal/net/StitchAppAuthRoutes";
+import StitchAppRequestClient from "./internal/net/StitchAppRequestClient";
 import StitchAppRoutes from "./internal/net/StitchAppRoutes";
 import { StitchAuthRequest } from "./internal/net/StitchAuthRequest";
 import StitchRequestClient from "./internal/net/StitchRequestClient";
@@ -129,6 +130,7 @@ export {
   Stream,
   StitchAppClientInfo,
   StitchAppClientConfiguration,
+  StitchAppRequestClient,
   StitchAppRoutes,
   StitchAuthRequest,
   StitchAuthRequestClient,

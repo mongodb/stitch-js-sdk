@@ -24,4 +24,8 @@ function getFunctionCallRoute(clientAppId: string): string {
   return getAppRoute(clientAppId) + "/functions/call";
 }
 
-export { BASE_ROUTE, getAppRoute, getFunctionCallRoute };
+function getAppMetadataRoute(clientAppId: string): string {
+  return getAppRoute(clientAppId) + "/location";
+}
+
+export { BASE_ROUTE, getAppRoute, getFunctionCallRoute, getAppMetadataRoute };

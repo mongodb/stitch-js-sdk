@@ -14,71 +14,23 @@
  * limitations under the License.
  */
 
-import { EJSON } from "bson";
-import { handleRequestError } from "../../internal/common/StitchErrorUtils";
-import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
-import StitchError from "../../StitchError";
-import StitchRequestError from "../../StitchRequestError";
-import { BasicRequest } from "./BasicRequest";
-import ContentTypes from "./ContentTypes";
+import BaseStitchRequestClient from "./BaseStitchRequestClient";
 import EventStream from "./EventStream";
-import Headers from "./Headers";
 import Response from "./Response";
-import { StitchDocRequest } from "./StitchDocRequest";
 import { StitchRequest } from "./StitchRequest";
 import Transport from "./Transport";
 
-function inspectResponse(response: Response): Response {
-  if (response.statusCode >= 200 && response.statusCode < 300) {
-    return response;
-  }
-
-  return handleRequestError(response);
-}
-
 /** @hidden */
-export default class StitchRequestClient {
-  private readonly baseUrl: string;
-  private readonly transport: Transport;
-
+export default class StitchRequestClient extends BaseStitchRequestClient {
   public constructor(baseUrl: string, transport: Transport) {
-    this.baseUrl = baseUrl;
-    this.transport = transport;
+    super(baseUrl, transport);
   }
 
   public doRequest(stitchReq: StitchRequest): Promise<Response> {
-    return this.transport
-      .roundTrip(this.buildRequest(stitchReq))
-      .catch(error => {
-        throw new StitchRequestError(
-          error,
-          StitchRequestErrorCode.TRANSPORT_ERROR
-        );
-      })
-      .then(inspectResponse);
+    return super.doRequestToURL(stitchReq, this.baseUrl);
   }
 
   public doStreamRequest(stitchReq: StitchRequest, open: boolean = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
-    return this.transport
-      .stream(this.buildRequest(stitchReq), open, retryRequest)
-      .catch(error => {
-        // stream can throw StitchErrors itself unlike roundTrip
-        if (error instanceof StitchError) {
-           throw error;
-        }
-        throw new StitchRequestError(
-          error,
-          StitchRequestErrorCode.TRANSPORT_ERROR
-        );
-      });
-  }
-
-  private buildRequest(stitchReq: StitchRequest): BasicRequest {
-    return new BasicRequest.Builder()
-      .withMethod(stitchReq.method)
-      .withUrl(`${this.baseUrl}${stitchReq.path}`)
-      .withHeaders(stitchReq.headers)
-      .withBody(stitchReq.body)
-      .build();
+    return super.doStreamRequestToURL(stitchReq, this.baseUrl, open, retryRequest);
   }
 }
