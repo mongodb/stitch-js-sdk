@@ -20,12 +20,14 @@ import {
   EventStream,
   Headers,
   Response,
+  StitchClientError,
+  StitchClientErrorCode,
   Transport,
   handleRequestError
 } from "mongodb-stitch-core-sdk";
 import ReaderEventStream from "./ReaderEventStream";
 import EventSourceEventStream from "./EventSourceEventStream";
-import fetch from "fetch-everywhere";
+import fetch from "cross-fetch";
 
 /** @hidden */
 export default class FetchStreamTransport implements Transport {
@@ -82,7 +84,8 @@ export default class FetchStreamTransport implements Transport {
           return response.text()
           .then(body => handleRequestError(new Response(headers, response.status, body)));
         }
-        return new Promise((resolve, reject) => {
+
+        return new Promise<EventStream>((resolve, reject) => {
           // Any error against opening this stream here will have an error
           // telling the user to look at the network response which is why we
           // prefer the ReadableStream approach. Beyond that, this type of
@@ -115,9 +118,16 @@ export default class FetchStreamTransport implements Transport {
         return response.text()
         .then(body => handleRequestError(new Response(headers, response.status, body)));
       }
-      return new ReaderEventStream(response.body, open, retryRequest ? () =>
-        retryRequest().then(es => es as ReaderEventStream)
-      : undefined);
+
+      if (!retryRequest) {
+        throw new StitchClientError(StitchClientErrorCode.StreamClosed);
+      }
+      if (!response.body) {
+        throw new StitchClientError(StitchClientErrorCode.StreamingNotSupported);
+      }
+
+      return Promise.resolve(new ReaderEventStream(response.body, open, retryRequest ? () =>
+         retryRequest().then(es => es as ReaderEventStream) : undefined));
     });
   }
 }

@@ -11,7 +11,7 @@ The official [MongoDB Stitch](https://stitch.mongodb.com/) React Native SDK for 
 - [Example Usage](#example-usage)
 
 ## Documentation
-* [API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js-react-native/docs/4.0.14/index.html)
+* [API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js-react-native/docs/4.1.0/index.html)
 * [MongoDB Stitch Documentation](https://docs.mongodb.com/stitch/)
 
 ## Discussion
@@ -53,18 +53,15 @@ npm install mongodb-stitch-react-native-services-twilio
 
 #### Set up a React Native project
 1. Ensure that you have `npm` installed. See [npmjs.com](https://www.npmjs.com).
-2. If you don't already have [Create React Native App](https://github.com/react-community/create-react-native-app) installed, run `npm install -g create-react-native-app`
-3. Initialize a new React Native project with `create-react-native-app YourProjectName`.
-4. Go to the new project with `cd YourProjectName`.
-5. Add the MongoDB Stitch React Native SDK by running `npm install mongodb-stitch-react-native-sdk`.
-
-6. In `App.js`, replace the existing code with the following, replacing `<your-client-app-id>` with the id you retrieved when setting up the application in MongoDB Stitch:
+2. Follow the instructions in React Native's [Getting Started](https://facebook.github.io/react-native/docs/getting-started) guide to create a basic React Native project.
+3. Once in the directory for your new project, add the MongoDB Stitch React Native SDK by running `npm install mongodb-stitch-react-native-sdk`.
+4. Run `npm install` again to ensure that the SDK's dependencies are properly fetched.
+5. In `App.js`, replace the existing code with the following, replacing `<your-client-app-id>` with the id you retrieved when setting up the application in MongoDB Stitch:
 
 ```jsx
-const React = require('react');
-const { Button, StyleSheet, Text, View } = require('react-native');
-const { Stitch, AnonymousCredential } = require('mongodb-stitch-react-native-sdk');
- 
+import React from 'react'
+import { Button, StyleSheet, Text, View } from 'react-native';
+import { Stitch, AnonymousCredential } from 'mongodb-stitch-react-native-sdk';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -147,7 +144,7 @@ const styles = StyleSheet.create({
 
 ```
 
-7. Run the app by running `npm start` and following the instructions in the terminal. You may need to run `npm install` before `npm start` works correctly.
+6. Run the app by running `npm start` and following the instructions in the terminal.
 
 ### Using the SDK
 
@@ -155,7 +152,7 @@ const styles = StyleSheet.create({
 1. When your app has started, run the following code to initialize the Stitch SDK, replacing `<your-client-app-id>` with your Stitch application's client app ID:
 
 ```javascript
-const { Stitch, AnonymousCredential } = require('mongodb-stitch-react-native-sdk');
+import { Stitch, AnonymousCredential } from 'mongodb-stitch-react-native-sdk';
 
 Stitch.initializeDefaultAppClient('<your-client-app-id>').then(client => {
     // use the client
