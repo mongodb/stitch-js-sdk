@@ -40,11 +40,13 @@ export default class StitchAppRequestClient extends BaseStitchRequestClient {
   }
 
   public doRequest(stitchReq: StitchRequest): Promise<Response> {
-    return this.initAppMetadata().then(metadata => super.doRequestToURL(stitchReq, metadata.hostname));
+    return this.initAppMetadata()
+      .then(metadata => super.doRequestToURL(stitchReq, metadata.hostname));
   }
 
   public doStreamRequest(stitchReq: StitchRequest, open: boolean = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
-    return this.initAppMetadata().then(metadata => super.doStreamRequestToURL(stitchReq, metadata.hostname, open, retryRequest));
+    return this.initAppMetadata()
+      .then(metadata => super.doStreamRequestToURL(stitchReq, metadata.hostname, open, retryRequest));
   }
 
   private initAppMetadata(): Promise<AppMetadata> {
@@ -64,3 +66,4 @@ export default class StitchAppRequestClient extends BaseStitchRequestClient {
       });
   }
 }
+
