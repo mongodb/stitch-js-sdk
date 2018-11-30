@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import dns
-
 import { EJSON } from "bson";
 import { handleRequestError } from "../../internal/common/StitchErrorUtils";
 import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
@@ -35,12 +33,6 @@ function inspectResponse(request: StitchRequest, url: string, response: Response
     return response;
   }
 
-  console.log("Request: " + JSON.stringify(request))
-  console.log("URL: " + url)
-
-  dns.lookup('localhost', function(err, result) {
-    console.log("LOCALHOST IS: " + result)
-  })
   return handleRequestError(response);
 }
 
