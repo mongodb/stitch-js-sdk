@@ -28,11 +28,13 @@ import { StitchDocRequest } from "./StitchDocRequest";
 import { StitchRequest } from "./StitchRequest";
 import Transport from "./Transport";
 
-function inspectResponse(response: Response): Response {
+function inspectResponse(request: StitchRequest, url: string, response: Response): Response {
   if (response.statusCode >= 200 && response.statusCode < 300) {
     return response;
   }
 
+  console.log("Request: " + request)
+  console.log("URL: " + url)
   return handleRequestError(response);
 }
 
@@ -55,7 +57,7 @@ export default abstract class StitchRequestClient {
           StitchRequestErrorCode.TRANSPORT_ERROR
         );
       })
-      .then(inspectResponse);
+      .then(resp => inspectResponse(stitchReq, url, resp));
   }
 
   protected doStreamRequestToURL(stitchReq: StitchRequest, url: string, open: boolean = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
