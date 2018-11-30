@@ -33,7 +33,7 @@ function inspectResponse(request: StitchRequest, url: string, response: Response
     return response;
   }
 
-  console.log("Request: " + request)
+  console.log("Request: " + JSON.stringify(request))
   console.log("URL: " + url)
   return handleRequestError(response);
 }
