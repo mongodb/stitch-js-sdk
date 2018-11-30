@@ -22,6 +22,7 @@ global.Buffer = global.Buffer || require('buffer').Buffer;
 
 const hexStr = '5899445b275d3ebe8f2ab8c0';
 const mockDeviceId = '8773934448abcdef12345678';
+const groupId = '5c018152c7e793e2d9d3ef74';
 
 const sampleProfile = {
   user_id: '8a15d6d20584297fa336becf',
