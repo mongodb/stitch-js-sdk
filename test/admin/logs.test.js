@@ -20,6 +20,6 @@ describe('App Logs', () => {
 
   it('responds with an empty list of logs', async() => {
     let logsResponse = await logs.list();
-    expect(logsResponse).toEqual([]);
+    expect(logsResponse.logs).toEqual([]);
   });
 });
