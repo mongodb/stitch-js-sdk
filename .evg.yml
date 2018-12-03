@@ -18,7 +18,7 @@ functions:
           cd mongodb-*
           echo "starting mongod..."
           mkdir db_files
-          ./bin/mongod --dbpath ./db_files --port 26000 &
+          ./bin/mongod --dbpath ./db_files --port 26000 --replSet "test" &
           echo "waiting for mongod to start up"
     - command: shell.exec
       params:
@@ -26,6 +26,7 @@ functions:
           set -e
           cd mongodb-*
           ./bin/mongo --nodb --eval 'assert.soon(function(x){try{var d = new Mongo("localhost:26000"); return true}catch(e){return false}}, "timed out connecting")'
+          ./bin/mongo --port 26000 --eval 'rs.initiate()'
           echo "mongod is up."
 
   "setup_stitch":
@@ -164,7 +165,7 @@ buildvariants:
   run_on:
     - baas-linux
   expansions:
-    mongodb_url: http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.4.tgz
+    mongodb_url: http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-4.0.2.tgz
     transpiler_target: node8-linux
   tasks:
     - name: run_tests
