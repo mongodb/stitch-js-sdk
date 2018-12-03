@@ -47,8 +47,12 @@ export default class CoreRemoteMongoReadOperation<T> {
     return this.executeRead().then(res => res[0]);
   }
 
-  public asArray(): Promise<T[]> {
+  public toArray(): Promise<T[]> {
     return this.executeRead();
+  }
+
+  public asArray(): Promise<T[]> {
+    return this.toArray();
   }
 
   private executeRead(): Promise<T[]> {

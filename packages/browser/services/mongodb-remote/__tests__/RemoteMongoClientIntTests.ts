@@ -170,16 +170,16 @@ describe("RemoteMongoClient", () => {
     );
 
     let count = 0;
-    (await coll.find().asArray()).forEach(_ => {
+    (await coll.find().toArray()).forEach(_ => {
       count++;
     });
     expect(2).toEqual(count);
 
     expect(
-      (await coll.find().asArray()).find(it => doc1.hello === it.hello)
+      (await coll.find().toArray()).find(it => doc1.hello === it.hello)
     ).toBeDefined();
 
-    expect([doc1, doc2]).toEqual(await coll.find().asArray());
+    expect([doc1, doc2]).toEqual(await coll.find().toArray());
 
     const asyncIter = await iter.iterator();
     expect(doc1).toEqual(await asyncIter.next());
@@ -268,7 +268,7 @@ describe("RemoteMongoClient", () => {
 
     await coll.insertMany([doc3, doc4]);
     expect(withoutIds([doc1, doc2, doc3, doc4])).toEqual(
-      withoutIds(await coll.find().asArray())
+      withoutIds(await coll.find().toArray())
     );
   });
 
@@ -384,7 +384,7 @@ describe("RemoteMongoClient", () => {
     expectedDoc1.woof = "meow";
     const expectedDoc2 = { woof: "meow" };
     expect([expectedDoc1, expectedDoc2]).toEqual(
-      withoutIds(await coll.find({}).asArray())
+      withoutIds(await coll.find({}).toArray())
     );
 
     try {

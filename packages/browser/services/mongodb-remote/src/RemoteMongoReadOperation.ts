@@ -36,8 +36,16 @@ export default class RemoteMongoReadOperation<T> {
   /**
    * Executes the operation and returns the result as an array.
    */
+  public toArray(): Promise<T[]> {
+    return this.proxy.toArray();
+  }
+
+  /**
+   * Executes the operation and returns the result as an array.
+   * @deprecated Use toArray instead
+   */
   public asArray(): Promise<T[]> {
-    return this.proxy.asArray();
+    return this.toArray();
   }
 
   /**
