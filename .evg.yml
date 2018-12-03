@@ -18,7 +18,7 @@ functions:
           cd mongodb-*
           echo "starting mongod..."
           mkdir db_files
-          ./bin/mongod --dbpath ./db_files --port 26000 &
+          ./bin/mongod --dbpath ./db_files --port 26000 --replSet "test" &
           echo "waiting for mongod to start up"
     - command: shell.exec
       params:
@@ -26,6 +26,7 @@ functions:
           set -e
           cd mongodb-*
           ./bin/mongo --nodb --eval 'assert.soon(function(x){try{var d = new Mongo("localhost:26000"); return true}catch(e){return false}}, "timed out connecting")'
+          ./bin/mongo --port 26000 --eval 'rs.initiate()'
           echo "mongod is up."
 
   "setup_stitch":
