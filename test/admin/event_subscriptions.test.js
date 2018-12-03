@@ -28,8 +28,8 @@ function buildEventSubscriptionData(functionId) {
     disabled: true,
     function_id: functionId,
     config: {
-      action_type: 'LOGIN',
-      provider: 'api-key'
+      operation_type: 'LOGIN',
+      providers: ['api-key']
     }
   };
 }
@@ -115,7 +115,8 @@ describe('Event Subscriptions', () =>{
       {
         disabled: false,
         config: {
-          action_type: 'CREATE'
+          operation_type: 'CREATE',
+          providers: ['api-key']
         }
       }
     );
@@ -129,8 +130,8 @@ describe('Event Subscriptions', () =>{
         {
           disabled: false,
           config: {
-            action_type: 'CREATE',
-            provider: ''
+            operation_type: 'CREATE',
+            providers: ['api-key']
           }
         }
       )
@@ -144,7 +145,7 @@ describe('Event Subscriptions', () =>{
     const eventSubscriptionData = buildDBEventSubscriptionData(fn._id, mongodbService._id);
     const eventSubscription = await eventSubscriptions.create(eventSubscriptionData);
 
-    const resumedSubscription = await eventSubscriptions.eventSubscription(eventSubscription._id).resume();
+    const resumedSubscription = await eventSubscriptions.eventSubscription(eventSubscription._id).resume({ disable_token: false });
     expect(resumedSubscription.status).toEqual(204);
   });
 
