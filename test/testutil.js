@@ -30,7 +30,7 @@ export const buildClientTestHarness = async(apiKey, groupId, serverUrl) => {
   return harness;
 };
 
-export const randomString = (length=5) => {
+export const randomString = (length = 5) => {
   const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let result = '';
   for (let i = length; i > 0; i -= 1) {
