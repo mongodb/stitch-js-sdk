@@ -193,7 +193,7 @@ describe('Services', ()=>{
     respond_result: true,
     options: {
       secret: '12345',
-      secretAsQueryParam: true
+      validationMethod: 'SECRET_AS_QUERY_PARAM'
     }
   };
 
