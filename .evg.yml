@@ -164,7 +164,7 @@ buildvariants:
   run_on:
     - baas-linux
   expansions:
-    mongodb_url: http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.4.tgz
+    mongodb_url: http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-4.0.2.tgz
     transpiler_target: node8-linux
   tasks:
     - name: run_tests
