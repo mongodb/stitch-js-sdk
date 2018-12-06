@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-react-native-sdk",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -38,8 +38,8 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "mongodb-stitch-react-native-core": "^4.1.0",
-    "mongodb-stitch-react-native-services-mongodb-remote": "^4.1.0"
+    "mongodb-stitch-react-native-core": "^4.1.1",
+    "mongodb-stitch-react-native-services-mongodb-remote": "^4.1.1"
   },
   "devDependencies": {
     "prettier": "^1.13.5",
