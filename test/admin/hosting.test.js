@@ -64,7 +64,6 @@ describe('Hosting', () => {
   it('getting an asset should work', async() => {
     const filePath = `/${randomString()}`;
     let { metadata, body } = createTestFile(filePath);
-    console.log(metadata);
     await hosting.assets().upload(JSON.stringify(metadata), body);
 
     let asset = await hosting.assets().asset().get({ path: filePath });

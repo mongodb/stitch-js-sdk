@@ -156,7 +156,7 @@ describe('Auth', () => {
         envConfig.setup();
         fetchMock.post('/auth/providers/local-userpass/login', checkLogin);
         fetchMock.post(DEFAULT_STITCH_SERVER_URL + '/api/client/v2.0/app/testapp/auth/providers/local-userpass/login', checkLogin);
-        fetchMock.delete(SESSION_URL, {});
+        fetchMock.delete(SESSION_URL, 204);
         capturedDevice = undefined;
       });
 
@@ -322,6 +322,7 @@ describe('http error responses', () => {
   describe('JSON error responses are handled correctly', () => {
     beforeEach(() => {
       fetchMock.restore();
+      fetchMock.delete(SESSION_URL, 204);
       fetchMock.post(FUNCTION_CALL_URL, () =>
         ({
           body: {error: testErrMsg, error_code: testErrCode},
@@ -353,6 +354,7 @@ describe('anonymous auth', () => {
   beforeEach(() => {
     let count = 0;
     fetchMock.restore();
+    fetchMock.delete(SESSION_URL, 204);
     fetchMock.mock(`begin:${ANON_AUTH_URL}`, (url, opts) => {
       const parsed = new URL(url, '', true);
       const device = parsed.query ? parsed.query.device : null;
@@ -388,6 +390,7 @@ describe('custom auth', () => {
   beforeEach(() => {
     let count = 0;
     fetchMock.restore();
+    fetchMock.delete(SESSION_URL, 204);
     fetchMock.mock(`begin:${CUSTOM_AUTH_URL}`, (url, opts) => {
       const parsed = new URL(url, '', true);
       const device = parsed.query ? parsed.query.device : null;
@@ -448,6 +451,7 @@ describe('api key auth/logout', () => {
   beforeEach(() => {
     let count = 0;
     fetchMock.restore();
+    fetchMock.delete(SESSION_URL, 204);
     fetchMock.post(APIKEY_AUTH_URL, (url, opts) => {
       if (validAPIKeys.indexOf(JSON.parse(opts.body).key) >= 0) {
         return {
@@ -504,6 +508,7 @@ describe('login/logout', () => {
       beforeEach(() => {
         fetchMock.restore();
         fetchMock.get(PROFILE_URL, () => sampleProfile);
+        fetchMock.delete(SESSION_URL, 204);
         fetchMock.post(LOCALAUTH_URL, {
           user_id: hexStr,
           refresh_token: testOriginalRefreshToken,
@@ -616,6 +621,7 @@ describe('token refresh', () => {
       ++refreshCount;
       return {access_token: testUnexpiredAccessToken};
     });
+    fetchMock.delete(SESSION_URL, 204);
   });
 
   it('fetches a new access token if the remote server says the stored token is expired', async() => {
@@ -687,7 +693,7 @@ describe('client options', () => {
     fetchMock.post('https://stitch2.mongodb.com/api/client/v2.0/app/testapp/functions/call', (url, opts) => {
       return {x: {'$oid': hexStr}};
     });
-    fetchMock.delete(SESSION_URL, {});
+    fetchMock.delete(SESSION_URL, 204);
     fetchMock.post(FUNCTION_CALL_URL, () => {
       return JSON.stringify({x: {'$oid': hexStr}});
     });
@@ -730,6 +736,7 @@ describe('function execution', () => {
           fetchMock.post(FUNCTION_CALL_URL, () => {
             return JSON.stringify({x: {'$oid': hexStr}});
           });
+          fetchMock.delete(SESSION_URL, 204);
         });
 
         it('should decode extended json from function responses', async() => {
@@ -750,6 +757,7 @@ describe('function execution', () => {
             requestArg = arg1;
             return {x: {'$oid': hexStr}};
           });
+          fetchMock.delete(SESSION_URL, 204);
         });
 
         it('should encode objects to extended json for outgoing function request body', async() => {
@@ -772,6 +780,7 @@ describe('function execution', () => {
               status: 400
             };
           });
+          fetchMock.delete(SESSION_URL, 204);
         });
 
         it('promise should be rejected', async() => {
