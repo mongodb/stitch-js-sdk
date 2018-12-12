@@ -42,11 +42,21 @@ function _runReverseMigration(toVersion, storage) {
   }
 }
 
+// The type of the item in storage differs between the MockBrowser and Evergreen
+function storageValue(value, storageType, isMocked) {
+  if (!isMocked && (storageType === 'localStorage' || storageType === 'sessionStorage')) {
+    return `${value}`;
+  }
+  return value;
+}
+
 describe('storage', function() {
   const namespace = 'client-test-app1';
+  let isMocked = false;
 
   beforeAll(() => {
     if (!global.window.localStorage || !global.window.sessionStorage) {
+      isMocked = true;
       let mock = new MockBrowser();
       global.window.localStorage = mock.getLocalStorage();
       global.window.sessionStorage = mock.getSessionStorage();
@@ -71,8 +81,8 @@ describe('storage', function() {
       await storage.set('foo', 42);
       await storage.set('bar', 84);
 
-      expect(storage.store.getItem(storage.store.key(2))).toEqual(84);
-      expect(storage.store.getItem(storage.store.key(1))).toEqual(42);
+      expect(storage.store.getItem(storage.store.key(2))).toEqual(storageValue(84, storageType, isMocked));
+      expect(storage.store.getItem(storage.store.key(1))).toEqual(storageValue(42, storageType, isMocked));
     });
 
     it(`should allow for two unique clients to coexist for ${storageType}`, async() => {
@@ -112,16 +122,16 @@ describe('storage', function() {
       await storage.set(USER_AUTH_KEY, 42);
       await storage.set(REFRESH_TOKEN_KEY, 84);
 
-      expect(await storage.get(USER_AUTH_KEY)).toEqual(42);
-      expect(await storage.get(REFRESH_TOKEN_KEY)).toEqual(84);
+      expect(await storage.get(USER_AUTH_KEY)).toEqual(storageValue(42, storageType, isMocked));
+      expect(await storage.get(REFRESH_TOKEN_KEY)).toEqual(storageValue(84, storageType, isMocked));
 
-      expect(storage.store.getItem(`_stitch.${namespace}.${USER_AUTH_KEY}`)).toEqual(42);
-      expect(storage.store.getItem(`_stitch.${namespace}.${REFRESH_TOKEN_KEY}`)).toEqual(84);
+      expect(storage.store.getItem(`_stitch.${namespace}.${USER_AUTH_KEY}`)).toEqual(storageValue(42, storageType, isMocked));
+      expect(storage.store.getItem(`_stitch.${namespace}.${REFRESH_TOKEN_KEY}`)).toEqual(storageValue(84, storageType, isMocked));
 
       await _runReverseMigration(undefined, storage);
 
-      expect(storage.store.getItem(USER_AUTH_KEY)).toEqual(42);
-      expect(storage.store.getItem(REFRESH_TOKEN_KEY)).toEqual(84);
+      expect(storage.store.getItem(USER_AUTH_KEY)).toEqual(storageValue(42, storageType, isMocked));
+      expect(storage.store.getItem(REFRESH_TOKEN_KEY)).toEqual(storageValue(84, storageType, isMocked));
     });
   }
 
@@ -175,5 +185,3 @@ describe('storage', function() {
     expect(storage.store.getItem(STATE_KEY)).toBeNull();
   });
 });
-
-

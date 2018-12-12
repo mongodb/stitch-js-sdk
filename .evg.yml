@@ -18,7 +18,7 @@ functions:
           cd mongodb-*
           echo "starting mongod..."
           mkdir db_files
-          ./bin/mongod --dbpath ./db_files --port 26000 &
+          ./bin/mongod --dbpath ./db_files --port 26000 --replSet test &
           echo "waiting for mongod to start up"
     - command: shell.exec
       params:
@@ -26,6 +26,7 @@ functions:
           set -e
           cd mongodb-*
           ./bin/mongo --nodb --eval 'assert.soon(function(x){try{var d = new Mongo("localhost:26000"); return true}catch(e){return false}}, "timed out connecting")'
+          ./bin/mongo --port 26000 --eval 'rs.initiate()'
           echo "mongod is up."
 
   "setup_stitch":
@@ -88,7 +89,7 @@ tasks:
       - func: "setup_mongod"
       - func: "setup_stitch"
       - command: shell.exec
-        params: 
+        params:
           script: | # NOTE: Using yarn for install instead of npm due to evergreen permission issue with chromedriver devDependency
             set -e
             echo "running client tests"
@@ -212,12 +213,12 @@ tasks:
             export PATH=$HOME/bin:$PATH
             export AWS_ACCESS_KEY_ID=${sdks_aws_key}
             export AWS_SECRET_ACCESS_KEY=${sdks_aws_secret}
-            
+
             if [ "${is_patch|}" = "true" ]; then
                 # Avoids clobbering docs from other patches or non-patch tasks under the same base commit.
                 aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/${version_id} --recursive --acl public-read
             else
-                cd stitch-js-sdk 
+                cd stitch-js-sdk
                 export TAG_OR_REV="$(git describe --exact-match || echo ${revision})"
                 cd ..
                 aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/$TAG_OR_REV --recursive --acl public-read
@@ -242,7 +243,7 @@ buildvariants:
   run_on:
     - baas-linux
   expansions:
-    mongodb_url: http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.4.tgz
+    mongodb_url: https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel70-4.0.2.tgz
     transpiler_target: node8-linux
   tasks:
     - name: run_tests

@@ -23,7 +23,7 @@ describe('Admin Users', () => {
 
     const { roles } = await adminClient.userProfile();
     expect(roles).toBeDefined();
-    expect(roles.length).toBe(1);
+    expect(roles.length).toBe(2);
     expect(roles[0].role_name).toBe('groupOwner');
   });
 

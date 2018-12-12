@@ -50,7 +50,7 @@ describe('Debugging functions', () => {
     const result = await debug.executeFunctionSource({
       userId: th.user._id,
       source: 'exports = function(arg1, arg2) { return {sum: 800 + arg1 + arg2, userId: context.user.id } }',
-      evalSource: 'exports(1,5)',
+      evalSource: 'exports(1,5)'
     });
 
     expect(result.result.sum).toEqual({'$numberDouble': '806'});
@@ -62,7 +62,7 @@ describe('Debugging functions', () => {
     const result = await debug.executeFunctionSource({
       runAsSystem: 'true',
       source: 'exports = function(arg1, arg2) { return {sum: 800 + arg1 + arg2, userId: context.user.id } }',
-      evalSource: 'exports(1,5)',
+      evalSource: 'exports(1,5)'
     });
 
     expect(result.result.sum).toEqual({'$numberDouble': '806'});
