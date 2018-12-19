@@ -1,4 +1,12 @@
 functions:
+  "fetch_go111":
+    - command: shell.exec
+      params:
+        shell: "bash"
+        script: |
+          set -e
+          wget --quiet ${go_url}
+          tar xvf ./go1.11*gz
   "fetch_source":
     - command: git.get_project
       params:
@@ -7,11 +15,13 @@ functions:
   "setup_mongod":
     - command: shell.exec
       params:
+        shell: "bash"
         script: |
           set -v
           curl --silent ${mongodb_url} | tar xvz
     - command: shell.exec
       params:
+        shell: "bash"
         background: true
         script: |
           set -v
@@ -22,6 +32,7 @@ functions:
           echo "waiting for mongod to start up"
     - command: shell.exec
       params:
+        shell: "bash"
         script: |
           set -e
           cd mongodb-*
@@ -32,6 +43,7 @@ functions:
   "setup_stitch":
     - command: shell.exec
       params:
+        shell: "bash"
         silent: true
         script: |
           set -e
@@ -44,6 +56,7 @@ functions:
 
     - command: shell.exec
       params:
+        shell: "bash"
         script: |
           set -e
           echo "cloning stitch"
@@ -56,21 +69,28 @@ functions:
 
           echo "building transpiler"
           cd src/github.com/10gen/stitch/etc/transpiler
+          curl -OL https://yarnpkg.com/latest.tar.gz
+          tar zvxf latest.tar.gz
+          mv yarn-* yarn
+          export PATH="`pwd`/yarn/bin:$PATH"
           yarn install && yarn run build -t ${transpiler_target}
     - command: shell.exec
       params:
+        shell: "bash"
         background: true
         script: |
           export GOPATH=`pwd`
-          export PATH="`pwd`:$PATH"
+          export PATH=`pwd`:$PATH
           export STITCH_PATH=$GOPATH/src/github.com/10gen/stitch
           export PATH="$PATH:$STITCH_PATH/etc/transpiler/bin"
           which transpiler
-          cd stitch-js-sdk/test/bin
           echo "running stitch"
+          export GOROOT=`pwd`/go
+          export PATH=`pwd`/go/bin:$PATH
           go run $STITCH_PATH/cmd/server/main.go --configFile $STITCH_PATH/etc/configs/test_config.json
     - command: shell.exec
       params:
+        shell: "bash"
         script: |
           counter=0
           until $(curl --output /dev/null --silent --head --fail http://localhost:9090); do
@@ -85,16 +105,22 @@ functions:
 tasks:
   - name: run_tests
     commands:
+      - func: "fetch_go111"
       - func: "fetch_source"
       - func: "setup_mongod"
       - func: "setup_stitch"
       - command: shell.exec
         params:
+          shell: "bash"
           script: | # NOTE: Using yarn for install instead of npm due to evergreen permission issue with chromedriver devDependency
             set -e
             echo "running client tests"
             source ./creds
             cd stitch-js-sdk
+            curl -OL https://yarnpkg.com/latest.tar.gz
+            tar zvxf latest.tar.gz
+            mv yarn-* yarn
+            export PATH="`pwd`/yarn/bin:$PATH"
             yarn install
             npm run test
 
@@ -103,9 +129,14 @@ tasks:
       - func: "fetch_source"
       - command: shell.exec
         params:
+          shell: "bash"
           script: |
             set -e
             cd stitch-js-sdk
+            curl -OL https://yarnpkg.com/latest.tar.gz
+            tar zvxf latest.tar.gz
+            mv yarn-* yarn
+            export PATH="`pwd`/yarn/bin:$PATH"
             yarn install
             npm run build
             npm run build-web
@@ -125,9 +156,14 @@ tasks:
       - func: "fetch_source"
       - command: shell.exec
         params:
+          shell: "bash"
           script: |
             set -e
             cd stitch-js-sdk
+            curl -OL https://yarnpkg.com/latest.tar.gz
+            tar zvxf latest.tar.gz
+            mv yarn-* yarn
+            export PATH="`pwd`/yarn/bin:$PATH"
             yarn install
             npm run build
             npm run build-web
@@ -189,14 +225,20 @@ tasks:
       - func: "fetch_source"
       - command: shell.exec
         params:
+          shell: "bash"
           script: |
             set -e
             cd stitch-js-sdk
+            curl -OL https://yarnpkg.com/latest.tar.gz
+            tar zvxf latest.tar.gz
+            mv yarn-* yarn
+            export PATH="`pwd`/yarn/bin:$PATH"
             yarn install
             npm run docs
 
       - command: shell.exec
         params:
+          shell: "bash"
           script: |
             set -e
             echo "setting up AWS CLI"
@@ -207,6 +249,7 @@ tasks:
 
       - command: shell.exec
         params:
+          shell: "bash"
           silent: true
           script: |
             set -e
@@ -230,20 +273,26 @@ tasks:
       - func: "fetch_source"
       - command: shell.exec
         params:
+          shell: "bash"
           script: |
             set -e
             cd stitch-js-sdk
             echo "linting"
+            curl -OL https://yarnpkg.com/latest.tar.gz
+            tar zvxf latest.tar.gz
+            mv yarn-* yarn
+            export PATH="`pwd`/yarn/bin:$PATH"
             yarn install
             npm run lint --quiet
 
 buildvariants:
-- name: linux-64
-  display_name: Linux-64
+- name: ubuntu-1804
+  display_name: Ubuntu-1804
   run_on:
-    - baas-linux
+    - ubuntu1804-build
   expansions:
-    mongodb_url: https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel70-4.0.2.tgz
+    go_url: "https://dl.google.com/go/go1.11.1.linux-amd64.tar.gz"
+    mongodb_url: https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-4.0.2.tgz
     transpiler_target: node8-linux
   tasks:
     - name: run_tests
