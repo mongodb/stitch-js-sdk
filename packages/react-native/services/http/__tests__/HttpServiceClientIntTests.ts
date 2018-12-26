@@ -130,7 +130,6 @@ describe("HttpServiceClient", () => {
       expect(response.contentLength).toBeGreaterThanOrEqual(300);
       expect(response.contentLength).toBeLessThanOrEqual(500);
       expect(response.body).toBeDefined();
-      expect(response.headers).toBeDefined();
       expect(response.headers['Content-Type'].length).toEqual(1);
       expect(response.headers['Content-Type'][0]).toEqual('application/json');
       
