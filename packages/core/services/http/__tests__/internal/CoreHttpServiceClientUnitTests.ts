@@ -36,7 +36,7 @@ describe("CoreHttpServiceClient", () => {
     const expectedBody = "hello world!";
     const expectedCookies = {};
     const expectedForm = {};
-    const expectedHeaders = {};
+    const expectedHeaders = { 'foo': ['bar'] };
 
     const request = new HttpRequest.Builder()
       .withUrl(expectedUrl)

@@ -48,7 +48,7 @@ class HttpResponseDecoder implements Decoder<HttpResponse> {
       Object.keys(headersDoc).forEach(headerKey => {
         const headerValue = headersDoc[headerKey];
         const valuesArr = headerValue;
-        const values = new Array(valuesArr.length);
+        const values = new Array();
         for (const value of valuesArr) {
           values.push(value);
         }
