@@ -30,10 +30,12 @@ lerna run test
 
 ### Publishing a New SDK version
 ```bash
-lerna publish
+lerna publish --force-publish="*"
 ./publish_bundles.sh
 ./publish_docs.sh
 ```
+
+The `--force-publish="*"` argument ensures that all packages bump their version in lockstep.
 
 ### Patch Versions
 
