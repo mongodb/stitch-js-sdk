@@ -286,10 +286,10 @@ tasks:
             npm run lint --quiet
 
 buildvariants:
-- name: ubuntu-1804
-  display_name: Ubuntu-1804
+- name: rhel70
+  display_name: rhel70
   run_on:
-    - ubuntu1804-build
+    - rhel70
   expansions:
     go_url: "https://dl.google.com/go/go1.11.1.linux-amd64.tar.gz"
     mongodb_url: https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-4.0.2.tgz
