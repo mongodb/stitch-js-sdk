@@ -23,9 +23,15 @@ import {
 import StitchRedirectCredential from "./providers/StitchRedirectCredential";
 
 /**
- * A user that a {@link StitchAppClient} is currently authenticated as.
- * Can be retrieved from a {@link StitchAuth} or from the result of certain 
- * methods.
+ * The StitchUser represents the currently logged-in user of the [[StitchAppClient]].
+ * 
+ * This can be retrieved from [[StitchAuth]] or from the result of certain methods
+ * such as [[StitchAuth.loginWithCredential]] or [[StitchAuth.handleRedirectResult]].
+ *
+ * ### See also
+ * - [[StitchAuth]]
+ * - [[StitchCredential]]
+ * - [[StitchRedirectCredential]]
  */
 export default interface StitchUser extends CoreStitchUser {
   /**

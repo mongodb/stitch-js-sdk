@@ -22,6 +22,7 @@ enum Fields {
   ACCESS_TOKEN = "accessToken"
 }
 
+/** @hidden */
 export default class FacebookCredential implements StitchCredential {
   public readonly providerName: string;
   public readonly providerType = FacebookAuthProvider.TYPE;
