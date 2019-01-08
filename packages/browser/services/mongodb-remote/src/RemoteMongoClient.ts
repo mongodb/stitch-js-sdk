@@ -24,15 +24,31 @@ import RemoteMongoClientImpl from "./internal/RemoteMongoClientImpl";
 import RemoteMongoDatabase from "./RemoteMongoDatabase";
 
 /**
- * A client which can be used to get database and collection objects which can 
- * be used to interact with MongoDB data via the Stitch MongoDB service.
+ * The RemoteMongoClient can be used to get database and collection objects
+ * for interacting with MongoDB data via the Stitch MongoDB service.
+ *
+ * Service clients are created with [[StitchAppClient.getServiceClient]], passing
+ * [[RemoteMongoClient.factory]] and the Stitch Service Name found under Stitch 
+ * Cluster Configuration ("mongodb-atlas" by default).
+ *
+ * ```
+ * const stitchClient = Stitch.initializeDefaultAppClient('your-stitch-app-id')
+ * const mongoClient = stitchClient.getServiceClient(RemoteMongoClient.factory, 'mongodb-atlas')
+ * ```
+ *
+ * Once the RemoteMongoClient is instantiated, use the [[db]] method to access databases.
+ *
+ * Note: The client needs to log in (at least anonymously) to use the database. See [[StitchAuth]].
+ *
+ * ### See also
+ * - [[StitchAppClient]]
  */
 export interface RemoteMongoClient {
   /**
-   * Gets a {@link RemoteMongoDatabase} instance for the given database name.
+   * Gets a [[RemoteMongoDatabase]] instance for the given database name.
    *
    * @param name the name of the database to retrieve
-   * @return a {@code RemoteMongoDatabase} representing the specified database
+   * @return a [[RemoteMongoDatabase]] representing the specified database
    */
   db(name: string): RemoteMongoDatabase;
 }
