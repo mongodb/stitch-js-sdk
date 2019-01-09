@@ -11,7 +11,7 @@ The official [MongoDB Stitch](https://stitch.mongodb.com/) React Native SDK for 
 - [Example Usage](#example-usage)
 
 ## Documentation
-* [API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js-react-native/docs/4.1.0/index.html)
+* [API/Typedoc Documentation](https://docs.mongodb.com/stitch-sdks/js-react-native/4.1.0/index.html)
 * [MongoDB Stitch Documentation](https://docs.mongodb.com/stitch/)
 
 ## Discussion
