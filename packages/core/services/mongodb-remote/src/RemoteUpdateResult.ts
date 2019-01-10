@@ -16,8 +16,12 @@
 
 
 /**
- * The result of an `updateOne` or `updateMany` operation a 
- * {@link RemoteMongoCollection}.
+ * The result of an `updateOne` or `updateMany` operation a [[RemoteMongoCollection]].
+ *
+ * ### See also
+ * - [[RemoteMongoCollection]]
+ * - [[RemoteMongoCollection.updateOne]]
+ * - [[RemoteMongoCollection.updateMany]]
  */
 export default interface RemoteUpdateResult {
   /**
@@ -32,6 +36,8 @@ export default interface RemoteUpdateResult {
 
   /**
    * The identifier of the inserted document if an upsert took place.
+   *
+   * See [[RemoteUpdateOptions.upsert]].
    */
   readonly upsertedId: any;
 }

@@ -28,8 +28,54 @@ import {
 import RemoteMongoReadOperation from "./RemoteMongoReadOperation";
 
 /**
- * An interface representing a MongoDB collection accesible via the Stitch 
- * MongoDB service.
+ * The RemoteMongoCollection is the interface to a MongoDB database's
+ * collection via Stitch, allowing read and write.
+ *
+ * It is retrieved from a [[RemoteMongoDatabase]].
+ *
+ * The read operations are [[find]], [[count]] and [[aggregate]].
+ *
+ * The write operations are [[insertOne]], [[insertMany]], 
+ * [[updateOne]], [[updateMany]], [[deleteOne]], and [[deleteMany]].
+ *
+ * It is also possible to [[watch]] documents in the collection for
+ * changes.
+ *
+ * If you are already familiar with MongoDB drivers, it is important
+ * to understand that the RemoteMongoCollection only provides access
+ * to the operations available in Stitch. For a list of unsupported
+ * aggregation stages, see 
+ * [Unsupported Aggregation Stages](https://docs.mongodb.com/stitch/mongodb/actions/collection.aggregate/#unsupported-aggregation-stages).
+ *
+ * ### Example
+ *
+ * Here's how to access a database and one of its collections:
+ * ```
+ * // Instantiate the Stitch client
+ * const stitchClient = Stitch.initializeDefaultAppClient('your-stitch-app-id')
+ *
+ * // Get a client of the Remote Mongo Service for database access
+ * const mongoClient = stitchClient.getServiceClient(RemoteMongoClient.factory, 'mongodb-atlas')
+ *
+ * // Retrieve a database object
+ * const exampleDb = mongoClient.db('example-db')
+ *
+ * // Retrieve the collection in the database
+ * const exampleCollection = db.collection('example-collection')
+ * ```
+ *
+ * For more examples, see [CRUD Snippets](https://docs.mongodb.com/stitch/mongodb/crud-snippets/)
+ * on the MongoDB Stitch Documentation site.
+ *
+ * ### Note: Log in first
+ *
+ * A user will need to be logged in (at least anonymously) before you can read from
+ * or write to the collection. See [[StitchAuth]].
+ * 
+ * ### See also
+ * - [[RemoteMongoClient]]
+ * - [[RemoteMongoDatabase]]
+ * - [CRUD Snippets](https://docs.mongodb.com/stitch/mongodb/crud-snippets/)
  */
 export default interface RemoteMongoCollection<DocumentT> {
   /**
@@ -40,7 +86,7 @@ export default interface RemoteMongoCollection<DocumentT> {
   readonly namespace: string;
 
   /**
-   * Create a new emoteMongoCollection instance with a different default class to cast any
+   * Create a new RemoteMongoCollection instance with a different default class to cast any
    * documents returned from the database into.
    *
    * @param codec the default class to cast any documents returned from the database into.
@@ -60,7 +106,9 @@ export default interface RemoteMongoCollection<DocumentT> {
   count(query?: object, options?: RemoteCountOptions): Promise<number>;
 
   /**
-   * Finds all documents in the collection.
+   * Finds all documents in the collection that match the given query.
+   * 
+   * An empty query (`{}`) will match all documents.
    *
    * @param query the query filter
    * @return a read operation which can be used to execute the query
@@ -72,6 +120,10 @@ export default interface RemoteMongoCollection<DocumentT> {
 
   /**
    * Aggregates documents according to the specified aggregation pipeline.
+   *
+   * Stitch supports a subset of the available aggregation stages in MongoDB.
+   * See 
+   * [Unsupported Aggregation Stages](https://docs.mongodb.com/stitch/mongodb/actions/collection.aggregate/#unsupported-aggregation-stages).
    *
    * @param pipeline the aggregation pipeline
    * @return a read operation which can be used to execute the aggregation
@@ -96,9 +148,8 @@ export default interface RemoteMongoCollection<DocumentT> {
   insertMany(documents: DocumentT[]): Promise<RemoteInsertManyResult>;
 
   /**
-   * Removes at most one document from the collection that matches the given filter.  If no
-   * documents match, the collection is not
-   * modified.
+   * Removes at most one document from the collection that matches the given filter.
+   * If no documents match, the collection is not modified.
    *
    * @param query the query filter to apply the the delete operation
    * @return a Promise containing the result of the remove one operation

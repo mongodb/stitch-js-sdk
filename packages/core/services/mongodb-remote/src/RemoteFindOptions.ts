@@ -17,7 +17,41 @@
 
 /**
  * Options to use when executing a `find` command on a 
- * {@link RemoteMongoCollection}.
+ * [[RemoteMongoCollection]].
+ *
+ * ### Example
+ *
+ * The following example assumes a user is already logged in (see [[StitchAuth]]
+ * for more information on logging in).
+ * ```
+ * // Assumption: Stitch is already logged in
+ * 
+ * // Work with the movies collection
+ * const moviesCollection = db.collection('movieDetails')
+ * 
+ * const options = {  // Match the shape of RemoteFindOptions.
+ *   limit: 10,       // Return only first ten results.
+ *   projection: {    // Return only the `title`, `releaseDate`, and
+ *     title: 1,      // (implicitly) the `_id` fields.
+ *     releaseDate: 1,
+ *   },
+ *   sort: {          // Sort by releaseDate descending (latest first).
+ *     releaseDate: -1, 
+ *   },
+ * }
+ * 
+ * moviesCollection
+ *   .find({}, options) // Match any document with {} query. Pass the options as the second argument.
+ *   .toArray()
+ *   .then(movies => console.log('Ten latest movies:', movies))
+ *   .catch(console.error)
+ * ```
+ *
+ * ### See also
+ * - [[RemoteMongoCollection]]
+ * - [[RemoteMongoCollection.find]]
+ * - [[RemoteMongoReadOperation]]
+ * - [CRUD Snippets](https://docs.mongodb.com/stitch/mongodb/crud-snippets/#find)
  */ 
 export default interface RemoteFindOptions {
   /**
@@ -26,7 +60,8 @@ export default interface RemoteFindOptions {
   readonly limit?: number;
 
   /**
-   * Limits the fields to return for all matching documents.
+   * Limits the fields to return for all matching documents. See 
+   * [Tutorial: Project Fields to Return from Query](https://docs.mongodb.com/manual/tutorial/project-fields-from-query-results/).
    */
   readonly projection?: object;
 
