@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import BSON from "bson";
 import { App, AppResponse, Userpass } from "mongodb-stitch-core-admin-client";
-import { StitchServiceErrorCode, StitchServiceError } from "mongodb-stitch-core-sdk";
+import { BSON, StitchServiceErrorCode, StitchServiceError } from "mongodb-stitch-core-sdk";
 import { UserApiKeyAuthProviderClient, UserApiKeyCredential } from "mongodb-stitch-browser-core";
 import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
 

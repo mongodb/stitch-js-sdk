@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import BSON from "bson";
 import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
 import {
   Anon,
@@ -27,6 +26,7 @@ import {
 } from "mongodb-stitch-core-admin-client";
 import {
   AnonymousCredential,
+  BSON,
   Codec,
   StitchServiceError,
   StitchServiceErrorCode

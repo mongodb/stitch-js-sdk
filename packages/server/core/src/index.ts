@@ -17,6 +17,7 @@
 import {
   AnonymousAuthProvider,
   AnonymousCredential,
+  BSON,
   Codec,
   CustomAuthProvider,
   CustomCredential,
@@ -60,6 +61,7 @@ import NamedServiceClientFactory from "./services/internal/NamedServiceClientFac
 import StitchServiceClient from "./services/StitchServiceClient";
 
 export {
+  BSON,
   AnonymousAuthProvider,
   AnonymousCredential,
   CustomAuthProvider,
