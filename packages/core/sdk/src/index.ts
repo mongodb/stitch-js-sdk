@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import BSON from "bson";
 import AuthInfo from "./auth/internal/AuthInfo";
 import CoreStitchAuth from "./auth/internal/CoreStitchAuth";
 import CoreStitchUser from "./auth/internal/CoreStitchUser";
@@ -85,6 +86,7 @@ import StitchServiceError from "./StitchServiceError";
 import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
 
 export {
+  BSON,
   AuthInfo,
   StitchAuthResponseCredential,
   AnonymousAuthProvider,

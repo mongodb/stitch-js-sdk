@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import BSON from "bson";
 import fetch from "cross-fetch";
 import {
   App,
@@ -29,6 +28,7 @@ import {
   StitchAdminClient
 } from "mongodb-stitch-core-admin-client";
 import {
+  BSON,
   UserApiKeyAuthProvider,
   UserPasswordCredential
 } from "mongodb-stitch-core-sdk";
