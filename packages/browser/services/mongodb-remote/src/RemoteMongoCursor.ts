@@ -15,9 +15,37 @@
  */
 
 /**
- * A cursor of documents which can be traversed asynchronously. A 
- * {@link RemoteMongoCursor} can be the result of a `find` or
- * `aggregate` operation on a {@link RemoteMongoReadOperation}.
+ * RemoteMongoCursor is an iterator over documents, which allows asynchronous traversal.
+ *
+ * This is particularly useful for breaking down large results sets into pages.
+ * 
+ * A RemoteMongoCursor can be obtained from the result of a `find` or `aggregate` operation
+ * on a [[RemoteMongoCollection]] by calling [[RemoteMongoReadOperation.iterator]].
+ *
+ * ### Example
+ *
+ * This example shows how to iterate using a cursor and async/await.
+ * ```
+ * // Work with the movies collection
+ * const moviesCollection = db.collection('movieDetails')
+ *
+ * moviesCollection
+ *   .find({}, {limit: 100})
+ *   .iterator()
+ *   .then(async (cursor) => {
+ *     let movie = await cursor.next()
+ *     while (movie !== undefined) {
+ *       console.log(movie)
+ *       movie = await cursor.next()
+ *     }
+ *   })
+ * ```
+ * 
+ * ### See also
+ * - [[RemoteMongoCollection.find]]
+ * - [[RemoteMongoCollection.aggregate]]
+ * - [[RemoteMongoReadOperation]]
+ * - [[RemoteMongoReadOperation.iterator]]
  */
 export default class RemoteMongoCursor<T> {
   constructor(
