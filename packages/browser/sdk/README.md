@@ -11,7 +11,7 @@ The official [MongoDB Stitch](https://stitch.mongodb.com/) Browser SDK for JavaS
 - [Example Usage](#example-usage)
 
 ## Documentation
-* [API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js/docs/4.1.2/index.html)
+* [API/Typedoc Documentation](https://docs.mongodb.com/stitch-sdks/js/4/index.html)
 * [MongoDB Stitch Documentation](https://docs.mongodb.com/stitch/)
 
 ## Discussion
