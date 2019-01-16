@@ -126,7 +126,7 @@ As a convenience, the SDK includes the `BSON` library, and you can import it as 
 Here is an example of importing BSON to generate a BSON `ObjectID`:
 
 ```javascript
-import { BSON } from 'mongodb-stitch-server-sdk';
+const { BSON } = require('mongodb-stitch-server-sdk');
 
 let myObjectId = new BSON.ObjectId();
 console.log(`Generated ObjectId: ${myObjectId}`);
