@@ -187,13 +187,13 @@ And here is an example of importing BSON to generate an `ObjectId` using an HTML
    <body>
      <script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.2/stitch.js"></script>
      <script> 
-		function generateObjectId() {
-      const newObjectId = new stitch.BSON.ObjectId()
-		  document.getElementById('obj-id-display').innerHTML = 
-		    `Generated ObjectId: ${newObjectId}`;
-		}
-		 
-		window.onload = generateObjectId;
+      function generateObjectId() {
+        const newObjectId = new stitch.BSON.ObjectId()
+		    document.getElementById('obj-id-display').innerHTML = 
+		      `Generated ObjectId: ${newObjectId}`;
+		  }
+
+		  window.onload = generateObjectId;
      </script>
      <div id="obj-id-display">Generated ObjectId: None</div>
    </body>
