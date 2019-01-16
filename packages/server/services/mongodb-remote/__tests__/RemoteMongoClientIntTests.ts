@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import BSON from "bson";
 import {
   Anon,
   App,
@@ -26,6 +25,7 @@ import {
 } from "mongodb-stitch-core-admin-client";
 import {
   AnonymousCredential,
+  BSON,
   Codec,
   StitchServiceError,
   StitchServiceErrorCode
