@@ -17,8 +17,6 @@
 /**
  * RemoteMongoCursor is an iterator over documents, which allows asynchronous traversal.
  *
- * This is particularly useful for breaking down large results sets into pages.
- * 
  * A RemoteMongoCursor can be obtained from the result of a `find` or `aggregate` operation
  * on a [[RemoteMongoCollection]] by calling [[RemoteMongoReadOperation.iterator]].
  *
