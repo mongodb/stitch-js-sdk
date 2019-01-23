@@ -2,6 +2,8 @@
 
 set -e
 
+cd "$(dirname "$0")"
+
 VERSION=`node -e 'console.log(require("../lerna.json").version)'` 
 VERSION_MAJOR=$(echo $VERSION | cut -d. -f1)
 VERSION_MINOR=$(echo $VERSION | cut -d. -f2)
@@ -9,7 +11,10 @@ VERSION_PATCH=$(echo $VERSION | cut -d. -f3 | cut -d- -f1)
 VERSION_QUALIFIER=$(echo $VERSION | cut -d- -f2 -s)
 VERSION_QUALIFIER_INC=$(echo $VERSION | cut -d- -f3 -s)
 
-npm run docs
+# Generate the docs with the analytics script enabled.
+./generate_docs browser analytics
+./generate_docs server analytics
+./generate_docs react-native analytics
 
 if ! which aws; then
    echo "aws CLI not found. see: https://docs.aws.amazon.com/cli/latest/userguide/installing.html"

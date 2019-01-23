@@ -1,4 +1,5 @@
 {
+  "name": "stitch-js-sdk",
 	"private": true,
 	"devDependencies": {
 		"@types/jest": "^23.1.0",
@@ -24,9 +25,9 @@
 	"scripts": {
 		"docs": "npm run docs-theme && npm run docs-browser && npm run docs-server && npm run docs-react-native",
     "docs-theme": "pushd typedoc-theme && npm run build",
-		"docs-browser": "typedoc --name 'MongoDB Stitch Browser SDK' --out ./docs-browser --mode file --tsconfig config/tdconfig.browser.json --readme packages/browser/sdk/README.md  packages/browser/core/src/index.ts packages/core/sdk/src/index.ts packages/core/services/*/src/index.ts packages/browser/services/*/src/index.ts --ignoreCompilerErrors --excludeNotExported --theme typedoc-theme/bin/",
-		"docs-server": "typedoc --name 'MongoDB Stitch Server SDK' --out ./docs-server --mode file --tsconfig config/tdconfig.server.json --readme packages/server/sdk/README.md  packages/server/core/src/index.ts packages/core/sdk/src/index.ts packages/core/services/*/src/index.ts packages/server/services/*/src/index.ts --ignoreCompilerErrors --excludeNotExported --theme typedoc-theme/bin/",
-		"docs-react-native": "typedoc --name 'MongoDB Stitch React Native SDK' --out ./docs-react-native --mode file --tsconfig config/tdconfig.react-native.json --readme packages/react-native/sdk/README.md  packages/react-native/core/src/index.ts packages/core/sdk/src/index.ts packages/core/services/*/src/index.ts packages/react-native/services/*/src/index.ts --ignoreCompilerErrors --excludeNotExported --theme typedoc-theme/bin/",
+		"docs-browser": "./contrib/generate_docs.sh browser",
+		"docs-server": "./contrib/generate_docs.sh server",
+		"docs-react-native": "./contrib/generate_docs.sh react-native",
 		"test:coverage": "lcov-result-merger 'packages/**/lcov.info' | PATH=$(npm bin):$PATH coveralls"
 	}
 }
