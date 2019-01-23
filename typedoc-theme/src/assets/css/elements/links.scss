@@ -1,0 +1,8 @@
+@import "../vendors/fontawesome/fontawesome.scss";
+@import "../vendors/fontawesome/solid.scss";
+
+a[href^="https://"]:not([href^="https://gitter.im"]):after {
+  font-family: 'Font Awesome 5 Free';
+  content: fa-content(" " $fa-var-external-link-alt);
+  font-size: small;
+}

@@ -1,0 +1,22 @@
+{
+  "name": "typedoc-theme",
+  "version": "1.0.0",
+  "description": "A custom TypeDoc theme.",
+  "scripts": {
+    "build": "grunt --gruntfile gruntfile.js"
+  },
+  "author": "MongoDB Inc.",
+  "contributors": [
+    {
+      "name": "Chris Bush",
+      "email": "chris.bush@mongodb.com"
+    }
+  ],
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "grunt": "^1.0.3",
+    "grunt-autoprefixer": "^3.0.4",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-sass": "^1.0.0"
+  }
+}
