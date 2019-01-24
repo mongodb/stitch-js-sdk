@@ -12,9 +12,9 @@ VERSION_QUALIFIER=$(echo $VERSION | cut -d- -f2 -s)
 VERSION_QUALIFIER_INC=$(echo $VERSION | cut -d- -f3 -s)
 
 # Generate the docs with the analytics script enabled.
-./generate_docs browser analytics
-./generate_docs server analytics
-./generate_docs react-native analytics
+./generate_docs.sh browser analytics
+./generate_docs.sh server analytics
+./generate_docs.sh react-native analytics
 
 if ! which aws; then
    echo "aws CLI not found. see: https://docs.aws.amazon.com/cli/latest/userguide/installing.html"
