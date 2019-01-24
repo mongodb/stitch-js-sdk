@@ -134,17 +134,19 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   public loginWithRedirect(credential: StitchRedirectCredential): void {
     const { redirectUrl, state } = this.prepareRedirect(credential);
 
-    this.jsdomWindow.location.replace(
-      this.browserAuthRoutes.getAuthProviderRedirectRoute(
-        credential,
-        redirectUrl,
-        state,
-        this.deviceInfo
+    this.requestClient.getBaseURL().then(baseUrl => {
+      this.jsdomWindow.location.replace(baseUrl +
+        this.browserAuthRoutes.getAuthProviderRedirectRoute(
+          credential,
+          redirectUrl,
+          state,
+          this.deviceInfo
+        )
       )
-    );
+    });
   }
 
-  public linkWithRedirectInternal(
+  public async linkWithRedirectInternal(
     user: StitchUser,
     credential: StitchRedirectCredential
   ) {
@@ -156,12 +158,15 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
 
     const { redirectUrl, state } = this.prepareRedirect(credential);
 
-    const link = this.browserAuthRoutes.getAuthProviderLinkRedirectRoute(
-      credential,
-      redirectUrl,
-      state,
-      this.deviceInfo
-    );
+    const baseUrl = await this.requestClient.getBaseURL();
+
+    const link = baseUrl +
+      this.browserAuthRoutes.getAuthProviderLinkRedirectRoute(
+        credential,
+        redirectUrl,
+        state,
+        this.deviceInfo
+      );
 
     return (StitchAuthImpl.injectedFetch ? StitchAuthImpl.injectedFetch! : fetch)(
       new Request(link, {

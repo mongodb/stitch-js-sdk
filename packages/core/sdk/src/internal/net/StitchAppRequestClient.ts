@@ -49,6 +49,10 @@ export default class StitchAppRequestClient extends BaseStitchRequestClient {
       .then(metadata => super.doStreamRequestToURL(stitchReq, metadata.hostname, open, retryRequest));
   }
 
+  public async getBaseURL(): Promise<string> {
+      return this.initAppMetadata().then(metadata => metadata.hostname);
+  }
+
   private initAppMetadata(): Promise<AppMetadata> {
     if (this.appMetadata) {
       return Promise.resolve(this.appMetadata);

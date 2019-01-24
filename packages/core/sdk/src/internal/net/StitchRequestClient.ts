@@ -33,4 +33,8 @@ export default class StitchRequestClient extends BaseStitchRequestClient {
   public doStreamRequest(stitchReq: StitchRequest, open: boolean = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
     return super.doStreamRequestToURL(stitchReq, this.baseUrl, open, retryRequest);
   }
+
+  public async getBaseURL(): Promise<string> {
+    return this.baseUrl;
+  }
 }
