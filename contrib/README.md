@@ -9,10 +9,12 @@ This project follows [Semantic Versioning 2.0](https://semver.org/). In general,
 This project uses Lerna to manage multiple modules: https://github.com/lerna/lerna.
 Run the following to begin development:
 ```bash
-# install lergna globally
+# install lerna globally
 npm install --global lerna
 # install dependencies
 npm install
+# install typedoc theme dependencies
+cd typedoc-theme && npm install && cd ..
 # install external dependencies, and link shared modules
 lerna bootstrap --hoist
 # build modules
