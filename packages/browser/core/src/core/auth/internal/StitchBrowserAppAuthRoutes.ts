@@ -18,7 +18,7 @@ import { base64Encode, StitchAppAuthRoutes } from "mongodb-stitch-core-sdk";
 import StitchRedirectCredential from "../providers/StitchRedirectCredential";
 
 export default class StitchBrowserAppAuthRoutes extends StitchAppAuthRoutes {
-  constructor(clientAppId: string, private readonly baseUrl: string) {
+  constructor(clientAppId: string) {
     super(clientAppId);
   }
 
@@ -28,7 +28,7 @@ export default class StitchBrowserAppAuthRoutes extends StitchAppAuthRoutes {
     state: string,
     deviceInfo: Record<string, any>
   ): string {
-    return `${this.baseUrl}${this.getAuthProviderLoginRoute(
+    return `${this.getAuthProviderLoginRoute(
       credential.providerName
     )}?redirect=${encodeURI(
       redirectUrl
@@ -41,7 +41,7 @@ export default class StitchBrowserAppAuthRoutes extends StitchAppAuthRoutes {
     state: string,
     deviceInfo: Record<string, any>
   ): string {
-    return `${this.baseUrl}${this.getAuthProviderLoginRoute(
+    return `${this.getAuthProviderLoginRoute(
       credential.providerName
     )}?redirect=${encodeURI(
       redirectUrl
