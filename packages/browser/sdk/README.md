@@ -45,16 +45,16 @@ npm install mongodb-stitch-browser-services-twilio
 You can also include the SDK directly in your HTML code using script tags. For core SDK functionality and the remote MongoDB service, use the following:
 
 ```html
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.2/stitch.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.3/stitch.js"></script>
 ```
 
 For customized dependencies use the following:
 ```html
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.2/stitch-core.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.2/stitch-services-aws.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.2/stitch-services-http.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.2/stitch-services-mongodb-remote.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.2/stitch-services-twilio.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.3/stitch-core.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.3/stitch-services-aws.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.3/stitch-services-http.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.3/stitch-services-mongodb-remote.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.3/stitch-services-twilio.js"></script>
 ```
 
 ## Example Usage
@@ -185,7 +185,7 @@ And here is an example of importing BSON to generate an `ObjectId` using an HTML
      <title>MongoDB Stitch BSON Sample</title>
    </head>
    <body>
-     <script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.2/stitch.js"></script>
+     <script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.3/stitch.js"></script>
      <script> 
       function generateObjectId() {
         const newObjectId = new stitch.BSON.ObjectId()
