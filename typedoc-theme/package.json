@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A custom TypeDoc theme.",
   "scripts": {
-    "build": "grunt --gruntfile gruntfile.js"
+    "build": "./check_install.sh && grunt --gruntfile gruntfile.js"
   },
   "author": "MongoDB Inc.",
   "contributors": [
