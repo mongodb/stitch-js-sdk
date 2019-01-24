@@ -11,7 +11,7 @@ The official [MongoDB Stitch](https://stitch.mongodb.com/) Server SDK for JavaSc
 - [Example Usage](#example-usage)
 
 ## Documentation
-* [API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js-server/docs/4.1.0/index.html)
+* [API/Typedoc Documentation](https://docs.mongodb.com/stitch-sdks/js-server/4/index.html)
 * [MongoDB Stitch Documentation](https://docs.mongodb.com/stitch/)
 
 ## Discussion
@@ -115,6 +115,21 @@ client.auth.loginWithCredential(new AnonymousCredential()).then(user => {
 ```
 logging in anonymously                                                    	
 logged in anonymously as user 58c5d6ebb9ede022a3d75050
+```
+
+#### Using BSON and Extended JSON
+
+This library depends on [js-bson](https://www.npmjs.com/package/js-bson).
+
+As a convenience, the SDK includes the `BSON` library, and you can import it as you would import other classes and values from the SDK.
+
+Here is an example of importing BSON to generate a BSON `ObjectID`:
+
+```javascript
+const { BSON } = require('mongodb-stitch-server-sdk');
+
+let myObjectId = new BSON.ObjectId();
+console.log(`Generated ObjectId: ${myObjectId}`);
 ```
 
 #### Executing a function

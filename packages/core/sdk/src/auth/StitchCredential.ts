@@ -17,9 +17,18 @@
 import ProviderCapabilities from "./ProviderCapabilities";
 
 /**
- * A credential which can be used to log in as a Stitch user. There is an implementation for each authentication
- * provider available in MongoDB Stitch. These implementations can be generated using an authentication provider
- * client.
+ * StitchCredential is an interface for simple login flow credentials.
+ * 
+ * Pass implementations to [[StitchAuth.loginWithCredential]] to log in as a [[StitchUser]].
+ * 
+ * Each [Authentication Provider](https://docs.mongodb.com/stitch/authentication/)
+ * in MongoDB Stitch provides a StitchCredential or [[StitchRedirectCredential]]
+ * implementation. See **Implemented by** below for a list of implementations.
+ *
+ * ### See also
+ * - [[StitchAuth]]
+ * - [[StitchAuth.loginWithCredential]] 
+ * - [[StitchRedirectCredential]]
  */
 export default interface StitchCredential {
   /**

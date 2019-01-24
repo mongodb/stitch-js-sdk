@@ -17,7 +17,11 @@
 
 /** 
  * Options to use when executing a `count` command on a 
- * {@link RemoteMongoCollection}.
+ * [[RemoteMongoCollection]].
+ *
+ * ### See also
+ * - [[RemoteMongoCollection]]
+ * - [[RemoteMongoCollection.count]]
  */
 export default interface RemoteCountOptions {
   /**

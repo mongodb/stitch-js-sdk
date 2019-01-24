@@ -22,7 +22,7 @@ enum Fields {
   AUTH_CODE = "authCode"
 }
 
-/**
+/** @hidden
  * A credential which can be used to log in as a Stitch user
  * using the Google authentication provider.
  */

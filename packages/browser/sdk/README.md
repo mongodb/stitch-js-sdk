@@ -11,7 +11,7 @@ The official [MongoDB Stitch](https://stitch.mongodb.com/) Browser SDK for JavaS
 - [Example Usage](#example-usage)
 
 ## Documentation
-* [API/Typedoc Documentation](https://s3.amazonaws.com/stitch-sdks/js/docs/4.1.0/index.html)
+* [API/Typedoc Documentation](https://docs.mongodb.com/stitch-sdks/js/4/index.html)
 * [MongoDB Stitch Documentation](https://docs.mongodb.com/stitch/)
 
 ## Discussion
@@ -45,16 +45,16 @@ npm install mongodb-stitch-browser-services-twilio
 You can also include the SDK directly in your HTML code using script tags. For core SDK functionality and the remote MongoDB service, use the following:
 
 ```html
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.0/stitch.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.2/stitch.js"></script>
 ```
 
 For customized dependencies use the following:
 ```html
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.0/stitch-core.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.0/stitch-services-aws.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.0/stitch-services-http.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.0/stitch-services-mongodb-remote.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.0/stitch-services-twilio.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.2/stitch-core.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.2/stitch-services-aws.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.2/stitch-services-http.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.2/stitch-services-mongodb-remote.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.2/stitch-services-twilio.js"></script>
 ```
 
 ## Example Usage
@@ -164,6 +164,41 @@ logged in anonymously as user 58c5d6ebb9ede022a3d75050
 #### Using BSON and Extended JSON
 
 This library depends on [js-bson](https://www.npmjs.com/package/js-bson).
+
+As a convenience, the SDK includes the `BSON` library, and you can import it as you would import other classes and values from the SDK.
+
+Here is an example of importing BSON to generate a BSON `ObjectID` using ES6:
+
+```javascript
+import { BSON } from 'mongodb-stitch-browser-sdk';
+
+let myObjectId = new BSON.ObjectId();
+console.log(`Generated ObjectId: ${myObjectId}`);
+```
+
+And here is an example of importing BSON to generate an `ObjectId` using an HTML `<script>` tag import:
+
+```html
+<!doctype html>
+  <html>
+   <head>
+     <title>MongoDB Stitch BSON Sample</title>
+   </head>
+   <body>
+     <script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.1.2/stitch.js"></script>
+     <script> 
+      function generateObjectId() {
+        const newObjectId = new stitch.BSON.ObjectId()
+		    document.getElementById('obj-id-display').innerHTML = 
+		      `Generated ObjectId: ${newObjectId}`;
+		  }
+
+		  window.onload = generateObjectId;
+     </script>
+     <div id="obj-id-display">Generated ObjectId: None</div>
+   </body>
+  </html>
+```
 
 #### Executing a function
 1. Once logged in, executing a function happens via the `StitchAppClient`'s `callFunction()` method
