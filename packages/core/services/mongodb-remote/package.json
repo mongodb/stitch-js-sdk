@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-core-services-mongodb-remote",
-  "version": "4.1.2",
+  "version": "4.1.3",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -38,7 +38,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "bson": "4.0.0",
-    "mongodb-stitch-core-sdk": "^4.1.2"
+    "mongodb-stitch-core-sdk": "^4.1.3"
   },
   "devDependencies": {
     "jest": "^23.1.0",
