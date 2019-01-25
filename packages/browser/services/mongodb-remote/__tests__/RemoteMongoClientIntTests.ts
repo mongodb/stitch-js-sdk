@@ -32,6 +32,14 @@ import {
   StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
 import { RemoteMongoClient, RemoteMongoCollection } from "../src";
+import { ChangeEvent } from "mongodb-stitch-core-services-mongodb-remote";
+
+import { EJSON } from "bson";
+import EventSourcePolyfill from "eventsource"
+
+// add the event source polyfill to the window object 
+// so it's available in the jest environment
+window["EventSource"] = EventSourcePolyfill
 
 const mongodbUriProp = "TEST_STITCH_MONGODBURI";
 
@@ -444,4 +452,22 @@ describe("RemoteMongoClient", () => {
     expect(await (await iter.iterator()).next()).toBeDefined();
     expect(expected).toEqual(await (await iter.iterator()).next());
   });
+
+  it("should properly support watch streams", async () => {
+    const coll = getTestColl();
+    const doc = { _id: new BSON.ObjectID(), hello: "world" };
+
+    expect(doc._id).toEqual((await coll.insertOne(doc)).insertedId);
+
+    jest.setTimeout(5000);
+
+    const stream = await coll.watch([doc._id]);
+
+    stream.onNext((event: ChangeEvent<any>) => {
+      expect(event.documentKey["_id"]).toEqual(doc._id);
+      stream.close();
+    });
+
+    await coll.updateOne({_id: doc._id}, {$set: { hello: "universe"}});
+ })
 });

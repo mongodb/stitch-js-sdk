@@ -26,11 +26,10 @@ import {
   handleRequestError
 } from "mongodb-stitch-core-sdk";
 import ReaderEventStream from "./ReaderEventStream";
-import EventSourceEventStream from "./EventSourceEventStream";
 import fetch from "cross-fetch";
-
+  
 /** @hidden */
-export default class FetchStreamTransport implements Transport {
+export default class RNFetchStreamTransport implements Transport {
   public roundTrip(request: BasicRequest): Promise<Response> {
     const responsePromise = fetch(request.url, {
       body: request.body,
@@ -55,52 +54,15 @@ export default class FetchStreamTransport implements Transport {
   }
 
   public stream(request: BasicRequest, open: boolean = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
-    let rsSupported;
     try {
       new ReadableStream();
-      rsSupported = true;
     } catch (err) {
-      rsSupported = false;
+      throw new StitchClientError(StitchClientErrorCode.StreamingNotSupported);
     }
 
     let headers = { ...request.headers };
     headers[Headers.ACCEPT] = ContentTypes.TEXT_EVENT_STREAM;
     headers[Headers.CONTENT_TYPE] = ContentTypes.TEXT_EVENT_STREAM;
-
-    if (!rsSupported) {
-      // Verify we can start a request with current params and potentially
-      // force ourselves to refresh a token.
-      return fetch(request.url + "&stitch_validate=true", {
-        body: request.body,
-        headers: headers,
-        method: request.method,
-        mode: 'cors'
-      }).then(response => {
-        const headers: { [key: string]: string } = {};
-        response.headers.forEach((value, key) => {
-          headers[key] = value;
-        });
-        if (response.status < 200 || response.status >= 300) {
-          return response.text()
-          .then(body => handleRequestError(new Response(headers, response.status, body)));
-        }
-
-        return new Promise<EventStream>((resolve, reject) => {
-          // Any error against opening this stream here will have an error
-          // telling the user to look at the network response which is why we
-          // prefer the ReadableStream approach. Beyond that, this type of
-          // EventStream works the same and can still reconnect.
-          new EventSourceEventStream(
-            new EventSource(request.url),
-            stream => resolve(stream),
-            error => reject(error),
-            retryRequest ? 
-              () => retryRequest().then(es => es as EventSourceEventStream)
-              : undefined
-            );
-        });
-      });
-    }
 
     // Verify we can start a request with current params and potentially
     // force ourselves to refresh a token.
@@ -127,7 +89,7 @@ export default class FetchStreamTransport implements Transport {
       }
 
       return Promise.resolve(new ReaderEventStream(response.body, open, retryRequest ? () =>
-         retryRequest().then(es => es as ReaderEventStream) : undefined));
+          retryRequest().then(es => es as ReaderEventStream) : undefined));
     });
   }
 }

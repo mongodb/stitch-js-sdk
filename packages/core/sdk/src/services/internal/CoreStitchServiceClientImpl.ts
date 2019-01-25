@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { EJSON } from 'bson';
 import CoreStitchServiceClient from "./CoreStitchServiceClient";
 import StitchServiceRoutes from "./StitchServiceRoutes";
 import StitchAuthRequestClient from "../../auth/internal/StitchAuthRequestClient";
@@ -77,7 +78,7 @@ export default class CoreStitchServiceClientImpl
     reqBuilder
       .withMethod(Method.GET)
       .withPath(this.serviceRoutes.functionCallRoute +
-        `?stitch_request=${encodeURIComponent(base64Encode(JSON.stringify(body)))}`);
+        `?stitch_request=${encodeURIComponent(base64Encode(EJSON.stringify(body)))}`);
     return reqBuilder.build();
   }
 

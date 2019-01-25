@@ -23,9 +23,12 @@ import {
   StitchClientErrorCode
 } from "mongodb-stitch-core-sdk";
 
-/** @hidden */
+/** 
+ * @hidden 
+ * This class should only be used if it has been verified that the 
+ * environment and its fetch implementation supports ReadableStream.
+ */
 export default class ReaderEventStream extends BaseEventStream<ReaderEventStream> {
-
   private readerStream: ReadableStream;
   private reader: any;
   private dataBuffer: Array<string>;
@@ -85,7 +88,7 @@ export default class ReaderEventStream extends BaseEventStream<ReaderEventStream
         spliceAt = 0;
       }
       if (spliceAt !== -1) {
-         let line = utf8Slice(new Uint8Array(this.buffer.slice(0, this.bufferPos)), 0, this.bufferPos);
+          let line = utf8Slice(new Uint8Array(this.buffer.slice(0, this.bufferPos)), 0, this.bufferPos);
           this.buffer.splice(0, spliceAt);
           this.bufferPos = 0;
           return Promise.resolve({ line, ok: true });
@@ -102,7 +105,7 @@ export default class ReaderEventStream extends BaseEventStream<ReaderEventStream
       }
       let bytes = result.value;
       for (let idx = 0; idx < bytes.length; idx++) {
-         this.buffer.push(bytes[idx]);
+          this.buffer.push(bytes[idx]);
       }
       return this.readLine();
     });
@@ -117,13 +120,13 @@ export default class ReaderEventStream extends BaseEventStream<ReaderEventStream
     } 
     // If the field name is "data"
     else if (field === "data") {
-       // If the data buffer is not the empty string, then append a single U+000A LINE FEED character to the data buffer.
-       if (this.dataBuffer.length !== 0) {
-         this.dataBuffer.push('\n');
-       }
-       for (let i = 0; i < value.length; i++) {
-         this.dataBuffer.push(value[i]);  
-       }
+        // If the data buffer is not the empty string, then append a single U+000A LINE FEED character to the data buffer.
+        if (this.dataBuffer.length !== 0) {
+          this.dataBuffer.push('\n');
+        }
+        for (let i = 0; i < value.length; i++) {
+          this.dataBuffer.push(value[i]);  
+        }
     }
     // If the field name is "id"
     else if (field === "id") {
