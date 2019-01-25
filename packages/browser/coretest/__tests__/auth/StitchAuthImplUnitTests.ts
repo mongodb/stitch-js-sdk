@@ -67,8 +67,11 @@ describe("StitchAuthImpl", () => {
         const authRoutesMock = mock(StitchBrowserAppAuthRoutes)
         const authRoutes = instance(authRoutesMock);
 
+        const mockRequestClient = mock(StitchRequestClient);
+        when(mockRequestClient.getBaseURL()).thenResolve("");
+
         const impl = new StitchAuthImpl(
-            instance(mock(StitchRequestClient)),
+            instance(mockRequestClient),
             authRoutes,
             emptyStorage,
             instance(mock(StitchAppClientInfo)),
@@ -103,8 +106,11 @@ describe("StitchAuthImpl", () => {
         const authRoutesMock = mock(StitchBrowserAppAuthRoutes)
         const authRoutes = instance(authRoutesMock);
 
+        const mockRequestClient = mock(StitchRequestClient);
+        when(mockRequestClient.getBaseURL()).thenResolve("");
+
         const impl = new StitchAuthImpl(
-            instance(mock(StitchRequestClient)),
+            instance(mockRequestClient),
             authRoutes,
             {
                 get(key: string): string {

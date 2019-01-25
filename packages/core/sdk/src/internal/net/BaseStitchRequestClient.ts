@@ -37,7 +37,7 @@ function inspectResponse(request: StitchRequest, url: string, response: Response
 }
 
 /** @hidden */
-export default abstract class StitchRequestClient {
+export default abstract class BaseStitchRequestClient {
   protected readonly baseUrl: string;
   protected readonly transport: Transport;
 

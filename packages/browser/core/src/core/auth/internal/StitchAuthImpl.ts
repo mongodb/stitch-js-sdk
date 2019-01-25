@@ -146,10 +146,10 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     });
   }
 
-  public async linkWithRedirectInternal(
+  public linkWithRedirectInternal(
     user: StitchUser,
     credential: StitchRedirectCredential
-  ) {
+  ): Promise<void> {
     if (this.user !== undefined && user.id !== this.user.id) {
       return Promise.reject(
         new StitchClientError(StitchClientErrorCode.UserNoLongerValid)
@@ -158,25 +158,24 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
 
     const { redirectUrl, state } = this.prepareRedirect(credential);
 
-    const baseUrl = await this.requestClient.getBaseURL();
-
-    const link = baseUrl +
+    return this.requestClient.getBaseURL().then(baseUrl => {
+      const link = baseUrl +
       this.browserAuthRoutes.getAuthProviderLinkRedirectRoute(
         credential,
         redirectUrl,
         state,
         this.deviceInfo
       );
-
-    return (StitchAuthImpl.injectedFetch ? StitchAuthImpl.injectedFetch! : fetch)(
-      new Request(link, {
-        credentials: "include",
-        headers: {
-          Authorization: "Bearer " + this.authInfo.accessToken
-        },
-        mode: 'cors'
-      })
-    ).then(response => {
+      return (StitchAuthImpl.injectedFetch ? StitchAuthImpl.injectedFetch! : fetch)(
+        new Request(link, {
+          credentials: "include",
+          headers: {
+            Authorization: "Bearer " + this.authInfo.accessToken
+          },
+          mode: 'cors'
+        })
+      )
+    }).then(response => {
       this.jsdomWindow.location.replace(
         response.headers.get("X-Stitch-Location")!
       );
