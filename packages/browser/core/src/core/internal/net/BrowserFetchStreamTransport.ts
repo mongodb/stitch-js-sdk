@@ -74,10 +74,6 @@ export default class BrowserFetchStreamTransport implements Transport {
       }
 
       return new Promise<EventStream>((resolve, reject) => {
-        // Any error against opening this stream here will have an error
-        // telling the user to look at the network response which is why we
-        // prefer the ReadableStream approach. Beyond that, this type of
-        // EventStream works the same and can still reconnect.
         new EventSourceEventStream(
           new EventSource(request.url),
           stream => resolve(stream),

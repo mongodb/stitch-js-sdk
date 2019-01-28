@@ -23,15 +23,6 @@ import {
 } from "mongodb-stitch-core-sdk";
 
 /** @hidden */
-/**
- * Any error against opening a stream for this class will have an error
- * telling the user to look at the network response which is why we
- * prefer the ReaderEventStream/ReadableStream approach. Beyond that, this type of
- * EventStream works the same and can still reconnect.
- * Note: It may be worth it to just ditch EventStream and use XMLHttpRequest
- * instead which would be low-level but may offer more control on the
- * initial request and avoids the double request in FetchStreamTransport.
- */
 export default class EventSourceEventStream extends BaseEventStream<EventSourceEventStream> {
 
   private evtSrc: EventSource;
