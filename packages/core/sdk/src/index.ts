@@ -65,7 +65,8 @@ import FetchTransport from "./internal/net/FetchTransport";
 import Headers from "./internal/net/Headers";
 import Method from "./internal/net/Method";
 import Response from "./internal/net/Response";
-import Stream from "./internal/net/Stream";
+import Stream from "./Stream";
+import StreamListener from "./StreamListener";
 import StitchAppAuthRoutes from "./internal/net/StitchAppAuthRoutes";
 import StitchAppRequestClient from "./internal/net/StitchAppRequestClient";
 import StitchAppRoutes from "./internal/net/StitchAppRoutes";
@@ -130,6 +131,7 @@ export {
   FetchTransport,
   Headers,
   Stream,
+  StreamListener,
   StitchAppClientInfo,
   StitchAppClientConfiguration,
   StitchAppRequestClient,

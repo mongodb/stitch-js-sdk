@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
+import { Codec, Stream } from "mongodb-stitch-core-sdk";
 import {
+  ChangeEvent,
   RemoteCountOptions,
   RemoteDeleteResult,
   RemoteFindOptions,

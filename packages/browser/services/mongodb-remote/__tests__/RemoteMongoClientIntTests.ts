@@ -19,10 +19,8 @@ import {
   Anon,
   App,
   AppResponse,
-  Mongo,
   MongoDbRuleCreator,
-  Service,
-  ServiceResponse
+  Service
 } from "mongodb-stitch-core-admin-client";
 import {
   AnonymousCredential,
@@ -31,15 +29,18 @@ import {
   StitchServiceError,
   StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
-import { RemoteMongoClient, RemoteMongoCollection } from "../src";
 import { ChangeEvent } from "mongodb-stitch-core-services-mongodb-remote";
+import { RemoteMongoClient, RemoteMongoCollection } from "../src";
 
-import { EJSON } from "bson";
+/*
+ * TODO: The jest test environment is node-based, so we require the use of a 
+ * polyfill for the test to pass. Ideally in the future we should run this test 
+ * in an actual browser with something like Selenium.
+ */
 import EventSourcePolyfill from "eventsource"
-
-// add the event source polyfill to the window object 
-// so it's available in the jest environment
+/* tslint:disable:no-string-literal */
 window["EventSource"] = EventSourcePolyfill
+/* tslint:enable:no-string-literal */
 
 const mongodbUriProp = "TEST_STITCH_MONGODBURI";
 
@@ -459,12 +460,13 @@ describe("RemoteMongoClient", () => {
 
     expect(doc._id).toEqual((await coll.insertOne(doc)).insertedId);
 
-    jest.setTimeout(5000);
-
     const stream = await coll.watch([doc._id]);
 
     stream.onNext((event: ChangeEvent<any>) => {
+      /* tslint:disable:no-string-literal */
       expect(event.documentKey["_id"]).toEqual(doc._id);
+      /* tslint:enable:no-string-literal */
+      expect(event.operationType).toEqual("update");
       stream.close();
     });
 

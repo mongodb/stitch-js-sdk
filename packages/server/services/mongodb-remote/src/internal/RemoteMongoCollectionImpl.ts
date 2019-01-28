@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
+import { Codec, Stream } from "mongodb-stitch-core-sdk";
 import {
+  ChangeEvent,
   CoreRemoteMongoCollection,
   RemoteCountOptions,
   RemoteDeleteResult,
@@ -169,5 +170,19 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
     updateOptions?: RemoteUpdateOptions
   ): Promise<RemoteUpdateResult> {
     return this.proxy.updateMany(query, update, updateOptions);
+  }
+
+  /**
+   * Opens a MongoDB change stream against the collection to watch for changes 
+   * made to specific documents. Please note that this method does not support 
+   * opening change streams on an entire collection or a specific query. The 
+   * documents to watch must be explicitly specified by their _id.
+   * 
+   * @param ids the _ids of the documents to watch in this change stream
+   * @return a Promise containing a stream of change events representing the 
+   *         changes to the watched documents.
+   */
+  public watch(ids: any[]): Promise<Stream<ChangeEvent<DocumentT>>> {
+    return this.proxy.watch(ids);
   }
 }

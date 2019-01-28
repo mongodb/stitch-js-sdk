@@ -17,7 +17,7 @@
 import { Decoder } from "../../internal/common/Codec";
 import Response from "../../internal/net/Response";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
-import Stream from "../../internal/net/Stream";
+import Stream from "../../Stream";
 
 /**
  * @hidden

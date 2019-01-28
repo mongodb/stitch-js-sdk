@@ -14,10 +14,25 @@
  * limitations under the License.
  */
 
-import StitchEvent from "./StitchEvent";
-
+ /**
+  * An interface defining a listener for the [[Stream]] type.
+  * 
+  * @typeparam T the type of objects received by the stream with which this 
+  *              listener is registered.
+  */
 interface StreamListener<T> {
+  /**
+   * Called whenever the stream with which this listener is registered receives
+   * an object from the remote source.
+   * @param data the object received by the stream
+   */
   onNext(data: T): void;
+
+  /**
+   * Called whenever the stream with which this listener is registered produces
+   * an error.
+   * @param error the error produced by the stream
+   */
   onError(error: Error): void;
 }
 

@@ -33,6 +33,8 @@ import {
 import { BaseStitchServerIntTestHarness } from "mongodb-stitch-server-testutils";
 import { RemoteMongoClient, RemoteMongoCollection } from "../src";
 
+import { ChangeEvent } from "mongodb-stitch-core-services-mongodb-remote";
+
 const mongodbUriProp = "TEST_STITCH_MONGODBURI";
 
 let mongoClient: RemoteMongoClient;
@@ -444,4 +446,23 @@ describe("RemoteMongoClient", () => {
     expect(await (await iter.iterator()).next()).toBeDefined();
     expect(expected).toEqual(await (await iter.iterator()).next());
   });
+
+  it("should properly support watch streams", async () => {
+    const coll = getTestColl();
+    const doc = { _id: new BSON.ObjectID(), hello: "world" };
+
+    expect(doc._id).toEqual((await coll.insertOne(doc)).insertedId);
+
+    const stream = await coll.watch([doc._id]);
+
+    stream.onNext((event: ChangeEvent<any>) => {
+      /* tslint:disable:no-string-literal */
+      expect(event.documentKey["_id"]).toEqual(doc._id);
+      /* tslint:enable:no-string-literal */
+      expect(event.operationType).toEqual("update");
+      stream.close();
+    });
+
+    await coll.updateOne({_id: doc._id}, {$set: { hello: "universe"}});
+ })
 });

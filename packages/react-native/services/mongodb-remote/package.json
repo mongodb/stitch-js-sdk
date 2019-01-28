@@ -87,9 +87,13 @@
       ]
     ],
     "transform": {
+      "^.+\\.js?$": "babel-jest",
       "^.+\\.jsx?$": "<rootDir>/node_modules/babel-jest",
       "^.+\\.tsx?$": "ts-jest"
     },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(react-native|react-native-event-source|react-native-button)/)"
+    ],
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
     "testPathIgnorePatterns": [
       "/lib/",

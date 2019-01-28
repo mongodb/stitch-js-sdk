@@ -23,7 +23,7 @@ import { base64Encode } from "../../internal/common/Base64";
 import Method from "../../internal/net/Method";
 import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
-import Stream from "../../internal/net/Stream";
+import Stream from "../../Stream";
 
 /** @hidden */
 export default class CoreStitchServiceClientImpl
