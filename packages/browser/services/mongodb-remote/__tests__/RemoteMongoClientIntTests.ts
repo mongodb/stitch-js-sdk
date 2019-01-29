@@ -461,7 +461,7 @@ describe("RemoteMongoClient", () => {
     const doc1 = { _id: new BSON.ObjectID(), hello: "world" };
     expect(doc1._id).toEqual((await coll.insertOne(doc1)).insertedId);
 
-    // should receive one event for one document
+    // Should receive one event for one document
     const stream1 = await coll.watch([doc1._id]);
     stream1.onNext((event: ChangeEvent<any>) => {
       expect(event.documentKey["_id"]).toEqual(doc1._id);
@@ -472,7 +472,7 @@ describe("RemoteMongoClient", () => {
     });
     await coll.updateOne({_id: doc1._id}, {$set: { hello: "universe"}});
 
-    // should receive multiple events for one document
+    // Should receive multiple events for one document
     const doc2 = { _id: "this is a string id", hello: "galaxy"};
     const stream2 = await coll.watch([doc2._id]);
 
@@ -490,12 +490,12 @@ describe("RemoteMongoClient", () => {
     });
     await coll.updateOne({_id: doc2._id}, {$set: { hello: "universe"}})
 
-    // should receive no more events after stream closed
+    // Should receive no more events after stream closed
     stream2.onNext(() => fail("should not have received event"))
     stream2.close();
     await coll.updateOne({_id: doc2._id}, {$set: { goodbye: "universe"}});
 
-    // should receive events for multiple documents watched
+    // Should receive events for multiple documents watched
     const stream3 = await coll.watch([doc1._id, doc2._id]);
 
     const listener = {
@@ -510,7 +510,7 @@ describe("RemoteMongoClient", () => {
           this.gotDoc1Event = true
           expect(event.operationType).toEqual("update");
           expect(event.fullDocument["hello"]).toEqual("multiverse");
-        } else if (eventDocId == doc2._id) {
+        } else if (eventDocId === doc2._id) {
           if (this.gotDoc2Event) {
             fail("got event for doc2 more than once");
           }
@@ -521,7 +521,7 @@ describe("RemoteMongoClient", () => {
           fail(`event for unexpected document: ${BSON.EJSON.stringify(event)}`);
         }
 
-        // close the stream once we've received both events
+        // Close the stream once we've received both events
         if (this.gotDoc1Event && this.gotDoc2Event) {
           stream3.close();
         }
