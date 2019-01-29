@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-react-native-core",
-  "version": "4.1.3",
+  "version": "4.2.0",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -39,7 +39,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "bson": "4.0.0",
-    "mongodb-stitch-core-sdk": "^4.1.3"
+    "mongodb-stitch-core-sdk": "^4.2.0"
   },
   "devDependencies": {
     "prettier": "^1.13.5",
