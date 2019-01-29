@@ -24,7 +24,7 @@ import { Decoder } from "./internal/common/Codec";
 /**
  * A Stream represents an ongoing stream of objects from a remote source, such 
  * as a MongoDB change stream as opened by a call to
- * [[RemoteMongoCollection#watch]].
+ * [[RemoteMongoCollection.watch]].
  * 
  * @typeparam T the type of the objects received by the stream.
  */

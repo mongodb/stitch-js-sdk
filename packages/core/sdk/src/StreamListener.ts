@@ -20,7 +20,7 @@
   * @typeparam T the type of objects received by the stream with which this 
   *              listener is registered.
   */
-interface StreamListener<T> {
+export default interface StreamListener<T> {
   /**
    * Called whenever the stream with which this listener is registered receives
    * an object from the remote source.
@@ -35,5 +35,3 @@ interface StreamListener<T> {
    */
   onError(error: Error): void;
 }
-
-export default StreamListener;
