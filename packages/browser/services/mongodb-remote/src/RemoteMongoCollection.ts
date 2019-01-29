@@ -51,17 +51,25 @@ import RemoteMongoReadOperation from "./RemoteMongoReadOperation";
  *
  * Here's how to access a database and one of its collections:
  * ```
- * // Instantiate the Stitch client
- * const stitchClient = Stitch.initializeDefaultAppClient('your-stitch-app-id')
- *
+ * // Assumption: Stitch client has been initialized and is already logged in.
+ * 
+ * // Get the existing Stitch client.
+ * const stitchClient = Stitch.defaultAppClient
+ * 
  * // Get a client of the Remote Mongo Service for database access
  * const mongoClient = stitchClient.getServiceClient(RemoteMongoClient.factory, 'mongodb-atlas')
- *
+ * 
  * // Retrieve a database object
- * const exampleDb = mongoClient.db('example-db')
- *
+ * const db = mongoClient.db('video')
+ * 
  * // Retrieve the collection in the database
- * const exampleCollection = db.collection('example-collection')
+ * const movieDetails = db.collection('movieDetails')
+ * 
+ * // Find 10 documents and log them to console.
+ * movieDetails.find({}, {limit: 10})
+ *   .toArray()
+ *   .then(results => console.log('Results:', results))
+ *   .catch(console.error)
  * ```
  *
  * For more examples, see [CRUD Snippets](https://docs.mongodb.com/stitch/mongodb/crud-snippets/)
