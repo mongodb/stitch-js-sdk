@@ -24,7 +24,6 @@ import {
 
 /** @hidden */
 export default class EventSourceEventStream extends BaseEventStream<EventSourceEventStream> {
-
   private evtSrc: EventSource;
   private readonly onOpenError: (error: Error) => void;
   private openedOnce: boolean;

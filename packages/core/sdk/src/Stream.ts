@@ -45,7 +45,10 @@ export default class Stream<T> {
   }
 
   /**
-   * Returns the next object received from the stream.
+   * Returns the next object received from the stream. NOTE: This will not 
+   * return any objects that were already received from the remote source but 
+   * with no listener to process them. The object must be received from the 
+   * remote source after this method is called.
    * 
    * @return a Promise containing the next object received from the stream. If 
    *         there is no object yet available on the stream, the Promise will 
