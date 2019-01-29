@@ -16,7 +16,6 @@
 
 import { ensureDirSync } from "fs-extra"
 import {
-  FetchTransport,
   StitchAppClientConfiguration
 } from "mongodb-stitch-core-sdk";
 import { homedir } from "os"
@@ -24,6 +23,8 @@ import { isAbsolute, join, resolve, sep } from "path"
 import FileStorage from "./internal/common/FileStorage";
 import StitchAppClientImpl from "./internal/StitchAppClientImpl";
 import StitchAppClient from "./StitchAppClient";
+
+import NodeFetchStreamTransport from "./internal/net/NodeFetchStreamTransport";
 
 const DEFAULT_BASE_URL = "https://stitch.mongodb.com";
 const DEFAULT_STITCH_DIR = ".stitch/apps";
@@ -123,7 +124,7 @@ export default class Stitch {
       builder.withStorage(new FileStorage(builder.dataDirectory));
     }
     if (builder.transport === undefined) {
-      builder.withTransport(new FetchTransport());
+      builder.withTransport(new NodeFetchStreamTransport());
     }
     if (builder.baseUrl === undefined || builder.baseUrl === "") {
       builder.withBaseUrl(DEFAULT_BASE_URL);

@@ -26,12 +26,15 @@ import {
 } from "mongodb-stitch-core-admin-client";
 import {
   AnonymousCredential,
+  BSON,
   Codec,
   StitchServiceError,
   StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
 import { BaseStitchRNIntTestHarness } from "mongodb-stitch-react-native-testutils";
 import { RemoteMongoClient, RemoteMongoCollection } from "../src";
+
+import { ChangeEvent } from "mongodb-stitch-core-services-mongodb-remote";
 
 const mongodbUriProp = "TEST_STITCH_MONGODBURI";
 

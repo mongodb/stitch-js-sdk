@@ -19,10 +19,8 @@ import {
   Anon,
   App,
   AppResponse,
-  Mongo,
   MongoDbRuleCreator,
-  Service,
-  ServiceResponse
+  Service
 } from "mongodb-stitch-core-admin-client";
 import {
   AnonymousCredential,
@@ -31,7 +29,18 @@ import {
   StitchServiceError,
   StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
+import { ChangeEvent } from "mongodb-stitch-core-services-mongodb-remote";
 import { RemoteMongoClient, RemoteMongoCollection } from "../src";
+
+/*
+ * TODO: The jest test environment is node-based, so we require the use of a 
+ * polyfill for the test to pass. Ideally in the future we should run this test 
+ * in an actual browser with something like Selenium.
+ */
+import EventSourcePolyfill from "eventsource"
+/* tslint:disable:no-string-literal */
+window["EventSource"] = EventSourcePolyfill
+/* tslint:enable:no-string-literal */
 
 const mongodbUriProp = "TEST_STITCH_MONGODBURI";
 
@@ -444,4 +453,87 @@ describe("RemoteMongoClient", () => {
     expect(await (await iter.iterator()).next()).toBeDefined();
     expect(expected).toEqual(await (await iter.iterator()).next());
   });
+
+  /* tslint:disable:no-string-literal */
+  it("should properly support watch streams", async () => {
+    const coll = getTestColl();
+    
+    const doc1 = { _id: new BSON.ObjectID(), hello: "world" };
+    expect(doc1._id).toEqual((await coll.insertOne(doc1)).insertedId);
+
+    // Should receive one event for one document
+    const stream1 = await coll.watch([doc1._id]);
+    stream1.onNext((event: ChangeEvent<any>) => {
+      expect(event.documentKey["_id"]).toEqual(doc1._id);
+      expect(event.operationType).toEqual("update");
+      expect(event.fullDocument["hello"]).toEqual("universe");
+
+      stream1.close();
+    });
+    await coll.updateOne({_id: doc1._id}, {$set: { hello: "universe"}});
+
+    // Should receive multiple events for one document
+    const doc2 = { _id: "this is a string id", hello: "galaxy"};
+    const stream2 = await coll.watch([doc2._id]);
+
+    stream2.next().then(event => {
+      expect(event.documentKey["_id"]).toEqual(doc2._id);
+      expect(event.operationType).toEqual("insert");
+      expect(event.fullDocument).toEqual(doc2);  
+    });
+    await coll.insertOne(doc2);
+    
+    stream2.next().then(event => {
+      expect(event.documentKey["_id"]).toEqual(doc2._id);
+      expect(event.operationType).toEqual("update");
+      expect(event.fullDocument["hello"]).toEqual("universe");
+    });
+    await coll.updateOne({_id: doc2._id}, {$set: { hello: "universe"}})
+
+    // Should receive no more events after stream closed
+    stream2.onNext(() => fail("should not have received event"))
+    stream2.close();
+    await coll.updateOne({_id: doc2._id}, {$set: { goodbye: "universe"}});
+
+    // Should receive events for multiple documents watched
+    const stream3 = await coll.watch([doc1._id, doc2._id]);
+
+    const listener = {
+      gotDoc1Event: false,
+      gotDoc2Event: false,
+      onNext(event: ChangeEvent<any>) { 
+        const eventDocId = event.documentKey["_id"];
+        if (doc1._id.equals(eventDocId))  {
+          if (this.gotDoc1Event) {
+            fail("got event for doc1 more than once");
+          }
+          this.gotDoc1Event = true
+          expect(event.operationType).toEqual("update");
+          expect(event.fullDocument["hello"]).toEqual("multiverse");
+        } else if (eventDocId === doc2._id) {
+          if (this.gotDoc2Event) {
+            fail("got event for doc2 more than once");
+          }
+          this.gotDoc2Event = true
+          expect(event.operationType).toEqual("update");
+          expect(event.fullDocument["hello"]).toEqual("multiverse");
+        } else {
+          fail(`event for unexpected document: ${BSON.EJSON.stringify(event)}`);
+        }
+
+        // Close the stream once we've received both events
+        if (this.gotDoc1Event && this.gotDoc2Event) {
+          stream3.close();
+        }
+      },
+      onError(error: Error) {
+        fail("unexpected error in stream");
+      }
+    }
+
+    stream3.addListener(listener);
+
+    await coll.updateMany({}, { $set: {hello: "multiverse"}});
+ })
+ /* tslint:enable:no-string-literal */
 });

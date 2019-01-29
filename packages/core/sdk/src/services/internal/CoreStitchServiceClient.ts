@@ -15,7 +15,7 @@
  */
 
 import { Decoder } from "../../internal/common/Codec";
-import Stream from "../../internal/net/Stream";
+import Stream from "../../Stream";
 
 /** @hidden */
 export default interface CoreStitchServiceClient {

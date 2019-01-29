@@ -22,7 +22,7 @@ import ContentTypes from "../../internal/net/ContentTypes";
 import Headers from "../../internal/net/Headers";
 import Method from "../../internal/net/Method";
 import Response from "../../internal/net/Response";
-import Stream from "../../internal/net/Stream";
+import Stream from "../../Stream";
 import EventStream from "../../internal/net/EventStream";
 import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";

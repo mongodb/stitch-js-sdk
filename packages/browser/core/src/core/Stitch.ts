@@ -19,7 +19,7 @@ import {
   StitchAppClientConfiguration
 } from "mongodb-stitch-core-sdk";
 import LocalStorage from "./internal/common/LocalStorage";
-import FetchStreamTransport from "./internal/net/FetchStreamTransport";
+import BrowserFetchStreamTransport from "./internal/net/BrowserFetchStreamTransport";
 import StitchAppClientImpl from "./internal/StitchAppClientImpl";
 import StitchAppClient from "./StitchAppClient";
 
@@ -126,7 +126,18 @@ export default class Stitch {
       builder.withStorage(new LocalStorage(clientAppId));
     }
     if (builder.transport === undefined) {
-      builder.withTransport(new FetchStreamTransport());
+      /*
+       * Use the EventSource-streaming compatible transport if the browser
+       * supports it, otherwise use a vanilla FetchTransport that will fail on
+       * attempting to open a stream.
+       */
+      /* tslint:disable:no-string-literal */
+      if (window["EventSource"]) {
+        builder.withTransport(new BrowserFetchStreamTransport());  
+      } else {
+        builder.withTransport(new FetchTransport());
+      }
+      /* tslint:enable:no-string-literal */
     }
     if (builder.baseUrl === undefined || builder.baseUrl === "") {
       builder.withBaseUrl(DEFAULT_BASE_URL);

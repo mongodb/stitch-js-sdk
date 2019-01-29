@@ -21,6 +21,7 @@ import {
   StitchClientError,
   StitchClientErrorCode
 } from "mongodb-stitch-core-sdk";
+import EventSource from "eventsource";
 
 /** @hidden */
 export default class EventSourceEventStream extends BaseEventStream<EventSourceEventStream> {
