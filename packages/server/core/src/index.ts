@@ -42,6 +42,8 @@ import {
   StitchUserIdentity,
   StitchUserProfile,
   Storage,
+  Stream,
+  StreamListener,
   Transport,
   UserApiKey,
   UserApiKeyAuthProvider,
@@ -103,5 +105,7 @@ export {
   StitchUser,
   StitchServiceClient,
   UserApiKeyAuthProviderClient,
-  UserPasswordAuthProviderClient
+  UserPasswordAuthProviderClient,
+  Stream,
+  StreamListener
 };

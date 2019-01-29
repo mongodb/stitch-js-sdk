@@ -41,6 +41,8 @@ import {
   StitchServiceErrorCode,
   StitchUserIdentity,
   StitchUserProfile,
+  Stream,
+  StreamListener,
   Storage,
   Transport,
   UserApiKey,
@@ -107,5 +109,7 @@ export {
   UserApiKeyAuthProviderClient,
   UserPasswordAuthProviderClient,
   FacebookRedirectCredential,
-  GoogleRedirectCredential
+  GoogleRedirectCredential,
+  Stream,
+  StreamListener
 };
