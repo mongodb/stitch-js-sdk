@@ -2,17 +2,17 @@
 
 # MongoDB Stitch Server SDK 
 
-The official [MongoDB Stitch](https://stitch.mongodb.com/) Server SDK for JavaScript/TypeScript.
+The official [MongoDB Stitch](https://www.mongodb.com/cloud/stitch) Server SDK for JavaScript/TypeScript.
 
 ### Index
 - [Documentation](#documentation)
 - [Discussion](#discussion)
 - [Installation](#installation)
-- [Example Usage](#example-usage)
+- [Getting Started](#getting-started)
 
 ## Documentation
-* [API/Typedoc Documentation](https://docs.mongodb.com/stitch-sdks/js-server/4/index.html)
 * [MongoDB Stitch Documentation](https://docs.mongodb.com/stitch/)
+* [API Reference Manual](https://docs.mongodb.com/stitch-sdks/js-server/4/index.html)
 
 ## Discussion
 * [MongoDB Stitch Users - Google Group](https://groups.google.com/d/forum/mongodb-stitch-users)
@@ -28,33 +28,44 @@ Run the following in the root directory of your NPM project.
 npm install mongodb-stitch-server-sdk
 ```
 
-This will start you off with the core SDK functionality as well as the remote MongoDB service.
+This will start you off with the [core SDK functionality](classes/stitch.html) as well as the [remote MongoDB service](modules/remotemongoclient.html).
 
-For customized dependencies use the following:
+See [Customized Dependencies (Advanced)](#customized-dependencies) below for customizing dependencies.
 
-```bash
-npm install mongodb-stitch-server-core
-npm install mongodb-stitch-server-services-aws
-npm install mongodb-stitch-server-services-http
-npm install mongodb-stitch-server-services-mongodb-remote
-npm install mongodb-stitch-server-services-twilio
-```
-
-## Example Usage
+## Getting Started
 
 ### Creating a new app with the SDK (NPM)
 
 #### Set up an application on Stitch
+
+First, you need to create the server-side Stitch app, and (for the purpose of this quick start) enable anonymous authentication:
+
 1. Go to [https://stitch.mongodb.com/](https://stitch.mongodb.com/) and log in to MongoDB Atlas.
 2. Create a new app in your project with your desired name.
 3. Go to your app in Stitch via Atlas by clicking Stitch Apps in the left side pane and clicking your app.
-3. Copy your app's client app id by going to Clients on the left side pane and clicking copy on the App ID section.
-4. Go to Providers from Users in the left side pane and edit and enable "Allow users to log in anonymously".
+4. Copy your app's client app id by going to Clients on the left side pane and clicking copy on the App ID section.
+5. Go to Providers from Users in the left side pane and edit and enable "Allow users to log in anonymously".
+
+For detailed instructions, see [Create a Stitch App](https://docs.mongodb.com/stitch/procedures/create-stitch-app/).
 
 #### Set up an NPM project
+
+Next, you create the source for your client app.
+
 1. Ensure that you have `npm` installed. See [npmjs.com](https://www.npmjs.com).
-2. Initialize a new NPM project with `npm init`.
-3. Add the MongoDB Stitch Server SDK by running `npm install mongodb-stitch-server-sdk`.
+2. Initialize a new NPM project: 
+
+```bash
+mkdir StitchProject && cd StitchProject
+npm init
+```
+
+3. Add the MongoDB Stitch Server SDK:
+
+```bash
+npm install mongodb-stitch-server-sdk
+```
+
 4. Create directories for your source files:
 
 ```bash
@@ -84,7 +95,8 @@ client.auth.loginWithCredential(new AnonymousCredential()).then(user => {
 ### Using the SDK
 
 #### Initialize the SDK
-1. When your app has started, run the following code to initialize the Stitch SDK, replacing `<your-client-app-id>` with your Stitch application's client app ID:
+
+When your app has started, use [Stitch.initializeDefaultAppClient](classes/stitch.html#initializedefaultappclient) to initialize the Stitch SDK. Replace `<your-client-app-id>` with your Stitch application's client app ID:
 
 ```javascript
 const { Stitch, AnonymousCredential } = require('mongodb-stitch-server-sdk');
@@ -92,14 +104,11 @@ const { Stitch, AnonymousCredential } = require('mongodb-stitch-server-sdk');
 Stitch.initializeDefaultAppClient('<your-client-app-id>');
 ```
 
-2. To get a client to use for logging in and communicating with Stitch, use `Stitch.defaultAppClient`
-
-```javascript
-const stitchClient = Stitch.defaultAppClient;
-```
+Your client app ID can be found in the [Stitch UI](https://stitch.mongodb.com).
 
 #### Logging In
-1. We enabled anonymous log in, so let's log in with it; add the following anywhere in your code:
+
+We enabled [anonymous authentication](https://docs.mongodb.com/stitch/authentication/anonymous/) in the steps above, so let's log in with it! Add the following anywhere in your code:
 
 ```javascript
 const client = Stitch.defaultAppClient;
@@ -110,18 +119,44 @@ client.auth.loginWithCredential(new AnonymousCredential()).then(user => {
 });
 ```
 
-2. When running this code, you should see the following in your standard out:
+When running this code, you should see the following in your standard out:
 
 ```
 logging in anonymously                                                    	
 logged in anonymously as user 58c5d6ebb9ede022a3d75050
 ```
 
+See [StitchAuth](interfaces/stitchauth.html) for more information.
+
+
+#### Executing a Stitch Function
+
+One of Stitch's powerful features is serverless [Functions](https://docs.mongodb.com/stitch/functions/). Once logged in, the Stitch client can execute remote Stitch Functions using the [StitchAppClient.callFunction](interfaces/stitchappclient.html#callfunction) method:
+
+```javascript
+client.callFunction("echoArg", ["Hello world!"]).then(echoedResult => {
+  console.log(`Echoed result: ${echoedResult}`);
+})
+```
+
+Assuming you've configured your Stitch application to have a Function named "echoArg" that returns its argument, you should see a message like:
+
+```
+Echoed result: Hello world!
+```
+
+The `echoArg` Function in Stitch would look something like:
+
+```javascript
+// echoArg Function in the Stitch UI
+exports = function(arg) {
+  return {arg: arg};
+};
+```
+
 #### Using BSON and Extended JSON
 
-This library depends on [js-bson](https://www.npmjs.com/package/js-bson).
-
-As a convenience, the SDK includes the `BSON` library, and you can import it as you would import other classes and values from the SDK.
+As a convenience, the SDK includes the [bson](https://www.npmjs.com/package/bson) library. You can import it as you would import other classes and values from the SDK.
 
 Here is an example of importing BSON to generate a BSON `ObjectID`:
 
@@ -132,22 +167,21 @@ let myObjectId = new BSON.ObjectId();
 console.log(`Generated ObjectId: ${myObjectId}`);
 ```
 
-#### Executing a function
-1. Once logged in, executing a function happens via the `StitchAppClient`'s `callFunction()` method
+## Advanced Topics
 
-```javascript
-client.callFunction("echoArg", ["Hello world!"]).then(echoedResult => {
-  console.log(`Echoed result: ${echoedResult}`);
-})
+#### Customized Dependencies
+
+For customized dependencies, use the following:
+
+```bash
+npm install mongodb-stitch-server-core
+npm install mongodb-stitch-server-services-aws
+npm install mongodb-stitch-server-services-http
+npm install mongodb-stitch-server-services-mongodb-remote
+npm install mongodb-stitch-server-services-twilio
 ```
 
-2. If you've configured your Stitch application to have a function named "echoArg" that returns its argument, you should see a message like:
-
-```
-Echoed result: Hello world!
-```
-	
-#### Getting a StitchAppClient without Stitch.getDefaultAppClient
+#### Getting a StitchAppClient without Stitch.getDefaultAppClient (Advanced)
 
 In the case that you don't want a single default initialized `StitchAppClient`, you can use the following with as many client app IDs as you'd like to initialize clients for multiple app IDs:
 
