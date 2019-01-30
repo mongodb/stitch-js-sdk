@@ -21,9 +21,14 @@ import {
   StitchUserIdentity } from "mongodb-stitch-core-sdk";
     
 /**
- * A user that a {@link StitchAppClient} is currently authenticated as.
- * Can be retrieved from a {@link StitchAuth} or from the result of certain 
- * methods.
+ * The StitchUser represents the currently logged-in user of the [[StitchAppClient]].
+ * 
+ * This can be retrieved from [[StitchAuth]] or from the result of certain methods
+ * such as [[StitchAuth.loginWithCredential]].
+ *
+ * ### See also
+ * - [[StitchAuth]]
+ * - [[StitchCredential]]
  */
 export default interface StitchUser extends CoreStitchUser {
   /**
