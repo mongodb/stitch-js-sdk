@@ -156,6 +156,19 @@ export class StitchAdminClient extends StitchClient {
             }
           }),
 
+          secrets: () => ({
+            list: () => api._get(`${appUrl}/secrets`),
+            create: (data) => api._post( `${appUrl}/secrets`, data),
+            secret: (secretId) => {
+              const secretUrl = `${appUrl}/secrets/${secretId}`;
+              return {
+                get: ()=> api._get(secretUrl),
+                remove: ()=> api._delete(secretUrl),
+                update: (data) => api._put(secretUrl, { body: JSON.stringify(data) })
+              };
+            }
+          }),
+
           hosting: () => ({
             config: () => ({
               get: () => api._get(`${appUrl}/hosting/config`),
