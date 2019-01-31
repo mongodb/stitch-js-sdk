@@ -217,9 +217,6 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                 secret: function secret(secretId) {
                   var secretUrl = appUrl + '/secrets/' + secretId;
                   return {
-                    get: function get() {
-                      return api._get(secretUrl);
-                    },
                     remove: function remove() {
                       return api._delete(secretUrl);
                     },
