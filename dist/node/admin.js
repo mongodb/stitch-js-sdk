@@ -306,8 +306,8 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                     },
                     config: function config() {
                       return {
-                        get: function get() {
-                          return api._get(appUrl + '/services/' + serviceId + '/config');
+                        get: function get(params) {
+                          return api._get(appUrl + '/services/' + serviceId + '/config', params);
                         },
                         update: function update(data) {
                           return api._patch(appUrl + '/services/' + serviceId + '/config', { body: JSON.stringify(data) });
