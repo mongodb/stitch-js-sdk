@@ -69,7 +69,7 @@ describe('Auth', () => {
   it('should fail trying to do an authed action', async() => {
     expect.assertions(1);
 
-    let client = await StitchClientFactory.create();
+    let client = await StitchClientFactory.create('some-app');
 
     await expect(client.executeServiceFunction('someService', 'someAction')).rejects
       .toEqual(new StitchError('Must auth first', ErrUnauthorized));
