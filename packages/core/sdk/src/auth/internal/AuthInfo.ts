@@ -81,14 +81,30 @@ export default class AuthInfo {
 
   public loggedOut(): AuthInfo {
     return new AuthInfo(
-      undefined,
+      this.userId,
       this.deviceId,
       undefined,
       undefined,
-      undefined,
-      undefined,
-      undefined
+      this.loggedInProviderType,
+      this.loggedInProviderName,
+      this.userProfile
     );
+  }
+
+  public withAuthProvider(providerType: string, providerName: string) {
+    return new AuthInfo(
+      this.userId,
+      this.deviceId,
+      this.accessToken,
+      this.refreshToken,
+      providerType,
+      providerName,
+      this.userProfile
+    );
+  }
+
+  public get isLoggedIn(): boolean {
+    return this.accessToken !== undefined && this.refreshToken !== undefined;
   }
 
   /**

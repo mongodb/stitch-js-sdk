@@ -19,6 +19,7 @@ import { Storage } from "../../../internal/common/Storage";
 import AuthInfo from "../AuthInfo";
 import StoreCoreUserProfile from "./StoreCoreUserProfile";
 import StoreStitchUserIdentity from "./StoreStitchUserIdentity";
+import { StitchClientError, StitchClientErrorCode } from "../../../../dist/esm";
 
 enum Fields {
   USER_ID = "user_id",
@@ -30,8 +31,8 @@ enum Fields {
   USER_PROFILE = "user_profile"
 }
 
-function readFromStorage(storage: Storage): AuthInfo | undefined {
-  const rawInfo = storage.get(StoreAuthInfo.STORAGE_NAME);
+function readActiveUserFromStorage(storage: Storage): AuthInfo | undefined {
+  const rawInfo = storage.get(StoreAuthInfo.ACTIVE_USER_STORAGE_NAME);
   if (!rawInfo) {
     return undefined;
   }
@@ -39,7 +40,33 @@ function readFromStorage(storage: Storage): AuthInfo | undefined {
   return StoreAuthInfo.decode(JSON.parse(rawInfo));
 }
 
-function writeToStorage(authInfo: AuthInfo, storage: Storage) {
+function readCurrentUsersFromStorage(storage: Storage): { [key: string]: AuthInfo } {
+  const rawInfo = storage.get(StoreAuthInfo.ALL_USERS_STORAGE_NAME);
+  if (!rawInfo) {
+    return {};
+  }
+
+  const rawArray = JSON.parse(rawInfo);
+  if (!Array.isArray(rawArray)) {
+    // the raw data is expected to be an array
+    throw new StitchClientError(
+      StitchClientErrorCode.CouldNotLoadPersistedAuthInfo
+    );
+  }
+
+  const userIdToAuthInfoMap: { [key: string]: AuthInfo } = {}
+  rawArray.forEach(rawEntry => {
+    const authInfo = StoreAuthInfo.decode(rawEntry);
+    userIdToAuthInfoMap[authInfo.userId] = authInfo;
+  })
+
+  return userIdToAuthInfoMap;
+}
+
+function writeActiveUserAuthInfoToStorage(
+  authInfo: AuthInfo, 
+  storage: Storage
+) {
   const info = new StoreAuthInfo(
     authInfo.userId!,
     authInfo.deviceId!,
@@ -58,11 +85,46 @@ function writeToStorage(authInfo: AuthInfo, storage: Storage) {
         )
       : undefined
   );
-  storage.set(StoreAuthInfo.STORAGE_NAME, JSON.stringify(info.encode()));
+  storage.set(StoreAuthInfo.ACTIVE_USER_STORAGE_NAME, JSON.stringify(info.encode()));
+}
+
+function writeAllUsersAuthInfoToStorage(
+  currentUsersAuthInfo: { [key: string]: AuthInfo },
+  storage: Storage
+) {
+  const encodedStoreInfos = []
+  for (const userId in currentUsersAuthInfo) {
+    const authInfo = currentUsersAuthInfo[userId];
+
+    encodedStoreInfos.push(new StoreAuthInfo(
+      authInfo.userId!,
+      authInfo.deviceId!,
+      authInfo.accessToken!,
+      authInfo.refreshToken!,
+      authInfo.loggedInProviderType!,
+      authInfo.loggedInProviderName!,
+      authInfo.userProfile
+        ? new StoreCoreUserProfile(
+            authInfo.userProfile!.userType!,
+            authInfo.userProfile!.data,
+            authInfo.userProfile!.identities.map(
+              identity =>
+                new StoreStitchUserIdentity(identity.id, identity.providerType)
+            )
+          )
+        : undefined
+    ).encode());
+  }
+
+  storage.set(
+    StoreAuthInfo.ALL_USERS_STORAGE_NAME, 
+    JSON.stringify(encodedStoreInfos)
+  );
 }
 
 class StoreAuthInfo extends AuthInfo {
-  public static readonly STORAGE_NAME: string = "auth_info";
+  public static readonly ACTIVE_USER_STORAGE_NAME: string = "auth_info";
+  public static readonly ALL_USERS_STORAGE_NAME
 
   public static decode(from: any): StoreAuthInfo {
     const userId = from[Fields.USER_ID];
@@ -121,4 +183,10 @@ class StoreAuthInfo extends AuthInfo {
   }
 }
 
-export { StoreAuthInfo, readFromStorage, writeToStorage };
+export { 
+  StoreAuthInfo, 
+  readActiveUserFromStorage, 
+  readCurrentUsersFromStorage, 
+  writeActiveUserAuthInfoToStorage, 
+  writeAllUsersAuthInfoToStorage 
+};

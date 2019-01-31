@@ -30,6 +30,7 @@ interface StitchUserFactory<T extends CoreStitchUser> {
     id: string,
     loggedInProviderType: string,
     loggedInProviderName: string,
+    isLoggedIn: boolean,
     userProfile?: StitchUserProfileImpl
   ): T;
 }
