@@ -203,7 +203,7 @@ export class StitchAdminClient extends StitchClient {
               update: (data) => api._patch(`${appUrl}/services/${serviceId}`, { body: JSON.stringify(data) }),
               runCommand: (commandName, data) => api._post(`${appUrl}/services/${serviceId}/commands/${commandName}`, data),
               config: () => ({
-                get: () => api._get(`${appUrl}/services/${serviceId}/config`),
+                get: (params) => api._get(`${appUrl}/services/${serviceId}/config`, params),
                 update: (data) => api._patch(`${appUrl}/services/${serviceId}/config`, { body: JSON.stringify(data) })
               }),
 
