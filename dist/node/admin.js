@@ -206,6 +206,28 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
               };
             },
 
+            secrets: function secrets() {
+              return {
+                list: function list() {
+                  return api._get(appUrl + '/secrets');
+                },
+                create: function create(data) {
+                  return api._post(appUrl + '/secrets', data);
+                },
+                secret: function secret(secretId) {
+                  var secretUrl = appUrl + '/secrets/' + secretId;
+                  return {
+                    remove: function remove() {
+                      return api._delete(secretUrl);
+                    },
+                    update: function update(data) {
+                      return api._put(secretUrl, { body: JSON.stringify(data) });
+                    }
+                  };
+                }
+              };
+            },
+
             hosting: function hosting() {
               return {
                 config: function config() {
