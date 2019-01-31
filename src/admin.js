@@ -149,8 +149,8 @@ export class StitchAdminClient extends StitchClient {
             value: (valueId) => {
               const valueUrl = `${appUrl}/values/${valueId}`;
               return {
-                get: ()=> api._get(valueUrl),
-                remove: ()=> api._delete(valueUrl),
+                get: () => api._get(valueUrl),
+                remove: () => api._delete(valueUrl),
                 update: (data) => api._put(valueUrl, { body: JSON.stringify(data) })
               };
             }
@@ -162,8 +162,7 @@ export class StitchAdminClient extends StitchClient {
             secret: (secretId) => {
               const secretUrl = `${appUrl}/secrets/${secretId}`;
               return {
-                get: ()=> api._get(secretUrl),
-                remove: ()=> api._delete(secretUrl),
+                remove: () => api._delete(secretUrl),
                 update: (data) => api._put(secretUrl, { body: JSON.stringify(data) })
               };
             }
@@ -203,7 +202,7 @@ export class StitchAdminClient extends StitchClient {
               remove: () => api._delete(`${appUrl}/services/${serviceId}`),
               update: (data) => api._patch(`${appUrl}/services/${serviceId}`, { body: JSON.stringify(data) }),
               runCommand: (commandName, data) => api._post(`${appUrl}/services/${serviceId}/commands/${commandName}`, data),
-              config: ()=> ({
+              config: () => ({
                 get: () => api._get(`${appUrl}/services/${serviceId}/config`),
                 update: (data) => api._patch(`${appUrl}/services/${serviceId}/config`, { body: JSON.stringify(data) })
               }),

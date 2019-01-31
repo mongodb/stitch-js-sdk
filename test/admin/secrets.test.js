@@ -30,19 +30,12 @@ describe('Secrets', () => {
     expect(secrets).toHaveLength(1);
     expect(secrets[0]).toEqual(secret);
   });
-  it('fetching a secret returns deep secret data', async() => {
-    let secret = await appSecrets.create({name: testSecretName, value: 'foo'});
-    const deepSecret = await appSecrets.secret(secret._id).get();
-    expect(deepSecret.value).toEqual('foo');
-    delete deepSecret.value;
-    expect(secret).toEqual(deepSecret);
-  });
-  it('can update a secret', async() => {
-    let secret = await appSecrets.create({name: testSecretName, value: 'foo'});
-    secret.value = '"abcdefgh"';
+  it('can update a secret name', async() => {
+    let secret = await appSecrets.create({name: testSecretName});
+    secret.name = 'anotherName';
     await appSecrets.secret(secret._id).update(secret);
-    const deepSecret = await appSecrets.secret(secret._id).get();
-    expect(deepSecret.value).toEqual('"abcdefgh"');
+    let secrets = await appSecrets.list();
+    expect(secrets[0].name).toEqual('anotherName');
   });
   it('can delete a secret', async() => {
     let secret = await appSecrets.create({name: testSecretName});
