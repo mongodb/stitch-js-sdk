@@ -17,10 +17,39 @@
 import StitchAuth from "./StitchAuth";
 
 /**
- * An interface to be inherited by classes that need to take action whenever a 
- * particular {@link StitchAppClient} performs an authentication event. An 
- * instance of a {@link StitchAuthListener} must be registered with a 
- * {@link StitchAuth} for this to work correctly.
+ * StitchAuthListener is an interface for taking action whenever 
+ * a particular [[StitchAppClient]]'s authentication state changes.
+ *
+ * Implement [[onAuthEvent]] to handle these events. You can register 
+ * your listener with [[StitchAuth]] using [[StitchAuth.addAuthListener]].
+ *
+ * StitchAuth calls registered listeners when:
+ * - a user logs in
+ * - a user logs out
+ * - a user is linked to another identity
+ * - a listener is registered
+ *
+ * ### Example
+ *
+ * In this example, a custom StitchAuthListener is defined and registered:
+ * ```
+ * const client = Stitch.defaultAppClient
+ *
+ * // Define the listener
+ * class MyAuthListener {
+ *   onAuthEvent = (auth) => {
+ *     // The auth state has changed
+ *     console.log('Current auth state changed: user =', auth.user)
+ *   }
+ * }
+ *
+ * // Register the listener
+ * const {auth} = client
+ * auth.addAuthListener(new MyAuthListener(auth))
+ * ```
+ * 
+ * ### See also
+ * - [[StitchAuth]]
  */
 export default interface StitchAuthListener {
   /**
@@ -29,6 +58,16 @@ export default interface StitchAuthListener {
    * * When a user logs out.
    * * When a user is linked to another identity.
    * * When a listener is registered. This is to handle the case where during registration an event happens that the registerer would otherwise miss out on.
+   *
+   * The [[StitchAuth]] instance itself is passed to this callback. This can be used to read the current state of authentication.
+   *
+   * ### Note
+   * Specific event details are deliberately not provided here because the events could be stale by the time they are handled.
+   * 
+   * For example, a user could log in then log out before the first login event is handled.
+   * 
+   * The intention is that you would treat this callback as a trigger to refresh the relevant parts of your app based
+   * on the new, current auth state. In other words, it should not be necessary to deduce exactly what changed in this callback.
    *
    * @param auth The instance of StitchAuth where the event happened. It should be used to infer the current state of authentication.
    */
