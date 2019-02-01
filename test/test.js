@@ -17,7 +17,6 @@ const FUNCTION_CALL_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testap
 const SESSION_URL = 'https://stitch.mongodb.com/api/client/v2.0/auth/session';
 const PROFILE_URL = 'https://stitch.mongodb.com/api/client/v2.0/auth/profile';
 
-const MockBrowser = mocks.MockBrowser;
 global.Buffer = global.Buffer || require('buffer').Buffer;
 
 const hexStr = '5899445b275d3ebe8f2ab8c0';
@@ -42,11 +41,12 @@ const sampleProfile = {
 
 const mockBrowserHarness = {
   setup() {
-    const mb = new MockBrowser();
+    const mb = new mocks.MockBrowser();
     global.window = mb.getWindow();
   },
 
   teardown() {
+    global.window.localStorage.clear();
     global.window = undefined;
   }
 };
@@ -55,12 +55,14 @@ const envConfigs = [
   {
     name: 'with window.localStorage',
     setup: mockBrowserHarness.setup,
-    teardown: mockBrowserHarness.teardown
+    teardown: mockBrowserHarness.teardown,
+    storageType: 'localStorage'
   },
   {
     name: 'without window.localStorage',
     setup: () => {},
-    teardown: () => {}
+    teardown: () => {},
+    storageType: 'memory'
   }
 ];
 
@@ -151,6 +153,8 @@ describe('Auth', () => {
     };
   };
   for (const envConfig of envConfigs) {
+    const options = { storageType: envConfig.storageType };
+
     describe(envConfig.name, () => { // eslint-disable-line
       beforeEach(() => {
         envConfig.setup();
@@ -180,7 +184,7 @@ describe('Auth', () => {
 
       it('get() set() clear() authedId should work', async() => {
         expect.assertions(4);
-        const a = await AuthFactory.create(null, '/auth');
+        const a = await AuthFactory.create(null, '/auth', options);
         expect(await a._get()).toEqual({});
 
         const testUser = {'access_token': 'bar', 'user_id': hexStr};
@@ -194,14 +198,14 @@ describe('Auth', () => {
 
       it('should local auth successfully', async() => {
         expect.assertions(1);
-        const a = await AuthFactory.create(null, '/auth');
+        const a = await AuthFactory.create(null, '/auth', options);
         return a.provider('userpass').authenticate({ username: 'user', password: 'password' })
           .then(() => expect(a.authedId).toEqual(hexStr));
       });
 
       it('should send device info with local auth request', async() => {
         expect.assertions(6);
-        const a = await AuthFactory.create(null, '/auth');
+        const a = await AuthFactory.create(null, '/auth', options);
         return a.provider('userpass').authenticate({ username: 'user', password: 'password' })
           .then(() => {
             expect('appId' in capturedDevice).toBeTruthy();
@@ -217,7 +221,7 @@ describe('Auth', () => {
 
       it('should set device ID on successful local auth request', async() => {
         expect.assertions(2);
-        const a = await AuthFactory.create(null, '/auth');
+        const a = await AuthFactory.create(null, '/auth', options);
         expect(await a.getDeviceId()).toBeNull();
         return a.provider('userpass').authenticate({ username: 'user', password: 'password' })
           .then(async() => expect(await a.getDeviceId()).toEqual(mockDeviceId));
@@ -225,7 +229,7 @@ describe('Auth', () => {
 
       it('should not set device ID on unsuccessful local auth request', async() => {
         expect.assertions(1);
-        const a = await AuthFactory.create(null, '/auth');
+        const a = await AuthFactory.create(null, '/auth', options);
         return a.provider('userpass').authenticate({ username: 'fake-user', password: 'password' })
           .then(() => console.log('expected error'))
           .catch(async() => expect(await a.getDeviceId()).toBeNull());
@@ -247,7 +251,7 @@ describe('Auth', () => {
 
       it('should send device ID with device info with local auth request on subsequent logins', async() => {
         expect.assertions(3);
-        const testClient = await StitchClientFactory.create('testapp');
+        const testClient = await StitchClientFactory.create('testapp', options);
         expect(await testClient.auth.getDeviceId()).toBeNull();
         return testClient.login('user', 'password')
           .then(async() => {
@@ -261,7 +265,7 @@ describe('Auth', () => {
 
       it('should have an error if local auth is unsuccessful', async(done) => {
         expect.assertions(4);
-        const a = await AuthFactory.create(null, '/auth');
+        const a = await AuthFactory.create(null, '/auth', options);
         return a.provider('userpass').authenticate({ username: 'fake-user', password: 'password' })
           .then(() => done('expected an error on unsuccessful login'))
           .catch(e => {
@@ -275,7 +279,7 @@ describe('Auth', () => {
 
       it('should have an error if server returns non-JSON', async(done) => {
         expect.assertions(3);
-        const a = await AuthFactory.create(null, '/auth');
+        const a = await AuthFactory.create(null, '/auth', options);
         return a.provider('userpass').authenticate({ username: 'html', password: 'password' })
           .then(() => done('expected an error on unsuccessful login'))
           .catch(e => {
@@ -288,7 +292,7 @@ describe('Auth', () => {
 
       it('should allow setting access tokens', async() => {
         expect.assertions(3);
-        const auth = await AuthFactory.create(null, '/auth');
+        const auth = await AuthFactory.create(null, '/auth', options);
         return auth.provider('userpass').authenticate({ username: 'user', password: 'password' })
           .then(async() => {
             expect(auth.authedId).toEqual(hexStr);
