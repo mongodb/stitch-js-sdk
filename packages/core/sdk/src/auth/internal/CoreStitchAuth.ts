@@ -410,6 +410,44 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   }
 
   /**
+   * Removes the active user.
+   */
+  public removeUserInternal(): Promise<void> {
+    if (!this.isLoggedIn || this.currentUser === undefined) {
+      return Promise.resolve();
+    }
+
+    return this.removeUserWithIdInternal(this.currentUser.id);
+  }
+
+  /**
+   * Removes the user with the specified ID from the list of all users.
+   * @param userId the id of the user to remove
+   */
+  public removeUserWithIdInternal(userId: string): Promise<void> {
+    const authInfo = this.allUsersAuthInfo[userId];
+
+    const removeBlock = () => {
+      this.clearUserAuth(authInfo);
+      delete this.allUsersAuthInfo[userId];
+      writeAllUsersAuthInfoToStorage(this.allUsersAuthInfo, this.storage);
+    }
+    
+    if (authInfo.isLoggedIn) {
+      return this.doLogout(authInfo).then(() => {
+        removeBlock();
+      }).catch(err => {
+        removeBlock();
+      })
+    }
+
+    // if the user being removed isn't logged in, just clear that user's auth
+    // and update the list of all users.
+    removeBlock()
+    return Promise.resolve();
+  }
+
+  /**
    * Returns whether or not the current authentication state has a meaningful device id.
    */
   public get hasDeviceId(): boolean {
