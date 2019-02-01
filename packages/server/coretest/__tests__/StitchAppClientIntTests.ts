@@ -15,7 +15,7 @@
  */
 
 import { sign } from "jsonwebtoken";
-import { UserPasswordAuthProviderClient } from "mongodb-stitch-server-core";
+import { UserPasswordAuthProviderClient, Stitch } from "mongodb-stitch-server-core";
 import { BaseStitchServerIntTestHarness } from "mongodb-stitch-server-testutils";
 import {
   Anon,
@@ -154,6 +154,96 @@ describe("StitchAppClient", () => {
     await client.auth.logout();
     expect(client.auth.isLoggedIn).toBeFalsy();
     expect(client.auth.user).not.toBeDefined();
+
+    // Log back into the last user
+    await client.auth.loginWithCredential(new UserPasswordCredential(
+      "test2@10gen.com", "hunter2"
+    ));
+    expect(client.auth.isLoggedIn).toBeTruthy();
+    expect(client.auth.user!.loggedInProviderType).toEqual(
+      UserPasswordAuthProvider.TYPE
+    );
+
+    expect(client.auth.listUsers().length).toEqual(3);
+    
+    expect(client.auth.listUsers()[0].id).toEqual(anonUser.id);
+    expect(client.auth.listUsers()[1].id).toEqual(emailUserId);
+    expect(client.auth.listUsers()[2].id).toEqual(id2);
+
+    // imitate an app restart
+    Stitch.clearApps();
+    client = harness.getAppClient(appResponse as AppResponse, storage);
+
+    // check everything is as it was
+    expect(client.auth.listUsers().length).toEqual(3);
+    expect(client.auth.isLoggedIn).toBeTruthy();
+    expect(client.auth.user!.loggedInProviderType).toEqual(
+      UserPasswordAuthProvider.TYPE
+    );
+
+    expect(client.auth.listUsers().length).toEqual(3);
+    
+    expect(client.auth.listUsers()[0].id).toEqual(anonUser.id);
+    expect(client.auth.listUsers()[1].id).toEqual(emailUserId);
+    expect(client.auth.listUsers()[2].id).toEqual(id2);
+
+    // verify that removing the user with id2 removes the second email/pass user
+    // and logs out the active user
+    await client.auth.logoutUserWithId(id2);
+    expect(client.auth.isLoggedIn).toBeFalsy();
+
+    // and assert that you can remove a user even if you're not logged in
+    await client.auth.removeUserWithId(id2);
+    expect(client.auth.listUsers().length).toEqual(2);
+
+    // switch to the user with emailUserId and verify 
+    // that is the user switched to
+    client.auth.switchToUserWithId(emailUserId);
+    
+    expect(client.auth.isLoggedIn).toBeTruthy();
+    expect(client.auth.user!.loggedInProviderType).toEqual(
+      UserPasswordAuthProvider.TYPE
+    );
+    expect(client.auth.user!.id).toEqual(emailUserId);
+
+    expect(client.auth.listUsers()[0].id).toEqual(anonUser.id);
+    expect(client.auth.listUsers()[1].id).toEqual(emailUserId);
+
+    // imitate an app restart
+    Stitch.clearApps();
+    client = harness.getAppClient(appResponse as AppResponse, storage);
+
+    // assert that we're still logged in
+    expect(client.auth.listUsers().length).toEqual(2);
+    expect(client.auth.isLoggedIn).toBeTruthy();
+    expect(client.auth.user!.loggedInProviderType).toEqual(
+      UserPasswordAuthProvider.TYPE
+    );
+    expect(client.auth.user!.id).toEqual(emailUserId);
+
+    expect(client.auth.listUsers()[0].id).toEqual(anonUser.id);
+    expect(client.auth.listUsers()[1].id).toEqual(emailUserId);
+
+    // assert that removing the active user leaves just the anon user
+    await client.auth.removeUser();
+    expect(client.auth.isLoggedIn).toBeFalsy();
+    expect(client.auth.listUsers().length).toEqual(1);
+
+    client.auth.switchToUserWithId(anonUser.id);
+    expect(client.auth.isLoggedIn).toBeTruthy();
+
+    expect(client.auth.user!.loggedInProviderType).toEqual(
+      AnonymousAuthProvider.TYPE
+    );
+    expect(client.auth.user!.id).toEqual(anonUser.id);
+    expect(client.auth.listUsers()[0].id).toEqual(anonUser.id);
+
+    // assert that logging out of the anonymous user removes it as well
+    await client.auth.logout();
+
+    expect(client.auth.isLoggedIn).toBeFalsy();
+    expect(client.auth.listUsers().length).toEqual(0);
+    expect(client.auth.user).toBeUndefined();
   });
 
   it("should link identity", async () => {

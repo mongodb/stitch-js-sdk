@@ -32,6 +32,14 @@ export default class AuthInfo {
       undefined
     );
   }
+
+  /** 
+   * An empty auth info is an auth info associated with no user.
+   */
+  public get isEmpty(): boolean {
+    return this.userId === undefined;
+  }
+
   /**
    * The id of the Stitch user.
    */

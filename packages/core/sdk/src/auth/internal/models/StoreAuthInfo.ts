@@ -19,7 +19,9 @@ import { Storage } from "../../../internal/common/Storage";
 import AuthInfo from "../AuthInfo";
 import StoreCoreUserProfile from "./StoreCoreUserProfile";
 import StoreStitchUserIdentity from "./StoreStitchUserIdentity";
-import { StitchClientError, StitchClientErrorCode } from "../../../../dist/esm";
+import StitchClientError from "../../../StitchClientError";
+import { StitchClientErrorCode } from "../../../StitchClientErrorCode";
+
 
 enum Fields {
   USER_ID = "user_id",
@@ -57,7 +59,7 @@ function readCurrentUsersFromStorage(storage: Storage): { [key: string]: AuthInf
   const userIdToAuthInfoMap: { [key: string]: AuthInfo } = {}
   rawArray.forEach(rawEntry => {
     const authInfo = StoreAuthInfo.decode(rawEntry);
-    userIdToAuthInfoMap[authInfo.userId] = authInfo;
+    userIdToAuthInfoMap[authInfo.userId!] = authInfo;
   })
 
   return userIdToAuthInfoMap;
@@ -67,6 +69,11 @@ function writeActiveUserAuthInfoToStorage(
   authInfo: AuthInfo, 
   storage: Storage
 ) {
+  if (authInfo.isEmpty) {
+    storage.remove(StoreAuthInfo.ACTIVE_USER_STORAGE_NAME);
+    return;
+  }
+
   const info = new StoreAuthInfo(
     authInfo.userId!,
     authInfo.deviceId!,
@@ -92,11 +99,11 @@ function writeAllUsersAuthInfoToStorage(
   currentUsersAuthInfo: { [key: string]: AuthInfo },
   storage: Storage
 ) {
-  const encodedStoreInfos = []
+  const encodedStoreInfos: any[] = []
   for (const userId in currentUsersAuthInfo) {
     const authInfo = currentUsersAuthInfo[userId];
 
-    encodedStoreInfos.push(new StoreAuthInfo(
+    const storeInfo = new StoreAuthInfo(
       authInfo.userId!,
       authInfo.deviceId!,
       authInfo.accessToken!,
@@ -113,7 +120,9 @@ function writeAllUsersAuthInfoToStorage(
             )
           )
         : undefined
-    ).encode());
+    );
+
+    encodedStoreInfos.push(storeInfo.encode());
   }
 
   storage.set(

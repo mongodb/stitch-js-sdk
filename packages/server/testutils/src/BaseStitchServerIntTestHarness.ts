@@ -22,6 +22,7 @@ import {
   Stitch,
   StitchAppClient,
   StitchAppClientConfiguration,
+  Storage,
   UserPasswordAuthProviderClient,
   UserPasswordCredential
 } from "mongodb-stitch-server-core";
@@ -50,7 +51,7 @@ export default class BaseStitchServerIntTestHarness extends BaseStitchIntTestHar
     return envVar !== undefined ? envVar : "http://localhost:9090";
   }
 
-  public getAppClient(app: AppResponse): StitchAppClient {
+  public getAppClient(app: AppResponse, storage?: Storage): StitchAppClient {
     if (Stitch.hasAppClient(app.clientAppId)) {
       return Stitch.getAppClient(app.clientAppId);
     }
@@ -59,7 +60,7 @@ export default class BaseStitchServerIntTestHarness extends BaseStitchIntTestHar
       app.clientAppId,
       new StitchAppClientConfiguration.Builder()
         .withBaseUrl(this.stitchBaseUrl)
-        .withStorage(new MemoryStorage(app.clientAppId))
+        .withStorage(storage || new MemoryStorage(app.clientAppId))
         .build()
     );
     this.clients.push(client);

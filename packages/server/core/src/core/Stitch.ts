@@ -28,7 +28,7 @@ import NodeFetchStreamTransport from "./internal/net/NodeFetchStreamTransport";
 
 const DEFAULT_BASE_URL = "https://stitch.mongodb.com";
 const DEFAULT_STITCH_DIR = ".stitch/apps";
-const appClients: { [key: string]: StitchAppClientImpl } = {};
+let appClients: { [key: string]: StitchAppClientImpl } = {};
 
 /**
  * Singleton class with static utility functions for initializing the MongoDB 
@@ -142,6 +142,15 @@ export default class Stitch {
     const client = new StitchAppClientImpl(clientAppId, builder.build());
     appClients[clientAppId] = client;
     return client;
+  }
+  
+  /**
+   * This will clear out all initialized app clients. This method is mainly for
+   * debugging, simulating an application restart, as it will clear all clients
+   * stored in memory
+   */
+  public static clearApps() {
+    appClients = {};
   }
 
   private static localAppVersion: string;

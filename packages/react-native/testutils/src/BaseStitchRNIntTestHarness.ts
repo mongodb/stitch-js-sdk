@@ -21,6 +21,7 @@ import {
   Stitch,
   StitchAppClient,
   StitchAppClientConfiguration,
+  Storage,
   UserPasswordAuthProviderClient,
   UserPasswordCredential
 } from "mongodb-stitch-react-native-core";
