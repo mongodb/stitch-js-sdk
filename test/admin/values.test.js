@@ -2,6 +2,13 @@ const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
 import { buildAdminTestHarness, extractTestFixtureDataPoints } from '../testutil';
 
+const compareValue = (valueA, valueB) => {
+  expect(valueA._id).toEqual(valueB._id);
+  expect(valueA.name).toEqual(valueB.name);
+  expect(valueA.last_modified).toBeDefined();
+  expect(valueA.from_secret).toEqual(valueB.from_secret);
+};
+
 describe('Values', ()=>{
   let test = new StitchMongoFixture();
   let th;
@@ -28,14 +35,15 @@ describe('Values', ()=>{
     expect(value.name).toEqual(testValueName);
     let values = await appValues.list();
     expect(values).toHaveLength(1);
-    expect(values[0]).toEqual(value);
+    const [firstValue] = values;
+    compareValue(firstValue, value);
   });
   it('fetching a value returns deep value data', async() => {
     let value = await appValues.create({name: testValueName, value: 'foo'});
     const deepValue = await appValues.value(value._id).get();
     expect(deepValue.value).toEqual('foo');
     delete deepValue.value;
-    expect(value).toEqual(deepValue);
+    compareValue(deepValue, value);
   });
   it('can update a value', async() => {
     let value = await appValues.create({name: testValueName, value: 'foo'});
