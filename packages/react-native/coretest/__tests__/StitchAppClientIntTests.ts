@@ -15,7 +15,11 @@
  */
 
 import { sign } from "jsonwebtoken";
-import { UserPasswordAuthProviderClient } from "mongodb-stitch-react-native-core";
+import { 
+  RNAsyncStorage,
+  Stitch,
+  UserPasswordAuthProviderClient,
+} from "mongodb-stitch-react-native-core";
 import { BaseStitchRNIntTestHarness } from "mongodb-stitch-react-native-testutils";
 import {
   Anon,
@@ -32,7 +36,8 @@ import {
   CustomCredential,
   UserPasswordAuthProvider,
   UserPasswordCredential,
-  UserType
+  UserType,
+  MemoryStorage
 } from "mongodb-stitch-core-sdk";
 
 const harness = new BaseStitchRNIntTestHarness();
@@ -81,7 +86,7 @@ describe("StitchAppClient", () => {
     expect(client.auth.isLoggedIn).toBeTruthy();
   });
 
-  it("should follow multiple login semantics", async () => {
+  it("should follow multiple login semantics and allow multiple users", async () => {
     const [appResponse, app] = await harness.createApp();
     await harness.addProvider(app as App, new Anon());
     await harness.addProvider(
@@ -93,7 +98,9 @@ describe("StitchAppClient", () => {
         "password subject"
       )
     );
-    const client = await harness.getAppClient(appResponse as AppResponse);
+    let concreteAppResponse = appResponse as AppResponse;
+    let storage = new MemoryStorage(concreteAppResponse.clientAppId);
+    let client = await harness.getAppClient(concreteAppResponse, storage);
 
     // check storage
     expect(client.auth.isLoggedIn).toBeFalsy();
@@ -172,7 +179,7 @@ describe("StitchAppClient", () => {
 
     // imitate an app restart
     Stitch.clearApps();
-    client = harness.getAppClient(appResponse as AppResponse, storage);
+    client = await harness.getAppClient(appResponse as AppResponse, storage);
 
     // check everything is as it was
     expect(client.auth.listUsers().length).toEqual(3);
@@ -211,7 +218,7 @@ describe("StitchAppClient", () => {
 
     // imitate an app restart
     Stitch.clearApps();
-    client = harness.getAppClient(appResponse as AppResponse, storage);
+    client = await harness.getAppClient(appResponse as AppResponse, storage);
 
     // assert that we're still logged in
     expect(client.auth.listUsers().length).toEqual(2);
@@ -290,6 +297,11 @@ describe("StitchAppClient", () => {
 
     await client.auth.logout();
     expect(client.auth.isLoggedIn).toBeFalsy();
+
+    // assert that there is one user in the list, and that it did not get 
+    // deleted when logging out because the linked user is no longer anon
+    expect(client.auth.listUsers().length).toEqual(1);
+    expect(client.auth.listUsers()[0].id).toEqual(linkedUser.id);
   });
 
   it("should call function", async () => {

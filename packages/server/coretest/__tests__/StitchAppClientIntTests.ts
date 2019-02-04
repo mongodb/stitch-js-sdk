@@ -30,6 +30,7 @@ import {
   AnonymousCredential,
   CustomAuthProvider,
   CustomCredential,
+  MemoryStorage,
   UserPasswordAuthProvider,
   UserPasswordCredential,
   UserType
@@ -81,7 +82,7 @@ describe("StitchAppClient", () => {
     expect(client.auth.isLoggedIn).toBeTruthy();
   });
 
-  it("should follow multiple login semantics", async () => {
+  it("should follow multiple login semantics and allow multiple users", async () => {
     const [appResponse, app] = await harness.createApp();
     await harness.addProvider(app as App, new Anon());
     await harness.addProvider(
@@ -93,8 +94,12 @@ describe("StitchAppClient", () => {
         "password subject"
       )
     );
-    const client = harness.getAppClient(appResponse as AppResponse);
 
+    const concreteAppResponse = appResponse as AppResponse;
+
+    let storage = new MemoryStorage(concreteAppResponse.clientAppId);
+    let client = harness.getAppClient(concreteAppResponse, storage);
+    
     // check storage
     expect(client.auth.isLoggedIn).toBeFalsy();
     expect(client.auth.user).toBeUndefined();
@@ -290,6 +295,11 @@ describe("StitchAppClient", () => {
 
     await client.auth.logout();
     expect(client.auth.isLoggedIn).toBeFalsy();
+
+    // assert that there is one user in the list, and that it did not get 
+    // deleted when logging out because the linked user is no longer anon
+    expect(client.auth.listUsers().length).toEqual(1);
+    expect(client.auth.listUsers()[0].id).toEqual(linkedUser.id);
   });
 
   it("should call function", async () => {
