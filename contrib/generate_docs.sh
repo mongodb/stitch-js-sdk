@@ -20,9 +20,7 @@ while getopts "h?vf:" opt; do
     esac
 done
 
-if [[ ! -d "typedoc-theme/bin/" ]]; then
-    npm run docs-theme
-fi
+npm run docs-theme
 
 sdk="$1"
 
