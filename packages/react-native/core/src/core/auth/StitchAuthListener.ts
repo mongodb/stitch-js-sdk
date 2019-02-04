@@ -28,6 +28,7 @@ import StitchAuth from "./StitchAuth";
  * - a user logs out
  * - a user is linked to another identity
  * - a listener is registered
+ * - active user is switched
  *
  * ### Example
  *
@@ -67,7 +68,7 @@ export default interface StitchAuthListener {
    * For example, a user could log in then log out before the first login event is handled.
    * 
    * The intention is that you would treat this callback as a trigger to refresh the relevant parts of your app based
-   * on the new, current auth state. In other words, it should not be necessary to deduce exactly what changed in this callback.
+   * on the new, current auth state.
    *
    * @param auth The instance of StitchAuth where the event happened. It should be used to infer the current state of authentication.
    */
