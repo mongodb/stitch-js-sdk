@@ -34,10 +34,17 @@ export default class AuthInfo {
   }
 
   /** 
-   * An empty auth info is an auth info associated with no user.
+   * Whether or not this auth info is associated with a user.
+   */
+  public get hasUser(): boolean {
+    return this.userId === undefined;
+  }
+
+  /**
+   * An empty auth info is an auth info associated with no device ID.
    */
   public get isEmpty(): boolean {
-    return this.userId === undefined;
+    return this.deviceId === undefined;
   }
 
   /**
@@ -96,6 +103,18 @@ export default class AuthInfo {
       this.loggedInProviderType,
       this.loggedInProviderName,
       this.userProfile
+    );
+  }
+
+  public withClearedUser(): AuthInfo {
+    return new AuthInfo(
+      undefined,
+      this.deviceId,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined
     );
   }
 

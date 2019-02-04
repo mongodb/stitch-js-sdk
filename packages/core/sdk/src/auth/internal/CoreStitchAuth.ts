@@ -63,11 +63,16 @@ const DEVICE = "device";
  */
 export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   implements StitchAuthRequestClient {
+
   /**
    * The authentication information of the active user, as represented by an 
    * `AuthInfo` object.
    */
-  public authInfo: AuthInfo;
+  public get authInfo(): AuthInfo {
+    return this.activeUserAuthInfo;
+  }
+
+  private activeUserAuthInfo: AuthInfo
 
   /**
    * The `StitchRequestClient` used by the `CoreStitchAuth` to make requests to the Stitch server.
@@ -135,9 +140,9 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       );
     }
     if (activeUserAuthInfo === undefined) {
-      this.authInfo = AuthInfo.empty();
+      this.activeUserAuthInfo = AuthInfo.empty();
     } else {
-      this.authInfo = activeUserAuthInfo;
+      this.activeUserAuthInfo = activeUserAuthInfo;
     }
 
     this.prepUser();
@@ -188,7 +193,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     authInfo?: AuthInfo | undefined
   ): Promise<Response> {
     return this.requestClient
-      .doRequest(this.prepareAuthRequest(stitchReq, authInfo || this.authInfo))
+      .doRequest(this.prepareAuthRequest(stitchReq, authInfo || this.activeUserAuthInfo))
       .catch(err => {
         return this.handleAuthFailure(err, stitchReq);
       });
@@ -229,9 +234,9 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
     let authToken;
     if (stitchReq.useRefreshToken) {
-      authToken = this.authInfo.refreshToken!
+      authToken = this.activeUserAuthInfo.refreshToken!
     } else {
-      authToken = this.authInfo.accessToken!
+      authToken = this.activeUserAuthInfo.accessToken!
     }
 
     return this.requestClient.doStreamRequest(
@@ -267,7 +272,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     return this.doAuthenticatedRequest(reqBuilder.build()).then(response => {
       try {
         const partialInfo = ApiAuthInfo.fromJSON(JSON.parse(response.body!));
-        this.authInfo = this.authInfo.merge(partialInfo);
+        this.activeUserAuthInfo = this.activeUserAuthInfo.merge(partialInfo);
       } catch (err) {
         throw new StitchRequestError(
           err,
@@ -276,7 +281,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       }
 
       try {
-        writeActiveUserAuthInfoToStorage(this.authInfo, this.storage);
+        writeActiveUserAuthInfoToStorage(this.activeUserAuthInfo, this.storage);
       } catch (err) {
         throw new StitchClientError(
           StitchClientErrorCode.CouldNotPersistAuthInfo
@@ -315,7 +320,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
     // set the active user auth info and active user to the user with ID as 
     // specified in the list of all users.
-    this.authInfo = authInfo;
+    this.activeUserAuthInfo = authInfo;
     this.currentUser = this.userFactory.makeUser(
       authInfo.userId!,
       authInfo.loggedInProviderType!,
@@ -471,9 +476,9 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    */
   public get hasDeviceId(): boolean {
     return (
-      this.authInfo.deviceId !== undefined &&
-      this.authInfo.deviceId !== "" &&
-      this.authInfo.deviceId !== "000000000000000000000000"
+      this.activeUserAuthInfo.deviceId !== undefined &&
+      this.activeUserAuthInfo.deviceId !== "" &&
+      this.activeUserAuthInfo.deviceId !== "000000000000000000000000"
     );
   }
 
@@ -486,7 +491,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       return undefined;
     }
 
-    return this.authInfo.deviceId;
+    return this.activeUserAuthInfo.deviceId;
   }
 
   protected abstract onAuthEvent();
@@ -590,7 +595,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     }
 
     try {
-      const jwt = JWT.fromEncoded(this.authInfo.accessToken!);
+      const jwt = JWT.fromEncoded(this.activeUserAuthInfo.accessToken!);
       if (jwt.issuedAt >= reqStartedAt) {
         return Promise.resolve();
       }
@@ -603,14 +608,14 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   }
 
   private prepUser() {
-    if (!this.authInfo.isEmpty) {
+    if (!this.activeUserAuthInfo.hasUser) {
       // this implies other properties we are interested should be set
       this.currentUser = this.userFactory.makeUser(
-        this.authInfo.userId!,
-        this.authInfo.loggedInProviderType!,
-        this.authInfo.loggedInProviderName!,
-        this.authInfo.isLoggedIn,
-        this.authInfo.userProfile
+        this.activeUserAuthInfo.userId!,
+        this.activeUserAuthInfo.loggedInProviderType!,
+        this.activeUserAuthInfo.loggedInProviderName!,
+        this.activeUserAuthInfo.isLoggedIn,
+        this.activeUserAuthInfo.userProfile
       );
     }
   }
@@ -688,10 +693,10 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   ): Promise<TStitchUser> {
 
     // Preserve old auth info in case of profile request failure
-    const oldActiveUserInfo = this.authInfo;
+    const oldActiveUserInfo = this.activeUserAuthInfo;
     const oldActiveUser = this.currentUser;
 
-    newAuthInfo = this.authInfo.merge(
+    newAuthInfo = this.activeUserAuthInfo.merge(
       new AuthInfo(
         newAuthInfo.userId,
         newAuthInfo.deviceId,
@@ -704,12 +709,12 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     );
 
     // Provisionally set so we can make a profile request
-    this.authInfo = newAuthInfo;
+    this.activeUserAuthInfo = newAuthInfo;
     this.currentUser = this.userFactory.makeUser(
-      this.authInfo.userId!,
+      this.activeUserAuthInfo.userId!,
       credential.providerType,
       credential.providerName,
-      this.authInfo.isLoggedIn,
+      this.activeUserAuthInfo.isLoggedIn,
       undefined
     );
 
@@ -741,7 +746,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
           writeAllUsersAuthInfoToStorage(this.allUsersAuthInfo, this.storage);
         } catch (err) {
           // Back out of setting authInfo with this new user
-          this.authInfo = oldActiveUserInfo;
+          this.activeUserAuthInfo = oldActiveUserInfo;
           this.currentUser = oldActiveUser;
           
           // delete the new partial auth info from the list of all users if
@@ -757,12 +762,12 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         
         // Set the active user info to the new 
         // auth info and new user with profile
-        this.authInfo = newAuthInfo;
+        this.activeUserAuthInfo = newAuthInfo;
         this.currentUser = this.userFactory.makeUser(
-          this.authInfo.userId!,
+          this.activeUserAuthInfo.userId!,
           credential.providerType,
           credential.providerName,
-          this.authInfo.isLoggedIn,
+          this.activeUserAuthInfo.isLoggedIn,
           profile
         );
 
@@ -780,15 +785,15 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         // request failed, and in this particular edge case the user is
         // linked, but they are logged in with their older credentials.
         if (asLinkRequest || oldActiveUserInfo) {
-          const linkedAuthInfo = this.authInfo;
-          this.authInfo = oldActiveUserInfo;
+          const linkedAuthInfo = this.activeUserAuthInfo;
+          this.activeUserAuthInfo = oldActiveUserInfo;
           this.currentUser = oldActiveUser; 
 
           // to prevent the case where this user gets removed when logged out 
           // in the future because the original provider type was anonymous, 
           // make sure the auth info reflects the new logged in provider type 
           if (asLinkRequest) {
-            this.authInfo = this.authInfo.withAuthProvider(
+            this.activeUserAuthInfo = this.activeUserAuthInfo.withAuthProvider(
               linkedAuthInfo.loggedInProviderType!,
               linkedAuthInfo.loggedInProviderName!
             );
@@ -876,7 +881,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       return;
     }
 
-    this.clearUserAuth(this.authInfo.userId!);
+    this.clearUserAuth(this.activeUserAuthInfo.userId!);
   }
 
   /**
@@ -901,11 +906,11 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
       // if the auth info we're clearing is also the active user's auth info, 
       // clear the active user's auth as well
-      if (this.authInfo && this.authInfo.userId === userId) {
-        this.authInfo = AuthInfo.empty();
+      if (this.activeUserAuthInfo && this.activeUserAuthInfo.userId === userId) {
+        this.activeUserAuthInfo = this.activeUserAuthInfo.withClearedUser();
         this.currentUser = undefined;
 
-        writeActiveUserAuthInfoToStorage(this.authInfo, this.storage);
+        writeActiveUserAuthInfoToStorage(this.activeUserAuthInfo, this.storage);
 
         this.onAuthEvent();
       }
