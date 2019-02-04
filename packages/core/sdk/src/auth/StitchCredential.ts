@@ -22,13 +22,12 @@ import ProviderCapabilities from "./ProviderCapabilities";
  * Pass implementations to [[StitchAuth.loginWithCredential]] to log in as a [[StitchUser]].
  * 
  * Each [Authentication Provider](https://docs.mongodb.com/stitch/authentication/)
- * in MongoDB Stitch provides a StitchCredential or [[StitchRedirectCredential]]
+ * in MongoDB Stitch provides a StitchCredential or StitchRedirectCredential (browser SDK only)
  * implementation. See **Implemented by** below for a list of implementations.
  *
  * ### See also
  * - [[StitchAuth]]
- * - [[StitchAuth.loginWithCredential]] 
- * - [[StitchRedirectCredential]]
+ * - [[StitchAuth.loginWithCredential]]
  */
 export default interface StitchCredential {
   /**

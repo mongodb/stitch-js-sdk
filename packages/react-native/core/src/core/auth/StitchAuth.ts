@@ -21,9 +21,29 @@ import StitchAuthListener from "./StitchAuthListener";
 import StitchUser from "./StitchUser";
 
 /**
- * A set of methods for retrieving or modifying the authentication state of a 
- * {@link StitchAppClient}. An implementation can be instantiated with a 
- * {@link StitchAppClient} instance.
+ * StitchAuth represents and controls the login state of a [[StitchAppClient]]. 
+ *
+ * Login is required for most Stitch functionality. Decide which
+ * [Authentication Provider](https://docs.mongodb.com/stitch/authentication/)
+ * you are using and use [[loginWithCredential]] to log in.
+ *
+ * Once logged in, [[StitchAuth.user]] is a [[StitchUser]] object that can be examined for 
+ * user profile and other information.
+ * 
+ * Login state can persist across browser sessions. Therefore, a StitchAppClient's
+ * StitchAuth instance may already contain login information upon initialization.
+ *
+ * To log out, use [[logout]].
+ *
+ * ### Examples
+ *
+ * For an example of [[loginWithCredential]], see [Anonymous Authentication](https://docs.mongodb.com/stitch/authentication/anonymous/).
+ *
+ * ### See also
+ * - [Users](https://docs.mongodb.com/stitch/users/)
+ * - [Authentication](https://docs.mongodb.com/stitch/authentication/)
+ * - [[StitchAppClient]]
+ * - [[StitchUser]]
  */
 export default interface StitchAuth {
   /**
@@ -56,7 +76,7 @@ export default interface StitchAuth {
    */
   switchToUserWithId(userId: string): StitchUser
 
-  /**
+  /** @hidden
    * Retrieves the authentication provider client for the authentication 
    * provider associated with the specified factory.
    * 
@@ -66,7 +86,7 @@ export default interface StitchAuth {
     factory: AuthProviderClientFactory<ClientT>
   ): ClientT;
 
-  /**
+  /** @hidden
    * Retrieves the authentication provider client for the authentication 
    * provider associated with the specified factory and auth provider name.
    * 
@@ -78,10 +98,14 @@ export default interface StitchAuth {
   ): T;
 
   /**
-   * Authenticates the client as a MongoDB Stitch user using the provided 
-   * {@link StitchCredential}.
+   * Logs in as a [[StitchUser]] using the provided [[StitchCredential]].
    * 
-   * @param credential The credential to use when logging in.
+   * For an example of the most simple form of authentication, see
+   * [Anonymous Authentication](https://docs.mongodb.com/stitch/authentication/anonymous/).
+   *
+   * For another example, see [Email/Password Authentication](https://docs.mongodb.com/stitch/authentication/userpass/).
+   *
+   * @param credential The [[StitchCredential]] to use when logging in.
    */
   loginWithCredential(credential: StitchCredential): Promise<StitchUser>;
 
@@ -117,7 +141,7 @@ export default interface StitchAuth {
   removeUserWithId(userId: string): Promise<void>
 
   /**
-   * Registers a {@link StitchAuthListener} with the client.
+   * Registers a [[StitchAuthListener]] with the client.
    * @param listener The listener to be triggered when an authentication event
    * occurs on this auth object.
    */
