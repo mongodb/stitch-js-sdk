@@ -125,8 +125,6 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     }
   }
 
-
-
   public loginWithCredential(
     credential: StitchCredential
   ): Promise<StitchUser> {

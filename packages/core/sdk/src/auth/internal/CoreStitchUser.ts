@@ -50,7 +50,9 @@ export default interface CoreStitchUser {
 
   /**
    * Whether or not this user is logged in. If the user is logged in, it can be
-   * switched to without reauthenticating.
+   * switched to without reauthenticating. NOTE: this is not a dynamic 
+   * property, this is the state of whether or not the user was logged in at 
+   * the time this user object was created.
    */
   readonly isLoggedIn: boolean;
 }
