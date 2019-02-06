@@ -22,8 +22,8 @@ export enum StitchClientErrorCode {
   LoggedOutDuringRequest,
   MustAuthenticateFirst,
   UserNoLongerValid,
-  CannotSwitchToLoggedOutUser,
-  CouldNotFindUser,
+  UserNotFound,
+  UserNotLoggedIn,
   CouldNotLoadPersistedAuthInfo,
   CouldNotPersistAuthInfo,
   StreamingNotSupported,
@@ -38,10 +38,10 @@ export const clientErrorCodeDescs: { [key: number]: string } = {
     "method called requires being authenticated",
   [StitchClientErrorCode.UserNoLongerValid]:
     "user instance being accessed is no longer valid; please get a new user with auth.getUser()",
-  [StitchClientErrorCode.CannotSwitchToLoggedOutUser]:
-    "cannot make the active user a logged out user; please use loginWithCredential() to switch to this user",
-  [StitchClientErrorCode.CouldNotFindUser]:
+  [StitchClientErrorCode.UserNotFound]:
     "user not found in list of users",
+  [StitchClientErrorCode.UserNotLoggedIn]:
+    "cannot make the active user a logged out user; please use loginWithCredential() to switch to this user",
   [StitchClientErrorCode.CouldNotLoadPersistedAuthInfo]:
     "failed to load stored auth information for Stitch",
   [StitchClientErrorCode.CouldNotPersistAuthInfo]:

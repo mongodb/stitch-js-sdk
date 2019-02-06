@@ -305,16 +305,16 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    * The user being switched to is not guaranteed to be logged in.
    * 
    * @param userId The id of the user to switch to
-   * @throws [[StitchClientError.CouldNotFindUser]] if the user was not found
+   * @throws [[StitchClientError.UserNotFound]] if the user was not found
    */
   public switchToUserWithId(userId: string): TStitchUser {
     const authInfo = this.allUsersAuthInfo.get(userId);
     if (authInfo === undefined) {
-      throw new StitchClientError(StitchClientErrorCode.CouldNotFindUser);
+      throw new StitchClientError(StitchClientErrorCode.UserNotFound);
     }
     if (!authInfo.isLoggedIn) {
       throw new StitchClientError(
-        StitchClientErrorCode.CannotSwitchToLoggedOutUser
+        StitchClientErrorCode.UserNotLoggedIn
       );
     }
 
@@ -402,7 +402,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     const authInfo = this.allUsersAuthInfo.get(userId);
     if (authInfo === undefined) {
       return Promise.reject(
-        new StitchClientError(StitchClientErrorCode.CouldNotFindUser)
+        new StitchClientError(StitchClientErrorCode.UserNotFound)
       );
     }
 
@@ -452,7 +452,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
     if (authInfo === undefined) {
       return Promise.reject(
-        new StitchClientError(StitchClientErrorCode.CouldNotFindUser)
+        new StitchClientError(StitchClientErrorCode.UserNotFound)
       );
     }
 
@@ -902,7 +902,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   private clearUserAuth(userId: string) {
     const unclearedAuthInfo = this.allUsersAuthInfo.get(userId);
     if (unclearedAuthInfo === undefined) {
-      throw new StitchClientError(StitchClientErrorCode.CouldNotFindUser);
+      throw new StitchClientError(StitchClientErrorCode.UserNotFound);
     }
 
     try {

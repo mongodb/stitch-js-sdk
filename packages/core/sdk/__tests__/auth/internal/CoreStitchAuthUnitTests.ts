@@ -459,7 +459,7 @@ describe("CoreStitchAuthUnitTests", () => {
       expect(e).toBeInstanceOf(StitchClientError);
       const sce = e as StitchClientError;
       expect(sce.errorCode).toEqual(
-        StitchClientErrorCode.CouldNotFindUser
+        StitchClientErrorCode.UserNotFound
       );
     }
 
@@ -498,7 +498,7 @@ describe("CoreStitchAuthUnitTests", () => {
       expect(e).toBeInstanceOf(StitchClientError);
       const sce = e as StitchClientError;
       expect(sce.errorCode).toEqual(
-        StitchClientErrorCode.CannotSwitchToLoggedOutUser
+        StitchClientErrorCode.UserNotLoggedIn
       );
     }
   });
