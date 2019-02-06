@@ -104,10 +104,10 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   private currentUser?: TStitchUser;
 
   /**
-   * A dictionary of all of the cached users associated with this application 
-   * keyed by Stitch user ID, some of whom may be logged in.
+   * An ordered dictionary of all of the cached users associated with this 
+   * application keyed by Stitch user ID, some of whom may be logged in.
    */
-  private allUsersAuthInfo: { [key: string]: AuthInfo };
+  private allUsersAuthInfo: Map<string, AuthInfo>
 
   private readonly accessTokenRefresher: AccessTokenRefresher<TStitchUser>;
 
@@ -121,7 +121,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     this.authRoutes = authRoutes;
     this.storage = storage;
 
-    let allUsersAuthInfo: { [key: string]: AuthInfo };
+    let allUsersAuthInfo: Map<string, AuthInfo>;
     try {
       allUsersAuthInfo = readCurrentUsersFromStorage(storage);
     } catch(e) {
@@ -168,16 +168,21 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   }
 
   public listUsers(): Array<TStitchUser> {
-    return Object.keys(this.allUsersAuthInfo).map(userId => {
-      const authInfo = this.allUsersAuthInfo[userId];
-      return this.userFactory.makeUser(
-        authInfo.userId!,
-        authInfo.loggedInProviderType!,
-        authInfo.loggedInProviderName!,
-        authInfo.isLoggedIn!,
-        authInfo.userProfile!
-      )
+    const list: Array<TStitchUser> = [];
+  
+    this.allUsersAuthInfo.forEach(authInfo => {
+      list.push(
+        this.userFactory.makeUser(
+          authInfo.userId!,
+          authInfo.loggedInProviderType!,
+          authInfo.loggedInProviderName!,
+          authInfo.isLoggedIn!,
+          authInfo.userProfile!
+        )
+      );
     });
+
+    return list;
   }
 
   /**
@@ -303,7 +308,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    * @throws [[StitchClientError.CouldNotFindUser]] if the user was not found
    */
   public switchToUserWithId(userId: string): TStitchUser {
-    const authInfo = this.allUsersAuthInfo[userId];
+    const authInfo = this.allUsersAuthInfo.get(userId);
     if (authInfo === undefined) {
       throw new StitchClientError(StitchClientErrorCode.CouldNotFindUser);
     }
@@ -352,8 +357,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     // (e.g. the anonymous credential), check to see if any users are already
     // logged in with that credential.
     if (credential.providerCapabilities.reusesExistingSession) {
-      for (const userId in this.allUsersAuthInfo) {
-        if (this.allUsersAuthInfo[userId].loggedInProviderType == credential.providerType) {
+      for (var [userId, authInfo] of this.allUsersAuthInfo) {
+        if (authInfo.loggedInProviderType == credential.providerType) {
           return Promise.resolve(this.switchToUserWithId(userId));
         }
       }
@@ -394,7 +399,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   }
 
   public logoutUserWithIdInternal(userId: string): Promise<void> {
-    const authInfo = this.allUsersAuthInfo[userId];
+    const authInfo = this.allUsersAuthInfo.get(userId);
     if (authInfo === undefined) {
       return Promise.reject(
         new StitchClientError(StitchClientErrorCode.CouldNotFindUser)
@@ -443,7 +448,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    * @param userId the id of the user to remove
    */
   public removeUserWithIdInternal(userId: string): Promise<void> {
-    const authInfo = this.allUsersAuthInfo[userId];
+    const authInfo = this.allUsersAuthInfo.get(userId);
 
     if (authInfo === undefined) {
       return Promise.reject(
@@ -453,7 +458,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
     const removeBlock = () => {
       this.clearUserAuth(authInfo.userId!);
-      delete this.allUsersAuthInfo[userId];
+      this.allUsersAuthInfo.delete(userId);
       writeAllUsersAuthInfoToStorage(this.allUsersAuthInfo, this.storage);
     }
     
@@ -741,7 +746,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
           // existed for this user if this was a link request, or if this 
           // user already existed in the list of all users
           if (newAuthInfo.userId) {
-            this.allUsersAuthInfo[newAuthInfo.userId] = newAuthInfo;  
+            this.allUsersAuthInfo.set(newAuthInfo.userId, newAuthInfo);  
           }
           writeAllUsersAuthInfoToStorage(this.allUsersAuthInfo, this.storage);
         } catch (err) {
@@ -752,7 +757,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
           // delete the new partial auth info from the list of all users if
           // if the new auth info is not the same user
           if (newAuthInfo.userId !== oldActiveUserInfo.userId && newAuthInfo.userId) {
-            delete this.allUsersAuthInfo[newAuthInfo.userId];
+            this.allUsersAuthInfo.delete(newAuthInfo.userId);
           }
           
           throw new StitchClientError(
@@ -895,13 +900,13 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   }
 
   private clearUserAuth(userId: string) {
-    const unclearedAuthInfo = this.allUsersAuthInfo[userId];
+    const unclearedAuthInfo = this.allUsersAuthInfo.get(userId);
     if (unclearedAuthInfo === undefined) {
       throw new StitchClientError(StitchClientErrorCode.CouldNotFindUser);
     }
 
     try {
-      this.allUsersAuthInfo[userId] = unclearedAuthInfo.loggedOut();
+      this.allUsersAuthInfo.set(userId, unclearedAuthInfo.loggedOut());
       writeAllUsersAuthInfoToStorage(this.allUsersAuthInfo, this.storage);
 
       // if the auth info we're clearing is also the active user's auth info, 

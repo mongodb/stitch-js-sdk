@@ -42,10 +42,10 @@ function readActiveUserFromStorage(storage: Storage): AuthInfo | undefined {
   return StoreAuthInfo.decode(JSON.parse(rawInfo));
 }
 
-function readCurrentUsersFromStorage(storage: Storage): { [key: string]: AuthInfo } {
+function readCurrentUsersFromStorage(storage: Storage): Map<string, AuthInfo> {
   const rawInfo = storage.get(StoreAuthInfo.ALL_USERS_STORAGE_NAME);
   if (!rawInfo) {
-    return {};
+    return new Map<string, AuthInfo>();
   }
 
   const rawArray = JSON.parse(rawInfo);
@@ -56,10 +56,10 @@ function readCurrentUsersFromStorage(storage: Storage): { [key: string]: AuthInf
     );
   }
 
-  const userIdToAuthInfoMap: { [key: string]: AuthInfo } = {}
+  const userIdToAuthInfoMap = new Map<string, AuthInfo>();
   rawArray.forEach(rawEntry => {
     const authInfo = StoreAuthInfo.decode(rawEntry);
-    userIdToAuthInfoMap[authInfo.userId!] = authInfo;
+    userIdToAuthInfoMap.set(authInfo.userId!, authInfo);
   })
 
   return userIdToAuthInfoMap;
@@ -96,15 +96,13 @@ function writeActiveUserAuthInfoToStorage(
 }
 
 function writeAllUsersAuthInfoToStorage(
-  currentUsersAuthInfo: { [key: string]: AuthInfo },
+  currentUsersAuthInfo: Map<string, AuthInfo>,
   storage: Storage
 ) {
   const encodedStoreInfos: any[] = []
-  for (const userId in currentUsersAuthInfo) {
-    const authInfo = currentUsersAuthInfo[userId];
-
+  for (var [userId, authInfo] of currentUsersAuthInfo) {
     const storeInfo = new StoreAuthInfo(
-      authInfo.userId!,
+      userId,
       authInfo.deviceId!,
       authInfo.accessToken!,
       authInfo.refreshToken!,
