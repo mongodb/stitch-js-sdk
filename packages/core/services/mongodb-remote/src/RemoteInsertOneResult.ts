@@ -18,7 +18,7 @@
 /**
  * The result of an `insertOne` command on a [[RemoteMongoCollection]].
  *
- * ### See also
+ * @see
  * - [[RemoteMongoCollection]]
  * - [[RemoteMongoCollection.insertOne]]
  */ 

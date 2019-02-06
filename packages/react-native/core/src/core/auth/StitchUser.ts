@@ -26,7 +26,7 @@ import {
  * This can be retrieved from [[StitchAuth]] or from the result of certain methods
  * such as [[StitchAuth.loginWithCredential]].
  *
- * ### See also
+ * @see
  * - [[StitchAuth]]
  * - [[StitchCredential]]
  */

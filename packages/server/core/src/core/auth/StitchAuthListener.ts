@@ -30,40 +30,21 @@ import StitchAuth from "./StitchAuth";
  * - a listener is registered
  * - active user is switched
  *
- * ### Example
- *
- * In this example, a custom StitchAuthListener is defined and registered:
- * ```
- * const client = Stitch.defaultAppClient
- *
- * // Define the listener
- * class MyAuthListener {
- *   onAuthEvent = (auth) => {
- *     // The auth state has changed
- *     console.log('Current auth state changed: user =', auth.user)
- *   }
- * }
- *
- * // Register the listener
- * const {auth} = client
- * auth.addAuthListener(new MyAuthListener(auth))
- * ```
- * 
- * ### See also
+ * @see
  * - [[StitchAuth]]
  */
 export default interface StitchAuthListener {
   /**
    * onAuthEvent is called any time a notable event regarding authentication happens. These events are:
-   * * When a user logs in.
-   * * When a user logs out.
-   * * When a user is linked to another identity.
-   * * When a listener is registered. This is to handle the case where during registration an event happens that the registerer would otherwise miss out on.
-   * * When the active user has been switched.
+   * - When a user logs in.
+   * - When a user logs out.
+   * - When a user is linked to another identity.
+   * - When a listener is registered. This is to handle the case where during registration an event happens that the registerer would otherwise miss out on.
+   * - When the active user is switched.
    *
    * The [[StitchAuth]] instance itself is passed to this callback. This can be used to read the current state of authentication.
    *
-   * ### Note
+   * @note
    * Specific event details are deliberately not provided here because the events could be stale by the time they are handled.
    * 
    * For example, a user could log in then log out before the first login event is handled.

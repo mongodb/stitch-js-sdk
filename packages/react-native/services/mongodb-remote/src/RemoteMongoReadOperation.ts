@@ -22,24 +22,8 @@ import RemoteMongoCursor from "./RemoteMongoCursor";
  * 
  * The methods in this class execute the operation and retrieve the results,
  * either as an [[iterator]] or all in one array with [[toArray]].
- *
- * ### Example
- *
- * This example finds 10 documents from the example collection. It assumes a user is
- * already logged in -- see [[StitchAuth]] for more information on logging in.
- * ```
- * // Assumption: Stitch is already logged in
  * 
- * const exampleCollection = db.collection('example-collection')
- * 
- * exampleCollection
- *   .find({}, { limit: 10 })   // find() returns a RemoteMongoReadOperation.
- *   .toArray()                 // Read all results as an array.
- *   .then(documents => console.log('Documents:', documents)) // If successful, log each document to console.
- *   .catch(console.error)      // Otherwise, log any errors to the error console.
- * ```
- * 
- * ### See also
+ * @see
  * - [[RemoteMongoCollection]]
  * - [[RemoteMongoCollection.find]]
  * - [[RemoteMongoCollection.aggregate]]

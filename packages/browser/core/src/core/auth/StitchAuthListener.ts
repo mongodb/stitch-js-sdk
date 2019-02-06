@@ -30,26 +30,7 @@ import StitchAuth from "./StitchAuth";
  * - a listener is registered
  * - active user is switched
  *
- * ### Example
- *
- * In this example, a custom StitchAuthListener is defined and registered:
- * ```
- * const client = Stitch.defaultAppClient
- *
- * // Define the listener
- * class MyAuthListener {
- *   onAuthEvent = (auth) => {
- *     // The auth state has changed
- *     console.log('Current auth state changed: user =', auth.user)
- *   }
- * }
- *
- * // Register the listener
- * const {auth} = client
- * auth.addAuthListener(new MyAuthListener(auth))
- * ```
- * 
- * ### See also
+ * @see
  * - [[StitchAuth]]
  */
 export default interface StitchAuthListener {

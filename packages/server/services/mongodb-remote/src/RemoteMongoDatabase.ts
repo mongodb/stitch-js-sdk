@@ -25,27 +25,9 @@ import RemoteMongoCollection from "./RemoteMongoCollection";
  * Once instantiated, it can be used to access a [[RemoteMongoCollection]]
  * for reading and writing data.
  *
- * ### Example
- *
- * Here's how to access a database and one of its collections:
- * ```
- * // Instantiate the Stitch client
- * const stitchClient = Stitch.initializeDefaultAppClient('your-stitch-app-id')
- *
- * // Get a client of the Remote Mongo Service for database access
- * const mongoClient = stitchClient.getServiceClient(RemoteMongoClient.factory, 'mongodb-atlas')
- *
- * // Retrieve a database object
- * const exampleDb = mongoClient.db('example-db')
- * 
- * // Retrieve the collection in the database
- * const exampleCollection = db.collection('example-collection')
- * ```
- *
- * ### See also
+ * @see
  * - [[RemoteMongoClient]]
  * - [[RemoteMongoCollection]]
- * 
  */
 export default interface RemoteMongoDatabase {
   /**

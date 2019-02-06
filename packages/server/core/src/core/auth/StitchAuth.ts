@@ -32,11 +32,7 @@ import StitchUser from "./StitchUser";
  * 
  * To log out, use [[logout]].
  *
- * ### Examples
- *
- * For an example of [[loginWithCredential]], see [Anonymous Authentication](https://docs.mongodb.com/stitch/authentication/anonymous/).
- *
- * ### See also
+ * @see
  * - [Users](https://docs.mongodb.com/stitch/users/)
  * - [Authentication](https://docs.mongodb.com/stitch/authentication/)
  * - [[StitchAppClient]]

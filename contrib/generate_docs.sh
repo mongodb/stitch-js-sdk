@@ -67,4 +67,8 @@ typedoc \
     --ignoreCompilerErrors \
     --excludeNotExported \
     --theme typedoc-theme/bin/ \
-    $gaID
+    $gaID \
+    --plugin \
+      "`pwd`"/contrib/typedoc-plugin-code-examples,"`pwd`"/contrib/typedoc-plugin-tags-by-name \
+    --examplesPath contrib/docs-examples/snippets/$sdk,contrib/docs-examples/snippets
+
