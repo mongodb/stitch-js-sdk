@@ -171,6 +171,7 @@ describe("StitchAppClient", () => {
 
     expect(client.auth.listUsers().length).toEqual(3);
     
+    // verify ordering
     expect(client.auth.listUsers()[0].id).toEqual(anonUser.id);
     expect(client.auth.listUsers()[1].id).toEqual(emailUserId);
     expect(client.auth.listUsers()[2].id).toEqual(id2);
@@ -188,6 +189,7 @@ describe("StitchAppClient", () => {
 
     expect(client.auth.listUsers().length).toEqual(3);
     
+    // verify ordering is preserved
     expect(client.auth.listUsers()[0].id).toEqual(anonUser.id);
     expect(client.auth.listUsers()[1].id).toEqual(emailUserId);
     expect(client.auth.listUsers()[2].id).toEqual(id2);
