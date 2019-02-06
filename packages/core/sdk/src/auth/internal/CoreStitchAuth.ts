@@ -613,7 +613,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   }
 
   private prepUser() {
-    if (!this.activeUserAuthInfo.hasUser) {
+    if (this.activeUserAuthInfo.hasUser) {
       // this implies other properties we are interested should be set
       this.currentUser = this.userFactory.makeUser(
         this.activeUserAuthInfo.userId!,
@@ -789,7 +789,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         // will keep the currently logged in user logged in if the profile
         // request failed, and in this particular edge case the user is
         // linked, but they are logged in with their older credentials.
-        if (asLinkRequest || oldActiveUserInfo) {
+        if (asLinkRequest || oldActiveUserInfo.hasUser) {
           const linkedAuthInfo = this.activeUserAuthInfo;
           this.activeUserAuthInfo = oldActiveUserInfo;
           this.currentUser = oldActiveUser; 
@@ -902,16 +902,24 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   private clearUserAuth(userId: string) {
     const unclearedAuthInfo = this.allUsersAuthInfo.get(userId);
     if (unclearedAuthInfo === undefined) {
-      throw new StitchClientError(StitchClientErrorCode.UserNotFound);
+      // this doesn't necessarily mean there's an error. we could be in a 
+      // provisional state where the profile request failed and we're just
+      // trying to log out the active user.
+      if (this.activeUserAuthInfo.userId !== userId) {
+        // only throw if this ID is not the active user either
+        throw new StitchClientError(StitchClientErrorCode.UserNotFound);  
+      }
     }
 
     try {
-      this.allUsersAuthInfo.set(userId, unclearedAuthInfo.loggedOut());
-      writeAllUsersAuthInfoToStorage(this.allUsersAuthInfo, this.storage);
-
+      if (unclearedAuthInfo) {
+        this.allUsersAuthInfo.set(userId, unclearedAuthInfo.loggedOut());
+        writeAllUsersAuthInfoToStorage(this.allUsersAuthInfo, this.storage);
+      }
+      
       // if the auth info we're clearing is also the active user's auth info, 
       // clear the active user's auth as well
-      if (this.activeUserAuthInfo && this.activeUserAuthInfo.userId === userId) {
+      if (this.activeUserAuthInfo.hasUser && this.activeUserAuthInfo.userId === userId) {
         this.activeUserAuthInfo = this.activeUserAuthInfo.withClearedUser();
         this.currentUser = undefined;
 

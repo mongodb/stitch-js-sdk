@@ -37,7 +37,7 @@ export default class AuthInfo {
    * Whether or not this auth info is associated with a user.
    */
   public get hasUser(): boolean {
-    return this.userId === undefined;
+    return this.userId !== undefined;
   }
 
   /**
