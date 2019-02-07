@@ -39,6 +39,13 @@ class StitchAdminUser implements CoreStitchUser {
   public readonly loggedInProviderName: string;
 
   /**
+   * Whether or not this user is logged in. NOTE: this is not a dynamic 
+   * property, this is the state of whether or not the user was logged in at 
+   * the time this user object was created.
+   */
+  public readonly isLoggedIn: boolean;
+
+  /**
    * A string describing the type of this user. (Either `server` or `normal`)
    */
   public get userType(): string {
@@ -65,11 +72,13 @@ class StitchAdminUser implements CoreStitchUser {
     id: string,
     providerType: string,
     providerName: string,
+    isLoggedIn: boolean,
     userProfile: StitchUserProfileImpl
   ) {
     this.id = id;
     this.loggedInProviderType = providerType;
     this.loggedInProviderName = providerName;
+    this.isLoggedIn = isLoggedIn;
     this.profile = userProfile;
   }
 }
@@ -83,12 +92,14 @@ class StitchAdminUserFactory implements StitchUserFactory<StitchAdminUser> {
     id: string,
     loggedInProviderType: string,
     loggedInProviderName: string,
+    isLoggedIn: boolean,
     userProfile?: StitchUserProfileImpl
   ): StitchAdminUser {
     return new StitchAdminUser(
       id,
       loggedInProviderType,
       loggedInProviderName,
+      isLoggedIn,
       userProfile!
     );
   }

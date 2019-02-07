@@ -29,10 +29,11 @@ export default class StitchUserImpl extends CoreStitchUserImpl
     id: string,
     loggedInProviderType: string,
     loggedInProviderName: string,
+    isLoggedIn: boolean,
     profile: StitchUserProfileImpl,
     private readonly auth: StitchAuthImpl
   ) {
-    super(id, loggedInProviderType, loggedInProviderName, profile);
+    super(id, loggedInProviderType, loggedInProviderName, isLoggedIn, profile);
   }
 
   public linkWithCredential(credential: StitchCredential): Promise<StitchUser> {

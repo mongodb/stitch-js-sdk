@@ -226,7 +226,19 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   }
 
   public logout(): Promise<void> {
-    return Promise.resolve(super.logoutInternal());
+    return super.logoutInternal();
+  }
+
+  public logoutUserWithId(userId: string): Promise<void> {
+    return super.logoutUserWithIdInternal(userId);
+  }
+
+  public removeUser(): Promise<void> {
+    return super.removeUserInternal();
+  }
+
+  public removeUserWithId(userId: string): Promise<void> {
+    return super.removeUserWithIdInternal(userId);
   }
 
   protected get deviceInfo() {

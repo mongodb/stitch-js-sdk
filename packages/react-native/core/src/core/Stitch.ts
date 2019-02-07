@@ -24,7 +24,7 @@ import StitchAppClientImpl from "./internal/StitchAppClientImpl";
 import StitchAppClient from "./StitchAppClient";
 
 const DEFAULT_BASE_URL = "https://stitch.mongodb.com";
-const appClients: { [key: string]: StitchAppClientImpl } = {};
+let appClients: { [key: string]: StitchAppClientImpl } = {};
 
 /**
  * Singleton class with static utility functions for initializing a [[StitchAppClient]].
@@ -163,6 +163,15 @@ export default class Stitch {
       appClients[clientAppId] = client;
       return Promise.resolve(client);
     }
+  }
+
+  /**
+   * This will clear out all initialized app clients. This method is mainly for
+   * debugging, simulating an application restart, as it will clear all clients
+   * stored in memory
+   */
+  public static clearApps() {
+    appClients = {};
   }
 
   private static localAppVersion: string;

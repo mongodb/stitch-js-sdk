@@ -40,10 +40,13 @@ export default class CoreStitchUserImpl implements CoreStitchUser {
    */
   public readonly profile: StitchUserProfileImpl;
 
+  public readonly isLoggedIn: boolean;
+
   protected constructor(
     id: string,
     loggedInProviderType: string,
     loggedInProviderName: string,
+    isLoggedIn: boolean,
     profile?: StitchUserProfileImpl
   ) {
     this.id = id;
@@ -51,6 +54,7 @@ export default class CoreStitchUserImpl implements CoreStitchUser {
     this.loggedInProviderName = loggedInProviderName;
     this.profile =
       profile === undefined ? StitchUserProfileImpl.empty() : profile;
+    this.isLoggedIn = isLoggedIn;
   }
 
   /**

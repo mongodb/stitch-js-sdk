@@ -3,6 +3,7 @@
         "target": "ES5",
         "module": "CommonJS",
         "moduleResolution": "Node",
+        "downlevelIteration": true,
         "sourceMap": true,
         "strictNullChecks": true,
         "declaration": true,

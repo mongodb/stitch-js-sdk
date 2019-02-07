@@ -59,6 +59,7 @@ export default interface StitchAuthListener {
    * * When a user logs out.
    * * When a user is linked to another identity.
    * * When a listener is registered. This is to handle the case where during registration an event happens that the registerer would otherwise miss out on.
+   * * When the active user has been switched.
    *
    * The [[StitchAuth]] instance itself is passed to this callback. This can be used to read the current state of authentication.
    *

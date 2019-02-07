@@ -61,6 +61,8 @@ import StitchAppClient from "./core/StitchAppClient";
 import NamedServiceClientFactory from "./services/internal/NamedServiceClientFactory";
 import StitchServiceClient from "./services/StitchServiceClient";
 
+import RNAsyncStorage from "./core/internal/common/RNAsyncStorage";
+
 export {
   BSON,
   AnonymousAuthProvider,
@@ -94,6 +96,7 @@ export {
   StitchUserIdentity,
   Storage,
   MemoryStorage,
+  RNAsyncStorage,
   Transport,
   UserType,
   NamedServiceClientFactory,

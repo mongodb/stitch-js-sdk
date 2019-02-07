@@ -32,6 +32,21 @@ export default class AuthInfo {
       undefined
     );
   }
+
+  /** 
+   * Whether or not this auth info is associated with a user.
+   */
+  public get hasUser(): boolean {
+    return this.userId !== undefined;
+  }
+
+  /**
+   * An empty auth info is an auth info associated with no device ID.
+   */
+  public get isEmpty(): boolean {
+    return this.deviceId === undefined;
+  }
+
   /**
    * The id of the Stitch user.
    */
@@ -81,6 +96,18 @@ export default class AuthInfo {
 
   public loggedOut(): AuthInfo {
     return new AuthInfo(
+      this.userId,
+      this.deviceId,
+      undefined,
+      undefined,
+      this.loggedInProviderType,
+      this.loggedInProviderName,
+      this.userProfile
+    );
+  }
+
+  public withClearedUser(): AuthInfo {
+    return new AuthInfo(
       undefined,
       this.deviceId,
       undefined,
@@ -89,6 +116,22 @@ export default class AuthInfo {
       undefined,
       undefined
     );
+  }
+
+  public withAuthProvider(providerType: string, providerName: string) {
+    return new AuthInfo(
+      this.userId,
+      this.deviceId,
+      this.accessToken,
+      this.refreshToken,
+      providerType,
+      providerName,
+      this.userProfile
+    );
+  }
+
+  public get isLoggedIn(): boolean {
+    return this.accessToken !== undefined && this.refreshToken !== undefined;
   }
 
   /**

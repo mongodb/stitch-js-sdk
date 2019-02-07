@@ -18,9 +18,11 @@ import { fail } from "assert";
 import { App, AppResponse } from "mongodb-stitch-core-admin-client";
 import { BaseStitchIntTestHarness } from "mongodb-stitch-core-testutils";
 import {
+  RNAsyncStorage,
   Stitch,
   StitchAppClient,
   StitchAppClientConfiguration,
+  Storage,
   UserPasswordAuthProviderClient,
   UserPasswordCredential
 } from "mongodb-stitch-react-native-core";
@@ -50,7 +52,7 @@ export default class BaseStitchRNIntTestHarness extends BaseStitchIntTestHarness
     return envVar !== undefined ? envVar : "http://localhost:9090";
   }
 
-  public getAppClient(app: AppResponse): Promise<StitchAppClient> {
+  public getAppClient(app: AppResponse, storage?: Storage): Promise<StitchAppClient> {
     if (Stitch.hasAppClient(app.clientAppId)) {
       return Promise.resolve(Stitch.getAppClient(app.clientAppId));
     }
@@ -59,6 +61,7 @@ export default class BaseStitchRNIntTestHarness extends BaseStitchIntTestHarness
       app.clientAppId,
       new StitchAppClientConfiguration.Builder()
         .withBaseUrl(this.stitchBaseUrl)
+        .withStorage(storage || new RNAsyncStorage(app.clientAppId))
         .build()
     ).then(client => {
       this.clients.push(client);
