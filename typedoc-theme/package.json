@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A custom TypeDoc theme.",
   "scripts": {
-    "build": "./check_install.sh && grunt --gruntfile gruntfile.js"
+    "build": "./build.sh"
   },
   "author": "MongoDB Inc.",
   "contributors": [
@@ -17,6 +17,7 @@
     "grunt": "^1.0.3",
     "grunt-autoprefixer": "^3.0.4",
     "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-sass": "^1.0.0"
+    "grunt-contrib-sass": "^1.0.0",
+    "grunt-curl": "^2.5.0"
   }
 }

@@ -6,7 +6,9 @@ pushd "$(dirname "$0")"
 
 USER=`whoami`
 
-npm run docs
+./generate_docs.sh browser analytics
+./generate_docs.sh server analytics
+./generate_docs.sh react-native analytics
 
 if ! which aws; then
     echo "aws CLI not found. see: https://docs.aws.amazon.com/cli/latest/userguide/installing.html"

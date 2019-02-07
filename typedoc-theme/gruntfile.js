@@ -26,6 +26,14 @@ module.exports = function(grunt)
                 dest: './'
             }
         },
+        curl: {
+            'bin/assets/css/feedback.css': 'https://raw.githubusercontent.com/mongodb/docs-tools/master/themes/mongodb/static/feedback.css',
+            'bin/assets/js/feedback.min.js': 'https://raw.githubusercontent.com/mongodb/docs-tools/master/themes/mongodb/static/feedback.min.js',
+            'bin/assets/js/bootstrap.min.js': 'https://raw.githubusercontent.com/mongodb/docs-tools/master/themes/mongodb/static/lib/bootstrap.min.js',
+            'bin/assets/js/underscore.min.js': 'https://raw.githubusercontent.com/mongodb/docs-tools/master/themes/mongodb/static/lib/underscore-min.js',
+            'bin/assets/js/jquery.min.js': 'https://raw.githubusercontent.com/mongodb/docs-tools/master/themes/mongodb/static/lib/jquery.min.js',
+            'bin/assets/js/jquery.cookie.js': 'https://raw.githubusercontent.com/mongodb/docs-tools/master/themes/mongodb/static/lib/jquery.cookie.js'
+        },
         copy: {
             plugin: {
               files: [{
@@ -57,7 +65,8 @@ module.exports = function(grunt)
     grunt.loadNpmTasks('grunt-contrib-sass');
     grunt.loadNpmTasks('grunt-autoprefixer');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-curl');
 
     grunt.registerTask('css', ['sass', 'autoprefixer']);
-    grunt.registerTask('default', ['copy', 'css']);
+    grunt.registerTask('default', ['curl', 'copy', 'css']);
 };
