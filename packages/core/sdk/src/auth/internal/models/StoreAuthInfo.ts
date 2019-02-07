@@ -131,7 +131,7 @@ function writeAllUsersAuthInfoToStorage(
 
 class StoreAuthInfo extends AuthInfo {
   public static readonly ACTIVE_USER_STORAGE_NAME: string = "auth_info";
-  public static readonly ALL_USERS_STORAGE_NAME
+  public static readonly ALL_USERS_STORAGE_NAME: string = "all_auth_infos";
 
   public static decode(from: any): StoreAuthInfo {
     const userId = from[Fields.USER_ID];

@@ -349,10 +349,6 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       return this.processLogin(credential, credential.authInfo, credential.asLink);
     }
 
-    if (!this.isLoggedIn) {
-      return this.doLogin(credential, false);
-    }
-
     // if we are logging in with a credential that reuses existing sessions
     // (e.g. the anonymous credential), check to see if any users are already
     // logged in with that credential.
@@ -411,7 +407,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     }
 
     const clearAuthBlock = () => {
-      this.clearUserAuth(authInfo.userId!);
+      this.clearUserAuthTokens(authInfo.userId!);
 
       // if the user was anonymous, delete the user, since you can't log back
       // in to an anonymous user after they have logged out.
@@ -457,7 +453,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     }
 
     const removeBlock = () => {
-      this.clearUserAuth(authInfo.userId!);
+      this.clearUserAuthTokens(authInfo.userId!);
       this.allUsersAuthInfo.delete(userId);
       writeAllUsersAuthInfoToStorage(this.allUsersAuthInfo, this.storage);
     }
@@ -886,7 +882,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       return;
     }
 
-    this.clearUserAuth(this.activeUserAuthInfo.userId!);
+    this.clearUserAuthTokens(this.activeUserAuthInfo.userId!);
   }
 
   /**
@@ -899,7 +895,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     }
   }
 
-  private clearUserAuth(userId: string) {
+  private clearUserAuthTokens(userId: string) {
     const unclearedAuthInfo = this.allUsersAuthInfo.get(userId);
     if (unclearedAuthInfo === undefined) {
       // this doesn't necessarily mean there's an error. we could be in a 

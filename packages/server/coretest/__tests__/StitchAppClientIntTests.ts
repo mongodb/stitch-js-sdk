@@ -159,6 +159,7 @@ describe("StitchAppClient", () => {
     await client.auth.logout();
     expect(client.auth.isLoggedIn).toBeFalsy();
     expect(client.auth.user).not.toBeDefined();
+    expect(client.auth.listUsers()[2].isLoggedIn).toEqual(false);
 
     // Log back into the last user
     await client.auth.loginWithCredential(new UserPasswordCredential(
@@ -195,6 +196,7 @@ describe("StitchAppClient", () => {
     // verify that removing the user with id2 removes the second email/pass user
     // and logs out the active user
     await client.auth.logoutUserWithId(id2);
+    expect(client.auth.listUsers()[2].isLoggedIn).toEqual(false);
     expect(client.auth.isLoggedIn).toBeFalsy();
 
     // and assert that you can remove a user even if you're not logged in
@@ -295,6 +297,7 @@ describe("StitchAppClient", () => {
 
     await client.auth.logout();
     expect(client.auth.isLoggedIn).toBeFalsy();
+    expect(client.auth.listUsers()[0].isLoggedIn).toEqual(false);
 
     // assert that there is one user in the list, and that it did not get 
     // deleted when logging out because the linked user is no longer anon

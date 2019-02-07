@@ -264,6 +264,17 @@ describe("CoreStitchAuthUnitTests", () => {
       storage
     );
 
+    try {
+      await auth.logoutUserWithIdInternal("not_a_user_id");
+      fail("expected to fail because user does not exist");
+    } catch (e) {
+      expect(e).toBeInstanceOf(StitchClientError);
+      const sce = e as StitchClientError;
+      expect(sce.errorCode).toEqual(
+        StitchClientErrorCode.UserNotFound
+      );
+    }
+
     expect(auth.isLoggedIn).toBeFalsy();
     mockNextUserResponse(requestClientMock);
     const user1 = await auth.loginWithCredentialInternal(
