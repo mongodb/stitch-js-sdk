@@ -50,6 +50,7 @@ import { StitchAuthRoutes } from "./StitchAuthRoutes";
 import StitchUserFactory from "./StitchUserFactory";
 import StitchUserProfileImpl from "./StitchUserProfileImpl";
 import AnonymousAuthProvider from "../providers/anonymous/AnonymousAuthProvider";
+import { AuthEvent } from "./AuthEvent";
 
 const OPTIONS = "options";
 const DEVICE = "device";
@@ -495,7 +496,18 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     return this.activeUserAuthInfo.deviceId;
   }
 
+  /**
+   * Abstract declaration of the method to be implemented by platform-specific
+   * SDKs to dispatch events to the deprecated "onAuthEvent" method in the
+   * StitchAuthListener.
+   */
   protected abstract onAuthEvent();
+
+  /**
+   * Abstract declaration of the method to be implemented by platform-specific
+   * SDKs to dispatch events to the new event methods in the StitchAuthListener.
+   */
+  protected abstract dispatchAuthEvent(event: AuthEvent<TStitchUser>);
 
   /**
    * Prepares an authenticated Stitch request by attaching the `CoreStitchAuth`'s current access or refresh token

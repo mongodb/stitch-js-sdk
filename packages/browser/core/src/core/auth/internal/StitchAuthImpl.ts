@@ -19,10 +19,18 @@ import { detect } from "detect-browser";
 // import cross-fetch as a polyfill so we can also use the Request class
 import "cross-fetch/polyfill"
 import {
+  ActiveUserSwitched,
   AuthInfo,
+  AuthEvent,
+  AuthEventKind,
   CoreStitchAuth,
   CoreStitchUser,
   DeviceFields,
+  ListenerInitialized,
+  UserCreated,
+  UserLoggedIn,
+  UserLoggedOut,
+  UserRemoved,
   StitchAppClientInfo,
   StitchAuthResponseCredential,
   StitchClientError,
@@ -45,6 +53,7 @@ import RedirectKeys from "./RedirectKeys";
 import StitchBrowserAppAuthRoutes from "./StitchBrowserAppAuthRoutes";
 import StitchRedirectError from "./StitchRedirectError";
 import StitchUserFactoryImpl from "./StitchUserFactoryImpl";
+import { listeners } from "cluster";
 
 const alphaNumericCharacters =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -280,11 +289,16 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     this.listeners.delete(listener);
   }
 
+  /** 
+   * Dispatch method for the deprecated auth listener method onAuthEvent.
+   */
   public onAuthEvent(listener?: StitchAuthListener) {
     if (listener) {
       const auth = this;
       const _ = new Promise(resolve => {
-        listener.onAuthEvent(auth);
+        if (listener.onAuthEvent) {
+          listener.onAuthEvent(auth);  
+        }
         resolve(undefined);
       });
     } else {
@@ -292,6 +306,83 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
         this.onAuthEvent(one);
       });
     }
+  }
+
+  /**
+   * Dispatch method for the new auth listener methods.
+   * @param event the discriminated union representing the auth event
+   */
+  public dispatchAuthEvent(event: AuthEvent<StitchUser>) {
+    switch(event.kind) {
+      case AuthEventKind.ActiveUserSwitched:
+        this.dispatchBlockToListeners((listener: StitchAuthListener) => {
+          if (listener.onActiveUserSwitched) {
+            listener.onActiveUserSwitched(
+              this, 
+              event.currentActiveUser,
+              event.prevActiveUser
+            );  
+          }
+        });
+        break;
+      case AuthEventKind.ListenerInitialized:
+        this.dispatchBlockToListeners((listener: StitchAuthListener) => {
+          if (listener.onListenerInitialized) {
+            listener.onListenerInitialized(this);  
+          }
+        });
+        break;
+      case AuthEventKind.UserCreated:
+        this.dispatchBlockToListeners((listener: StitchAuthListener) => {
+          if (listener.onUserCreated) {
+            listener.onUserCreated(this, event.createdUser);  
+          }
+        });
+        break;
+      case AuthEventKind.UserLoggedIn:
+        this.dispatchBlockToListeners((listener: StitchAuthListener) => {
+          if (listener.onUserLoggedIn) {
+            listener.onUserLoggedIn(
+              this,
+              event.loggedInUser,
+              event.prevActiveUser
+            );
+          }
+        });
+        break;
+      case AuthEventKind.UserLoggedOut:
+        this.dispatchBlockToListeners((listener: StitchAuthListener) => {
+          if (listener.onUserLoggedOut) {
+            listener.onUserLoggedOut(this, event.loggedOutUser);  
+          }
+        });
+        break;
+      case AuthEventKind.UserRemoved:
+        this.dispatchBlockToListeners((listener: StitchAuthListener) => {
+          if (listener.onUserRemoved) {
+            listener.onUserRemoved(this, event.removedUser);
+          }
+        });
+        break;
+    }
+  }
+
+  /**
+   * Dispatches the provided block to all auth listeners, including the 
+   * synchronous and asynchronous ones.
+   * @param block The block to dispatch to listeners.
+   */
+  private dispatchBlockToListeners(block: (StitchAuthListener) => void) {
+    // TODO: Dispatch to all synchronous listeners
+    // this.synchronousListeners.forEach(block);
+
+    // Dispatch to all asynchronous listeners
+    this.listeners.forEach(listener => {
+      const _ = new Promise(resolve => {
+        block(listener);
+        resolve(undefined);
+      })
+    });
   }
 
   private cleanupRedirect() {

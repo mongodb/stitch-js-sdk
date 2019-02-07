@@ -15,6 +15,7 @@
  */
 
 import StitchAuth from "./StitchAuth";
+import StitchUser from "./StitchUser";
 
 /**
  * StitchAuthListener is an interface for taking action whenever 
@@ -73,5 +74,22 @@ export default interface StitchAuthListener {
    *
    * @param auth The instance of StitchAuth where the event happened. It should be used to infer the current state of authentication.
    */
-  onAuthEvent(auth: StitchAuth);
+
+  /**
+   * @deprecated Use the other event methods for more detailed information
+   *             about the auth event that has occured.
+   */
+  onAuthEvent?(auth: StitchAuth);
+
+  onUserCreated?(auth: StitchAuth, createdUser: StitchUser)
+
+  onUserLoggedIn?(auth: StitchAuth, loggedInUser: StitchUser, prevActiveUser?: StitchUser)
+
+  onUserLoggedOut?(auth: StitchAuth, loggedOutUser: StitchUser)
+
+  onActiveUserSwitched?(auth: StitchAuth, currentActiveUser: StitchUser, prevActiveUser?: StitchUser)
+
+  onUserRemoved?(auth: StitchAuth, removedUser: StitchUser)
+
+  onListenerInitialized?(auth: StitchAuth)
 }
