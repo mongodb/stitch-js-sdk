@@ -8,7 +8,7 @@ CHECKSUM_FILE=./bin/sourceChecksum
 CHECKSUM=
 
 function calculate_checksum() {
-  CHECKSUM=`find ./src gruntfile.js package.json -type f | xargs md5 | md5 -p | tail -n 1`
+  CHECKSUM=`find ./src gruntfile.js package.json -type f | xargs md5 | md5`
 }
 
 function update_required() {

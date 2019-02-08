@@ -11,14 +11,17 @@ VERSION_PATCH=$(echo $VERSION | cut -d. -f3 | cut -d- -f1)
 VERSION_QUALIFIER=$(echo $VERSION | cut -d- -f2 -s)
 VERSION_QUALIFIER_INC=$(echo $VERSION | cut -d- -f3 -s)
 
+# Validate the docs code examples. If something broke, please alert @docs-stitch-team.
+./docs-examples/validate_all.sh
+
 # Generate the docs with the analytics script enabled.
 ./generate_docs.sh browser analytics
 ./generate_docs.sh server analytics
 ./generate_docs.sh react-native analytics
 
 if ! which aws; then
-   echo "aws CLI not found. see: https://docs.aws.amazon.com/cli/latest/userguide/installing.html"
-   exit 1
+  echo "aws CLI not found. see: https://docs.aws.amazon.com/cli/latest/userguide/installing.html"
+  exit 1
 fi
 
 if [ -z "$VERSION_QUALIFIER" ]; then

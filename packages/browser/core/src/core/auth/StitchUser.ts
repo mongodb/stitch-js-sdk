@@ -28,7 +28,7 @@ import StitchRedirectCredential from "./providers/StitchRedirectCredential";
  * This can be retrieved from [[StitchAuth]] or from the result of certain methods
  * such as [[StitchAuth.loginWithCredential]] or [[StitchAuth.handleRedirectResult]].
  *
- * ### See also
+ * @see
  * - [[StitchAuth]]
  * - [[StitchCredential]]
  * - [[StitchRedirectCredential]]

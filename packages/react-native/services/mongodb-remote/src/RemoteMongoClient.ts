@@ -40,15 +40,8 @@ import RemoteMongoDatabase from "./RemoteMongoDatabase";
  *
  * Note: The client needs to log in (at least anonymously) to use the database.
  * See [[StitchAuth]].
- * 
- * ### Example
- * ```
- * const stitchClient = Stitch.initializeDefaultAppClient('your-stitch-app-id')
- * const mongoClient = stitchClient.getServiceClient(RemoteMongoClient.factory, 'mongodb-atlas')
- * ```
  *
- *
- * ### See also
+ * @see
  * - [[StitchAppClient]]
  * - [[RemoteMongoDatabase]]
  */

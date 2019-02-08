@@ -42,7 +42,7 @@ let appClients: { [key: string]: StitchAppClientImpl } = {};
  *
  * For custom configurations, see [[Stitch.initializeAppClient]] and [[StitchAppClientConfiguration]].
  *
- * ### See also
+ * @see
  * - [[StitchAppClient]]
  */
 export default class Stitch {

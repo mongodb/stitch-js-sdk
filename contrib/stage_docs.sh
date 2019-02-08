@@ -6,6 +6,9 @@ pushd "$(dirname "$0")"
 
 USER=`whoami`
 
+# Validate the docs code examples. If something broke, please alert @docs-stitch-team.
+./docs-examples/validate_all.sh
+
 ./generate_docs.sh browser analytics
 ./generate_docs.sh server analytics
 ./generate_docs.sh react-native analytics
