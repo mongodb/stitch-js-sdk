@@ -18,7 +18,7 @@ import { CoreStitchUser } from "../..";
 
 export enum AuthEventKind {
   ActiveUserChanged,
-  ListenerInitialized,
+  ListenerRegistered,
   UserAdded,
   UserLinked,
   UserLoggedIn,
@@ -32,8 +32,8 @@ export interface ActiveUserChanged<TStitchUser extends CoreStitchUser> {
   previousActiveUser: TStitchUser | undefined;
 }
 
-export interface ListenerInitialized {
-  kind: AuthEventKind.ListenerInitialized;
+export interface ListenerRegistered {
+  kind: AuthEventKind.ListenerRegistered;
 }
 
 export interface UserAdded<TStitchUser extends CoreStitchUser> {
@@ -67,7 +67,7 @@ export interface UserRemoved<TStitchUser extends CoreStitchUser> {
  */
 export type AuthEvent<TStitchUser extends CoreStitchUser> = 
   ActiveUserChanged<TStitchUser> | 
-  ListenerInitialized | 
+  ListenerRegistered | 
   UserAdded<TStitchUser> | 
   UserLinked<TStitchUser> |
   UserLoggedIn<TStitchUser> | 

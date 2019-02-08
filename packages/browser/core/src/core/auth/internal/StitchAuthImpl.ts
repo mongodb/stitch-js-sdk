@@ -19,18 +19,12 @@ import { detect } from "detect-browser";
 // import cross-fetch as a polyfill so we can also use the Request class
 import "cross-fetch/polyfill"
 import {
-  ActiveUserSwitched,
   AuthInfo,
   AuthEvent,
   AuthEventKind,
   CoreStitchAuth,
   CoreStitchUser,
   DeviceFields,
-  ListenerInitialized,
-  UserCreated,
-  UserLoggedIn,
-  UserLoggedOut,
-  UserRemoved,
   StitchAppClientInfo,
   StitchAuthResponseCredential,
   StitchClientError,
@@ -280,7 +274,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   public addAuthListener(listener: StitchAuthListener) {
     this.listeners.add(listener);
 
-    // Trigger the onUserLoggedIn event in case some event happens and
+    // Trigger the ListenerRegistered event in case some event happens and
     // this caller would miss out on this event other wise.
 
     // dispatch a legacy deprecated auth event
@@ -288,14 +282,14 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
 
     // dispatch a new style auth event
     this.dispatchAuthEvent({
-      kind: AuthEventKind.ListenerInitialized,
+      kind: AuthEventKind.ListenerRegistered,
     });
   }
 
   public addSynchronousAuthListener(listener: StitchAuthListener) {
     this.listeners.add(listener);
 
-    // Trigger the onUserLoggedIn event in case some event happens and
+    // Trigger the ListenerRegistered event in case some event happens and
     // this caller would miss out on this event other wise.
 
     // dispatch a legacy deprecated auth event
@@ -303,7 +297,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
 
     // dispatch a new style auth event
     this.dispatchAuthEvent({
-      kind: AuthEventKind.ListenerInitialized,
+      kind: AuthEventKind.ListenerRegistered,
     });
   }
 
@@ -356,10 +350,10 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
           }
         });
         break;
-      case AuthEventKind.ListenerInitialized:
+      case AuthEventKind.ListenerRegistered:
         this.dispatchBlockToListeners((listener: StitchAuthListener) => {
-          if (listener.onListenerInitialized) {
-            listener.onListenerInitialized(this);  
+          if (listener.onListenerRegistered) {
+            listener.onListenerRegistered(this);  
           }
         });
         break;
