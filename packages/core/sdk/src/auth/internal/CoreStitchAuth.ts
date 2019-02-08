@@ -50,7 +50,7 @@ import { StitchAuthRoutes } from "./StitchAuthRoutes";
 import StitchUserFactory from "./StitchUserFactory";
 import StitchUserProfileImpl from "./StitchUserProfileImpl";
 import AnonymousAuthProvider from "../providers/anonymous/AnonymousAuthProvider";
-import { AuthEvent } from "./AuthEvent";
+import { AuthEvent, AuthEventKind } from "./AuthEvent";
 
 const OPTIONS = "options";
 const DEVICE = "device";
@@ -146,7 +146,9 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       this.activeUserAuthInfo = activeUserAuthInfo;
     }
 
-    this.prepUser();
+    if (this.activeUserAuthInfo.hasUser) {
+      this.currentUser = this.prepUser(this.activeUserAuthInfo);
+    }
 
     if (useTokenRefresher) {
       this.accessTokenRefresher = new AccessTokenRefresher(this);
@@ -172,15 +174,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     const list: Array<TStitchUser> = [];
   
     this.allUsersAuthInfo.forEach(authInfo => {
-      list.push(
-        this.userFactory.makeUser(
-          authInfo.userId!,
-          authInfo.loggedInProviderType!,
-          authInfo.loggedInProviderName!,
-          authInfo.isLoggedIn!,
-          authInfo.userProfile!
-        )
-      );
+      list.push(this.prepUser(authInfo));
     });
 
     return list;
@@ -303,10 +297,9 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    * with a call to [[removeUser]]. Use [[listUsers]] to get a list of the 
    * users that can be switched to.
    * 
-   * The user being switched to is not guaranteed to be logged in.
-   * 
    * @param userId The id of the user to switch to
-   * @throws [[StitchClientError.UserNotFound]] if the user was not found
+   * @throws [[StitchClientError.UserNotFound]] if the user was not found,
+   *         [[StitchClientError.UserNotLoggedIn]] if the user is logged out.
    */
   public switchToUserWithId(userId: string): TStitchUser {
     const authInfo = this.allUsersAuthInfo.get(userId);
@@ -327,15 +320,18 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     // set the active user auth info and active user to the user with ID as 
     // specified in the list of all users.
     this.activeUserAuthInfo = authInfo;
-    this.currentUser = this.userFactory.makeUser(
-      authInfo.userId!,
-      authInfo.loggedInProviderType!,
-      authInfo.loggedInProviderName!,
-      authInfo.isLoggedIn!,
-      authInfo.userProfile!
-    );
 
-    this.onAuthEvent();
+    const previousUser = this.currentUser;
+    this.currentUser = this.prepUser(authInfo);
+
+    // Dispatch an ActiveUserChangedEvent indicating to listeners that the 
+    // active user was switched from one user to another.
+    this.onAuthEvent(); // legacy event dispatch
+    this.dispatchAuthEvent({
+      kind: AuthEventKind.ActiveUserChanged,
+      currentActiveUser: this.currentUser,
+      previousActiveUser: previousUser
+    })
     return this.currentUser;
   }
 
@@ -410,6 +406,13 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     const clearAuthBlock = () => {
       this.clearUserAuthTokens(authInfo.userId!);
 
+      /**
+       * Note: the UserLoggedOut event is not dispatched here. It is dispatched
+       * in the [[clearUserAuthTokens]] method, where there is more context 
+       * about the user being logged out and whether that user was the active
+       * user.
+       */
+
       // if the user was anonymous, delete the user, since you can't log back
       // in to an anonymous user after they have logged out.
       if (authInfo.loggedInProviderType === AnonymousAuthProvider.TYPE) {
@@ -457,6 +460,15 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       this.clearUserAuthTokens(authInfo.userId!);
       this.allUsersAuthInfo.delete(userId);
       writeAllUsersAuthInfoToStorage(this.allUsersAuthInfo, this.storage);
+
+      const removedUser = this.prepUser(authInfo);
+
+      // Dispatch an event indicating that a user was removed.
+      this.onAuthEvent();
+      this.dispatchAuthEvent({
+        kind: AuthEventKind.UserRemoved,
+        removedUser
+      });
     }
     
     if (authInfo.isLoggedIn) {
@@ -620,17 +632,14 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     return this.refreshAccessToken();
   }
 
-  private prepUser() {
-    if (this.activeUserAuthInfo.hasUser) {
-      // this implies other properties we are interested should be set
-      this.currentUser = this.userFactory.makeUser(
-        this.activeUserAuthInfo.userId!,
-        this.activeUserAuthInfo.loggedInProviderType!,
-        this.activeUserAuthInfo.loggedInProviderName!,
-        this.activeUserAuthInfo.isLoggedIn,
-        this.activeUserAuthInfo.userProfile
-      );
-    }
+  private prepUser(authInfo: AuthInfo): TStitchUser {
+    return this.userFactory.makeUser(
+      authInfo.userId!,
+      authInfo.loggedInProviderType!,
+      authInfo.loggedInProviderName!,
+      authInfo.isLoggedIn,
+      authInfo.userProfile
+    );
   }
 
   /**
@@ -651,10 +660,33 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     credential: StitchCredential,
     asLinkRequest: boolean
   ): Promise<TStitchUser> {
+    const previousActiveUser = this.currentUser;
     return this.doLoginRequest(credential, asLinkRequest)
       .then(response => this.processLoginResponse(credential, response, asLinkRequest))
       .then(user => {
-        this.onAuthEvent();
+        this.onAuthEvent(); // legacy event dispatch
+
+        // Dispatch the appropriate auth events
+        // for the type of login that occured.
+        if (asLinkRequest) {
+          this.dispatchAuthEvent({
+            kind: AuthEventKind.UserLinked,
+            linkedUser: user
+          });
+        } else {
+          // This triggers an event for the user logging in, as well as the 
+          // active user changing.
+          this.dispatchAuthEvent({
+            kind: AuthEventKind.UserLoggedIn,
+            loggedInUser: user,
+          });
+          this.dispatchAuthEvent({
+            kind: AuthEventKind.ActiveUserChanged,
+            currentActiveUser: user,
+            previousActiveUser
+          })
+        }
+        
         return user;
       });
   }
@@ -747,15 +779,16 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
           )
         );
 
+        const newUserAdded = !this.allUsersAuthInfo.has(newAuthInfo.userId!);
+
         try {
           writeActiveUserAuthInfoToStorage(newAuthInfo, this.storage);
 
           // this replaces any old info that may have 
           // existed for this user if this was a link request, or if this 
           // user already existed in the list of all users
-          if (newAuthInfo.userId) {
-            this.allUsersAuthInfo.set(newAuthInfo.userId, newAuthInfo);  
-          }
+          this.allUsersAuthInfo.set(newAuthInfo.userId!, newAuthInfo);  
+      
           writeAllUsersAuthInfoToStorage(this.allUsersAuthInfo, this.storage);
         } catch (err) {
           // Back out of setting authInfo with this new user
@@ -783,6 +816,17 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
           this.activeUserAuthInfo.isLoggedIn,
           profile
         );
+
+        // Dispatch a UserAdded event if this is the first time this user is 
+        // being added to the list of users on the device.
+        if (newUserAdded) {
+          this.onAuthEvent() // legacy event dispatch
+
+          this.dispatchAuthEvent({
+            kind: AuthEventKind.UserAdded,
+            addedUser: this.currentUser
+          })
+        }
 
         return this.currentUser;
       })
@@ -920,20 +964,52 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     }
 
     try {
+      let loggedOutUser: TStitchUser | undefined;
+
       if (unclearedAuthInfo) {
-        this.allUsersAuthInfo.set(userId, unclearedAuthInfo.loggedOut());
+        const loggedOutAuthInfo = unclearedAuthInfo.loggedOut();
+        this.allUsersAuthInfo.set(userId, loggedOutAuthInfo);
         writeAllUsersAuthInfoToStorage(this.allUsersAuthInfo, this.storage);
+
+        loggedOutUser = this.userFactory.makeUser(
+          loggedOutAuthInfo.userId!,
+          loggedOutAuthInfo.loggedInProviderType!,
+          loggedOutAuthInfo.loggedInProviderName!,
+          loggedOutAuthInfo.isLoggedIn,
+          loggedOutAuthInfo.userProfile
+        );
       }
       
       // if the auth info we're clearing is also the active user's auth info, 
       // clear the active user's auth as well
+      let wasActiveUser = false;
       if (this.activeUserAuthInfo.hasUser && this.activeUserAuthInfo.userId === userId) {
+        wasActiveUser = true;
         this.activeUserAuthInfo = this.activeUserAuthInfo.withClearedUser();
         this.currentUser = undefined;
 
         writeActiveUserAuthInfoToStorage(this.activeUserAuthInfo, this.storage);
+      }
 
-        this.onAuthEvent();
+      // If a user was actually logged out, and it wasn't just clearing auth 
+      // tokens from a provisional state, dispatch a logout event to any 
+      // listeners, and additionally dispatch an ActiveUserChanged event if
+      // the user being logged out was the active user.
+      if (loggedOutUser) {
+        this.onAuthEvent(); // legacy event dispatch
+
+        this.dispatchAuthEvent({
+          kind: AuthEventKind.UserLoggedOut,
+          loggedOutUser,
+        });
+
+        if (wasActiveUser) {
+          this.dispatchAuthEvent({
+            kind: AuthEventKind.ActiveUserChanged,
+            currentActiveUser: undefined,
+            previousActiveUser: loggedOutUser
+          })
+        }
       }
     } catch {
       throw new StitchClientError(

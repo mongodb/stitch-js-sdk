@@ -53,7 +53,6 @@ import RedirectKeys from "./RedirectKeys";
 import StitchBrowserAppAuthRoutes from "./StitchBrowserAppAuthRoutes";
 import StitchRedirectError from "./StitchRedirectError";
 import StitchUserFactoryImpl from "./StitchUserFactoryImpl";
-import { listeners } from "cluster";
 
 const alphaNumericCharacters =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -92,6 +91,7 @@ interface PartialWindow {
 export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   implements StitchAuth {
   private readonly listeners: Set<StitchAuthListener> = new Set();
+  private readonly synchronousListeners: Set<StitchAuthListener> = new Set();
   public static injectedFetch?: any;
 
   /**
@@ -282,7 +282,29 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
 
     // Trigger the onUserLoggedIn event in case some event happens and
     // this caller would miss out on this event other wise.
+
+    // dispatch a legacy deprecated auth event
     this.onAuthEvent(listener);
+
+    // dispatch a new style auth event
+    this.dispatchAuthEvent({
+      kind: AuthEventKind.ListenerInitialized,
+    });
+  }
+
+  public addSynchronousAuthListener(listener: StitchAuthListener) {
+    this.listeners.add(listener);
+
+    // Trigger the onUserLoggedIn event in case some event happens and
+    // this caller would miss out on this event other wise.
+
+    // dispatch a legacy deprecated auth event
+    this.onAuthEvent(listener);
+
+    // dispatch a new style auth event
+    this.dispatchAuthEvent({
+      kind: AuthEventKind.ListenerInitialized,
+    });
   }
 
   public removeAuthListener(listener: StitchAuthListener) {
@@ -309,18 +331,27 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   }
 
   /**
+   * Utility function used to force the compiler to enforce an exhaustive 
+   * switch statment in dispatchAuthEvent at compile-time.
+   * @see https://www.typescriptlang.org/docs/handbook/advanced-types.html
+   */
+  private assertNever(x: never): never {
+    throw new Error("unexpected object: " + x);
+  }
+
+  /**
    * Dispatch method for the new auth listener methods.
    * @param event the discriminated union representing the auth event
    */
   public dispatchAuthEvent(event: AuthEvent<StitchUser>) {
     switch(event.kind) {
-      case AuthEventKind.ActiveUserSwitched:
+      case AuthEventKind.ActiveUserChanged:
         this.dispatchBlockToListeners((listener: StitchAuthListener) => {
-          if (listener.onActiveUserSwitched) {
-            listener.onActiveUserSwitched(
-              this, 
+          if (listener.onActiveUserChanged) {
+            listener.onActiveUserChanged(
+              this,
               event.currentActiveUser,
-              event.prevActiveUser
+              event.previousActiveUser
             );  
           }
         });
@@ -332,20 +363,26 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
           }
         });
         break;
-      case AuthEventKind.UserCreated:
+      case AuthEventKind.UserAdded:
         this.dispatchBlockToListeners((listener: StitchAuthListener) => {
-          if (listener.onUserCreated) {
-            listener.onUserCreated(this, event.createdUser);  
+          if (listener.onUserAdded) {
+            listener.onUserAdded(this, event.addedUser);  
           }
         });
+        break;
+      case AuthEventKind.UserLinked:
+        this.dispatchBlockToListeners((listener: StitchAuthListener) => {
+          if (listener.onUserLinked) {
+            listener.onUserLinked(this, event.linkedUser);
+          }
+        })
         break;
       case AuthEventKind.UserLoggedIn:
         this.dispatchBlockToListeners((listener: StitchAuthListener) => {
           if (listener.onUserLoggedIn) {
             listener.onUserLoggedIn(
               this,
-              event.loggedInUser,
-              event.prevActiveUser
+              event.loggedInUser
             );
           }
         });
@@ -353,7 +390,10 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
       case AuthEventKind.UserLoggedOut:
         this.dispatchBlockToListeners((listener: StitchAuthListener) => {
           if (listener.onUserLoggedOut) {
-            listener.onUserLoggedOut(this, event.loggedOutUser);  
+            listener.onUserLoggedOut(
+              this, 
+              event.loggedOutUser
+            );  
           }
         });
         break;
@@ -364,6 +404,11 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
           }
         });
         break;
+      default:
+        // compiler trick to force this switch to be exhaustive. if the above
+        // switch statement doesn't check all AuthEventKinds, event will not
+        // be of type never
+        return this.assertNever(event);
     }
   }
 
@@ -373,8 +418,8 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
    * @param block The block to dispatch to listeners.
    */
   private dispatchBlockToListeners(block: (StitchAuthListener) => void) {
-    // TODO: Dispatch to all synchronous listeners
-    // this.synchronousListeners.forEach(block);
+    // Dispatch to all synchronous listeners
+    this.synchronousListeners.forEach(block);
 
     // Dispatch to all asynchronous listeners
     this.listeners.forEach(listener => {

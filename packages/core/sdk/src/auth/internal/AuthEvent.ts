@@ -17,33 +17,38 @@ import { CoreStitchUser } from "../..";
  */
 
 export enum AuthEventKind {
-  ActiveUserSwitched,
+  ActiveUserChanged,
   ListenerInitialized,
-  UserCreated,
+  UserAdded,
+  UserLinked,
   UserLoggedIn,
   UserLoggedOut,
   UserRemoved,
 }
 
-export interface ActiveUserSwitched<TStitchUser extends CoreStitchUser> {
-  kind: AuthEventKind.ActiveUserSwitched;
-  currentActiveUser: TStitchUser;
-  prevActiveUser: TStitchUser;
+export interface ActiveUserChanged<TStitchUser extends CoreStitchUser> {
+  kind: AuthEventKind.ActiveUserChanged;
+  currentActiveUser: TStitchUser | undefined;
+  previousActiveUser: TStitchUser | undefined;
 }
 
 export interface ListenerInitialized {
   kind: AuthEventKind.ListenerInitialized;
 }
 
-export interface UserCreated<TStitchUser extends CoreStitchUser> {
-  kind: AuthEventKind.UserCreated;
-  createdUser: TStitchUser;
+export interface UserAdded<TStitchUser extends CoreStitchUser> {
+  kind: AuthEventKind.UserAdded;
+  addedUser: TStitchUser;
+}
+
+export interface UserLinked<TStitchUser extends CoreStitchUser> {
+  kind: AuthEventKind.UserLinked;
+  linkedUser: TStitchUser;
 }
 
 export interface UserLoggedIn<TStitchUser extends CoreStitchUser> {
   kind: AuthEventKind.UserLoggedIn;
   loggedInUser: TStitchUser;
-  prevActiveUser: TStitchUser;
 }
 
 export interface UserLoggedOut<TStitchUser extends CoreStitchUser> {
@@ -61,9 +66,10 @@ export interface UserRemoved<TStitchUser extends CoreStitchUser> {
  * should be sent to any underlying listeners.
  */
 export type AuthEvent<TStitchUser extends CoreStitchUser> = 
-  ActiveUserSwitched<TStitchUser> | 
+  ActiveUserChanged<TStitchUser> | 
   ListenerInitialized | 
-  UserCreated<TStitchUser> | 
+  UserAdded<TStitchUser> | 
+  UserLinked<TStitchUser> |
   UserLoggedIn<TStitchUser> | 
   UserLoggedOut<TStitchUser> | 
   UserRemoved<TStitchUser>;

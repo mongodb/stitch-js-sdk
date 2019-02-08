@@ -81,13 +81,30 @@ export default interface StitchAuthListener {
    */
   onAuthEvent?(auth: StitchAuth);
 
-  onUserCreated?(auth: StitchAuth, createdUser: StitchUser)
+  onUserAdded?(auth: StitchAuth, addedUser: StitchUser)
 
-  onUserLoggedIn?(auth: StitchAuth, loggedInUser: StitchUser, prevActiveUser?: StitchUser)
+  onUserLinked?(auth: StitchAuth, linkedUser: StitchUser)
+
+  onUserLoggedIn?(auth: StitchAuth, loggedInUser: StitchUser)
 
   onUserLoggedOut?(auth: StitchAuth, loggedOutUser: StitchUser)
 
-  onActiveUserSwitched?(auth: StitchAuth, currentActiveUser: StitchUser, prevActiveUser?: StitchUser)
+  /**
+   *
+   *
+   * May also be called if you called loginWithCredential with an anonymous 
+   * credential, and there was already an anonymous user logged in under 
+   * another user on this device.
+   * 
+   * @param auth 
+   * @param currentActiveUser 
+   * @param previousActiveUser 
+   */
+  onActiveUserChanged?(
+    auth: StitchAuth, 
+    currentActiveUser: StitchUser | undefined, 
+    previousActiveUser: StitchUser | undefined
+  )
 
   onUserRemoved?(auth: StitchAuth, removedUser: StitchUser)
 

@@ -95,6 +95,8 @@ class StitchAuth extends CoreStitchAuth<CoreStitchUserImpl> {
   }
 
   protected onAuthEvent() {}
+
+  protected dispatchAuthEvent() {}
 }
 
 describe("CoreStitchAuthUnitTests", () => {
