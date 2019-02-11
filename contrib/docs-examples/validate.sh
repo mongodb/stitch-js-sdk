@@ -1,53 +1,36 @@
-#!/bin/bash
+#!/bin/bash -e
 
-snippets=()
-for snippet in $@
-do
-  # Add the absolute path to each snippet
-  snippets+=("$(cd "$(dirname "$snippet")"; pwd)/$(basename "$snippet")")
-done
-
-pushd "$(dirname "$0")" > /dev/null
+if [ -z "$1" ]
+then
+  echo "Usage: $0 <snippet file> [browser|server]"
+  exit 1
+fi
 
 if [ ! -d "node_modules" ]
 then
   npm install
 fi
 
-if [ -z "$1" ]
+# Get absolute path to snippet
+snippet=("$(cd "$(dirname "$1")"; pwd)/$(basename "$1")")
+
+pushd "$(dirname "$0")" > /dev/null
+
+validate_js="./validate.js"
+if [ "$2" == "browser" ]
 then
-  echo "Usage: $0 <snippet files ...>"
+  validate_js="./validate_browser.js"
 fi
+echo "Using validator: $validate_js"
 
-failed=()
+set +e
 
-echo "Validating snippets... (If a snippet is taking more than a few seconds, use ctrl-C and try again.)"
-for snippet in "${snippets[@]}"
-do
-  echo -n "Validating $snippet... "
-  OUTPUT="$(eslint "$snippet" \
-    && cat "$snippet" ./validate.js \
-    | npx babel -f validate.js \
-    | node)"
-  if [ $? == 1 ]
-  then
-    echo "FAILED:"
-    echo "$OUTPUT"
-    failed+="$snippet"
-    continue
-  fi
-  echo "success!"
-done
-
-echo
-echo "Code example validation complete."
-
-if [ ${#failed[@]} != 0 ]
+eslint "$snippet" \
+  && cat "$snippet" "$validate_js" \
+  | npx babel -f "$validate_js" \
+  | node
+if [ $? == 1 ]
 then
-  echo "FAILED:"
-  for snippet in "${failed[@]}"
-  do
-    echo "  $snippet"
-  done
+  echo "Snippet validation failed. See above output."
+  exit 1
 fi
-echo

@@ -1,4 +1,4 @@
-function example({AnonymousCredential, stitchAppClient}) {
+function example({AnonymousCredential, UserPasswordCredential, stitchAppClient}) {
   // Previously:
   // const stitchAppClient = Stitch.initializeDefaultAppClient('your-stitch-app-id')
 
@@ -7,6 +7,14 @@ function example({AnonymousCredential, stitchAppClient}) {
     .loginWithCredential(new AnonymousCredential())
     .then((user) => {
       console.log(`Logged in as anonymous user with id: ${user.id}`)
+    })
+    .catch(console.error)
+
+  // Log in with user/password credential
+  stitchAppClient.auth
+    .loginWithCredential(new UserPasswordCredential('user', 'password'))
+    .then((user) => {
+      console.log(`Logged in as user with id: ${user.id}`)
     })
     .catch(console.error)
 }
