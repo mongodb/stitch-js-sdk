@@ -331,7 +331,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       kind: AuthEventKind.ActiveUserChanged,
       currentActiveUser: this.currentUser,
       previousActiveUser: previousUser
-    })
+    });
+
     return this.currentUser;
   }
 
@@ -684,7 +685,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
             kind: AuthEventKind.ActiveUserChanged,
             currentActiveUser: user,
             previousActiveUser
-          })
+          });
         }
         
         return user;
@@ -825,7 +826,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
           this.dispatchAuthEvent({
             kind: AuthEventKind.UserAdded,
             addedUser: this.currentUser
-          })
+          });
         }
 
         return this.currentUser;
@@ -1008,10 +1009,10 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
             kind: AuthEventKind.ActiveUserChanged,
             currentActiveUser: undefined,
             previousActiveUser: loggedOutUser
-          })
+          });
         }
       }
-    } catch {
+    } catch (err) {
       throw new StitchClientError(
         StitchClientErrorCode.CouldNotPersistAuthInfo
       );
