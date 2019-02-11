@@ -19,7 +19,7 @@
  * Options to use when executing a `count` command on a 
  * [[RemoteMongoCollection]].
  *
- * ### See also
+ * @see
  * - [[RemoteMongoCollection]]
  * - [[RemoteMongoCollection.count]]
  */

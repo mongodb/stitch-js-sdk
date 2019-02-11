@@ -43,26 +43,7 @@ import StitchUser from "./StitchUser";
  *       authentication. Always check the state of [[StitchAuth]] object for 
  *       the true authentication state.
  *
- * ### Example
- *
- * In this example, a custom StitchAuthListener is defined and registered:
- * ```
- * const client = Stitch.defaultAppClient
- *
- * // Define the listener
- * class MyAuthListener {
- *   onAuthEvent = (auth) => {
- *     // The auth state has changed
- *     console.log('Current auth state changed: user =', auth.user)
- *   }
- * }
- *
- * // Register the listener
- * const {auth} = client
- * auth.addAuthListener(new MyAuthListener(auth))
- * ```
- * 
- * ### See also
+ * @see
  * - [[StitchAuth]]
  */
 export default interface StitchAuthListener {

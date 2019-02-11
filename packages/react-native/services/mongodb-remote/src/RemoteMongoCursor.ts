@@ -19,27 +19,8 @@
  *
  * A RemoteMongoCursor can be obtained from the result of a `find` or `aggregate` operation
  * on a [[RemoteMongoCollection]] by calling [[RemoteMongoReadOperation.iterator]].
- *
- * ### Example
- *
- * This example shows how to iterate using a cursor and async/await.
- * ```
- * // Work with the movies collection
- * const moviesCollection = db.collection('movieDetails')
- *
- * moviesCollection
- *   .find({}, {limit: 100})
- *   .iterator()
- *   .then(async (cursor) => {
- *     let movie = await cursor.next()
- *     while (movie !== undefined) {
- *       console.log(movie)
- *       movie = await cursor.next()
- *     }
- *   })
- * ```
  * 
- * ### See also
+ * @see
  * - [[RemoteMongoCollection.find]]
  * - [[RemoteMongoCollection.aggregate]]
  * - [[RemoteMongoReadOperation]]

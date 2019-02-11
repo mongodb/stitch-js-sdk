@@ -1,0 +1,21 @@
+{
+    parser: "babel-eslint",
+    "plugins": [
+        "react", "eslint-plugin-react"
+    ],
+    "rules": {
+        "semi": ["error", "never"],
+        "indent": ["error", 2],
+        "object-curly-spacing": ["error", "never"],
+        "no-underscore-dangle": ["off"],
+        "no-plusplus": ["off"],
+        "react/jsx-indent": ["error", 2],
+        "react/jsx-indent-props": ["error", 2],
+        "react/jsx-one-expression-per-line": ["off"],
+        "react/no-array-index-key": ["off"],
+        "no-unused-vars": ["warn"],
+        "no-console": ["off"],
+        "no-multi-spaces": ["off"]
+    },
+    "extends": ["airbnb"]
+}

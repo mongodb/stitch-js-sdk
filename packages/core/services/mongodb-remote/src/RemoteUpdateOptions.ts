@@ -19,7 +19,7 @@
  * Options to use when executing an `updateOne` or `updateMany` command on a 
  * [[RemoteMongoCollection]].
  *
- * ### See also
+ * @see
  * - [[RemoteMongoCollection]]
  * - [[RemoteMongoCollection.updateOne]]
  * - [[RemoteMongoCollection.updateMany]]

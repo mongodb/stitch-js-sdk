@@ -18,7 +18,7 @@
 /**
  * The result of an `updateOne` or `updateMany` operation a [[RemoteMongoCollection]].
  *
- * ### See also
+ * @see
  * - [[RemoteMongoCollection]]
  * - [[RemoteMongoCollection.updateOne]]
  * - [[RemoteMongoCollection.updateMany]]

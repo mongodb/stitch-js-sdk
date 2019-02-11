@@ -22,17 +22,7 @@ import AnonymousAuthProvider from "./AnonymousAuthProvider";
  * The AnonymousCredential is a [[StitchCredential]] that logs in
  * using the [Anonymous Authentication Provider](https://docs.mongodb.com/stitch/authentication/anonymous/).
  *
- * ### Example
- * ```
- * const client = Stitch.initializeDefaultAppClient('example-app-id')
- * client.auth.loginWithCredential(new AnonymousCredential())
- *   .then(user => {
- *     // Now logged in anonymously
- *   })
- *   .catch(console.error)
- * ```
- *
- * ### See also
+ * @see
  * - [[StitchAuth.loginWithCredential]] 
 */
 export default class AnonymousCredential implements StitchCredential {

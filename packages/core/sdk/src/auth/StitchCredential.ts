@@ -25,7 +25,7 @@ import ProviderCapabilities from "./ProviderCapabilities";
  * in MongoDB Stitch provides a StitchCredential or StitchRedirectCredential (browser SDK only)
  * implementation. See **Implemented by** below for a list of implementations.
  *
- * ### See also
+ * @see
  * - [[StitchAuth]]
  * - [[StitchAuth.loginWithCredential]]
  */

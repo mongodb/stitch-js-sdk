@@ -31,14 +31,14 @@ import StitchAuth from "./auth/StitchAuth";
  *
  * Finally, the StitchAppClient can execute [Stitch Functions](https://docs.mongodb.com/stitch/functions/).
  *
- * ### Example
+ * @example
  * ```
  * import { Stitch } from "mongodb-stitch-browser-sdk"
  * 
  * const client = Stitch.initializeDefaultAppClient('example-stitch-app-id')
  * ```
  * 
- * ### See also
+ * @see
  * - [[Stitch]]
  * - [[StitchAuth]]
  * - [[RemoteMongoClient]]
