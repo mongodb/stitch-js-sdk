@@ -462,7 +462,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       this.allUsersAuthInfo.delete(userId);
       writeAllUsersAuthInfoToStorage(this.allUsersAuthInfo, this.storage);
 
-      const removedUser = this.prepUser(authInfo);
+      const removedUser = this.prepUser(authInfo.loggedOut());
 
       // Dispatch an event indicating that a user was removed.
       this.onAuthEvent();
@@ -962,6 +962,10 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         // only throw if this ID is not the active user either
         throw new StitchClientError(StitchClientErrorCode.UserNotFound);  
       }
+    } else if (!unclearedAuthInfo.isLoggedIn) {
+      // if the auth info's tokens are already cleared, there's no need to 
+      // clear them again
+      return;
     }
 
     try {
