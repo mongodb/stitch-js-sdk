@@ -4,6 +4,7 @@
 
 import {
   AnonymousCredential,
+  BSON,
   RemoteMongoClient,
   MemoryStorage,
   Stitch,
@@ -32,6 +33,7 @@ stitchAppClient.auth.loginWithCredential(new AnonymousCredential())
     const db = mongoClient.db('video')
     example({
       AnonymousCredential,
+      BSON,
       db,
       expect,
       mongoClient,
