@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { StitchAppClient, StitchAuth, StitchUser } from "mongodb-stitch-react-native-core";
+import { StitchAppClient, StitchAuth, StitchUser, UserPasswordAuthProviderClient } from "mongodb-stitch-react-native-core";
 import { BaseStitchRNIntTestHarness } from "mongodb-stitch-react-native-testutils";
 import {
   Anon,
@@ -318,6 +318,51 @@ describe("StitchAuthListener", () => {
 
     // make sure there are no more users left after removing everyone
     expect(client.auth.listUsers().length).toBe(0);
+  });
+
+  it("should notify on user linked event", async () => {
+    const [client, app] = await prepareListenerTest();
+
+    // Remove event will be triggered once, with three assertions, 
+    // and there is one additional assertion in the test.
+    expect.assertions(1*3 + 1);
+
+    let expectedUserId: string;
+
+    client.auth.addAuthListener({
+      onUserLinked(_: StitchAuth, linkedUser: StitchUser) {
+        expect(linkedUser.id).toBe(expectedUserId);
+        expect(linkedUser.isLoggedIn).toBeTruthy();
+        expect(linkedUser.identities.length).toBe(2);
+      }
+    });
+
+    const userPassClient = client.auth.getProviderClient(
+      UserPasswordAuthProviderClient.factory
+    );
+
+    const email = "user@10gen.com";
+    const password = "password";
+    await userPassClient.registerWithEmail(email, password);
+
+    const conf = await app.userRegistrations.sendConfirmation(email);
+    await userPassClient.confirmUser(conf.token, conf.tokenId);
+
+    const anonUser = await client.auth.loginWithCredential(
+      new AnonymousCredential()
+    );
+
+    expectedUserId = anonUser.id;
+
+    // linking to the user/password auth provider identity should trigger the
+    // link event
+    await anonUser.linkWithCredential(
+      new UserPasswordCredential(email, password)
+    );
+
+    // assert that there is one user in the list, because the linking should
+    // not have created a new user.
+    expect(client.auth.listUsers().length).toEqual(1);
   });
 
   it("should notify on listener registered event", async () => {
