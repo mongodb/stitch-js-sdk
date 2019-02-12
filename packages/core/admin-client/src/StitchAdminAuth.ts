@@ -20,7 +20,8 @@ import {
   StitchAuthRoutes,
   StitchRequestClient,
   StitchUserFactory,
-  Storage
+  Storage,
+  AuthEvent
 } from "mongodb-stitch-core-sdk";
 import { StitchAdminUser, StitchAdminUserFactory } from "./StitchAdminUser";
 
@@ -53,6 +54,10 @@ export default class StitchAdminAuth extends CoreStitchAuth<StitchAdminUser> {
   }
 
   public onAuthEvent() {
+    // Do nothing
+  }
+
+  public dispatchAuthEvent(_: AuthEvent<StitchAdminUser>) {
     // Do nothing
   }
 }

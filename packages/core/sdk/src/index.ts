@@ -15,6 +15,17 @@
  */
 
 import BSON from "bson";
+import { 
+  AuthEvent, 
+  AuthEventKind, 
+  ActiveUserChanged, 
+  ListenerRegistered, 
+  UserAdded,
+  UserLinked,
+  UserLoggedIn,
+  UserLoggedOut,
+  UserRemoved
+} from "./auth/internal/AuthEvent"
 import AuthInfo from "./auth/internal/AuthInfo";
 import CoreStitchAuth from "./auth/internal/CoreStitchAuth";
 import CoreStitchUser from "./auth/internal/CoreStitchUser";
@@ -160,6 +171,15 @@ export {
   Transport,
   UserType,
   Assertions,
+  AuthEvent, 
+  AuthEventKind, 
+  ActiveUserChanged, 
+  ListenerRegistered, 
+  UserAdded,
+  UserLinked,
+  UserLoggedIn,
+  UserLoggedOut,
+  UserRemoved,
   base64Decode,
   base64Encode,
   utf8Slice

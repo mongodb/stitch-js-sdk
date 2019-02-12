@@ -39,9 +39,10 @@ class StitchAdminUser implements CoreStitchUser {
   public readonly loggedInProviderName: string;
 
   /**
-   * Whether or not this user is logged in. NOTE: this is not a dynamic 
-   * property, this is the state of whether or not the user was logged in at 
-   * the time this user object was created.
+   * Whether or not this user is logged in.
+   * 
+   * @note This is not a dynamic property, this is the state of whether or not 
+   *       the user was logged in at the time this user object was created.
    */
   public readonly isLoggedIn: boolean;
 
