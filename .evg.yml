@@ -68,6 +68,13 @@ functions:
           wget --quiet "https://s3.amazonaws.com/stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_a4c34cbf6cdd2036fef442f966e404c8be506e62_5bb3da540305b91647c0dfd9_18_10_02_20_51_32/libmongo.so"
           chmod +x libmongo.so
 
+          echo "downloading stitch dylib"
+          mkdir -p src/github.com/10gen/stitch/etc/dylib
+          cd src/github.com/10gen/stitch/etc/dylib
+          curl -s "${server_stitch_lib_url}" | tar xvfz - --strip-components=1
+          cd -
+
+
           echo "building transpiler"
           cd src/github.com/10gen/stitch/etc/transpiler
           curl -OL https://yarnpkg.com/latest.tar.gz
@@ -84,6 +91,7 @@ functions:
           export PATH=`pwd`:$PATH
           export STITCH_PATH=$GOPATH/src/github.com/10gen/stitch
           export PATH="$PATH:$STITCH_PATH/etc/transpiler/bin"
+          export LD_LIBRARY_PATH="$STITCH_PATH/etc/dylib/lib"
           which transpiler
           echo "running stitch"
           export GOROOT=`pwd`/go
@@ -192,6 +200,7 @@ buildvariants:
   expansions:
     go_url: "https://dl.google.com/go/go1.11.1.linux-amd64.tar.gz"
     mongodb_url: https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-4.0.2.tgz
+    server_stitch_lib_url: 'https://s3.amazonaws.com/mciuploads/mongodb-mongo-master/stitch-support/rhel70/5ee0b3805e9116bf0f4655d5ee5cd5b108e7a7e4/stitch-support-4.1.7-200-g5ee0b38.tgz'
     transpiler_target: node8-linux
   tasks:
     - name: run_tests
