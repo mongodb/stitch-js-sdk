@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
-    "mongodb-stitch-server-sdk": "^4.2.0"
+    "invariant": "^2.2.4",
+    "mock-browser": "^0.92.14"
   }
 }

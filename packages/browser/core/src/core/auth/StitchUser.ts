@@ -50,26 +50,29 @@ export default interface StitchUser extends CoreStitchUser {
   readonly loggedInProviderName: string;
 
   /**
-   * Whether or not this user is logged in. If the user is logged in, it can be
-   * switched to without reauthenticating. 
+   * Whether or not this user is logged in.
    * 
-   * @note This is not a dynamic property, this is the state of whether or not 
-   *       the user was logged in at the time this user object was created.
+   * If the user is logged in, it can be switched to without reauthenticating 
+   * using [[StitchAuth.switchToUserWithId]].
+   * 
+   * @note This is not a dynamic property. This is the state of whether or not
+   * the user was logged in at the time this user object was created.
+   * Use [[StitchAuth.listUsers]] to get a new list of users with current state.
    */
   readonly isLoggedIn: boolean;
 
   /**
-   * A string describing the type of this user. (Either `server` or `normal`)
+   * A string describing the type of this user: either `server` or `normal`.
    */
   readonly userType?: string;
 
   /**
-   * A {@link StitchUserProfile} object describing this user.
+   * A [[StitchUserProfile]] object describing this user.
    */
   readonly profile: StitchUserProfile;
 
   /**
-   * An array of {@link StitchUserIdentity} objects representing the identities 
+   * An array of [[StitchUserIdentity]] objects representing the identities 
    * linked to this user which can be used to log in as this user.
    */
   readonly identities: StitchUserIdentity[];

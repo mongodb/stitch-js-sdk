@@ -2,6 +2,8 @@
 
 # Validate the docs code examples. If something broke, please alert @docs-stitch-team.
 
+# Note: use `lerna run build` to build the SDK locally before trying to validate.
+
 pushd "$(dirname "$0")" > /dev/null
 
 # Tip: Commit the checksum file with any changes to the snippets after validation.
@@ -11,7 +13,7 @@ CHECKSUM_FILE=./checksum
 CHECKSUM=
 
 function calculate_checksum() {
-  CHECKSUM=`find snippets -iname "*.js" | xargs md5 -q | md5 -q`
+  CHECKSUM=`find snippets ../../packages/server/sdk/dist ../../packages/browser/sdk/dist -iname "*.js" | xargs md5 -q | md5 -q`
 }
 
 function update_required() {
@@ -35,11 +37,13 @@ if [ $? == 0 ]; then
   exit 0
 fi
 
-./validate.sh \
+./validate_snippets.sh \
   ./snippets/*.js \
   ./snippets/browser/*.js \
   ./snippets/server/*.js \
   ./snippets/react-native/*.js
 
-calculate_checksum
-echo -n $CHECKSUM > $CHECKSUM_FILE
+if [ $? == 0 ]; then
+  calculate_checksum
+  echo -n $CHECKSUM > $CHECKSUM_FILE
+fi

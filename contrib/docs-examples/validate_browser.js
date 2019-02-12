@@ -3,13 +3,22 @@
 // (Note: Examples are pasted automatically by the validate.sh script)
 
 import {
+  delegates,
+  mocks,
+} from 'mock-browser'
+
+import {
   AnonymousCredential,
   RemoteMongoClient,
   MemoryStorage,
   Stitch,
   StitchAppClientConfiguration,
   UserPasswordCredential,
-} from '../../packages/server/sdk/dist/cjs'
+} from '../../packages/browser/sdk/dist/cjs'
+
+const {MockBrowser} = mocks
+const browser = new delegates.AbstractBrowser({window: MockBrowser.createWindow()})
+global.window = browser
 
 process.on('unhandledRejection', (error) => {
   console.log(error)

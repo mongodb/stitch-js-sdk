@@ -53,8 +53,17 @@ export default interface StitchAuth {
 
   /**
    * Returns a list of all users who have logged into this application, except
-   * those that have been removed manually, and anonymous users who have logged
+   * those that have been removed manually and anonymous users who have logged
    * out.
+   *
+   * @note
+   * The list of users is a snapshot of the state when listUsers() is called.
+   * The [[StitchUsers]] in this list will not be updated if, e.g., a user's
+   * login state changes after this is called.
+   *
+   * @see
+   * - [[removeUser]]
+   * - [[removeUserWithId]]
    */
   listUsers(): Array<StitchUser>;
 
@@ -93,42 +102,50 @@ export default interface StitchAuth {
   /**
    * Logs in as a [[StitchUser]] using the provided [[StitchCredential]].
    * 
-   * For an example of the most simple form of authentication, see
-   * [Anonymous Authentication](https://docs.mongodb.com/stitch/authentication/anonymous/).
-   *
-   * For another example, see [Email/Password Authentication](https://docs.mongodb.com/stitch/authentication/userpass/).
-   *
    * @param credential The [[StitchCredential]] to use when logging in.
    */
   loginWithCredential(credential: StitchCredential): Promise<StitchUser>;
 
   /**
-   * Logs out the currently authenticated active user, and clears any persisted 
-   * authentication information for that user. There will be no active user 
-   * after this logout takes place, even if there are other logged in users.
-   * A user must be explicitly switched to, or a user must be logged in with
-   * a new credential.
+   * Logs out the currently authenticated active user and clears any persisted 
+   * authentication information for that user.
+   * 
+   * There will be no active user after this logout takes place, even if there
+   * are other logged in users. Another user must be explicitly switched to using 
+   * [[switchToUserWithId]], [[loginWithCredential]] or [[loginWithRedirect]].
+   * 
+   * @see
+   * - [[removeUser]]
    */
   logout(): Promise<void>;
 
   /**
-   * Logs out the user with the provided id. The promise rejects with an 
-   * exception if the user was not found,
+   * Logs out the user with the provided id.
+   * 
+   * The promise rejects with an exception if the user was not found.
+   *
+   * @note Because anonymous users are deleted after logout, this method is
+   * equivalent to [[removeUserWithId]] for anonymous users.
+   * 
    * @param userId the id of the user to log out
    */
   logoutUserWithId(userId: string): Promise<void>
 
   /**
-   * Logs out the currently logged in, active user, and removes that user from
-   * the list of all users associated with this application.
+   * Logs out the active user and removes that user from
+   * the list of all users associated with this application
+   * as returned by [[StitchAuth.listUsers]].
    */
   removeUser(): Promise<void>
 
   /**
    * Removes the user with the provided id from the list of all users 
-   * associated with this application. If the user was logged in, the user will
-   * be logged out before being removed. The promise rejects with an exception 
-   * if the user was not found.
+   * associated with this application as returned by [[StitchAuth.listUsers]].
+   * 
+   * If the user was logged in, the user will be logged out before being removed.
+   * 
+   * The promise rejects with an exception if the user was not found.
+   * 
    * @param userId the id of the user to remove
    */
   removeUserWithId(userId: string): Promise<void>
