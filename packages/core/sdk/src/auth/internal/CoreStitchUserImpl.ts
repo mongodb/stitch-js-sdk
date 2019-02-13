@@ -42,11 +42,14 @@ export default class CoreStitchUserImpl implements CoreStitchUser {
 
   public readonly isLoggedIn: boolean;
 
+  public readonly lastAuthActivity: Date;
+
   protected constructor(
     id: string,
     loggedInProviderType: string,
     loggedInProviderName: string,
     isLoggedIn: boolean,
+    lastAuthActivity: Date,
     profile?: StitchUserProfileImpl
   ) {
     this.id = id;
@@ -55,6 +58,7 @@ export default class CoreStitchUserImpl implements CoreStitchUser {
     this.profile =
       profile === undefined ? StitchUserProfileImpl.empty() : profile;
     this.isLoggedIn = isLoggedIn;
+    this.lastAuthActivity = lastAuthActivity;
   }
 
   /**
@@ -70,5 +74,20 @@ export default class CoreStitchUserImpl implements CoreStitchUser {
    */
   public get identities(): StitchUserIdentity[] {
     return this.profile.identities;
+  }
+
+  /**
+   * Returns whether this core Stitch user is equal to another in every 
+   * property except lastAuthActivity. This should be used for testing 
+   * purposes only.
+   * @param other The CoreStitchUserImpl to compare with
+   */
+  public equals(other: CoreStitchUserImpl): boolean {
+    return this.id === other.id
+      && JSON.stringify(this.identities) === JSON.stringify(other.identities)
+      && this.isLoggedIn === other.isLoggedIn
+      && this.loggedInProviderName === other.loggedInProviderName
+      && this.loggedInProviderType === other.loggedInProviderType
+      && JSON.stringify(this.profile) === JSON.stringify(other.profile)
   }
 }

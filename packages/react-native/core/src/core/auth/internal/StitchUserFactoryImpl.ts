@@ -35,7 +35,8 @@ export default class StitchUserFactoryImpl
     id: string,
     loggedInProviderType: string,
     loggedInProviderName: string,
-    isLoggedIn,
+    isLoggedIn: boolean,
+    lastAuthActivity: Date,
     userProfile: StitchUserProfileImpl
   ): StitchUser {
     return new StitchUserImpl(
@@ -43,6 +44,7 @@ export default class StitchUserFactoryImpl
       loggedInProviderType,
       loggedInProviderName,
       isLoggedIn,
+      lastAuthActivity,
       userProfile,
       this.auth
     );

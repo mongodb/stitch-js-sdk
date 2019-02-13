@@ -23,14 +23,15 @@ import StitchUserProfileImpl from "./StitchUserProfileImpl";
  */
 interface StitchUserFactory<T extends CoreStitchUser> {
   /**
-   * The factory function which will produce the user with the provided id, logged in provider type/name, and a user
-   * profile.
+   * The factory function which will produce the user with the provided id, 
+   * logged in provider type/name, and a user profile.
    */
   makeUser(
     id: string,
     loggedInProviderType: string,
     loggedInProviderName: string,
     isLoggedIn: boolean,
+    lastAuthActivity: Date,
     userProfile?: StitchUserProfileImpl
   ): T;
 }

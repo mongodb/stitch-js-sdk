@@ -83,11 +83,19 @@ class StitchAuth extends CoreStitchAuth<CoreStitchUserImpl> {
         loggedInProviderType: string,
         loggedInProviderName: string,
         isLoggedIn: boolean,
+        lastAuthActivity: Date,
         userProfile?: StitchUserProfileImpl
       ): CoreStitchUserImpl {
         return new class extends CoreStitchUserImpl {
           constructor() {
-            super(id, loggedInProviderType, loggedInProviderName, isLoggedIn, userProfile);
+            super(
+              id,
+              loggedInProviderType,
+              loggedInProviderName,
+              isLoggedIn,
+              lastAuthActivity,
+              userProfile
+            );
           }
         }();
       }
@@ -357,9 +365,9 @@ describe("CoreStitchAuthUnitTests", () => {
     // assert that logging back into a non-anon user after logging out works
     mockNextUserResponse(requestClientMock, user2.id);
 
-    expect(await auth.loginWithCredentialInternal(
+    expect((await auth.loginWithCredentialInternal(
       new UserPasswordCredential("hi", "there")
-    )).toEqual(user2);
+    )).equals(user2)).toBeTruthy();
 
     expect(auth.isLoggedIn).toBeTruthy();
   });
@@ -435,7 +443,7 @@ describe("CoreStitchAuthUnitTests", () => {
 
     // assert that there is one user left
     expect(auth.listUsers().length).toEqual(1);
-    expect(auth.listUsers()[0]).toEqual(user1);
+    expect(auth.listUsers()[0].equals(user1)).toBeTruthy();
 
     // assert that we can remove the user without switching to it
     await auth.removeUserWithIdInternal(user1.id);
@@ -444,12 +452,12 @@ describe("CoreStitchAuthUnitTests", () => {
 
     // assert that we can log back into the user that we removed
     mockNextUserResponse(requestClientMock, user2.id);
-    expect(await auth.loginWithCredentialInternal(
+    expect((await auth.loginWithCredentialInternal(
       new UserPasswordCredential("hi", "there")
-    )).toEqual(user2);
+    )).equals(user2)).toBeTruthy();
 
     expect(auth.listUsers().length).toEqual(1);
-    expect(auth.listUsers()[0]).toEqual(user2);
+    expect(auth.listUsers()[0].equals(user2)).toBeTruthy();
 
     expect(auth.isLoggedIn).toBeTruthy();
   });
@@ -483,7 +491,7 @@ describe("CoreStitchAuthUnitTests", () => {
     );
 
     // can switch to self
-    expect(auth.switchToUserWithId(user.id)).toEqual(user);
+    expect(auth.switchToUserWithId(user.id).equals(user)).toBeTruthy();
     expect(auth.user).toEqual(user);
 
     mockNextUserResponse(requestClientMock);
@@ -495,13 +503,13 @@ describe("CoreStitchAuthUnitTests", () => {
     expect(auth.user).not.toEqual(user);
 
     // can switch back to old user 
-    expect(auth.switchToUserWithId(user.id)).toEqual(user);
-    expect(auth.user).toEqual(user);
+    expect(auth.switchToUserWithId(user.id).equals(user)).toBeTruthy();
+    expect(auth.user.equals(user)).toBeTruthy();
 
     // switch back to second user after logging out
     await auth.logoutInternal();
     expect(auth.listUsers().length).toEqual(2);
-    expect(auth.switchToUserWithId(user2.id)).toEqual(user2);
+    expect(auth.switchToUserWithId(user2.id).equals(user2)).toBeTruthy();
 
     // assert that we can't switch to logged out user
     try {
@@ -541,7 +549,7 @@ describe("CoreStitchAuthUnitTests", () => {
     );
 
     expect(auth.listUsers().length).toEqual(2);
-    expect(auth.listUsers()[0]).toEqual(user);
+    expect(auth.listUsers()[0].equals(user)).toBeTruthy();
     expect(auth.listUsers()[1]).toEqual(user2);
   }); 
 
