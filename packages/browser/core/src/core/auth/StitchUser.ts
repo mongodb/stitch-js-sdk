@@ -40,6 +40,12 @@ export default interface StitchUser extends CoreStitchUser {
   readonly id: string;
 
   /**
+   * The time of the last auth event involving this user. 
+   * This includes login, logout, and active user changed.
+   */
+  readonly lastAuthActivity: Date;
+
+  /**
    * The type of authentication provider used to log in as this user.
    */
   readonly loggedInProviderType: string;
