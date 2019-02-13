@@ -195,7 +195,7 @@ class StoreAuthInfo extends AuthInfo {
     to[Fields.USER_PROFILE] = this.userProfile
       ? this.userProfile.encode()
       : undefined;
-    
+
     return to;
   }
 }
