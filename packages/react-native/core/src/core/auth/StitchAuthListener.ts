@@ -71,9 +71,10 @@ export default interface StitchAuthListener {
   onAuthEvent?(auth: StitchAuth);
 
   /**
-   * Called whenever a user is added to the device for the first time. If this 
-   * is as part of a login, this method will be called before
-   * [[onUserLoggedIn]], and [[onActiveUserChanged]] are called.
+   * Called whenever a user is added to the device for the first time.
+   *
+   * If this is as part of a login, this method will be called before
+   * [[onUserLoggedIn]] and [[onActiveUserChanged]] are called.
    * 
    * @param auth The instance of [[StitchAuth]] where the user was added. It 
    *             can be used to infer the current state of authentication.
@@ -107,10 +108,14 @@ export default interface StitchAuthListener {
   onUserLoggedIn?(auth: StitchAuth, loggedInUser: StitchUser)
 
   /**
-   * Called whenever a user is logged out. The user logged out is not 
-   * necessarily the active user. If the user logged out was the active user,
-   * then [[onActiveUserChanged]] will be called after this method. If the user
-   * was an anonymous user, that user will also be removed and 
+   * Called whenever a user is logged out.
+   * 
+   * The user logged out is not necessarily the active user.
+   * 
+   * If the user who logged out was the active user, then [[onActiveUserChanged]]
+   * will be called after this method.
+   * 
+   * If the user was an anonymous user, that user will also be removed and 
    * [[onUserRemoved]] will also be called.
    * 
    * @param auth The instance of [[StitchAuth]] where the user was logged out. 
@@ -120,13 +125,18 @@ export default interface StitchAuthListener {
   onUserLoggedOut?(auth: StitchAuth, loggedOutUser: StitchUser)
 
   /**
-   * Called whenever the active user changes. This may be due to a call to
-   * [[StitchAuth.loginWithCredential]], [[StitchAuth.switchToUserWithId]],
-   * [[StitchAuth.logout]], [[StitchAuth.logoutUserWithId]], 
-   * [[StitchAuth.removeUser]], or [[StitchAuth.removeUserWithId]].
+   * Called whenever the active user changes.
    * 
-   * This may also occur on a normal request if a user's session is invalidated 
-   * and they are forced to log out.
+   * Any of the following functions may trigger this event:
+   * - [[StitchAuth.loginWithCredential]] 
+   * - [[StitchAuth.switchToUserWithId]]
+   * - [[StitchAuth.logout]]
+   * - [[StitchAuth.logoutUserWithId]]
+   * - [[StitchAuth.removeUser]]
+   * - [[StitchAuth.removeUserWithId]]
+   * 
+   * This may also occur on a CRUD operation or Stitch Function call if a user's
+   * session is invalidated and they are forced to log out.
    * 
    * @param auth The instance of [[StitchAuth]] where the active user changed. 
    *             It can be used to infer the current state of authentication. 
@@ -140,7 +150,10 @@ export default interface StitchAuthListener {
   )
 
   /**
-   * Called whenever a user is removed from the list of users on the device.
+   * Called whenever a user is removed from the list of users on the device,
+   * i.e. with [[StitchAuth.removeUser]] or [[StitchAuth.removeUserWithId]].
+   *
+   * Anonymous users are automatically removed when logged out.
    * 
    * @param auth The instance of [[StitchAuth]] where the user was removed. It 
    *             can be used to infer the current state of authentication. 
