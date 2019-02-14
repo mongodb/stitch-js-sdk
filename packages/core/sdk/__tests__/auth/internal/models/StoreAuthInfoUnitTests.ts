@@ -4,6 +4,7 @@ import StoreStitchUserIdentity from "../../../../src/auth/internal/models/StoreS
 
 describe("StoreAuthInfo, StoreCoreUserProfile, and StoreStitchUserIdentity", () => {
   it("should encode and decode", () => {
+    const dummyDate = new Date();
     const originalAuthInfo = new StoreAuthInfo(
       "dummy_user_id",
       "dummy_device_id",
@@ -11,6 +12,7 @@ describe("StoreAuthInfo, StoreCoreUserProfile, and StoreStitchUserIdentity", () 
       "dummy_refresh_token",
       "dummy_logged_in_provider_type",
       "dummy_logged_in_provider_name",
+      dummyDate,
       new StoreCoreUserProfile(
         "dummy_user_type",
         { dummy_key: "dummy_value" },
@@ -23,6 +25,7 @@ describe("StoreAuthInfo, StoreCoreUserProfile, and StoreStitchUserIdentity", () 
     const expectedEncoded = {
       access_token: "dummy_access_token",
       device_id: "dummy_device_id",
+      last_auth_activity: dummyDate.getTime(),
       logged_in_provider_name: "dummy_logged_in_provider_name",
       logged_in_provider_type: "dummy_logged_in_provider_type",
       refresh_token: "dummy_refresh_token",

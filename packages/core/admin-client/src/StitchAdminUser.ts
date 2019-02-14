@@ -47,6 +47,12 @@ class StitchAdminUser implements CoreStitchUser {
   public readonly isLoggedIn: boolean;
 
   /**
+   * The time of the last auth event involving this user. 
+   * This includes login, logout, and active user changed.
+   */
+  public readonly lastAuthActivity: Date;
+
+  /**
    * A string describing the type of this user. (Either `server` or `normal`)
    */
   public get userType(): string {
@@ -74,12 +80,14 @@ class StitchAdminUser implements CoreStitchUser {
     providerType: string,
     providerName: string,
     isLoggedIn: boolean,
+    lastAuthActivity: Date,
     userProfile: StitchUserProfileImpl
   ) {
     this.id = id;
     this.loggedInProviderType = providerType;
     this.loggedInProviderName = providerName;
     this.isLoggedIn = isLoggedIn;
+    this.lastAuthActivity = lastAuthActivity;
     this.profile = userProfile;
   }
 }
@@ -94,6 +102,7 @@ class StitchAdminUserFactory implements StitchUserFactory<StitchAdminUser> {
     loggedInProviderType: string,
     loggedInProviderName: string,
     isLoggedIn: boolean,
+    lastAuthActivity: Date,
     userProfile?: StitchUserProfileImpl
   ): StitchAdminUser {
     return new StitchAdminUser(
@@ -101,6 +110,7 @@ class StitchAdminUserFactory implements StitchUserFactory<StitchAdminUser> {
       loggedInProviderType,
       loggedInProviderName,
       isLoggedIn,
+      lastAuthActivity,
       userProfile!
     );
   }

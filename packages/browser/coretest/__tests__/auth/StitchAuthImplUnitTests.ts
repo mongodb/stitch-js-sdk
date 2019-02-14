@@ -28,6 +28,8 @@ function getMockUser(auth: StitchAuthImpl) {
         "test_id", 
         "test_provider", 
         "test_provider",
+        true,
+        new Date(),
         instance(mock(StitchUserProfileImpl)),
         auth
     )

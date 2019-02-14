@@ -28,6 +28,7 @@ enum Fields {
   DEVICE_ID = "device_id",
   ACCESS_TOKEN = "access_token",
   REFRESH_TOKEN = "refresh_token",
+  LAST_AUTH_ACTIVITY = "last_auth_activity",
   LOGGED_IN_PROVIDER_TYPE = "logged_in_provider_type",
   LOGGED_IN_PROVIDER_NAME = "logged_in_provider_name",
   USER_PROFILE = "user_profile"
@@ -81,6 +82,7 @@ function writeActiveUserAuthInfoToStorage(
     authInfo.refreshToken!,
     authInfo.loggedInProviderType!,
     authInfo.loggedInProviderName!,
+    authInfo.lastAuthActivity!,
     authInfo.userProfile
       ? new StoreCoreUserProfile(
           authInfo.userProfile!.userType!,
@@ -108,6 +110,7 @@ function writeAllUsersAuthInfoToStorage(
       authInfo.refreshToken!,
       authInfo.loggedInProviderType!,
       authInfo.loggedInProviderName!,
+      authInfo.lastAuthActivity!,
       authInfo.userProfile
         ? new StoreCoreUserProfile(
             authInfo.userProfile!.userType!,
@@ -141,6 +144,7 @@ class StoreAuthInfo extends AuthInfo {
     const loggedInProviderType = from[Fields.LOGGED_IN_PROVIDER_TYPE];
     const loggedInProviderName = from[Fields.LOGGED_IN_PROVIDER_NAME];
     const userProfile = from[Fields.USER_PROFILE];
+    const lastAuthActivityMillisSinceEpoch = from[Fields.LAST_AUTH_ACTIVITY];
 
     return new StoreAuthInfo(
       userId,
@@ -149,7 +153,8 @@ class StoreAuthInfo extends AuthInfo {
       refreshToken,
       loggedInProviderType,
       loggedInProviderName,
-      StoreCoreUserProfile.decode(userProfile)
+      new Date(lastAuthActivityMillisSinceEpoch),
+      StoreCoreUserProfile.decode(userProfile),
     );
   }
 
@@ -160,7 +165,8 @@ class StoreAuthInfo extends AuthInfo {
     refreshToken: string,
     loggedInProviderType: string,
     loggedInProviderName: string,
-    public readonly userProfile?: StoreCoreUserProfile
+    lastAuthActivity: Date,
+    public readonly userProfile?: StoreCoreUserProfile,
   ) {
     super(
       userId,
@@ -169,6 +175,7 @@ class StoreAuthInfo extends AuthInfo {
       refreshToken,
       loggedInProviderType,
       loggedInProviderName,
+      lastAuthActivity,
       userProfile
     );
   }
@@ -182,6 +189,9 @@ class StoreAuthInfo extends AuthInfo {
     to[Fields.DEVICE_ID] = this.deviceId;
     to[Fields.LOGGED_IN_PROVIDER_NAME] = this.loggedInProviderName;
     to[Fields.LOGGED_IN_PROVIDER_TYPE] = this.loggedInProviderType;
+    to[Fields.LAST_AUTH_ACTIVITY] = this.lastAuthActivity
+      ? this.lastAuthActivity.getTime()
+      : undefined;
     to[Fields.USER_PROFILE] = this.userProfile
       ? this.userProfile.encode()
       : undefined;

@@ -56,4 +56,10 @@ export default interface CoreStitchUser {
    *       the user was logged in at the time this user object was created.
    */
   readonly isLoggedIn: boolean;
+
+  /**
+   * The time of the last auth event involving this user. 
+   * This includes login, logout, and active user changed.
+   */
+  readonly lastAuthActivity: Date;
 }

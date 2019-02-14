@@ -15,7 +15,7 @@
  */
 
 import { sign } from "jsonwebtoken";
-import { UserPasswordAuthProviderClient, Stitch } from "mongodb-stitch-browser-core";
+import { UserPasswordAuthProviderClient, Stitch, StitchUser } from "mongodb-stitch-browser-core";
 import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
 import {
   Anon,
@@ -329,5 +329,117 @@ describe("StitchAppClient", () => {
     expect(resultDoc["stringValue"]).toBeDefined();
     expect(resultDoc["intValue"]).toEqual(42);
     expect(resultDoc["stringValue"]).toEqual("hello");
+  });
+
+  it("should update lastAuthActivity on various auth events", async () => {
+    const [appResponse, app] = await harness.createApp();
+    await harness.addProvider(app as App, new Anon());
+    await harness.addProvider(
+      app as App,
+      new Userpass(
+        "http://emailConfirmUrl.com",
+        "http://resetPasswordUrl.com",
+        "email subject",
+        "password subject"
+      )
+    );
+
+    let client = harness.getAppClient(appResponse as AppResponse);
+
+    const checkpoint1 = new Date();
+
+    // login with email provider
+    const user1Id = await harness.registerAndLoginWithUserPass(
+      app as App,
+      client,
+      "test@10gen.com",
+      "hunter1"
+    );
+
+    // login should set an authActivity after the pre-login time
+    expect(client.auth.user!.lastAuthActivity.getTime()).toBeGreaterThan(
+      checkpoint1.getTime()
+    );
+    expect(
+      client.auth.listUsers()[0].lastAuthActivity.getTime()
+    ).toBeGreaterThan(
+      checkpoint1.getTime()
+    );
+
+    const checkpoint2 = client.auth.user!.lastAuthActivity;
+
+    // login with email provider on a separate account
+    const user2Id = await harness.registerAndLoginWithUserPass(
+      app as App,
+      client,
+      "test2@10gen.com",
+      "hunter2"
+    );
+
+    // active user time should have been updated 
+    expect(client.auth.user!.lastAuthActivity.getTime()).toBeGreaterThan(
+      checkpoint2.getTime()
+    )
+
+    // both users should have been updated on new login
+    expect(
+      client.auth.listUsers()[0].lastAuthActivity.getTime()
+    ).toBeGreaterThan(
+      checkpoint2.getTime()
+    );
+
+    expect(
+      client.auth.listUsers()[1].lastAuthActivity.getTime()
+    ).toBeGreaterThan(
+      checkpoint2.getTime()
+    );
+
+    const checkpoint3 = client.auth.user!.lastAuthActivity;
+
+    // sleep a few milliseconds to simulate time passing, since user switch is
+    // instantaneous
+    let wait = ms => new Promise((resolve, _) => setTimeout(resolve, ms));
+    await wait(10);
+
+    client.auth.switchToUserWithId(user1Id);
+
+    // both users and active user lastAuthActivity should have been update on 
+    // active user switched
+    expect(client.auth.user!.lastAuthActivity.getTime()).toBeGreaterThan(
+      checkpoint3.getTime()
+    )
+
+    // both users should have been updated on new login
+    expect(
+      client.auth.listUsers()[0].lastAuthActivity.getTime()
+    ).toBeGreaterThan(
+      checkpoint3.getTime()
+    );
+
+    expect(
+      client.auth.listUsers()[1].lastAuthActivity.getTime()
+    ).toBeGreaterThan(
+      checkpoint3.getTime()
+    );
+
+    const checkpoint4 = client.auth.user!.lastAuthActivity;
+
+    await client.auth.logoutUserWithId(user2Id);
+
+    // only the logged out user should have lastAuthActivity updated on logout  
+    expect(client.auth.user!.lastAuthActivity.getTime()).toEqual(
+      checkpoint4.getTime()
+    )
+    expect(
+      client.auth.listUsers()[0].lastAuthActivity.getTime()
+    ).toEqual(
+      checkpoint4.getTime()
+    );
+
+    expect(
+      client.auth.listUsers()[1].lastAuthActivity.getTime()
+    ).toBeGreaterThan(
+      checkpoint4.getTime()
+    );
   });
 });

@@ -282,6 +282,12 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
       try {
         writeActiveUserAuthInfoToStorage(this.activeUserAuthInfo, this.storage);
+
+        this.allUsersAuthInfo.set(
+          this.activeUserAuthInfo.userId!, 
+          this.activeUserAuthInfo
+        );
+        writeAllUsersAuthInfoToStorage(this.allUsersAuthInfo, this.storage);
       } catch (err) {
         throw new StitchClientError(
           StitchClientErrorCode.CouldNotPersistAuthInfo
@@ -312,17 +318,32 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       );
     }
 
+    // Update the previous activeUserAuthInfo's lastAuthActivity if there was 
+    // a previous active user.
+    if (this.activeUserAuthInfo.hasUser) {
+      this.allUsersAuthInfo.set(
+        this.activeUserAuthInfo.userId!, 
+        this.activeUserAuthInfo.withNewAuthActivityTime()
+      );
+    }
+    const newAuthInfo = authInfo.withNewAuthActivityTime();
+    this.allUsersAuthInfo.set(
+      userId,
+      newAuthInfo
+    );
+
+
     // persist auth info storage before actually setting auth state so that
     // if the persist call throws, we are not in an inconsistent state
     // with storage
-    writeActiveUserAuthInfoToStorage(authInfo, this.storage)
+    writeActiveUserAuthInfoToStorage(newAuthInfo, this.storage)
 
     // set the active user auth info and active user to the user with ID as 
     // specified in the list of all users.
-    this.activeUserAuthInfo = authInfo;
+    this.activeUserAuthInfo = newAuthInfo;
 
     const previousUser = this.currentUser;
-    this.currentUser = this.prepUser(authInfo);
+    this.currentUser = this.prepUser(newAuthInfo);
 
     // Dispatch an ActiveUserChangedEvent indicating to listeners that the 
     // active user was switched from one user to another.
@@ -639,6 +660,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       authInfo.loggedInProviderType!,
       authInfo.loggedInProviderName!,
       authInfo.isLoggedIn,
+      authInfo.lastAuthActivity!,
       authInfo.userProfile
     );
   }
@@ -750,6 +772,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         newAuthInfo.refreshToken,
         credential.providerType,
         credential.providerName,
+        undefined,
         undefined
       )
     );
@@ -761,11 +784,20 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       credential.providerType,
       credential.providerName,
       this.activeUserAuthInfo.isLoggedIn,
+      new Date(),
       undefined
     );
 
     return this.doGetUserProfile()
       .then(profile => {
+
+        // Update the old user's auth activity if there was one
+        if (oldActiveUserInfo.hasUser) {
+          this.allUsersAuthInfo.set(
+            oldActiveUserInfo.userId!, 
+            oldActiveUserInfo.withNewAuthActivityTime()
+          );
+        }
 
         // Finally set the info and user
         newAuthInfo = newAuthInfo.merge(
@@ -776,6 +808,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
             newAuthInfo.refreshToken,
             credential.providerType,
             credential.providerName,
+            new Date(),
             profile
           )
         );
@@ -815,6 +848,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
           credential.providerType,
           credential.providerName,
           this.activeUserAuthInfo.isLoggedIn,
+          this.activeUserAuthInfo.lastAuthActivity!,
           profile
         );
 
@@ -981,6 +1015,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
           loggedOutAuthInfo.loggedInProviderType!,
           loggedOutAuthInfo.loggedInProviderName!,
           loggedOutAuthInfo.isLoggedIn,
+          loggedOutAuthInfo.lastAuthActivity!,
           loggedOutAuthInfo.userProfile
         );
       }
