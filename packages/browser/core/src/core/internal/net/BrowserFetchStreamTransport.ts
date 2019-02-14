@@ -16,40 +16,19 @@
 
 import {
   BasicRequest,
-  ContentTypes,
   EventStream,
   Headers,
+  ContentTypes,
   Response,
   Transport,
   handleRequestError
 } from "mongodb-stitch-core-sdk";
+import BrowserFetchTransport from "./BrowserFetchTransport";
 import EventSourceEventStream from "./EventSourceEventStream";
-import fetch from "cross-fetch";
+import {fetch as fetch} from 'whatwg-fetch'
 
 /** @hidden */
-export default class BrowserFetchStreamTransport implements Transport {
-  public roundTrip(request: BasicRequest): Promise<Response> {
-    const responsePromise = fetch(request.url, {
-      body: request.body,
-      headers: request.headers,
-      method: request.method,
-      mode: 'cors'
-    });
-
-    const responseTextPromise = responsePromise.then(response =>
-      response.text()
-    );
-
-    return Promise.all([responsePromise, responseTextPromise]).then(values => {
-      const response = values[0];
-      const body = values[1];
-      const headers: { [key: string]: string } = {};
-      response.headers.forEach((value, key) => {
-        headers[key] = value;
-      });
-      return new Response(headers, response.status, body);
-    });
-  }
+export default class BrowserFetchStreamTransport extends BrowserFetchTransport {
 
   public stream(request: BasicRequest, open: boolean = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
     let headers = { ...request.headers };

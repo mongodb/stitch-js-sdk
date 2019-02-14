@@ -25,7 +25,7 @@ import {
   UserPasswordCredential
 } from "mongodb-stitch-browser-core";
 import { App, AppResponse } from "mongodb-stitch-core-admin-client";
-import { BaseStitchIntTestHarness } from "mongodb-stitch-core-testutils";
+import { BaseStitchIntTestHarness, JestFetchStreamTransport } from "mongodb-stitch-core-testutils";
 
 const stitchBaseUrlEnvVar = "STITCH_BASE_URL";
 
@@ -61,6 +61,7 @@ export default class BaseStitchBrowserIntTestHarness extends BaseStitchIntTestHa
       new StitchAppClientConfiguration.Builder()
         .withBaseUrl(this.stitchBaseUrl)
         .withStorage(storage || new MemoryStorage(app.clientAppId))
+        .withTransport(new JestFetchStreamTransport())
         .build()
     );
     this.clients.push(client);

@@ -47,6 +47,7 @@
     "babel-preset-react-native": "^4.0.0",
     "jest": "^23.1.0",
     "mongodb-stitch-core-admin-client": "^4.2.0",
+    "mongodb-stitch-core-testutils": "^4.2.0",
     "mongodb-stitch-core-sdk": "^4.2.0",
     "mongodb-stitch-react-native-testutils": "^4.2.0",
     "prettier": "^1.13.5",

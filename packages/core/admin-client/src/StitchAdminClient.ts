@@ -15,7 +15,6 @@
  */
 
 import {
-  FetchTransport,
   MemoryStorage,
   Method,
   StitchAuthRequest,
@@ -26,6 +25,7 @@ import {
 import { Apps } from "./Resources";
 import StitchAdminAuth from "./StitchAdminAuth";
 import StitchAdminAuthRoutes from "./StitchAdminAuthRoutes";
+import AdminFetchTransport from "./AdminFetchTransport";
 import { StitchAdminUser } from "./StitchAdminUser";
 import {
   StitchAdminUserProfile,
@@ -42,7 +42,7 @@ export default class StitchAdminClient {
 
   public constructor(
     baseUrl: string = StitchAdminClient.defaultServerUrl,
-    transport: Transport = new FetchTransport(),
+    transport: Transport = new AdminFetchTransport(),
     requestTimeout: number = StitchAdminClient.defaultRequestTimeout
   ) {
     const requestClient = new StitchRequestClient(baseUrl, transport);

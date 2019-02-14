@@ -39,6 +39,7 @@
   "private": true,
   "dependencies": {
     "bson": "4.0.0",
+    "cross-fetch": "^2.2.3",
     "mongodb-stitch-core-sdk": "^4.2.0"
   },
   "devDependencies": {

@@ -72,7 +72,6 @@ import EventListener from "./internal/net/EventListener";
 import EventStream from "./internal/net/EventStream";
 import BaseEventStream from "./internal/net/BaseEventStream";
 import StitchEvent from "./internal/net/StitchEvent";
-import FetchTransport from "./internal/net/FetchTransport";
 import Headers from "./internal/net/Headers";
 import Method from "./internal/net/Method";
 import Response from "./internal/net/Response";
@@ -139,7 +138,6 @@ export {
   EventStream,
   BaseEventStream,
   StitchEvent,
-  FetchTransport,
   Headers,
   Stream,
   StreamListener,

@@ -33,18 +33,26 @@
     {
       "name": "Jason Flax",
       "email": "jason.flax@mongodb.com"
+    }, 
+    {
+      "name": "Tyler Kaye", 
+      "email": "tyler.kaye@mongodb.com"
+    }, 
+    {
+      "name": "Doug Kaminsky", 
+      "email": "douglas.kaminsky@mongodb.com"
     }
   ],
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
     "bson": "4.0.0",
-    "cross-fetch": "^2.2.3",
     "mongodb-stitch-core-admin-client": "^4.2.0",
     "mongodb-stitch-core-sdk": "^4.2.0"
   },
   "devDependencies": {
     "prettier": "^1.13.5",
+    "cross-fetch": "^2.2.3",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
     "typescript": "^2.9.2"

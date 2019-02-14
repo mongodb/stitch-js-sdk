@@ -15,11 +15,11 @@
  */
 
 import {
-  FetchTransport,
   StitchAppClientConfiguration
 } from "mongodb-stitch-core-sdk";
 
 import RNAsyncStorage from "./internal/common/RNAsyncStorage";
+import ReactNativeFetchTransport from "./internal/net/ReactNativeFetchTransport";
 import StitchAppClientImpl from "./internal/StitchAppClientImpl";
 import StitchAppClient from "./StitchAppClient";
 
@@ -135,7 +135,7 @@ export default class Stitch {
       builder.withStorage(new RNAsyncStorage(clientAppId));
     }
     if (builder.transport === undefined) {
-      builder.withTransport(new FetchTransport());
+      builder.withTransport(new ReactNativeFetchTransport());
     }
     if (builder.baseUrl === undefined || builder.baseUrl === "") {
       builder.withBaseUrl(DEFAULT_BASE_URL);

@@ -15,11 +15,11 @@
  */
 
 import {
-  FetchTransport,
   StitchAppClientConfiguration
 } from "mongodb-stitch-core-sdk";
 import LocalStorage from "./internal/common/LocalStorage";
 import BrowserFetchStreamTransport from "./internal/net/BrowserFetchStreamTransport";
+import BrowserFetchTransport from "./internal/net/BrowserFetchTransport";
 import StitchAppClientImpl from "./internal/StitchAppClientImpl";
 import StitchAppClient from "./StitchAppClient";
 
@@ -135,7 +135,7 @@ export default class Stitch {
       if (window["EventSource"]) {
         builder.withTransport(new BrowserFetchStreamTransport());  
       } else {
-        builder.withTransport(new FetchTransport());
+        builder.withTransport(new BrowserFetchTransport());
       }
       /* tslint:enable:no-string-literal */
     }
