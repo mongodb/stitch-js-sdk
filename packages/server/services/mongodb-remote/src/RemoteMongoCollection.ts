@@ -44,40 +44,12 @@ import RemoteMongoReadOperation from "./RemoteMongoReadOperation";
  * aggregation stages, see 
  * [Unsupported Aggregation Stages](https://docs.mongodb.com/stitch/mongodb/actions/collection.aggregate/#unsupported-aggregation-stages).
  *
- * ### Example
- *
- * Here's how to access a database and one of its collections:
- * ```
- * // Assumption: Stitch client has been initialized and is already logged in.
- * 
- * // Get the existing Stitch client.
- * const stitchClient = Stitch.defaultAppClient()
- * 
- * // Get a client of the Remote Mongo Service for database access
- * const mongoClient = stitchClient.getServiceClient(RemoteMongoClient.factory, 'mongodb-atlas')
- *
- * // Retrieve a database object
- * const db = mongoClient.db('video')
- *
- * // Retrieve the collection in the database
- * const movieDetails = db.collection('movieDetails')
- *
- * // Find 10 documents and log them to console.
- * movieDetails.find({}, {limit: 10})
- *   .toArray()
- *   .then(results => console.log('Results:', results))
- *   .catch(console.error)
- * ```
- *
- * For more examples, see [CRUD Snippets](https://docs.mongodb.com/stitch/mongodb/crud-snippets/)
- * on the MongoDB Stitch Documentation site.
- *
- * ### Note: Log in first
+ * @note Log in first
  *
  * A user will need to be logged in (at least anonymously) before you can read from
  * or write to the collection. See [[StitchAuth]].
  * 
- * ### See also
+ * @see
  * - [[RemoteMongoClient]]
  * - [[RemoteMongoDatabase]]
  * - [CRUD Snippets](https://docs.mongodb.com/stitch/mongodb/crud-snippets/)
@@ -202,10 +174,13 @@ export default interface RemoteMongoCollection<DocumentT> {
 
   /**
    * Opens a MongoDB change stream against the collection to watch for changes 
-   * made to specific documents. Please note that this method does not support 
-   * opening change streams on an entire collection or a specific query. The 
-   * documents to watch must be explicitly specified by their _id.
+   * made to specific documents. The documents to watch must be explicitly 
+   * specified by their _id.
    * 
+   * @note
+   * This method does not support opening change streams on an entire collection
+   * or a specific query.
+   *
    * @param ids the _ids of the documents to watch in this change stream
    * @return a Promise containing a stream of change events representing the 
    *         changes to the watched documents.
