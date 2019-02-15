@@ -25,6 +25,7 @@ import {
   StitchClientErrorCode
 } from "mongodb-stitch-core-sdk";
 import {fetch as fetch} from 'whatwg-fetch'
+
 /** @hidden */
 export default class BrowserFetchTransport implements Transport {
   public roundTrip(request: BasicRequest): Promise<Response> {

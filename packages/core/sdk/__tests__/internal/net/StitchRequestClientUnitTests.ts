@@ -27,8 +27,9 @@ import StitchError from "../../../src/StitchError";
 import { StitchServiceErrorCode } from "../../../src/StitchServiceErrorCode";
 import StitchServiceError from "../../../src/StitchServiceError";
 import { promises } from "fs";
+
 /** @hidden */
-// TODO: mockito does not yet support mocking interfaces but it will soon
+// Mockito does not yet support mocking interfaces but it will soon
 // https://github.com/NagRock/ts-mockito/issues/117
 export default class FakeTransport implements Transport {
   public roundTrip(request: BasicRequest): Promise<Response> {
