@@ -26,7 +26,7 @@ import {
   } from "mongodb-stitch-core-sdk";
   
   /** @hidden */
-  export default class ReactNativeFetchTransport implements Transport {
+  export default class RNFetchTransport implements Transport {
     public roundTrip(request: BasicRequest): Promise<Response> {
       const responsePromise = fetch(request.url, {
         body: request.body,
@@ -54,4 +54,3 @@ import {
       throw new StitchClientError(StitchClientErrorCode.StreamingNotSupported);
     }
   }
-  

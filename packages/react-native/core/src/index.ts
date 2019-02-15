@@ -60,7 +60,7 @@ import Stitch from "./core/Stitch";
 import StitchAppClient from "./core/StitchAppClient";
 import NamedServiceClientFactory from "./services/internal/NamedServiceClientFactory";
 import StitchServiceClient from "./services/StitchServiceClient";
-import ReactNativeFetchTransport from "./core/internal/net/ReactNativeFetchTransport";
+import RNFetchTransport from "./core/internal/net/RNFetchTransport";
 
 import RNAsyncStorage from "./core/internal/common/RNAsyncStorage";
 
@@ -79,7 +79,7 @@ export {
   GoogleCredential,
   MemoryStorage,
   NamedServiceClientFactory,
-  ReactNativeFetchTransport,
+  RNFetchTransport,
   RNAsyncStorage,
   ServerApiKeyAuthProvider,
   ServerApiKeyCredential,
