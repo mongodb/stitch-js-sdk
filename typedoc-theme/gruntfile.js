@@ -58,7 +58,15 @@ module.exports = function(grunt)
                     src: ['*'],
                     dest: 'bin/assets/fonts'
                 }]
-            }
+            },
+            css: {
+                files: [{
+                    expand: true,
+                    cwd: 'src/assets/css',
+                    src: ['**/*.css'],
+                    dest: 'bin/assets/css'
+                }]
+            },
         },
     });
 

@@ -1,6 +1,9 @@
 {{#with comment}}
     {{#if hasVisibleComponent}}
         <div class="tsd-comment tsd-typography">
+            {{#if ../hasOwnDocument}}
+              <h1>{{{../name}}}</h1>
+            {{/if}}
             {{#if shortText}}
                 <div class="lead">
                     {{#markdown}}{{{shortText}}}{{/markdown}}

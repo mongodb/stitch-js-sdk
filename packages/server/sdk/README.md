@@ -4,7 +4,7 @@
 
 The official [MongoDB Stitch](https://www.mongodb.com/cloud/stitch) Server SDK for JavaScript/TypeScript.
 
-### Index
+## Index
 - [Documentation](#documentation)
 - [Discussion](#discussion)
 - [Installation](#installation)
