@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-core-testutils",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "description": "",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -33,13 +33,13 @@
     {
       "name": "Jason Flax",
       "email": "jason.flax@mongodb.com"
-    }, 
+    },
     {
-      "name": "Tyler Kaye", 
+      "name": "Tyler Kaye",
       "email": "tyler.kaye@mongodb.com"
-    }, 
+    },
     {
-      "name": "Doug Kaminsky", 
+      "name": "Doug Kaminsky",
       "email": "douglas.kaminsky@mongodb.com"
     }
   ],
@@ -47,12 +47,12 @@
   "private": true,
   "dependencies": {
     "bson": "4.0.0",
-    "mongodb-stitch-core-admin-client": "^4.2.0",
-    "mongodb-stitch-core-sdk": "^4.2.0"
+    "mongodb-stitch-core-admin-client": "^4.3.0",
+    "mongodb-stitch-core-sdk": "^4.3.0"
   },
   "devDependencies": {
-    "prettier": "^1.13.5",
     "cross-fetch": "^2.2.3",
+    "prettier": "^1.13.5",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
     "typescript": "^2.9.2"
