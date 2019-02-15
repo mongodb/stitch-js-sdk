@@ -81,6 +81,19 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
       this.proxy.find(query, options)
     );
   }
+   
+  /**
+   * Finds one document in the collection.
+   *
+   * @param query the query filter
+   * @return the resulting document or undefined if the query resulted in zero matches
+   */
+  public findOne(
+    query?: object,
+    options?: RemoteFindOptions
+  ): Promise<DocumentT | undefined> {
+    return this.proxy.findOne(query, options);
+  }
 
   /**
    * Aggregates documents according to the specified aggregation pipeline.
