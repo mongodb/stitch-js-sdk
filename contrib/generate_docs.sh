@@ -69,6 +69,6 @@ typedoc \
     --theme typedoc-theme/bin/ \
     $gaID \
     --plugin \
-      "`pwd`"/contrib/typedoc-plugin-code-examples,"`pwd`"/contrib/typedoc-plugin-tags-by-name \
+      "`pwd`"/contrib/typedoc-plugin-code-examples,"`pwd`"/contrib/typedoc-plugin-tags-by-name,"`pwd`"/contrib/typedoc-plugin-copy-buttons-support \
     --examplesPath contrib/docs-examples/snippets/$sdk,contrib/docs-examples/snippets
 
