@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-import { BasicRequest } from "./BasicRequest";
-import ContentTypes from "./ContentTypes";
-import EventStream from "./EventStream";
-import Headers from "./Headers";
-import Response from "./Response";
-import Transport from "./Transport";
-import StitchClientError from "../../StitchClientError";
-import { StitchClientErrorCode } from "../../StitchClientErrorCode";
 import fetch from "cross-fetch";
+import {
+    BasicRequest,
+    ContentTypes,
+    EventStream,
+    Headers,
+    Response,
+    StitchClientError, 
+    StitchClientErrorCode, 
+    Transport
+  } from "mongodb-stitch-core-sdk";
 
 /** @hidden */
-export default class FetchTransport implements Transport {
+export default class JestFetchTransport implements Transport {
   public roundTrip(request: BasicRequest): Promise<Response> {
     const responsePromise = fetch(request.url, {
       body: request.body,
@@ -49,7 +51,7 @@ export default class FetchTransport implements Transport {
     });
   }
 
-  public stream(request: BasicRequest, open: boolean = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
+  public stream(request: BasicRequest, open = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
     throw new StitchClientError(StitchClientErrorCode.StreamingNotSupported);
   }
 }

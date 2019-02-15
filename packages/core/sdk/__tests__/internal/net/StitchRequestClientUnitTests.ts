@@ -16,7 +16,7 @@
 
 import { EJSON } from "bson";
 import { anything, capture, instance, mock, when } from "ts-mockito";
-import { FetchTransport, StitchRequestClient } from "../../../src";
+import { Transport, StitchRequestClient, Response, EventStream} from "../../../src";
 import { BasicRequest } from "../../../src/internal/net/BasicRequest";
 import ContentTypes from "../../../src/internal/net/ContentTypes";
 import Headers from "../../../src/internal/net/Headers";
@@ -26,12 +26,26 @@ import { StitchRequest } from "../../../src/internal/net/StitchRequest";
 import StitchError from "../../../src/StitchError";
 import { StitchServiceErrorCode } from "../../../src/StitchServiceErrorCode";
 import StitchServiceError from "../../../src/StitchServiceError";
+import { promises } from "fs";
+/** @hidden */
+// TODO: mockito does not yet support mocking interfaces but it will soon
+// https://github.com/NagRock/ts-mockito/issues/117
+export default class FakeTransport implements Transport {
+  public roundTrip(request: BasicRequest): Promise<Response> {
+    return Promise.reject("")
+  }
+
+  public stream(request: BasicRequest, open: boolean = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
+    return Promise.reject("")
+  }
+}
 
 describe("StitchRequestClientUnitTests", () => {
   it("should doRequest", () => {
     const domain = "http://domain.com";
-    const transportMock = mock(FetchTransport);
+    const transportMock = mock(FakeTransport);
     const transport = instance(transportMock);
+
     const stitchRequestClient = new StitchRequestClient(domain, transport);
 
     // A bad response should throw an exception
@@ -147,7 +161,7 @@ describe("StitchRequestClientUnitTests", () => {
 
   it("should test doJSONRequestWithDoc", () => {
     const domain = "http://domain.com";
-    const transportMock = mock(FetchTransport);
+    const transportMock = mock(FakeTransport);
     const transport = instance(transportMock);
     const stitchRequestClient = new StitchRequestClient(domain, transport);
 
@@ -264,7 +278,7 @@ describe("StitchRequestClientUnitTests", () => {
 
   it("should handle non canonical headers", () => {
     const domain = "http://domain.com";
-    const transportMock = mock(FetchTransport);
+    const transportMock = mock(FakeTransport);
     const transport = instance(transportMock);
 
     const stitchRequestClient = new StitchRequestClient(domain, transport);

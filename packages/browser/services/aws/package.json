@@ -46,6 +46,7 @@
     "mongodb-stitch-browser-testutils": "^4.2.0",
     "mongodb-stitch-core-admin-client": "^4.2.0",
     "mongodb-stitch-core-sdk": "^4.2.0",
+    "mongodb-stitch-core-testutils": "^4.2.0",
     "prettier": "^1.13.5",
     "rollup": "^0.60.7",
     "ts-jest": "^22.4.6",

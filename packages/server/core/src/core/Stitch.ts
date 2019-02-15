@@ -21,10 +21,9 @@ import {
 import { homedir } from "os"
 import { isAbsolute, join, resolve, sep } from "path"
 import FileStorage from "./internal/common/FileStorage";
+import NodeFetchStreamTransport from "./internal/net/NodeFetchStreamTransport";
 import StitchAppClientImpl from "./internal/StitchAppClientImpl";
 import StitchAppClient from "./StitchAppClient";
-
-import NodeFetchStreamTransport from "./internal/net/NodeFetchStreamTransport";
 
 const DEFAULT_BASE_URL = "https://stitch.mongodb.com";
 const DEFAULT_STITCH_DIR = ".stitch/apps";

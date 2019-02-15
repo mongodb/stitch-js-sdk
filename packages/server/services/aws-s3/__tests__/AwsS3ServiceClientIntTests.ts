@@ -25,12 +25,14 @@ import {
 } from "mongodb-stitch-core-admin-client";
 import {
   BSON,
-  FetchTransport,
   Method,
   StitchServiceError,
   StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
-import { AnonymousCredential } from "mongodb-stitch-server-core";
+import { 
+  AnonymousCredential,  
+  NodeFetchStreamTransport
+} from "mongodb-stitch-server-core";
 import { BaseStitchServerIntTestHarness } from "mongodb-stitch-server-testutils";
 import { AwsS3ServiceClient } from "../src";
 
@@ -90,7 +92,7 @@ describe("AwsS3ServiceClient", () => {
 
     // Putting with all good params for S3 should work
     const bucketGood = "stitch-test-sdkfiles";
-    const transport = new FetchTransport();
+    const transport = new NodeFetchStreamTransport();
 
     let result = await awsS3.putObject(bucketGood, key, acl, contentType, body);
     let expectedLocation = `https://stitch-test-sdkfiles.s3.amazonaws.com/${key}`;

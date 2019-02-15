@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-import { AnonymousCredential, BSON } from "mongodb-stitch-browser-core";
+import { 
+  AnonymousCredential,
+  BSON
+} from "mongodb-stitch-browser-core";
 import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
 import {
   Anon,
@@ -26,11 +29,11 @@ import {
   Service
 } from "mongodb-stitch-core-admin-client";
 import {
-  FetchTransport,
   Method,
   StitchServiceError,
   StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
+import { JestFetchTransport } from "mongodb-stitch-core-testutils";
 import { AwsS3ServiceClient } from "../src";
 
 const harness = new BaseStitchBrowserIntTestHarness();
@@ -89,7 +92,7 @@ describe("AwsS3ServiceClient", () => {
 
     // Putting with all good params for S3 should work
     const bucketGood = "stitch-test-sdkfiles";
-    const transport = new FetchTransport();
+    const transport = new JestFetchTransport();
 
     let result = await awsS3.putObject(bucketGood, key, acl, contentType, body);
     let expectedLocation = `https://stitch-test-sdkfiles.s3.amazonaws.com/${key}`;

@@ -25,12 +25,14 @@ import {
 } from "mongodb-stitch-core-admin-client";
 import {
   BSON,
-  FetchTransport,
   Method,
   StitchServiceError,
   StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
-import { AnonymousCredential } from "mongodb-stitch-react-native-core";
+import { JestFetchTransport } from "mongodb-stitch-core-testutils";
+import { 
+  AnonymousCredential, 
+} from "mongodb-stitch-react-native-core";
 import { BaseStitchRNIntTestHarness } from "mongodb-stitch-react-native-testutils";
 import { AwsS3ServiceClient } from "../src";
 
@@ -90,7 +92,7 @@ describe("AwsS3ServiceClient", () => {
 
     // Putting with all good params for S3 should work
     const bucketGood = "stitch-test-sdkfiles";
-    const transport = new FetchTransport();
+    const transport = new JestFetchTransport();
 
     let result = await awsS3.putObject(bucketGood, key, acl, contentType, body);
     let expectedLocation = `https://stitch-test-sdkfiles.s3.amazonaws.com/${key}`;

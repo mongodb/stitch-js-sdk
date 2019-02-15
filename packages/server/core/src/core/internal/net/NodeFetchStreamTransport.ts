@@ -25,7 +25,7 @@ import {
 } from "mongodb-stitch-core-sdk";
 import EventSourceEventStream from "./EventSourceEventStream";
 import EventSource from "eventsource";
-import fetch from "cross-fetch";
+import fetch from "node-fetch";
 
 /** @hidden */
 export default class NodeFetchStreamTransport implements Transport {

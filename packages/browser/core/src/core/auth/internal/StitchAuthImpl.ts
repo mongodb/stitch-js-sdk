@@ -16,8 +16,6 @@
 
 import { detect } from "detect-browser";
 
-// import cross-fetch as a polyfill so we can also use the Request class
-import "cross-fetch/polyfill"
 import {
   AuthInfo,
   AuthEvent,
