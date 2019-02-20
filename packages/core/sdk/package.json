@@ -46,7 +46,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "base64-js": "^1.3.0",
-    "bson": "4.0.0"
+    "bson": "4.0.0", 
+    "jsonwebtoken": "8.2.1"
   },
   "devDependencies": {
     "jest": "^23.1.0",
@@ -55,7 +56,8 @@
     "ts-jest": "^22.4.6",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
-    "typescript": "^2.9.2"
+    "typescript": "^2.9.2", 
+    "ts-mockito": "^2.3.0"
   },
   "scripts": {
     "build": "npm run build-main && npm run build-module",

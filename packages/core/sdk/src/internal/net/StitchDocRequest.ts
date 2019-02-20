@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { StitchRequest } from "./StitchRequest";
-import Headers from "./Headers";
-import ContentTypes from "./ContentTypes";
 import { EJSON } from "bson";
+import ContentTypes from "./ContentTypes";
+import Headers from "./Headers";
+import { StitchRequest } from "./StitchRequest";
 
 /** @hidden */
 export class StitchDocRequest extends StitchRequest {

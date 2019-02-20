@@ -59,7 +59,7 @@ export default class CoreUserPasswordAuthProviderClient extends CoreAuthProvider
       [RegistrationFields.EMAIL]: email,
       [RegistrationFields.PASSWORD]: password
     });
-    return this.requestClient.doRequest(reqBuilder.build()).then(() => {});
+    return this.requestClient.doRequest(reqBuilder.build()).then(() => {/**/});
   }
 
   protected confirmUserInternal(token: string, tokenId: string): Promise<void> {
@@ -69,7 +69,7 @@ export default class CoreUserPasswordAuthProviderClient extends CoreAuthProvider
       [ActionFields.TOKEN]: token,
       [ActionFields.TOKEN_ID]: tokenId
     });
-    return this.requestClient.doRequest(reqBuilder.build()).then(() => {});
+    return this.requestClient.doRequest(reqBuilder.build()).then(() => {/**/});
   }
 
   protected resendConfirmationEmailInternal(email: string): Promise<void> {
@@ -78,7 +78,7 @@ export default class CoreUserPasswordAuthProviderClient extends CoreAuthProvider
       .withMethod(Method.POST)
       .withPath(this.getResendConfirmationEmailRoute());
     reqBuilder.withDocument({ [ActionFields.EMAIL]: email });
-    return this.requestClient.doRequest(reqBuilder.build()).then(() => {});
+    return this.requestClient.doRequest(reqBuilder.build()).then(() => {/**/});
   }
 
   protected resetPasswordInternal(
@@ -93,7 +93,7 @@ export default class CoreUserPasswordAuthProviderClient extends CoreAuthProvider
       [ActionFields.TOKEN_ID]: tokenId,
       [ActionFields.PASSWORD]: password
     });
-    return this.requestClient.doRequest(reqBuilder.build()).then(() => {});
+    return this.requestClient.doRequest(reqBuilder.build()).then(() => {/**/});
   }
 
   protected sendResetPasswordEmailInternal(email: string): Promise<void> {
@@ -102,7 +102,7 @@ export default class CoreUserPasswordAuthProviderClient extends CoreAuthProvider
       .withMethod(Method.POST)
       .withPath(this.getSendResetPasswordEmailRoute());
     reqBuilder.withDocument({ [ActionFields.EMAIL]: email });
-    return this.requestClient.doRequest(reqBuilder.build()).then(() => {});
+    return this.requestClient.doRequest(reqBuilder.build()).then(() => {/**/});
   }
 
   private getRegisterWithEmailRoute(): string {

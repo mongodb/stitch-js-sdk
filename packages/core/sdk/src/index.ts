@@ -16,9 +16,9 @@
 
 import BSON from "bson";
 import { 
+  ActiveUserChanged, 
   AuthEvent, 
   AuthEventKind, 
-  ActiveUserChanged, 
   ListenerRegistered, 
   UserAdded,
   UserLinked,
@@ -44,7 +44,6 @@ import FacebookAuthProvider from "./auth/providers/facebook/FacebookAuthProvider
 import FacebookCredential from "./auth/providers/facebook/FacebookCredential";
 import GoogleAuthProvider from "./auth/providers/google/GoogleAuthProvider";
 import GoogleCredential from "./auth/providers/google/GoogleCredential";
-import StitchAuthCredential from "./auth/providers/internal/StitchAuthResponseCredential";
 import StitchAuthResponseCredential from "./auth/providers/internal/StitchAuthResponseCredential";
 import ServerApiKeyAuthProvider from "./auth/providers/serverapikey/ServerApiKeyAuthProvider";
 import ServerApiKeyCredential from "./auth/providers/serverapikey/ServerApiKeyCredential";
@@ -62,25 +61,23 @@ import UserType from "./auth/UserType";
 import Assertions from "./internal/common/Assertions"
 import { base64Decode, base64Encode, utf8Slice } from "./internal/common/Base64";
 import { Codec, Decoder, Encoder } from "./internal/common/Codec";
-import { MemoryStorage, Storage } from "./internal/common/Storage";
 import { handleRequestError } from "./internal/common/StitchErrorUtils";
+import { MemoryStorage, Storage } from "./internal/common/Storage";
 import CoreStitchAppClient from "./internal/CoreStitchAppClient";
+import BaseEventStream from "./internal/net/BaseEventStream";
 import { BasicRequest } from "./internal/net/BasicRequest";
 import ContentTypes from "./internal/net/ContentTypes";
 import Event from "./internal/net/Event";
 import EventListener from "./internal/net/EventListener";
 import EventStream from "./internal/net/EventStream";
-import BaseEventStream from "./internal/net/BaseEventStream";
-import StitchEvent from "./internal/net/StitchEvent";
 import Headers from "./internal/net/Headers";
 import Method from "./internal/net/Method";
 import Response from "./internal/net/Response";
-import Stream from "./Stream";
-import StreamListener from "./StreamListener";
 import StitchAppAuthRoutes from "./internal/net/StitchAppAuthRoutes";
 import StitchAppRequestClient from "./internal/net/StitchAppRequestClient";
 import StitchAppRoutes from "./internal/net/StitchAppRoutes";
 import { StitchAuthRequest } from "./internal/net/StitchAuthRequest";
+import StitchEvent from "./internal/net/StitchEvent";
 import StitchRequestClient from "./internal/net/StitchRequestClient";
 import Transport from "./internal/net/Transport";
 import CoreStitchServiceClient from "./services/internal/CoreStitchServiceClient";
@@ -95,6 +92,8 @@ import StitchRequestError from "./StitchRequestError";
 import { StitchRequestErrorCode } from "./StitchRequestErrorCode";
 import StitchServiceError from "./StitchServiceError";
 import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
+import Stream from "./Stream";
+import StreamListener from "./StreamListener";
 
 export {
   BSON,
@@ -114,7 +113,6 @@ export {
   UserApiKeyAuthProvider,
   UserApiKey,
   UserApiKeyCredential,
-  StitchAuthCredential,
   Codec,
   Decoder,
   Encoder,

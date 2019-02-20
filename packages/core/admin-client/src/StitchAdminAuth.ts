@@ -15,13 +15,13 @@
  */
 
 import {
+  AuthEvent,
   CoreStitchAuth,
   DeviceFields,
   StitchAuthRoutes,
   StitchRequestClient,
   StitchUserFactory,
-  Storage,
-  AuthEvent
+  Storage
 } from "mongodb-stitch-core-sdk";
 import { StitchAdminUser, StitchAdminUserFactory } from "./StitchAdminUser";
 

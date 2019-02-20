@@ -15,15 +15,15 @@
  */
 
 import { EJSON } from 'bson';
-import CoreStitchServiceClient from "./CoreStitchServiceClient";
-import StitchServiceRoutes from "./StitchServiceRoutes";
 import StitchAuthRequestClient from "../../auth/internal/StitchAuthRequestClient";
-import { Decoder } from "../../internal/common/Codec";
 import { base64Encode } from "../../internal/common/Base64";
+import { Decoder } from "../../internal/common/Codec";
 import Method from "../../internal/net/Method";
 import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 import Stream from "../../Stream";
+import CoreStitchServiceClient from "./CoreStitchServiceClient";
+import StitchServiceRoutes from "./StitchServiceRoutes";
 
 /** @hidden */
 export default class CoreStitchServiceClientImpl
@@ -70,9 +70,9 @@ export default class CoreStitchServiceClientImpl
   ): StitchAuthRequest {
     const body = { name };
     if (this.serviceName !== undefined) {
-      body["service"] = this.serviceName;
+      body["service".toString()] = this.serviceName;
     }
-    body["arguments"] = args;
+    body["arguments".toString()] = args;
 
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
@@ -88,9 +88,9 @@ export default class CoreStitchServiceClientImpl
   ): StitchAuthRequest {
     const body = { name };
     if (this.serviceName !== undefined) {
-      body["service"] = this.serviceName;
+      body["service".toString()] = this.serviceName;
     }
-    body["arguments"] = args;
+    body["arguments".toString()] = args;
 
     const reqBuilder = new StitchAuthDocRequest.Builder();
     reqBuilder

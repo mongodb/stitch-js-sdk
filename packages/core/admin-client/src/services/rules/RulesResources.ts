@@ -87,7 +87,7 @@ export class RuleCreatorCodec implements Encoder<RuleCreator> {
 
 export class MongoDbCodec implements Encoder<MongoDbRuleCreator> {
   public encode(from: MongoDbRuleCreator): object {
-    from.rule["namespace"] = from.namespace;
+    from.rule["namespace".toString()] = from.namespace;
     return from.rule;
   }
 }

@@ -146,9 +146,8 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       .withShouldRefreshOnFailure(false)
       .withDocument({ name: apiKeyName });
 
-    return testClientCall((client: CoreUserApiKeyAuthProviderClient) => {
-      return client.createApiKey(apiKeyName);
-    }, expectedRequestBuilder.build());
+    return testClientCall((client: CoreUserApiKeyAuthProviderClient) =>
+      client.createApiKey(apiKeyName), expectedRequestBuilder.build());
   });
 
   it("should fetch api key", () => {
@@ -162,9 +161,8 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       .withShouldRefreshOnFailure(false);
 
     return testClientCall(
-      (client: CoreUserApiKeyAuthProviderClient) => {
-        return client.fetchApiKey(keyToFetch);
-      },
+      (client: CoreUserApiKeyAuthProviderClient) =>
+        client.fetchApiKey(keyToFetch),
       expectedRequestBuilder.build(),
       keyToFetch.toHexString()
     );
@@ -178,9 +176,8 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       .withPath(routes.baseAuthRoute + "/api_keys")
       .withRefreshToken()
       .withShouldRefreshOnFailure(false);
-    return testClientCall(client => {
-      return client.fetchApiKeys();
-    }, expectedRequestBuilder.build());
+    return testClientCall(client =>
+      client.fetchApiKeys(), expectedRequestBuilder.build());
   });
 
   it("should enable api key", () => {
@@ -197,9 +194,8 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       )
       .withRefreshToken()
       .withShouldRefreshOnFailure(false);
-    testClientCall((client: CoreUserApiKeyAuthProviderClient) => {
-      return client.enableApiKey(keyToEnable);
-    }, expectedRequestBuilder.build());
+    testClientCall((client: CoreUserApiKeyAuthProviderClient) =>
+      client.enableApiKey(keyToEnable), expectedRequestBuilder.build());
   });
 
   it("should disable api key", () => {
@@ -216,9 +212,8 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       )
       .withRefreshToken()
       .withShouldRefreshOnFailure(false);
-    testClientCall(client => {
-      return client.disableApiKey(keyToDisable);
-    }, expectedRequestBuilder.build());
+    testClientCall(client =>
+      client.disableApiKey(keyToDisable), expectedRequestBuilder.build());
   });
 
   it("should delete api key", () => {
@@ -230,8 +225,7 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       .withPath(routes.baseAuthRoute + "/api_keys/" + keyToDelete.toHexString())
       .withRefreshToken()
       .withShouldRefreshOnFailure(false);
-    testClientCall(client => {
-      return client.deleteApiKey(keyToDelete);
-    }, expectedRequestBuilder.build());
+    testClientCall(client =>
+      client.deleteApiKey(keyToDelete), expectedRequestBuilder.build());
   });
 });

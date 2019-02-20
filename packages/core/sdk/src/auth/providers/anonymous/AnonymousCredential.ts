@@ -24,7 +24,7 @@ import AnonymousAuthProvider from "./AnonymousAuthProvider";
  *
  * @see
  * - [[StitchAuth.loginWithCredential]] 
-*/
+ */
 export default class AnonymousCredential implements StitchCredential {
   /**
    * The name of the provider for this credential.

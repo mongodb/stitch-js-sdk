@@ -22,10 +22,11 @@ import {
   StitchRequestClient,
   Transport
 } from "mongodb-stitch-core-sdk";
+
+import AdminFetchTransport from "./AdminFetchTransport";
 import { Apps } from "./Resources";
 import StitchAdminAuth from "./StitchAdminAuth";
 import StitchAdminAuthRoutes from "./StitchAdminAuthRoutes";
-import AdminFetchTransport from "./AdminFetchTransport";
 import { StitchAdminUser } from "./StitchAdminUser";
 import {
   StitchAdminUserProfile,
