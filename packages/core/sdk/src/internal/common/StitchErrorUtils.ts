@@ -76,7 +76,7 @@ export function handleRequestError(response: Response): never {
 
   const errorMsg: string = handleRichError(response, body);
 
-  // Ff the above function call didn't throw, throw an unknown error here
+  // If the above function call didn't throw, throw an unknown error here
   throw new StitchServiceError(errorMsg, StitchServiceErrorCode.Unknown);
 }
 

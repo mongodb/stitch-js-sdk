@@ -451,7 +451,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
        * user.
        */
 
-      // Ff the user was anonymous, delete the user, since you can't log back
+      // If the user was anonymous, delete the user, since you can't log back
       // In to an anonymous user after they have logged out.
       if (authInfo.loggedInProviderType === AnonymousAuthProvider.TYPE) {
         this.removeUserWithIdInternal(authInfo.userId!);

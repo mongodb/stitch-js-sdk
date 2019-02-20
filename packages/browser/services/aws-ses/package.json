@@ -69,7 +69,7 @@
     "watch": "tsc -w -p tsconfig.esm.json",
     "test": "jest",
     "lint": "tslint 'src/**/*.ts' '__tests__/**/*.ts'",
-    "lint-fix": "tslint --fix 'src/**/*.ts'' __tests__/**/*.ts'",
+    "lint-fix": "tslint --fix 'src/**/*.ts' '__tests__/**/*.ts'",
     "lint-check": "tslint-config-prettier-check ./tslint.json",
     "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\""
   },
