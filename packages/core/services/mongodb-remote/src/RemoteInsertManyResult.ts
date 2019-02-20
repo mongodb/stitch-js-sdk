@@ -30,7 +30,8 @@ export default class RemoteInsertManyResult {
    */
   public readonly insertedIds: {[key: number]: string};
 
-  /** @hidden
+  /** 
+   * @hidden
    * Given an ordered array of insertedIds, creates a corresponding 
    * {@link RemoteInsertManyResult}.
    */

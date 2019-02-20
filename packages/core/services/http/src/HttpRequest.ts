@@ -51,7 +51,7 @@ export namespace HttpRequest {
     /**
      * Constructs a new builder for an HTTP request.
      */
-    public constructor() {}
+    public constructor() {/* */}
 
     /**
      * Sets the Url that the request will be performed against.
@@ -167,11 +167,11 @@ export namespace HttpRequest {
      * @return the built HTTP request.
      */
     public build(): HttpRequest {
-      if (this.url == null || this.url === "") {
+      if (this.url === undefined || this.url === "") {
         throw new Error("must set url");
       }
 
-      if (this.method == null) {
+      if (this.method === undefined) {
         throw new Error("must set method");
       }
 

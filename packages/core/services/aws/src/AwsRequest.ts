@@ -40,7 +40,7 @@ export namespace AwsRequest {
     /**
      * Constructs a new builder for an AWS request.
      */
-    public constructor() {}
+    public constructor() {/* */}
 
     /**
      * Sets the AWS service that the action in the request will be performed 
@@ -94,11 +94,11 @@ export namespace AwsRequest {
      * @return the built AWS request.
      */
     public build(): AwsRequest {
-      if(!this.service || this.service == "") {
+      if(!this.service || this.service === "") {
         throw new Error("must set service");
       }
 
-      if(!this.action || this.action == "") {
+      if(!this.action || this.action === "") {
         throw new Error("must set action");
       }
 
