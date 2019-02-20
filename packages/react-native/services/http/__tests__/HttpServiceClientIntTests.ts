@@ -71,8 +71,8 @@ describe("HttpServiceClient", () => {
     const headers = {};
     headers.Myheader = ["value1", "value2"];
 
-    // due to httpbin bug that doesn't return Content-Length without these 
-    // the Accept-Encoding header defined 
+    // Due to httpbin bug that doesn't return Content-Length without these 
+    // The Accept-Encoding header defined 
     headers["Accept-Encoding"] = ["none"];
 
     let badRequest = new HttpRequest.Builder()
