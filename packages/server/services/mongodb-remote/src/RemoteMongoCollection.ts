@@ -185,5 +185,5 @@ export default interface RemoteMongoCollection<DocumentT> {
    * @return a Promise containing a stream of change events representing the 
    *         changes to the watched documents.
    */
-  watch(ids: Array<any>): Promise<Stream<ChangeEvent<DocumentT>>>;
+  watch(ids: any[]): Promise<Stream<ChangeEvent<DocumentT>>>;
 }

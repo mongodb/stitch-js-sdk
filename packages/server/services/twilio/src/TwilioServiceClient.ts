@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-import { NamedServiceClientFactory } from "mongodb-stitch-server-core";
 import {
   CoreStitchServiceClient,
   StitchAppClientInfo
 } from "mongodb-stitch-core-sdk";
 import { CoreTwilioServiceClient } from "mongodb-stitch-core-services-twilio";
+import { NamedServiceClientFactory } from "mongodb-stitch-server-core";
+
 import TwilioServiceClientImpl from "./internal/TwilioServiceClientImpl";
 
 /**

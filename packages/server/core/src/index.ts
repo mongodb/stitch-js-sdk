@@ -52,16 +52,17 @@ import {
   UserPasswordCredential,
   UserType
 } from "mongodb-stitch-core-sdk";
+
 import { UserApiKeyAuthProviderClient } from "./core/auth/providers/userapikey/UserApiKeyAuthProviderClient";
 import { UserPasswordAuthProviderClient } from "./core/auth/providers/userpassword/UserPasswordAuthProviderClient";
 import StitchAuth from "./core/auth/StitchAuth";
 import StitchAuthListener from "./core/auth/StitchAuthListener";
 import StitchUser from "./core/auth/StitchUser";
+import NodeFetchStreamTransport from "./core/internal/net/NodeFetchStreamTransport";
 import Stitch from "./core/Stitch";
 import StitchAppClient from "./core/StitchAppClient";
 import NamedServiceClientFactory from "./services/internal/NamedServiceClientFactory";
 import StitchServiceClient from "./services/StitchServiceClient";
-import NodeFetchStreamTransport from "./core/internal/net/NodeFetchStreamTransport";
 
 export {
   AnonymousAuthProvider,

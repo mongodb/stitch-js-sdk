@@ -33,6 +33,14 @@
     {
       "name": "Jason Flax",
       "email": "jason.flax@mongodb.com"
+    }, 
+    {
+      "name": "Doug Kaminsky", 
+      "email": "douglas.kaminsky@mongodb.com"
+    }, 
+    {
+      "name": "Tyler Kaye", 
+      "email": "tyler.kaye@mongodb.com"
     }
   ],
   "license": "Apache-2.0",
@@ -59,8 +67,8 @@
     "prepare": "npm run build",
     "watch": "tsc -w -p tsconfig.esm.json",
     "test": "jest",
-    "lint": "tslint src/**/*.ts __tests__/**/*.ts",
-    "lint-fix": "tslint --fix src/**/*.ts __tests__/**/*.ts",
+    "lint": "tslint 'src/**/*.ts' '__tests__/**/*.ts'",
+    "lint-fix": "tslint --fix 'src/**/*.ts' '__tests__/**/*.ts'",
     "lint-check": "tslint-config-prettier-check ./tslint.json",
     "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\""
   },

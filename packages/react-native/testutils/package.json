@@ -34,6 +34,14 @@
     {
       "name": "Jason Flax",
       "email": "jason.flax@mongodb.com"
+    }, 
+    {
+      "name": "Doug Kaminsky", 
+      "email": "douglas.kaminsky@mongodb.com"
+    }, 
+    {
+      "name": "Tyler Kaye", 
+      "email": "tyler.kaye@mongodb.com"
     }
   ],
   "license": "Apache-2.0",

@@ -17,8 +17,9 @@
 import { 
   CoreStitchUser, 
   StitchCredential, 
-  StitchUserProfile, 
-  StitchUserIdentity } from "mongodb-stitch-core-sdk";
+  StitchUserIdentity,
+  StitchUserProfile
+} from "mongodb-stitch-core-sdk";
     
 /**
  * The StitchUser represents the currently logged-in user of the [[StitchAppClient]].
