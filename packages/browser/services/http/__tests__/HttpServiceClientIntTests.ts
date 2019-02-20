@@ -69,7 +69,11 @@ describe("HttpServiceClient", () => {
     cookies.bob = "barker";
     const form = {};
     const headers = {};
-    headers.myHeader = ["value1", "value2"];
+    headers.Myheader = ["value1", "value2"];
+
+    // due to httpbin bug that doesn't return Content-Length without these 
+    // the Accept-Encoding header defined 
+    headers["Accept-Encoding"] = ["none"];
 
     let badRequest = new HttpRequest.Builder()
       .withUrl(badUrl)
