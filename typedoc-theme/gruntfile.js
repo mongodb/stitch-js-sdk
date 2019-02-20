@@ -32,7 +32,8 @@ module.exports = function(grunt)
             'bin/assets/js/bootstrap.min.js': 'https://raw.githubusercontent.com/mongodb/docs-tools/master/themes/mongodb/static/lib/bootstrap.min.js',
             'bin/assets/js/underscore.min.js': 'https://raw.githubusercontent.com/mongodb/docs-tools/master/themes/mongodb/static/lib/underscore-min.js',
             'bin/assets/js/jquery.min.js': 'https://raw.githubusercontent.com/mongodb/docs-tools/master/themes/mongodb/static/lib/jquery.min.js',
-            'bin/assets/js/jquery.cookie.js': 'https://raw.githubusercontent.com/mongodb/docs-tools/master/themes/mongodb/static/lib/jquery.cookie.js'
+            'bin/assets/js/jquery.cookie.js': 'https://raw.githubusercontent.com/mongodb/docs-tools/master/themes/mongodb/static/lib/jquery.cookie.js',
+            'bin/assets/js/copy-buttons.min.js': 'https://raw.githubusercontent.com/mongodb/docs-tools/master/themes/mongodb/static/copy-buttons.min.js'
         },
         copy: {
             plugin: {

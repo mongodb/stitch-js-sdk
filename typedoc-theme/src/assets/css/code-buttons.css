@@ -1,0 +1,128 @@
+.button-row {
+  /* background-color: #494747; */
+  background-image: url(https://media.mongodb.org/code-block-bg.png);
+  display: flex;
+  flex-direction: row-reverse;
+  border-left: 5px solid rgb(73, 71, 71);
+  height: 24px;
+}
+
+.code-button {
+  color: #ffffff;
+  flex-grow: 0;
+  min-width: 75px;
+  background: #7a7b7b;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+
+  position: relative;
+  height: 100%;
+  line-height: 16px;
+  margin: 0px 1px;
+  padding: 4px 8px;
+  border-radius: 0px;
+
+  user-select: none;
+}
+
+.code-button:first-of-type {
+  margin-right: 4px;
+  margin-right: 0px;
+}
+
+.code-button:hover, .code-button:focus {
+  background: #9d9e9e;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.code-button:active {
+  background: #7a7b7b;
+}
+
+.code-button__tooltip {
+  border-radius: 6px;
+  display: inline-block;
+  font-size: 13px;
+  opacity: 0;
+  padding: 4px 16px;
+  position: absolute;
+  pointer-events: none;
+  transition: opacity 0.3s ease-out;
+  background-color: rgba(34,34,34,0.8);
+  opacity: 0.0;
+  top: -125%;
+  right: 8px;
+}
+
+.code-button__tooltip::after {
+  width: 0;
+  height: 0;
+  border-top: 10px solid rgba(34,34,34,0.8);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  bottom: -10px;
+  left: calc(50% - 6px);
+  position: absolute;
+  content: "";
+}
+
+.code-button__tooltip--active {
+  opacity: 1.0
+}
+
+.button-code-block {
+  margin: 20px 0;
+}
+
+.button-code-block pre {
+  margin: 0 auto;
+  padding-top: 2px;
+  padding-bottom: 24px;
+}
+
+@media print {
+    .button-row {
+        display: none;
+    }
+}
+
+
+/* linenos code-block styling */
+table.highlighttable {
+  table-layout: fixed;
+}
+
+table.highlighttable td {
+  padding: 0;
+}
+
+td.linenos {
+  padding-top: 0;
+}
+
+td.linenos pre {
+  padding-top: 0;
+}
+
+td.code {
+  width: 100%;
+  padding-top: 0;
+}
+
+td.code div.highlight {
+  padding-top: 0;
+}
+
+td.code div.highlight pre {
+  padding-top: 0;
+}
+
+td.code pre {
+    max-width: 100%;
+}
+
+.linenos-button-row-spacer {
+  width: 2em;
+}

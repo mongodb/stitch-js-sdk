@@ -8,13 +8,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{relativeURL 'assets/css/main.css'}}">
 
-{{#if settings.gaID}}
     <script type="text/javascript" src="{{relativeURL 'assets/js/jquery.min.js'}}"></script>
     <script type="text/javascript" src="{{relativeURL 'assets/js/underscore.min.js'}}"></script>
     <script type="text/javascript" src="{{relativeURL 'assets/js/bootstrap.min.js'}}"></script>
     <script type="text/javascript" src="{{relativeURL 'assets/js/jquery.cookie.js'}}"></script>
-{{/if}}
-
+    <script type="text/javascript" src="{{relativeURL 'assets/js/copy-buttons.min.js'}}"></script>
 </head>
 <body data-project="stitch-sdks" data-project-title="Stitch JS SDK Reference Manual" data-branch="v4.2">
 <div class="body" data-pagename="{{model.name}}">
@@ -49,6 +47,10 @@
 </script>
 
 {{> analytics}}
-
+<script>
+window.analytics = window.analytics || {
+  track: function() {}
+}
+</script>
 </body>
 </html>
