@@ -23,10 +23,10 @@ import {
   RemoteUpdateOptions,
   RemoteUpdateResult
 } from "mongodb-stitch-core-services-mongodb-remote";
+import { RemoteMongoClient } from "./RemoteMongoClient";
 import RemoteMongoCollection from "./RemoteMongoCollection";
 import RemoteMongoDatabase from "./RemoteMongoDatabase";
 import RemoteMongoReadOperation from "./RemoteMongoReadOperation";
-import { RemoteMongoClient } from "./RemoteMongoClient";
 
 export {
   RemoteCountOptions,

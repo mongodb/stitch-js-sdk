@@ -131,8 +131,8 @@ describe("HttpServiceClient", () => {
 
       expect("200 OK").toEqual(response.status);
       expect(200).toEqual(response.statusCode);
-      // expect(response.contentLength).toBeGreaterThanOrEqual(300);
-      // expect(response.contentLength).toBeLessThanOrEqual(500);
+      // TODO expect(response.contentLength).toBeGreaterThanOrEqual(300);
+      // TODO expect(response.contentLength).toBeLessThanOrEqual(500);
       expect(response.body).toBeDefined();
       expect(response.headers['Content-Type'].length).toEqual(1);
       expect(response.headers['Content-Type'][0]).toEqual('application/json');
