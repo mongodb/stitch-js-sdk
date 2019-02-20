@@ -41,9 +41,9 @@ import {
   StitchServiceErrorCode,
   StitchUserIdentity,
   StitchUserProfile,
+  Storage,
   Stream,
   StreamListener,
-  Storage,
   Transport,
   UserApiKey,
   UserApiKeyAuthProvider,
@@ -59,11 +59,11 @@ import { UserPasswordAuthProviderClient } from "./core/auth/providers/userpasswo
 import StitchAuth from "./core/auth/StitchAuth";
 import StitchAuthListener from "./core/auth/StitchAuthListener";
 import StitchUser from "./core/auth/StitchUser";
+import BrowserFetchTransport from "./core/internal/net/BrowserFetchTransport";
 import Stitch from "./core/Stitch";
 import StitchAppClient from "./core/StitchAppClient";
 import NamedServiceClientFactory from "./services/internal/NamedServiceClientFactory";
 import StitchServiceClient from "./services/StitchServiceClient";
-import BrowserFetchTransport from "./core/internal/net/BrowserFetchTransport";
 
 export {
   AnonymousAuthProvider,

@@ -131,7 +131,7 @@ describe("CoreStitchAuthUnitTests", () => {
         expect(AnonymousAuthProvider.TYPE).toEqual(user.loggedInProviderType);
         expect(profile.userType).toEqual(user.userType);
         expect(profile.identities[0].id).toEqual(user.identities[0].id);
-        expect(auth.user).toEqual(user);
+        expect(auth.user.equals(user)).toBeTruthy();
         expect(auth.isLoggedIn).toBeTruthy();
 
         verify(requestClientMock.doRequest(anything())).times(2);
@@ -302,7 +302,7 @@ describe("CoreStitchAuthUnitTests", () => {
     );
 
     expect(auth.listUsers()[2]).toEqual(user3);
-    expect(auth.user).toEqual(user3);
+    expect(auth.user.equals(user3)).toBeTruthy();
     expect(auth.isLoggedIn).toBeTruthy();
 
     await auth.logoutInternal();
@@ -492,15 +492,15 @@ describe("CoreStitchAuthUnitTests", () => {
 
     // can switch to self
     expect(auth.switchToUserWithId(user.id).equals(user)).toBeTruthy();
-    expect(auth.user).toEqual(user);
+    expect(auth.user.equals(user)).toBeTruthy();
 
     mockNextUserResponse(requestClientMock);
     const user2 = await auth.loginWithCredentialInternal(
       new UserPasswordCredential("hi", "there")
     );
-
-    expect(auth.user).toEqual(user2);
-    expect(auth.user).not.toEqual(user);
+    
+    expect(auth.user.equals(user2)).toBeTruthy();
+    expect(auth.user.equals(user)).toBeFalsy();
 
     // can switch back to old user 
     expect(auth.switchToUserWithId(user.id).equals(user)).toBeTruthy();
@@ -869,7 +869,7 @@ describe("CoreStitchAuthUnitTests", () => {
 
     // the original user should be logged in
     expect(auth.isLoggedIn).toBeTruthy();
-    expect(auth.user).toEqual(user);
+    expect(auth.user.equals(user)).toBeTruthy();
 
     // logout so the next test doesn't reuse this session
     await auth.logoutInternal();

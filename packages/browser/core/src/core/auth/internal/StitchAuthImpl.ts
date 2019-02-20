@@ -17,9 +17,9 @@
 import { detect } from "detect-browser";
 
 import {
-  AuthInfo,
   AuthEvent,
   AuthEventKind,
+  AuthInfo,
   CoreStitchAuth,
   CoreStitchUser,
   DeviceFields,
@@ -82,9 +82,9 @@ interface PartialWindow {
 /** @hidden */
 export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   implements StitchAuth {
+  public static injectedFetch?: any;
   private readonly listeners: Set<StitchAuthListener> = new Set();
   private readonly synchronousListeners: Set<StitchAuthListener> = new Set();
-  public static injectedFetch?: any;
 
   /**
    * Construct a new StitchAuth implementation
@@ -211,9 +211,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
           providerName,
           redirectFragment.asLink
         )
-      ).then(user => {
-        return user;
-      });
+      ).then(user => user);
     } catch (err) {
       return Promise.reject(err);
     }
@@ -273,12 +271,12 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     this.listeners.add(listener);
 
     // Trigger the ListenerRegistered event in case some event happens and
-    // this caller would miss out on this event other wise.
+    // This caller would miss out on this event other wise.
 
-    // dispatch a legacy deprecated auth event
+    // Dispatch a legacy deprecated auth event
     this.onAuthEvent(listener);
 
-    // dispatch a new style auth event
+    // Dispatch a new style auth event
     this.dispatchAuthEvent({
       kind: AuthEventKind.ListenerRegistered,
     });
@@ -288,12 +286,12 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     this.listeners.add(listener);
 
     // Trigger the ListenerRegistered event in case some event happens and
-    // this caller would miss out on this event other wise.
+    // This caller would miss out on this event other wise.
 
-    // dispatch a legacy deprecated auth event
+    // Dispatch a legacy deprecated auth event
     this.onAuthEvent(listener);
 
-    // dispatch a new style auth event
+    // Dispatch a new style auth event
     this.dispatchAuthEvent({
       kind: AuthEventKind.ListenerRegistered,
     });
@@ -308,10 +306,9 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
    */
   public onAuthEvent(listener?: StitchAuthListener) {
     if (listener) {
-      const auth = this;
       const _ = new Promise(resolve => {
         if (listener.onAuthEvent) {
-          listener.onAuthEvent(auth);  
+          listener.onAuthEvent(this);  
         }
         resolve(undefined);
       });
@@ -320,15 +317,6 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
         this.onAuthEvent(one);
       });
     }
-  }
-
-  /**
-   * Utility function used to force the compiler to enforce an exhaustive 
-   * switch statment in dispatchAuthEvent at compile-time.
-   * @see https://www.typescriptlang.org/docs/handbook/advanced-types.html
-   */
-  private assertNever(x: never): never {
-    throw new Error("unexpected object: " + x);
   }
 
   /**
@@ -397,11 +385,21 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
         });
         break;
       default:
-        // compiler trick to force this switch to be exhaustive. if the above
-        // switch statement doesn't check all AuthEventKinds, event will not
-        // be of type never
+        /* Compiler trick to force this switch to be exhaustive. if the above
+         * switch statement doesn't check all AuthEventKinds, event will not
+         * be of type never 
+         */
         return this.assertNever(event);
     }
+  }
+
+  /**
+   * Utility function used to force the compiler to enforce an exhaustive 
+   * switch statment in dispatchAuthEvent at compile-time.
+   * @see https://www.typescriptlang.org/docs/handbook/advanced-types.html
+   */
+  private assertNever(x: never): never {
+    throw new Error("unexpected object: " + x);
   }
 
   /**
@@ -423,7 +421,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   }
 
   private cleanupRedirect() {
-    this.jsdomWindow.history.replaceState(null, "", this.pageRootUrl());
+    this.jsdomWindow.history.replaceState(undefined, "", this.pageRootUrl());
 
     this.authStorage.remove(RedirectKeys.State);
     this.authStorage.remove(RedirectKeys.ProviderName);
@@ -433,7 +431,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   private parseRedirect(): ParsedRedirectFragment | never {
     if (typeof this.jsdomWindow === "undefined") {
       // This means we're running in some environment other
-      // than a browser - so handling a redirect makes no sense here.
+      // Than a browser - so handling a redirect makes no sense here.
       throw new StitchRedirectError("running in a non-browser environment");
     }
 
@@ -458,7 +456,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
       }
 
       if (redirectFragment.lastError) {
-        // remove the fragment from the window history and reject
+        // Remove the fragment from the window history and reject
         throw new StitchRedirectError(
           `error handling redirect: ${redirectFragment.lastError}`
         );
@@ -530,11 +528,11 @@ function unmarshallUserAuth(data): AuthInfo {
 }
 
 class ParsedRedirectFragment {
-  public stateValid: boolean = false;
+  public stateValid = false;
   public authInfo?: AuthInfo;
   public lastError?: string;
-  public clientAppIdValid: boolean = false;
-  public asLink: boolean = false;
+  public clientAppIdValid = false;
+  public asLink = false;
 
   get isValid(): boolean {
     return this.stateValid && this.clientAppIdValid;
@@ -546,14 +544,15 @@ function parseRedirectFragment(
   ourState,
   ourClientAppId
 ): ParsedRedirectFragment {
-  // After being redirected from oauth, the URL will look like:
-  // https://todo.examples.stitch.mongodb.com/#_stitch_state=...&_stitch_ua=...
-  // This function parses out stitch-specific tokens from the fragment and
-  // builds an object describing the result.
+  /* 
+   * After being redirected from oauth, the URL will look like:
+   * https://todo.examples.stitch.mongodb.com/#_stitch_state=...&_stitch_ua=...
+   * This function parses out stitch-specific tokens from the fragment and
+   * builds an object describing the result.
+   */
   const vars = fragment.split("&");
   const result: ParsedRedirectFragment = new ParsedRedirectFragment();
   vars.forEach(kvp => {
-    // for (let i = 0; i < vars.length; ++i) {
     const pairParts = kvp.split("=");
     const pairKey = decodeURIComponent(pairParts[0]);
 
@@ -571,7 +570,7 @@ function parseRedirectFragment(
         }
         break;
       case RedirectFragmentFields.StitchLink:
-        if (pairParts[1] == "ok") {
+        if (pairParts[1] === "ok") {
           result.asLink = true;
         }
         break;

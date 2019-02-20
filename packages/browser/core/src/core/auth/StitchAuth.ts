@@ -76,7 +76,7 @@ export default interface StitchAuth {
    * - [[removeUser]]
    * - [[removeUserWithId]]
    */
-  listUsers(): Array<StitchUser>;
+  listUsers(): StitchUser[];
 
   /**
    * Switches the active user to the user with the specified id. The user must
@@ -89,7 +89,8 @@ export default interface StitchAuth {
    */
   switchToUserWithId(userId: string): StitchUser
 
-  /** @hidden
+  /** 
+   * @hidden
    * Retrieves the authentication provider client for the authentication 
    * provider associated with the specified factory.
    * 
@@ -99,7 +100,8 @@ export default interface StitchAuth {
     factory: AuthProviderClientFactory<ClientT>
   ): ClientT;
 
-  /** @hidden
+  /** 
+   * @hidden
    * Retrieves the authentication provider client for the authentication 
    * provider associated with the specified factory and auth provider name.
    * 

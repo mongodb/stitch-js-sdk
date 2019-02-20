@@ -17,8 +17,8 @@
 import { 
   CoreStitchUser, 
   StitchCredential, 
-  StitchUserProfile, 
-  StitchUserIdentity } from "mongodb-stitch-core-sdk";
+  StitchUserIdentity,
+  StitchUserProfile } from "mongodb-stitch-core-sdk";
     
 import StitchRedirectCredential from "./providers/StitchRedirectCredential";
 

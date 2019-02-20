@@ -76,7 +76,7 @@ export namespace UserApiKeyAuthProviderClient {
     implements AuthProviderClientFactory<UserApiKeyAuthProviderClient> {
     public getClient(
       authRequestClient: StitchAuthRequestClient,
-      requestClient: StitchRequestClient, // this arg is ignored
+      requestClient: StitchRequestClient, // This arg is ignored
       routes: StitchAuthRoutes
     ): UserApiKeyAuthProviderClient {
       return new UserApiKeyAuthProviderClientImpl(authRequestClient, routes);

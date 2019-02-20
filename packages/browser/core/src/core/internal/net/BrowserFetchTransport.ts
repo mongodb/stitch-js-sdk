@@ -20,9 +20,9 @@ import {
   EventStream,
   Headers,
   Response,
-  Transport,
   StitchClientError, 
-  StitchClientErrorCode
+  StitchClientErrorCode, 
+  Transport
 } from "mongodb-stitch-core-sdk";
 import {fetch as fetch} from 'whatwg-fetch'
 
@@ -51,7 +51,7 @@ export default class BrowserFetchTransport implements Transport {
     });
   }
 
-  public stream(request: BasicRequest, open: boolean = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
+  public stream(request: BasicRequest, open = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
     throw new StitchClientError(StitchClientErrorCode.StreamingNotSupported);
   }
 }
