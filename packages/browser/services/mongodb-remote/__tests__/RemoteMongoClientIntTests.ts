@@ -206,7 +206,7 @@ describe("RemoteMongoClient", () => {
     const coll = getTestColl();
 
     let result = await coll.findOne();
-    expect(result).toBeNull();
+    expect(result).toBeUndefined();
 
     const doc1 = { hello: "world" };
     await coll.insertOne(doc1);
@@ -228,7 +228,7 @@ describe("RemoteMongoClient", () => {
     expect(withoutId(result)).toEqual(withoutId(doc2));
 
     result = await coll.findOne({notARealField: "bogus"});
-    expect(result).toBeNull();
+    expect(result).toBeUndefined();
 
     result = await coll.findOne({}, {sort: {_id: 1}})
     expect(result).toBeDefined();
