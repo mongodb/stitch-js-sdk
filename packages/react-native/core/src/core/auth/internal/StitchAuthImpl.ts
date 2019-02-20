@@ -15,6 +15,8 @@
  */
 
 import {
+  AuthEvent, 
+  AuthEventKind, 
   AuthInfo,
   CoreStitchAuth,
   CoreStitchUser,
@@ -26,9 +28,7 @@ import {
   StitchCredential,
   StitchRequestClient,
   StitchUserFactory,
-  Storage,
-  AuthEventKind,
-  AuthEvent
+  Storage
 } from "mongodb-stitch-core-sdk";
 
 import version from "../../internal/common/Version";
@@ -135,12 +135,12 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     this.listeners.add(listener);
 
     // Trigger the ListenerRegistered event in case some event happens and
-    // this caller would miss out on this event other wise.
+    // This caller would miss out on this event other wise.
 
-    // dispatch a legacy deprecated auth event
+    // Dispatch a legacy deprecated auth event
     this.onAuthEvent(listener);
 
-    // dispatch a new style auth event
+    // Dispatch a new style auth event
     this.dispatchAuthEvent({
       kind: AuthEventKind.ListenerRegistered,
     });
@@ -150,12 +150,12 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     this.listeners.add(listener);
 
     // Trigger the ListenerRegistered event in case some event happens and
-    // this caller would miss out on this event other wise.
+    // This caller would miss out on this event other wise.
 
-    // dispatch a legacy deprecated auth event
+    // Dispatch a legacy deprecated auth event
     this.onAuthEvent(listener);
 
-    // dispatch a new style auth event
+    // Dispatch a new style auth event
     this.dispatchAuthEvent({
       kind: AuthEventKind.ListenerRegistered,
     });
@@ -170,10 +170,9 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
    */
   public onAuthEvent(listener?: StitchAuthListener) {
     if (listener) {
-      const auth = this;
       const _ = new Promise(resolve => {
         if (listener.onAuthEvent) {
-          listener.onAuthEvent(auth);  
+          listener.onAuthEvent(this);  
         }
         resolve(undefined);
       });
@@ -182,15 +181,6 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
         this.onAuthEvent(one);
       });
     }
-  }
-
-  /**
-   * Utility function used to force the compiler to enforce an exhaustive 
-   * switch statment in dispatchAuthEvent at compile-time.
-   * @see https://www.typescriptlang.org/docs/handbook/advanced-types.html
-   */
-  private assertNever(x: never): never {
-    throw new Error("unexpected object: " + x);
   }
 
   /**
@@ -259,11 +249,22 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
         });
         break;
       default:
-        // compiler trick to force this switch to be exhaustive. if the above
-        // switch statement doesn't check all AuthEventKinds, event will not
-        // be of type never
+        /* 
+         * compiler trick to force this switch to be exhaustive. if the above
+         * switch statement doesn't check all AuthEventKinds, event will not
+         * be of type never
+         */
         return this.assertNever(event);
     }
+  }
+
+  /**
+   * Utility function used to force the compiler to enforce an exhaustive 
+   * switch statment in dispatchAuthEvent at compile-time.
+   * @see https://www.typescriptlang.org/docs/handbook/advanced-types.html
+   */
+  private assertNever(x: never): never {
+    throw new Error("unexpected object: " + x);
   }
 
   /**

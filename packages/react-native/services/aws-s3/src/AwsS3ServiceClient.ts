@@ -16,9 +16,6 @@
 
 import BSON from "bson";
 import {
-  NamedServiceClientFactory
-} from "mongodb-stitch-react-native-core";
-import {
   CoreStitchServiceClient,
   StitchAppClientInfo
 } from "mongodb-stitch-core-sdk";
@@ -27,6 +24,10 @@ import {
   AwsS3SignPolicyResult,
   CoreAwsS3ServiceClient
 } from "mongodb-stitch-core-services-aws-s3";
+import {
+  NamedServiceClientFactory
+} from "mongodb-stitch-react-native-core";
+
 import AwsS3ServiceClientImpl from "./internal/AwsS3ServiceClientImpl";
 
 /**
