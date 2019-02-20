@@ -124,6 +124,7 @@ tasks:
             set -e
             echo "running client tests"
             source ./creds
+            chown -R $USER stitch-js-sdk
             cd stitch-js-sdk
             curl -OL https://yarnpkg.com/latest.tar.gz
             tar zvxf latest.tar.gz
