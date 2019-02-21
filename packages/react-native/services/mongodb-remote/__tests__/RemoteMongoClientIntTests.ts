@@ -196,6 +196,55 @@ describe("RemoteMongoClient", () => {
     }
   });
 
+  it("should find one", async () => {
+    const coll = getTestColl();
+
+    let result = await coll.findOne();
+    expect(result).toBeNull();
+
+    const doc1 = { hello: "world" };
+    await coll.insertOne(doc1);
+
+    result = await coll.findOne();
+    expect(result).toBeDefined();
+    expect(withoutId(result)).toEqual(withoutId(doc1));
+
+    
+    const doc2 = { hello: "world2", other: "other" };
+    await coll.insertOne(doc2);
+
+    result = await coll.findOne({hello: "world"});
+    expect(result).toBeDefined();
+    expect(withoutId(result)).toEqual(withoutId(doc1));
+
+    result = await coll.findOne({other: "other"})
+    expect(result).toBeDefined();
+    expect(withoutId(result)).toEqual(withoutId(doc2));
+
+    result = await coll.findOne({notARealField: "bogus"});
+    expect(result).toBeNull();
+
+    result = await coll.findOne({}, {sort: {_id: 1}})
+    expect(result).toBeDefined();
+    expect(withoutId(result)).toEqual(withoutId(doc1));
+
+    result = await coll.findOne({}, {sort: {_id: -1}})
+    expect(result).toBeDefined();
+    expect(withoutId(result)).toEqual(withoutId(doc2));
+
+    result = await coll.findOne(doc2, {projection: {_id: 0}});
+    expect(result).toBeDefined();
+    expect(result).toEqual(withoutId(doc2));
+
+    try {
+      await coll.find({ $who: 1 }).first();
+      fail();
+    } catch (error) {
+      expect(error instanceof StitchServiceError).toBeTruthy();
+      expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
+    }
+  });
+
   it("should aggregate", async () => {
     const coll = getTestColl();
     let iter = coll.aggregate([]);

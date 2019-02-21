@@ -66,6 +66,17 @@ export default interface CoreRemoteMongoCollection<DocumentT> {
   ): CoreRemoteMongoReadOperation<DocumentT>;
 
   /**
+   * Finds one documents in the collection.
+   *
+   * @param query the query filter
+   * @return the resulting document or null if no such document exists
+   */
+  findOne(
+    query?: object,
+    options?: RemoteFindOptions
+  ): Promise<DocumentT | null>;
+
+  /**
    * Aggregates documents according to the specified aggregation pipeline.
    *
    * @param pipeline the aggregation pipeline
