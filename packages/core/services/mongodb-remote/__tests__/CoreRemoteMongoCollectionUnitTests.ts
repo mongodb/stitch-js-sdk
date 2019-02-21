@@ -231,13 +231,6 @@ describe("CoreRemoteMongoCollection", () => {
     expectedArgs.sort = expectedSort;
     expect(funcArgsArg2[0]).toEqual(expectedArgs);
 
-    // Pass nothing
-    when(
-      serviceMock.callFunction(anything(), anything(), anything())
-    ).thenResolve(undefined);
-    result = await coll.findOne();
-    expect(result).toBeUndefined();
-
     // Should pass along errors
     when(
       serviceMock.callFunction(anything(), anything(), anything())

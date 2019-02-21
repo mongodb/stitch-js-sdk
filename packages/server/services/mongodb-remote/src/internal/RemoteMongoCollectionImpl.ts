@@ -86,12 +86,12 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
    * Finds one document in the collection.
    *
    * @param query the query filter
-   * @return the resulting document or undefined if the query resulted in zero matches
+   * @return the resulting document or null if the query resulted in zero matches
    */
   public findOne(
     query?: object,
     options?: RemoteFindOptions
-  ): Promise<DocumentT | undefined> {
+  ): Promise<DocumentT | null> {
     return this.proxy.findOne(query, options);
   }
 

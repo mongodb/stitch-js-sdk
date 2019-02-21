@@ -210,11 +210,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     decoder?: Decoder<T>
   ): Promise<T> {
     return this.doAuthenticatedRequest(stitchReq)
-      .then(response => {
-        if (response.body! === '{"$undefined":true}') {
-          return undefined;
-        }
-       
+      .then(response => {       
         const obj = EJSON.parse(response.body!, { strict: false });
 
         if (decoder) {

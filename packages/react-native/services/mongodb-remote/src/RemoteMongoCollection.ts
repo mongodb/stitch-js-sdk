@@ -101,12 +101,12 @@ export default interface RemoteMongoCollection<DocumentT> {
    * An empty query (`{}`) will match all documents.
    *
    * @param query the query filter
-   * @return the resulting document or undefined if the query resulted in zero matches
+   * @return the resulting document or null if the query resulted in zero matches
    */
   findOne(
     query?: object,
     options?: RemoteFindOptions
-  ): Promise<DocumentT | undefined>;
+  ): Promise<DocumentT | null>;
 
   /**
    * Aggregates documents according to the specified aggregation pipeline.

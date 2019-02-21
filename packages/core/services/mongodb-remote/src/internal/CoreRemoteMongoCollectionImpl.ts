@@ -100,22 +100,18 @@ export default class CoreRemoteMongoCollectionImpl<T>
   }
 
   /**
-   * Finds the documents in this collection which match the provided filter.
+   * Finds a document in this collection which matches the provided filter.
    *
    * - parameters:
    *   - filter: A `Document` that should match the query.
    *   - options: Optional `RemoteFindOptions` to use when executing the command.
    *
-   * - important: Invoking this method by itself does not perform any network requests. You must call one of the
-   *              methods on the resulting `CoreRemoteMongoReadOperation` instance to trigger the operation against
-   *              the database.
-   *
-   * - returns: A `CoreRemoteMongoReadOperation` that allows retrieval of the resulting documents.
+   * - returns: A resulting `DocumentT` or null if the query returned zero matches.
    */
   public findOne(
     filter: object = {},
     options?: RemoteFindOptions
-  ): Promise<T | undefined> {
+  ): Promise<T | null> {
     const args: any = { ...this.baseOperationArgs };
 
     args.query = filter;
