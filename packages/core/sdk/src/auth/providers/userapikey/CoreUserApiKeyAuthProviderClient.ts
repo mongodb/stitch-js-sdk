@@ -134,7 +134,7 @@ export default class CoreUserApiKeyAuthProviderClient extends CoreAuthProviderCl
 
     return this.requestClient
       .doAuthenticatedRequest(reqBuilder.build())
-      .then(() => {/**/});
+      .then(() => {});
   }
 
   /**
@@ -151,7 +151,7 @@ export default class CoreUserApiKeyAuthProviderClient extends CoreAuthProviderCl
 
     return this.requestClient
       .doAuthenticatedRequest(reqBuilder.build())
-      .then(() => {/**/});
+      .then(() => {});
   }
 
   /**
@@ -168,7 +168,7 @@ export default class CoreUserApiKeyAuthProviderClient extends CoreAuthProviderCl
 
     return this.requestClient
       .doAuthenticatedRequest(reqBuilder.build())
-      .then(() => {/**/});
+      .then(() => {});
   }
 
   private getApiKeyRoute(keyId: string): string {

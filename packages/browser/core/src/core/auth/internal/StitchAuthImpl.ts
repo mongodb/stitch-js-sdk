@@ -421,7 +421,12 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   }
 
   private cleanupRedirect() {
-    this.jsdomWindow.history.replaceState(undefined, "", this.pageRootUrl());
+    // This should probably be undefined, but null works just fine and we dont want to test 
+    // all browsers which may behave differently. Furthermore, the documentation on replaceState()
+    // uses null. 
+    /* tslint:disable:no-null-keyword */
+    this.jsdomWindow.history.replaceState(null, "", this.pageRootUrl());
+    /* tslint:enable:no-null-keyword */
 
     this.authStorage.remove(RedirectKeys.State);
     this.authStorage.remove(RedirectKeys.ProviderName);

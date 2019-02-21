@@ -75,8 +75,6 @@ export default class NodeFetchStreamTransport implements Transport {
         .then(body => handleRequestError(new Response(respHeaders, response.status, body)));
       }
 
-      /* eslint-disable no-unused-expressions */
-      /* jshint expr: true */
       return new Promise<EventStream>((resolve, reject) => 
         new EventSourceEventStream(
           new EventSource(request.url),
@@ -87,7 +85,6 @@ export default class NodeFetchStreamTransport implements Transport {
             : undefined
           )
       );
-      /* eslint-enable no-unused-expressions */
     });
   }
 }

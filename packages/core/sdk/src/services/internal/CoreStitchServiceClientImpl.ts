@@ -32,6 +32,9 @@ export default class CoreStitchServiceClientImpl
   private readonly serviceRoutes: StitchServiceRoutes;
   private readonly serviceName: string | undefined;
 
+  private readonly serviceField = "service";
+  private readonly argumentsField = "arguments";
+
   public constructor(
     requestClient: StitchAuthRequestClient,
     routes: StitchServiceRoutes,
@@ -70,9 +73,9 @@ export default class CoreStitchServiceClientImpl
   ): StitchAuthRequest {
     const body = { name };
     if (this.serviceName !== undefined) {
-      body["service".toString()] = this.serviceName;
+      body[this.serviceField] = this.serviceName;
     }
-    body["arguments".toString()] = args;
+    body[this.argumentsField] = args;
 
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
@@ -88,9 +91,9 @@ export default class CoreStitchServiceClientImpl
   ): StitchAuthRequest {
     const body = { name };
     if (this.serviceName !== undefined) {
-      body["service".toString()] = this.serviceName;
+      body[this.serviceField] = this.serviceName;
     }
-    body["arguments".toString()] = args;
+    body[this.argumentsField] = args;
 
     const reqBuilder = new StitchAuthDocRequest.Builder();
     reqBuilder

@@ -102,9 +102,9 @@ class StitchAuth extends CoreStitchAuth<CoreStitchUserImpl> {
     }();
   }
 
-  protected onAuthEvent() {/**/}
+  protected onAuthEvent() {}
 
-  protected dispatchAuthEvent() {/**/}
+  protected dispatchAuthEvent() {}
 }
 
 describe("CoreStitchAuthUnitTests", () => {
@@ -310,7 +310,7 @@ describe("CoreStitchAuthUnitTests", () => {
     expect(auth.isLoggedIn).toBeFalsy();
 
     // Assert that though one user is logged out, three users are still listed,
-    // And their profiles are all non-null
+    // and their profiles are all non-null
     expect(auth.listUsers().length).toEqual(3);
     auth.listUsers().forEach(user => {
       expect(user.profile).toBeDefined()

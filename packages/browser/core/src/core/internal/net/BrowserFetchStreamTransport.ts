@@ -52,8 +52,6 @@ export default class BrowserFetchStreamTransport extends BrowserFetchTransport {
         .then(body => handleRequestError(new Response(respHeaders, response.status, body)));
       }
 
-      /* eslint-disable no-unused-expressions */
-      /* jshint expr: true */
       return new Promise<EventStream>((resolve, reject) => 
         new EventSourceEventStream(
           new EventSource(request.url),
@@ -64,7 +62,6 @@ export default class BrowserFetchStreamTransport extends BrowserFetchTransport {
             : undefined
           )
       );
-      /* eslint-enable no-unused-expressions */
     });
   }
 }

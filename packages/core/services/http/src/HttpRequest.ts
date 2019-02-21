@@ -51,7 +51,7 @@ export namespace HttpRequest {
     /**
      * Constructs a new builder for an HTTP request.
      */
-    public constructor() {/* */}
+    public constructor() {}
 
     /**
      * Sets the Url that the request will be performed against.

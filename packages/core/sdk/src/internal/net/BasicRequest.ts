@@ -85,11 +85,7 @@ export namespace BasicRequest {
       return new BasicRequest(
         this.method,
         this.url,
-        /* tslint:disable no-object-literal-type-assertion */
-        this.headers === undefined
-          ? ({} as { [key: string]: string })
-          : this.headers,
-         /* tslint:enable no-object-literal-type-assertion */
+        this.headers === undefined ? {} : this.headers,
         this.body
       );
     }
