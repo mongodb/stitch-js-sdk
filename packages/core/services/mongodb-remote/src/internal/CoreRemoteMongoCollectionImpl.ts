@@ -19,6 +19,8 @@ import { Codec, CoreStitchServiceClient, Stream } from "mongodb-stitch-core-sdk"
 import ChangeEvent from "../ChangeEvent";
 import RemoteCountOptions from "../RemoteCountOptions";
 import RemoteDeleteResult from "../RemoteDeleteResult";
+import RemoteFindOneAndDeleteOptions from "../RemoteFindOneAndDeleteOptions";
+import RemoteFindOneAndUpdateOptions from "../RemoteFindOneAndUpdateOptions";
 import RemoteFindOptions from "../RemoteFindOptions";
 import RemoteInsertManyResult from "../RemoteInsertManyResult";
 import RemoteInsertOneResult from "../RemoteInsertOneResult";
@@ -130,6 +132,125 @@ export default class CoreRemoteMongoCollectionImpl<T>
       this.codec
     );
   }
+  
+  /**
+   * Finds a document in this collection which matches the provided filter and performs the 
+   * desired updates
+   *
+   * - parameters:
+   *   - filter: A `Document` that should match the query.
+   *   - update: A `Document` describing the update. 
+   *   - options: Optional `RemoteFindOneAndUpdateOptions` to use when executing the command.
+   *
+   * - returns: A resulting `DocumentT` or null if the query returned zero matches.
+   */
+  public findOneAndUpdate(
+    filter: object,
+    update: object, 
+    options?: RemoteFindOneAndUpdateOptions
+  ): Promise<T | null> {
+    const args: any = { ...this.baseOperationArgs };
+
+    args.query = filter;
+    args.update = update;
+
+    if (options) {
+      if (options.projection) {
+        args.project = options.projection;
+      }
+      if (options.sort) {
+        args.sort = options.sort;
+      }
+      if (options.upsert) {
+        args.upsert = true;
+      }
+      if (options.returnNewDocument) {
+        args.returnNewDocument = true;
+      }
+    }
+    return this.service.callFunction(
+      "findOneAndUpdate",
+      [args],
+      this.codec
+    );
+  }
+
+  /**
+   * Finds a document in this collection which matches the provided filter and replaces it with 
+   * A new document
+   *
+   * - parameters:
+   *   - filter: A `Document` that should match the query.
+   *   - replacement: A new `Document` to replace the old one. 
+   *   - options: Optional `RemoteFindOneAndUpdateOptions` to use when executing the command.
+   *
+   * - returns: A resulting `DocumentT` or null if the query returned zero matches.
+   */
+  public findOneAndReplace(
+    filter: object,
+    replacement: object, 
+    options?: RemoteFindOneAndUpdateOptions
+  ): Promise<T | null> {
+    const args: any = { ...this.baseOperationArgs };
+
+    args.query = filter;
+    args.replacement = replacement;
+
+    if (options) {
+      if (options.projection) {
+        args.project = options.projection;
+      }
+      if (options.sort) {
+        args.sort = options.sort;
+      }
+      if (options.upsert) {
+        args.upsert = true;
+      }
+      if (options.returnNewDocument) {
+        args.returnNewDocument = true;
+      }
+    }
+    return this.service.callFunction(
+      "findOneAndReplace",
+      [args],
+      this.codec
+    );
+  }
+
+  /**
+   * Finds a document in this collection which matches the provided filter and performs the 
+   * desired updates
+   *
+   * - parameters:
+   *   - filter: A `Document` that should match the query.
+   *   - update: A `Document` describing the update. 
+   *   - options: Optional `RemoteFindOneAndUpdateOptions` to use when executing the command.
+   *
+   * - returns: A resulting `DocumentT` or null if the query returned zero matches.
+   */
+  public findOneAndDelete(
+    filter: object,
+    options?: RemoteFindOneAndDeleteOptions
+  ): Promise<T | null> {
+    const args: any = { ...this.baseOperationArgs };
+
+    args.query = filter;
+
+    if (options) {
+      if (options.projection) {
+        args.project = options.projection;
+      }
+      if (options.sort) {
+        args.sort = options.sort;
+      }
+    }
+    return this.service.callFunction(
+      "findOneAndDelete",
+      [args],
+      this.codec
+    );
+  }
+  
 
   /**
    * Runs an aggregation framework pipeline against this collection.
