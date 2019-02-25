@@ -15,12 +15,13 @@
  */
 
 import {
-  NamedServiceClientFactory
-} from "mongodb-stitch-react-native-core";
-import {
   CoreStitchServiceClient,
   StitchAppClientInfo
 } from "mongodb-stitch-core-sdk";
+import {
+  NamedServiceClientFactory
+} from "mongodb-stitch-react-native-core";
+
 import { CoreTwilioServiceClient } from "mongodb-stitch-core-services-twilio";
 import TwilioServiceClientImpl from "./internal/TwilioServiceClientImpl";
 

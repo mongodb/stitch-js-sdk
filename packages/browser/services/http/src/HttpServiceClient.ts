@@ -16,8 +16,8 @@
 
 import { NamedServiceClientFactory } from "mongodb-stitch-browser-core";
 import { 
-  StitchAppClientInfo, 
-  CoreStitchServiceClient 
+  CoreStitchServiceClient, 
+  StitchAppClientInfo
 } from "mongodb-stitch-core-sdk";
 import {
   CoreHttpServiceClient,

@@ -23,7 +23,7 @@ export default class Response {
     public readonly statusCode: number,
     public readonly body?: string
   ) {
-    // preprocess headers
+    // Preprocess headers
     Object.keys(headers).map((key, index) => {
       this.headers[key.toLocaleLowerCase()] = headers[key];
     });

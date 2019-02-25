@@ -16,9 +16,9 @@
 
 import { EJSON } from "bson";
 import { handleRequestError } from "../../internal/common/StitchErrorUtils";
-import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
 import StitchError from "../../StitchError";
 import StitchRequestError from "../../StitchRequestError";
+import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
 import { BasicRequest } from "./BasicRequest";
 import ContentTypes from "./ContentTypes";
 import EventStream from "./EventStream";
@@ -58,7 +58,7 @@ export default abstract class BaseStitchRequestClient {
       .then(resp => inspectResponse(stitchReq, url, resp));
   }
 
-  protected doStreamRequestToURL(stitchReq: StitchRequest, url: string, open: boolean = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
+  protected doStreamRequestToURL(stitchReq: StitchRequest, url: string, open = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
     return this.transport
       .stream(this.buildRequest(stitchReq, url), open, retryRequest)
       .catch(error => {

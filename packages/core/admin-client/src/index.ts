@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import AdminFetchTransport from "./AdminFetchTransport";
 import { AppResponse } from "./apps/AppsResources";
 import { AuthProviderResponse } from "./authProviders/AuthProvidersResources";
 import {
@@ -68,7 +69,6 @@ import {
 import { ServiceResponse } from "./services/ServicesResources";
 import StitchAdminClient from "./StitchAdminClient";
 import { ConfirmationEmail } from "./userRegistrations/UserRegistrationsResources";
-import AdminFetchTransport from "./AdminFetchTransport";
 
 export {
   AdminFetchTransport,

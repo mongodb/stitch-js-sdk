@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
+import StitchError from "../../StitchError";
+import StitchRequestError from "../../StitchRequestError";
 import Event from "./Event";
 import EventListener from "./EventListener";
 import EventStream from "./EventStream";
 import StitchEvent from "./StitchEvent";
-import StitchError from "../../StitchError";
-import StitchRequestError from "../../StitchRequestError";
 
 /** @hidden */
 export default abstract class BaseEventStream<T extends BaseEventStream<T>> implements EventStream {
 
   protected static readonly RETRY_TIMEOUT_MILLIS = 5000;
+  protected closed: boolean;
+  protected events: Event[];
+  protected listeners: EventListener[];
+  protected lastErr?: string;
 
   private readonly reconnecter?: () => Promise<T>;
-  protected closed: boolean;
-  protected events: Array<Event>;
-  protected listeners: Array<EventListener>;
-  protected lastErr?: string;
 
   constructor(reconnecter?: () => Promise<T>) {
     this.reconnecter = reconnecter;
@@ -41,6 +41,51 @@ export default abstract class BaseEventStream<T extends BaseEventStream<T>> impl
   }
 
   public abstract open(): void;
+
+  public addListener(listener: EventListener): void {
+    if (this.closed) {
+      setTimeout(() => listener.onEvent(new Event(StitchEvent.ERROR_EVENT_NAME, "stream closed")), 0)
+      return;
+    }
+    if (this.lastErr !== undefined) {
+      setTimeout(() => listener.onEvent(new Event(StitchEvent.ERROR_EVENT_NAME, this.lastErr!)), 0)
+      return;
+    }
+    this.listeners.push(listener);
+    this.poll();
+  }
+
+  public removeListener(listener: EventListener): void {
+    const index = this.listeners.indexOf(listener);
+    if (index === -1) {
+      return;
+    }
+    this.listeners.splice(index, 1);
+  }
+
+  public nextEvent(): Promise<Event> {
+    if (this.closed) {
+      return Promise.reject(new Event(StitchEvent.ERROR_EVENT_NAME, "stream closed"));
+    }
+    if (this.lastErr !== undefined) {
+      return Promise.reject(new Event(StitchEvent.ERROR_EVENT_NAME, this.lastErr!))
+    }
+    return new Promise<Event>((resolve, reject) => {
+      this.listenOnce({
+        onEvent: e => { 
+          resolve(e);
+        }
+      })
+    });
+  }
+
+  public close(): void {
+    if (this.closed) {
+      return;
+    }
+    this.closed = true;
+    this.afterClose();
+  }
 
   protected abstract afterClose(): void;
 
@@ -73,33 +118,12 @@ export default abstract class BaseEventStream<T extends BaseEventStream<T>> impl
   protected poll(): void {
     while (this.events.length !== 0) {
       const event = this.events.pop()!;  
-      for (let listener of this.listeners) {
+      for (const listener of this.listeners) {
         if (listener.onEvent) {
           listener.onEvent(event);        
         }
       }
     }
-  }
-
-  public addListener(listener: EventListener): void {
-    if (this.closed) {
-      setTimeout(() => listener.onEvent(new Event(StitchEvent.ERROR_EVENT_NAME, "stream closed")), 0)
-      return;
-    }
-    if (this.lastErr !== undefined) {
-      setTimeout(() => listener.onEvent(new Event(StitchEvent.ERROR_EVENT_NAME, this.lastErr!)), 0)
-      return;
-    }
-    this.listeners.push(listener);
-    this.poll();
-  }
-
-  public removeListener(listener: EventListener): void {
-    const index = this.listeners.indexOf(listener);
-    if (index === -1) {
-      return;
-    }
-    this.listeners.splice(index, 1);
   }
 
   private listenOnce(listener: EventListener): void {
@@ -118,29 +142,5 @@ export default abstract class BaseEventStream<T extends BaseEventStream<T>> impl
       }
     };
     this.addListener(wrapper);
-  }
-
-  public nextEvent(): Promise<Event> {
-    if (this.closed) {
-      return Promise.reject(new Event(StitchEvent.ERROR_EVENT_NAME, "stream closed"));
-    }
-    if (this.lastErr !== undefined) {
-      return Promise.reject(new Event(StitchEvent.ERROR_EVENT_NAME, this.lastErr!))
-    }
-    return new Promise<Event>((resolve, reject) => {
-      this.listenOnce({
-        onEvent: e => { 
-          resolve(e);
-        }
-      })
-    });
-  }
-
-  public close(): void {
-    if (this.closed) {
-      return;
-    }
-    this.closed = true;
-    this.afterClose();
   }
 }

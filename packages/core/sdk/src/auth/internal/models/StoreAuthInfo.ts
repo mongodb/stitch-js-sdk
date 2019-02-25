@@ -16,11 +16,11 @@
 
 import { Storage } from "../../../internal/common/Storage";
 
+import StitchClientError from "../../../StitchClientError";
+import { StitchClientErrorCode } from "../../../StitchClientErrorCode";
 import AuthInfo from "../AuthInfo";
 import StoreCoreUserProfile from "./StoreCoreUserProfile";
 import StoreStitchUserIdentity from "./StoreStitchUserIdentity";
-import StitchClientError from "../../../StitchClientError";
-import { StitchClientErrorCode } from "../../../StitchClientErrorCode";
 
 
 enum Fields {
@@ -51,7 +51,7 @@ function readCurrentUsersFromStorage(storage: Storage): Map<string, AuthInfo> {
 
   const rawArray = JSON.parse(rawInfo);
   if (!Array.isArray(rawArray)) {
-    // the raw data is expected to be an array
+    // The raw data is expected to be an array
     throw new StitchClientError(
       StitchClientErrorCode.CouldNotLoadPersistedAuthInfo
     );
@@ -102,7 +102,7 @@ function writeAllUsersAuthInfoToStorage(
   storage: Storage
 ) {
   const encodedStoreInfos: any[] = []
-  for (var [userId, authInfo] of currentUsersAuthInfo) {
+  for (const [userId, authInfo] of currentUsersAuthInfo) {
     const storeInfo = new StoreAuthInfo(
       userId,
       authInfo.deviceId!,

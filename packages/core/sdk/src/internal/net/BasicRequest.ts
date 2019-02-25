@@ -85,9 +85,7 @@ export namespace BasicRequest {
       return new BasicRequest(
         this.method,
         this.url,
-        this.headers === undefined
-          ? ({} as { [key: string]: string })
-          : this.headers,
+        this.headers === undefined ? {} : this.headers,
         this.body
       );
     }

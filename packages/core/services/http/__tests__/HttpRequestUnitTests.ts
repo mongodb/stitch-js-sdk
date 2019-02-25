@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { HttpMethod } from "../src";
-import { HttpRequest } from "../src";
+import { HttpMethod, HttpRequest } from "../src";
 
 describe("HttpRequest", () => {
   it("should build", () => {

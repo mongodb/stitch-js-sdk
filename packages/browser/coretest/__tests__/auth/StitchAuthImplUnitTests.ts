@@ -15,7 +15,12 @@
  */
 
 import { GoogleRedirectCredential } from "mongodb-stitch-browser-core";
-import { StitchAppClientInfo, StitchAuthCredential, StitchRequestClient, StitchUserProfileImpl } from "mongodb-stitch-core-sdk";
+import { 
+    StitchAppClientInfo, 
+    StitchAuthResponseCredential, 
+    StitchRequestClient, 
+    StitchUserProfileImpl 
+} from "mongodb-stitch-core-sdk";
 import { anything, capture, instance, mock, spy, when } from "ts-mockito";
 import RedirectFragmentFields from "../../../core/src/core/auth/internal/RedirectFragmentFields";
 import RedirectKeys from "../../../core/src/core/auth/internal/RedirectKeys";
@@ -274,10 +279,10 @@ describe("StitchAuthImpl", () => {
 
         const [credential] = capture(spiedImpl.loginWithCredentialInternal).last();
 
-        expect(credential instanceof StitchAuthCredential).toBeTruthy();
+        expect(credential instanceof StitchAuthResponseCredential).toBeTruthy();
         expect(credential.providerName).toEqual("test_provider_name");
         expect(credential.providerType).toEqual("test_provider_type");
-        expect((credential as StitchAuthCredential).authInfo).toEqual(redirectFragmentResult);
+        expect((credential as StitchAuthResponseCredential).authInfo).toEqual(redirectFragmentResult);
 
         expect.assertions(6)
     })

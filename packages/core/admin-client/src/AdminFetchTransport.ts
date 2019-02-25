@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
+import fetch from "cross-fetch";
 import {
   BasicRequest,
   ContentTypes,
   EventStream,
   Headers,
   Response,
-  Transport,
   StitchClientError, 
-  StitchClientErrorCode
+  StitchClientErrorCode, 
+  Transport
 } from "mongodb-stitch-core-sdk";
-import fetch from "cross-fetch";
 /** @hidden */
 export default class AdminFetchTransport implements Transport {
   public roundTrip(request: BasicRequest): Promise<Response> {
@@ -50,7 +50,7 @@ export default class AdminFetchTransport implements Transport {
     });
   }
 
-  public stream(request: BasicRequest, open: boolean = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
+  public stream(request: BasicRequest, open = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
     throw new StitchClientError(StitchClientErrorCode.StreamingNotSupported);
   }
 }

@@ -15,9 +15,6 @@
  */
 
 import {
-  NamedServiceClientFactory
-} from "mongodb-stitch-react-native-core";
-import {
   CoreStitchServiceClient,
   StitchAppClientInfo
 } from "mongodb-stitch-core-sdk";
@@ -26,6 +23,10 @@ import {
   HttpRequest,
   HttpResponse
 } from "mongodb-stitch-core-services-http";
+import {
+  NamedServiceClientFactory
+} from "mongodb-stitch-react-native-core";
+
 import HttpServiceClientImpl from "./internal/HttpServiceClientImpl";
 
 /**

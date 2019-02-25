@@ -167,11 +167,11 @@ export namespace HttpRequest {
      * @return the built HTTP request.
      */
     public build(): HttpRequest {
-      if (this.url == null || this.url === "") {
+      if (this.url === undefined || this.url === "") {
         throw new Error("must set url");
       }
 
-      if (this.method == null) {
+      if (this.method === undefined) {
         throw new Error("must set method");
       }
 

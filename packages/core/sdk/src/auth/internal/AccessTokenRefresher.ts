@@ -67,7 +67,9 @@ export default class AccessTokenRefresher<T extends CoreStitchUser> {
     try {
       jwt = JWT.fromEncoded(info.accessToken!);
     } catch (e) {
+      /* tslint:disable no-console */
       console.log(e);
+      /* tslint:enable no-console */
       return false;
     }
 

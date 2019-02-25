@@ -15,11 +15,11 @@
  */
 
 import {
-  Event,
   BaseEventStream,
-  StitchEvent,
+  Event,
   StitchClientError,
-  StitchClientErrorCode
+  StitchClientErrorCode, 
+  StitchEvent
 } from "mongodb-stitch-core-sdk";
 
 /** @hidden */
@@ -52,6 +52,16 @@ export default class EventSourceEventStream extends BaseEventStream<EventSourceE
     }
   }
 
+  public afterClose(): void {
+    this.evtSrc.close();
+  }
+
+  protected onReconnect(next: EventSourceEventStream) {
+    this.evtSrc = next.evtSrc;
+    this.reset();
+    this.events = next.events.concat(this.events);
+  }
+
   private reset(): void {
     this.evtSrc.onmessage = e => {
       this.events.push(new Event(Event.MESSAGE_EVENT, e.data));
@@ -73,15 +83,5 @@ export default class EventSourceEventStream extends BaseEventStream<EventSourceE
       this.evtSrc.close();
       this.reconnect();
     }
-  }
-
-  protected onReconnect(next: EventSourceEventStream) {
-    this.evtSrc = next.evtSrc;
-    this.reset();
-    this.events = next.events.concat(this.events);
-  }
-
-  public afterClose(): void {
-    this.evtSrc.close();
   }
 }

@@ -24,8 +24,14 @@ enum Fields {
 
 /** @hidden */
 export default class FacebookCredential implements StitchCredential {
+
+  public get providerCapabilities(): ProviderCapabilities {
+    return new ProviderCapabilities(false);
+  }
   public readonly providerName: string;
   public readonly providerType = FacebookAuthProvider.TYPE;
+
+  public readonly material: { [key: string]: string };
 
   private readonly accessToken: string;
 
@@ -36,11 +42,5 @@ export default class FacebookCredential implements StitchCredential {
     this.providerName = providerName;
     this.accessToken = accessToken;
     this.material = { [Fields.ACCESS_TOKEN]: this.accessToken };
-  }
-
-  public readonly material: { [key: string]: string };
-
-  public get providerCapabilities(): ProviderCapabilities {
-    return new ProviderCapabilities(false);
   }
 }
