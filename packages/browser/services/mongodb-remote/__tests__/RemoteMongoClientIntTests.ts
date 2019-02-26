@@ -112,145 +112,145 @@ beforeEach(async () => {
   mongoClient = client.getServiceClient(RemoteMongoClient.factory, "mongodb1");
 });
 
-// describe("RemoteMongoClient", () => {
-//   it("should count", async () => {
-//     const coll = getTestColl();
-//     expect(0).toEqual(await coll.count());
+describe("RemoteMongoClient", () => {
+  it("should count", async () => {
+    const coll = getTestColl();
+    expect(0).toEqual(await coll.count());
 
-//     const rawDoc = { hello: "world" };
-//     const doc1 = { ...rawDoc };
-//     const doc2 = { ...rawDoc };
-//     await coll.insertOne(doc1);
-//     expect(1).toEqual(await coll.count());
-//     await coll.insertOne(doc2);
-//     expect(2).toEqual(await coll.count());
+    const rawDoc = { hello: "world" };
+    const doc1 = { ...rawDoc };
+    const doc2 = { ...rawDoc };
+    await coll.insertOne(doc1);
+    expect(1).toEqual(await coll.count());
+    await coll.insertOne(doc2);
+    expect(2).toEqual(await coll.count());
 
-//     expect(2).toEqual(await coll.count(rawDoc));
-//     expect(0).toEqual(await coll.count({ hello: "Friend" }));
-//     expect(1).toEqual(await coll.count(rawDoc, { limit: 1 }));
+    expect(2).toEqual(await coll.count(rawDoc));
+    expect(0).toEqual(await coll.count({ hello: "Friend" }));
+    expect(1).toEqual(await coll.count(rawDoc, { limit: 1 }));
 
-//     try {
-//       await coll.count({ $who: 1 });
-//       fail();
-//     } catch (error) {
-//       expect(error instanceof StitchServiceError);
-//       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
-//     }
-//   });
-// 
-  // it("should find", async () => {
-  //   const coll = getTestColl();
-  //   let iter = await coll.find();
+    try {
+      await coll.count({ $who: 1 });
+      fail();
+    } catch (error) {
+      expect(error instanceof StitchServiceError);
+      expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
+    }
+  });
 
-  //   expect(await (await iter.iterator()).next()).toBeUndefined();
-  //   expect(await iter.first()).toBeUndefined();
+  it("should find", async () => {
+    const coll = getTestColl();
+    let iter = await coll.find();
 
-  //   const doc1 = { hello: "world" };
-  //   const doc2 = { hello: "friend" };
-  //   doc2.proj = "field";
-  //   await coll.insertMany([doc1, doc2]);
-  //   expect(await (await iter.iterator()).next()).toBeDefined();
-  //   expect(withoutId(doc1)).toEqual(withoutId((await iter.first()) as any));
-  //   expect(withoutId(doc2)).toEqual(
-  //     withoutId(
-  //       await (await coll
-  //         .find(undefined, { limit: 1, sort: { _id: -1 } })
-  //         .iterator()).next()
-  //     )
-  //   );
+    expect(await (await iter.iterator()).next()).toBeUndefined();
+    expect(await iter.first()).toBeUndefined();
 
-  //   iter = coll.find(doc1);
-  //   expect(await (await iter.iterator()).next()).toBeDefined();
-  //   expect(withoutId(doc1)).toEqual(
-  //     withoutId(await (await iter.iterator()).next())
-  //   );
+    const doc1 = { hello: "world" };
+    const doc2 = { hello: "friend" };
+    doc2.proj = "field";
+    await coll.insertMany([doc1, doc2]);
+    expect(await (await iter.iterator()).next()).toBeDefined();
+    expect(withoutId(doc1)).toEqual(withoutId((await iter.first()) as any));
+    expect(withoutId(doc2)).toEqual(
+      withoutId(
+        await (await coll
+          .find(undefined, { limit: 1, sort: { _id: -1 } })
+          .iterator()).next()
+      )
+    );
 
-  //   iter = await coll.find(doc1);
-  //   expect(await (await iter.iterator()).next()).toBeDefined();
-  //   expect(withoutId(doc1)).toEqual(
-  //     withoutId(await (await iter.iterator()).next())
-  //   );
+    iter = coll.find(doc1);
+    expect(await (await iter.iterator()).next()).toBeDefined();
+    expect(withoutId(doc1)).toEqual(
+      withoutId(await (await iter.iterator()).next())
+    );
 
-  //   expect({ proj: "field" }).toEqual(
-  //     withoutId(
-  //       await (await coll.find(doc2, { projection: { proj: 1 } })
-  //         .iterator())
-  //         .next()
-  //     )
-  //   );
+    iter = await coll.find(doc1);
+    expect(await (await iter.iterator()).next()).toBeDefined();
+    expect(withoutId(doc1)).toEqual(
+      withoutId(await (await iter.iterator()).next())
+    );
 
-  //   let count = 0;
-  //   (await coll.find().toArray()).forEach(_ => {
-  //     count++;
-  //   });
-  //   expect(2).toEqual(count);
+    expect({ proj: "field" }).toEqual(
+      withoutId(
+        await (await coll.find(doc2, { projection: { proj: 1 } })
+          .iterator())
+          .next()
+      )
+    );
 
-  //   expect(
-  //     (await coll.find().toArray()).find(it => doc1.hello === it.hello)
-  //   ).toBeDefined();
+    let count = 0;
+    (await coll.find().toArray()).forEach(_ => {
+      count++;
+    });
+    expect(2).toEqual(count);
 
-  //   expect([doc1, doc2]).toEqual(await coll.find().toArray());
+    expect(
+      (await coll.find().toArray()).find(it => doc1.hello === it.hello)
+    ).toBeDefined();
 
-  //   const asyncIter = await iter.iterator();
-  //   expect(doc1).toEqual(await asyncIter.next());
+    expect([doc1, doc2]).toEqual(await coll.find().toArray());
 
-  //   try {
-  //     await coll.find({ $who: 1 }).first();
-  //     fail();
-  //   } catch (error) {
-  //     expect(error instanceof StitchServiceError).toBeTruthy();
-  //     expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
-  //   }
-  // });
+    const asyncIter = await iter.iterator();
+    expect(doc1).toEqual(await asyncIter.next());
 
-  // it("should find one", async () => {
-  //   const coll = getTestColl();
+    try {
+      await coll.find({ $who: 1 }).first();
+      fail();
+    } catch (error) {
+      expect(error instanceof StitchServiceError).toBeTruthy();
+      expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
+    }
+  });
 
-  //   let result = await coll.findOne();
-  //   expect(result).toBeNull();
+  it("should find one", async () => {
+    const coll = getTestColl();
 
-  //   const doc1 = { hello: "world" };
-  //   await coll.insertOne(doc1);
+    let result = await coll.findOne();
+    expect(result).toBeNull();
 
-  //   result = await coll.findOne();
-  //   expect(result).toBeDefined();
-  //   expect(withoutId(result)).toEqual(withoutId(doc1));
+    const doc1 = { hello: "world" };
+    await coll.insertOne(doc1);
+
+    result = await coll.findOne();
+    expect(result).toBeDefined();
+    expect(withoutId(result)).toEqual(withoutId(doc1));
 
     
-  //   const doc2 = { hello: "world2", other: "other" };
-  //   await coll.insertOne(doc2);
+    const doc2 = { hello: "world2", other: "other" };
+    await coll.insertOne(doc2);
 
-  //   result = await coll.findOne({hello: "world"});
-  //   expect(result).toBeDefined();
-  //   expect(withoutId(result)).toEqual(withoutId(doc1));
+    result = await coll.findOne({hello: "world"});
+    expect(result).toBeDefined();
+    expect(withoutId(result)).toEqual(withoutId(doc1));
 
-  //   result = await coll.findOne({other: "other"})
-  //   expect(result).toBeDefined();
-  //   expect(withoutId(result)).toEqual(withoutId(doc2));
+    result = await coll.findOne({other: "other"})
+    expect(result).toBeDefined();
+    expect(withoutId(result)).toEqual(withoutId(doc2));
 
-  //   result = await coll.findOne({notARealField: "bogus"});
-  //   expect(result).toBeNull();
+    result = await coll.findOne({notARealField: "bogus"});
+    expect(result).toBeNull();
 
-  //   result = await coll.findOne({}, {sort: {_id: 1}})
-  //   expect(result).toBeDefined();
-  //   expect(withoutId(result)).toEqual(withoutId(doc1));
+    result = await coll.findOne({}, {sort: {_id: 1}})
+    expect(result).toBeDefined();
+    expect(withoutId(result)).toEqual(withoutId(doc1));
 
-  //   result = await coll.findOne({}, {sort: {_id: -1}})
-  //   expect(result).toBeDefined();
-  //   expect(withoutId(result)).toEqual(withoutId(doc2));
+    result = await coll.findOne({}, {sort: {_id: -1}})
+    expect(result).toBeDefined();
+    expect(withoutId(result)).toEqual(withoutId(doc2));
 
-  //   result = await coll.findOne(doc2, {projection: {_id: 0}});
-  //   expect(result).toBeDefined();
-  //   expect(result).toEqual(withoutId(doc2));
+    result = await coll.findOne(doc2, {projection: {_id: 0}});
+    expect(result).toBeDefined();
+    expect(result).toEqual(withoutId(doc2));
 
-  //   try {
-  //     await coll.find({ $who: 1 }).first();
-  //     fail();
-  //   } catch (error) {
-  //     expect(error instanceof StitchServiceError).toBeTruthy();
-  //     expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
-  //   }
-  // });
+    try {
+      await coll.find({ $who: 1 }).first();
+      fail();
+    } catch (error) {
+      expect(error instanceof StitchServiceError).toBeTruthy();
+      expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
+    }
+  });
 
   it("should find one and update", async () => {
     const coll = getTestColl();
@@ -511,338 +511,338 @@ beforeEach(async () => {
     }
   });
 
-//   it("should aggregate", async () => {
-//     const coll = getTestColl();
-//     let iter = coll.aggregate([]);
-//     expect(await (await iter.iterator()).next()).toBeUndefined();
-//     expect(await iter.first()).toBeUndefined();
+  it("should aggregate", async () => {
+    const coll = getTestColl();
+    let iter = coll.aggregate([]);
+    expect(await (await iter.iterator()).next()).toBeUndefined();
+    expect(await iter.first()).toBeUndefined();
 
-//     const doc1 = { hello: "world" };
-//     const doc2 = { hello: "friend" };
-//     await coll.insertMany([doc1, doc2]);
-//     expect(await iter.first()).toBeDefined();
-//     expect(withoutId(doc1)).toEqual(withoutId((await iter.first()) as any));
+    const doc1 = { hello: "world" };
+    const doc2 = { hello: "friend" };
+    await coll.insertMany([doc1, doc2]);
+    expect(await iter.first()).toBeDefined();
+    expect(withoutId(doc1)).toEqual(withoutId((await iter.first()) as any));
 
-//     iter = coll.aggregate([{ $sort: { _id: -1 } }, { $limit: 1 }]);
-//     expect(withoutId(doc2)).toEqual(
-//       withoutId(await (await iter.iterator()).next())
-//     );
+    iter = coll.aggregate([{ $sort: { _id: -1 } }, { $limit: 1 }]);
+    expect(withoutId(doc2)).toEqual(
+      withoutId(await (await iter.iterator()).next())
+    );
 
-//     iter = coll.aggregate([{ $match: doc1 }]);
-//     expect(await (await iter.iterator()).next()).toBeDefined();
-//     expect(withoutId(doc1)).toEqual(
-//       withoutId(await (await iter.iterator()).next())
-//     );
+    iter = coll.aggregate([{ $match: doc1 }]);
+    expect(await (await iter.iterator()).next()).toBeDefined();
+    expect(withoutId(doc1)).toEqual(
+      withoutId(await (await iter.iterator()).next())
+    );
 
-//     try {
-//       await coll.aggregate([{ $who: 1 }]).first();
-//       fail();
-//     } catch (error) {
-//       expect(error instanceof StitchServiceError).toBeTruthy();
-//       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
-//     }
-//   });
+    try {
+      await coll.aggregate([{ $who: 1 }]).first();
+      fail();
+    } catch (error) {
+      expect(error instanceof StitchServiceError).toBeTruthy();
+      expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
+    }
+  });
 
-//   it("should insert one", async () => {
-//     const coll = getTestColl();
-//     const doc = { hello: "world" };
-//     doc._id = new BSON.ObjectId();
+  it("should insert one", async () => {
+    const coll = getTestColl();
+    const doc = { hello: "world" };
+    doc._id = new BSON.ObjectId();
 
-//     expect(doc._id).toEqual((await coll.insertOne(doc)).insertedId);
-//     try {
-//       await coll.insertOne(doc);
-//       fail();
-//     } catch (error) {
-//       expect(error instanceof StitchServiceError);
-//       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
-//       expect((error.message as string).indexOf("duplicate")).toBeGreaterThan(0);
-//     }
+    expect(doc._id).toEqual((await coll.insertOne(doc)).insertedId);
+    try {
+      await coll.insertOne(doc);
+      fail();
+    } catch (error) {
+      expect(error instanceof StitchServiceError);
+      expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
+      expect((error.message as string).indexOf("duplicate")).toBeGreaterThan(0);
+    }
 
-//     const doc2 = { hello: "world" };
-//     expect(doc._id).not.toEqual((await coll.insertOne(doc2)).insertedId);
-//   });
+    const doc2 = { hello: "world" };
+    expect(doc._id).not.toEqual((await coll.insertOne(doc2)).insertedId);
+  });
 
-//   it("should insert many", async () => {
-//     const coll = getTestColl();
-//     const doc1 = { hello: "world" };
-//     doc1._id = new BSON.ObjectID();
+  it("should insert many", async () => {
+    const coll = getTestColl();
+    const doc1 = { hello: "world" };
+    doc1._id = new BSON.ObjectID();
 
-//     expect(doc1._id).toEqual((await coll.insertMany([doc1])).insertedIds[0]);
-//     try {
-//       await coll.insertMany([doc1]);
-//     } catch (error) {
-//       expect(error instanceof StitchServiceError);
-//       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
-//       expect((error.message as string).indexOf("duplicate")).toBeGreaterThan(0);
-//     }
+    expect(doc1._id).toEqual((await coll.insertMany([doc1])).insertedIds[0]);
+    try {
+      await coll.insertMany([doc1]);
+    } catch (error) {
+      expect(error instanceof StitchServiceError);
+      expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
+      expect((error.message as string).indexOf("duplicate")).toBeGreaterThan(0);
+    }
 
-//     const doc2 = { hello: "world" };
-//     expect(doc1._id).not.toEqual(
-//       (await coll.insertMany([doc2])).insertedIds[0]
-//     );
+    const doc2 = { hello: "world" };
+    expect(doc1._id).not.toEqual(
+      (await coll.insertMany([doc2])).insertedIds[0]
+    );
 
-//     const doc3 = { one: "two" };
-//     const doc4 = { three: 4 };
+    const doc3 = { one: "two" };
+    const doc4 = { three: 4 };
 
-//     await coll.insertMany([doc3, doc4]);
-//     expect(withoutIds([doc1, doc2, doc3, doc4])).toEqual(
-//       withoutIds(await coll.find().toArray())
-//     );
-//   });
+    await coll.insertMany([doc3, doc4]);
+    expect(withoutIds([doc1, doc2, doc3, doc4])).toEqual(
+      withoutIds(await coll.find().toArray())
+    );
+  });
 
-//   it("should delete one", async () => {
-//     const coll = getTestColl();
-//     expect(0).toEqual((await coll.deleteOne({})).deletedCount);
-//     expect(0).toEqual((await coll.deleteOne({ hello: "world" })).deletedCount);
+  it("should delete one", async () => {
+    const coll = getTestColl();
+    expect(0).toEqual((await coll.deleteOne({})).deletedCount);
+    expect(0).toEqual((await coll.deleteOne({ hello: "world" })).deletedCount);
 
-//     const doc1 = { hello: "world" };
-//     const doc2 = { hello: "friend" };
-//     await coll.insertMany([doc1, doc2]);
+    const doc1 = { hello: "world" };
+    const doc2 = { hello: "friend" };
+    await coll.insertMany([doc1, doc2]);
 
-//     expect(1).toEqual((await coll.deleteOne({})).deletedCount);
-//     expect(1).toEqual((await coll.deleteOne({})).deletedCount);
-//     expect(0).toEqual((await coll.deleteOne({})).deletedCount);
+    expect(1).toEqual((await coll.deleteOne({})).deletedCount);
+    expect(1).toEqual((await coll.deleteOne({})).deletedCount);
+    expect(0).toEqual((await coll.deleteOne({})).deletedCount);
 
-//     await coll.insertMany([doc1, doc2]);
-//     expect(1).toEqual((await coll.deleteOne(doc1)).deletedCount);
-//     expect(0).toEqual((await coll.deleteOne(doc1)).deletedCount);
-//     expect(1).toEqual(await coll.count());
-//     expect(0).toEqual(await coll.count(doc1));
+    await coll.insertMany([doc1, doc2]);
+    expect(1).toEqual((await coll.deleteOne(doc1)).deletedCount);
+    expect(0).toEqual((await coll.deleteOne(doc1)).deletedCount);
+    expect(1).toEqual(await coll.count());
+    expect(0).toEqual(await coll.count(doc1));
 
-//     try {
-//       await coll.deleteOne({ $who: 1 });
-//       fail();
-//     } catch (error) {
-//       expect(error instanceof StitchServiceError);
-//       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
-//     }
-//   });
+    try {
+      await coll.deleteOne({ $who: 1 });
+      fail();
+    } catch (error) {
+      expect(error instanceof StitchServiceError);
+      expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
+    }
+  });
 
-//   it("should delete many", async () => {
-//     const coll = getTestColl();
-//     expect(0).toEqual((await coll.deleteMany({})).deletedCount);
-//     expect(0).toEqual((await coll.deleteMany({ hello: "world" })).deletedCount);
+  it("should delete many", async () => {
+    const coll = getTestColl();
+    expect(0).toEqual((await coll.deleteMany({})).deletedCount);
+    expect(0).toEqual((await coll.deleteMany({ hello: "world" })).deletedCount);
 
-//     const doc1 = { hello: "world" };
-//     const doc2 = { hello: "friend" };
-//     await coll.insertMany([doc1, doc2]);
+    const doc1 = { hello: "world" };
+    const doc2 = { hello: "friend" };
+    await coll.insertMany([doc1, doc2]);
 
-//     expect(2).toEqual((await coll.deleteMany({})).deletedCount);
-//     expect(0).toEqual((await coll.deleteMany({})).deletedCount);
+    expect(2).toEqual((await coll.deleteMany({})).deletedCount);
+    expect(0).toEqual((await coll.deleteMany({})).deletedCount);
 
-//     await coll.insertMany([doc1, doc2]);
-//     expect(1).toEqual((await coll.deleteMany(doc1)).deletedCount);
-//     expect(0).toEqual((await coll.deleteMany(doc1)).deletedCount);
-//     expect(1).toEqual(await coll.count());
-//     expect(0).toEqual(await coll.count(doc1));
+    await coll.insertMany([doc1, doc2]);
+    expect(1).toEqual((await coll.deleteMany(doc1)).deletedCount);
+    expect(0).toEqual((await coll.deleteMany(doc1)).deletedCount);
+    expect(1).toEqual(await coll.count());
+    expect(0).toEqual(await coll.count(doc1));
 
-//     try {
-//       await coll.deleteMany({ $who: 1 });
-//       fail();
-//     } catch (error) {
-//       expect(error instanceof StitchServiceError);
-//       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
-//     }
-//   });
+    try {
+      await coll.deleteMany({ $who: 1 });
+      fail();
+    } catch (error) {
+      expect(error instanceof StitchServiceError);
+      expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
+    }
+  });
 
-//   it("should update one", async () => {
-//     const coll = getTestColl();
-//     const doc1 = { hello: "world" };
-//     let result = await coll.updateOne({}, doc1);
-//     expect(0).toEqual(result.matchedCount);
-//     expect(0).toEqual(result.modifiedCount);
-//     expect(result.upsertedId).toBeUndefined();
+  it("should update one", async () => {
+    const coll = getTestColl();
+    const doc1 = { hello: "world" };
+    let result = await coll.updateOne({}, doc1);
+    expect(0).toEqual(result.matchedCount);
+    expect(0).toEqual(result.modifiedCount);
+    expect(result.upsertedId).toBeUndefined();
 
-//     result = await coll.updateOne({}, doc1, { upsert: true });
-//     expect(0).toEqual(result.matchedCount);
-//     expect(0).toEqual(result.modifiedCount);
-//     expect(result.upsertedId).toBeDefined();
-//     result = await coll.updateOne({}, { $set: { woof: "meow" } });
-//     expect(1).toEqual(result.matchedCount);
-//     expect(1).toEqual(result.modifiedCount);
-//     expect(result.upsertedId).toBeUndefined();
-//     const expectedDoc = { hello: "world" };
-//     expectedDoc.woof = "meow";
-//     expect(expectedDoc).toEqual(
-//       withoutId((await coll.find({}).first()) as any)
-//     );
+    result = await coll.updateOne({}, doc1, { upsert: true });
+    expect(0).toEqual(result.matchedCount);
+    expect(0).toEqual(result.modifiedCount);
+    expect(result.upsertedId).toBeDefined();
+    result = await coll.updateOne({}, { $set: { woof: "meow" } });
+    expect(1).toEqual(result.matchedCount);
+    expect(1).toEqual(result.modifiedCount);
+    expect(result.upsertedId).toBeUndefined();
+    const expectedDoc = { hello: "world" };
+    expectedDoc.woof = "meow";
+    expect(expectedDoc).toEqual(
+      withoutId((await coll.find({}).first()) as any)
+    );
 
-//     try {
-//       await coll.updateOne({ $who: 1 }, {});
-//       fail();
-//     } catch (error) {
-//       expect(error instanceof StitchServiceError);
-//       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
-//     }
-//   });
+    try {
+      await coll.updateOne({ $who: 1 }, {});
+      fail();
+    } catch (error) {
+      expect(error instanceof StitchServiceError);
+      expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
+    }
+  });
 
-//   it("should update many", async () => {
-//     const coll = getTestColl();
-//     const doc1 = { hello: "world" };
-//     let result = await coll.updateMany({}, doc1);
-//     expect(0).toEqual(result.matchedCount);
-//     expect(0).toEqual(result.modifiedCount);
-//     expect(result.upsertedId).toBeUndefined();
+  it("should update many", async () => {
+    const coll = getTestColl();
+    const doc1 = { hello: "world" };
+    let result = await coll.updateMany({}, doc1);
+    expect(0).toEqual(result.matchedCount);
+    expect(0).toEqual(result.modifiedCount);
+    expect(result.upsertedId).toBeUndefined();
 
-//     result = await coll.updateMany({}, doc1, { upsert: true });
-//     expect(0).toEqual(result.matchedCount);
-//     expect(0).toEqual(result.modifiedCount);
-//     expect(result.upsertedId).toBeDefined();
-//     result = await coll.updateMany({}, { $set: { woof: "meow" } });
-//     expect(1).toEqual(result.matchedCount);
-//     expect(1).toEqual(result.modifiedCount);
-//     expect(result.upsertedId).toBeUndefined();
+    result = await coll.updateMany({}, doc1, { upsert: true });
+    expect(0).toEqual(result.matchedCount);
+    expect(0).toEqual(result.modifiedCount);
+    expect(result.upsertedId).toBeDefined();
+    result = await coll.updateMany({}, { $set: { woof: "meow" } });
+    expect(1).toEqual(result.matchedCount);
+    expect(1).toEqual(result.modifiedCount);
+    expect(result.upsertedId).toBeUndefined();
 
-//     await coll.insertOne({});
-//     result = await coll.updateMany({}, { $set: { woof: "meow" } });
-//     expect(2).toEqual(result.matchedCount);
-//     expect(2).toEqual(result.modifiedCount);
+    await coll.insertOne({});
+    result = await coll.updateMany({}, { $set: { woof: "meow" } });
+    expect(2).toEqual(result.matchedCount);
+    expect(2).toEqual(result.modifiedCount);
 
-//     const expectedDoc1 = { hello: "world" };
-//     expectedDoc1.woof = "meow";
-//     const expectedDoc2 = { woof: "meow" };
-//     expect([expectedDoc1, expectedDoc2]).toEqual(
-//       withoutIds(await coll.find({}).toArray())
-//     );
+    const expectedDoc1 = { hello: "world" };
+    expectedDoc1.woof = "meow";
+    const expectedDoc2 = { woof: "meow" };
+    expect([expectedDoc1, expectedDoc2]).toEqual(
+      withoutIds(await coll.find({}).toArray())
+    );
 
-//     try {
-//       await coll.updateOne({ $who: 1 }, {});
-//       fail();
-//     } catch (error) {
-//       expect(error instanceof StitchServiceError);
-//       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
-//     }
-//   });
+    try {
+      await coll.updateOne({ $who: 1 }, {});
+      fail();
+    } catch (error) {
+      expect(error instanceof StitchServiceError);
+      expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
+    }
+  });
 
-//   it("should decode properly", async () => {
-//     interface CustomType {
-//       id?: BSON.ObjectID;
-//       intValue: number;
-//     }
+  it("should decode properly", async () => {
+    interface CustomType {
+      id?: BSON.ObjectID;
+      intValue: number;
+    }
 
-//     const codec = new class implements Codec<CustomType> {
-//       public decode(from: any): CustomType {
-//         return {
-//           id: from._id,
-//           intValue: from.intValue
-//         };
-//       }
+    const codec = new class implements Codec<CustomType> {
+      public decode(from: any): CustomType {
+        return {
+          id: from._id,
+          intValue: from.intValue
+        };
+      }
 
-//       public encode(from: CustomType): object {
-//         return {
-//           _id: from.id,
-//           intValue: from.intValue
-//         };
-//       }
-//     }();
+      public encode(from: CustomType): object {
+        return {
+          _id: from.id,
+          intValue: from.intValue
+        };
+      }
+    }();
 
-//     let coll = getTestColl().withCollectionType(codec);
+    let coll = getTestColl().withCollectionType(codec);
 
-//     const expected: CustomType = { id: new BSON.ObjectID(), intValue: 42 };
+    const expected: CustomType = { id: new BSON.ObjectID(), intValue: 42 };
 
-//     expect(expected.id).toEqual((await coll.insertOne(expected)).insertedId);
-//     expect(expected).toEqual(await coll.find().first());
+    expect(expected.id).toEqual((await coll.insertOne(expected)).insertedId);
+    expect(expected).toEqual(await coll.find().first());
 
-//     coll = getTestColl(codec);
+    coll = getTestColl(codec);
 
-//     const expected2: CustomType = { intValue: 42 };
-//     const result = await coll.insertOne(expected2);
-//     expect(expected.id).not.toEqual(result.insertedId);
+    const expected2: CustomType = { intValue: 42 };
+    const result = await coll.insertOne(expected2);
+    expect(expected.id).not.toEqual(result.insertedId);
 
-//     let actual = await coll.find().first();
-//     expect(expected2.intValue).toEqual(actual!.intValue);
-//     expect(expected.id).toBeDefined();
+    let actual = await coll.find().first();
+    expect(expected2.intValue).toEqual(actual!.intValue);
+    expect(expected.id).toBeDefined();
 
-//     const coll2 = getTestColl().withCollectionType(codec);
-//     actual = await coll2.find({}).first();
-//     expect(expected2.intValue).toEqual(actual!.intValue);
-//     expect(expected.id).toBeDefined();
+    const coll2 = getTestColl().withCollectionType(codec);
+    actual = await coll2.find({}).first();
+    expect(expected2.intValue).toEqual(actual!.intValue);
+    expect(expected.id).toBeDefined();
 
-//     const iter = coll2.aggregate([{ $match: {} }]);
-//     expect(await (await iter.iterator()).next()).toBeDefined();
-//     expect(expected).toEqual(await (await iter.iterator()).next());
-//   });
+    const iter = coll2.aggregate([{ $match: {} }]);
+    expect(await (await iter.iterator()).next()).toBeDefined();
+    expect(expected).toEqual(await (await iter.iterator()).next());
+  });
 
-//   /* tslint:disable:no-string-literal */
-//   it("should properly support watch streams", async () => {
-//     const coll = getTestColl();
+  /* tslint:disable:no-string-literal */
+  it("should properly support watch streams", async () => {
+    const coll = getTestColl();
     
-//     const doc1 = { _id: new BSON.ObjectID(), hello: "world" };
-//     expect(doc1._id).toEqual((await coll.insertOne(doc1)).insertedId);
+    const doc1 = { _id: new BSON.ObjectID(), hello: "world" };
+    expect(doc1._id).toEqual((await coll.insertOne(doc1)).insertedId);
 
-//     // Should receive one event for one document
-//     const stream1 = await coll.watch([doc1._id]);
-//     stream1.onNext((event: ChangeEvent<any>) => {
-//       expect(event.documentKey["_id"]).toEqual(doc1._id);
-//       expect(event.operationType).toEqual("update");
-//       expect(event.fullDocument["hello"]).toEqual("universe");
+    // Should receive one event for one document
+    const stream1 = await coll.watch([doc1._id]);
+    stream1.onNext((event: ChangeEvent<any>) => {
+      expect(event.documentKey["_id"]).toEqual(doc1._id);
+      expect(event.operationType).toEqual("update");
+      expect(event.fullDocument["hello"]).toEqual("universe");
 
-//       stream1.close();
-//     });
-//     await coll.updateOne({_id: doc1._id}, {$set: { hello: "universe"}});
+      stream1.close();
+    });
+    await coll.updateOne({_id: doc1._id}, {$set: { hello: "universe"}});
 
-//     // Should receive multiple events for one document
-//     const doc2 = { _id: "this is a string id", hello: "galaxy"};
-//     const stream2 = await coll.watch([doc2._id]);
+    // Should receive multiple events for one document
+    const doc2 = { _id: "this is a string id", hello: "galaxy"};
+    const stream2 = await coll.watch([doc2._id]);
 
-//     stream2.next().then(event => {
-//       expect(event.documentKey["_id"]).toEqual(doc2._id);
-//       expect(event.operationType).toEqual("insert");
-//       expect(event.fullDocument).toEqual(doc2);  
-//     });
-//     await coll.insertOne(doc2);
+    stream2.next().then(event => {
+      expect(event.documentKey["_id"]).toEqual(doc2._id);
+      expect(event.operationType).toEqual("insert");
+      expect(event.fullDocument).toEqual(doc2);  
+    });
+    await coll.insertOne(doc2);
     
-//     stream2.next().then(event => {
-//       expect(event.documentKey["_id"]).toEqual(doc2._id);
-//       expect(event.operationType).toEqual("update");
-//       expect(event.fullDocument["hello"]).toEqual("universe");
-//     });
-//     await coll.updateOne({_id: doc2._id}, {$set: { hello: "universe"}})
+    stream2.next().then(event => {
+      expect(event.documentKey["_id"]).toEqual(doc2._id);
+      expect(event.operationType).toEqual("update");
+      expect(event.fullDocument["hello"]).toEqual("universe");
+    });
+    await coll.updateOne({_id: doc2._id}, {$set: { hello: "universe"}})
 
-//     // Should receive no more events after stream closed
-//     stream2.onNext(() => fail("should not have received event"))
-//     stream2.close();
-//     await coll.updateOne({_id: doc2._id}, {$set: { goodbye: "universe"}});
+    // Should receive no more events after stream closed
+    stream2.onNext(() => fail("should not have received event"))
+    stream2.close();
+    await coll.updateOne({_id: doc2._id}, {$set: { goodbye: "universe"}});
 
-//     // Should receive events for multiple documents watched
-//     const stream3 = await coll.watch([doc1._id, doc2._id]);
+    // Should receive events for multiple documents watched
+    const stream3 = await coll.watch([doc1._id, doc2._id]);
 
-//     const listener = {
-//       gotDoc1Event: false,
-//       gotDoc2Event: false,
-//       onNext(event: ChangeEvent<any>) { 
-//         const eventDocId = event.documentKey["_id"];
-//         if (doc1._id.equals(eventDocId))  {
-//           if (this.gotDoc1Event) {
-//             fail("got event for doc1 more than once");
-//           }
-//           this.gotDoc1Event = true
-//           expect(event.operationType).toEqual("update");
-//           expect(event.fullDocument["hello"]).toEqual("multiverse");
-//         } else if (eventDocId === doc2._id) {
-//           if (this.gotDoc2Event) {
-//             fail("got event for doc2 more than once");
-//           }
-//           this.gotDoc2Event = true
-//           expect(event.operationType).toEqual("update");
-//           expect(event.fullDocument["hello"]).toEqual("multiverse");
-//         } else {
-//           fail(`event for unexpected document: ${BSON.EJSON.stringify(event)}`);
-//         }
+    const listener = {
+      gotDoc1Event: false,
+      gotDoc2Event: false,
+      onNext(event: ChangeEvent<any>) { 
+        const eventDocId = event.documentKey["_id"];
+        if (doc1._id.equals(eventDocId))  {
+          if (this.gotDoc1Event) {
+            fail("got event for doc1 more than once");
+          }
+          this.gotDoc1Event = true
+          expect(event.operationType).toEqual("update");
+          expect(event.fullDocument["hello"]).toEqual("multiverse");
+        } else if (eventDocId === doc2._id) {
+          if (this.gotDoc2Event) {
+            fail("got event for doc2 more than once");
+          }
+          this.gotDoc2Event = true
+          expect(event.operationType).toEqual("update");
+          expect(event.fullDocument["hello"]).toEqual("multiverse");
+        } else {
+          fail(`event for unexpected document: ${BSON.EJSON.stringify(event)}`);
+        }
 
-//         // Close the stream once we've received both events
-//         if (this.gotDoc1Event && this.gotDoc2Event) {
-//           stream3.close();
-//         }
-//       },
-//       onError(error: Error) {
-//         fail("unexpected error in stream");
-//       }
-//     }
+        // Close the stream once we've received both events
+        if (this.gotDoc1Event && this.gotDoc2Event) {
+          stream3.close();
+        }
+      },
+      onError(error: Error) {
+        fail("unexpected error in stream");
+      }
+    }
 
-//     stream3.addListener(listener);
+    stream3.addListener(listener);
 
-//     await coll.updateMany({}, { $set: {hello: "multiverse"}});
-//  })
+    await coll.updateMany({}, { $set: {hello: "multiverse"}});
+ })
  /* tslint:enable:no-string-literal */
 });
