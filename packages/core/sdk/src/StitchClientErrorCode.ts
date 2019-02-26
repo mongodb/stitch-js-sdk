@@ -28,6 +28,7 @@ export enum StitchClientErrorCode {
   CouldNotPersistAuthInfo,
   StreamingNotSupported,
   StreamClosed,
+  UnexpectedArguments,
 }
 
 /** @hidden */
@@ -49,5 +50,7 @@ export const clientErrorCodeDescs: { [key: number]: string } = {
   [StitchClientErrorCode.StreamingNotSupported]:
     "streaming not supported in this SDK",
   [StitchClientErrorCode.StreamClosed]:
-  "stream is closed"
+    "stream is closed",
+  [StitchClientErrorCode.UnexpectedArguments]:
+    "function does not accept arguments",
 };

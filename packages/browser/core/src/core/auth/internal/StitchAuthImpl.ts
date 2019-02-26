@@ -227,6 +227,13 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   }
 
   public logout(): Promise<void> {
+    // Guard against users accidentally thinking this is logoutUserWithId
+    if (arguments.length > 0) {
+      return Promise.reject(
+        new StitchClientError(StitchClientErrorCode.UnexpectedArguments)
+      );
+    }
+
     return super.logoutInternal();
   }
 
@@ -235,6 +242,13 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   }
 
   public removeUser(): Promise<void> {
+    // Guard against users accidentally thinking this is removeUserWithId
+    if (arguments.length > 0) {
+      return Promise.reject(
+        new StitchClientError(StitchClientErrorCode.UnexpectedArguments)
+      );
+    }
+
     return super.removeUserInternal();
   }
 
