@@ -151,12 +151,12 @@ export default class CoreRemoteMongoCollectionImpl<T>
   ): Promise<T | null> {
     const args: any = { ...this.baseOperationArgs };
 
-    args.query = filter;
+    args.filter = filter;
     args.update = update;
 
     if (options) {
       if (options.projection) {
-        args.project = options.projection;
+        args.projection = options.projection;
       }
       if (options.sort) {
         args.sort = options.sort;
@@ -193,12 +193,12 @@ export default class CoreRemoteMongoCollectionImpl<T>
   ): Promise<T | null> {
     const args: any = { ...this.baseOperationArgs };
 
-    args.query = filter;
-    args.replacement = replacement;
+    args.filter = filter;
+    args.update = replacement;
 
     if (options) {
       if (options.projection) {
-        args.project = options.projection;
+        args.projection = options.projection;
       }
       if (options.sort) {
         args.sort = options.sort;
@@ -234,11 +234,11 @@ export default class CoreRemoteMongoCollectionImpl<T>
   ): Promise<T | null> {
     const args: any = { ...this.baseOperationArgs };
 
-    args.query = filter;
+    args.filter = filter;
 
     if (options) {
       if (options.projection) {
-        args.project = options.projection;
+        args.projection = options.projection;
       }
       if (options.sort) {
         args.sort = options.sort;

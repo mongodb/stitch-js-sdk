@@ -50,6 +50,6 @@ export default interface RemoteFindOneAndUpdateOptions {
      * A boolean that, if true, indicates that the action should return 
      * the document in its updated form instead of its original, pre-update form.
      */
-    readonly returnNewDocument: boolean;
+    readonly returnNewDocument?: boolean;
   }
   
