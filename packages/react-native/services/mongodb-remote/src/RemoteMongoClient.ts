@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-import {
-  NamedServiceClientFactory
-} from "mongodb-stitch-react-native-core";
 import { 
   CoreStitchServiceClient, 
   StitchAppClientInfo 
 } from "mongodb-stitch-core-sdk";
 import { CoreRemoteMongoClientImpl } from "mongodb-stitch-core-services-mongodb-remote";
+import {
+  NamedServiceClientFactory
+} from "mongodb-stitch-react-native-core";
+
 import RemoteMongoClientImpl from "./internal/RemoteMongoClientImpl";
 import RemoteMongoDatabase from "./RemoteMongoDatabase";
 

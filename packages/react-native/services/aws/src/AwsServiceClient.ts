@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-import {
-  NamedServiceClientFactory
-} from "mongodb-stitch-react-native-core";
 import { 
   CoreStitchServiceClient,
+  Decoder,
   StitchAppClientInfo 
 } from "mongodb-stitch-core-sdk";
 import { 
   AwsRequest, 
   CoreAwsServiceClient 
 } from "mongodb-stitch-core-services-aws";
-import { Decoder } from "mongodb-stitch-core-sdk";
+import {
+  NamedServiceClientFactory
+} from "mongodb-stitch-react-native-core";
 import AwsServiceClientImpl from "./internal/AwsServiceClientImpl";
 
  /**

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { NamedServiceClientFactory } from "mongodb-stitch-server-core";
 import { 
   CoreStitchServiceClient, 
   StitchAppClientInfo 
@@ -24,6 +23,8 @@ import {
   HttpRequest,
   HttpResponse
 } from "mongodb-stitch-core-services-http";
+import { NamedServiceClientFactory } from "mongodb-stitch-server-core";
+
 import HttpServiceClientImpl from "./internal/HttpServiceClientImpl";
 
 /**

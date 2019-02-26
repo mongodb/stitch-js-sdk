@@ -73,7 +73,7 @@ export namespace UserPasswordAuthProviderClient {
   > = new class
     implements AuthProviderClientFactory<UserPasswordAuthProviderClient> {
     public getClient(
-      authRequestClient: StitchAuthRequestClient, // this arg is ignored
+      authRequestClient: StitchAuthRequestClient, // This arg is ignored
       requestClient: StitchRequestClient,
       routes: StitchAuthRoutes
     ): UserPasswordAuthProviderClient {

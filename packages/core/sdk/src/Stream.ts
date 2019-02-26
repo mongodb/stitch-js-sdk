@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+import { Decoder } from "./internal/common/Codec";
 import Event from "./internal/net/Event";
 import EventListener from "./internal/net/EventListener";
 import EventStream from "./internal/net/EventStream";
 import StitchEvent from "./internal/net/StitchEvent";
 import StreamListener from "./StreamListener";
-import { Decoder } from "./internal/common/Codec";
 
 /**
  * A Stream represents an ongoing stream of objects from a remote source, such 

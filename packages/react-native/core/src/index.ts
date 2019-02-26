@@ -49,20 +49,19 @@ import {
   UserPasswordAuthProvider,
   UserPasswordCredential,
   UserType
-} from "mongodb-stitch-core-sdk";
+} from "mongodb-stitch-core-sdk"
+;
 import { UserApiKeyAuthProviderClient } from "./core/auth/providers/userapikey/UserApiKeyAuthProviderClient";
 import { UserPasswordAuthProviderClient } from "./core/auth/providers/userpassword/UserPasswordAuthProviderClient";
-
 import StitchAuth from "./core/auth/StitchAuth";
 import StitchAuthListener from "./core/auth/StitchAuthListener";
 import StitchUser from "./core/auth/StitchUser";
+import RNAsyncStorage from "./core/internal/common/RNAsyncStorage";
+import RNFetchTransport from "./core/internal/net/RNFetchTransport";
 import Stitch from "./core/Stitch";
 import StitchAppClient from "./core/StitchAppClient";
 import NamedServiceClientFactory from "./services/internal/NamedServiceClientFactory";
 import StitchServiceClient from "./services/StitchServiceClient";
-import RNFetchTransport from "./core/internal/net/RNFetchTransport";
-
-import RNAsyncStorage from "./core/internal/common/RNAsyncStorage";
 
 export {
   AnonymousAuthProvider,

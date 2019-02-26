@@ -17,13 +17,13 @@
 import BSON from "bson";
 import StitchAuthRequestClient from "../../../auth/internal/StitchAuthRequestClient";
 import { StitchAuthRoutes } from "../../../auth/internal/StitchAuthRoutes";
+import { wrapDecodingError } from "../../../internal/common/StitchErrorUtils";
 import Method from "../../../internal/net/Method";
 import { StitchAuthDocRequest } from "../../../internal/net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "../../../internal/net/StitchAuthRequest";
 import StitchError from "../../../StitchError";
-import { wrapDecodingError } from "../../../internal/common/StitchErrorUtils";
-import { StitchRequestErrorCode } from "../../../StitchRequestErrorCode";
 import StitchRequestError from "../../../StitchRequestError";
+import { StitchRequestErrorCode } from "../../../StitchRequestErrorCode";
 import CoreAuthProviderClient from "../internal/CoreAuthProviderClient";
 import UserApiKey from "./models/UserApiKey";
 import UserApiKeyAuthProvider from "./UserApiKeyAuthProvider";
@@ -66,9 +66,8 @@ export default class CoreUserApiKeyAuthProviderClient extends CoreAuthProviderCl
 
     return this.requestClient
       .doAuthenticatedRequest(reqBuilder.build())
-      .then(response => {
-        return UserApiKey.readFromApi(response.body!);
-      })
+      .then(response =>
+        UserApiKey.readFromApi(response.body!))
       .catch(err => {
         throw wrapDecodingError(err);
       });
@@ -88,9 +87,8 @@ export default class CoreUserApiKeyAuthProviderClient extends CoreAuthProviderCl
 
     return this.requestClient
       .doAuthenticatedRequest(reqBuilder.build())
-      .then(response => {
-        return UserApiKey.readFromApi(response.body!);
-      })
+      .then(response =>
+        UserApiKey.readFromApi(response.body!))
       .catch(err => {
         throw wrapDecodingError(err);
       });

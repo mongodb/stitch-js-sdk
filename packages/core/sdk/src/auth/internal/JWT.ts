@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import StitchClientError from "../../StitchClientError";
 import { base64Decode } from "../../internal/common/Base64";
+import StitchClientError from "../../StitchClientError";
 
 const EXPIRES = "exp";
 const ISSUED_AT = "iat";

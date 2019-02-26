@@ -23,7 +23,9 @@ import {
   objectContaining,
   when
 } from "ts-mockito";
+/* tslint:disable no-submodule-imports */
 import { Matcher } from "ts-mockito/lib/matcher/type/Matcher";
+/* tslint:enable no-submodule-imports */
 import {
   CoreStitchAuth,
   CoreUserApiKeyAuthProviderClient,
@@ -133,8 +135,8 @@ function getTestLoginResponse(userId?: string): ApiAuthInfo {
 /**
  * Gets a login response for testing that is always the same.
  */
-export const TEST_LOGIN_RESPONSE: ApiAuthInfo = (() => {
-  return new class extends ApiAuthInfo {
+export const TEST_LOGIN_RESPONSE: ApiAuthInfo = (() =>
+  new class extends ApiAuthInfo {
     constructor() {
       super(
         "some-unique-user-id",
@@ -143,14 +145,13 @@ export const TEST_LOGIN_RESPONSE: ApiAuthInfo = (() => {
         TEST_REFRESH_TOKEN
       );
     }
-  }();
-})();
+  }())();
 
 /**
  * Gets a link response for testing that is always the same.
  */
-export const TEST_LINK_RESPONE: ApiAuthInfo = (() => {
-  return new class extends ApiAuthInfo {
+export const TEST_LINK_RESPONE: ApiAuthInfo = (() =>
+  new class extends ApiAuthInfo {
     constructor() {
       super(
         "some-unique-user-id",
@@ -159,8 +160,7 @@ export const TEST_LINK_RESPONE: ApiAuthInfo = (() => {
         TEST_REFRESH_TOKEN
       );
     }
-  }();
-})();
+  }())();
 
 /**
  * Gets a user profile for testing that is always the same.

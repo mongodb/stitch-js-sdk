@@ -34,6 +34,14 @@
     {
       "name": "Jason Flax",
       "email": "jason.flax@mongodb.com"
+    }, 
+    {
+      "name": "Doug Kaminsky", 
+      "email": "douglas.kaminsky@mongodb.com"
+    }, 
+    {
+      "name": "Tyler Kaye", 
+      "email": "tyler.kaye@mongodb.com"
     }
   ],
   "license": "Apache-2.0",
@@ -45,7 +53,8 @@
     "mongodb-stitch-react-native-core": "^4.3.0"
   },
   "devDependencies": {
-    "typescript": "^2.9.2"
+    "typescript": "^2.9.2", 
+    "tslint": "^5.10.0"
   },
   "scripts": {
     "build": "npm run build-main && npm run build-module",
@@ -53,8 +62,8 @@
     "build-module": "tsc -p tsconfig.esm.json",
     "prepare": "npm run build",
     "watch": "tsc -w -p tsconfig.esm.json",
-    "lint": "tslint src/**/*.ts __tests__/**/*.ts",
-    "lint-fix": "tslint --fix src/**/*.ts __tests__/**/*.ts",
+    "lint": "tslint 'src/**/*.ts' '__tests__/**/*.ts'",
+    "lint-fix": "tslint --fix 'src/**/*.ts' '__tests__/**/*.ts'",
     "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\"",
     "tslint-check": "tslint-config-prettier-check ./tslint.json"
   },

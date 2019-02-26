@@ -22,10 +22,6 @@ const stitchPrefixKey = "__stitch.client";
 export default class LocalStorage implements Storage {
   constructor(private readonly suiteName: string) {}
 
-  private getKey(forKey: string): string {
-    return `${stitchPrefixKey}.${this.suiteName}.${forKey}`;
-  }
-
   public get(key: string): any {
     return localStorage.getItem(this.getKey(key));
   }
@@ -36,5 +32,9 @@ export default class LocalStorage implements Storage {
   
   public remove(key: string) {
     localStorage.removeItem(this.getKey(key));
+  }
+
+  private getKey(forKey: string): string {
+    return `${stitchPrefixKey}.${this.suiteName}.${forKey}`;
   }
 }

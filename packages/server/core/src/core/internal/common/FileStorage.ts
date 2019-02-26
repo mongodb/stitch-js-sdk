@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { MemoryStorage, Storage } from "mongodb-stitch-core-sdk";
 import { readJsonSync, writeJSONSync } from "fs-extra"
+import { MemoryStorage, Storage } from "mongodb-stitch-core-sdk";
 import { join } from "path"
 
 const DEFAULT_FILE_NAME = "data.json";

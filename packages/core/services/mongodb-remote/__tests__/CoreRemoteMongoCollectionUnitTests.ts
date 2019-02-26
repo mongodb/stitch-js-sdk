@@ -179,6 +179,71 @@ describe("CoreRemoteMongoCollection", () => {
     }
   });
 
+  it("should find one", async () => {
+    const serviceMock = mock(CoreStitchServiceClientImpl);
+    const service = instance(serviceMock);
+
+    const client = new CoreRemoteMongoClientImpl(service);
+    const coll = getCollection(undefined, client);
+
+    const doc = { one: 1, two: 2 };
+
+    when(
+      serviceMock.callFunction(anything(), anything(), anything())
+    ).thenResolve(doc);
+
+    let result = await coll.findOne();
+    expect(result).toBeDefined();
+    expect(result).toEqual(doc);
+
+    const [funcNameArg, funcArgsArg, resultClassArg]: any[] = capture(
+      serviceMock.callFunction
+    ).last();
+
+    expect(funcNameArg).toEqual("findOne");
+    expect(funcArgsArg.length).toEqual(1);
+    const expectedArgs = {
+      collection: "collName1",
+      database: "dbName1",
+      query: {}
+    };
+    expect(funcArgsArg[0]).toEqual(expectedArgs);
+
+    const expectedFilter = { one: 1 };
+    const expectedProject = { two: "four" };
+    const expectedSort = { _id: -1 };
+
+    result = await coll.findOne(expectedFilter, {projection: expectedProject, sort: expectedSort});
+    expect(result).toEqual(doc);
+
+    verify(
+      serviceMock.callFunction(anything(), anything(), anything())
+    ).times(2);
+
+    const [funcNameArg2, funcArgsArg2, resultClassArg2]: any[] = capture(
+      serviceMock.callFunction
+    ).last();
+
+    expect("findOne").toEqual(funcNameArg2);
+    expect(1).toEqual(funcArgsArg2.length);
+    expectedArgs.query = expectedFilter;
+    expectedArgs.project = expectedProject;
+    expectedArgs.sort = expectedSort;
+    expect(funcArgsArg2[0]).toEqual(expectedArgs);
+
+    // Should pass along errors
+    when(
+      serviceMock.callFunction(anything(), anything(), anything())
+    ).thenReject(new Error("whoops"));
+
+    try {
+      await coll.find().first();
+      fail();
+    } catch (_) {
+      // Do nothing
+    }
+  });
+
   it("should aggregate", async () => {
     const serviceMock = mock(CoreStitchServiceClientImpl);
     const service = instance(serviceMock);

@@ -15,8 +15,8 @@
  */
 
 import {
-  StitchClientErrorCode,
-  clientErrorCodeDescs
+  clientErrorCodeDescs,
+  StitchClientErrorCode
 } from "./StitchClientErrorCode";
 import StitchError from "./StitchError";
 

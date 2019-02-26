@@ -15,9 +15,6 @@
  */
 
 import {
-  NamedServiceClientFactory
-} from "mongodb-stitch-react-native-core";
-import {
   CoreStitchServiceClient,
   StitchAppClientInfo
 } from "mongodb-stitch-core-sdk";
@@ -25,6 +22,10 @@ import {
   AwsSesSendResult,
   CoreAwsSesServiceClient
 } from "mongodb-stitch-core-services-aws-ses";
+import {
+  NamedServiceClientFactory
+} from "mongodb-stitch-react-native-core";
+
 import AwsSesServiceClientImpl from "./internal/AwsSesServiceClientImpl";
 
 /**

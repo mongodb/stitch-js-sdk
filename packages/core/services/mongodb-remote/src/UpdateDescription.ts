@@ -16,5 +16,5 @@
 
 export default interface UpdateDescription {
   readonly updatedFields: object;
-  readonly removedFields: Array<string>;
+  readonly removedFields: string[];
 }

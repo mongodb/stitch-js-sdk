@@ -94,11 +94,11 @@ export namespace AwsRequest {
      * @return the built AWS request.
      */
     public build(): AwsRequest {
-      if(!this.service || this.service == "") {
+      if(!this.service || this.service === "") {
         throw new Error("must set service");
       }
 
-      if(!this.action || this.action == "") {
+      if(!this.action || this.action === "") {
         throw new Error("must set action");
       }
 

@@ -19,11 +19,10 @@ import { Codec, Decoder } from "../../internal/common/Codec";
 import { wrapDecodingError } from "../../internal/common/StitchErrorUtils";
 import { Storage } from "../../internal/common/Storage";
 import ContentTypes from "../../internal/net/ContentTypes";
+import EventStream from "../../internal/net/EventStream";
 import Headers from "../../internal/net/Headers";
 import Method from "../../internal/net/Method";
 import Response from "../../internal/net/Response";
-import Stream from "../../Stream";
-import EventStream from "../../internal/net/EventStream";
 import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 import { StitchDocRequest } from "../../internal/net/StitchDocRequest";
@@ -36,21 +35,22 @@ import StitchRequestError from "../../StitchRequestError";
 import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
 import StitchServiceError from "../../StitchServiceError";
 import { StitchServiceErrorCode } from "../../StitchServiceErrorCode";
+import Stream from "../../Stream";
+import AnonymousAuthProvider from "../providers/anonymous/AnonymousAuthProvider";
 import StitchAuthResponseCredential from "../providers/internal/StitchAuthResponseCredential";
 import StitchCredential from "../StitchCredential";
 import AccessTokenRefresher from "./AccessTokenRefresher";
+import { AuthEvent, AuthEventKind } from "./AuthEvent";
 import AuthInfo from "./AuthInfo";
 import CoreStitchUser from "./CoreStitchUser";
 import JWT from "./JWT";
 import ApiAuthInfo from "./models/ApiAuthInfo";
 import ApiCoreUserProfile from "./models/ApiCoreUserProfile";
-import { readCurrentUsersFromStorage, StoreAuthInfo, writeAllUsersAuthInfoToStorage, readActiveUserFromStorage, writeActiveUserAuthInfoToStorage } from "./models/StoreAuthInfo";
+import { readActiveUserFromStorage, readCurrentUsersFromStorage, StoreAuthInfo, writeActiveUserAuthInfoToStorage, writeAllUsersAuthInfoToStorage } from "./models/StoreAuthInfo";
 import StitchAuthRequestClient from "./StitchAuthRequestClient";
 import { StitchAuthRoutes } from "./StitchAuthRoutes";
 import StitchUserFactory from "./StitchUserFactory";
 import StitchUserProfileImpl from "./StitchUserProfileImpl";
-import AnonymousAuthProvider from "../providers/anonymous/AnonymousAuthProvider";
-import { AuthEvent, AuthEventKind } from "./AuthEvent";
 
 const OPTIONS = "options";
 const DEVICE = "device";
@@ -73,7 +73,42 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     return this.activeUserAuthInfo;
   }
 
-  private activeUserAuthInfo: AuthInfo
+  /**
+   * Whether or not a user is currently logged in.
+   */
+  public get isLoggedIn(): boolean {
+    return this.currentUser !== undefined && this.currentUser.isLoggedIn;
+  }
+
+  /**
+   * The currently authenticated user as a `TStitchUser`, or `undefined` if no user is currently authenticated.
+   */
+  public get user(): TStitchUser | undefined {
+    return this.currentUser;
+  }
+
+  /**
+   * Returns whether or not the current authentication state has a meaningful device id.
+   */
+  public get hasDeviceId(): boolean {
+    return (
+      this.activeUserAuthInfo.deviceId !== undefined &&
+      this.activeUserAuthInfo.deviceId !== "" &&
+      this.activeUserAuthInfo.deviceId !== "000000000000000000000000"
+    );
+  }
+
+  /**
+   * Returns the currently authenticated user's device id, or `undefined` is no user is currently authenticated, or if the
+   * device id does not exist.
+   */
+  protected get deviceId(): string | undefined {
+    if (!this.hasDeviceId) {
+      return undefined;
+    }
+
+    return this.activeUserAuthInfo.deviceId;
+  }
 
   /**
    * The `StitchRequestClient` used by the `CoreStitchAuth` to make requests to the Stitch server.
@@ -93,6 +128,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    * A field that should return an object containing information about the current device.
    */
   protected abstract deviceInfo: { [key: string]: string };
+
+  private activeUserAuthInfo: AuthInfo
 
   /**
    * The `IStorage` object indicating where authentication information should be persisted.
@@ -116,7 +153,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     requestClient: StitchRequestClient,
     authRoutes: StitchAuthRoutes,
     storage: Storage,
-    useTokenRefresher: boolean = true
+    useTokenRefresher = true
   ) {
     this.requestClient = requestClient;
     this.authRoutes = authRoutes;
@@ -140,11 +177,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         StitchClientErrorCode.CouldNotLoadPersistedAuthInfo
       );
     }
-    if (activeUserAuthInfo === undefined) {
-      this.activeUserAuthInfo = AuthInfo.empty();
-    } else {
-      this.activeUserAuthInfo = activeUserAuthInfo;
-    }
+    this.activeUserAuthInfo = 
+         activeUserAuthInfo === undefined ? AuthInfo.empty() : activeUserAuthInfo;
 
     if (this.activeUserAuthInfo.hasUser) {
       this.currentUser = this.prepUser(this.activeUserAuthInfo);
@@ -156,22 +190,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     }
   }
 
-  /**
-   * Whether or not a user is currently logged in.
-   */
-  public get isLoggedIn(): boolean {
-    return this.currentUser !== undefined && this.currentUser.isLoggedIn;
-  }
-
-  /**
-   * The currently authenticated user as a `TStitchUser`, or `undefined` if no user is currently authenticated.
-   */
-  public get user(): TStitchUser | undefined {
-    return this.currentUser;
-  }
-
-  public listUsers(): Array<TStitchUser> {
-    const list: Array<TStitchUser> = [];
+  public listUsers(): TStitchUser[] {
+    const list: TStitchUser[] = [];
   
     this.allUsersAuthInfo.forEach(authInfo => {
       list.push(this.prepUser(authInfo));
@@ -194,9 +214,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   ): Promise<Response> {
     return this.requestClient
       .doRequest(this.prepareAuthRequest(stitchReq, authInfo || this.activeUserAuthInfo))
-      .catch(err => {
-        return this.handleAuthFailure(err, stitchReq);
-      });
+      .catch(err =>
+        this.handleAuthFailure(err, stitchReq));
   }
 
   /**
@@ -210,7 +229,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     decoder?: Decoder<T>
   ): Promise<T> {
     return this.doAuthenticatedRequest(stitchReq)
-      .then(response => {
+      .then(response => {       
         const obj = EJSON.parse(response.body!, { strict: false });
 
         if (decoder) {
@@ -226,18 +245,15 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
   public openAuthenticatedEventStream(
     stitchReq: StitchAuthRequest,
-    open: boolean = true
+    open = true
   ): Promise<EventStream> {
     if (!this.isLoggedIn) {
       throw new StitchClientError(StitchClientErrorCode.MustAuthenticateFirst);
     }
 
-    let authToken;
-    if (stitchReq.useRefreshToken) {
-      authToken = this.activeUserAuthInfo.refreshToken!
-    } else {
-      authToken = this.activeUserAuthInfo.accessToken!
-    }
+    const authToken = stitchReq.useRefreshToken ? 
+          this.activeUserAuthInfo.refreshToken! : this.activeUserAuthInfo.accessToken!;
+
 
     return this.requestClient.doStreamRequest(
       stitchReq.builder
@@ -245,9 +261,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       .build(),
       open,
       () => this.openAuthenticatedEventStream(stitchReq, false))
-    .catch(err => {
-      return this.handleAuthFailureForEventStream(err, stitchReq, open);
-    });
+    .catch(err =>
+      this.handleAuthFailureForEventStream(err, stitchReq, open));
   }
 
   public openAuthenticatedStreamWithDecoder<T>(
@@ -255,9 +270,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     decoder?: Decoder<T>
   ): Promise<Stream<T>> {
     return this.openAuthenticatedEventStream(stitchReq)
-    .then(eventStream => {
-      return new Stream<T>(eventStream, decoder)
-    });
+    .then(eventStream =>
+      new Stream<T>(eventStream, decoder));
   }
 
   /**
@@ -319,7 +333,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     }
 
     // Update the previous activeUserAuthInfo's lastAuthActivity if there was 
-    // a previous active user.
+    // A previous active user.
     if (this.activeUserAuthInfo.hasUser) {
       this.allUsersAuthInfo.set(
         this.activeUserAuthInfo.userId!, 
@@ -333,24 +347,24 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     );
 
 
-    // persist auth info storage before actually setting auth state so that
-    // if the persist call throws, we are not in an inconsistent state
-    // with storage
+    // Persist auth info storage before actually setting auth state so that
+    // If the persist call throws, we are not in an inconsistent state
+    // With storage
     writeActiveUserAuthInfoToStorage(newAuthInfo, this.storage)
 
-    // set the active user auth info and active user to the user with ID as 
-    // specified in the list of all users.
+    // Set the active user auth info and active user to the user with ID as 
+    // Specified in the list of all users.
     this.activeUserAuthInfo = newAuthInfo;
 
     const previousUser = this.currentUser;
     this.currentUser = this.prepUser(newAuthInfo);
 
     // Dispatch an ActiveUserChangedEvent indicating to listeners that the 
-    // active user was switched from one user to another.
-    this.onAuthEvent(); // legacy event dispatch
+    // Active user was switched from one user to another.
+    this.onAuthEvent(); // Legacy event dispatch
     this.dispatchAuthEvent({
-      kind: AuthEventKind.ActiveUserChanged,
       currentActiveUser: this.currentUser,
+      kind: AuthEventKind.ActiveUserChanged,
       previousActiveUser: previousUser
     });
 
@@ -368,12 +382,14 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       return this.processLogin(credential, credential.authInfo, credential.asLink);
     }
 
-    // if we are logging in with a credential that reuses existing sessions
-    // (e.g. the anonymous credential), check to see if any users are already
-    // logged in with that credential.
+    /*
+     * if we are logging in with a credential that reuses existing sessions
+     * (e.g. the anonymous credential), check to see if any users are already
+     * logged in with that credential.
+     */
     if (credential.providerCapabilities.reusesExistingSession) {
-      for (var [userId, authInfo] of this.allUsersAuthInfo) {
-        if (authInfo.loggedInProviderType == credential.providerType) {
+      for (const [userId, authInfo] of this.allUsersAuthInfo) {
+        if (authInfo.loggedInProviderType === credential.providerType) {
           return Promise.resolve(this.switchToUserWithId(userId));
         }
       }
@@ -435,16 +451,18 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
        * user.
        */
 
-      // if the user was anonymous, delete the user, since you can't log back
-      // in to an anonymous user after they have logged out.
+      // If the user was anonymous, delete the user, since you can't log back
+      // In to an anonymous user after they have logged out.
       if (authInfo.loggedInProviderType === AnonymousAuthProvider.TYPE) {
         this.removeUserWithIdInternal(authInfo.userId!);
       }
     }
 
-    // Promise.finally needs to be added as a shim
-    // to TS. Until we need another .finally, we
-    // will need this workaround for cleanup
+    /*
+     * Promise.finally needs to be added as a shim
+     * to TS. Until we need another .finally, we
+     * will need this workaround for cleanup
+     */
     return this.doLogout(authInfo)
       .then(() => {
         clearAuthBlock();
@@ -501,33 +519,20 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       })
     }
 
-    // if the user being removed isn't logged in, just clear that user's auth
-    // and update the list of all users.
+    // If the user being removed isn't logged in, just clear that user's auth
+    // And update the list of all users.
     removeBlock()
     return Promise.resolve();
   }
 
   /**
-   * Returns whether or not the current authentication state has a meaningful device id.
+   * Close stops any background processes maintained by auth. This
+   * should be called when auth services are no longer needed.
    */
-  public get hasDeviceId(): boolean {
-    return (
-      this.activeUserAuthInfo.deviceId !== undefined &&
-      this.activeUserAuthInfo.deviceId !== "" &&
-      this.activeUserAuthInfo.deviceId !== "000000000000000000000000"
-    );
-  }
-
-  /**
-   * Returns the currently authenticated user's device id, or `undefined` is no user is currently authenticated, or if the
-   * device id does not exist.
-   */
-  protected get deviceId(): string | undefined {
-    if (!this.hasDeviceId) {
-      return undefined;
+  public close() {
+    if (this.accessTokenRefresher) {
+      this.accessTokenRefresher.stop();
     }
-
-    return this.activeUserAuthInfo.deviceId;
   }
 
   /**
@@ -574,7 +579,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   private handleAuthFailureForEventStream(
     ex: StitchError,
     req: StitchAuthRequest,
-    open: boolean = true
+    open = true
   ): Promise<EventStream> {
     if (
       !(ex instanceof StitchServiceError) ||
@@ -583,19 +588,18 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       throw ex;
     }
 
-    // using a refresh token implies we cannot refresh anything, so clear auth and
-    // notify
+    // Using a refresh token implies we cannot refresh anything, 
+    // So clear auth and notify
     if (req.useRefreshToken || !req.shouldRefreshOnFailure) {
       this.clearActiveUserAuth();
       throw ex;
     }
 
-    return this.tryRefreshAccessToken(req.startedAt).then(() => {
-      return this.openAuthenticatedEventStream(
+    return this.tryRefreshAccessToken(req.startedAt).then(() =>
+      this.openAuthenticatedEventStream(
         req.builder.withShouldRefreshOnFailure(false).build(),
         open
-      );
-    });
+      ));
   }
 
   /**
@@ -615,18 +619,17 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       throw ex;
     }
 
-    // using a refresh token implies we cannot refresh anything, so clear auth and
-    // notify
+    // Using a refresh token implies we cannot refresh anything, 
+    // So clear auth and notify
     if (req.useRefreshToken || !req.shouldRefreshOnFailure) {
       this.clearActiveUserAuth();
       throw ex;
     }
 
-    return this.tryRefreshAccessToken(req.startedAt).then(() => {
-      return this.doAuthenticatedRequest(
+    return this.tryRefreshAccessToken(req.startedAt).then(() =>
+      this.doAuthenticatedRequest(
         req.builder.withShouldRefreshOnFailure(false).build()
-      );
-    });
+      ));
   }
 
   /**
@@ -634,9 +637,11 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
    * necessary.
    */
   private tryRefreshAccessToken(reqStartedAt: number): Promise<void> {
-    // use this critical section to create a queue of pending outbound requests
-    // that should wait on the result of doing a token refresh or logout. This will
-    // prevent too many refreshes happening one after the other.
+    /*
+     * Use this critical section to create a queue of pending outbound requests
+     * that should wait on the result of doing a token refresh or logout. This will
+     * prevent too many refreshes happening one after the other.
+     */
     if (!this.isLoggedIn) {
       throw new StitchClientError(StitchClientErrorCode.LoggedOutDuringRequest);
     }
@@ -650,7 +655,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       // Swallow
     }
 
-    // retry
+    // Retry
     return this.refreshAccessToken();
   }
 
@@ -687,10 +692,10 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     return this.doLoginRequest(credential, asLinkRequest)
       .then(response => this.processLoginResponse(credential, response, asLinkRequest))
       .then(user => {
-        this.onAuthEvent(); // legacy event dispatch
+        this.onAuthEvent(); // Legacy event dispatch
 
         // Dispatch the appropriate auth events
-        // for the type of login that occured.
+        // For the type of login that occured.
         if (asLinkRequest) {
           this.dispatchAuthEvent({
             kind: AuthEventKind.UserLinked,
@@ -698,14 +703,14 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
           });
         } else {
           // This triggers an event for the user logging in, as well as the 
-          // active user changing.
+          // Active user changing.
           this.dispatchAuthEvent({
             kind: AuthEventKind.UserLoggedIn,
             loggedInUser: user,
           });
           this.dispatchAuthEvent({
-            kind: AuthEventKind.ActiveUserChanged,
             currentActiveUser: user,
+            kind: AuthEventKind.ActiveUserChanged,
             previousActiveUser
           });
         }
@@ -818,9 +823,11 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         try {
           writeActiveUserAuthInfoToStorage(newAuthInfo, this.storage);
 
-          // this replaces any old info that may have 
-          // existed for this user if this was a link request, or if this 
-          // user already existed in the list of all users
+          /*
+           * this replaces any old info that may have 
+           * existed for this user if this was a link request, or if this 
+           * user already existed in the list of all users
+           */
           this.allUsersAuthInfo.set(newAuthInfo.userId!, newAuthInfo);  
       
           writeAllUsersAuthInfoToStorage(this.allUsersAuthInfo, this.storage);
@@ -829,8 +836,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
           this.activeUserAuthInfo = oldActiveUserInfo;
           this.currentUser = oldActiveUser;
           
-          // delete the new partial auth info from the list of all users if
-          // if the new auth info is not the same user
+          // Delete the new partial auth info from the list of all users if
+          // The new auth info is not the same user
           if (newAuthInfo.userId !== oldActiveUserInfo.userId && newAuthInfo.userId) {
             this.allUsersAuthInfo.delete(newAuthInfo.userId);
           }
@@ -841,7 +848,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         }
         
         // Set the active user info to the new 
-        // auth info and new user with profile
+        // Auth info and new user with profile
         this.activeUserAuthInfo = newAuthInfo;
         this.currentUser = this.userFactory.makeUser(
           this.activeUserAuthInfo.userId!,
@@ -853,13 +860,13 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         );
 
         // Dispatch a UserAdded event if this is the first time this user is 
-        // being added to the list of users on the device.
+        // Being added to the list of users on the device.
         if (newUserAdded) {
-          this.onAuthEvent() // legacy event dispatch
+          this.onAuthEvent() // Tegacy event dispatch
 
           this.dispatchAuthEvent({
-            kind: AuthEventKind.UserAdded,
-            addedUser: this.currentUser
+            addedUser: this.currentUser,
+            kind: AuthEventKind.UserAdded
           });
         }
 
@@ -871,26 +878,30 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
           throw err;
         }
 
-        // If this was a link request or there was an active user logged in,
-        // back out of setting authInfo and reset any created user. This
-        // will keep the currently logged in user logged in if the profile
-        // request failed, and in this particular edge case the user is
-        // linked, but they are logged in with their older credentials.
+        /*
+         * If this was a link request or there was an active user logged in,
+         * back out of setting authInfo and reset any created user. This
+         *  will keep the currently logged in user logged in if the profile
+         *  request failed, and in this particular edge case the user is
+         * linked, but they are logged in with their older credentials.
+         */
         if (asLinkRequest || oldActiveUserInfo.hasUser) {
           const linkedAuthInfo = this.activeUserAuthInfo;
           this.activeUserAuthInfo = oldActiveUserInfo;
           this.currentUser = oldActiveUser; 
 
-          // to prevent the case where this user gets removed when logged out 
-          // in the future because the original provider type was anonymous, 
-          // make sure the auth info reflects the new logged in provider type 
+          /* 
+           * To prevent the case where this user gets removed when logged out 
+           * in the future because the original provider type was anonymous, 
+           * make sure the auth info reflects the new logged in provider type 
+           */
           if (asLinkRequest) {
             this.activeUserAuthInfo = this.activeUserAuthInfo.withAuthProvider(
               linkedAuthInfo.loggedInProviderType!,
               linkedAuthInfo.loggedInProviderName!
             );
           }
-        } else { // otherwise this was a normal login request, so log the user out
+        } else { // Otherwise this was a normal login request, so log the user out
           this.clearActiveUserAuth();
         }
 
@@ -976,29 +987,21 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     this.clearUserAuthTokens(this.activeUserAuthInfo.userId!);
   }
 
-  /**
-   * Close stops any background processes maintained by auth. This
-   * should be called when auth services are no longer needed.
-   */
-  public close() {
-    if (this.accessTokenRefresher) {
-      this.accessTokenRefresher.stop();
-    }
-  }
-
   private clearUserAuthTokens(userId: string) {
     const unclearedAuthInfo = this.allUsersAuthInfo.get(userId);
     if (unclearedAuthInfo === undefined) {
-      // this doesn't necessarily mean there's an error. we could be in a 
-      // provisional state where the profile request failed and we're just
-      // trying to log out the active user.
+      /*
+       * This doesn't necessarily mean there's an error. we could be in a 
+       * provisional state where the profile request failed and we're just
+       * trying to log out the active user.
+       */
       if (this.activeUserAuthInfo.userId !== userId) {
-        // only throw if this ID is not the active user either
+        // Only throw if this ID is not the active user either
         throw new StitchClientError(StitchClientErrorCode.UserNotFound);  
       }
     } else if (!unclearedAuthInfo.isLoggedIn) {
-      // if the auth info's tokens are already cleared, there's no need to 
-      // clear them again
+      // If the auth info's tokens are already cleared, 
+      // There's no need to clear them again
       return;
     }
 
@@ -1020,8 +1023,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         );
       }
       
-      // if the auth info we're clearing is also the active user's auth info, 
-      // clear the active user's auth as well
+      // If the auth info we're clearing is also the active user's auth info, 
+      // Clear the active user's auth as well
       let wasActiveUser = false;
       if (this.activeUserAuthInfo.hasUser && this.activeUserAuthInfo.userId === userId) {
         wasActiveUser = true;
@@ -1031,12 +1034,14 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         writeActiveUserAuthInfoToStorage(this.activeUserAuthInfo, this.storage);
       }
 
-      // If a user was actually logged out, and it wasn't just clearing auth 
-      // tokens from a provisional state, dispatch a logout event to any 
-      // listeners, and additionally dispatch an ActiveUserChanged event if
-      // the user being logged out was the active user.
+      /*
+       * If a user was actually logged out, and it wasn't just clearing auth 
+       * tokens from a provisional state, dispatch a logout event to any 
+       * listeners, and additionally dispatch an ActiveUserChanged event if
+       * the user being logged out was the active user.
+       */
       if (loggedOutUser) {
-        this.onAuthEvent(); // legacy event dispatch
+        this.onAuthEvent(); // Legacy event dispatch
 
         this.dispatchAuthEvent({
           kind: AuthEventKind.UserLoggedOut,
@@ -1045,8 +1050,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
         if (wasActiveUser) {
           this.dispatchAuthEvent({
-            kind: AuthEventKind.ActiveUserChanged,
             currentActiveUser: undefined,
+            kind: AuthEventKind.ActiveUserChanged,
             previousActiveUser: loggedOutUser
           });
         }

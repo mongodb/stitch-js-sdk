@@ -24,11 +24,10 @@ import {
 } from "mongodb-stitch-core-sdk";
 import NamedServiceClientFactory from "../../services/internal/NamedServiceClientFactory";
 import ServiceClientFactory from "../../services/internal/ServiceClientFactory";
-import StitchAuthImpl from "../auth/internal/StitchAuthImpl";
-
-import StitchAppClient from "../StitchAppClient";
-import StitchServiceClient from "../../services/StitchServiceClient";
 import StitchServiceClientImpl from "../../services/internal/StitchServiceClientImpl";
+import StitchServiceClient from "../../services/StitchServiceClient";
+import StitchAuthImpl from "../auth/internal/StitchAuthImpl";
+import StitchAppClient from "../StitchAppClient";
 
 
 /** @hidden */

@@ -54,8 +54,6 @@ export default class JestFetchStreamTransport extends JestFetchTransport {
         .then(body => handleRequestError(new Response(respHeaders, response.status, body)));
       }
 
-      /* eslint-disable no-unused-expressions */
-      /* jshint expr: true */
       return new Promise<EventStream>((resolve, reject) => 
         new JestEventSourceEventStream(
           new EventSource(request.url),
@@ -66,7 +64,6 @@ export default class JestFetchStreamTransport extends JestFetchTransport {
             : undefined
           )
       );
-      /* eslint-enable no-unused-expressions */
     });
   }
 }

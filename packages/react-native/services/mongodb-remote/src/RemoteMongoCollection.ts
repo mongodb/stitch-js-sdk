@@ -96,6 +96,19 @@ export default interface RemoteMongoCollection<DocumentT> {
   ): RemoteMongoReadOperation<DocumentT>;
 
   /**
+   * Finds one document in the collection that matches the given query.
+   * 
+   * An empty query (`{}`) will match all documents.
+   *
+   * @param query the query filter
+   * @return the resulting document or null if the query resulted in zero matches
+   */
+  findOne(
+    query?: object,
+    options?: RemoteFindOptions
+  ): Promise<DocumentT | null>;
+
+  /**
    * Aggregates documents according to the specified aggregation pipeline.
    *
    * Stitch supports a subset of the available aggregation stages in MongoDB.

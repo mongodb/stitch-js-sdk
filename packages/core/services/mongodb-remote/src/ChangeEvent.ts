@@ -15,8 +15,8 @@
  */
 
 
-import { OperationType } from "./OperationType";
 import MongoNamespace from "./MongoNamespace";
+import { OperationType } from "./OperationType";
 import UpdateDescription from "./UpdateDescription";
 
 export default interface ChangeEvent<T> {

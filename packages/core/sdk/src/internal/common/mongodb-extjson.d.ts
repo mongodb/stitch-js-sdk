@@ -15,18 +15,18 @@
  */
 
 declare module "mongodb-extjson" {
-  export type Options = {
+  export interface Options {
     relaxed?: boolean;
     strict?: boolean;
-  };
+  }
 
   export function parse(text: string, options?: Options);
   export function stringify(
-    value: Array<any> | object,
+    value: any[] | object,
     reducer?: ((key: string, value: any) => any) | Options,
     indents?: (string | number) | Options,
     options?: Options
   );
-
-  export var BSON;
+    
+  export let BSON;
 }

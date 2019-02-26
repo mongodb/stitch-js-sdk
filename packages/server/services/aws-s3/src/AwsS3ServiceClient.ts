@@ -15,9 +15,6 @@
  */
 
 import BSON from "bson";
-import {
-  NamedServiceClientFactory
-} from "mongodb-stitch-server-core";
 import { 
   CoreStitchServiceClient, 
   StitchAppClientInfo 
@@ -27,6 +24,10 @@ import {
   AwsS3SignPolicyResult,
   CoreAwsS3ServiceClient
 } from "mongodb-stitch-core-services-aws-s3";
+import {
+  NamedServiceClientFactory
+} from "mongodb-stitch-server-core";
+
 import AwsS3ServiceClientImpl from "./internal/AwsS3ServiceClientImpl";
 
 /**

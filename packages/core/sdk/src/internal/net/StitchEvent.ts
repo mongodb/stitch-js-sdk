@@ -15,16 +15,22 @@
  */
 
 import { EJSON } from "bson";
-import Event from "./Event";
-import EventStream from "./EventStream";
-import { Decoder } from "../common/Codec";
 import StitchServiceError from "../../StitchServiceError";
 import { StitchServiceErrorCode, stitchServiceErrorCodeFromApi } from "../../StitchServiceErrorCode";
+import { Decoder } from "../common/Codec";
+import Event from "./Event";
+import EventStream from "./EventStream";
 
 /** @hidden */
 export default class StitchEvent<T> {
 
   public static readonly ERROR_EVENT_NAME = "error";
+
+  public static fromEvent<T>(
+    event: Event,
+    decoder?: Decoder<T>): StitchEvent<T> {
+    return new StitchEvent<T>(event.eventName, event.data, decoder);
+  }
 
   public readonly eventName: string;
   public readonly data: T;
@@ -38,15 +44,15 @@ export default class StitchEvent<T> {
     this.eventName = eventName;
 
     data = data ? data : "";
-    let decodedStringBuffer: Array<string> = [];
+    const decodedStringBuffer: string[] = [];
     for (let chIdx = 0; chIdx < data.length; chIdx++) {
-      let c = data[chIdx];
+      const c = data[chIdx];
       switch (c) {
         case '%':
           if (chIdx + 2 >= data.length) {
             break;
           }
-          let code = data.substring(chIdx + 1, chIdx + 3);
+          const code = data.substring(chIdx + 1, chIdx + 3);
           let found: boolean;
           switch (code) {
             case "25":
@@ -82,9 +88,11 @@ export default class StitchEvent<T> {
         let errorCode: StitchServiceErrorCode;
 
         try {
-          // parse the error as json
-          // if it is not valid json, parse the body as seen in
-          // StitchError#handleRequestError
+          /* 
+           * parse the error as json
+           * if it is not valid json, parse the body as seen in
+           * StitchError#handleRequestError
+           */
           const errorDoc = EJSON.parse(decodedData, { strict: false });
           errorMsg = errorDoc[ErrorFields.Error];
           errorCode = stitchServiceErrorCodeFromApi(errorDoc[ErrorFields.ErrorCode]);
@@ -101,12 +109,6 @@ export default class StitchEvent<T> {
         }
         break;
     }
-  }
-
-  static fromEvent<T>(
-    event: Event,
-    decoder?: Decoder<T>): StitchEvent<T> {
-    return new StitchEvent<T>(event.eventName, event.data, decoder);
   }
 }
 

@@ -15,15 +15,15 @@
  */
 
 import { EJSON } from 'bson';
-import CoreStitchServiceClient from "./CoreStitchServiceClient";
-import StitchServiceRoutes from "./StitchServiceRoutes";
 import StitchAuthRequestClient from "../../auth/internal/StitchAuthRequestClient";
-import { Decoder } from "../../internal/common/Codec";
 import { base64Encode } from "../../internal/common/Base64";
+import { Decoder } from "../../internal/common/Codec";
 import Method from "../../internal/net/Method";
 import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 import Stream from "../../Stream";
+import CoreStitchServiceClient from "./CoreStitchServiceClient";
+import StitchServiceRoutes from "./StitchServiceRoutes";
 
 /** @hidden */
 export default class CoreStitchServiceClientImpl
@@ -31,6 +31,9 @@ export default class CoreStitchServiceClientImpl
   private readonly requestClient: StitchAuthRequestClient;
   private readonly serviceRoutes: StitchServiceRoutes;
   private readonly serviceName: string | undefined;
+
+  private readonly serviceField = "service";
+  private readonly argumentsField = "arguments";
 
   public constructor(
     requestClient: StitchAuthRequestClient,
@@ -70,9 +73,9 @@ export default class CoreStitchServiceClientImpl
   ): StitchAuthRequest {
     const body = { name };
     if (this.serviceName !== undefined) {
-      body["service"] = this.serviceName;
+      body[this.serviceField] = this.serviceName;
     }
-    body["arguments"] = args;
+    body[this.argumentsField] = args;
 
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
@@ -88,9 +91,9 @@ export default class CoreStitchServiceClientImpl
   ): StitchAuthRequest {
     const body = { name };
     if (this.serviceName !== undefined) {
-      body["service"] = this.serviceName;
+      body[this.serviceField] = this.serviceName;
     }
-    body["arguments"] = args;
+    body[this.argumentsField] = args;
 
     const reqBuilder = new StitchAuthDocRequest.Builder();
     reqBuilder

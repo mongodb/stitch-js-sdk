@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { NamedServiceClientFactory } from "mongodb-stitch-server-core";
 import { 
   CoreStitchServiceClient, 
   StitchAppClientInfo 
@@ -23,6 +22,8 @@ import {
   AwsSesSendResult,
   CoreAwsSesServiceClient
 } from "mongodb-stitch-core-services-aws-ses";
+import { NamedServiceClientFactory } from "mongodb-stitch-server-core";
+
 import AwsSesServiceClientImpl from "./internal/AwsSesServiceClientImpl";
 
 /**

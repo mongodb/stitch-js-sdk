@@ -79,9 +79,8 @@ describe("CoreUserPasswordAuthProviderClientUnitTests", () => {
     const expectedDoc = { email: username, password };
     expectedRequestBuilder.withDocument(expectedDoc);
 
-    return testClientCall((client: CoreUserPassAuthProviderClient) => {
-      return client.registerWithEmailInternal(username, password);
-    }, expectedRequestBuilder.build());
+    return testClientCall((client: CoreUserPassAuthProviderClient) =>
+      client.registerWithEmailInternal(username, password), expectedRequestBuilder.build());
   });
 
   it("should confirm user", () => {
@@ -101,9 +100,8 @@ describe("CoreUserPasswordAuthProviderClientUnitTests", () => {
 
     expectedRequestBuilder.withDocument(expectedDoc);
 
-    testClientCall(client => {
-      return client.confirmUserInternal(token, tokenId);
-    }, expectedRequestBuilder.build());
+    testClientCall(client =>
+      client.confirmUserInternal(token, tokenId), expectedRequestBuilder.build());
   });
 
   it("should resend confirmation", () => {
@@ -118,8 +116,7 @@ describe("CoreUserPasswordAuthProviderClientUnitTests", () => {
     const expectedDoc = { email };
     expectedRequestBuilder.withDocument(expectedDoc);
 
-    testClientCall(client => {
-      return client.resendConfirmationEmailInternal(email);
-    }, expectedRequestBuilder.build());
+    testClientCall(client =>
+      client.resendConfirmationEmailInternal(email), expectedRequestBuilder.build());
   });
 });
