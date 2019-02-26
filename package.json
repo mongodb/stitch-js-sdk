@@ -19,7 +19,7 @@
 		"rollup-plugin-typescript2": "^0.15.0",
 		"rollup-plugin-uglify": "^4.0.0",
 		"ts-mockito": "^2.3.0",
-		"typedoc": "^0.11.1",
+		"typedoc": "^0.14.2",
 		"typescript": "^2.9.2"
 	},
 	"scripts": {
