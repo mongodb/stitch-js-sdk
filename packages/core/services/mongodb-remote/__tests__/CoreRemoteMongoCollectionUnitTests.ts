@@ -244,7 +244,7 @@ describe("CoreRemoteMongoCollection", () => {
     }
   });
 
-  it("should findOneAndUpdate", async () => {
+  it("should find one and update", async () => {
     const serviceMock = mock(CoreStitchServiceClientImpl);
     const service = instance(serviceMock);
 
@@ -270,7 +270,7 @@ describe("CoreRemoteMongoCollection", () => {
     const expectedArgs = {
       collection: "collName1",
       database: "dbName1",
-      query: {}, 
+      filter: {}, 
       update: {},
     };
     expect(funcArgsArg[0]).toEqual(expectedArgs);
@@ -299,8 +299,8 @@ describe("CoreRemoteMongoCollection", () => {
 
     expect("findOneAndUpdate").toEqual(funcNameArg2);
     expect(1).toEqual(funcArgsArg2.length);
-    expectedArgs.query = expectedFilter;
-    expectedArgs.project = expectedProject;
+    expectedArgs.filter = expectedFilter;
+    expectedArgs.projection = expectedProject;
     expectedArgs.sort = expectedSort;
     expectedArgs.update = expectedUpdate;
     expectedArgs.upsert = true;
@@ -331,17 +331,186 @@ describe("CoreRemoteMongoCollection", () => {
     delete expectedArgs.returnNewDocument;
     expect(funcArgsArg2[0]).toEqual(expectedArgs);
 
-    // // Should pass along errors
-    // when(
-    //   serviceMock.callFunction(anything(), anything(), anything())
-    // ).thenReject(new Error("whoops"));
+    // Should pass along errors
+    when(
+      serviceMock.callFunction(anything(), anything(), anything())
+    ).thenReject(new Error("whoops"));
 
-    // try {
-    //   await coll.find().first();
-    //   fail();
-    // } catch (_) {
-    //   // Do nothing
-    // }
+    try {
+      await coll.findOneAndUpdate({}, {})
+      fail();
+    } catch (_) {
+      // Do nothing
+    }
+  });
+
+  it("should find one and replace", async () => {
+    const serviceMock = mock(CoreStitchServiceClientImpl);
+    const service = instance(serviceMock);
+
+    const client = new CoreRemoteMongoClientImpl(service);
+    const coll = getCollection(undefined, client);
+
+    const doc = { one: 1, two: 2 };
+
+    when(
+      serviceMock.callFunction(anything(), anything(), anything())
+    ).thenResolve(doc);
+
+    let result = await coll.findOneAndReplace({}, {});
+    expect(result).toBeDefined();
+    expect(result).toEqual(doc);
+
+    const [funcNameArg, funcArgsArg, resultClassArg]: any[] = capture(
+      serviceMock.callFunction
+    ).last();
+
+    expect(funcNameArg).toEqual("findOneAndReplace");
+    expect(funcArgsArg.length).toEqual(1);
+    const expectedArgs = {
+      collection: "collName1",
+      database: "dbName1",
+      filter: {}, 
+      update: {},
+    };
+    expect(funcArgsArg[0]).toEqual(expectedArgs);
+
+    const expectedFilter = { one: 1 };
+    const expectedUpdate = { hello: 2 }
+    const expectedProject = { two: "four" };
+    const expectedSort = { _id: -1 };
+    let expectedOptions = {
+      projection : expectedProject, 
+      returnNewDocument: true,
+      sort: expectedSort, 
+      upsert: true, 
+    }
+
+    result = await coll.findOneAndReplace(expectedFilter, expectedUpdate, expectedOptions)
+    expect(result).toEqual(doc);
+
+    verify(
+      serviceMock.callFunction(anything(), anything(), anything())
+    ).times(2);
+
+    const [funcNameArg2, funcArgsArg2, resultClassArg2]: any[] = capture(
+      serviceMock.callFunction
+    ).last();
+
+    expect("findOneAndReplace").toEqual(funcNameArg2);
+    expect(1).toEqual(funcArgsArg2.length);
+    expectedArgs.filter = expectedFilter;
+    expectedArgs.projection = expectedProject;
+    expectedArgs.sort = expectedSort;
+    expectedArgs.update = expectedUpdate;
+    expectedArgs.upsert = true;
+    expectedArgs.returnNewDocument = true;
+    expect(funcArgsArg2[0]).toEqual(expectedArgs);
+
+    expectedOptions = {
+      projection : expectedProject, 
+      returnNewDocument: false,
+      sort: expectedSort, 
+      upsert: false, 
+    }
+
+    result = await coll.findOneAndReplace(expectedFilter, expectedUpdate, expectedOptions)
+    expect(result).toEqual(doc);
+
+    verify(
+      serviceMock.callFunction(anything(), anything(), anything())
+    ).times(3);
+
+    const [funcNameArg2, funcArgsArg2, resultClassArg2]: any[] = capture(
+      serviceMock.callFunction
+    ).last();
+
+    expect("findOneAndReplace").toEqual(funcNameArg2);
+    expect(1).toEqual(funcArgsArg2.length);
+    delete expectedArgs.upsert;
+    delete expectedArgs.returnNewDocument;
+    expect(funcArgsArg2[0]).toEqual(expectedArgs);
+
+    // Should pass along errors
+    when(
+      serviceMock.callFunction(anything(), anything(), anything())
+    ).thenReject(new Error("whoops"));
+
+    try {
+      await coll.findOneAndReplace({}, {})
+      fail();
+    } catch (_) {
+      // Do nothing
+    }
+  });
+
+  it("should find one and delete", async () => {
+    const serviceMock = mock(CoreStitchServiceClientImpl);
+    const service = instance(serviceMock);
+
+    const client = new CoreRemoteMongoClientImpl(service);
+    const coll = getCollection(undefined, client);
+
+    const doc = { one: 1, two: 2 };
+
+    when(
+      serviceMock.callFunction(anything(), anything(), anything())
+    ).thenResolve(doc);
+
+    let result = await coll.findOneAndDelete({});
+    expect(result).toBeDefined();
+    expect(result).toEqual(doc);
+
+    const [funcNameArg, funcArgsArg, resultClassArg]: any[] = capture(
+      serviceMock.callFunction
+    ).last();
+
+    expect(funcNameArg).toEqual("findOneAndDelete");
+    expect(funcArgsArg.length).toEqual(1);
+    const expectedArgs = {
+      collection: "collName1",
+      database: "dbName1",
+      filter: {}, 
+    };
+    expect(funcArgsArg[0]).toEqual(expectedArgs);
+
+    const expectedFilter = { one: 1 };
+    const expectedProject = { two: "four" };
+    const expectedSort = { _id: -1 };
+    const expectedOptions = {
+      projection : expectedProject, 
+      sort: expectedSort, 
+    }
+
+    result = await coll.findOneAndDelete(expectedFilter, expectedOptions)
+    expect(result).toEqual(doc);
+
+    verify(
+      serviceMock.callFunction(anything(), anything(), anything())
+    ).times(2);
+
+    const [funcNameArg2, funcArgsArg2, resultClassArg2]: any[] = capture(
+      serviceMock.callFunction
+    ).last();
+
+    expect("findOneAndDelete").toEqual(funcNameArg2);
+    expect(1).toEqual(funcArgsArg2.length);
+    expectedArgs.filter = expectedFilter;
+    expectedArgs.projection = expectedProject;
+    expectedArgs.sort = expectedSort;
+    expect(funcArgsArg2[0]).toEqual(expectedArgs);
+
+    // Should pass along errors
+    when(
+      serviceMock.callFunction(anything(), anything(), anything())
+    ).thenReject(new Error("whoops"));
+
+    try {
+      await coll.findOneAndUpdate({}, {})
+      fail();
+    } catch (_) {
+      // Do nothing
+    }
   });
 
   it("should aggregate", async () => {
