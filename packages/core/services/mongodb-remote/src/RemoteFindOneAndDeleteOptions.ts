@@ -38,4 +38,3 @@ export default interface RemoteFindOneAndDeleteOptions {
      */
     readonly sort?: object;
   }
-  

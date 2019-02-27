@@ -251,8 +251,7 @@ describe("RemoteMongoClient", () => {
     // Collection should start out empty
     // This also tests the null return format
     let result = await coll.findOneAndUpdate({}, {});
-    expect(result).toEqual({});
-    // expect(result).toBeNull();
+    expect(result).toBeNull();
 
     // Insert Sample Document
     const doc1 = { hello: "world", num: 2 };
@@ -286,8 +285,7 @@ describe("RemoteMongoClient", () => {
       {$inc: {num: 1}}, 
       {returnNewDocument: true}
     )
-    expect(result).toEqual({});
-    // expect(result).toBeNull();
+    expect(result).toBeNull();
 
     // Test the upsert option where it should not actually be invoked
     result = await coll.findOneAndUpdate(
@@ -316,7 +314,7 @@ describe("RemoteMongoClient", () => {
       {$set: {hello: "world3", num: 3}}, 
       {upsert: true}
     )
-    expect(withoutId(result)).toEqual({})
+    expect(result).toBeNull();
     count = await coll.count();
     expect(count).toEqual(3);
 
@@ -351,8 +349,7 @@ describe("RemoteMongoClient", () => {
     // Collection should start out empty
     // This also tests the null return format
     let result = await coll.findOneAndReplace({}, {});
-    expect(result).toEqual({});
-    // expect(result).toBeNull();
+    expect(result).toBeNull();
 
     // Insert Sample Document
     const doc1 = { hello: "world", num: 1 };
@@ -381,8 +378,7 @@ describe("RemoteMongoClient", () => {
       {hello: "world4"}, 
       {returnNewDocument: true}
     )
-    expect(result).toEqual({});
-    // expect(result).toBeNull();
+    expect(result).toBeNull();
 
     // Test the upsert option where it should not actually be invoked
     result = await coll.findOneAndReplace(
@@ -409,7 +405,7 @@ describe("RemoteMongoClient", () => {
       {hello: "world6", num: 6}, 
       {upsert: true},
     )
-    expect(withoutId(result)).toEqual({});
+    expect(result).toBeNull();
     count = await coll.count();
     expect(count).toEqual(3);
     

@@ -52,4 +52,3 @@ export default interface RemoteFindOneAndUpdateOptions {
      */
     readonly returnNewDocument?: boolean;
   }
-  
