@@ -19,8 +19,7 @@ import { Codec, CoreStitchServiceClient, Stream } from "mongodb-stitch-core-sdk"
 import ChangeEvent from "../ChangeEvent";
 import RemoteCountOptions from "../RemoteCountOptions";
 import RemoteDeleteResult from "../RemoteDeleteResult";
-import RemoteFindOneAndDeleteOptions from "../RemoteFindOneAndDeleteOptions";
-import RemoteFindOneAndUpdateOptions from "../RemoteFindOneAndUpdateOptions";
+import RemoteFindOneAndModifyOptions from "../RemoteFindOneAndModifyOptions";
 import RemoteFindOptions from "../RemoteFindOptions";
 import RemoteInsertManyResult from "../RemoteInsertManyResult";
 import RemoteInsertOneResult from "../RemoteInsertOneResult";
@@ -140,14 +139,14 @@ export default class CoreRemoteMongoCollectionImpl<T>
    * - parameters:
    *   - filter: A `Document` that should match the query.
    *   - update: A `Document` describing the update. 
-   *   - options: Optional `RemoteFindOneAndUpdateOptions` to use when executing the command.
+   *   - options: Optional `RemoteFindOneAndModifyOptions` to use when executing the command.
    *
    * - returns: A resulting `DocumentT` or null if the query returned zero matches.
    */
   public findOneAndUpdate(
     filter: object,
     update: object, 
-    options?: RemoteFindOneAndUpdateOptions
+    options?: RemoteFindOneAndModifyOptions
   ): Promise<T | null> {
     const args: any = { ...this.baseOperationArgs };
 
@@ -182,14 +181,14 @@ export default class CoreRemoteMongoCollectionImpl<T>
    * - parameters:
    *   - filter: A `Document` that should match the query.
    *   - replacement: A new `Document` to replace the old one. 
-   *   - options: Optional `RemoteFindOneAndUpdateOptions` to use when executing the command.
+   *   - options: Optional `RemoteFindOneAndModifyOptions` to use when executing the command.
    *
    * - returns: A resulting `DocumentT` or null if the query returned zero matches.
    */
   public findOneAndReplace(
     filter: object,
     replacement: object, 
-    options?: RemoteFindOneAndUpdateOptions
+    options?: RemoteFindOneAndModifyOptions
   ): Promise<T | null> {
     const args: any = { ...this.baseOperationArgs };
 
@@ -224,13 +223,13 @@ export default class CoreRemoteMongoCollectionImpl<T>
    * - parameters:
    *   - filter: A `Document` that should match the query.
    *   - update: A `Document` describing the update. 
-   *   - options: Optional `RemoteFindOneAndUpdateOptions` to use when executing the command.
+   *   - options: Optional `RemoteFindOneAndModifyOptions` to use when executing the command.
    *
    * - returns: A resulting `DocumentT` or null if the query returned zero matches.
    */
   public findOneAndDelete(
     filter: object,
-    options?: RemoteFindOneAndDeleteOptions
+    options?: RemoteFindOneAndModifyOptions
   ): Promise<T | null> {
     const args: any = { ...this.baseOperationArgs };
 

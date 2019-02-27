@@ -26,8 +26,7 @@ import MongoNamespace from "./MongoNamespace";
 import { OperationType } from "./OperationType";
 import RemoteCountOptions from "./RemoteCountOptions";
 import RemoteDeleteResult from "./RemoteDeleteResult";
-import RemoteFindOneAndDeleteOptions from "./RemoteFindOneAndDeleteOptions";
-import RemoteFindOneAndUpdateOptions from "./RemoteFindOneAndUpdateOptions";
+import RemoteFindOneAndModifyOptions from "./RemoteFindOneAndModifyOptions";
 import RemoteFindOptions from "./RemoteFindOptions";
 import RemoteInsertManyResult from "./RemoteInsertManyResult";
 import RemoteInsertOneResult from "./RemoteInsertOneResult";
@@ -46,8 +45,7 @@ export {
   RemoteCountOptions,
   RemoteDeleteResult,
   RemoteFindOptions,
-  RemoteFindOneAndDeleteOptions, 
-  RemoteFindOneAndUpdateOptions,
+  RemoteFindOneAndModifyOptions, 
   RemoteInsertManyResult,
   RemoteInsertOneResult,
   RemoteUpdateOptions,

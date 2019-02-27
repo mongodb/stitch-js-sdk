@@ -18,8 +18,7 @@ import { Codec, Stream } from "mongodb-stitch-core-sdk";
 import ChangeEvent from "../ChangeEvent";
 import RemoteCountOptions from "../RemoteCountOptions";
 import RemoteDeleteResult from "../RemoteDeleteResult";
-import RemoteFindOneAndDeleteOptions from "../RemoteFindOneAndDeleteOptions";
-import RemoteFindOneAndUpdateOptions from "../RemoteFindOneAndUpdateOptions";
+import RemoteFindOneAndModifyOptions from "../RemoteFindOneAndModifyOptions";
 import RemoteFindOptions from "../RemoteFindOptions";
 import RemoteInsertManyResult from "../RemoteInsertManyResult";
 import RemoteInsertOneResult from "../RemoteInsertOneResult";
@@ -91,7 +90,7 @@ export default interface CoreRemoteMongoCollection<DocumentT> {
   findOneAndUpdate(
     query: object,
     update: object,
-    options?: RemoteFindOneAndUpdateOptions
+    options?: RemoteFindOneAndModifyOptions
   ): Promise<DocumentT | null>;
   
   /**
@@ -107,7 +106,7 @@ export default interface CoreRemoteMongoCollection<DocumentT> {
   findOneAndReplace(
     query: object,
     replacement: object,
-    options?: RemoteFindOneAndUpdateOptions
+    options?: RemoteFindOneAndModifyOptions
   ): Promise<DocumentT | null>;
 
   /**
@@ -122,7 +121,7 @@ export default interface CoreRemoteMongoCollection<DocumentT> {
    */
   findOneAndDelete(
     query: object,
-    options?: RemoteFindOneAndDeleteOptions
+    options?: RemoteFindOneAndModifyOptions
   ): Promise<DocumentT | null>;
 
   /**

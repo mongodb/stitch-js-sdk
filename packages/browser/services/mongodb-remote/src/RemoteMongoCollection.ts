@@ -19,8 +19,7 @@ import {
   ChangeEvent,
   RemoteCountOptions,
   RemoteDeleteResult,
-  RemoteFindOneAndDeleteOptions,
-  RemoteFindOneAndUpdateOptions, 
+  RemoteFindOneAndModifyOptions,
   RemoteFindOptions,
   RemoteInsertManyResult,
   RemoteInsertOneResult,
@@ -119,13 +118,13 @@ export default interface RemoteMongoCollection<DocumentT> {
    *
    * @param query A `Document` that should match the query.
    * @param update A `Document` describing the update. 
-   * @param options Optional: `RemoteFindOneAndUpdateOptions` to use when executing the command.
+   * @param options Optional: `RemoteFindOneAndModifyOptions` to use when executing the command.
    * @return A resulting `DocumentT` or null if the query returned zero matches.
    */
   findOneAndUpdate(
     query: object,
     update: object, 
-    options?: RemoteFindOneAndUpdateOptions
+    options?: RemoteFindOneAndModifyOptions
   ): Promise<DocumentT | null>;
 
   /**
@@ -134,13 +133,13 @@ export default interface RemoteMongoCollection<DocumentT> {
    *
    * @param query A `Document` that should match the query.
    * @param replacement A `Document` that will replace the matched document 
-   * @param options Optional: `RemoteFindOneAndUpdateOptions` to use when executing the command.
+   * @param options Optional: `RemoteFindOneAndModifyOptions` to use when executing the command.
    * @return A resulting `DocumentT` or null if the query returned zero matches.
    */
   findOneAndReplace(
     query: object,
     replacement: object, 
-    options?: RemoteFindOneAndUpdateOptions
+    options?: RemoteFindOneAndModifyOptions
   ): Promise<DocumentT | null>;
 
   /**
@@ -148,12 +147,12 @@ export default interface RemoteMongoCollection<DocumentT> {
    * deletes that document. (An empty query {} will match all documents)
    *
    * @param query A `Document` that should match the query.
-   * @param options Optional: `RemoteFindOneAndDeleteOptions` to use when executing the command.
+   * @param options Optional: `RemoteFindOneAndModifyOptions` to use when executing the command.
    * @return The `DocumentT` being deleted or null if the query returned zero matches.
    */
   findOneAndDelete(
     query: object,
-    options?: RemoteFindOneAndDeleteOptions
+    options?: RemoteFindOneAndModifyOptions
   ): Promise<DocumentT | null>;
 
   /**

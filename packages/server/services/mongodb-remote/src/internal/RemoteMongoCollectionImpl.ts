@@ -20,8 +20,7 @@ import {
   CoreRemoteMongoCollection,
   RemoteCountOptions,
   RemoteDeleteResult,
-  RemoteFindOneAndDeleteOptions,
-  RemoteFindOneAndUpdateOptions, 
+  RemoteFindOneAndModifyOptions,
   RemoteFindOptions,
   RemoteInsertManyResult,
   RemoteInsertOneResult,
@@ -103,13 +102,13 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
    *
    * @param query A `Document` that should match the query.
    * @param update A `Document` describing the update. 
-   * @param options Optional: `RemoteFindOneAndUpdateOptions` to use when executing the command.
+   * @param options Optional: `RemoteFindOneAndModifyOptions` to use when executing the command.
    * @return A resulting `DocumentT` or null if the query returned zero matches.
    */
   public findOneAndUpdate(
     query: object,
     update: object, 
-    options?: RemoteFindOneAndUpdateOptions
+    options?: RemoteFindOneAndModifyOptions
   ): Promise<DocumentT | null> {
     return this.proxy.findOneAndUpdate(query, update, options);
   }
@@ -120,13 +119,13 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
    *
    * @param query A `Document` that should match the query.
    * @param replacement A `Document` that will replace the matched document 
-   * @param options Optional: `RemoteFindOneAndUpdateOptions` to use when executing the command.
+   * @param options Optional: `RemoteFindOneAndModifyOptions` to use when executing the command.
    * @return A resulting `DocumentT` or null if the query returned zero matches.
    */
   public findOneAndReplace(
     query: object,
     replacement: object, 
-    options?: RemoteFindOneAndUpdateOptions
+    options?: RemoteFindOneAndModifyOptions
   ): Promise<DocumentT | null> {
     return this.proxy.findOneAndReplace(query, replacement, options)
   }
@@ -136,12 +135,12 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
    * deletes that document. (An empty query {} will match all documents)
    *
    * @param query A `Document` that should match the query.
-   * @param options Optional: `RemoteFindOneAndDeleteOptions` to use when executing the command.
+   * @param options Optional: `RemoteFindOneAndModifyOptions` to use when executing the command.
    * @return The `DocumentT` being deleted or null if the query returned zero matches.
    */
   public findOneAndDelete(
     query: object,
-    options?: RemoteFindOneAndDeleteOptions
+    options?: RemoteFindOneAndModifyOptions
   ): Promise<DocumentT | null> {
     return this.proxy.findOneAndDelete(query, options);
   }
