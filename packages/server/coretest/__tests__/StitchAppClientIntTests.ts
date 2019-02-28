@@ -33,7 +33,9 @@ import {
   MemoryStorage,
   UserPasswordAuthProvider,
   UserPasswordCredential,
-  UserType
+  UserType,
+  StitchClientError,
+  StitchClientErrorCode
 } from "mongodb-stitch-core-sdk";
 
 const harness = new BaseStitchServerIntTestHarness();
@@ -439,5 +441,77 @@ describe("StitchAppClient", () => {
     ).toBeGreaterThan(
       checkpoint4.getTime()
     );
+  });
+
+  it("should prevent calling logout and removeUser with args", async () => {
+    const [appResponse, app] = await harness.createApp();
+    await harness.addProvider(app as App, new Anon());
+    await harness.addProvider(
+      app as App,
+      new Userpass(
+        "http://emailConfirmUrl.com",
+        "http://resetPasswordUrl.com",
+        "email subject",
+        "password subject"
+      )
+    );
+
+    const concreteAppResponse = appResponse as AppResponse;
+
+    let storage = new MemoryStorage(concreteAppResponse.clientAppId);
+    let client = harness.getAppClient(concreteAppResponse, storage);
+
+    // check storage
+    expect(client.auth.isLoggedIn).toBeFalsy();
+    expect(client.auth.user).toBeUndefined();
+
+    // login anonymously
+    const anonUser = await client.auth.loginWithCredential(
+      new AnonymousCredential()
+    );
+    expect(anonUser).toBeDefined();
+
+    // login with email provider and make sure user ID is updated
+    const emailUserId = await harness.registerAndLoginWithUserPass(
+      app as App,
+      client,
+      "test@10gen.com",
+      "hunter1"
+    );
+    expect(emailUserId).not.toEqual(anonUser.id);
+
+    // attempting to log out the anon user with logout should not work
+    try {
+      // @ts-ignore: Expected 0 arguments, but got 1
+      await client.auth.logout(anonUser.id);
+      fail("logout should have failed");
+    } catch (error) {
+      expect(error instanceof StitchClientError).toBeTruthy();
+      expect(error.errorCode).toEqual(
+        StitchClientErrorCode.UnexpectedArguments
+      );
+    }
+
+    expect(client.auth.user!.id).toEqual(emailUserId);
+    expect(client.auth.isLoggedIn).toBeTruthy();
+
+    expect(client.auth.listUsers().length).toBe(2);
+
+    // attempting to remove the anon user with removeUser should not work
+    try {
+      // @ts-ignore: Expected 0 arguments, but got 1
+      await client.auth.removeUser(anonUser.id);
+      fail("removeUser should have failed");
+    } catch (error) {
+      expect(error instanceof StitchClientError).toBeTruthy();
+      expect(error.errorCode).toEqual(
+        StitchClientErrorCode.UnexpectedArguments
+      );
+    }
+
+    expect(client.auth.user!.id).toEqual(emailUserId);
+    expect(client.auth.isLoggedIn).toBeTruthy();
+
+    expect(client.auth.listUsers().length).toBe(2);
   });
 });
