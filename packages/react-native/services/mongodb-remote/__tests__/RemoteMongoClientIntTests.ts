@@ -257,7 +257,7 @@ describe("RemoteMongoClient", () => {
     const doc1 = { hello: "world", num: 2 };
     await coll.insertOne(doc1);
 
-    // Simple call to findOneAndUpdate() were we get the previous document back
+    // Simple call to findOneAndUpdate() where we get the previous document back
     const update = {
       $inc: {num: 1},
       $set: {hello: "hellothere"}
@@ -355,7 +355,7 @@ describe("RemoteMongoClient", () => {
     const doc1 = { hello: "world", num: 1 };
     await coll.insertOne(doc1);
 
-    // Simple call to findOneAndReplace() were we get the previous document
+    // Simple call to findOneAndReplace() where we get the previous document
     result = await coll.findOneAndReplace({hello: "world"}, {hello: "world2", num: 2})
     expect(withoutId(result)).toEqual({hello: "world", num: 1});
 
@@ -489,15 +489,6 @@ describe("RemoteMongoClient", () => {
     expect(result).toEqual({hello: "world3"})
     result = await coll.findOneAndDelete({}, {projection: {hello: 1, _id: 0}, sort: {num: 1}});
     expect(result).toEqual({hello: "world1"})
-    
-    // Should properly fail given an illegal replacement doc with update operations
-    try {
-      await coll.findOneAndReplace({}, {sort: {$inc: {a: 1}}})
-      fail();
-    } catch (error) {
-      expect(error instanceof StitchServiceError).toBeTruthy();
-      expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
-    }
   });
 
   it("should aggregate", async () => {
