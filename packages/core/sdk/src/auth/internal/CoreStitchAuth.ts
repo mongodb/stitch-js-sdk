@@ -390,7 +390,11 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     if (credential.providerCapabilities.reusesExistingSession) {
       for (const [userId, authInfo] of this.allUsersAuthInfo) {
         if (authInfo.loggedInProviderType === credential.providerType) {
-          return Promise.resolve(this.switchToUserWithId(userId));
+          try {
+            return Promise.resolve(this.switchToUserWithId(userId));
+          } catch (error) {
+            return Promise.reject(error);
+          }
         }
       }
     }
