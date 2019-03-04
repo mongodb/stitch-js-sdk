@@ -19,6 +19,7 @@ import { Codec, CoreStitchServiceClient, Stream } from "mongodb-stitch-core-sdk"
 import ChangeEvent from "../ChangeEvent";
 import RemoteCountOptions from "../RemoteCountOptions";
 import RemoteDeleteResult from "../RemoteDeleteResult";
+import RemoteFindOneAndModifyOptions from "../RemoteFindOneAndModifyOptions";
 import RemoteFindOptions from "../RemoteFindOptions";
 import RemoteInsertManyResult from "../RemoteInsertManyResult";
 import RemoteInsertOneResult from "../RemoteInsertOneResult";
@@ -130,6 +131,125 @@ export default class CoreRemoteMongoCollectionImpl<T>
       this.codec
     );
   }
+  
+  /**
+   * Finds a document in this collection which matches the provided filter and performs the 
+   * desired updates
+   *
+   * - parameters:
+   *   - filter: A `Document` that should match the query.
+   *   - update: A `Document` describing the update. 
+   *   - options: Optional `RemoteFindOneAndModifyOptions` to use when executing the command.
+   *
+   * - returns: A resulting `DocumentT` or null if the query returned zero matches.
+   */
+  public findOneAndUpdate(
+    filter: object,
+    update: object, 
+    options?: RemoteFindOneAndModifyOptions
+  ): Promise<T | null> {
+    const args: any = { ...this.baseOperationArgs };
+
+    args.filter = filter;
+    args.update = update;
+
+    if (options) {
+      if (options.projection) {
+        args.projection = options.projection;
+      }
+      if (options.sort) {
+        args.sort = options.sort;
+      }
+      if (options.upsert) {
+        args.upsert = true;
+      }
+      if (options.returnNewDocument) {
+        args.returnNewDocument = true;
+      }
+    }
+    return this.service.callFunction(
+      "findOneAndUpdate",
+      [args],
+      this.codec
+    );
+  }
+
+  /**
+   * Finds a document in this collection which matches the provided filter and replaces it with 
+   * A new document
+   *
+   * - parameters:
+   *   - filter: A `Document` that should match the query.
+   *   - replacement: A new `Document` to replace the old one. 
+   *   - options: Optional `RemoteFindOneAndModifyOptions` to use when executing the command.
+   *
+   * - returns: A resulting `DocumentT` or null if the query returned zero matches.
+   */
+  public findOneAndReplace(
+    filter: object,
+    replacement: object, 
+    options?: RemoteFindOneAndModifyOptions
+  ): Promise<T | null> {
+    const args: any = { ...this.baseOperationArgs };
+
+    args.filter = filter;
+    args.update = replacement;
+
+    if (options) {
+      if (options.projection) {
+        args.projection = options.projection;
+      }
+      if (options.sort) {
+        args.sort = options.sort;
+      }
+      if (options.upsert) {
+        args.upsert = true;
+      }
+      if (options.returnNewDocument) {
+        args.returnNewDocument = true;
+      }
+    }
+    return this.service.callFunction(
+      "findOneAndReplace",
+      [args],
+      this.codec
+    );
+  }
+
+  /**
+   * Finds a document in this collection which matches the provided filter and performs the 
+   * desired updates
+   *
+   * - parameters:
+   *   - filter: A `Document` that should match the query.
+   *   - update: A `Document` describing the update. 
+   *   - options: Optional `RemoteFindOneAndModifyOptions` to use when executing the command.
+   *
+   * - returns: A resulting `DocumentT` or null if the query returned zero matches.
+   */
+  public findOneAndDelete(
+    filter: object,
+    options?: RemoteFindOneAndModifyOptions
+  ): Promise<T | null> {
+    const args: any = { ...this.baseOperationArgs };
+
+    args.filter = filter;
+
+    if (options) {
+      if (options.projection) {
+        args.projection = options.projection;
+      }
+      if (options.sort) {
+        args.sort = options.sort;
+      }
+    }
+    return this.service.callFunction(
+      "findOneAndDelete",
+      [args],
+      this.codec
+    );
+  }
+  
 
   /**
    * Runs an aggregation framework pipeline against this collection.

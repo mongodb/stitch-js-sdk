@@ -214,7 +214,6 @@ describe("RemoteMongoClient", () => {
     result = await coll.findOne();
     expect(result).toBeDefined();
     expect(withoutId(result)).toEqual(withoutId(doc1));
-
     
     const doc2 = { hello: "world2", other: "other" };
     await coll.insertOne(doc2);
@@ -249,6 +248,252 @@ describe("RemoteMongoClient", () => {
       expect(error instanceof StitchServiceError).toBeTruthy();
       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
     }
+  });
+
+  it("should find one and update", async () => {
+    const coll = getTestColl();
+
+    // Collection should start out empty
+    // This also tests the null return format
+    let result = await coll.findOneAndUpdate({}, {});
+    expect(result).toBeNull();
+
+    // Insert Sample Document
+    const doc1 = { hello: "world", num: 2 };
+    await coll.insertOne(doc1);
+
+    // Simple call to findOneAndUpdate() where we get the previous document back
+    const update = {
+      $inc: {num: 1},
+      $set: {hello: "hellothere"}
+    }
+    result = await coll.findOneAndUpdate({hello: "world"}, update);
+    expect(withoutId(result)).toEqual({hello: "world", num: 2});
+
+    // Check to make sure the update took place
+    result = await coll.findOne();
+    expect(withoutId(result)).toEqual({hello: "hellothere", num: 3});
+
+    // Call findOneAndUpdate() again but get the new document
+    result = await coll.findOneAndUpdate(
+      {hello: "hellothere"}, 
+      {$inc: {num: 1}}, 
+      {returnNewDocument: true}
+    )
+    expect(withoutId(result)).toEqual({hello: "hellothere", num: 4});
+    result = await coll.findOne();
+    expect(withoutId(result)).toEqual({hello: "hellothere", num: 4});
+
+    // Test null behavior again with filter that should not match any docs
+    result = await coll.findOneAndUpdate(
+      {hello: "hellotherethisisnotakey"}, 
+      {$inc: {num: 1}}, 
+      {returnNewDocument: true}
+    )
+    expect(result).toBeNull();
+
+    // Test the upsert option where it should not actually be invoked
+    result = await coll.findOneAndUpdate(
+      {hello: "hellothere"}, 
+      {$set: {hello: "world1", num: 1}}, 
+      {upsert: true, returnNewDocument: true}
+    )
+    expect(withoutId(result)).toEqual({hello: "world1", num: 1});
+    let count = await coll.count();
+    expect(count).toEqual(1);
+
+    // Test the upsert option where the server should perform upsert and return new document
+    result = await coll.findOneAndUpdate(
+      {hello: "hello"}, 
+      {$set: {hello: "world2", num: 2}}, 
+      {upsert: true, returnNewDocument: true}
+    )
+    expect(withoutId(result)).toEqual({hello: "world2", num: 2})
+    count = await coll.count();
+    expect(count).toEqual(2);
+
+    // Test the upsert option where the server should perform upsert and return old document
+    // The old document should be empty
+    result = await coll.findOneAndUpdate(
+      {hello: "hello"}, 
+      {$set: {hello: "world3", num: 3}}, 
+      {upsert: true}
+    )
+    expect(result).toBeNull();
+    count = await coll.count();
+    expect(count).toEqual(3);
+
+    // test sort and project
+    result = await coll.findOneAndUpdate(
+      {}, 
+      {$inc: {num: 1}}, 
+      {projection: {hello: 1, _id: 0}, sort: {num: -1}}
+    )
+    expect(result).toEqual({hello: "world3"})
+
+    result = await coll.findOneAndUpdate(
+      {}, 
+      {$inc: {num: 1}}, 
+      {projection: {hello: 1, _id: 0}, sort: {num: 1}}
+    )
+    expect(result).toEqual({hello: "world1"})
+    
+    // Should properly fail given illegal update doc
+    try {
+      await coll.findOneAndUpdate({}, {$who: {a: 1}})
+      fail();
+    } catch (error) {
+      expect(error instanceof StitchServiceError).toBeTruthy();
+      expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
+    }
+  });
+
+  it("should find one and replace", async () => {
+    const coll = getTestColl();
+
+    // Collection should start out empty
+    // This also tests the null return format
+    let result = await coll.findOneAndReplace({}, {});
+    expect(result).toBeNull();
+
+    // Insert Sample Document
+    const doc1 = { hello: "world", num: 1 };
+    await coll.insertOne(doc1);
+
+    // Simple call to findOneAndReplace() where we get the previous document
+    result = await coll.findOneAndReplace({hello: "world"}, {hello: "world2", num: 2})
+    expect(withoutId(result)).toEqual({hello: "world", num: 1});
+
+    result = await coll.findOne();
+    expect(withoutId(result)).toEqual({hello: "world2", num: 2});
+
+    // Call findOneAndReplace() again but get the new document
+    result = await coll.findOneAndReplace(
+      {}, 
+      {hello: "world3", num: 3}, 
+      {returnNewDocument: true}
+    )
+    expect(withoutId(result)).toEqual({hello: "world3", num: 3});
+    result = await coll.findOne();
+    expect(withoutId(result)).toEqual({hello: "world3", num: 3});
+
+    // Test null behavior again with filter that should not match any docs
+    result = await coll.findOneAndReplace(
+      {hello: "hellotherethisisnotakey"}, 
+      {hello: "world4"}, 
+      {returnNewDocument: true}
+    )
+    expect(result).toBeNull();
+
+    // Test the upsert option where it should not actually be invoked
+    result = await coll.findOneAndReplace(
+      {hello: "world3"}, 
+      {hello: "world4", num: 4}, 
+      {upsert: true, returnNewDocument: true},
+    )
+    expect(withoutId(result)).toEqual( {hello: "world4", num: 4} );
+
+    // Test the upsert option where the server should perform upsert and return new document
+    result = await coll.findOneAndReplace(
+      {hello: "world3"}, 
+      {hello: "world5", num: 5}, 
+      {upsert: true, returnNewDocument: true},
+    )
+    expect(withoutId(result)).toEqual( {hello: "world5", num: 5} );
+    let count = await coll.count();
+    expect(count).toEqual(2);
+
+    // Test the upsert option where the server should perform upsert and return old document
+    // The old document should be empty
+    result = await coll.findOneAndReplace(
+      {hello: "world3"}, 
+      {hello: "world6", num: 6}, 
+      {upsert: true},
+    )
+    expect(result).toBeNull();
+    count = await coll.count();
+    expect(count).toEqual(3);
+    
+    // Test sort and project
+    result = await coll.findOneAndReplace(
+      {}, 
+      {hello: "oldworld", num: 100}, 
+      {projection: {hello: 1, _id: 0}, sort: {num: -1}}
+    )
+    expect(result).toEqual({hello: "world6"})
+
+    result = await coll.findOneAndReplace(
+      {}, 
+      {hello: "oldworld", num: 100}, 
+      {projection: {hello: 1, _id: 0}, sort: {num: 1}}
+    )
+    expect(result).toEqual({hello: "world4"})
+    
+    // Should properly fail given an illegal replacement doc with update operations
+    try {
+      await coll.findOneAndReplace({}, {$inc: {a: 1}})
+      fail();
+    } catch (error) {
+      expect(error instanceof StitchServiceError).toBeTruthy();
+      expect(StitchServiceErrorCode.InvalidParameter).toEqual(error.errorCode);
+    }
+  });
+
+  it("should find one and delete", async () => {
+    const coll = getTestColl();
+
+    // Collection should start out empty
+    // This also tests the null return format
+    let result = await coll.findOneAndDelete({});
+    expect(result).toBeNull();
+
+    // Insert Sample Document
+    const doc1 = { hello: "world1", num: 1 };
+    await coll.insertOne(doc1);
+    let count = await coll.count();
+    expect(count).toEqual(1);
+
+    // Simple call to findOneAndDelete() where we delete the only document in the collection
+    result = await coll.findOneAndDelete({})
+    expect(withoutId(result)).toEqual({ hello: "world1", num: 1 });
+    count = await coll.count();
+    expect(count).toEqual(0);
+
+    // Insert Sample Document
+    await coll.insertOne(doc1);
+    count = await coll.count();
+    expect(count).toEqual(1);
+
+    // Call findOneAndDelete() again but with filter
+    result = await coll.findOneAndDelete({hello: "world1"})
+    expect(withoutId(result)).toEqual({ hello: "world1", num: 1 });
+    count = await coll.count();
+    expect(count).toEqual(0);
+
+    // Insert Sample Document
+    await coll.insertOne(doc1);
+    count = await coll.count();
+    expect(count).toEqual(1);
+
+    // Call findOneAndDelete() again but give it filter that does not match any documents
+    result = await coll.findOneAndDelete({hello: "thisdoesntexist"})
+    expect(result).toBeNull();
+    count = await coll.count();
+    expect(count).toEqual(1);
+    
+    // Put in more documents
+    await coll.insertMany([
+      {hello: "world2", num: 2}, 
+      {hello: "world3", num: 3},
+    ]);
+    count = await coll.count();
+    expect(count).toEqual(3);
+    
+    // Test sort and project
+    result = await coll.findOneAndDelete({}, {projection: {hello: 1, _id: 0}, sort: {num: -1}});
+    expect(result).toEqual({hello: "world3"})
+    result = await coll.findOneAndDelete({}, {projection: {hello: 1, _id: 0}, sort: {num: 1}});
+    expect(result).toEqual({hello: "world1"})
   });
 
   it("should aggregate", async () => {
