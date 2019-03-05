@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-core-testutils",
-  "version": "4.3.0",
+  "version": "4.3.1",
   "description": "",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -47,8 +47,8 @@
   "private": true,
   "dependencies": {
     "bson": "4.0.0",
-    "mongodb-stitch-core-admin-client": "^4.3.0",
-    "mongodb-stitch-core-sdk": "^4.3.0"
+    "mongodb-stitch-core-admin-client": "^4.3.1",
+    "mongodb-stitch-core-sdk": "^4.3.1"
   },
   "devDependencies": {
     "cross-fetch": "^2.2.3",

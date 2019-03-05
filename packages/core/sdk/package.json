@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-core-sdk",
-  "version": "4.3.0",
+  "version": "4.3.1",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -33,20 +33,20 @@
     {
       "name": "Jason Flax",
       "email": "jason.flax@mongodb.com"
-    }, 
+    },
     {
-      "name": "Doug Kaminsky", 
+      "name": "Doug Kaminsky",
       "email": "douglas.kaminsky@mongodb.com"
-    }, 
+    },
     {
-      "name": "Tyler Kaye", 
+      "name": "Tyler Kaye",
       "email": "tyler.kaye@mongodb.com"
     }
   ],
   "license": "Apache-2.0",
   "dependencies": {
     "base64-js": "^1.3.0",
-    "bson": "4.0.0", 
+    "bson": "4.0.0",
     "jsonwebtoken": "8.2.1"
   },
   "devDependencies": {
@@ -54,10 +54,10 @@
     "prettier": "^1.13.5",
     "text-encoder-lite": "^1.0.1",
     "ts-jest": "^22.4.6",
+    "ts-mockito": "^2.3.0",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
-    "typescript": "^2.9.2", 
-    "ts-mockito": "^2.3.0"
+    "typescript": "^2.9.2"
   },
   "scripts": {
     "build": "npm run build-main && npm run build-module",

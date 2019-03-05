@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-server-services-aws-s3",
-  "version": "4.3.0",
+  "version": "4.3.1",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -33,27 +33,27 @@
     {
       "name": "Jason Flax",
       "email": "jason.flax@mongodb.com"
-    }, 
+    },
     {
-      "name": "Doug Kaminsky", 
+      "name": "Doug Kaminsky",
       "email": "douglas.kaminsky@mongodb.com"
-    }, 
+    },
     {
-      "name": "Tyler Kaye", 
+      "name": "Tyler Kaye",
       "email": "tyler.kaye@mongodb.com"
     }
   ],
   "license": "Apache-2.0",
   "dependencies": {
     "bson": "4.0.0",
-    "mongodb-stitch-core-services-aws-s3": "^4.3.0",
-    "mongodb-stitch-server-core": "^4.3.0"
+    "mongodb-stitch-core-services-aws-s3": "^4.3.1",
+    "mongodb-stitch-server-core": "^4.3.1"
   },
   "devDependencies": {
     "jest": "^23.1.0",
-    "mongodb-stitch-core-admin-client": "^4.3.0",
-    "mongodb-stitch-core-sdk": "^4.3.0",
-    "mongodb-stitch-server-testutils": "^4.3.0",
+    "mongodb-stitch-core-admin-client": "^4.3.1",
+    "mongodb-stitch-core-sdk": "^4.3.1",
+    "mongodb-stitch-server-testutils": "^4.3.1",
     "prettier": "^1.13.5",
     "rollup": "^0.60.7",
     "ts-jest": "^22.4.6",

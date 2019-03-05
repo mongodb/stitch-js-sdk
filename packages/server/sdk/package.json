@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-server-sdk",
-  "version": "4.3.0",
+  "version": "4.3.1",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -33,20 +33,20 @@
     {
       "name": "Jason Flax",
       "email": "jason.flax@mongodb.com"
-    }, 
+    },
     {
-      "name": "Doug Kaminsky", 
+      "name": "Doug Kaminsky",
       "email": "douglas.kaminsky@mongodb.com"
-    }, 
+    },
     {
-      "name": "Tyler Kaye", 
+      "name": "Tyler Kaye",
       "email": "tyler.kaye@mongodb.com"
     }
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "mongodb-stitch-server-core": "^4.3.0",
-    "mongodb-stitch-server-services-mongodb-remote": "^4.3.0"
+    "mongodb-stitch-server-core": "^4.3.1",
+    "mongodb-stitch-server-services-mongodb-remote": "^4.3.1"
   },
   "devDependencies": {
     "prettier": "^1.13.5",
