@@ -72,6 +72,8 @@ import EventListener from "./internal/net/EventListener";
 import EventStream from "./internal/net/EventStream";
 import Headers from "./internal/net/Headers";
 import Method from "./internal/net/Method";
+import AuthRebindEvent from "./services/internal/AuthRebindEvent"
+import { RebindEvent } from "./services/internal/RebindEvent";
 import Response from "./internal/net/Response";
 import StitchAppAuthRoutes from "./internal/net/StitchAppAuthRoutes";
 import StitchAppRequestClient from "./internal/net/StitchAppRequestClient";
@@ -167,10 +169,12 @@ export {
   Transport,
   UserType,
   Assertions,
-  AuthEvent, 
-  AuthEventKind, 
-  ActiveUserChanged, 
-  ListenerRegistered, 
+  AuthEvent,
+  AuthEventKind,
+  ActiveUserChanged,
+  ListenerRegistered,
+  RebindEvent,
+  AuthRebindEvent,
   UserAdded,
   UserLinked,
   UserLoggedIn,

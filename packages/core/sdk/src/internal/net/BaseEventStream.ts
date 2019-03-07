@@ -40,6 +40,10 @@ export default abstract class BaseEventStream<T extends BaseEventStream<T>> impl
     this.lastErr = undefined;
   }
 
+  public isOpen(): boolean {
+    return !this.closed;
+  }
+
   public abstract open(): void;
 
   public addListener(listener: EventListener): void {

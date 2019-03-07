@@ -1,3 +1,6 @@
+import { RebindEvent, RebindEventType } from "./RebindEvent";
+import { AuthEvent, CoreStitchUser } from "../..";
+
 /**
  * Copyright 2018-present MongoDB, Inc.
  *
@@ -14,15 +17,14 @@
  * limitations under the License.
  */
 
-import Event from "./Event";
-import EventListener from "./EventListener";
+export default class AuthRebindEvent<TStitchUser extends CoreStitchUser> extends RebindEvent {
+  type: RebindEventType = RebindEventType.AUTH_EVENT;
 
-/** @hidden */
-export default interface EventStream {
-  nextEvent(): Promise<Event>;
-  addListener(listener: EventListener): void;
-  removeListener(listener: EventListener): void;
-  isOpen(): boolean;
-  open(): void;
-  close(): void;
+  event: AuthEvent<TStitchUser>;
+
+  constructor(event: AuthEvent<TStitchUser>) {
+    super();
+    this.event = event;
+  }
 }
+ 
