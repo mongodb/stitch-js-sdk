@@ -15,6 +15,7 @@
  */
 
 import { EJSON } from 'bson';
+import { AuthEventKind } from '../../auth/internal/AuthEvent';
 import StitchAuthRequestClient from "../../auth/internal/StitchAuthRequestClient";
 import { base64Encode } from "../../internal/common/Base64";
 import { Decoder } from "../../internal/common/Codec";
@@ -22,13 +23,11 @@ import Method from "../../internal/net/Method";
 import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
 import Stream from "../../Stream";
-import CoreStitchServiceClient from "./CoreStitchServiceClient";
-import StitchServiceRoutes from "./StitchServiceRoutes";
-import StitchServiceBinder from './StitchServiceBinder';
-import { RebindEvent, RebindEventType } from './RebindEvent';
 import AuthRebindEvent from './AuthRebindEvent';
-import { CoreStitchUser } from '../..';
-import { AuthEventKind } from '../../auth/internal/AuthEvent';
+import CoreStitchServiceClient from "./CoreStitchServiceClient";
+import { RebindEvent, RebindEventType } from './RebindEvent';
+import StitchServiceBinder from './StitchServiceBinder';
+import StitchServiceRoutes from "./StitchServiceRoutes";
 
 /** @hidden */
 export default class CoreStitchServiceClientImpl
@@ -39,7 +38,7 @@ export default class CoreStitchServiceClientImpl
   private readonly serviceName: string | undefined;
 
   private serviceBinders: StitchServiceBinder[];
-  private allocatedStreams: Stream<any>[];
+  private allocatedStreams: Array<Stream<any>>;
 
   private readonly serviceField = "service";
   private readonly argumentsField = "arguments";
@@ -82,6 +81,27 @@ export default class CoreStitchServiceClientImpl
     });
   }
 
+  public bind(binder: StitchServiceBinder) {
+    this.serviceBinders.push(binder);
+  }
+
+  public onRebindEvent(rebindEvent: RebindEvent) {
+    switch (rebindEvent.type) {
+      case RebindEventType.AUTH_EVENT:
+        const authRebindEvent = rebindEvent as AuthRebindEvent<any>;
+        if (authRebindEvent.event.kind === AuthEventKind.ActiveUserChanged) {
+          this.closeAllocatedStreams()
+        }
+        break;
+      default:
+        break;
+    }
+    
+    for (const serviceBinder of this.serviceBinders) {
+      serviceBinder.onRebindEvent(rebindEvent);
+    }
+  }
+
   private getStreamServiceFunctionRequest(
     name: string,
     args: any[]
@@ -118,28 +138,7 @@ export default class CoreStitchServiceClientImpl
     return reqBuilder.build();
   }
 
-  bind(binder: StitchServiceBinder) {
-    this.serviceBinders.push(binder);
-  }
-
-  onRebindEvent(rebindEvent: RebindEvent) {
-    switch (rebindEvent.type) {
-      case RebindEventType.AUTH_EVENT:
-        let authRebindEvent = rebindEvent as AuthRebindEvent<any>;
-        if (authRebindEvent.event.kind === AuthEventKind.ActiveUserChanged) {
-          this.closeAllocatedStreams()
-        }
-        break;
-      default:
-        break;
-    }
-    
-    for (const serviceBinder of this.serviceBinders) {
-      serviceBinder.onRebindEvent(rebindEvent);
-    }
-  }
-
-  closeAllocatedStreams() {
+  private closeAllocatedStreams() {
     for (const allocatedStream of this.allocatedStreams) {
       if (allocatedStream.isOpen()) {
         allocatedStream.close();

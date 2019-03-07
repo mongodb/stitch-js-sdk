@@ -1,6 +1,3 @@
-import { RebindEvent, RebindEventType } from "./RebindEvent";
-import { AuthEvent, CoreStitchUser } from "../..";
-
 /**
  * Copyright 2018-present MongoDB, Inc.
  *
@@ -17,10 +14,13 @@ import { AuthEvent, CoreStitchUser } from "../..";
  * limitations under the License.
  */
 
-export default class AuthRebindEvent<TStitchUser extends CoreStitchUser> extends RebindEvent {
-  type: RebindEventType = RebindEventType.AUTH_EVENT;
+import { AuthEvent, CoreStitchUser } from "../..";
+import { RebindEvent, RebindEventType } from "./RebindEvent";
 
-  event: AuthEvent<TStitchUser>;
+export default class AuthRebindEvent<TStitchUser extends CoreStitchUser> extends RebindEvent {
+  public type: RebindEventType = RebindEventType.AUTH_EVENT;
+
+  public event: AuthEvent<TStitchUser>;
 
   constructor(event: AuthEvent<TStitchUser>) {
     super();

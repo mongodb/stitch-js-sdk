@@ -72,8 +72,6 @@ import EventListener from "./internal/net/EventListener";
 import EventStream from "./internal/net/EventStream";
 import Headers from "./internal/net/Headers";
 import Method from "./internal/net/Method";
-import AuthRebindEvent from "./services/internal/AuthRebindEvent"
-import { RebindEvent } from "./services/internal/RebindEvent";
 import Response from "./internal/net/Response";
 import StitchAppAuthRoutes from "./internal/net/StitchAppAuthRoutes";
 import StitchAppRequestClient from "./internal/net/StitchAppRequestClient";
@@ -82,8 +80,10 @@ import { StitchAuthRequest } from "./internal/net/StitchAuthRequest";
 import StitchEvent from "./internal/net/StitchEvent";
 import StitchRequestClient from "./internal/net/StitchRequestClient";
 import Transport from "./internal/net/Transport";
+import AuthRebindEvent from "./services/internal/AuthRebindEvent"
 import CoreStitchServiceClient from "./services/internal/CoreStitchServiceClient";
 import CoreStitchServiceClientImpl from "./services/internal/CoreStitchServiceClientImpl";
+import { RebindEvent } from "./services/internal/RebindEvent";
 import StitchServiceRoutes from "./services/internal/StitchServiceRoutes";
 import { StitchAppClientConfiguration } from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";

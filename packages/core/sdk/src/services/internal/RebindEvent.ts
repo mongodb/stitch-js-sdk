@@ -15,7 +15,7 @@
  */
 
 export abstract class RebindEvent {
-    abstract type: RebindEventType
+    public abstract type: RebindEventType
 }
 
 export enum RebindEventType {
