@@ -102,7 +102,8 @@ function writeAllUsersAuthInfoToStorage(
   storage: Storage
 ) {
   const encodedStoreInfos: any[] = []
-  for (const [userId, authInfo] of currentUsersAuthInfo) {
+
+  currentUsersAuthInfo.forEach((authInfo: AuthInfo, userId: string) => {
     const storeInfo = new StoreAuthInfo(
       userId,
       authInfo.deviceId!,
@@ -124,7 +125,7 @@ function writeAllUsersAuthInfoToStorage(
     );
 
     encodedStoreInfos.push(storeInfo.encode());
-  }
+  });
 
   storage.set(
     StoreAuthInfo.ALL_USERS_STORAGE_NAME, 
