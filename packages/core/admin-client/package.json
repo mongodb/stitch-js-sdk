@@ -46,7 +46,7 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "bson": "4.0.0",
+    "bson": "4.0.2",
     "cross-fetch": "^2.2.3",
     "mongodb-stitch-core-sdk": "^4.3.1"
   },
