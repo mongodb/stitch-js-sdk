@@ -1,4 +1,4 @@
-1{
+{
   "name": "mongodb-stitch-server-services-mongodb-remote",
   "version": "4.3.0",
   "main": "dist/cjs/index.js",
