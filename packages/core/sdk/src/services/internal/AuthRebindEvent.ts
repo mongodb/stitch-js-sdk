@@ -27,4 +27,3 @@ export default class AuthRebindEvent<TStitchUser extends CoreStitchUser> extends
     this.event = event;
   }
 }
- 
