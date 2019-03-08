@@ -159,6 +159,15 @@ export default class Stream<T> {
   }
 
   /**
+   * Whether or not the underlying event stream is still open.
+   * 
+   * @returns true if open, false if no
+   */
+  public isOpen(): boolean {
+    return this.eventStream.isOpen();
+  }
+
+  /**
    * Closes the underlying stream, which will prevent the stream from receiving 
    * any more events.
    */

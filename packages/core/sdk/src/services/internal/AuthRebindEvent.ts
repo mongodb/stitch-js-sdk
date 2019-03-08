@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-import Event from "./Event";
-import EventListener from "./EventListener";
+import { AuthEvent, CoreStitchUser } from "../..";
+import { RebindEvent, RebindEventType } from "./RebindEvent";
 
-/** @hidden */
-export default interface EventStream {
-  nextEvent(): Promise<Event>;
-  addListener(listener: EventListener): void;
-  removeListener(listener: EventListener): void;
-  isOpen(): boolean;
-  open(): void;
-  close(): void;
+export default class AuthRebindEvent<TStitchUser extends CoreStitchUser> extends RebindEvent {
+  public type: RebindEventType = RebindEventType.AUTH_EVENT;
+
+  public event: AuthEvent<TStitchUser>;
+
+  constructor(event: AuthEvent<TStitchUser>) {
+    super();
+    this.event = event;
+  }
 }

@@ -16,9 +16,10 @@
 
 import { Decoder } from "../../internal/common/Codec";
 import Stream from "../../Stream";
+import StitchServiceBinder from "./StitchServiceBinder";
 
 /** @hidden */
-export default interface CoreStitchServiceClient {
+export default interface CoreStitchServiceClient extends StitchServiceBinder {
   callFunction<T>(
     name: string,
     args: any[],
@@ -30,4 +31,11 @@ export default interface CoreStitchServiceClient {
     args: any[],
     decoder?: Decoder<T>
   ): Promise<Stream<T>>;
+
+  /**
+   * Bind a given service to this service client.
+   * 
+   * @param binder the service binder that links the service to this client
+   */
+  bind(binder: StitchServiceBinder)
 }

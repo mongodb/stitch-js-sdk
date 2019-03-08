@@ -15,12 +15,16 @@
  */
 
 import {
+  AuthEventKind,
+  AuthRebindEvent,
   CoreStitchAppClient,
+  CoreStitchServiceClient,
   CoreStitchServiceClientImpl,
+  RebindEvent,
   StitchAppClientConfiguration,
   StitchAppClientInfo,
   StitchAppRequestClient,
-  StitchAppRoutes
+  StitchAppRoutes,
 } from "mongodb-stitch-core-sdk";
 
 import NamedServiceClientFactory from "../../services/internal/NamedServiceClientFactory";
@@ -28,6 +32,8 @@ import ServiceClientFactory from "../../services/internal/ServiceClientFactory";
 import StitchServiceClientImpl from "../../services/internal/StitchServiceClientImpl";
 import StitchServiceClient from "../../services/StitchServiceClient";
 import StitchAuthImpl from "../auth/internal/StitchAuthImpl";
+import StitchAuth from "../auth/StitchAuth";
+import StitchUser from "../auth/StitchUser";
 import StitchAppClient from "../StitchAppClient";
 
 /** @hidden */
@@ -37,6 +43,8 @@ export default class StitchAppClientImpl implements StitchAppClient {
   private readonly coreClient: CoreStitchAppClient;
   private readonly info: StitchAppClientInfo;
   private readonly routes: StitchAppRoutes;
+
+  private serviceClients: CoreStitchServiceClient[];
 
   public constructor(
     clientAppId: string,
@@ -61,6 +69,8 @@ export default class StitchAppClientImpl implements StitchAppClient {
       this.info
     );
     this.coreClient = new CoreStitchAppClient(this.auth, this.routes);
+    this.serviceClients = [];
+    this.auth.addSynchronousAuthListener(this);
   }
 
   public getServiceClient<T>(
@@ -68,29 +78,34 @@ export default class StitchAppClientImpl implements StitchAppClient {
     serviceName?: string
   ): T {
     if (isServiceClientFactory(factory)) {
-      return factory.getClient(
-        new CoreStitchServiceClientImpl(this.auth, this.routes.serviceRoutes, ""),
-        this.info
+      const serviceClient = new CoreStitchServiceClientImpl(
+        this.auth, this.routes.serviceRoutes, ""
       );
+      this.bindServiceClient(serviceClient);
+      return factory.getClient(serviceClient, this.info);
     } else {
+      const serviceClient = new CoreStitchServiceClientImpl(
+        this.auth,
+        this.routes.serviceRoutes,
+        serviceName!
+      );
+      this.bindServiceClient(serviceClient);
       return factory.getNamedClient(
-        new CoreStitchServiceClientImpl(
-          this.auth,
-          this.routes.serviceRoutes,
-          serviceName!
-        ),
+        serviceClient,
         this.info
       );
     }
   }
 
   public getGeneralServiceClient(serviceName: string): StitchServiceClient {
+    const serviceClient = new CoreStitchServiceClientImpl(
+      this.auth,
+      this.routes.serviceRoutes,
+      serviceName
+    );
+    this.bindServiceClient(serviceClient);
     return new StitchServiceClientImpl(
-      new CoreStitchServiceClientImpl(
-        this.auth,
-        this.routes.serviceRoutes,
-        serviceName
-      )
+      serviceClient
     );
   }
 
@@ -98,8 +113,34 @@ export default class StitchAppClientImpl implements StitchAppClient {
     return this.coreClient.callFunction(name, args);
   }
 
+  // note: this is the only rebind event we care about for JS. if we add 
+  // services in the future, or update existing services in such a way that 
+  // they'll need to rebind on other types of events, those handlers should be
+  // added to this file.
+  public onActiveUserChanged(
+    _: StitchAuth, 
+    currentActiveUser: StitchUser | undefined, 
+    previousActiveUser: StitchUser | undefined
+  ) {
+    this.onRebindEvent(new AuthRebindEvent({
+      currentActiveUser,
+      kind: AuthEventKind.ActiveUserChanged,
+      previousActiveUser
+    }))
+  }
+
   public close() {
     this.auth.close();
+  }
+
+  private bindServiceClient(coreStitchServiceClient: CoreStitchServiceClient) {
+    this.serviceClients.push(coreStitchServiceClient);
+  }
+
+  private onRebindEvent(rebindEvent: RebindEvent) {
+    this.serviceClients.forEach(serviceClient => {
+      serviceClient.onRebindEvent(rebindEvent);
+    })
   }
 }
 

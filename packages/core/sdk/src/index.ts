@@ -80,8 +80,10 @@ import { StitchAuthRequest } from "./internal/net/StitchAuthRequest";
 import StitchEvent from "./internal/net/StitchEvent";
 import StitchRequestClient from "./internal/net/StitchRequestClient";
 import Transport from "./internal/net/Transport";
+import AuthRebindEvent from "./services/internal/AuthRebindEvent"
 import CoreStitchServiceClient from "./services/internal/CoreStitchServiceClient";
 import CoreStitchServiceClientImpl from "./services/internal/CoreStitchServiceClientImpl";
+import { RebindEvent } from "./services/internal/RebindEvent";
 import StitchServiceRoutes from "./services/internal/StitchServiceRoutes";
 import { StitchAppClientConfiguration } from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";
@@ -167,10 +169,12 @@ export {
   Transport,
   UserType,
   Assertions,
-  AuthEvent, 
-  AuthEventKind, 
-  ActiveUserChanged, 
-  ListenerRegistered, 
+  AuthEvent,
+  AuthEventKind,
+  ActiveUserChanged,
+  ListenerRegistered,
+  RebindEvent,
+  AuthRebindEvent,
   UserAdded,
   UserLinked,
   UserLoggedIn,

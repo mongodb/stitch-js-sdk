@@ -1,3 +1,5 @@
+import { RebindEvent } from "./RebindEvent";
+
 /**
  * Copyright 2018-present MongoDB, Inc.
  *
@@ -14,15 +16,16 @@
  * limitations under the License.
  */
 
-import Event from "./Event";
-import EventListener from "./EventListener";
-
-/** @hidden */
-export default interface EventStream {
-  nextEvent(): Promise<Event>;
-  addListener(listener: EventListener): void;
-  removeListener(listener: EventListener): void;
-  isOpen(): boolean;
-  open(): void;
-  close(): void;
+/**
+ * An interface that allows any service of any type to bind to its 
+ * associated [[CoreStitchServiceClient]].
+ */
+export default interface StitchServiceBinder {
+    /**
+     * Notify the binder that a rebind event has occurred. E.g. a change in the
+     * active user.
+     * 
+     * @param rebindEvent The rebind event that occurred.
+     */
+    onRebindEvent(rebindEvent: RebindEvent)
 }
