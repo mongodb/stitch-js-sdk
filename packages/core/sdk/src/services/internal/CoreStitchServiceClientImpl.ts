@@ -96,10 +96,10 @@ export default class CoreStitchServiceClientImpl
       default:
         break;
     }
-    
-    for (const serviceBinder of this.serviceBinders) {
-      serviceBinder.onRebindEvent(rebindEvent);
-    }
+
+    this.serviceBinders.forEach(binder => {
+      binder.onRebindEvent(rebindEvent);
+    });
   }
 
   private getStreamServiceFunctionRequest(
@@ -139,11 +139,11 @@ export default class CoreStitchServiceClientImpl
   }
 
   private closeAllocatedStreams() {
-    for (const allocatedStream of this.allocatedStreams) {
-      if (allocatedStream.isOpen()) {
-        allocatedStream.close();
+    this.allocatedStreams.forEach(stream => {
+      if (stream.isOpen()) {
+        stream.close();
       }
-    }
+    });
     this.allocatedStreams = [];
   }
 }
