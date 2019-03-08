@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-import { Stream, BaseEventStream, Decoder, Event, EventStream } from "../src";
-import { mock, when } from "ts-mockito";
+import { instance, mock, when } from "ts-mockito";
+import { BaseEventStream, Decoder, Event, EventStream, Stream } from "../src";
 
 // prevent Jest from thinking this file is an empty test suite
 it('should pass', () => {})
 
 class TestStream <T> extends Stream<T> {
-  closeCalled: number
+  public closeCalled: number
   
   constructor(eventStream: EventStream, decoder: Decoder<T>) {
     super(eventStream, decoder)
     this.closeCalled = 0;
   }
 
-  close() {
+  public close() {
     this.closeCalled += 1;
     super.close();
   }
@@ -60,15 +60,15 @@ class StreamTestUtils {
   ): Stream<T> {
     const eventStream = mock(BaseEventStream);
 
+    when(eventStream.isOpen()).thenReturn(open);
+
     if (open) {
       when(eventStream.nextEvent()).thenResolve(
         ...streamEvents.map(s => new Event(Event.MESSAGE_EVENT, s))
       );
     }
 
-    when(eventStream.isOpen()).thenReturn(open);
-
-    return new TestStream(eventStream, decoder)
+    return new TestStream(instance(eventStream), decoder)
   }
 }
 

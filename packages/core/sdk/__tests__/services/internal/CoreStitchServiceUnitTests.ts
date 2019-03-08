@@ -20,18 +20,18 @@ import {
   capture,
   instance,
   mock,
+  spy,
   verify,
   when,
-  spy
 } from "ts-mockito";
 import {
-  CoreStitchAuth,
-  StitchAuthRequestClient,
-  StitchServiceRoutes,
-  RebindEvent,
   AuthEventKind,
   AuthRebindEvent,
+  CoreStitchAuth,
   CoreStitchUserImpl,
+  RebindEvent,
+  StitchAuthRequestClient,
+  StitchServiceRoutes,
   Stream
 } from "../../../src";
 import Method from "../../../src/internal/net/Method";
@@ -50,6 +50,7 @@ interface CoreStitchServiceUnitTestContext {
   testService: CoreStitchServiceClientImpl
 }
 
+/** @hidden */
 class DummyUser extends CoreStitchUserImpl {
   constructor() {
     super("1234", "provider-type", "provider-name", true, new Date());
@@ -60,7 +61,7 @@ class DummyUser extends CoreStitchUserImpl {
 // Mockito does not yet support mocking interfaces but it will soon
 // - https://github.com/NagRock/ts-mockito/issues/117
 class FakeStitchServiceBinder implements StitchServiceBinder {
-  onRebindEvent(_: RebindEvent) { }
+  public onRebindEvent(_: RebindEvent) { }
 }
 
 function setUp(): CoreStitchServiceUnitTestContext {
@@ -78,10 +79,10 @@ function setUp(): CoreStitchServiceUnitTestContext {
   );
 
   return {
-    serviceName,
-    routes,
-    requestClientMock,
     requestClient,
+    requestClientMock,
+    routes,
+    serviceName,
     testService
   };
 }
@@ -152,9 +153,9 @@ describe("CoreStitchServiceUnitTests", () => {
     underTest.bind(binder2);
 
     const event = new AuthRebindEvent({
+      currentActiveUser: undefined,
       kind: AuthEventKind.ActiveUserChanged,
       previousActiveUser: undefined,
-      currentActiveUser: undefined
     });
 
     underTest.onRebindEvent(event);
@@ -163,11 +164,11 @@ describe("CoreStitchServiceUnitTests", () => {
     verify(spiedBinder1.onRebindEvent(anyOfClass(AuthRebindEvent))).called();
   });
 
-  it("should not close streams on login event", () => {
+  it("should not close streams on login event", async () => {
     const testCtx = setUp();
     const underTest = testCtx.testService;
 
-    const streams: Stream<any>[] = [];
+    const streams: Array<Stream<any>> = [];
     for (let i = 0; i < 10; i ++) {
       streams.push(
         StreamTestUtils.createStream(undefined, JSON.stringify({
@@ -180,9 +181,9 @@ describe("CoreStitchServiceUnitTests", () => {
       anything(), anything()
     )).thenResolve(...streams);
 
-    for (let i = 0; i < streams.length; i++) {
-      underTest.streamFunction("fn", []);
-    }
+    await streams.forEach(async _ => { 
+      await underTest.streamFunction("fn", []);
+    });
 
     underTest.onRebindEvent(new AuthRebindEvent({
       kind: AuthEventKind.UserLoggedIn,
@@ -196,10 +197,10 @@ describe("CoreStitchServiceUnitTests", () => {
     });
   });
 
-  it("should not close streams on logout event", () => {
+  it("should not close streams on logout event", async () => {
     const testCtx = setUp();
     const underTest = testCtx.testService;
-    const streams: Stream<any>[] = [];
+    const streams: Array<Stream<any>> = [];
     for (let i = 0; i < 10; i ++) {
       streams.push(
         StreamTestUtils.createStream(undefined, JSON.stringify({
@@ -212,9 +213,9 @@ describe("CoreStitchServiceUnitTests", () => {
       anything(), anything()
     )).thenResolve(...streams);
 
-    for (let i = 0; i < streams.length; i++) {
-      underTest.streamFunction("fn", []);
-    }
+    await streams.forEach(async _ => { 
+      await underTest.streamFunction("fn", []);
+    });
 
     underTest.onRebindEvent(new AuthRebindEvent({
       kind: AuthEventKind.UserLoggedOut,
@@ -228,10 +229,10 @@ describe("CoreStitchServiceUnitTests", () => {
     });
   });
 
-  it("should not close streams on remove event", () => {
+  it("should not close streams on remove event", async () => {
     const testCtx = setUp();
     const underTest = testCtx.testService;
-    const streams: Stream<any>[] = [];
+    const streams: Array<Stream<any>> = [];
     for (let i = 0; i < 10; i ++) {
       streams.push(
         StreamTestUtils.createStream(undefined, JSON.stringify({
@@ -244,9 +245,9 @@ describe("CoreStitchServiceUnitTests", () => {
       anything(), anything()
     )).thenResolve(...streams);
 
-    for (let i = 0; i < streams.length; i++) {
-      underTest.streamFunction("fn", []);
-    }
+    await streams.forEach(async _ => { 
+      await underTest.streamFunction("fn", []);
+    });
 
     underTest.onRebindEvent(new AuthRebindEvent({
       kind: AuthEventKind.UserRemoved,
@@ -264,25 +265,26 @@ describe("CoreStitchServiceUnitTests", () => {
     const testCtx = setUp();
     const underTest = testCtx.testService;
 
-    const streams: Stream<any>[] = [];
+    const streams: Array<Stream<any>> = [];
     for (let i = 0; i < 10; i ++) {
-      let stream = StreamTestUtils.createStream(undefined, JSON.stringify({
-        number: i
-      }));
-      streams.push(stream);
+      streams.push(
+        StreamTestUtils.createStream(undefined, JSON.stringify({
+          number: i
+        }))
+      );
     }
 
     when(testCtx.requestClientMock.openAuthenticatedStreamWithDecoder(
       anything(), anything()
     )).thenResolve(...streams);
 
-    for (let i = 0; i < streams.length; i++) {
+    await streams.forEach(async _ => { 
       await underTest.streamFunction("fn", []);
-    }
+    });
 
     underTest.onRebindEvent(new AuthRebindEvent({
-      kind: AuthEventKind.ActiveUserChanged,
       currentActiveUser: new DummyUser(),
+      kind: AuthEventKind.ActiveUserChanged,
       previousActiveUser: new DummyUser()
     }));
 
@@ -293,26 +295,28 @@ describe("CoreStitchServiceUnitTests", () => {
     });
   });
 
-  it("should skip closing closed streams on rebind", () => {
+  it("should skip closing closed streams on rebind", async () => {
     const testCtx = setUp();
     const underTest = testCtx.testService;
-    const stream = spy(StreamTestUtils.createClosedStream(
+    const stream = StreamTestUtils.createClosedStream(
       undefined, 
       JSON.stringify({hello: "there"})
-    ))
+    )
 
     when(testCtx.requestClientMock.openAuthenticatedStreamWithDecoder(
       anything(), anything()
     )).thenResolve(stream);
 
-    underTest.streamFunction("fn", []);
+    await underTest.streamFunction("fn", []);
 
     underTest.onRebindEvent(new AuthRebindEvent({
-      kind: AuthEventKind.ActiveUserChanged,
       currentActiveUser: new DummyUser(),
+      kind: AuthEventKind.ActiveUserChanged,
       previousActiveUser: new DummyUser()
     }));
 
-    verify(stream.close()).never();
+    // get around the fact that ts-mockito can't 
+      // have method stubs return spied objects
+    expect((stream as TestStream<any>).closeCalled).toBe(0);
   });
 });
