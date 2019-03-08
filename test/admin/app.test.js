@@ -45,4 +45,22 @@ describe('Apps', ()=>{
     const apps = (await th.apps().list()).filter(x => x._id === app._id);
     expect(apps).toHaveLength(0);
   });
+
+  describe('when createApp is called with a specific product type', () => {
+    let app;
+    const otherProductTestAppName = 'atlas-app';
+    beforeEach(async() => {
+      app = await th.createApp(otherProductTestAppName, { product: 'atlas' });
+    });
+    it('should successfully create the app', () => {
+      expect(app).toBeDefined();
+      expect(app.name).toEqual(otherProductTestAppName);
+    });
+
+    it('should only display apps of a product type when the list function is called with that filter', async() => {
+      const apps = (await th.apps().list({ product: 'atlas' }));
+      expect(apps).toHaveLength(1);
+      expect(apps[0]).toEqual(app);
+    });
+  });
 });

@@ -123,7 +123,7 @@ export class StitchAdminClient extends StitchClient {
     const api = this._v3;
     const groupUrl = `/groups/${groupId}/apps`;
     return {
-      list: () => api._get(groupUrl),
+      list: (filter) => api._get(groupUrl, filter),
       create: (data, options) => {
         let query = (options && options.product) ? `?product=${options.product}` : '';
         return api._post(groupUrl + query, data);
