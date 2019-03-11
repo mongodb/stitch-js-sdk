@@ -228,7 +228,15 @@ describe('Services', ()=>{
     await services.service(newSvc._id).incomingWebhooks().incomingWebhook(newWebhook._id).update(updatedWebhook);
 
     let fetchedWebhook = await services.service(newSvc._id).incomingWebhooks().incomingWebhook(newWebhook._id).get();
-    expect(fetchedWebhook).toEqual(Object.assign({}, newWebhook, updatedWebhook));
+
+    const expectedWebhookWithUpdates = Object.assign({}, newWebhook, updatedWebhook);
+    expect(fetchedWebhook._id).toEqual(expectedWebhookWithUpdates._id);
+    expect(fetchedWebhook.name).toEqual(expectedWebhookWithUpdates.name);
+    expect(fetchedWebhook.function_source).toEqual(expectedWebhookWithUpdates.function_source);
+    expect(fetchedWebhook.options).toEqual(expectedWebhookWithUpdates.options);
+    expect(fetchedWebhook.respond_result).toEqual(expectedWebhookWithUpdates.respond_result);
+    expect(fetchedWebhook.run_as_user_id).toEqual(expectedWebhookWithUpdates.run_as_user_id);
+    expect(fetchedWebhook.run_as_user_id_script_source).toEqual(expectedWebhookWithUpdates.run_as_user_id_script_source);
   });
 
   it('removing an incoming webhook should work', async() => {
