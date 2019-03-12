@@ -31,6 +31,10 @@ lerna run test
 ```
 
 ### Publishing a New SDK version
+
+The [aws-cli](https://docs.aws.amazon.com/cli/latest/userguide/install-bundle.html) client is required
+along with relevant permissions to the stitch-sdks bucket.
+
 ```bash
 lerna publish --force-publish="*"
 ./publish_bundles.sh

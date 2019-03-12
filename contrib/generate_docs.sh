@@ -7,18 +7,7 @@ function usage() {
 
 cd "$(dirname "$0")"/..
 
-while getopts "h?vf:" opt; do
-    case "$opt" in
-    h|\?)
-        show_help
-        exit 0
-        ;;
-    v)  verbose=1
-        ;;
-    f)  output_file=$OPTARG
-        ;;
-    esac
-done
+TYPEDOC=./node_modules/.bin/typedoc
 
 npm run docs-theme
 
@@ -54,7 +43,7 @@ elif [[ ! -z "$2" ]]; then
     usage
 fi
 
-typedoc \
+"$TYPEDOC" \
     --name "MongoDB Stitch $pretty_name SDK" \
     --out ./docs-$sdk \
     --mode file \

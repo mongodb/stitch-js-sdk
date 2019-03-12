@@ -16,6 +16,8 @@ snippet=("$(cd "$(dirname "$1")"; pwd)/$(basename "$1")")
 
 pushd "$(dirname "$0")" > /dev/null
 
+ESLINT="./node_modules/.bin/eslint"
+
 validate_js="./validate.js"
 if [ "$2" == "browser" ]
 then
@@ -25,7 +27,7 @@ echo "Using validator: $validate_js"
 
 set +e
 
-eslint "$snippet" \
+"$ESLINT" "$snippet" \
   && cat "$snippet" "$validate_js" \
   | npx babel -f "$validate_js" \
   | node
