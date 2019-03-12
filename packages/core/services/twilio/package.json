@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-core-services-twilio",
-  "version": "4.3.1",
+  "version": "4.3.2",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -45,7 +45,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "mongodb-stitch-core-sdk": "^4.3.1"
+    "mongodb-stitch-core-sdk": "^4.3.2"
   },
   "devDependencies": {
     "jest": "^23.1.0",
