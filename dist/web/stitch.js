@@ -11148,8 +11148,8 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
       var api = this._v3;
       var groupUrl = '/groups/' + groupId + '/apps';
       return {
-        list: function list() {
-          return api._get(groupUrl);
+        list: function list(filter) {
+          return api._get(groupUrl, filter);
         },
         create: function create(data, options) {
           var query = options && options.product ? '?product=' + options.product : '';
@@ -11277,6 +11277,21 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                           return api._delete(appUrl + '/hosting/assets/asset', params);
                         }
                       };
+                    }
+                  };
+                }
+              };
+            },
+
+            deploy: function deploy() {
+              return {
+                deployments: function deployments() {
+                  return {
+                    list: function list(filter) {
+                      return api._get(appUrl + '/deployments', filter);
+                    },
+                    get: function get(commit) {
+                      return api._get(appUrl + '/deployments/' + commit);
                     }
                   };
                 }
