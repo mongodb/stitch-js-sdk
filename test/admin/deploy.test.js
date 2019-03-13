@@ -18,8 +18,8 @@ describe('Deploy', () => {
 
   afterEach(async() => th.cleanup());
 
-  it('listing deploy history should return empty list', async() => {
-    let deployHistory = await appDeploy.deployments().list();
+  it('returns an empty list when requesting deploy history', async() => {
+    const deployHistory = await appDeploy.deployments().list();
     expect(deployHistory).toEqual([]);
   });
 });
