@@ -194,6 +194,13 @@ export class StitchAdminClient extends StitchClient {
             })
           }),
 
+          deploy: () => ({
+            deployments: () => ({
+              list: (filter) => api._get(`${appUrl}/deployments`, filter),
+              get: (commit) => api._get(`${appUrl}/deployments/${commit}`)
+            })
+          }),
+
           services: () => ({
             list: () => api._get(`${appUrl}/services`),
             create: (data) => api._post(`${appUrl}/services`, data),
