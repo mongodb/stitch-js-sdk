@@ -114,7 +114,7 @@ export default interface StitchAuth {
    * 
    * There will be no active user after this logout takes place, even if there
    * are other logged in users. Another user must be explicitly switched to using 
-   * [[switchToUserWithId]], [[loginWithCredential]] or [[loginWithRedirect]].
+   * [[switchToUserWithId]] or [[loginWithCredential]].
    * 
    * @see
    * - [[removeUser]]

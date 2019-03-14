@@ -35,9 +35,6 @@ import StitchUser from "./StitchUser";
  *
  * To log out, use [[logout]].
  *
- * @example
- * For an example of [[loginWithRedirect]], see [Facebook Authentication](https://docs.mongodb.com/stitch/authentication/facebook/).
- * 
  * @see
  * - [Users](https://docs.mongodb.com/stitch/users/)
  * - [Authentication](https://docs.mongodb.com/stitch/authentication/)
@@ -120,7 +117,7 @@ export default interface StitchAuth {
    * 
    * There will be no active user after this logout takes place, even if there
    * are other logged in users. Another user must be explicitly switched to using 
-   * [[switchToUserWithId]], [[loginWithCredential]] or [[loginWithRedirect]].
+   * [[switchToUserWithId]] or [[loginWithCredential]].
    * 
    * @see
    * - [[removeUser]]
