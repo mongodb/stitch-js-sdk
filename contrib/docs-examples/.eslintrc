@@ -15,7 +15,10 @@
         "react/no-array-index-key": ["off"],
         "no-unused-vars": ["warn"],
         "no-console": ["off"],
-        "no-multi-spaces": ["off"]
+        "no-multi-spaces": ["off"],
+        "max-len": ["off"],
+        "react/jsx-filename-extension": ["off"],
+        "object-curly-newline": ["warn"]
     },
     "extends": ["airbnb"]
 }

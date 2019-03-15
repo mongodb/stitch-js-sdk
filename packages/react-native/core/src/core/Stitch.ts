@@ -30,10 +30,14 @@ let appClients: { [key: string]: StitchAppClientImpl } = {};
  * Singleton class with static utility functions for initializing a [[StitchAppClient]].
  *
  * Typically, the [[Stitch.initializeDefaultAppClient]] method is all you need 
- * to instantiate the client:
+ * to instantiate the client (note that, unlike in the browser and server JS SDKs, this
+ * method returns a Promise in the React Native SDK):
  * 
  * ```
- * const client = Stitch.initializeDefaultAppClient('your-stitch-app-id')
+ * Stitch.initializeDefaultAppClient('your-stitch-app-id')
+ *   .then((client) => {
+ *     // use client
+ *   })
  * ```
  *
  * For custom configurations, see [[Stitch.initializeAppClient]] and [[StitchAppClientConfiguration]].

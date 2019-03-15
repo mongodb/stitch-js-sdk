@@ -27,6 +27,12 @@ import StitchUser from "./StitchUser";
  * [Authentication Provider](https://docs.mongodb.com/stitch/authentication/)
  * you are using and use [[loginWithCredential]] to log in.
  *
+ * For OAuth2 login (e.g. Google, Facebook), you must obtain a server auth code
+ * yourself and pass it to the relevant [[StitchCredential]]. One approach is 
+ * to use a third party module, e.g. install
+ * [google-auth-library](https://www.npmjs.com/package/google-auth-library)
+ * and use it to get the auth code to pass to [[GoogleCredential]].
+ *
  * Once logged in, [[StitchAuth.user]] is a [[StitchUser]] object that can be examined for 
  * user profile and other information.
  * 
