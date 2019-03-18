@@ -212,13 +212,14 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     stitchReq: StitchAuthRequest,
     authInfo?: AuthInfo | undefined
   ): Promise<Response> {
-    return this.prepareAuthRequest(stitchReq, authInfo || this.activeUserAuthInfo).then(request =>
-      this.requestClient.doRequest(request).catch(err =>
-        this.handleAuthFailure(err, stitchReq)
-      )
-    ).catch(err =>
-      Promise.reject(err)
-    )
+    try {
+      return this.requestClient
+        .doRequest(this.prepareAuthRequest(stitchReq, authInfo || this.activeUserAuthInfo))
+        .catch(err =>
+          this.handleAuthFailure(err, stitchReq));
+    } catch(err) {
+      return Promise.reject(err);
+    }
   }
 
   /**
@@ -562,9 +563,9 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
   private prepareAuthRequest(
     stitchReq: StitchAuthRequest,
     authInfo: AuthInfo
-  ): Promise<StitchRequest> {
+  ): StitchRequest {
     if (!authInfo.isLoggedIn) {
-      return Promise.reject(new StitchClientError(StitchClientErrorCode.MustAuthenticateFirst));
+      throw new StitchClientError(StitchClientErrorCode.MustAuthenticateFirst);
     }
 
     const newReq = stitchReq.builder;
@@ -580,7 +581,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       );
     }
     newReq.withHeaders(newHeaders);
-    return Promise.resolve(newReq.build());
+    return newReq.build();
   }
 
   private handleAuthFailureForEventStream(
