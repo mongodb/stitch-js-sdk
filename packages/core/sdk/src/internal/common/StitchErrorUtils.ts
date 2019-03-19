@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import ContentTypes from "../net/ContentTypes";
-import Headers from "../net/Headers";
-import Response from "../net/Response";
 import StitchError from "../../StitchError";
-import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
 import StitchRequestError from "../../StitchRequestError";
+import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
+import StitchServiceError from "../../StitchServiceError";
 import {
   StitchServiceErrorCode,
   stitchServiceErrorCodeFromApi
 } from "../../StitchServiceErrorCode";
-import StitchServiceError from "../../StitchServiceError";
+import ContentTypes from "../net/ContentTypes";
+import Headers from "../net/Headers";
+import Response from "../net/Response";
 
 enum Fields {
   ERROR = "error",
@@ -76,7 +76,7 @@ export function handleRequestError(response: Response): never {
 
   const errorMsg: string = handleRichError(response, body);
 
-  // if the above function call didn't throw, throw an unknown error here
+  // If the above function call didn't throw, throw an unknown error here
   throw new StitchServiceError(errorMsg, StitchServiceErrorCode.Unknown);
 }
 

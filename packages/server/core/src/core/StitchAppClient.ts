@@ -16,23 +16,38 @@
 
 import NamedServiceClientFactory from "../services/internal/NamedServiceClientFactory";
 import ServiceClientFactory from "../services/internal/ServiceClientFactory";
+import StitchServiceClient from "../services/StitchServiceClient"
 import StitchAuth from "./auth/StitchAuth";
 
 /**
- * The fundamental set of methods for communicating with a MongoDB Stitch 
- * application. Contains methods for executing Stitch functions and retrieving 
- * clients for Stitch services, and contains a `StitchAuth` object to manage 
- * the authentication state of the client. An implementation can be 
- * instantiated using the `Stitch` utility class.
+ * The StitchAppClient is the interface to a MongoDB Stitch App backend.
+ *
+ * It is created by the [[Stitch]] singleton.
+ *
+ * The StitchAppClient holds a [[StitchAuth]] object for managing the login state of the client.
+ *
+ * It provides clients for [Stitch Services](https://docs.mongodb.com/stitch/services/) including
+ * the [[RemoteMongoClient]] for database and collection access.
+ *
+ * Finally, the StitchAppClient can execute [Stitch Functions](https://docs.mongodb.com/stitch/functions/).
+ *
+ * @example
+ * ```
+ * import { Stitch } from "mongodb-stitch-server-sdk"
+ * 
+ * const client = Stitch.initializeDefaultAppClient('example-stitch-app-id')
+ * ```
+ * 
+ * @see
+ * - [[Stitch]]
+ * - [[StitchAuth]]
+ * - [[RemoteMongoClient]]
+ * - [Stitch Functions](https://docs.mongodb.com/stitch/functions/)
  */
 export default interface StitchAppClient {
   /**
    * The {@link StitchAuth} object representing the authentication state of 
    * this client. Includes methods for logging in and logging out.
-   *
-   * Authentication state can be persisted beyond the lifetime of a browser 
-   * session. A StitchAppClient retrieved from the `Stitch` singleton may or 
-   * may not be already authenticated when first initialized.
    */
   auth: StitchAuth;
 
@@ -55,6 +70,15 @@ export default interface StitchAppClient {
    * @param factory The factory that produces the desired service client.
    */
   getServiceClient<T>(factory: ServiceClientFactory<T>): T;
+
+  /**
+   * Retrieves a general-purpose service client for the Stitch service
+   * associated with the specified name. Use this for services which do not
+   * have a well-defined interface in the SDK.
+   * 
+   * @param serviceName The name of the desired service in MongoDB Stitch.
+   */
+  getGeneralServiceClient(serviceName: string): StitchServiceClient;
 
   /**
    * Calls the MongoDB Stitch function with the provided name and arguments,

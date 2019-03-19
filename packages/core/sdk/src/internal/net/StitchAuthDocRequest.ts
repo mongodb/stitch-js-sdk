@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { stringify } from "mongodb-extjson";
+import { EJSON } from "bson";
 import ContentTypes from "./ContentTypes";
 import Headers from "./Headers";
 import Method from "./Method";
@@ -75,7 +75,7 @@ export namespace StitchAuthDocRequest {
 
       this.headers![Headers.CONTENT_TYPE] = ContentTypes.APPLICATION_JSON;
 
-      this.withBody(stringify(this.document));
+      this.withBody(EJSON.stringify(this.document, { relaxed: false }));
       return new StitchAuthDocRequest(super.build(), this.document);
     }
   }

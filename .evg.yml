@@ -1,4 +1,12 @@
 functions:
+  "fetch_go111":
+    - command: shell.exec
+      params:
+        shell: "bash"
+        script: |
+          set -e
+          wget --quiet ${go_url}
+          tar xvf ./go1.11*gz
   "fetch_source":
     - command: git.get_project
       params:
@@ -7,30 +15,35 @@ functions:
   "setup_mongod":
     - command: shell.exec
       params:
+        shell: "bash"
         script: |
           set -v
           curl --silent ${mongodb_url} | tar xvz
     - command: shell.exec
       params:
+        shell: "bash"
         background: true
         script: |
           set -v
           cd mongodb-*
           echo "starting mongod..."
           mkdir db_files
-          ./bin/mongod --dbpath ./db_files --port 26000 &
+          ./bin/mongod --dbpath ./db_files --port 26000 --replSet "test" &
           echo "waiting for mongod to start up"
     - command: shell.exec
       params:
+        shell: "bash"
         script: |
           set -e
           cd mongodb-*
           ./bin/mongo --nodb --eval 'assert.soon(function(x){try{var d = new Mongo("localhost:26000"); return true}catch(e){return false}}, "timed out connecting")'
+          ./bin/mongo --port 26000 --eval 'rs.initiate()'
           echo "mongod is up."
 
   "setup_stitch":
     - command: shell.exec
       params:
+        shell: "bash"
         silent: true
         script: |
           set -e
@@ -44,6 +57,7 @@ functions:
 
     - command: shell.exec
       params:
+        shell: "bash"
         script: |
           set -e
           echo "cloning stitch"
@@ -51,26 +65,42 @@ functions:
           git clone git@github.com:10gen/stitch src/github.com/10gen/stitch
 
           echo "downloading libmongo"
-          wget --quiet "https://s3.amazonaws.com/stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_1f02b06ec6fd48bad0b725b77bc194c84f839f53_5ab7216fc9ec44724e08f194_18_03_25_04_11_28/libmongo.so"
+          wget --quiet "https://s3.amazonaws.com/stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_a4c34cbf6cdd2036fef442f966e404c8be506e62_5bb3da540305b91647c0dfd9_18_10_02_20_51_32/libmongo.so"
           chmod +x libmongo.so
+
+          echo "downloading stitch dylib"
+          mkdir -p src/github.com/10gen/stitch/etc/dylib
+          cd src/github.com/10gen/stitch/etc/dylib
+          curl -s "${server_stitch_lib_url}" | tar xvfz - --strip-components=1
+          cd -
+
 
           echo "building transpiler"
           cd src/github.com/10gen/stitch/etc/transpiler
+          curl -OL https://yarnpkg.com/latest.tar.gz
+          tar zvxf latest.tar.gz
+          mv yarn-* yarn
+          export PATH="`pwd`/yarn/bin:$PATH"
           yarn install && yarn run build -t ${transpiler_target}
     - command: shell.exec
       params:
+        shell: "bash"
         background: true
         script: |
           export GOPATH=`pwd`
-          export PATH="`pwd`:$PATH"
+          export PATH=`pwd`:$PATH
           export STITCH_PATH=$GOPATH/src/github.com/10gen/stitch
           export PATH="$PATH:$STITCH_PATH/etc/transpiler/bin"
+          export LD_LIBRARY_PATH="$STITCH_PATH/etc/dylib/lib"
           which transpiler
           echo "running stitch"
+          export GOROOT=`pwd`/go
+          export PATH=`pwd`/go/bin:$PATH
           go run $STITCH_PATH/cmd/auth/user.go addUser -domainID 000000000000000000000000 -mongoURI mongodb://localhost:26000 -salt 'DQOWene1723baqD!_@#' -id "unique_user@domain.com" -password "password"
           go run $STITCH_PATH/cmd/server/main.go --configFile $STITCH_PATH/etc/configs/test_config.json
     - command: shell.exec
       params:
+        shell: "bash"
         script: |
           counter=0
           until $(curl --output /dev/null --silent --head --fail http://localhost:9090); do
@@ -108,27 +138,30 @@ post:
 tasks:
   - name: run_tests
     commands:
+      - func: "fetch_go111"
       - func: "fetch_source"
       - func: "setup_mongod"
       - func: "setup_stitch"
       - command: shell.exec
         params: 
+          shell: "bash"
           script: |
             set -e
             echo "running client tests"
             source ./creds
             cd stitch-js-sdk
-            npm install --global lerna
+            npm install lerna
             npm install
-            lerna bootstrap --hoist
-            lerna run test
+            ./node_modules/.bin/lerna bootstrap --hoist
+            ./node_modules/.bin/lerna run test
       - command: shell.exec
         params:
+          shell: "bash"
           script: |
             set -e
             source ./creds
             cd stitch-js-sdk
-            npm install --global coveralls
+            npm install coveralls
             export COVERALLS_GIT_COMMIT=${revision}
             if [ -z "${github_pr_number}" ]
             then
@@ -148,23 +181,26 @@ tasks:
       - func: "fetch_source"
       - command: shell.exec
         params:
+          shell: "bash"
           script: |
             set -e
             cd stitch-js-sdk
             echo "linting"
-            npm install --global lerna
+            npm install lerna
             npm install
-            lerna bootstrap --hoist
-            lerna run lint
-            lerna run tslint-check
+            ./node_modules/.bin/lerna bootstrap --hoist
+            ./node_modules/.bin/lerna run lint
+            ./node_modules/.bin/lerna run tslint-check
 
 buildvariants:
-- name: linux-64
-  display_name: Linux-64
+- name: rhel70
+  display_name: rhel70
   run_on:
-    - baas-linux
+    - rhel70
   expansions:
-    mongodb_url: http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.4.tgz
+    go_url: "https://dl.google.com/go/go1.11.1.linux-amd64.tar.gz"
+    mongodb_url: https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-4.0.2.tgz
+    server_stitch_lib_url: 'https://s3.amazonaws.com/mciuploads/mongodb-mongo-master/stitch-support/rhel70/5ee0b3805e9116bf0f4655d5ee5cd5b108e7a7e4/stitch-support-4.1.7-200-g5ee0b38.tgz'
     transpiler_target: node8-linux
   tasks:
     - name: run_tests

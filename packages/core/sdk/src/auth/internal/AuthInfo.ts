@@ -29,9 +29,25 @@ export default class AuthInfo {
       undefined,
       undefined,
       undefined,
+      undefined,
       undefined
     );
   }
+
+  /** 
+   * Whether or not this auth info is associated with a user.
+   */
+  public get hasUser(): boolean {
+    return this.userId !== undefined;
+  }
+
+  /**
+   * An empty auth info is an auth info associated with no device ID.
+   */
+  public get isEmpty(): boolean {
+    return this.deviceId === undefined;
+  }
+
   /**
    * The id of the Stitch user.
    */
@@ -60,6 +76,11 @@ export default class AuthInfo {
    * The profile of the currently authenticated user as a `StitchUserProfile`.
    */
   public readonly userProfile?: StitchUserProfileImpl;
+  /**
+   * The time of the last auth event involving this user. 
+   * This includes login, logout, and active user changed.
+   */
+  public readonly lastAuthActivity?: Date;
 
   public constructor(
     userId?: string,
@@ -68,6 +89,7 @@ export default class AuthInfo {
     refreshToken?: string,
     loggedInProviderType?: string,
     loggedInProviderName?: string,
+    lastAuthActivity?: Date,
     userProfile?: StitchUserProfileImpl
   ) {
     this.userId = userId;
@@ -76,10 +98,24 @@ export default class AuthInfo {
     this.refreshToken = refreshToken;
     this.loggedInProviderType = loggedInProviderType;
     this.loggedInProviderName = loggedInProviderName;
+    this.lastAuthActivity = lastAuthActivity;
     this.userProfile = userProfile;
   }
 
   public loggedOut(): AuthInfo {
+    return new AuthInfo(
+      this.userId,
+      this.deviceId,
+      undefined,
+      undefined,
+      this.loggedInProviderType,
+      this.loggedInProviderName,
+      new Date(),
+      this.userProfile,
+    );
+  }
+
+  public withClearedUser(): AuthInfo {
     return new AuthInfo(
       undefined,
       this.deviceId,
@@ -87,8 +123,39 @@ export default class AuthInfo {
       undefined,
       undefined,
       undefined,
+      undefined,
       undefined
     );
+  }
+
+  public withAuthProvider(providerType: string, providerName: string) {
+    return new AuthInfo(
+      this.userId,
+      this.deviceId,
+      this.accessToken,
+      this.refreshToken,
+      providerType,
+      providerName,
+      new Date(),
+      this.userProfile,
+    );
+  }
+
+  public withNewAuthActivityTime() {
+    return new AuthInfo(
+      this.userId,
+      this.deviceId,
+      this.accessToken,
+      this.refreshToken,
+      this.loggedInProviderType,
+      this.loggedInProviderName,
+      new Date(),
+      this.userProfile
+    );
+  }
+
+  public get isLoggedIn(): boolean {
+    return this.accessToken !== undefined && this.refreshToken !== undefined;
   }
 
   /**
@@ -110,7 +177,12 @@ export default class AuthInfo {
       newInfo.loggedInProviderName === undefined
         ? this.loggedInProviderName
         : newInfo.loggedInProviderName,
-      newInfo.userProfile === undefined ? this.userProfile : newInfo.userProfile
+      newInfo.lastAuthActivity === undefined
+        ? this.lastAuthActivity
+        : newInfo.lastAuthActivity,
+      newInfo.userProfile === undefined 
+        ? this.userProfile 
+        : newInfo.userProfile,
     );
   }
 }

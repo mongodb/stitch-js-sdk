@@ -1,7 +1,7 @@
 {
   "name": "mongodb-stitch-server-services-http",
-  "version": "4.0.7",
-  "main": "dist/umd/index.js",
+  "version": "4.3.2",
+  "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "files": [
@@ -33,19 +33,27 @@
     {
       "name": "Jason Flax",
       "email": "jason.flax@mongodb.com"
+    },
+    {
+      "name": "Doug Kaminsky",
+      "email": "douglas.kaminsky@mongodb.com"
+    },
+    {
+      "name": "Tyler Kaye",
+      "email": "tyler.kaye@mongodb.com"
     }
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "mongodb-stitch-core-services-http": "^4.0.6",
-    "mongodb-stitch-server-core": "^4.0.7"
+    "mongodb-stitch-core-services-http": "^4.3.2",
+    "mongodb-stitch-server-core": "^4.3.2"
   },
   "devDependencies": {
+    "bson": "4.0.2",
     "jest": "^23.1.0",
-    "mongodb-extjson": "^3.0.0",
-    "mongodb-stitch-core-admin-client": "^4.0.6",
-    "mongodb-stitch-core-sdk": "^4.0.6",
-    "mongodb-stitch-server-testutils": "^4.0.7",
+    "mongodb-stitch-core-admin-client": "^4.3.2",
+    "mongodb-stitch-core-sdk": "^4.3.2",
+    "mongodb-stitch-server-testutils": "^4.3.2",
     "prettier": "^1.13.5",
     "rollup": "^0.60.7",
     "ts-jest": "^22.4.6",
@@ -55,20 +63,20 @@
   },
   "scripts": {
     "build": "npm run build-main && npm run build-module",
-    "build-main": "tsc -p tsconfig.umd.json",
+    "build-main": "tsc -p tsconfig.cjs.json",
     "build-module": "tsc -p tsconfig.esm.json",
     "prepare": "npm run build",
     "watch": "tsc -w -p tsconfig.esm.json",
     "test": "jest",
-    "lint": "tslint src/**/*.ts __tests__/**/*.ts",
-    "lint-fix": "tslint --fix src/**/*.ts __tests__/**/*.ts",
+    "lint": "tslint 'src/**/*.ts' '__tests__/**/*.ts'",
+    "lint-fix": "tslint --fix 'src/**/*.ts' '__tests__/**/*.ts'",
     "lint-check": "tslint-config-prettier-check ./tslint.json",
     "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\""
   },
   "jest": {
     "globals": {
       "ts-jest": {
-        "tsConfigFile": "tsconfig.umd.json"
+        "tsConfigFile": "tsconfig.cjs.json"
       }
     },
     "reporters": [
@@ -96,6 +104,7 @@
       "json",
       "node"
     ],
-    "collectCoverage": true
+    "collectCoverage": true,
+    "testURL": "http://localhost/"
   }
 }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { ObjectID, ObjectId } from "bson";
 import {
   Anon,
   App,
@@ -26,12 +25,15 @@ import {
 } from "mongodb-stitch-core-admin-client";
 import {
   AnonymousCredential,
+  BSON,
   Codec,
   StitchServiceError,
   StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
 import { BaseStitchServerIntTestHarness } from "mongodb-stitch-server-testutils";
 import { RemoteMongoClient, RemoteMongoCollection } from "../src";
+
+import { ChangeEvent } from "mongodb-stitch-core-services-mongodb-remote";
 
 const mongodbUriProp = "TEST_STITCH_MONGODBURI";
 
@@ -75,8 +77,8 @@ beforeEach(async () => {
     fail(new Error("no MongoDB URI in properties; failing test"));
   }
 
-  dbName = new ObjectID().toHexString();
-  collName = new ObjectId().toHexString();
+  dbName = new BSON.ObjectID().toHexString();
+  collName = new BSON.ObjectId().toHexString();
 
   const [appResponse, app] = await harness.createApp();
   await harness.addProvider(app as App, new Anon());
@@ -170,16 +172,16 @@ describe("RemoteMongoClient", () => {
     );
 
     let count = 0;
-    (await coll.find().asArray()).forEach(_ => {
+    (await coll.find().toArray()).forEach(_ => {
       count++;
     });
     expect(2).toEqual(count);
 
     expect(
-      (await coll.find().asArray()).find(it => doc1.hello === it.hello)
+      (await coll.find().toArray()).find(it => doc1.hello === it.hello)
     ).toBeDefined();
 
-    expect([doc1, doc2]).toEqual(await coll.find().asArray());
+    expect([doc1, doc2]).toEqual(await coll.find().toArray());
 
     const asyncIter = await iter.iterator();
     expect(doc1).toEqual(await asyncIter.next());
@@ -191,6 +193,301 @@ describe("RemoteMongoClient", () => {
       expect(error instanceof StitchServiceError).toBeTruthy();
       expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
     }
+  });
+
+  it("should find one", async () => {
+    const coll = getTestColl();
+
+    let result = await coll.findOne();
+    expect(result).toBeNull();
+
+    const doc1 = { hello: "world" };
+    await coll.insertOne(doc1);
+
+    result = await coll.findOne();
+    expect(result).toBeDefined();
+    expect(withoutId(result)).toEqual(withoutId(doc1));
+
+    
+    const doc2 = { hello: "world2", other: "other" };
+    await coll.insertOne(doc2);
+
+    result = await coll.findOne({hello: "world"});
+    expect(result).toBeDefined();
+    expect(withoutId(result)).toEqual(withoutId(doc1));
+
+    result = await coll.findOne({other: "other"})
+    expect(result).toBeDefined();
+    expect(withoutId(result)).toEqual(withoutId(doc2));
+
+    result = await coll.findOne({notARealField: "bogus"});
+    expect(result).toBeNull();
+
+    result = await coll.findOne({}, {sort: {_id: 1}})
+    expect(result).toBeDefined();
+    expect(withoutId(result)).toEqual(withoutId(doc1));
+
+    result = await coll.findOne({}, {sort: {_id: -1}})
+    expect(result).toBeDefined();
+    expect(withoutId(result)).toEqual(withoutId(doc2));
+
+    result = await coll.findOne(doc2, {projection: {_id: 0}});
+    expect(result).toBeDefined();
+    expect(result).toEqual(withoutId(doc2));
+
+    try {
+      await coll.find({ $who: 1 }).first();
+      fail();
+    } catch (error) {
+      expect(error instanceof StitchServiceError).toBeTruthy();
+      expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
+    }
+  });
+
+  it("should find one and update", async () => {
+    const coll = getTestColl();
+
+    // Collection should start out empty
+    // This also tests the null return format
+    let result = await coll.findOneAndUpdate({}, {});
+    expect(result).toBeNull();
+
+    // Insert Sample Document
+    const doc1 = { hello: "world", num: 2 };
+    await coll.insertOne(doc1);
+
+    // Simple call to findOneAndUpdate() where we get the previous document back
+    const update = {
+      $inc: {num: 1},
+      $set: {hello: "hellothere"}
+    }
+    result = await coll.findOneAndUpdate({hello: "world"}, update);
+    expect(withoutId(result)).toEqual({hello: "world", num: 2});
+
+    // Check to make sure the update took place
+    result = await coll.findOne();
+    expect(withoutId(result)).toEqual({hello: "hellothere", num: 3});
+
+    // Call findOneAndUpdate() again but get the new document
+    result = await coll.findOneAndUpdate(
+      {hello: "hellothere"}, 
+      {$inc: {num: 1}}, 
+      {returnNewDocument: true}
+    )
+    expect(withoutId(result)).toEqual({hello: "hellothere", num: 4});
+    result = await coll.findOne();
+    expect(withoutId(result)).toEqual({hello: "hellothere", num: 4});
+
+    // Test null behavior again with filter that should not match any docs
+    result = await coll.findOneAndUpdate(
+      {hello: "hellotherethisisnotakey"}, 
+      {$inc: {num: 1}}, 
+      {returnNewDocument: true}
+    )
+    expect(result).toBeNull();
+
+    // Test the upsert option where it should not actually be invoked
+    result = await coll.findOneAndUpdate(
+      {hello: "hellothere"}, 
+      {$set: {hello: "world1", num: 1}}, 
+      {upsert: true, returnNewDocument: true}
+    )
+    expect(withoutId(result)).toEqual({hello: "world1", num: 1});
+    let count = await coll.count();
+    expect(count).toEqual(1);
+
+    // Test the upsert option where the server should perform upsert and return new document
+    result = await coll.findOneAndUpdate(
+      {hello: "hello"}, 
+      {$set: {hello: "world2", num: 2}}, 
+      {upsert: true, returnNewDocument: true}
+    )
+    expect(withoutId(result)).toEqual({hello: "world2", num: 2})
+    count = await coll.count();
+    expect(count).toEqual(2);
+
+    // Test the upsert option where the server should perform upsert and return old document
+    // The old document should be empty
+    result = await coll.findOneAndUpdate(
+      {hello: "hello"}, 
+      {$set: {hello: "world3", num: 3}}, 
+      {upsert: true}
+    )
+    expect(result).toBeNull();
+    count = await coll.count();
+    expect(count).toEqual(3);
+
+    // test sort and project
+    result = await coll.findOneAndUpdate(
+      {}, 
+      {$inc: {num: 1}}, 
+      {projection: {hello: 1, _id: 0}, sort: {num: -1}}
+    )
+    expect(result).toEqual({hello: "world3"})
+
+    result = await coll.findOneAndUpdate(
+      {}, 
+      {$inc: {num: 1}}, 
+      {projection: {hello: 1, _id: 0}, sort: {num: 1}}
+    )
+    expect(result).toEqual({hello: "world1"})
+    
+    // Should properly fail given illegal update doc
+    try {
+      await coll.findOneAndUpdate({}, {$who: {a: 1}})
+      fail();
+    } catch (error) {
+      expect(error instanceof StitchServiceError).toBeTruthy();
+      expect(StitchServiceErrorCode.MongoDBError).toEqual(error.errorCode);
+    }
+  });
+
+  it("should find one and replace", async () => {
+    const coll = getTestColl();
+
+    // Collection should start out empty
+    // This also tests the null return format
+    let result = await coll.findOneAndReplace({}, {});
+    expect(result).toBeNull();
+
+    // Insert Sample Document
+    const doc1 = { hello: "world", num: 1 };
+    await coll.insertOne(doc1);
+
+    // Simple call to findOneAndReplace() where we get the previous document
+    result = await coll.findOneAndReplace({hello: "world"}, {hello: "world2", num: 2})
+    expect(withoutId(result)).toEqual({hello: "world", num: 1});
+
+    result = await coll.findOne();
+    expect(withoutId(result)).toEqual({hello: "world2", num: 2});
+
+    // Call findOneAndReplace() again but get the new document
+    result = await coll.findOneAndReplace(
+      {}, 
+      {hello: "world3", num: 3}, 
+      {returnNewDocument: true}
+    )
+    expect(withoutId(result)).toEqual({hello: "world3", num: 3});
+    result = await coll.findOne();
+    expect(withoutId(result)).toEqual({hello: "world3", num: 3});
+
+    // Test null behavior again with filter that should not match any docs
+    result = await coll.findOneAndReplace(
+      {hello: "hellotherethisisnotakey"}, 
+      {hello: "world4"}, 
+      {returnNewDocument: true}
+    )
+    expect(result).toBeNull();
+
+    // Test the upsert option where it should not actually be invoked
+    result = await coll.findOneAndReplace(
+      {hello: "world3"}, 
+      {hello: "world4", num: 4}, 
+      {upsert: true, returnNewDocument: true},
+    )
+    expect(withoutId(result)).toEqual( {hello: "world4", num: 4} );
+
+    // Test the upsert option where the server should perform upsert and return new document
+    result = await coll.findOneAndReplace(
+      {hello: "world3"}, 
+      {hello: "world5", num: 5}, 
+      {upsert: true, returnNewDocument: true},
+    )
+    expect(withoutId(result)).toEqual( {hello: "world5", num: 5} );
+    let count = await coll.count();
+    expect(count).toEqual(2);
+
+    // Test the upsert option where the server should perform upsert and return old document
+    // The old document should be empty
+    result = await coll.findOneAndReplace(
+      {hello: "world3"}, 
+      {hello: "world6", num: 6}, 
+      {upsert: true},
+    )
+    expect(result).toBeNull();
+    count = await coll.count();
+    expect(count).toEqual(3);
+    
+    // Test sort and project
+    result = await coll.findOneAndReplace(
+      {}, 
+      {hello: "oldworld", num: 100}, 
+      {projection: {hello: 1, _id: 0}, sort: {num: -1}}
+    )
+    expect(result).toEqual({hello: "world6"})
+
+    result = await coll.findOneAndReplace(
+      {}, 
+      {hello: "oldworld", num: 100}, 
+      {projection: {hello: 1, _id: 0}, sort: {num: 1}}
+    )
+    expect(result).toEqual({hello: "world4"})
+    
+    // Should properly fail given an illegal replacement doc with update operations
+    try {
+      await coll.findOneAndReplace({}, {$inc: {a: 1}})
+      fail();
+    } catch (error) {
+      expect(error instanceof StitchServiceError).toBeTruthy();
+      expect(StitchServiceErrorCode.InvalidParameter).toEqual(error.errorCode);
+    }
+  });
+
+  it("should find one and delete", async () => {
+    const coll = getTestColl();
+
+    // Collection should start out empty
+    // This also tests the null return format
+    let result = await coll.findOneAndDelete({});
+    expect(result).toBeNull();
+
+    // Insert Sample Document
+    const doc1 = { hello: "world1", num: 1 };
+    await coll.insertOne(doc1);
+    let count = await coll.count();
+    expect(count).toEqual(1);
+
+    // Simple call to findOneAndDelete() where we delete the only document in the collection
+    result = await coll.findOneAndDelete({})
+    expect(withoutId(result)).toEqual({ hello: "world1", num: 1 });
+    count = await coll.count();
+    expect(count).toEqual(0);
+
+    // Insert Sample Document
+    await coll.insertOne(doc1);
+    count = await coll.count();
+    expect(count).toEqual(1);
+
+    // Call findOneAndDelete() again but with filter
+    result = await coll.findOneAndDelete({hello: "world1"})
+    expect(withoutId(result)).toEqual({ hello: "world1", num: 1 });
+    count = await coll.count();
+    expect(count).toEqual(0);
+
+    // Insert Sample Document
+    await coll.insertOne(doc1);
+    count = await coll.count();
+    expect(count).toEqual(1);
+
+    // Call findOneAndDelete() again but give it filter that does not match any documents
+    result = await coll.findOneAndDelete({hello: "thisdoesntexist"})
+    expect(result).toBeNull();
+    count = await coll.count();
+    expect(count).toEqual(1);
+    
+    // Put in more documents
+    await coll.insertMany([
+      {hello: "world2", num: 2}, 
+      {hello: "world3", num: 3},
+    ]);
+    count = await coll.count();
+    expect(count).toEqual(3);
+    
+    // Test sort and project
+    result = await coll.findOneAndDelete({}, {projection: {hello: 1, _id: 0}, sort: {num: -1}});
+    expect(result).toEqual({hello: "world3"})
+    result = await coll.findOneAndDelete({}, {projection: {hello: 1, _id: 0}, sort: {num: 1}});
+    expect(result).toEqual({hello: "world1"})
   });
 
   it("should aggregate", async () => {
@@ -228,7 +525,7 @@ describe("RemoteMongoClient", () => {
   it("should insert one", async () => {
     const coll = getTestColl();
     const doc = { hello: "world" };
-    doc._id = new ObjectId();
+    doc._id = new BSON.ObjectId();
 
     expect(doc._id).toEqual((await coll.insertOne(doc)).insertedId);
     try {
@@ -247,7 +544,7 @@ describe("RemoteMongoClient", () => {
   it("should insert many", async () => {
     const coll = getTestColl();
     const doc1 = { hello: "world" };
-    doc1._id = new ObjectID();
+    doc1._id = new BSON.ObjectID();
 
     expect(doc1._id).toEqual((await coll.insertMany([doc1])).insertedIds[0]);
     try {
@@ -268,7 +565,7 @@ describe("RemoteMongoClient", () => {
 
     await coll.insertMany([doc3, doc4]);
     expect(withoutIds([doc1, doc2, doc3, doc4])).toEqual(
-      withoutIds(await coll.find().asArray())
+      withoutIds(await coll.find().toArray())
     );
   });
 
@@ -384,7 +681,7 @@ describe("RemoteMongoClient", () => {
     expectedDoc1.woof = "meow";
     const expectedDoc2 = { woof: "meow" };
     expect([expectedDoc1, expectedDoc2]).toEqual(
-      withoutIds(await coll.find({}).asArray())
+      withoutIds(await coll.find({}).toArray())
     );
 
     try {
@@ -398,7 +695,7 @@ describe("RemoteMongoClient", () => {
 
   it("should decode properly", async () => {
     interface CustomType {
-      id?: ObjectID;
+      id?: BSON.ObjectID;
       intValue: number;
     }
 
@@ -420,7 +717,7 @@ describe("RemoteMongoClient", () => {
 
     let coll = getTestColl().withCollectionType(codec);
 
-    const expected: CustomType = { id: new ObjectID(), intValue: 42 };
+    const expected: CustomType = { id: new BSON.ObjectID(), intValue: 42 };
 
     expect(expected.id).toEqual((await coll.insertOne(expected)).insertedId);
     expect(expected).toEqual(await coll.find().first());
@@ -444,4 +741,87 @@ describe("RemoteMongoClient", () => {
     expect(await (await iter.iterator()).next()).toBeDefined();
     expect(expected).toEqual(await (await iter.iterator()).next());
   });
+
+  /* tslint:disable:no-string-literal */
+  it("should properly support watch streams", async () => {
+    const coll = getTestColl();
+    
+    const doc1 = { _id: new BSON.ObjectID(), hello: "world" };
+    expect(doc1._id).toEqual((await coll.insertOne(doc1)).insertedId);
+
+    // Should receive one event for one document
+    const stream1 = await coll.watch([doc1._id]);
+    stream1.onNext((event: ChangeEvent<any>) => {
+      expect(event.documentKey["_id"]).toEqual(doc1._id);
+      expect(event.operationType).toEqual("update");
+      expect(event.fullDocument["hello"]).toEqual("universe");
+
+      stream1.close();
+    });
+    await coll.updateOne({_id: doc1._id}, {$set: { hello: "universe"}});
+
+    // Should receive multiple events for one document
+    const doc2 = { _id: "this is a string id", hello: "galaxy"};
+    const stream2 = await coll.watch([doc2._id]);
+
+    stream2.next().then(event => {
+      expect(event.documentKey["_id"]).toEqual(doc2._id);
+      expect(event.operationType).toEqual("insert");
+      expect(event.fullDocument).toEqual(doc2);  
+    });
+    await coll.insertOne(doc2);
+    
+    stream2.next().then(event => {
+      expect(event.documentKey["_id"]).toEqual(doc2._id);
+      expect(event.operationType).toEqual("update");
+      expect(event.fullDocument["hello"]).toEqual("universe");
+    });
+    await coll.updateOne({_id: doc2._id}, {$set: { hello: "universe"}})
+
+    // Should receive no more events after stream closed
+    stream2.onNext(() => fail("should not have received event"))
+    stream2.close();
+    await coll.updateOne({_id: doc2._id}, {$set: { goodbye: "universe"}});
+
+    // Should receive events for multiple documents watched
+    const stream3 = await coll.watch([doc1._id, doc2._id]);
+
+    const listener = {
+      gotDoc1Event: false,
+      gotDoc2Event: false,
+      onNext(event: ChangeEvent<any>) { 
+        const eventDocId = event.documentKey["_id"];
+        if (doc1._id.equals(eventDocId))  {
+          if (this.gotDoc1Event) {
+            fail("got event for doc1 more than once");
+          }
+          this.gotDoc1Event = true
+          expect(event.operationType).toEqual("update");
+          expect(event.fullDocument["hello"]).toEqual("multiverse");
+        } else if (eventDocId === doc2._id) {
+          if (this.gotDoc2Event) {
+            fail("got event for doc2 more than once");
+          }
+          this.gotDoc2Event = true
+          expect(event.operationType).toEqual("update");
+          expect(event.fullDocument["hello"]).toEqual("multiverse");
+        } else {
+          fail(`event for unexpected document: ${BSON.EJSON.stringify(event)}`);
+        }
+
+        // Close the stream once we've received both events
+        if (this.gotDoc1Event && this.gotDoc2Event) {
+          stream3.close();
+        }
+      },
+      onError(error: Error) {
+        fail("unexpected error in stream");
+      }
+    }
+
+    stream3.addListener(listener);
+
+    await coll.updateMany({}, { $set: {hello: "multiverse"}});
+  });
+/* tslint:enable:no-string-literal */
 });

@@ -14,54 +14,27 @@
  * limitations under the License.
  */
 
-import * as EJSON from "mongodb-extjson";
-import { handleRequestError } from "../../internal/common/StitchErrorUtils";
-import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
-import StitchRequestError from "../../StitchRequestError";
-import { BasicRequest } from "./BasicRequest";
-import ContentTypes from "./ContentTypes";
-import Headers from "./Headers";
+import BaseStitchRequestClient from "./BaseStitchRequestClient";
+import EventStream from "./EventStream";
 import Response from "./Response";
-import { StitchDocRequest } from "./StitchDocRequest";
 import { StitchRequest } from "./StitchRequest";
 import Transport from "./Transport";
 
-function inspectResponse(response: Response): Response {
-  if (response.statusCode >= 200 && response.statusCode < 300) {
-    return response;
-  }
-
-  return handleRequestError(response);
-}
-
 /** @hidden */
-export default class StitchRequestClient {
-  private readonly baseUrl: string;
-  private readonly transport: Transport;
-
+export default class StitchRequestClient extends BaseStitchRequestClient {
   public constructor(baseUrl: string, transport: Transport) {
-    this.baseUrl = baseUrl;
-    this.transport = transport;
+    super(baseUrl, transport);
   }
 
   public doRequest(stitchReq: StitchRequest): Promise<Response> {
-    return this.transport
-      .roundTrip(this.buildRequest(stitchReq))
-      .catch(error => {
-        throw new StitchRequestError(
-          error,
-          StitchRequestErrorCode.TRANSPORT_ERROR
-        );
-      })
-      .then(inspectResponse);
+    return super.doRequestToURL(stitchReq, this.baseUrl);
   }
 
-  private buildRequest(stitchReq: StitchRequest): BasicRequest {
-    return new BasicRequest.Builder()
-      .withMethod(stitchReq.method)
-      .withUrl(`${this.baseUrl}${stitchReq.path}`)
-      .withHeaders(stitchReq.headers)
-      .withBody(stitchReq.body)
-      .build();
+  public doStreamRequest(stitchReq: StitchRequest, open = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
+    return super.doStreamRequestToURL(stitchReq, this.baseUrl, open, retryRequest);
+  }
+
+  public getBaseURL(): Promise<string> {
+    return Promise.resolve(this.baseUrl);
   }
 }

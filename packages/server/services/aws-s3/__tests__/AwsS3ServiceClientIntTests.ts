@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { Binary, ObjectID } from "bson";
 import {
   Anon,
   App,
@@ -25,12 +24,15 @@ import {
   Service
 } from "mongodb-stitch-core-admin-client";
 import {
-  FetchTransport,
+  BSON,
   Method,
   StitchServiceError,
   StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
-import { AnonymousCredential } from "mongodb-stitch-server-core";
+import { 
+  AnonymousCredential,  
+  NodeFetchStreamTransport
+} from "mongodb-stitch-server-core";
 import { BaseStitchServerIntTestHarness } from "mongodb-stitch-server-testutils";
 import { AwsS3ServiceClient } from "../src";
 
@@ -75,7 +77,7 @@ describe("AwsS3ServiceClient", () => {
 
     // Putting to an bad bucket should fail
     const bucket = "notmystuff";
-    const key = new ObjectID().toHexString();
+    const key = new BSON.ObjectID().toHexString();
     const acl = "public-read";
     const contentType = "plain/text";
     const body = "hello again friend; did you miss me";
@@ -90,7 +92,7 @@ describe("AwsS3ServiceClient", () => {
 
     // Putting with all good params for S3 should work
     const bucketGood = "stitch-test-sdkfiles";
-    const transport = new FetchTransport();
+    const transport = new NodeFetchStreamTransport();
 
     let result = await awsS3.putObject(bucketGood, key, acl, contentType, body);
     let expectedLocation = `https://stitch-test-sdkfiles.s3.amazonaws.com/${key}`;
@@ -102,7 +104,7 @@ describe("AwsS3ServiceClient", () => {
     } as any);
     expect(httpResult.body).toEqual(body);
 
-    const bodyBin = new Binary(new Buffer(body));
+    const bodyBin = new BSON.Binary(new Buffer(body));
     result = await awsS3.putObject(bucketGood, key, acl, contentType, bodyBin);
     expectedLocation = `https://stitch-test-sdkfiles.s3.amazonaws.com/${key}`;
     expect(result.location).toEqual(expectedLocation);

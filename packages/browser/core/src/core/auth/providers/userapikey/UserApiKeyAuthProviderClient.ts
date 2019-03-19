@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ObjectID } from "bson";
+import BSON from "bson";
 import {
   StitchAuthRequestClient,
   StitchAuthRoutes,
@@ -40,7 +40,7 @@ export interface UserApiKeyAuthProviderClient {
    *
    * @param keyId the id of the API key to fetch.
    */
-  fetchApiKey(keyId: ObjectID): Promise<UserApiKey>;
+  fetchApiKey(keyId: BSON.ObjectID): Promise<UserApiKey>;
 
   /**
    * Fetches the user API keys associated with the current user.
@@ -52,21 +52,21 @@ export interface UserApiKeyAuthProviderClient {
    *
    * @param keyId the id of the API key to delete
    */
-  deleteApiKey(keyId: ObjectID): Promise<void>;
+  deleteApiKey(keyId: BSON.ObjectID): Promise<void>;
 
   /**
    * Enables a user API key associated with the current user.
    *
    * @param keyId the id of the API key to enable
    */
-  enableApiKey(keyId: ObjectID): Promise<void>;
+  enableApiKey(keyId: BSON.ObjectID): Promise<void>;
 
   /**
    * Disables a user API key associated with the current user.
    *
    * @param keyId the id of the API key to disable
    */
-  disableApiKey(keyId: ObjectID): Promise<void>;
+  disableApiKey(keyId: BSON.ObjectID): Promise<void>;
 }
 
 export namespace UserApiKeyAuthProviderClient {
@@ -76,7 +76,7 @@ export namespace UserApiKeyAuthProviderClient {
     implements AuthProviderClientFactory<UserApiKeyAuthProviderClient> {
     public getClient(
       authRequestClient: StitchAuthRequestClient,
-      requestClient: StitchRequestClient, // this arg is ignored
+      requestClient: StitchRequestClient, // This arg is ignored
       routes: StitchAuthRoutes
     ): UserApiKeyAuthProviderClient {
       return new UserApiKeyAuthProviderClientImpl(authRequestClient, routes);

@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
+import { Codec, Stream } from "mongodb-stitch-core-sdk";
 import {
+  ChangeEvent,
   CoreRemoteMongoCollection,
   RemoteCountOptions,
   RemoteDeleteResult,
+  RemoteFindOneAndModifyOptions,
   RemoteFindOptions,
   RemoteInsertManyResult,
   RemoteInsertOneResult,
@@ -79,6 +81,68 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
     return new RemoteMongoReadOperation(
       this.proxy.find(query, options)
     );
+  }
+
+  /**
+   * Finds one document in the collection.
+   *
+   * @param query the query filter
+   * @return the resulting document or null if the query resulted in zero matches
+   */
+  public findOne(
+    query?: object,
+    options?: RemoteFindOptions
+  ): Promise<DocumentT | null> {
+    return this.proxy.findOne(query, options);
+  }
+
+  /**
+   * Finds one document in the collection that matches the given query and performs the 
+   * given update on that document. (An empty query {} will match all documents)
+   *
+   * @param query A `Document` that should match the query.
+   * @param update A `Document` describing the update. 
+   * @param options Optional: `RemoteFindOneAndModifyOptions` to use when executing the command.
+   * @return A resulting `DocumentT` or null if the query returned zero matches.
+   */
+  public findOneAndUpdate(
+    query: object,
+    update: object, 
+    options?: RemoteFindOneAndModifyOptions
+  ): Promise<DocumentT | null> {
+    return this.proxy.findOneAndUpdate(query, update, options);
+  }
+
+  /**
+   * Finds one document in the collection that matches the given query and replaces that document 
+   * with the given replacement. (An empty query {} will match all documents)
+   *
+   * @param query A `Document` that should match the query.
+   * @param replacement A `Document` that will replace the matched document 
+   * @param options Optional: `RemoteFindOneAndModifyOptions` to use when executing the command.
+   * @return A resulting `DocumentT` or null if the query returned zero matches.
+   */
+  public findOneAndReplace(
+    query: object,
+    replacement: object, 
+    options?: RemoteFindOneAndModifyOptions
+  ): Promise<DocumentT | null> {
+    return this.proxy.findOneAndReplace(query, replacement, options)
+  }
+
+  /**
+   * Finds one document in the collection that matches the given query and 
+   * deletes that document. (An empty query {} will match all documents)
+   *
+   * @param query A `Document` that should match the query.
+   * @param options Optional: `RemoteFindOneAndModifyOptions` to use when executing the command.
+   * @return The `DocumentT` being deleted or null if the query returned zero matches.
+   */
+  public findOneAndDelete(
+    query: object,
+    options?: RemoteFindOneAndModifyOptions
+  ): Promise<DocumentT | null> {
+    return this.proxy.findOneAndDelete(query, options);
   }
 
   /**
@@ -169,5 +233,27 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
     updateOptions?: RemoteUpdateOptions
   ): Promise<RemoteUpdateResult> {
     return this.proxy.updateMany(query, update, updateOptions);
+  }
+
+  /**
+   * Opens a MongoDB change stream against the collection to watch for changes 
+   * made to specific documents. Please note that this method does not support 
+   * opening change streams on an entire collection or a specific query. The 
+   * documents to watch must be explicitly specified by their _id.
+   * 
+   * This method also requires a browser that supports EventSource (server-sent 
+   * events). If you'd like this method to work in a browser that does not 
+   * support EventSource, you must provide a polyfill that makes 
+   * window.EventSource available.
+   * 
+   * See https://developer.mozilla.org/en-US/docs/Web/API/EventSource#Browser_compatibility
+   * for more information on which browsers natively support EventSource.
+   * 
+   * @param ids the _ids of the documents to watch in this change stream
+   * @return a Promise containing a stream of change events representing the 
+   *         changes to the watched documents.
+   */
+  public watch(ids: any[]): Promise<Stream<ChangeEvent<DocumentT>>> {
+    return this.proxy.watch(ids);
   }
 }

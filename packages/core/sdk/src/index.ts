@@ -14,6 +14,18 @@
  * limitations under the License.
  */
 
+import BSON from "bson";
+import { 
+  ActiveUserChanged, 
+  AuthEvent, 
+  AuthEventKind, 
+  ListenerRegistered, 
+  UserAdded,
+  UserLinked,
+  UserLoggedIn,
+  UserLoggedOut,
+  UserRemoved
+} from "./auth/internal/AuthEvent"
 import AuthInfo from "./auth/internal/AuthInfo";
 import CoreStitchAuth from "./auth/internal/CoreStitchAuth";
 import CoreStitchUser from "./auth/internal/CoreStitchUser";
@@ -32,7 +44,6 @@ import FacebookAuthProvider from "./auth/providers/facebook/FacebookAuthProvider
 import FacebookCredential from "./auth/providers/facebook/FacebookCredential";
 import GoogleAuthProvider from "./auth/providers/google/GoogleAuthProvider";
 import GoogleCredential from "./auth/providers/google/GoogleCredential";
-import StitchAuthCredential from "./auth/providers/internal/StitchAuthResponseCredential";
 import StitchAuthResponseCredential from "./auth/providers/internal/StitchAuthResponseCredential";
 import ServerApiKeyAuthProvider from "./auth/providers/serverapikey/ServerApiKeyAuthProvider";
 import ServerApiKeyCredential from "./auth/providers/serverapikey/ServerApiKeyCredential";
@@ -47,20 +58,32 @@ import StitchCredential from "./auth/StitchCredential";
 import StitchUserIdentity from "./auth/StitchUserIdentity";
 import StitchUserProfile from "./auth/StitchUserProfile";
 import UserType from "./auth/UserType";
-import { base64Decode, base64Encode } from "./internal/common/Base64";
+import Assertions from "./internal/common/Assertions"
+import { base64Decode, base64Encode, utf8Slice } from "./internal/common/Base64";
 import { Codec, Decoder, Encoder } from "./internal/common/Codec";
+import { handleRequestError } from "./internal/common/StitchErrorUtils";
 import { MemoryStorage, Storage } from "./internal/common/Storage";
 import CoreStitchAppClient from "./internal/CoreStitchAppClient";
-import FetchTransport from "./internal/net/FetchTransport";
+import BaseEventStream from "./internal/net/BaseEventStream";
+import { BasicRequest } from "./internal/net/BasicRequest";
+import ContentTypes from "./internal/net/ContentTypes";
+import Event from "./internal/net/Event";
+import EventListener from "./internal/net/EventListener";
+import EventStream from "./internal/net/EventStream";
+import Headers from "./internal/net/Headers";
 import Method from "./internal/net/Method";
 import Response from "./internal/net/Response";
 import StitchAppAuthRoutes from "./internal/net/StitchAppAuthRoutes";
-import { StitchAppRoutes } from "./internal/net/StitchAppRoutes";
+import StitchAppRequestClient from "./internal/net/StitchAppRequestClient";
+import StitchAppRoutes from "./internal/net/StitchAppRoutes";
 import { StitchAuthRequest } from "./internal/net/StitchAuthRequest";
+import StitchEvent from "./internal/net/StitchEvent";
 import StitchRequestClient from "./internal/net/StitchRequestClient";
 import Transport from "./internal/net/Transport";
+import AuthRebindEvent from "./services/internal/AuthRebindEvent"
 import CoreStitchServiceClient from "./services/internal/CoreStitchServiceClient";
 import CoreStitchServiceClientImpl from "./services/internal/CoreStitchServiceClientImpl";
+import { RebindEvent } from "./services/internal/RebindEvent";
 import StitchServiceRoutes from "./services/internal/StitchServiceRoutes";
 import { StitchAppClientConfiguration } from "./StitchAppClientConfiguration";
 import StitchAppClientInfo from "./StitchAppClientInfo";
@@ -71,8 +94,11 @@ import StitchRequestError from "./StitchRequestError";
 import { StitchRequestErrorCode } from "./StitchRequestErrorCode";
 import StitchServiceError from "./StitchServiceError";
 import { StitchServiceErrorCode } from "./StitchServiceErrorCode";
+import Stream from "./Stream";
+import StreamListener from "./StreamListener";
 
 export {
+  BSON,
   AuthInfo,
   StitchAuthResponseCredential,
   AnonymousAuthProvider,
@@ -89,7 +115,6 @@ export {
   UserApiKeyAuthProvider,
   UserApiKey,
   UserApiKeyCredential,
-  StitchAuthCredential,
   Codec,
   Decoder,
   Encoder,
@@ -106,9 +131,19 @@ export {
   CoreStitchUser,
   CoreStitchUserImpl,
   DeviceFields,
-  FetchTransport,
+  BasicRequest,
+  ContentTypes,
+  Event,
+  EventListener,
+  EventStream,
+  BaseEventStream,
+  StitchEvent,
+  Headers,
+  Stream,
+  StreamListener,
   StitchAppClientInfo,
   StitchAppClientConfiguration,
+  StitchAppRequestClient,
   StitchAppRoutes,
   StitchAuthRequest,
   StitchAuthRequestClient,
@@ -130,8 +165,22 @@ export {
   Method,
   Response,
   MemoryStorage,
+  handleRequestError,
   Transport,
   UserType,
+  Assertions,
+  AuthEvent,
+  AuthEventKind,
+  ActiveUserChanged,
+  ListenerRegistered,
+  RebindEvent,
+  AuthRebindEvent,
+  UserAdded,
+  UserLinked,
+  UserLoggedIn,
+  UserLoggedOut,
+  UserRemoved,
   base64Decode,
-  base64Encode
+  base64Encode,
+  utf8Slice
 };

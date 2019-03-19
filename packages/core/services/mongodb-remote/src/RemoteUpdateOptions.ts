@@ -17,7 +17,13 @@
 
 /**
  * Options to use when executing an `updateOne` or `updateMany` command on a 
- * {@link RemoteMongoCollection}.
+ * [[RemoteMongoCollection]].
+ *
+ * @see
+ * - [[RemoteMongoCollection]]
+ * - [[RemoteMongoCollection.updateOne]]
+ * - [[RemoteMongoCollection.updateMany]]
+ * - [CRUD Snippets](https://docs.mongodb.com/stitch/mongodb/crud-snippets/#update)
  */
 export default interface RemoteUpdateOptions {
   /**

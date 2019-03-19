@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-import { ObjectID } from "bson";
-import { Codec, CoreStitchServiceClient } from "mongodb-stitch-core-sdk";
+import BSON from "bson";
+import { Codec, CoreStitchServiceClient, Stream } from "mongodb-stitch-core-sdk";
+import ChangeEvent from "../ChangeEvent";
 import RemoteCountOptions from "../RemoteCountOptions";
 import RemoteDeleteResult from "../RemoteDeleteResult";
+import RemoteFindOneAndModifyOptions from "../RemoteFindOneAndModifyOptions";
 import RemoteFindOptions from "../RemoteFindOptions";
 import RemoteInsertManyResult from "../RemoteInsertManyResult";
 import RemoteInsertOneResult from "../RemoteInsertOneResult";
@@ -99,6 +101,157 @@ export default class CoreRemoteMongoCollectionImpl<T>
   }
 
   /**
+   * Finds a document in this collection which matches the provided filter.
+   *
+   * - parameters:
+   *   - filter: A `Document` that should match the query.
+   *   - options: Optional `RemoteFindOptions` to use when executing the command.
+   *
+   * - returns: A resulting `DocumentT` or null if the query returned zero matches.
+   */
+  public findOne(
+    filter: object = {},
+    options?: RemoteFindOptions
+  ): Promise<T | null> {
+    const args: any = { ...this.baseOperationArgs };
+
+    args.query = filter;
+
+    if (options) {
+      if (options.projection) {
+        args.project = options.projection;
+      }
+      if (options.sort) {
+        args.sort = options.sort;
+      }
+    }
+    return this.service.callFunction(
+      "findOne",
+      [args],
+      this.codec
+    );
+  }
+  
+  /**
+   * Finds a document in this collection which matches the provided filter and performs the 
+   * desired updates
+   *
+   * - parameters:
+   *   - filter: A `Document` that should match the query.
+   *   - update: A `Document` describing the update. 
+   *   - options: Optional `RemoteFindOneAndModifyOptions` to use when executing the command.
+   *
+   * - returns: A resulting `DocumentT` or null if the query returned zero matches.
+   */
+  public findOneAndUpdate(
+    filter: object,
+    update: object, 
+    options?: RemoteFindOneAndModifyOptions
+  ): Promise<T | null> {
+    const args: any = { ...this.baseOperationArgs };
+
+    args.filter = filter;
+    args.update = update;
+
+    if (options) {
+      if (options.projection) {
+        args.projection = options.projection;
+      }
+      if (options.sort) {
+        args.sort = options.sort;
+      }
+      if (options.upsert) {
+        args.upsert = true;
+      }
+      if (options.returnNewDocument) {
+        args.returnNewDocument = true;
+      }
+    }
+    return this.service.callFunction(
+      "findOneAndUpdate",
+      [args],
+      this.codec
+    );
+  }
+
+  /**
+   * Finds a document in this collection which matches the provided filter and replaces it with 
+   * A new document
+   *
+   * - parameters:
+   *   - filter: A `Document` that should match the query.
+   *   - replacement: A new `Document` to replace the old one. 
+   *   - options: Optional `RemoteFindOneAndModifyOptions` to use when executing the command.
+   *
+   * - returns: A resulting `DocumentT` or null if the query returned zero matches.
+   */
+  public findOneAndReplace(
+    filter: object,
+    replacement: object, 
+    options?: RemoteFindOneAndModifyOptions
+  ): Promise<T | null> {
+    const args: any = { ...this.baseOperationArgs };
+
+    args.filter = filter;
+    args.update = replacement;
+
+    if (options) {
+      if (options.projection) {
+        args.projection = options.projection;
+      }
+      if (options.sort) {
+        args.sort = options.sort;
+      }
+      if (options.upsert) {
+        args.upsert = true;
+      }
+      if (options.returnNewDocument) {
+        args.returnNewDocument = true;
+      }
+    }
+    return this.service.callFunction(
+      "findOneAndReplace",
+      [args],
+      this.codec
+    );
+  }
+
+  /**
+   * Finds a document in this collection which matches the provided filter and performs the 
+   * desired updates
+   *
+   * - parameters:
+   *   - filter: A `Document` that should match the query.
+   *   - update: A `Document` describing the update. 
+   *   - options: Optional `RemoteFindOneAndModifyOptions` to use when executing the command.
+   *
+   * - returns: A resulting `DocumentT` or null if the query returned zero matches.
+   */
+  public findOneAndDelete(
+    filter: object,
+    options?: RemoteFindOneAndModifyOptions
+  ): Promise<T | null> {
+    const args: any = { ...this.baseOperationArgs };
+
+    args.filter = filter;
+
+    if (options) {
+      if (options.projection) {
+        args.projection = options.projection;
+      }
+      if (options.sort) {
+        args.sort = options.sort;
+      }
+    }
+    return this.service.callFunction(
+      "findOneAndDelete",
+      [args],
+      this.codec
+    );
+  }
+  
+
+  /**
    * Runs an aggregation framework pipeline against this collection.
    *
    * - Parameters:
@@ -143,7 +296,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
       args.limit = options.limit;
     }
 
-    return this.service.callFunctionInternal("count", [args]);
+    return this.service.callFunction("count", [args]);
   }
 
   /**
@@ -162,7 +315,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
       this.codec ? this.codec.encode(value) : (value as any)
     );
 
-    return this.service.callFunctionInternal(
+    return this.service.callFunction(
       "insertOne",
       [args],
       ResultDecoders.remoteInsertOneResultDecoder
@@ -187,7 +340,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
       )
     );
 
-    return this.service.callFunctionInternal(
+    return this.service.callFunction(
       "insertMany",
       [args],
       ResultDecoders.remoteInsertManyResultDecoder
@@ -254,6 +407,20 @@ export default class CoreRemoteMongoCollectionImpl<T>
     return this.executeUpdate(query, update, options, true);
   }
 
+  public watch(
+    ids: any[]
+  ): Promise<Stream<ChangeEvent<T>>> {
+    const args: any = { ...this.baseOperationArgs };
+
+    args.ids = ids;
+
+    return this.service.streamFunction(
+      "watch",
+      [args],
+      new ResultDecoders.ChangeEventDecoder(this.codec)
+    );
+  }
+
   private executeDelete(
     query: object,
     multi: boolean
@@ -261,7 +428,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
     const args: any = { ...this.baseOperationArgs };
     args.query = query;
 
-    return this.service.callFunctionInternal(
+    return this.service.callFunction(
       multi ? "deleteMany" : "deleteOne",
       [args],
       ResultDecoders.remoteDeleteResultDecoder
@@ -283,7 +450,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
       args.upsert = options.upsert;
     }
 
-    return this.service.callFunctionInternal(
+    return this.service.callFunction(
       multi ? "updateMany" : "updateOne",
       [args],
       ResultDecoders.remoteUpdateResultDecoder
@@ -294,7 +461,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
   private generateObjectIdIfMissing(doc: any): object {
     if (!doc._id) {
       const newDoc = doc;
-      newDoc._id = new ObjectID();
+      newDoc._id = new BSON.ObjectID();
       return newDoc;
     }
     return doc;

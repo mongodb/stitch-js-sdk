@@ -1,0 +1,16 @@
+{ 
+    "extends": "./tsconfig.esm.base.json",
+    "compilerOptions": {
+        "outDir": "dist/doc-react-native"
+    },
+    "include": [
+        "../packages/core/sdk/src/**/*",
+        "../packages/core/servivces/*/src/**/*",
+        "../packages/react-native/core/src/**/*",
+        "../packages/react-native/services/*/src/**/*"
+    ],
+    "exclude": [
+        "**/node_modules/**",
+        "**/dist/**"
+    ]
+}

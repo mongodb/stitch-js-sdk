@@ -30,7 +30,7 @@ describe("StitchClientConfigurationUnitTests", () => {
       }
     }();
 
-    let builder = new StitchClientConfiguration.Builder();
+    const builder = new StitchClientConfiguration.Builder();
     builder.withBaseUrl(baseUrl);
     builder.withStorage(storage);
     builder.withTransport(transport);

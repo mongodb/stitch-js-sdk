@@ -36,7 +36,7 @@ describe("CoreHttpServiceClient", () => {
     const expectedBody = "hello world!";
     const expectedCookies = {};
     const expectedForm = {};
-    const expectedHeaders = {};
+    const expectedHeaders = { 'foo': ['bar'] };
 
     const request = new HttpRequest.Builder()
       .withUrl(expectedUrl)
@@ -60,14 +60,14 @@ describe("CoreHttpServiceClient", () => {
     );
 
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenResolve(response);
 
     const result = await client.execute(request);
     expect(result).toEqual(response);
 
     const [funcNameArg, funcArgsArg, resultClassArg]: any[] = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect("delete").toEqual(funcNameArg);
@@ -86,7 +86,7 @@ describe("CoreHttpServiceClient", () => {
     expect(ResultDecoders.HttpResponseDecoder).toEqual(resultClassArg);
 
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenThrow(new Error("whoops"));
     // Should pass along errors
     try {

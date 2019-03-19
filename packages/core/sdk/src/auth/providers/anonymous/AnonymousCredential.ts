@@ -19,8 +19,11 @@ import StitchCredential from "../../StitchCredential";
 import AnonymousAuthProvider from "./AnonymousAuthProvider";
 
 /**
- * A credential which can be used to log in as a Stitch user
- * using the anonymous authentication provider.
+ * The AnonymousCredential is a [[StitchCredential]] that logs in
+ * using the [Anonymous Authentication Provider](https://docs.mongodb.com/stitch/authentication/anonymous/).
+ *
+ * @see
+ * - [[StitchAuth.loginWithCredential]] 
  */
 export default class AnonymousCredential implements StitchCredential {
   /**

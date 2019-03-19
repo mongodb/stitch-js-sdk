@@ -15,24 +15,41 @@
  */
 
 import {
-  NamedServiceClientFactory,
-  StitchServiceClient
-} from "mongodb-stitch-server-core";
-import { StitchAppClientInfo } from "mongodb-stitch-core-sdk";
+  CoreStitchServiceClient,
+  StitchAppClientInfo
+} from "mongodb-stitch-core-sdk";
 import { CoreRemoteMongoClientImpl } from "mongodb-stitch-core-services-mongodb-remote";
+import { NamedServiceClientFactory } from "mongodb-stitch-server-core";
+
 import RemoteMongoClientImpl from "./internal/RemoteMongoClientImpl";
 import RemoteMongoDatabase from "./RemoteMongoDatabase";
 
 /**
- * A client which can be used to get database and collection objects which can 
- * be used to interact with MongoDB data via the Stitch MongoDB service.
+ * The RemoteMongoClient can be used to get database and collection objects
+ * for interacting with MongoDB data via the Stitch MongoDB service.
+ *
+ * Service clients are created with [[StitchAppClient.getServiceClient]] by passing
+ * [[RemoteMongoClient.factory]] and the "Stitch Service Name" found under _Clusters_
+ * in the [Stitch control panel](https://stitch.mongodb.com)
+ * ("mongodb-atlas" by default).
+ *
+ * Once the RemoteMongoClient is instantiated, you can use the [[db]] method to access
+ * a [[RemoteMongoDatabase]]. A RemoteMongoDatabase will then provide access to
+ * a [[RemoteMongoCollection]], where you can read and write data.
+ *
+ * Note: The client needs to log in (at least anonymously) to use the database.
+ * See [[StitchAuth]].
+ *
+ * @see
+ * - [[StitchAppClient]]
+ * - [[RemoteMongoDatabase]]
  */
 export interface RemoteMongoClient {
   /**
-   * Gets a {@link RemoteMongoDatabase} instance for the given database name.
+   * Gets a [[RemoteMongoDatabase]] instance for the given database name.
    *
    * @param name the name of the database to retrieve
-   * @return a {@code RemoteMongoDatabase} representing the specified database
+   * @return a [[RemoteMongoDatabase]] representing the specified database
    */
   db(name: string): RemoteMongoDatabase;
 }
@@ -41,7 +58,7 @@ export namespace RemoteMongoClient {
   export const factory: NamedServiceClientFactory<RemoteMongoClient> = new class
     implements NamedServiceClientFactory<RemoteMongoClient> {
     public getNamedClient(
-      service: StitchServiceClient,
+      service: CoreStitchServiceClient,
       client: StitchAppClientInfo
     ): RemoteMongoClient {
       return new RemoteMongoClientImpl(new CoreRemoteMongoClientImpl(service));

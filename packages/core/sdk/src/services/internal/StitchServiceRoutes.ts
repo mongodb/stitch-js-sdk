@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { getFunctionCallRoute } from "../../internal/net/StitchAppRoutes";
+import { getFunctionCallRoute } from "../../internal/net/StitchRoutes";
 
 /** @hidden */
 export default class StitchServiceRoutes {

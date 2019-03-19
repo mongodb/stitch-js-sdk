@@ -16,8 +16,9 @@
 
 import { fromByteArray, toByteArray } from "base64-js";
 
-// sourced from https://github.com/coolaj86/TextEncoderLite
+// Sourced from https://github.com/coolaj86/TextEncoderLite
 /** @hidden */
+/* tslint:disable */
 export function base64Decode(str: string) {
   const unevenBytes = str.length % 4;
   let strToDecode;
@@ -41,35 +42,35 @@ export function base64Encode(str: string) {
   return fromByteArray(result);
 }
 
-// sourced from https://github.com/feross/buffer
+// Sourced from https://github.com/feross/buffer
 function utf8ToBytes(string: string) {
   let units = Infinity;
   let codePoint;
-  let length = string.length;
+  const length = string.length;
   let leadSurrogate = null;
-  let bytes: number[] = [];
+  const bytes: number[] = [];
   let i = 0;
 
   for (; i < length; i++) {
     codePoint = string.charCodeAt(i);
 
-    // is surrogate component
+    // Is surrogate component
     if (codePoint > 0xd7ff && codePoint < 0xe000) {
-      // last char was a lead
+      // Last char was a lead
       if (leadSurrogate) {
         // 2 leads in a row
         if (codePoint < 0xdc00) {
-          if ((units -= 3) > -1) bytes.push(0xef, 0xbf, 0xbd);
+          if ((units -= 3) > -1) { bytes.push(0xef, 0xbf, 0xbd); }
           leadSurrogate = codePoint;
           continue;
         } else {
-          // valid surrogate pair
+          // Valid surrogate pair
           codePoint =
             ((leadSurrogate - 0xd800) << 10) | (codePoint - 0xdc00) | 0x10000;
           leadSurrogate = null;
         }
       } else {
-        // no lead yet
+        // No lead yet
 
         if (codePoint > 0xdbff) {
           // unexpected trail
@@ -78,26 +79,26 @@ function utf8ToBytes(string: string) {
           }
           continue;
         } else if (i + 1 === length) {
-          // unpaired lead
+          // Unpaired lead
           if ((units -= 3) > -1) {
             bytes.push(0xef, 0xbf, 0xbd);
           }
           continue;
         } else {
-          // valid lead
+          // Valid lead
           leadSurrogate = codePoint;
           continue;
         }
       }
     } else if (leadSurrogate) {
-      // valid bmp char, but last char was a lead
+      // Valid bmp char, but last char was a lead
       if ((units -= 3) > -1) {
         bytes.push(0xef, 0xbf, 0xbd);
       }
       leadSurrogate = null;
     }
 
-    // encode utf8
+    // Encode utf8
     if (codePoint < 0x80) {
       if ((units -= 1) < 0) {
         break;
@@ -135,7 +136,7 @@ function utf8ToBytes(string: string) {
   return bytes;
 }
 
-function utf8Slice(buf: Uint8Array, start: number, end: number) {
+export function utf8Slice(buf: Uint8Array, start: number, end: number) {
   let res = "";
   let tmp = "";
   end = Math.min(buf.length, end || Infinity);
@@ -160,3 +161,5 @@ function decodeUtf8Char(str) {
     return String.fromCharCode(0xfffd); // UTF 8 invalid char
   }
 }
+/* tslint:enable */
+

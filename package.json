@@ -1,4 +1,5 @@
 {
+	"name": "stitch-js-sdk",
 	"private": true,
 	"devDependencies": {
 		"@types/jest": "^23.1.0",
@@ -8,7 +9,7 @@
 		"jsonwebtoken": "8.2.1",
 		"lcov-result-merger": "^3.0.0",
 		"lerna": "^2.11.0",
-		"npm": "^6.1.0",
+		"npm": "^6.4.1",
 		"rollup": "^0.60.7",
 		"rollup-plugin-commonjs": "^9.1.3",
 		"rollup-plugin-json": "^3.0.0",
@@ -19,13 +20,15 @@
 		"rollup-plugin-typescript2": "^0.15.0",
 		"rollup-plugin-uglify": "^4.0.0",
 		"ts-mockito": "^2.3.0",
-		"typedoc": "^0.11.1",
+		"typedoc": "^0.14.2",
 		"typescript": "^2.9.2"
 	},
 	"scripts": {
-		"docs": "npm run docs-browser && npm run docs-server",
-		"docs-browser": "typedoc --name 'MongoDB Stitch Browser SDK' --out ./docs-browser --mode file --tsconfig config/tdconfig.browser.json --readme packages/browser/sdk/README.md  packages/browser/core/src/index.ts packages/core/sdk/src/index.ts packages/core/services/*/src/index.ts packages/browser/services/*/src/index.ts --ignoreCompilerErrors --excludeNotExported --theme minimal",
-		"docs-server": "typedoc --name 'MongoDB Stitch Server SDK' --out ./docs-server --mode file --tsconfig config/tdconfig.server.json --readme packages/server/sdk/README.md  packages/server/core/src/index.ts packages/core/sdk/src/index.ts packages/core/services/*/src/index.ts packages/server/services/*/src/index.ts --ignoreCompilerErrors --excludeNotExported --theme minimal",
-		"test:coverage": "lcov-result-merger 'packages/**/lcov.info' | coveralls"
+		"docs": "npm run docs-theme && npm run docs-browser && npm run docs-server && npm run docs-react-native",
+		"docs-theme": "pushd typedoc-theme && npm run build",
+		"docs-browser": "./contrib/generate_docs.sh browser",
+		"docs-server": "./contrib/generate_docs.sh server",
+		"docs-react-native": "./contrib/generate_docs.sh react-native",
+		"test:coverage": "lcov-result-merger 'packages/**/lcov.info' | PATH=$(npm bin):$PATH coveralls"
 	}
 }

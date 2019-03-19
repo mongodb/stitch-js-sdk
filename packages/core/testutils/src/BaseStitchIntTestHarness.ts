@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { ObjectID } from "bson";
-import * as fetch from "fetch-everywhere";
+import fetch from "cross-fetch";
 import {
   AppCreator,
   AppResource,
@@ -31,6 +30,7 @@ import {
   StitchAdminClientConfiguration
 } from "mongodb-stitch-core-admin-client";
 import {
+  BSON,
   UserApiKeyAuthProvider,
   UserPasswordCredential
 } from "mongodb-stitch-core-sdk";
@@ -79,12 +79,15 @@ export default abstract class BaseStitchIntTestHarness {
       this.apps.map(app => {
         app.remove();
       })
-    ).then(() => this.adminClient.adminAuth.logout());
+    ).then(() => {
+      this.adminClient.logout();
+      this.adminClient.close();
+    });
   }
 
   public async createApp(
-    appName = `test-${new ObjectID().toHexString()}`
-  ): Promise<Array<AppResource | AppResponse>> {
+    appName = `test-${new BSON.ObjectID().toHexString()}`
+  ): Promise<Array<App | AppResponse>> {
     return this.adminClient
       .apps(this.groupId)
       .create({name: appName})

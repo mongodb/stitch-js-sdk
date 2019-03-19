@@ -1,7 +1,7 @@
 {
   "name": "mongodb-stitch-server-coretest",
-  "version": "4.0.7",
-  "description": "web core test",
+  "version": "4.3.2",
+  "description": "Tests for mongodb-stitch-server-core",
   "keywords": [
     "mongodb",
     "aws",
@@ -27,16 +27,25 @@
     {
       "name": "Jason Flax",
       "email": "jason.flax@mongodb.com"
+    },
+    {
+      "name": "Doug Kaminsky",
+      "email": "douglas.kaminsky@mongodb.com"
+    },
+    {
+      "name": "Tyler Kaye",
+      "email": "tyler.kaye@mongodb.com"
     }
   ],
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "mongodb-stitch-core-admin-client": "^4.0.6",
-    "mongodb-stitch-core-sdk": "^4.0.6",
-    "mongodb-stitch-core-testutils": "^4.0.6",
-    "mongodb-stitch-server-core": "^4.0.7",
-    "mongodb-stitch-server-testutils": "^4.0.7"
+    "bson": "4.0.2",
+    "mongodb-stitch-core-admin-client": "^4.3.2",
+    "mongodb-stitch-core-sdk": "^4.3.2",
+    "mongodb-stitch-core-testutils": "^4.3.2",
+    "mongodb-stitch-server-core": "^4.3.2",
+    "mongodb-stitch-server-testutils": "^4.3.2"
   },
   "devDependencies": {
     "jest": "^23.1.0",
@@ -63,6 +72,7 @@
       "json",
       "node"
     ],
-    "collectCoverage": true
+    "collectCoverage": true,
+    "testURL": "http://localhost/"
   }
 }

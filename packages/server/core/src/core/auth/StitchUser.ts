@@ -17,19 +17,31 @@
 import { 
   CoreStitchUser, 
   StitchCredential, 
-  StitchUserProfile, 
-  StitchUserIdentity } from "mongodb-stitch-core-sdk";
+  StitchUserIdentity,
+  StitchUserProfile
+} from "mongodb-stitch-core-sdk";
     
 /**
- * A user that a {@link StitchAppClient} is currently authenticated as.
- * Can be retrieved from a {@link StitchAuth} or from the result of certain 
- * methods.
+ * The StitchUser represents the currently logged-in user of the [[StitchAppClient]].
+ * 
+ * This can be retrieved from [[StitchAuth]] or from the result of certain methods
+ * such as [[StitchAuth.loginWithCredential]].
+ *
+ * @see
+ * - [[StitchAuth]]
+ * - [[StitchCredential]]
  */
 export default interface StitchUser extends CoreStitchUser {
   /**
    * The String representation of the ID of this Stitch user.
    */
   readonly id: string;
+
+  /**
+   * The time of the last auth event involving this user. 
+   * This includes login, logout, and active user changed.
+   */
+  readonly lastAuthActivity: Date;
 
   /**
    * The type of authentication provider used to log in as this user.
@@ -42,17 +54,29 @@ export default interface StitchUser extends CoreStitchUser {
   readonly loggedInProviderName: string;
 
   /**
-   * A string describing the type of this user. (Either `server` or `normal`)
+   * Whether or not this user is logged in.
+   * 
+   * If the user is logged in, it can be switched to without reauthenticating 
+   * using [[StitchAuth.switchToUserWithId]].
+   * 
+   * @note This is not a dynamic property. This is the state of whether or not
+   * the user was logged in at the time this user object was created.
+   * Use [[StitchAuth.listUsers]] to get a new list of users with current state.
+   */
+  readonly isLoggedIn: boolean;
+
+  /**
+   * A string describing the type of this user: either `server` or `normal`.
    */
   readonly userType?: string;
 
   /**
-   * A {@link StitchUserProfile} object describing this user.
+   * A [[StitchUserProfile]] object describing this user.
    */
   readonly profile: StitchUserProfile;
 
   /**
-   * An array of {@link StitchUserIdentity} objects representing the identities 
+   * An array of [[StitchUserIdentity]] objects representing the identities 
    * linked to this user which can be used to log in as this user.
    */
   readonly identities: StitchUserIdentity[];

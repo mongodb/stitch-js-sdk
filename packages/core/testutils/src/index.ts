@@ -15,5 +15,13 @@
  */
 
 import BaseStitchIntTestHarness from "./BaseStitchIntTestHarness";
+import JestEventSourceEventStream from "./JestEventSourceEventStream";
+import JestFetchStreamTransport from "./JestFetchStreamTransport";
+import JestFetchTransport from "./JestFetchTransport";
 
-export { BaseStitchIntTestHarness };
+export { 
+    BaseStitchIntTestHarness, 
+    JestEventSourceEventStream,
+    JestFetchTransport, 
+    JestFetchStreamTransport
+};

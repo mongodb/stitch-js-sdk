@@ -44,6 +44,7 @@ describe("AccessTokenRefresherUnitTests", () => {
       freshJwt,
       "",
       "",
+      undefined,
       undefined
     );
 
@@ -75,6 +76,7 @@ describe("AccessTokenRefresherUnitTests", () => {
       expiredJwt,
       "",
       "",
+      undefined,
       undefined
     );
 

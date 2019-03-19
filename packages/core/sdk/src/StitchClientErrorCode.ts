@@ -22,8 +22,13 @@ export enum StitchClientErrorCode {
   LoggedOutDuringRequest,
   MustAuthenticateFirst,
   UserNoLongerValid,
+  UserNotFound,
+  UserNotLoggedIn,
   CouldNotLoadPersistedAuthInfo,
-  CouldNotPersistAuthInfo
+  CouldNotPersistAuthInfo,
+  StreamingNotSupported,
+  StreamClosed,
+  UnexpectedArguments,
 }
 
 /** @hidden */
@@ -34,8 +39,18 @@ export const clientErrorCodeDescs: { [key: number]: string } = {
     "method called requires being authenticated",
   [StitchClientErrorCode.UserNoLongerValid]:
     "user instance being accessed is no longer valid; please get a new user with auth.getUser()",
+  [StitchClientErrorCode.UserNotFound]:
+    "user not found in list of users",
+  [StitchClientErrorCode.UserNotLoggedIn]:
+    "cannot make the active user a logged out user; please use loginWithCredential() to switch to this user",
   [StitchClientErrorCode.CouldNotLoadPersistedAuthInfo]:
     "failed to load stored auth information for Stitch",
   [StitchClientErrorCode.CouldNotPersistAuthInfo]:
-    "failed to save auth information for Stitch"
+    "failed to save auth information for Stitch",
+  [StitchClientErrorCode.StreamingNotSupported]:
+    "streaming not supported in this SDK",
+  [StitchClientErrorCode.StreamClosed]:
+    "stream is closed",
+  [StitchClientErrorCode.UnexpectedArguments]:
+    "function does not accept arguments",
 };

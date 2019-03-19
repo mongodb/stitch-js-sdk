@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+import AdminFetchTransport from "./AdminFetchTransport";
+import { AppResponse } from "./apps/AppsResources";
+import { AuthProviderResponse } from "./authProviders/AuthProvidersResources";
 import {
   Anon,
   Custom,
@@ -39,6 +42,7 @@ import FunctionResource from "./resources/FunctionResource";
 import { FunctionCreator, FunctionsResource } from "./resources/FunctionsResource";
 import RuleResource from "./resources/RuleResource";
 import {
+  AwsRuleCreator,
   AwsS3Actions,
   AwsS3RuleCreator,
   AwsSesActions,
@@ -51,59 +55,70 @@ import {
   RulesResource,
   TwilioActions,
   TwilioRuleCreator
-} from "./resources/RulesResource";
-import ServiceResource from "./resources/ServiceResource";
-import { ServiceResponse, ServicesResource } from "./resources/ServicesResource";
-import { ConfirmationEmail, UserRegistrationsResource } from "./resources/UserRegistrationsResource";
-import UserResource from "./resources/UserResource";
-import { UsersResource } from "./resources/UsersResource";
+} from "./services/rules/RulesResources";
+import {
+  Aws,
+  AwsConfig,
+  AwsS3,
+  AwsS3Config,
+  AwsSes,
+  AwsSesConfig,
+  Http,
+  Mongo,
+  ServiceConfig,
+  Twilio,
+  TwilioConfig
+} from "./services/ServiceConfigs";
+import { ServiceResponse } from "./services/ServicesResources";
 import StitchAdminClient from "./StitchAdminClient";
 import { StitchAdminClientConfiguration } from "./StitchAdminClientConfiguration";
 
 export {
-  StitchAdminClientConfiguration,
+  AdminFetchTransport,
   Anon,
-  Userpass,
-  AppsResource,
-  AppCreator,
-  AppResource,
-  Custom,
-  FunctionsResource,
-  FunctionResource,
-  FunctionCreator,
-  ServicesResource,
-  ServiceResource,
-  ServiceConfig,
-  ServiceResponse,
-  StitchAdminClient,
-  UserResource,
-  UsersResource,
-  UserRegistrationsResource,
-  RuleResource,
-  RuleCreator,
-  RulesResource,
-  AuthProviderResource,
-  AuthProvidersResource,
+  App,
   AppResponse,
+  Apps,
+  AuthProvider,
   AuthProviderResponse,
-  RuleResponse,
-  ProviderConfig,
-  ConfirmationEmail,
-  Twilio,
-  TwilioConfig,
-  TwilioActions,
-  TwilioRuleCreator,
-  AwsSes,
-  AwsSesConfig,
-  AwsSesActions,
-  AwsSesRuleCreator,
+  AuthProviders,
+  Aws,
+  AwsConfig,
+  AwsRuleCreator,
   AwsS3,
-  AwsS3Config,
   AwsS3Actions,
+  AwsS3Config,
   AwsS3RuleCreator,
+  AwsSes,
+  AwsSesActions,
+  AwsSesConfig,
+  AwsSesRuleCreator,
+  ConfirmationEmail,
+  Custom,
+  Function,
+  FunctionCreator,
+  Functions,
   Http,
   HttpActions,
   HttpRuleCreator,
   Mongo,
-  MongoDbRuleCreator
+  MongoDbRuleCreator,
+  ProviderConfig,
+  Rule,
+  RuleCreator,
+  RuleResponse,
+  Rules,
+  Service,
+  ServiceConfig,
+  ServiceResponse,
+  Services,
+  StitchAdminClient,
+  Twilio,
+  TwilioActions,
+  TwilioConfig,
+  TwilioRuleCreator,
+  User,
+  UserRegistrations,
+  Userpass,
+  Users,
 };

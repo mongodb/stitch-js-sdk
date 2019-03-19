@@ -22,7 +22,8 @@ enum Fields {
   AUTH_CODE = "authCode"
 }
 
-/**
+/** 
+ * @hidden
  * A credential which can be used to log in as a Stitch user
  * using the Google authentication provider.
  */
@@ -39,9 +40,7 @@ export default class GoogleCredential implements StitchCredential {
   /**
    * The contents of this credential as they will be passed to the Stitch server.
    */
-  public readonly material: { [key: string]: string } = (() => {
-    return { [Fields.AUTH_CODE]: this.authCode };
-  })();
+  public readonly material: { [key: string]: string };
 
   /**
    * The behavior of this credential when logging in.
@@ -59,5 +58,6 @@ export default class GoogleCredential implements StitchCredential {
   ) {
     this.providerName = providerName;
     this.authCode = authCode;
+    this.material = { [Fields.AUTH_CODE]: this.authCode };
   }
 }

@@ -36,7 +36,7 @@ describe("StitchAppClientConfigurationUnitTests", () => {
     builder.withStorage(storage);
     builder.withTransport(transport);
     builder.withLocalAppVersion(localAppVersion).withLocalAppName(localAppName);
-    let config = builder.build();
+    const config = builder.build();
 
     expect(config.localAppVersion).toEqual(localAppVersion);
     expect(config.localAppName).toEqual(localAppName);

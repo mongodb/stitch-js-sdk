@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-import { Codec, Encoder } from "mongodb-stitch-core-sdk";
-import AppRoutes from "../internal/routes/AppRoutes";
-import AppsRoutes from "../internal/routes/AppsRoutes";
-import { applyMixins, BasicResource, Creatable, Listable } from "../Resources";
-import AppResource from "./AppResource";
+import { EJSON } from "bson";
+import { Codec, Method, StitchAuthRequest } from "mongodb-stitch-core-sdk";
+import { App, Apps, checkEmpty } from "../Resources";
 
 enum Fields {
   Id = "_id",

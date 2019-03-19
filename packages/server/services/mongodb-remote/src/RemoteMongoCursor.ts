@@ -15,9 +15,16 @@
  */
 
 /**
- * A cursor of documents which can be traversed asynchronously. A 
- * {@link RemoteMongoCursor} can be the result of a `find` or
- * `aggregate` operation on a {@link RemoteMongoReadOperation}.
+ * RemoteMongoCursor is an iterator over documents, which allows asynchronous traversal.
+ *
+ * A RemoteMongoCursor can be obtained from the result of a `find` or `aggregate` operation
+ * on a [[RemoteMongoCollection]] by calling [[RemoteMongoReadOperation.iterator]].
+ * 
+ * @see
+ * - [[RemoteMongoCollection.find]]
+ * - [[RemoteMongoCollection.aggregate]]
+ * - [[RemoteMongoReadOperation]]
+ * - [[RemoteMongoReadOperation.iterator]]
  */
 export default class RemoteMongoCursor<T> {
   constructor(

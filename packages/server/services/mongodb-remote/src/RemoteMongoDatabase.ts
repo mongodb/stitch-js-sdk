@@ -18,8 +18,16 @@ import { Codec } from "mongodb-stitch-core-sdk";
 import RemoteMongoCollection from "./RemoteMongoCollection";
 
 /**
- * An interface representing a MongoDB database accesible via the Stitch 
- * MongoDB service.
+ * RemoteMongoDatabase provides access to a MongoDB database.
+ * 
+ * It is instantiated by [[RemoteMongoClient]].
+ *
+ * Once instantiated, it can be used to access a [[RemoteMongoCollection]]
+ * for reading and writing data.
+ *
+ * @see
+ * - [[RemoteMongoClient]]
+ * - [[RemoteMongoCollection]]
  */
 export default interface RemoteMongoDatabase {
   /**

@@ -15,16 +15,23 @@
  */
 
 /**
- * The result of an `insertMany` command on a {@link RemoteMongoCollection}.
+ * The result of an `insertMany` command on a [[RemoteMongoCollection]].
+ * 
+ * @see
+ * - [[RemoteMongoCollection]]
+ * - [[RemoteMongoCollection.insertOne]]
  */
 export default class RemoteInsertManyResult {
   /**
-   * Map of the index of the inserted document to the id of the inserted 
-   * document.
+   * Map of the index of the inserted document to the new id of the inserted document.
+   *
+   * If the document doesn't have an identifier, this value will be generated
+   * by the Stitch server and added to the document before insertion.
    */
   public readonly insertedIds: {[key: number]: string};
 
-  /**
+  /** 
+   * @hidden
    * Given an ordered array of insertedIds, creates a corresponding 
    * {@link RemoteInsertManyResult}.
    */

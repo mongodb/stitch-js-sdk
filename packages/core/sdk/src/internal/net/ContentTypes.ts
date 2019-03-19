@@ -20,4 +20,5 @@
  */
 export default class ContentTypes {
   public static readonly APPLICATION_JSON = "application/json";
+  public static readonly TEXT_EVENT_STREAM = "text/event-stream";
 }

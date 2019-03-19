@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ObjectID } from "bson";
+import BSON from "bson";
 import { anything, capture, instance, mock, verify, when } from "ts-mockito";
 import {
   CoreStitchAuth,
@@ -49,7 +49,7 @@ function testClientCall(
     ) as any)
   ).thenResolve({
     body: JSON.stringify(
-      new UserApiKey(new ObjectID().toHexString(), "2", "3", false)
+      new UserApiKey(new BSON.ObjectID().toHexString(), "2", "3", false)
     ),
     headers: {},
     statusCode: 200
@@ -62,7 +62,7 @@ function testClientCall(
     ) as any)
   ).thenResolve({
     body: JSON.stringify([
-      new UserApiKey(new ObjectID().toHexString(), "2", "3", false)
+      new UserApiKey(new BSON.ObjectID().toHexString(), "2", "3", false)
     ]),
     headers: {},
     statusCode: 200
@@ -75,7 +75,7 @@ function testClientCall(
     ) as any)
   ).thenResolve({
     body: JSON.stringify(
-      new UserApiKey(new ObjectID().toHexString(), "2", "3", false)
+      new UserApiKey(new BSON.ObjectID().toHexString(), "2", "3", false)
     ),
     headers: {},
     statusCode: 200
@@ -146,14 +146,13 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       .withShouldRefreshOnFailure(false)
       .withDocument({ name: apiKeyName });
 
-    return testClientCall((client: CoreUserApiKeyAuthProviderClient) => {
-      return client.createApiKey(apiKeyName);
-    }, expectedRequestBuilder.build());
+    return testClientCall((client: CoreUserApiKeyAuthProviderClient) =>
+      client.createApiKey(apiKeyName), expectedRequestBuilder.build());
   });
 
   it("should fetch api key", () => {
     const routes = new StitchAppRoutes("my_app-12345").authRoutes;
-    const keyToFetch = new ObjectID();
+    const keyToFetch = new BSON.ObjectID();
     const expectedRequestBuilder = new StitchAuthRequest.Builder();
     expectedRequestBuilder
       .withMethod(Method.GET)
@@ -162,9 +161,8 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       .withShouldRefreshOnFailure(false);
 
     return testClientCall(
-      (client: CoreUserApiKeyAuthProviderClient) => {
-        return client.fetchApiKey(keyToFetch);
-      },
+      (client: CoreUserApiKeyAuthProviderClient) =>
+        client.fetchApiKey(keyToFetch),
       expectedRequestBuilder.build(),
       keyToFetch.toHexString()
     );
@@ -178,14 +176,13 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       .withPath(routes.baseAuthRoute + "/api_keys")
       .withRefreshToken()
       .withShouldRefreshOnFailure(false);
-    return testClientCall(client => {
-      return client.fetchApiKeys();
-    }, expectedRequestBuilder.build());
+    return testClientCall(client =>
+      client.fetchApiKeys(), expectedRequestBuilder.build());
   });
 
   it("should enable api key", () => {
     const routes = new StitchAppRoutes("my_app-12345").authRoutes;
-    const keyToEnable = new ObjectID();
+    const keyToEnable = new BSON.ObjectID();
     const expectedRequestBuilder = new StitchAuthRequest.Builder();
     expectedRequestBuilder
       .withMethod(Method.PUT)
@@ -197,14 +194,13 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       )
       .withRefreshToken()
       .withShouldRefreshOnFailure(false);
-    testClientCall((client: CoreUserApiKeyAuthProviderClient) => {
-      return client.enableApiKey(keyToEnable);
-    }, expectedRequestBuilder.build());
+    testClientCall((client: CoreUserApiKeyAuthProviderClient) =>
+      client.enableApiKey(keyToEnable), expectedRequestBuilder.build());
   });
 
   it("should disable api key", () => {
     const routes = new StitchAppRoutes("my_app-12345").authRoutes;
-    const keyToDisable = new ObjectID();
+    const keyToDisable = new BSON.ObjectID();
     const expectedRequestBuilder = new StitchAuthRequest.Builder();
     expectedRequestBuilder
       .withMethod(Method.PUT)
@@ -216,22 +212,20 @@ describe("CoreUserApiKeyAuthProviderClientUnitTests", () => {
       )
       .withRefreshToken()
       .withShouldRefreshOnFailure(false);
-    testClientCall(client => {
-      return client.disableApiKey(keyToDisable);
-    }, expectedRequestBuilder.build());
+    testClientCall(client =>
+      client.disableApiKey(keyToDisable), expectedRequestBuilder.build());
   });
 
   it("should delete api key", () => {
     const routes = new StitchAppRoutes("my_app-12345").authRoutes;
-    const keyToDelete = new ObjectID();
+    const keyToDelete = new BSON.ObjectID();
     const expectedRequestBuilder = new StitchAuthRequest.Builder();
     expectedRequestBuilder
       .withMethod(Method.DELETE)
       .withPath(routes.baseAuthRoute + "/api_keys/" + keyToDelete.toHexString())
       .withRefreshToken()
       .withShouldRefreshOnFailure(false);
-    testClientCall(client => {
-      return client.deleteApiKey(keyToDelete);
-    }, expectedRequestBuilder.build());
+    testClientCall(client =>
+      client.deleteApiKey(keyToDelete), expectedRequestBuilder.build());
   });
 });

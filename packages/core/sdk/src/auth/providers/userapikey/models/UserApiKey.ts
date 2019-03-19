@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ObjectID } from "bson";
+import BSON from "bson";
 import Assertions from "../../../../internal/common/Assertions";
 
 enum Fields {
@@ -50,7 +50,7 @@ export default class UserApiKey {
   /**
    * The id of the key.
    */
-  public readonly id: ObjectID;
+  public readonly id: BSON.ObjectID;
 
   /**
    * The actual key. Will only be included in the response when an API key is first created.
@@ -73,7 +73,7 @@ export default class UserApiKey {
     name: string,
     disabled: boolean
   ) {
-    this.id = ObjectID.createFromHexString(id);
+    this.id = BSON.ObjectID.createFromHexString(id);
     this.key = key;
     this.name = name;
     this.disabled = disabled;

@@ -15,6 +15,7 @@
  */
 
 import {
+  AuthEvent,
   CoreStitchAuth,
   DeviceFields,
   StitchAuthRoutes,
@@ -64,6 +65,10 @@ export default class StitchAdminAuth extends CoreStitchAuth<StitchAdminUser> {
   }
 
   public onAuthEvent() {
+    // Do nothing
+  }
+
+  public dispatchAuthEvent(_: AuthEvent<StitchAdminUser>) {
     // Do nothing
   }
 }

@@ -38,9 +38,7 @@ export default class ServerApiKeyCredential implements StitchCredential {
   /**
    * The contents of this credential as they will be passed to the Stitch server.
    */
-  public readonly material: { [key: string]: string } = (() => {
-    return { [Fields.KEY]: this.key };
-  })();
+  public readonly material: { [key: string]: string };
   /**
    * The behavior of this credential when logging in.
    */
@@ -56,5 +54,6 @@ export default class ServerApiKeyCredential implements StitchCredential {
   ) {
     this.providerName = providerName;
     this.key = key;
+    this.material = { [Fields.KEY]: this.key };
   }
 }

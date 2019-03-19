@@ -16,26 +16,37 @@
 
 import { ensureDirSync } from "fs-extra"
 import {
-  FetchTransport,
   StitchAppClientConfiguration
 } from "mongodb-stitch-core-sdk";
 import { homedir } from "os"
 import { isAbsolute, join, resolve, sep } from "path"
 import FileStorage from "./internal/common/FileStorage";
+import NodeFetchStreamTransport from "./internal/net/NodeFetchStreamTransport";
 import StitchAppClientImpl from "./internal/StitchAppClientImpl";
 import StitchAppClient from "./StitchAppClient";
 
 const DEFAULT_BASE_URL = "https://stitch.mongodb.com";
 const DEFAULT_STITCH_DIR = ".stitch/apps";
-const appClients: { [key: string]: StitchAppClientImpl } = {};
+let appClients: { [key: string]: StitchAppClientImpl } = {};
 
 /**
- * Singleton class with static utility functions for initializing the MongoDB 
- * Stitch Browser SDK, and for retrieving a {@link StitchAppClient}.
+ * Singleton class with static utility functions for initializing a [[StitchAppClient]].
+ *
+ * Typically, the [[Stitch.initializeDefaultAppClient]] method is all you need 
+ * to instantiate the client:
+ * 
+ * ```
+ * const client = Stitch.initializeDefaultAppClient('your-stitch-app-id')
+ * ```
+ *
+ * For custom configurations, see [[Stitch.initializeAppClient]] and [[StitchAppClientConfiguration]].
+ *
+ * @see
+ * - [[StitchAppClient]]
  */
 export default class Stitch {
   /**
-   * Retrieves the default StitchAppClient associated with the application.
+   * Retrieves the default [[StitchAppClient]] associated with the application.
    */
   public static get defaultAppClient(): StitchAppClient {
     if (Stitch.defaultClientAppId === undefined) {
@@ -45,11 +56,11 @@ export default class Stitch {
   }
 
   /**
-   * Retrieves the StitchAppClient associated with the specified client app id.
+   * Retrieves the [[StitchAppClient]] associated with the specified client app id.
    * @param clientAppId The client app id of the desired app client.
    */
   public static getAppClient(clientAppId: string): StitchAppClient {
-    if (appClients[clientAppId] !== undefined) {
+    if (appClients[clientAppId] === undefined) {
       throw new Error(
         `client for app '${clientAppId}' has not yet been initialized`
       );
@@ -58,8 +69,8 @@ export default class Stitch {
   }
 
   /**
-   * Returns whether or not a StitchAppClient has been initialized for the
-   * specified clientAppId
+   * Returns whether or not a [[StitchAppClient]] has been initialized for the
+   * specified clientAppId.
    * 
    * @param clientAppId The client app id to check for.
    */
@@ -68,7 +79,7 @@ export default class Stitch {
   }
 
   /**
-   * Initializes the default StitchAppClient associated with the application.
+   * Initializes the default [[StitchAppClient]] associated with the application.
    * 
    * @param clientAppId The desired clientAppId for the client.
    * @param config Additional configuration options (optional).
@@ -93,11 +104,11 @@ export default class Stitch {
   }
 
   /**
-   * Initializes a new, non-default StitchAppClient associated with the 
+   * Initializes a new, non-default [[StitchAppClient]] associated with the 
    * application.
    * 
    * @param clientAppId The desired clientAppId for the client.
-   * @param config Additional configuration options (optional).
+   * @param config Additional [[StitchAppClientConfiguration]] options (optional).
    */
   public static initializeAppClient(
     clientAppId: string,
@@ -113,7 +124,7 @@ export default class Stitch {
       );
     }
 
-    const builder = config.builder();
+    const builder = config.builder ? config.builder() : new StitchAppClientConfiguration.Builder(config);
     if (builder.dataDirectory === undefined || builder.dataDirectory === "") {
       const dataPath = join(homedir(), DEFAULT_STITCH_DIR, clientAppId);
       ensureDirSync(dataPath);
@@ -123,7 +134,7 @@ export default class Stitch {
       builder.withStorage(new FileStorage(builder.dataDirectory));
     }
     if (builder.transport === undefined) {
-      builder.withTransport(new FetchTransport());
+      builder.withTransport(new NodeFetchStreamTransport());
     }
     if (builder.baseUrl === undefined || builder.baseUrl === "") {
       builder.withBaseUrl(DEFAULT_BASE_URL);
@@ -141,6 +152,15 @@ export default class Stitch {
     const client = new StitchAppClientImpl(clientAppId, builder.build());
     appClients[clientAppId] = client;
     return client;
+  }
+  
+  /**
+   * This will clear out all initialized app clients. This method is mainly for
+   * debugging, simulating an application restart, as it will clear all clients
+   * stored in memory
+   */
+  public static clearApps() {
+    appClients = {};
   }
 
   private static localAppVersion: string;

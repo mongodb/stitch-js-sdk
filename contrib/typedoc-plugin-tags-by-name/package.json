@@ -1,0 +1,12 @@
+{
+  "name": "typedoc-plugin-tags-by-name",
+  "version": "1.0.0",
+  "description": "A TypeDoc plugin to group comment tags by tag name for more control in typedoc theme",
+  "main": "plugin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "MongoDB, Inc.",
+  "license": "MIT",
+  "dependencies": {}
+}

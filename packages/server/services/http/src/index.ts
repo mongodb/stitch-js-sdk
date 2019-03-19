@@ -15,10 +15,10 @@
  */
 
 import {
-  HttpResponse,
   HttpCookie,
   HttpMethod,
-  HttpRequest
+  HttpRequest, 
+  HttpResponse
 } from "mongodb-stitch-core-services-http";
 import { HttpServiceClient } from "./HttpServiceClient";
 

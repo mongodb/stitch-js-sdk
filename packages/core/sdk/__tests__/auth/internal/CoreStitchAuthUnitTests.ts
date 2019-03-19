@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-import { ObjectID } from "bson";
+import BSON from "bson";
 import { sign } from "jsonwebtoken";
-import { anything, capture, instance, verify, mock, when } from "ts-mockito";
+import { anything, capture, instance, mock, verify, when } from "ts-mockito";
 import {
+  getLastLoginUserId,
   getMockedRequestClient,
+  mockNextUserResponse,
   RequestClassMatcher,
   TEST_ACCESS_TOKEN,
   TEST_LINK_RESPONE,
@@ -36,6 +38,8 @@ import {
   MemoryStorage,
   StitchAppRoutes,
   StitchAuthRoutes,
+  StitchClientError,
+  StitchClientErrorCode,
   StitchRequestClient,
   StitchUserFactory,
   StitchUserProfileImpl,
@@ -50,10 +54,10 @@ import Method from "../../../src/internal/net/Method";
 import { StitchAuthDocRequest } from "../../../src/internal/net/StitchAuthDocRequest";
 import { StitchDocRequest } from "../../../src/internal/net/StitchDocRequest";
 import { StitchRequest } from "../../../src/internal/net/StitchRequest";
-import StitchServiceError from "../../../src/StitchServiceError";
-import { StitchServiceErrorCode } from "../../../src/StitchServiceErrorCode";
 import StitchRequestError from "../../../src/StitchRequestError";
 import { StitchRequestErrorCode } from "../../../src/StitchRequestErrorCode";
+import StitchServiceError from "../../../src/StitchServiceError";
+import { StitchServiceErrorCode } from "../../../src/StitchServiceErrorCode";
 
 class StitchAuth extends CoreStitchAuth<CoreStitchUserImpl> {
   constructor(
@@ -78,11 +82,20 @@ class StitchAuth extends CoreStitchAuth<CoreStitchUserImpl> {
         id: string,
         loggedInProviderType: string,
         loggedInProviderName: string,
+        isLoggedIn: boolean,
+        lastAuthActivity: Date,
         userProfile?: StitchUserProfileImpl
       ): CoreStitchUserImpl {
         return new class extends CoreStitchUserImpl {
           constructor() {
-            super(id, loggedInProviderType, loggedInProviderName, userProfile);
+            super(
+              id,
+              loggedInProviderType,
+              loggedInProviderName,
+              isLoggedIn,
+              lastAuthActivity,
+              userProfile
+            );
           }
         }();
       }
@@ -90,6 +103,8 @@ class StitchAuth extends CoreStitchAuth<CoreStitchUserImpl> {
   }
 
   protected onAuthEvent() {}
+
+  protected dispatchAuthEvent() {}
 }
 
 describe("CoreStitchAuthUnitTests", () => {
@@ -109,14 +124,14 @@ describe("CoreStitchAuthUnitTests", () => {
       .loginWithCredentialInternal(new AnonymousCredential())
       .then(user => {
         const profile = TEST_USER_PROFILE;
-        expect(TEST_LOGIN_RESPONSE.userId).toEqual(user.id);
+        expect(getLastLoginUserId()).toEqual(user.id);
         expect(AnonymousAuthProvider.DEFAULT_NAME).toEqual(
           user.loggedInProviderName
         );
         expect(AnonymousAuthProvider.TYPE).toEqual(user.loggedInProviderType);
         expect(profile.userType).toEqual(user.userType);
         expect(profile.identities[0].id).toEqual(user.identities[0].id);
-        expect(auth.user).toEqual(user);
+        expect(auth.user.equals(user)).toBeTruthy();
         expect(auth.isLoggedIn).toBeTruthy();
 
         verify(requestClientMock.doRequest(anything())).times(2);
@@ -248,45 +263,295 @@ describe("CoreStitchAuthUnitTests", () => {
       });
   });
 
-  it("should logout", () => {
+  it("should logout", async () => {
     const requestClientMock = getMockedRequestClient();
     const requestClient = instance(requestClientMock);
     const routes = new StitchAppRoutes("my_app-12345").authRoutes;
+    const storage = new MemoryStorage(appId);
     const auth = new StitchAuth(
       requestClient,
       routes,
-      new MemoryStorage(appId)
+      storage
+    );
+
+    try {
+      await auth.logoutUserWithIdInternal("not_a_user_id");
+      fail("expected to fail because user does not exist");
+    } catch (e) {
+      expect(e).toBeInstanceOf(StitchClientError);
+      const sce = e as StitchClientError;
+      expect(sce.errorCode).toEqual(
+        StitchClientErrorCode.UserNotFound
+      );
+    }
+
+    expect(auth.isLoggedIn).toBeFalsy();
+    mockNextUserResponse(requestClientMock);
+    const user1 = await auth.loginWithCredentialInternal(
+      new AnonymousCredential()
+    );
+
+    mockNextUserResponse(requestClientMock);
+    const user2 = await auth.loginWithCredentialInternal(
+      new UserPasswordCredential("hi", "there")
+    );
+
+    mockNextUserResponse(requestClientMock);
+    const user3 = await auth.loginWithCredentialInternal(
+      new UserPasswordCredential("bye", "there")
+    );
+
+    expect(auth.listUsers()[2]).toEqual(user3);
+    expect(auth.user.equals(user3)).toBeTruthy();
+    expect(auth.isLoggedIn).toBeTruthy();
+
+    await auth.logoutInternal();
+
+    expect(auth.isLoggedIn).toBeFalsy();
+
+    // Assert that though one user is logged out, three users are still listed,
+    // and their profiles are all non-null
+    expect(auth.listUsers().length).toEqual(3);
+    auth.listUsers().forEach(user => {
+      expect(user.profile).toBeDefined()
+    });
+
+    verify(requestClientMock.doRequest(anything())).times(7);
+
+    const expectedRequest = new StitchRequest.Builder();
+    expectedRequest.withMethod(Method.DELETE).withPath(routes.sessionRoute);
+    const headers = {
+      [Headers.AUTHORIZATION]: Headers.getAuthorizationBearer(
+        TEST_REFRESH_TOKEN
+      )
+    };
+    expectedRequest.withHeaders(headers);
+
+    let [actualRequest] = capture(
+      requestClientMock.doRequest
+    ).byCallIndex(6);
+    expect(expectedRequest.build()).toEqualRequest(actualRequest);
+
+    expect(auth.isLoggedIn).toBeFalsy();
+
+    auth.switchToUserWithId(user2.id);
+    await auth.logoutInternal();
+
+    verify(requestClientMock.doRequest(anything())).times(8);
+
+    [actualRequest] = capture(
+      requestClientMock.doRequest
+    ).byCallIndex(7);
+    expect(expectedRequest.build()).toEqualRequest(actualRequest);
+
+    expect(auth.listUsers().length).toEqual(3);
+
+    // Log out the last user without switching to them
+    await auth.logoutUserWithIdInternal(user1.id);
+
+    // Assert that this leaves only two users since logging out an anonymous
+    // User deletes that user, and assert they are all logged out
+    expect(auth.listUsers().length).toEqual(2);
+
+    auth.listUsers().forEach(user => {
+      expect(user.isLoggedIn).toBeFalsy();
+    });
+
+    expect(auth.isLoggedIn).toBeFalsy();
+
+    // Assert that we still have a device ID 
+    expect(auth.hasDeviceId).toBeTruthy();
+
+    // Assert that logging back into a non-anon user after logging out works
+    mockNextUserResponse(requestClientMock, user2.id);
+
+    expect((await auth.loginWithCredentialInternal(
+      new UserPasswordCredential("hi", "there")
+    )).equals(user2)).toBeTruthy();
+
+    expect(auth.isLoggedIn).toBeTruthy();
+  });
+
+  it("should remove users", async () => {
+    const requestClientMock = getMockedRequestClient();
+    const requestClient = instance(requestClientMock);
+    const routes = new StitchAppRoutes("my_app-12345").authRoutes;
+    const storage = new MemoryStorage(appId);
+    const auth = new StitchAuth(
+      requestClient,
+      routes,
+      storage
     );
 
     expect(auth.isLoggedIn).toBeFalsy();
 
-    return auth
-      .loginWithCredentialInternal(new AnonymousCredential())
-      .then(() => {
-        expect(auth.isLoggedIn).toBeTruthy();
+    mockNextUserResponse(requestClientMock);
+    const user1 = await auth.loginWithCredentialInternal(
+      new AnonymousCredential()
+    );
 
-        return auth.logoutInternal();
-      })
-      .then(() => {
-        verify(requestClientMock.doRequest(anything())).times(3);
+    mockNextUserResponse(requestClientMock);
+    const user2 = await auth.loginWithCredentialInternal(
+      new UserPasswordCredential("hi", "there")
+    );
 
-        const expectedRequest = new StitchRequest.Builder();
-        expectedRequest.withMethod(Method.DELETE).withPath(routes.sessionRoute);
-        const headers = {
-          [Headers.AUTHORIZATION]: Headers.getAuthorizationBearer(
-            TEST_REFRESH_TOKEN
-          )
-        };
-        expectedRequest.withHeaders(headers);
+    mockNextUserResponse(requestClientMock);
+    const user3 = await auth.loginWithCredentialInternal(
+      new UserPasswordCredential("bye", "there")
+    );
 
-        const [actualRequest] = capture(
-          requestClientMock.doRequest
-        ).byCallIndex(2);
-        expect(expectedRequest.build()).toEqualRequest(actualRequest);
+    expect(auth.listUsers()[2]).toEqual(user3);
+    expect(auth.isLoggedIn).toBeTruthy();
 
-        expect(auth.isLoggedIn).toBeFalsy();
-      });
+    await auth.removeUserInternal();
+
+    // Assert that though one user was removed and we are logged out, 
+    // Two users are still listed.
+    expect(auth.isLoggedIn).toBeFalsy();
+    expect(auth.listUsers().length).toEqual(2);
+
+    verify(requestClientMock.doRequest(anything())).times(7);
+
+    const expectedRequest = new StitchRequest.Builder();
+    expectedRequest.withMethod(Method.DELETE).withPath(routes.sessionRoute);
+    const headers = {
+      [Headers.AUTHORIZATION]: Headers.getAuthorizationBearer(
+        TEST_REFRESH_TOKEN
+      )
+    };
+    expectedRequest.withHeaders(headers);
+
+    let [actualRequest] = capture(
+      requestClientMock.doRequest
+    ).byCallIndex(6);
+    expect(expectedRequest.build()).toEqualRequest(actualRequest);
+
+    expect(auth.isLoggedIn).toBeFalsy();
+
+    // Assert that switching to a user, and removing self works
+    auth.switchToUserWithId(user2.id);
+    expect(auth.isLoggedIn).toBeTruthy();
+
+    await auth.removeUserInternal();
+
+    verify(requestClientMock.doRequest(anything())).times(8);
+
+    [actualRequest] = capture(
+      requestClientMock.doRequest
+    ).byCallIndex(7);
+    expect(expectedRequest.build()).toEqualRequest(actualRequest);
+
+    // Assert that there is one user left
+    expect(auth.listUsers().length).toEqual(1);
+    expect(auth.listUsers()[0].equals(user1)).toBeTruthy();
+
+    // Assert that we can remove the user without switching to it
+    await auth.removeUserWithIdInternal(user1.id);
+    expect(auth.listUsers().length).toEqual(0);
+    expect(auth.isLoggedIn).toBeFalsy();
+
+    // Assert that we can log back into the user that we removed
+    mockNextUserResponse(requestClientMock, user2.id);
+    expect((await auth.loginWithCredentialInternal(
+      new UserPasswordCredential("hi", "there")
+    )).equals(user2)).toBeTruthy();
+
+    expect(auth.listUsers().length).toEqual(1);
+    expect(auth.listUsers()[0].equals(user2)).toBeTruthy();
+
+    expect(auth.isLoggedIn).toBeTruthy();
   });
+
+  it("should be able to switch users", async () => {
+    const requestClientMock = getMockedRequestClient();
+    const requestClient = instance(requestClientMock);
+    const routes = new StitchAppRoutes("my_app-12345").authRoutes;
+    const storage = new MemoryStorage(appId);
+    const auth = new StitchAuth(
+      requestClient,
+      routes,
+      storage
+    );
+
+    try {
+      auth.switchToUserWithId("not_a_user_id");
+      fail("expected to fail because user does not exist");
+    } catch (e) {
+      expect(e).toBeInstanceOf(StitchClientError);
+      const sce = e as StitchClientError;
+      expect(sce.errorCode).toEqual(
+        StitchClientErrorCode.UserNotFound
+      );
+    }
+
+    expect(auth.isLoggedIn).toBeFalsy();
+    mockNextUserResponse(requestClientMock);
+    const user = await auth.loginWithCredentialInternal(
+      new UserPasswordCredential("hello", "there")
+    );
+
+    // Can switch to self
+    expect(auth.switchToUserWithId(user.id).equals(user)).toBeTruthy();
+    expect(auth.user.equals(user)).toBeTruthy();
+
+    mockNextUserResponse(requestClientMock);
+    const user2 = await auth.loginWithCredentialInternal(
+      new UserPasswordCredential("hi", "there")
+    );
+    
+    expect(auth.user.equals(user2)).toBeTruthy();
+    expect(auth.user.equals(user)).toBeFalsy();
+
+    // Can switch back to old user 
+    expect(auth.switchToUserWithId(user.id).equals(user)).toBeTruthy();
+    expect(auth.user.equals(user)).toBeTruthy();
+
+    // Switch back to second user after logging out
+    await auth.logoutInternal();
+    expect(auth.listUsers().length).toEqual(2);
+    expect(auth.switchToUserWithId(user2.id).equals(user2)).toBeTruthy();
+
+    // Assert that we can't switch to logged out user
+    try {
+      auth.switchToUserWithId(user.id);
+      fail("expected to fail because we can't switch to logged out user");
+    } catch (e) {
+      expect(e).toBeInstanceOf(StitchClientError);
+      const sce = e as StitchClientError;
+      expect(sce.errorCode).toEqual(
+        StitchClientErrorCode.UserNotLoggedIn
+      );
+    }
+  });
+
+  it("should be able to list users", async () => {
+    const requestClientMock = getMockedRequestClient();
+    const requestClient = instance(requestClientMock);
+    const routes = new StitchAppRoutes("my_app-12345").authRoutes;
+    const storage = new MemoryStorage(appId);
+    const auth = new StitchAuth(
+      requestClient,
+      routes,
+      storage
+    );
+
+    mockNextUserResponse(requestClientMock);
+    const user = await auth.loginWithCredentialInternal(
+      new UserPasswordCredential("hello", "there")
+    );
+
+    expect(auth.listUsers().length).toEqual(1);
+    expect(auth.listUsers()[0]).toEqual(user);
+
+    mockNextUserResponse(requestClientMock);
+    const user2 = await auth.loginWithCredentialInternal(
+      new UserPasswordCredential("bye", "there")
+    );
+
+    expect(auth.listUsers().length).toEqual(2);
+    expect(auth.listUsers()[0].equals(user)).toBeTruthy();
+    expect(auth.listUsers()[1]).toEqual(user2);
+  }); 
 
   it("should have device id", () => {
     const requestClientMock = getMockedRequestClient();
@@ -438,7 +703,7 @@ describe("CoreStitchAuthUnitTests", () => {
       new MemoryStorage(appId)
     );
 
-    const expectedObjectId = new ObjectID();
+    const expectedObjectId = new BSON.ObjectID();
     const docRaw = `{\"_id\": {\"$oid\": \"${expectedObjectId.toHexString()}\"}, \"intValue\": {\"$numberInt\": \"42\"}}`;
 
     const reqBuilder = new StitchAuthDocRequest.Builder();
@@ -471,11 +736,11 @@ describe("CoreStitchAuthUnitTests", () => {
         return auth.doAuthenticatedRequestWithDecoder(reqBuilder.build());
       })
       .then((res: { [key: string]: string }) => {
-        expect(expectedObjectId).toEqual(res["_id"]);
-        expect(res["intValue"]).toEqual(42);
+        expect(expectedObjectId).toEqual(res._id);
+        expect(res.intValue).toEqual(42);
 
         // Check that BSON documents returned as extended JSON can be
-        // decoded into custom types
+        // Decoded into custom types
         when(requestClientMock.doRequest(anything())).thenResolve({
           body: docRaw,
           headers: {},
@@ -492,8 +757,8 @@ describe("CoreStitchAuthUnitTests", () => {
           new class implements Decoder<TestDoc> {
             public decode(from: any): TestDoc {
               return {
-                id: from["_id"],
-                intValue: from["intValue"]
+                id: from._id,
+                intValue: from.intValue
               };
             }
           }()
@@ -546,11 +811,11 @@ describe("CoreStitchAuthUnitTests", () => {
       requestClientMock.doRequest(new RequestClassMatcher(
         new RegExp(".*/profile")
       ) as any)
-    ).thenReject(testProfileRequestError) // first login attempt (scenario 1)
-      .thenResolve(testProfileResponse) // successful login (scenario 2)
-      .thenReject(testProfileRequestError) // failure to login as another user (scenario 2)
-      .thenResolve(testProfileResponse) // successful login (scenario 3)
-      .thenReject(testProfileRequestError); // failure to link to other identity (scenario 3)
+    ).thenReject(testProfileRequestError) // First login attempt (scenario 1)
+      .thenResolve(testProfileResponse) // Successful login (scenario 2)
+      .thenReject(testProfileRequestError) // Failure to login as another user (scenario 2)
+      .thenResolve(testProfileResponse) // Successful login (scenario 3)
+      .thenReject(testProfileRequestError); // Failure to link to other identity (scenario 3)
   
     // Any link works
     when(
@@ -580,14 +845,14 @@ describe("CoreStitchAuthUnitTests", () => {
       await auth.loginWithCredentialInternal(new AnonymousCredential());
       fail("expected login to fail because of profile request");
     } catch (e) {
-      // do nothing, this was expected
+      // Do nothing, this was expected
     }
 
     expect(auth.isLoggedIn).toBeFalsy();
     expect(auth.user).toBeUndefined();
 
     // Scenario 2: User is logged in -> attempts login into other account -> initial login succeeds
-    //                               -> profile request fails -> original user is logged out
+    //                               -> profile request fails -> original user is still logged in
 
     const user = await auth.loginWithCredentialInternal(new AnonymousCredential());
 
@@ -599,11 +864,15 @@ describe("CoreStitchAuthUnitTests", () => {
       );
       fail("expected login to fail because of profile request");
     } catch {
-      // do nothing, this was expected
+      // Do nothing, this was expected
     }
 
-    expect(auth.isLoggedIn).toBeFalsy();
-    expect(auth.user).toBeUndefined();
+    // The original user should be logged in
+    expect(auth.isLoggedIn).toBeTruthy();
+    expect(auth.user.equals(user)).toBeTruthy();
+
+    // Logout so the next test doesn't reuse this session
+    await auth.logoutInternal();
 
     // Scenario 3: User is logged in -> attempt to link to other identity
     //                               -> initial link request succeeds
@@ -621,7 +890,7 @@ describe("CoreStitchAuthUnitTests", () => {
       );
       fail("expected link to fail because of profile request");
     } catch {
-      // do nothing, this was expected
+      // Do nothing, this was expected
     }
 
     expect(auth.isLoggedIn).toBeTruthy();

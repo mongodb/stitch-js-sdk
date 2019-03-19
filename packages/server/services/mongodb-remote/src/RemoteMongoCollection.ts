@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
+import { Codec, Stream } from "mongodb-stitch-core-sdk";
 import {
+  ChangeEvent,
   RemoteCountOptions,
   RemoteDeleteResult,
+  RemoteFindOneAndModifyOptions,
   RemoteFindOptions,
   RemoteInsertManyResult,
   RemoteInsertOneResult,
@@ -27,8 +29,31 @@ import {
 import RemoteMongoReadOperation from "./RemoteMongoReadOperation";
 
 /**
- * An interface representing a MongoDB collection accesible via the Stitch 
- * MongoDB service.
+ * The RemoteMongoCollection is the interface to a MongoDB database's
+ * collection via Stitch, allowing read and write.
+ *
+ * It is retrieved from a [[RemoteMongoDatabase]].
+ *
+ * The read operations are [[find]], [[count]] and [[aggregate]].
+ *
+ * The write operations are [[insertOne]], [[insertMany]], 
+ * [[updateOne]], [[updateMany]], [[deleteOne]], and [[deleteMany]].
+ *
+ * If you are already familiar with MongoDB drivers, it is important
+ * to understand that the RemoteMongoCollection only provides access
+ * to the operations available in Stitch. For a list of unsupported
+ * aggregation stages, see 
+ * [Unsupported Aggregation Stages](https://docs.mongodb.com/stitch/mongodb/actions/collection.aggregate/#unsupported-aggregation-stages).
+ *
+ * @note Log in first
+ *
+ * A user will need to be logged in (at least anonymously) before you can read from
+ * or write to the collection. See [[StitchAuth]].
+ * 
+ * @see
+ * - [[RemoteMongoClient]]
+ * - [[RemoteMongoDatabase]]
+ * - [CRUD Snippets](https://docs.mongodb.com/stitch/mongodb/crud-snippets/)
  */
 export default interface RemoteMongoCollection<DocumentT> {
   /**
@@ -39,7 +64,7 @@ export default interface RemoteMongoCollection<DocumentT> {
   readonly namespace: string;
 
   /**
-   * Create a new emoteMongoCollection instance with a different default class to cast any
+   * Create a new RemoteMongoCollection instance with a different default class to cast any
    * documents returned from the database into.
    *
    * @param codec the default class to cast any documents returned from the database into.
@@ -59,7 +84,9 @@ export default interface RemoteMongoCollection<DocumentT> {
   count(query?: object, options?: RemoteCountOptions): Promise<number>;
 
   /**
-   * Finds all documents in the collection.
+   * Finds all documents in the collection that match the given query.
+   * 
+   * An empty query (`{}`) will match all documents.
    *
    * @param query the query filter
    * @return a read operation which can be used to execute the query
@@ -70,7 +97,68 @@ export default interface RemoteMongoCollection<DocumentT> {
   ): RemoteMongoReadOperation<DocumentT>;
 
   /**
+   * Finds one document in the collection that matches the given query.
+   * 
+   * An empty query (`{}`) will match all documents.
+   *
+   * @param query the query filter
+   * @return the resulting document or null if the query resulted in zero matches
+   */
+  findOne(
+    query?: object,
+    options?: RemoteFindOptions
+  ): Promise<DocumentT | null>;
+
+  /**
+   * Finds one document in the collection that matches the given query and performs the 
+   * given update on that document. (An empty query {} will match all documents)
+   *
+   * @param query A `Document` that should match the query.
+   * @param update A `Document` describing the update. 
+   * @param options Optional: `RemoteFindOneAndModifyOptions` to use when executing the command.
+   * @return A resulting `DocumentT` or null if the query returned zero matches.
+   */
+  findOneAndUpdate(
+    query: object,
+    update: object, 
+    options?: RemoteFindOneAndModifyOptions
+  ): Promise<DocumentT | null>;
+
+  /**
+   * Finds one document in the collection that matches the given query and replaces that document 
+   * with the given replacement. (An empty query {} will match all documents)
+   *
+   * @param query A `Document` that should match the query.
+   * @param replacement A `Document` that will replace the matched document 
+   * @param options Optional: `RemoteFindOneAndModifyOptions` to use when executing the command.
+   * @return A resulting `DocumentT` or null if the query returned zero matches.
+   */
+  findOneAndReplace(
+    query: object,
+    replacement: object, 
+    options?: RemoteFindOneAndModifyOptions
+  ): Promise<DocumentT | null>;
+
+  /**
+   * Finds one document in the collection that matches the given query and 
+   * deletes that document. (An empty query {} will match all documents)
+   *
+   * @param query A `Document` that should match the query.
+   * @param options Optional: `RemoteFindOneAndModifyOptions` to use when executing the command.
+   * @return The `DocumentT` being deleted or null if the query returned zero matches.
+   */
+  findOneAndDelete(
+    query: object,
+    options?: RemoteFindOneAndModifyOptions
+  ): Promise<DocumentT | null>;
+
+
+  /**
    * Aggregates documents according to the specified aggregation pipeline.
+   *
+   * Stitch supports a subset of the available aggregation stages in MongoDB.
+   * See 
+   * [Unsupported Aggregation Stages](https://docs.mongodb.com/stitch/mongodb/actions/collection.aggregate/#unsupported-aggregation-stages).
    *
    * @param pipeline the aggregation pipeline
    * @return a read operation which can be used to execute the aggregation
@@ -95,9 +183,8 @@ export default interface RemoteMongoCollection<DocumentT> {
   insertMany(documents: DocumentT[]): Promise<RemoteInsertManyResult>;
 
   /**
-   * Removes at most one document from the collection that matches the given filter.  If no
-   * documents match, the collection is not
-   * modified.
+   * Removes at most one document from the collection that matches the given filter.
+   * If no documents match, the collection is not modified.
    *
    * @param query the query filter to apply the the delete operation
    * @return a Promise containing the result of the remove one operation
@@ -142,4 +229,19 @@ export default interface RemoteMongoCollection<DocumentT> {
     update: object,
     updateOptions?: RemoteUpdateOptions
   ): Promise<RemoteUpdateResult>;
+
+  /**
+   * Opens a MongoDB change stream against the collection to watch for changes 
+   * made to specific documents. The documents to watch must be explicitly 
+   * specified by their _id.
+   * 
+   * @note
+   * This method does not support opening change streams on an entire collection
+   * or a specific query.
+   *
+   * @param ids the _ids of the documents to watch in this change stream
+   * @return a Promise containing a stream of change events representing the 
+   *         changes to the watched documents.
+   */
+  watch(ids: any[]): Promise<Stream<ChangeEvent<DocumentT>>>;
 }

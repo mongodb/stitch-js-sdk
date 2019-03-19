@@ -18,11 +18,22 @@ import { CoreRemoteMongoReadOperation } from "mongodb-stitch-core-services-mongo
 import RemoteMongoCursor from "./RemoteMongoCursor";
 
 /**
- * Represents a `find` or `aggregate` operation against a MongoDB collection. 
- * Use the methods in this class to execute the operation and retrieve the results.
+ * Represents a `find` or `aggregate` operation against a [[RemoteMongoCollection]].
+ * 
+ * The methods in this class execute the operation and retrieve the results,
+ * either as an [[iterator]] or all in one array with [[toArray]].
+ * 
+ * @see
+ * - [[RemoteMongoCollection]]
+ * - [[RemoteMongoCollection.find]]
+ * - [[RemoteMongoCollection.aggregate]]
+ * - [[RemoteFindOptions]]
+ * - [CRUD Snippets](https://docs.mongodb.com/stitch/mongodb/crud-snippets/#find)
  */
 export default class RemoteMongoReadOperation<T> {
+  /** @hidden */
   constructor(
+    /** @hidden */
     private readonly proxy: CoreRemoteMongoReadOperation<T>
   ) {}
 
@@ -36,8 +47,16 @@ export default class RemoteMongoReadOperation<T> {
   /**
    * Executes the operation and returns the result as an array.
    */
+  public toArray(): Promise<T[]> {
+    return this.proxy.toArray();
+  }
+
+  /**
+   * Executes the operation and returns the result as an array.
+   * @deprecated Use toArray instead
+   */
   public asArray(): Promise<T[]> {
-    return this.proxy.asArray();
+    return this.toArray();
   }
 
   /**

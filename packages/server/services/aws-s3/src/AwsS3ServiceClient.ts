@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-import { Binary } from "bson";
-import {
-  NamedServiceClientFactory,
-  StitchServiceClient
-} from "mongodb-stitch-server-core";
-import { StitchAppClientInfo } from "mongodb-stitch-core-sdk";
+import BSON from "bson";
+import { 
+  CoreStitchServiceClient, 
+  StitchAppClientInfo 
+} from "mongodb-stitch-core-sdk";
 import {
   AwsS3PutObjectResult,
   AwsS3SignPolicyResult,
   CoreAwsS3ServiceClient
 } from "mongodb-stitch-core-services-aws-s3";
+import {
+  NamedServiceClientFactory
+} from "mongodb-stitch-server-core";
+
 import AwsS3ServiceClientImpl from "./internal/AwsS3ServiceClientImpl";
 
 /**
  * The AWS S3 service client.
+ * 
+ * @deprecated use AwsServiceClient instead.
  */
 export interface AwsS3ServiceClient {
   /**
@@ -46,7 +51,7 @@ export interface AwsS3ServiceClient {
     key: string,
     acl: string,
     contentType: string,
-    body: string | Binary | Uint8Array | ArrayBuffer | Buffer
+    body: string | BSON.Binary | Uint8Array | ArrayBuffer | Buffer
   ): Promise<AwsS3PutObjectResult>;
 
   /**
@@ -74,7 +79,7 @@ export namespace AwsS3ServiceClient {
     AwsS3ServiceClient
   > = new class implements NamedServiceClientFactory<AwsS3ServiceClient> {
     public getNamedClient(
-      service: StitchServiceClient,
+      service: CoreStitchServiceClient,
       client: StitchAppClientInfo
     ): AwsS3ServiceClient {
       return new AwsS3ServiceClientImpl(new CoreAwsS3ServiceClient(service));

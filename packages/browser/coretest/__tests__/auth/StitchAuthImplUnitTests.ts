@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-// import * as jsdom from 'jsdom';
 import { GoogleRedirectCredential } from "mongodb-stitch-browser-core";
-import { StitchAppClientInfo, StitchAuthCredential, StitchRequestClient, StitchUserProfileImpl } from "mongodb-stitch-core-sdk";
+import { 
+    StitchAppClientInfo, 
+    StitchAuthResponseCredential, 
+    StitchRequestClient, 
+    StitchUserProfileImpl 
+} from "mongodb-stitch-core-sdk";
 import { anything, capture, instance, mock, spy, when } from "ts-mockito";
 import RedirectFragmentFields from "../../../core/src/core/auth/internal/RedirectFragmentFields";
 import RedirectKeys from "../../../core/src/core/auth/internal/RedirectKeys";
@@ -29,6 +33,8 @@ function getMockUser(auth: StitchAuthImpl) {
         "test_id", 
         "test_provider", 
         "test_provider",
+        true,
+        new Date(),
         instance(mock(StitchUserProfileImpl)),
         auth
     )
@@ -68,8 +74,11 @@ describe("StitchAuthImpl", () => {
         const authRoutesMock = mock(StitchBrowserAppAuthRoutes)
         const authRoutes = instance(authRoutesMock);
 
+        const mockRequestClient = mock(StitchRequestClient);
+        when(mockRequestClient.getBaseURL()).thenResolve("");
+
         const impl = new StitchAuthImpl(
-            instance(mock(StitchRequestClient)),
+            instance(mockRequestClient),
             authRoutes,
             emptyStorage,
             instance(mock(StitchAppClientInfo)),
@@ -104,8 +113,11 @@ describe("StitchAuthImpl", () => {
         const authRoutesMock = mock(StitchBrowserAppAuthRoutes)
         const authRoutes = instance(authRoutesMock);
 
+        const mockRequestClient = mock(StitchRequestClient);
+        when(mockRequestClient.getBaseURL()).thenResolve("");
+
         const impl = new StitchAuthImpl(
-            instance(mock(StitchRequestClient)),
+            instance(mockRequestClient),
             authRoutes,
             {
                 get(key: string): string {
@@ -147,7 +159,7 @@ describe("StitchAuthImpl", () => {
 
         const xStitchLocation = "test_location";
 
-        global['fetch'] = (request: Request) => {
+        StitchAuthImpl.injectedFetch = (request: Request) => {
             expect(request.headers.get("Authorization")).toEqual("Bearer " + "test_access_token");
             return Promise.resolve({
                 headers: {
@@ -267,10 +279,10 @@ describe("StitchAuthImpl", () => {
 
         const [credential] = capture(spiedImpl.loginWithCredentialInternal).last();
 
-        expect(credential instanceof StitchAuthCredential).toBeTruthy();
+        expect(credential instanceof StitchAuthResponseCredential).toBeTruthy();
         expect(credential.providerName).toEqual("test_provider_name");
         expect(credential.providerType).toEqual("test_provider_type");
-        expect((credential as StitchAuthCredential).authInfo).toEqual(redirectFragmentResult);
+        expect((credential as StitchAuthResponseCredential).authInfo).toEqual(redirectFragmentResult);
 
         expect.assertions(6)
     })

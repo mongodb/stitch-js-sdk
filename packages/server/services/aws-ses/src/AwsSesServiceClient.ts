@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-import {
-  NamedServiceClientFactory,
-  StitchServiceClient
-} from "mongodb-stitch-server-core";
-import { StitchAppClientInfo } from "mongodb-stitch-core-sdk";
+import { 
+  CoreStitchServiceClient, 
+  StitchAppClientInfo 
+} from "mongodb-stitch-core-sdk";
 import {
   AwsSesSendResult,
   CoreAwsSesServiceClient
 } from "mongodb-stitch-core-services-aws-ses";
+import { NamedServiceClientFactory } from "mongodb-stitch-server-core";
+
 import AwsSesServiceClientImpl from "./internal/AwsSesServiceClientImpl";
 
 /**
  * The AWS SES service client.
+ * 
+ * @deprecated use AwsServiceClient instead.
  */
 export interface AwsSesServiceClient {
   /**
@@ -51,7 +54,7 @@ export namespace AwsSesServiceClient {
     AwsSesServiceClient
   > = new class implements NamedServiceClientFactory<AwsSesServiceClient> {
     public getNamedClient(
-      service: StitchServiceClient,
+      service: CoreStitchServiceClient,
       client: StitchAppClientInfo
     ): AwsSesServiceClient {
       return new AwsSesServiceClientImpl(new CoreAwsSesServiceClient(service));

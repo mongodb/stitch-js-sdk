@@ -17,7 +17,13 @@
 
 /**
  * Options to use when executing a `find` command on a 
- * {@link RemoteMongoCollection}.
+ * [[RemoteMongoCollection]].
+ *
+ * @see
+ * - [[RemoteMongoCollection]]
+ * - [[RemoteMongoCollection.find]]
+ * - [[RemoteMongoReadOperation]]
+ * - [CRUD Snippets](https://docs.mongodb.com/stitch/mongodb/crud-snippets/#find)
  */ 
 export default interface RemoteFindOptions {
   /**
@@ -26,7 +32,8 @@ export default interface RemoteFindOptions {
   readonly limit?: number;
 
   /**
-   * Limits the fields to return for all matching documents.
+   * Limits the fields to return for all matching documents. See 
+   * [Tutorial: Project Fields to Return from Query](https://docs.mongodb.com/manual/tutorial/project-fields-from-query-results/).
    */
   readonly projection?: object;
 

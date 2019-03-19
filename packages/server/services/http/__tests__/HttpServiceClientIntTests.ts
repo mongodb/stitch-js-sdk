@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as EJSON from "mongodb-extjson";
+import { EJSON } from "bson";
 import {
   Anon,
   App,
@@ -69,7 +69,11 @@ describe("HttpServiceClient", () => {
     cookies.bob = "barker";
     const form = {};
     const headers = {};
-    headers.myHeader = ["value1", "value2"];
+    headers.Myheader = ["value1", "value2"];
+
+    // Due to httpbin bug that doesn't return Content-Length without these 
+    // The Accept-Encoding header defined 
+    headers["Accept-Encoding"] = ["none"];
 
     let badRequest = new HttpRequest.Builder()
       .withUrl(badUrl)
@@ -128,8 +132,11 @@ describe("HttpServiceClient", () => {
       expect("200 OK").toEqual(response.status);
       expect(200).toEqual(response.statusCode);
       expect(response.contentLength).toBeGreaterThanOrEqual(300);
-      expect(response.contentLength).toBeLessThanOrEqual(400);
+      expect(response.contentLength).toBeLessThanOrEqual(500);
       expect(response.body).toBeDefined();
+      expect(response.headers['Content-Type'].length).toEqual(1);
+      expect(response.headers['Content-Type'][0]).toEqual('application/json');
+
       const dataDoc = EJSON.parse(String(response.body!!), { relaxed: true });
       expect(body).toEqual(dataDoc.data);
       const headersDoc = dataDoc.headers;

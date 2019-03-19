@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import { parse } from "mongodb-extjson";
+import { EJSON } from "bson";
+import { promises } from "fs";
 import { anything, capture, instance, mock, when } from "ts-mockito";
-import { FetchTransport, StitchRequestClient } from "../../../src";
+import { EventStream, Response, StitchRequestClient, Transport} from "../../../src";
 import { BasicRequest } from "../../../src/internal/net/BasicRequest";
 import ContentTypes from "../../../src/internal/net/ContentTypes";
 import Headers from "../../../src/internal/net/Headers";
@@ -24,14 +25,28 @@ import Method from "../../../src/internal/net/Method";
 import { StitchDocRequest } from "../../../src/internal/net/StitchDocRequest";
 import { StitchRequest } from "../../../src/internal/net/StitchRequest";
 import StitchError from "../../../src/StitchError";
-import { StitchServiceErrorCode } from "../../../src/StitchServiceErrorCode";
 import StitchServiceError from "../../../src/StitchServiceError";
+import { StitchServiceErrorCode } from "../../../src/StitchServiceErrorCode";
+
+/** @hidden */
+// Mockito does not yet support mocking interfaces but it will soon
+// - https://github.com/NagRock/ts-mockito/issues/117
+export default class FakeTransport implements Transport {
+  public roundTrip(request: BasicRequest): Promise<Response> {
+    return Promise.reject("")
+  }
+
+  public stream(request: BasicRequest, open = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
+    return Promise.reject("")
+  }
+}
 
 describe("StitchRequestClientUnitTests", () => {
   it("should doRequest", () => {
     const domain = "http://domain.com";
-    const transportMock = mock(FetchTransport);
+    const transportMock = mock(FakeTransport);
     const transport = instance(transportMock);
+
     const stitchRequestClient = new StitchRequestClient(domain, transport);
 
     // A bad response should throw an exception
@@ -74,7 +89,7 @@ describe("StitchRequestClientUnitTests", () => {
           a: 42,
           hello: "world"
         };
-        expect(expected).toEqual(parse(response.body!, { relaxed: true }));
+        expect(expected).toEqual(EJSON.parse(response.body!, { relaxed: true }));
 
         // Error responses should be handled
         when(transportMock.roundTrip(anything())).thenResolve({
@@ -147,7 +162,7 @@ describe("StitchRequestClientUnitTests", () => {
 
   it("should test doJSONRequestWithDoc", () => {
     const domain = "http://domain.com";
-    const transportMock = mock(FetchTransport);
+    const transportMock = mock(FakeTransport);
     const transport = instance(transportMock);
     const stitchRequestClient = new StitchRequestClient(domain, transport);
 
@@ -195,7 +210,7 @@ describe("StitchRequestClientUnitTests", () => {
           a: 42,
           hello: "world"
         };
-        expect(parse(response.body!, { relaxed: true })).toEqual(expected);
+        expect(EJSON.parse(response.body!, { relaxed: true })).toEqual(expected);
 
         // Error responses should be handled
         when(transportMock.roundTrip(anything())).thenResolve({
@@ -264,7 +279,7 @@ describe("StitchRequestClientUnitTests", () => {
 
   it("should handle non canonical headers", () => {
     const domain = "http://domain.com";
-    const transportMock = mock(FetchTransport);
+    const transportMock = mock(FakeTransport);
     const transport = instance(transportMock);
 
     const stitchRequestClient = new StitchRequestClient(domain, transport);

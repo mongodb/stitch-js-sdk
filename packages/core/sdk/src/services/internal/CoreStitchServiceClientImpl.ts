@@ -14,32 +14,49 @@
  * limitations under the License.
  */
 
-import CoreStitchServiceClient from "./CoreStitchServiceClient";
-import StitchServiceRoutes from "./StitchServiceRoutes";
+import { EJSON } from 'bson';
+import { AuthEventKind } from '../../auth/internal/AuthEvent';
 import StitchAuthRequestClient from "../../auth/internal/StitchAuthRequestClient";
+import { base64Encode } from "../../internal/common/Base64";
 import { Decoder } from "../../internal/common/Codec";
 import Method from "../../internal/net/Method";
 import { StitchAuthDocRequest } from "../../internal/net/StitchAuthDocRequest";
 import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
+import Stream from "../../Stream";
+import AuthRebindEvent from './AuthRebindEvent';
+import CoreStitchServiceClient from "./CoreStitchServiceClient";
+import { RebindEvent, RebindEventType } from './RebindEvent';
+import StitchServiceBinder from './StitchServiceBinder';
+import StitchServiceRoutes from "./StitchServiceRoutes";
 
 /** @hidden */
 export default class CoreStitchServiceClientImpl
   implements CoreStitchServiceClient {
+
   private readonly requestClient: StitchAuthRequestClient;
   private readonly serviceRoutes: StitchServiceRoutes;
-  private readonly serviceName: string;
+  private readonly serviceName: string | undefined;
+
+  private serviceBinders: StitchServiceBinder[];
+  private allocatedStreams: Array<Stream<any>>;
+
+  private readonly serviceField = "service";
+  private readonly argumentsField = "arguments";
 
   public constructor(
     requestClient: StitchAuthRequestClient,
     routes: StitchServiceRoutes,
-    name: string
+    name?: string
   ) {
     this.requestClient = requestClient;
     this.serviceRoutes = routes;
     this.serviceName = name;
+
+    this.serviceBinders = [];
+    this.allocatedStreams = [];
   }
 
-  public callFunctionInternal<T>(
+  public callFunction<T>(
     name: string,
     args: any[],
     decoder?: Decoder<T>
@@ -50,15 +67,68 @@ export default class CoreStitchServiceClientImpl
     );
   }
 
+  public streamFunction<T>(
+    name: string,
+    args: any[],
+    decoder?: Decoder<T>
+  ): Promise<Stream<T>> {
+    return this.requestClient.openAuthenticatedStreamWithDecoder(
+      this.getStreamServiceFunctionRequest(name, args),
+      decoder
+    ).then(newStream => {
+      this.allocatedStreams.push(newStream);
+      return newStream;
+    });
+  }
+
+  public bind(binder: StitchServiceBinder) {
+    this.serviceBinders.push(binder);
+  }
+
+  public onRebindEvent(rebindEvent: RebindEvent) {
+    switch (rebindEvent.type) {
+      case RebindEventType.AUTH_EVENT:
+        const authRebindEvent = rebindEvent as AuthRebindEvent<any>;
+        if (authRebindEvent.event.kind === AuthEventKind.ActiveUserChanged) {
+          this.closeAllocatedStreams()
+        }
+        break;
+      default:
+        break;
+    }
+
+    this.serviceBinders.forEach(binder => {
+      binder.onRebindEvent(rebindEvent);
+    });
+  }
+
+  private getStreamServiceFunctionRequest(
+    name: string,
+    args: any[]
+  ): StitchAuthRequest {
+    const body = { name };
+    if (this.serviceName !== undefined) {
+      body[this.serviceField] = this.serviceName;
+    }
+    body[this.argumentsField] = args;
+
+    const reqBuilder = new StitchAuthRequest.Builder();
+    reqBuilder
+      .withMethod(Method.GET)
+      .withPath(this.serviceRoutes.functionCallRoute +
+        `?stitch_request=${encodeURIComponent(base64Encode(EJSON.stringify(body)))}`);
+    return reqBuilder.build();
+  }
+
   private getCallServiceFunctionRequest(
     name: string,
     args: any[]
   ): StitchAuthRequest {
     const body = { name };
     if (this.serviceName !== undefined) {
-      body["service"] = this.serviceName;
+      body[this.serviceField] = this.serviceName;
     }
-    body["arguments"] = args;
+    body[this.argumentsField] = args;
 
     const reqBuilder = new StitchAuthDocRequest.Builder();
     reqBuilder
@@ -66,5 +136,14 @@ export default class CoreStitchServiceClientImpl
       .withPath(this.serviceRoutes.functionCallRoute);
     reqBuilder.withDocument(body);
     return reqBuilder.build();
+  }
+
+  private closeAllocatedStreams() {
+    this.allocatedStreams.forEach(stream => {
+      if (stream.isOpen()) {
+        stream.close();
+      }
+    });
+    this.allocatedStreams = [];
   }
 }

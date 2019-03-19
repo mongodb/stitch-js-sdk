@@ -15,7 +15,10 @@
  */
 
 import { detect } from "detect-browser";
+
 import {
+  AuthEvent,
+  AuthEventKind,
   AuthInfo,
   CoreStitchAuth,
   CoreStitchUser,
@@ -79,7 +82,9 @@ interface PartialWindow {
 /** @hidden */
 export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   implements StitchAuth {
+  public static injectedFetch?: any;
   private readonly listeners: Set<StitchAuthListener> = new Set();
+  private readonly synchronousListeners: Set<StitchAuthListener> = new Set();
 
   /**
    * Construct a new StitchAuth implementation
@@ -130,20 +135,22 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   public loginWithRedirect(credential: StitchRedirectCredential): void {
     const { redirectUrl, state } = this.prepareRedirect(credential);
 
-    this.jsdomWindow.location.replace(
-      this.browserAuthRoutes.getAuthProviderRedirectRoute(
-        credential,
-        redirectUrl,
-        state,
-        this.deviceInfo
+    this.requestClient.getBaseURL().then(baseUrl => {
+      this.jsdomWindow.location.replace(baseUrl +
+        this.browserAuthRoutes.getAuthProviderRedirectRoute(
+          credential,
+          redirectUrl,
+          state,
+          this.deviceInfo
+        )
       )
-    );
+    });
   }
 
   public linkWithRedirectInternal(
     user: StitchUser,
     credential: StitchRedirectCredential
-  ) {
+  ): Promise<void> {
     if (this.user !== undefined && user.id !== this.user.id) {
       return Promise.reject(
         new StitchClientError(StitchClientErrorCode.UserNoLongerValid)
@@ -152,21 +159,24 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
 
     const { redirectUrl, state } = this.prepareRedirect(credential);
 
-    const link = this.browserAuthRoutes.getAuthProviderLinkRedirectRoute(
-      credential,
-      redirectUrl,
-      state,
-      this.deviceInfo
-    );
-
-    return fetch(
-      new Request(link, {
-        credentials: "include",
-        headers: {
-          Authorization: "Bearer " + this.authInfo.accessToken
-        }
-      })
-    ).then(response => {
+    return this.requestClient.getBaseURL().then(baseUrl => {
+      const link = baseUrl +
+      this.browserAuthRoutes.getAuthProviderLinkRedirectRoute(
+        credential,
+        redirectUrl,
+        state,
+        this.deviceInfo
+      );
+      return (StitchAuthImpl.injectedFetch ? StitchAuthImpl.injectedFetch! : fetch)(
+        new Request(link, {
+          credentials: "include",
+          headers: {
+            Authorization: "Bearer " + this.authInfo.accessToken
+          },
+          mode: 'cors'
+        })
+      )
+    }).then(response => {
       this.jsdomWindow.location.replace(
         response.headers.get("X-Stitch-Location")!
       );
@@ -201,9 +211,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
           providerName,
           redirectFragment.asLink
         )
-      ).then(user => {
-        return user;
-      });
+      ).then(user => user);
     } catch (err) {
       return Promise.reject(err);
     }
@@ -217,7 +225,33 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   }
 
   public logout(): Promise<void> {
-    return Promise.resolve(super.logoutInternal());
+    // Guard against users accidentally thinking this is logoutUserWithId
+    if (arguments.length > 0) {
+      return Promise.reject(
+        new StitchClientError(StitchClientErrorCode.UnexpectedArguments)
+      );
+    }
+
+    return super.logoutInternal();
+  }
+
+  public logoutUserWithId(userId: string): Promise<void> {
+    return super.logoutUserWithIdInternal(userId);
+  }
+
+  public removeUser(): Promise<void> {
+    // Guard against users accidentally thinking this is removeUserWithId
+    if (arguments.length > 0) {
+      return Promise.reject(
+        new StitchClientError(StitchClientErrorCode.UnexpectedArguments)
+      );
+    }
+
+    return super.removeUserInternal();
+  }
+
+  public removeUserWithId(userId: string): Promise<void> {
+    return super.removeUserWithIdInternal(userId);
   }
 
   protected get deviceInfo() {
@@ -250,20 +284,46 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   public addAuthListener(listener: StitchAuthListener) {
     this.listeners.add(listener);
 
-    // Trigger the onUserLoggedIn event in case some event happens and
-    // this caller would miss out on this event other wise.
+    // Trigger the ListenerRegistered event in case some event happens and
+    // This caller would miss out on this event other wise.
+
+    // Dispatch a legacy deprecated auth event
     this.onAuthEvent(listener);
+
+    // Dispatch a new style auth event
+    this.dispatchAuthEvent({
+      kind: AuthEventKind.ListenerRegistered,
+    });
+  }
+
+  public addSynchronousAuthListener(listener: StitchAuthListener) {
+    this.listeners.add(listener);
+
+    // Trigger the ListenerRegistered event in case some event happens and
+    // This caller would miss out on this event other wise.
+
+    // Dispatch a legacy deprecated auth event
+    this.onAuthEvent(listener);
+
+    // Dispatch a new style auth event
+    this.dispatchAuthEvent({
+      kind: AuthEventKind.ListenerRegistered,
+    });
   }
 
   public removeAuthListener(listener: StitchAuthListener) {
     this.listeners.delete(listener);
   }
 
+  /** 
+   * Dispatch method for the deprecated auth listener method onAuthEvent.
+   */
   public onAuthEvent(listener?: StitchAuthListener) {
     if (listener) {
-      const auth = this;
       const _ = new Promise(resolve => {
-        listener.onAuthEvent(auth);
+        if (listener.onAuthEvent) {
+          listener.onAuthEvent(this);  
+        }
         resolve(undefined);
       });
     } else {
@@ -273,8 +333,114 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     }
   }
 
+  /**
+   * Dispatch method for the new auth listener methods.
+   * @param event the discriminated union representing the auth event
+   */
+  public dispatchAuthEvent(event: AuthEvent<StitchUser>) {
+    switch(event.kind) {
+      case AuthEventKind.ActiveUserChanged:
+        this.dispatchBlockToListeners((listener: StitchAuthListener) => {
+          if (listener.onActiveUserChanged) {
+            listener.onActiveUserChanged(
+              this,
+              event.currentActiveUser,
+              event.previousActiveUser
+            );  
+          }
+        });
+        break;
+      case AuthEventKind.ListenerRegistered:
+        this.dispatchBlockToListeners((listener: StitchAuthListener) => {
+          if (listener.onListenerRegistered) {
+            listener.onListenerRegistered(this);  
+          }
+        });
+        break;
+      case AuthEventKind.UserAdded:
+        this.dispatchBlockToListeners((listener: StitchAuthListener) => {
+          if (listener.onUserAdded) {
+            listener.onUserAdded(this, event.addedUser);  
+          }
+        });
+        break;
+      case AuthEventKind.UserLinked:
+        this.dispatchBlockToListeners((listener: StitchAuthListener) => {
+          if (listener.onUserLinked) {
+            listener.onUserLinked(this, event.linkedUser);
+          }
+        })
+        break;
+      case AuthEventKind.UserLoggedIn:
+        this.dispatchBlockToListeners((listener: StitchAuthListener) => {
+          if (listener.onUserLoggedIn) {
+            listener.onUserLoggedIn(
+              this,
+              event.loggedInUser
+            );
+          }
+        });
+        break;
+      case AuthEventKind.UserLoggedOut:
+        this.dispatchBlockToListeners((listener: StitchAuthListener) => {
+          if (listener.onUserLoggedOut) {
+            listener.onUserLoggedOut(
+              this, 
+              event.loggedOutUser
+            );  
+          }
+        });
+        break;
+      case AuthEventKind.UserRemoved:
+        this.dispatchBlockToListeners((listener: StitchAuthListener) => {
+          if (listener.onUserRemoved) {
+            listener.onUserRemoved(this, event.removedUser);
+          }
+        });
+        break;
+      default:
+        /* Compiler trick to force this switch to be exhaustive. if the above
+         * switch statement doesn't check all AuthEventKinds, event will not
+         * be of type never 
+         */
+        return this.assertNever(event);
+    }
+  }
+
+  /**
+   * Utility function used to force the compiler to enforce an exhaustive 
+   * switch statment in dispatchAuthEvent at compile-time.
+   * @see https://www.typescriptlang.org/docs/handbook/advanced-types.html
+   */
+  private assertNever(x: never): never {
+    throw new Error("unexpected object: " + x);
+  }
+
+  /**
+   * Dispatches the provided block to all auth listeners, including the 
+   * synchronous and asynchronous ones.
+   * @param block The block to dispatch to listeners.
+   */
+  private dispatchBlockToListeners(block: (StitchAuthListener) => void) {
+    // Dispatch to all synchronous listeners
+    this.synchronousListeners.forEach(block);
+
+    // Dispatch to all asynchronous listeners
+    this.listeners.forEach(listener => {
+      const _ = new Promise(resolve => {
+        block(listener);
+        resolve(undefined);
+      })
+    });
+  }
+
   private cleanupRedirect() {
+    // This should probably be undefined, but null works just fine and we dont want to test 
+    // all browsers which may behave differently. Furthermore, the documentation on replaceState()
+    // uses null. 
+    /* tslint:disable:no-null-keyword */
     this.jsdomWindow.history.replaceState(null, "", this.pageRootUrl());
+    /* tslint:enable:no-null-keyword */
 
     this.authStorage.remove(RedirectKeys.State);
     this.authStorage.remove(RedirectKeys.ProviderName);
@@ -284,7 +450,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
   private parseRedirect(): ParsedRedirectFragment | never {
     if (typeof this.jsdomWindow === "undefined") {
       // This means we're running in some environment other
-      // than a browser - so handling a redirect makes no sense here.
+      // Than a browser - so handling a redirect makes no sense here.
       throw new StitchRedirectError("running in a non-browser environment");
     }
 
@@ -309,7 +475,7 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
       }
 
       if (redirectFragment.lastError) {
-        // remove the fragment from the window history and reject
+        // Remove the fragment from the window history and reject
         throw new StitchRedirectError(
           `error handling redirect: ${redirectFragment.lastError}`
         );
@@ -381,11 +547,11 @@ function unmarshallUserAuth(data): AuthInfo {
 }
 
 class ParsedRedirectFragment {
-  public stateValid: boolean = false;
+  public stateValid = false;
   public authInfo?: AuthInfo;
   public lastError?: string;
-  public clientAppIdValid: boolean = false;
-  public asLink: boolean = false;
+  public clientAppIdValid = false;
+  public asLink = false;
 
   get isValid(): boolean {
     return this.stateValid && this.clientAppIdValid;
@@ -397,14 +563,15 @@ function parseRedirectFragment(
   ourState,
   ourClientAppId
 ): ParsedRedirectFragment {
-  // After being redirected from oauth, the URL will look like:
-  // https://todo.examples.stitch.mongodb.com/#_stitch_state=...&_stitch_ua=...
-  // This function parses out stitch-specific tokens from the fragment and
-  // builds an object describing the result.
+  /* 
+   * After being redirected from oauth, the URL will look like:
+   * https://todo.examples.stitch.mongodb.com/#_stitch_state=...&_stitch_ua=...
+   * This function parses out stitch-specific tokens from the fragment and
+   * builds an object describing the result.
+   */
   const vars = fragment.split("&");
   const result: ParsedRedirectFragment = new ParsedRedirectFragment();
   vars.forEach(kvp => {
-    // for (let i = 0; i < vars.length; ++i) {
     const pairParts = kvp.split("=");
     const pairKey = decodeURIComponent(pairParts[0]);
 
@@ -422,7 +589,7 @@ function parseRedirectFragment(
         }
         break;
       case RedirectFragmentFields.StitchLink:
-        if (pairParts[1] == "ok") {
+        if (pairParts[1] === "ok") {
           result.asLink = true;
         }
         break;

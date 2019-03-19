@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
+import { Codec, Stream } from "mongodb-stitch-core-sdk";
+import ChangeEvent from "../ChangeEvent";
 import RemoteCountOptions from "../RemoteCountOptions";
 import RemoteDeleteResult from "../RemoteDeleteResult";
+import RemoteFindOneAndModifyOptions from "../RemoteFindOneAndModifyOptions";
 import RemoteFindOptions from "../RemoteFindOptions";
 import RemoteInsertManyResult from "../RemoteInsertManyResult";
 import RemoteInsertOneResult from "../RemoteInsertOneResult";
@@ -63,6 +65,64 @@ export default interface CoreRemoteMongoCollection<DocumentT> {
     query?: object,
     options?: RemoteFindOptions
   ): CoreRemoteMongoReadOperation<DocumentT>;
+
+  /**
+   * Finds one documents in the collection.
+   *
+   * @param query the query filter
+   * @return the resulting document or null if no such document exists
+   */
+  findOne(
+    query?: object,
+    options?: RemoteFindOptions
+  ): Promise<DocumentT | null>;
+
+  /**
+   * Finds one document in the collection and updates that document.
+   *
+   * @param query         A document describing the query filter, which may not be null.
+   * @param update        A document describing the update, which may not be null. The update to
+   *                      Apply must include only update operators.
+   * @param options       The options to apply to the findOneAndUpdate operation
+   * 
+   * @return the resulting document or null if no such document exists
+   */
+  findOneAndUpdate(
+    query: object,
+    update: object,
+    options?: RemoteFindOneAndModifyOptions
+  ): Promise<DocumentT | null>;
+  
+  /**
+   * Finds one document in the collection and replaces it.
+   *
+   * @param query         A document describing the query filter, which may not be null.
+   * @param replacement   The document that should replace the found document. 
+   *                      The document cannot contain any MongoDB update operators.
+   * @param options       The options to apply to the findOneAndReplace operation
+   * 
+   * @return the resulting document or null if no such document exists
+   */
+  findOneAndReplace(
+    query: object,
+    replacement: object,
+    options?: RemoteFindOneAndModifyOptions
+  ): Promise<DocumentT | null>;
+
+  /**
+   * Finds one document in the collection and deletes it.
+   *
+   * @param query         A document describing the query filter, which may not be null.
+   * @param replacement   The document that should replace the found document. 
+   *                      The document cannot contain any MongoDB update operators.
+   * @param options       The options to apply to the findOneAndDelete operation
+   * 
+   * @return the resulting document or null if no such document exists
+   */
+  findOneAndDelete(
+    query: object,
+    options?: RemoteFindOneAndModifyOptions
+  ): Promise<DocumentT | null>;
 
   /**
    * Aggregates documents according to the specified aggregation pipeline.
@@ -137,4 +197,8 @@ export default interface CoreRemoteMongoCollection<DocumentT> {
     update: object,
     updateOptions?: RemoteUpdateOptions
   ): Promise<RemoteUpdateResult>;
+
+  watch(
+    ids: any[]
+  ): Promise<Stream<ChangeEvent<DocumentT>>>;
 }

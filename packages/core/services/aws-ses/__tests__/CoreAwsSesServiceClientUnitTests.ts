@@ -40,7 +40,7 @@ describe("CoreAwsSesServiceClient", () => {
     const expectedMessageId = "yourMessageId";
 
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenResolve(new AwsSesSendResult(expectedMessageId));
 
     const result = await client.sendEmail(
@@ -52,7 +52,7 @@ describe("CoreAwsSesServiceClient", () => {
     expect(result.messageId).toEqual(expectedMessageId);
 
     const [funcNameArg, funcArgsArg, decoderArg]: any = capture(
-      serviceMock.callFunctionInternal
+      serviceMock.callFunction
     ).last();
 
     expect(funcNameArg).toEqual("send");
@@ -69,7 +69,7 @@ describe("CoreAwsSesServiceClient", () => {
 
     // Should pass along errors
     when(
-      serviceMock.callFunctionInternal(anything(), anything(), anything())
+      serviceMock.callFunction(anything(), anything(), anything())
     ).thenThrow(new Error("whoops"));
 
     try {

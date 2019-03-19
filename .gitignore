@@ -22,6 +22,7 @@ coverage
 
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
+.sass-cache
 
 # Bower dependency directory (https://bower.io/)
 bower_components
@@ -69,5 +70,8 @@ build/
 # docs
 **/docs
 **/docs-browser
+**/docs-react-native
 **/docs-server
 **/doc
+
+.vscode

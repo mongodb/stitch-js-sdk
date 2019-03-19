@@ -40,6 +40,11 @@ export enum TwilioActions {
   Send = "send"
 }
 
+export class AwsRuleCreator {
+  public type = "aws";
+  constructor(readonly name: string, readonly actions: string[]) {}
+}
+
 export class AwsS3RuleCreator {
   public type = "aws-s3";
   constructor(readonly name: string, readonly actions: AwsS3Actions[]) {}
@@ -64,6 +69,7 @@ export class TwilioRuleCreator {
 }
 
 export type RuleCreator =
+  | AwsRuleCreator
   | AwsS3RuleCreator
   | AwsSesRuleCreator
   | HttpRuleCreator
@@ -81,11 +87,12 @@ export class RuleCreatorCodec implements Encoder<RuleCreator> {
   }
 }
 
+const namespaceField = "namespace";
 export class MongoDbCodec implements Encoder<MongoDbRuleCreator> {
   private static NamespaceKey = "namespace";
 
   public encode(from: MongoDbRuleCreator): object {
-    from.rule[MongoDbCodec.NamespaceKey] = from.namespace;
+    from.rule[namespaceField] = from.namespace;
     return from.rule;
   }
 }

@@ -15,9 +15,19 @@
  */
 
 /**
- * A credential which can be used with {@link StitchAuth.loginWithRedirect} to
- * login via OAuth. Do not use this credential directly, use one of its 
- * implementations.
+ * StitchRedirectCredential is an interface for [OAuth2](https://en.wikipedia.org/wiki/OAuth)
+ * login flow credentials.
+ * 
+ * Pass implementations to [[StitchAuth.loginWithRedirect]] to log in as a [[StitchUser]].
+ * 
+ * Each [Authentication Provider](https://docs.mongodb.com/stitch/authentication/)
+ * in MongoDB Stitch provides a [[StitchCredential]] or StitchRedirectCredential
+ * implementation. See **Implemented by** below for a list of implementations.
+ *
+ * @see
+ * - [[StitchAuth]]
+ * - [[StitchAuth.loginWithRedirect]] 
+ * - [[StitchCredential]]
  */
 export default interface StitchRedirectCredential {
   readonly providerName: string;

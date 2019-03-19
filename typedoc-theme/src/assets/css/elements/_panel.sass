@@ -1,0 +1,47 @@
+// Displays a panel, an organisation unit in TypeDoc used to group single entities
+// like a method or a variable.
+//
+// <div class="tsd-panel">
+//   <h3>Eirmod tempor invidunt</h3>
+//   <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat.</p>
+// </div>
+//
+.tsd-panel
+    @extend %prevent-children-margin
+    padding: 20px 0
+    background-color: $COLOR_PANEL
+
+    &:empty
+        display: none
+
+    > h1, > h2, > h3
+        margin-left: -20px
+        padding: 0 20px
+
+        &.tsd-before-signature
+            margin-bottom: 0
+            border-bottom: 0
+
+
+    table
+        display: block
+        width: 100%
+        overflow: auto
+        margin-top: 10px
+        word-break: normal
+        word-break: keep-all
+
+        th
+            font-weight: bold
+
+        th, td
+            padding: 6px 13px
+            border: 1px solid #ddd
+
+        tr
+            background-color: #fff
+            border-top: 1px solid #ccc
+
+            &:nth-child(2n)
+                background-color: #f8f8f8
+

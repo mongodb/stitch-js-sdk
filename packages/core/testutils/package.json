@@ -1,8 +1,8 @@
 {
   "name": "mongodb-stitch-core-testutils",
-  "version": "4.0.6",
+  "version": "4.3.2",
   "description": "",
-  "main": "dist/umd/index.js",
+  "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "files": [
@@ -33,17 +33,25 @@
     {
       "name": "Jason Flax",
       "email": "jason.flax@mongodb.com"
+    },
+    {
+      "name": "Tyler Kaye",
+      "email": "tyler.kaye@mongodb.com"
+    },
+    {
+      "name": "Doug Kaminsky",
+      "email": "douglas.kaminsky@mongodb.com"
     }
   ],
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "bson": "^3.0.0",
-    "fetch-everywhere": "^1.0.5",
-    "mongodb-stitch-core-admin-client": "^4.0.6",
-    "mongodb-stitch-core-sdk": "^4.0.6"
+    "bson": "4.0.2",
+    "mongodb-stitch-core-admin-client": "^4.3.2",
+    "mongodb-stitch-core-sdk": "^4.3.2"
   },
   "devDependencies": {
+    "cross-fetch": "^2.2.3",
     "prettier": "^1.13.5",
     "@types/bson": "^1.0.11",
     "tslint": "^5.10.0",
@@ -52,12 +60,12 @@
   },
   "scripts": {
     "build": "npm run build-main && npm run build-module",
-    "build-main": "tsc -p tsconfig.umd.json",
+    "build-main": "tsc -p tsconfig.cjs.json",
     "build-module": "tsc -p tsconfig.esm.json",
     "prepare": "npm run build",
     "watch": "tsc -w -p tsconfig.esm.json",
-    "lint": "tslint src/**/*.ts __tests__/**/*.ts",
-    "lint-fix": "tslint --fix src/**/*.ts __tests__/**/*.ts",
+    "lint": "tslint 'src/**/*.ts' '__tests__/**/*.ts'",
+    "lint-fix": "tslint --fix 'src/**/*.ts' '__tests__/**/*.ts'",
     "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\"",
     "lint-check": "tslint-config-prettier-check ./tslint.json"
   }

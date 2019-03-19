@@ -17,6 +17,7 @@
 import {
   AnonymousAuthProvider,
   AnonymousCredential,
+  BSON,
   Codec,
   CustomAuthProvider,
   CustomCredential,
@@ -41,6 +42,8 @@ import {
   StitchUserIdentity,
   StitchUserProfile,
   Storage,
+  Stream,
+  StreamListener,
   Transport,
   UserApiKey,
   UserApiKeyAuthProvider,
@@ -49,57 +52,63 @@ import {
   UserPasswordCredential,
   UserType
 } from "mongodb-stitch-core-sdk";
+
 import { UserApiKeyAuthProviderClient } from "./core/auth/providers/userapikey/UserApiKeyAuthProviderClient";
 import { UserPasswordAuthProviderClient } from "./core/auth/providers/userpassword/UserPasswordAuthProviderClient";
 import StitchAuth from "./core/auth/StitchAuth";
 import StitchAuthListener from "./core/auth/StitchAuthListener";
 import StitchUser from "./core/auth/StitchUser";
+import NodeFetchStreamTransport from "./core/internal/net/NodeFetchStreamTransport";
 import Stitch from "./core/Stitch";
 import StitchAppClient from "./core/StitchAppClient";
 import NamedServiceClientFactory from "./services/internal/NamedServiceClientFactory";
-import StitchServiceClient from "./services/internal/StitchServiceClient";
+import StitchServiceClient from "./services/StitchServiceClient";
 
 export {
   AnonymousAuthProvider,
   AnonymousCredential,
+  BSON,
+  Codec,
   CustomAuthProvider,
   CustomCredential,
+  Decoder,
+  Encoder,
   FacebookAuthProvider,
   FacebookCredential,
   GoogleAuthProvider,
   GoogleCredential,
+  MemoryStorage,
+  NamedServiceClientFactory,
+  NodeFetchStreamTransport, 
   ServerApiKeyAuthProvider,
   ServerApiKeyCredential,
-  UserApiKeyAuthProvider,
-  UserApiKey,
-  UserApiKeyCredential,
-  Codec,
-  Decoder,
-  Encoder,
-  UserPasswordAuthProvider,
-  UserPasswordCredential,
-  StitchAppClientInfo,
+  Stitch,
+  StitchAppClient,
   StitchAppClientConfiguration,
+  StitchAppClientInfo,
+  StitchAuth,
+  StitchAuthListener,
   StitchClientError,
   StitchClientErrorCode,
   StitchCredential,
   StitchRequestError,
   StitchRequestErrorCode,
+  StitchServiceClient,
   StitchServiceError,
   StitchServiceErrorCode,
-  StitchUserProfile,
-  StitchUserIdentity,
-  Storage,
-  MemoryStorage,
-  Transport,
-  UserType,
-  NamedServiceClientFactory,
-  Stitch,
-  StitchAppClient,
-  StitchAuth,
-  StitchAuthListener,
   StitchUser,
-  StitchServiceClient,
+  StitchUserIdentity,
+  StitchUserProfile,
+  Storage,
+  Stream,
+  StreamListener, 
+  Transport,
+  UserApiKey,
+  UserApiKeyAuthProvider,
   UserApiKeyAuthProviderClient,
-  UserPasswordAuthProviderClient
+  UserApiKeyCredential,
+  UserPasswordAuthProvider,
+  UserPasswordAuthProviderClient,
+  UserPasswordCredential,
+  UserType,
 };

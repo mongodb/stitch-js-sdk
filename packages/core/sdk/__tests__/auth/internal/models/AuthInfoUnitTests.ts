@@ -25,6 +25,7 @@ describe("AuthInfo", () => {
   const refreshToken = "qux";
   const loggedInProviderName = "quux";
   const loggedInProviderType = "corge";
+  const lastAuthActivity = new Date("2009-02-11T20:16:59.635Z");
 
   const userType = "fred";
   const id = "wibble";
@@ -41,6 +42,7 @@ describe("AuthInfo", () => {
       refreshToken,
       loggedInProviderType,
       loggedInProviderName,
+      lastAuthActivity,
       userProfile
     );
 
@@ -50,6 +52,7 @@ describe("AuthInfo", () => {
     expect(authInfo.refreshToken).toEqual(refreshToken);
     expect(authInfo.loggedInProviderName).toEqual(loggedInProviderName);
     expect(authInfo.loggedInProviderType).toEqual(loggedInProviderType);
+    expect(authInfo.lastAuthActivity).toEqual(lastAuthActivity);
     expect(authInfo.userProfile).toEqual(userProfile);
   });
 
@@ -62,10 +65,11 @@ describe("AuthInfo", () => {
     expect(authInfo.refreshToken).toEqual(undefined);
     expect(authInfo.loggedInProviderName).toEqual(undefined);
     expect(authInfo.loggedInProviderType).toEqual(undefined);
+    expect(authInfo.lastAuthActivity).toEqual(undefined);
     expect(authInfo.userProfile).toEqual(undefined);
   });
 
-  it("must have deviceId, but nothing else if logged out", () => {
+  it("must have deviceId, but nothing else if user cleared", () => {
     const authInfo = new AuthInfo(
       userId,
       deviceId,
@@ -73,8 +77,9 @@ describe("AuthInfo", () => {
       refreshToken,
       loggedInProviderType,
       loggedInProviderName,
+      lastAuthActivity,
       userProfile
-    ).loggedOut();
+    ).withClearedUser();
 
     expect(authInfo.userId).toEqual(undefined);
     expect(authInfo.deviceId).toEqual(deviceId);
@@ -82,6 +87,31 @@ describe("AuthInfo", () => {
     expect(authInfo.refreshToken).toEqual(undefined);
     expect(authInfo.loggedInProviderName).toEqual(undefined);
     expect(authInfo.loggedInProviderType).toEqual(undefined);
+    expect(authInfo.lastAuthActivity).toEqual(undefined);
     expect(authInfo.userProfile).toEqual(undefined);
+  });
+
+  it("must have all fields except tokens, and auth activity when logged out", () => {
+    const authInfo = new AuthInfo(
+      userId,
+      deviceId,
+      accessToken,
+      refreshToken,
+      loggedInProviderType,
+      loggedInProviderName,
+      lastAuthActivity,
+      userProfile
+    ).loggedOut();
+
+    expect(authInfo.userId).toEqual(userId);
+    expect(authInfo.deviceId).toEqual(deviceId);
+    expect(authInfo.accessToken).toEqual(undefined);
+    expect(authInfo.refreshToken).toEqual(undefined);
+    expect(authInfo.loggedInProviderName).toEqual(loggedInProviderName);
+    expect(authInfo.loggedInProviderType).toEqual(loggedInProviderType);
+    expect(
+      authInfo.lastAuthActivity.getTime()
+    ).toBeGreaterThan(lastAuthActivity.getTime());
+    expect(authInfo.userProfile).toEqual(userProfile);
   });
 });

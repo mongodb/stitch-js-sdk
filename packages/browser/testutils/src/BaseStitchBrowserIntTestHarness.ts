@@ -20,11 +20,12 @@ import {
   Stitch,
   StitchAppClient,
   StitchAppClientConfiguration,
+  Storage,
   UserPasswordAuthProviderClient,
   UserPasswordCredential
 } from "mongodb-stitch-browser-core";
-import { AppResource, AppResponse } from "mongodb-stitch-core-admin-client";
-import { BaseStitchIntTestHarness } from "mongodb-stitch-core-testutils";
+import { App, AppResponse } from "mongodb-stitch-core-admin-client";
+import { BaseStitchIntTestHarness, JestFetchStreamTransport } from "mongodb-stitch-core-testutils";
 
 const stitchBaseUrlEnvVar = "STITCH_BASE_URL";
 
@@ -35,14 +36,14 @@ export default class BaseStitchBrowserIntTestHarness extends BaseStitchIntTestHa
     return super.setup();
   }
 
-  public tearDown(): Promise<void[]> {
+  public teardown(): Promise<void> {
     return super.teardown().then(() =>
       Promise.all(
         this.clients.map(it => {
           it.auth.logout();
         })
       )
-    );
+    ).then(() => { return });
   }
 
   public get stitchBaseUrl(): string {
@@ -50,7 +51,7 @@ export default class BaseStitchBrowserIntTestHarness extends BaseStitchIntTestHa
     return envVar !== undefined ? envVar : "http://localhost:9090";
   }
 
-  public getAppClient(app: AppResponse): StitchAppClient {
+  public getAppClient(app: AppResponse, storage?: Storage): StitchAppClient {
     if (Stitch.hasAppClient(app.clientAppId)) {
       return Stitch.getAppClient(app.clientAppId);
     }
@@ -59,7 +60,8 @@ export default class BaseStitchBrowserIntTestHarness extends BaseStitchIntTestHa
       app.clientAppId,
       new StitchAppClientConfiguration.Builder()
         .withBaseUrl(this.stitchBaseUrl)
-        .withStorage(new MemoryStorage(app.clientAppId))
+        .withStorage(storage || new MemoryStorage(app.clientAppId))
+        .withTransport(new JestFetchStreamTransport())
         .build()
     );
     this.clients.push(client);

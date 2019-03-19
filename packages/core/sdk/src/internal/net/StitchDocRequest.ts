@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { StitchRequest } from "./StitchRequest";
-import Headers from "./Headers";
+import { EJSON } from "bson";
 import ContentTypes from "./ContentTypes";
-import { stringify } from "mongodb-extjson";
+import Headers from "./Headers";
+import { StitchRequest } from "./StitchRequest";
 
 /** @hidden */
 export class StitchDocRequest extends StitchRequest {
@@ -66,7 +66,7 @@ export namespace StitchDocRequest {
         this.withHeaders({});
       }
       this.headers![Headers.CONTENT_TYPE] = ContentTypes.APPLICATION_JSON;
-      this.withBody(stringify(this.document));
+      this.withBody(EJSON.stringify(this.document, { relaxed: false }));
       return new StitchDocRequest(super.build(), this.document);
     }
   }

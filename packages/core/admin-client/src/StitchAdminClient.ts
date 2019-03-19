@@ -15,12 +15,12 @@
  */
 
 import {
-  FetchTransport,
   MemoryStorage,
   StitchRequestClient,
 } from "mongodb-stitch-core-sdk";
-import AppsRoutes from "./internal/routes/AppsRoutes";
-import { AppsResource } from "./resources/AppsResource";
+
+import AdminFetchTransport from "./AdminFetchTransport";
+import { Apps } from "./Resources";
 import StitchAdminAuth from "./StitchAdminAuth";
 import StitchAdminAuthRoutes from "./StitchAdminAuthRoutes";
 import { StitchAdminClientConfiguration } from "./StitchAdminClientConfiguration";
@@ -39,7 +39,9 @@ export default class StitchAdminClient {
   private readonly authRoutes: StitchAdminAuthRoutes;
 
   public constructor(
-    adminClientConfiguration: StitchAdminClientConfiguration
+    baseUrl: string = StitchAdminClient.defaultServerUrl,
+    transport: Transport = new AdminFetchTransport(),
+    requestTimeout: number = StitchAdminClient.defaultRequestTimeout
   ) {
     const builder = adminClientConfiguration.builder();
 
@@ -69,5 +71,19 @@ export default class StitchAdminClient {
       this.adminAuth,
       new AppsRoutes(this.resourceRoutes, groupId)
     );
+  }
+
+  public loginWithCredential(
+    credential: StitchCredential
+  ): Promise<StitchAdminUser> {
+    return this.adminAuth.loginWithCredentialInternal(credential);
+  }
+
+  public logout(): Promise<void> {
+    return this.adminAuth.logoutInternal();
+  }
+
+  public close(): void {
+    this.adminAuth.close();
   }
 }

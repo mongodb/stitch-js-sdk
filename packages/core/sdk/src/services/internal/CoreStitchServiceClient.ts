@@ -14,17 +14,28 @@
  * limitations under the License.
  */
 
-import StitchAuthRequestClient from "../../auth/internal/StitchAuthRequestClient";
 import { Decoder } from "../../internal/common/Codec";
-import Method from "../../internal/net/Method";
-import { StitchAuthRequest } from "../../internal/net/StitchAuthRequest";
-import StitchServiceRoutes from "./StitchServiceRoutes";
+import Stream from "../../Stream";
+import StitchServiceBinder from "./StitchServiceBinder";
 
 /** @hidden */
-export default interface CoreStitchServiceClient {
-  callFunctionInternal<T>(
+export default interface CoreStitchServiceClient extends StitchServiceBinder {
+  callFunction<T>(
     name: string,
     args: any[],
     decoder?: Decoder<T>
   ): Promise<T>;
+
+  streamFunction<T>(
+    name: string,
+    args: any[],
+    decoder?: Decoder<T>
+  ): Promise<Stream<T>>;
+
+  /**
+   * Bind a given service to this service client.
+   * 
+   * @param binder the service binder that links the service to this client
+   */
+  bind(binder: StitchServiceBinder)
 }

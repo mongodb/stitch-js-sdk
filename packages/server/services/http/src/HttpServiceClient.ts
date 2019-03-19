@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-import {
-  NamedServiceClientFactory,
-  StitchServiceClient
-} from "mongodb-stitch-server-core";
-import { StitchAppClientInfo } from "mongodb-stitch-core-sdk";
+import { 
+  CoreStitchServiceClient, 
+  StitchAppClientInfo 
+} from "mongodb-stitch-core-sdk";
 import {
   CoreHttpServiceClient,
   HttpRequest,
   HttpResponse
 } from "mongodb-stitch-core-services-http";
+import { NamedServiceClientFactory } from "mongodb-stitch-server-core";
+
 import HttpServiceClientImpl from "./internal/HttpServiceClientImpl";
 
 /**
@@ -43,7 +44,7 @@ export namespace HttpServiceClient {
   export const factory: NamedServiceClientFactory<HttpServiceClient> = new class
     implements NamedServiceClientFactory<HttpServiceClient> {
     public getNamedClient(
-      service: StitchServiceClient,
+      service: CoreStitchServiceClient,
       client: StitchAppClientInfo
     ): HttpServiceClient {
       return new HttpServiceClientImpl(new CoreHttpServiceClient(service));

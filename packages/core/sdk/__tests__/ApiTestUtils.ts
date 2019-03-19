@@ -23,7 +23,9 @@ import {
   objectContaining,
   when
 } from "ts-mockito";
+/* tslint:disable no-submodule-imports */
 import { Matcher } from "ts-mockito/lib/matcher/type/Matcher";
+/* tslint:enable no-submodule-imports */
 import {
   CoreStitchAuth,
   CoreUserApiKeyAuthProviderClient,
@@ -117,11 +119,24 @@ export const TEST_REFRESH_TOKEN: string = (() => {
   );
 })();
 
+function getTestLoginResponse(userId?: string): ApiAuthInfo {
+  return new class extends ApiAuthInfo {
+    constructor() {
+      super(
+        userId || "non-unique-user-id",
+        "0123456012345601234560123456",
+        TEST_ACCESS_TOKEN,
+        TEST_REFRESH_TOKEN
+      );
+    }
+  }();
+}
+
 /**
  * Gets a login response for testing that is always the same.
  */
-export const TEST_LOGIN_RESPONSE: ApiAuthInfo = (() => {
-  return new class extends ApiAuthInfo {
+export const TEST_LOGIN_RESPONSE: ApiAuthInfo = (() =>
+  new class extends ApiAuthInfo {
     constructor() {
       super(
         "some-unique-user-id",
@@ -130,14 +145,13 @@ export const TEST_LOGIN_RESPONSE: ApiAuthInfo = (() => {
         TEST_REFRESH_TOKEN
       );
     }
-  }();
-})();
+  }())();
 
 /**
  * Gets a link response for testing that is always the same.
  */
-export const TEST_LINK_RESPONE: ApiAuthInfo = (() => {
-  return new class extends ApiAuthInfo {
+export const TEST_LINK_RESPONE: ApiAuthInfo = (() =>
+  new class extends ApiAuthInfo {
     constructor() {
       super(
         "some-unique-user-id",
@@ -146,8 +160,7 @@ export const TEST_LINK_RESPONE: ApiAuthInfo = (() => {
         TEST_REFRESH_TOKEN
       );
     }
-  }();
-})();
+  }())();
 
 /**
  * Gets a user profile for testing that is always the same.
@@ -197,6 +210,44 @@ export class RequestClassMatcher extends Matcher {
   }
 }
 
+let staticUniqueUserId = 0;
+export function getLastLoginUserId(): string {
+  return (staticUniqueUserId).toString();
+}
+
+export function mockNextUserResponse(
+  requestClientMock: StitchRequestClient,
+  userId?: string
+) {
+  if (userId === undefined) {
+    staticUniqueUserId++;
+  }
+
+  const idForResponse = userId || staticUniqueUserId.toString();
+
+  // Any /login works
+  when(
+    requestClientMock.doRequest(new RequestClassMatcher(
+      new RegExp(".*/login")
+    ) as any)
+  ).thenResolve({
+    body: JSON.stringify(getTestLoginResponse(idForResponse)),
+    headers: {},
+    statusCode: 200
+  });
+
+  // Any /session works
+  when(
+    requestClientMock.doRequest(new RequestClassMatcher(
+      new RegExp(".*/session")
+    ) as any)
+  ).thenResolve({
+    body: JSON.stringify(getTestLoginResponse(idForResponse)),
+    headers: {},
+    statusCode: 200
+  });
+}
+
 /**
  * Gets a mocked request client for testing that can be extended. In general
  * it supports enough to return responses for login, profile, and link. Anything else
@@ -211,7 +262,7 @@ export function getMockedRequestClient(): StitchRequestClient {
       new RegExp(".*/login")
     ) as any)
   ).thenResolve({
-    body: JSON.stringify(TEST_LOGIN_RESPONSE),
+    body: JSON.stringify(getTestLoginResponse(getLastLoginUserId())),
     headers: {},
     statusCode: 200
   });
@@ -222,7 +273,7 @@ export function getMockedRequestClient(): StitchRequestClient {
       new RegExp(".*/session")
     ) as any)
   ).thenResolve({
-    body: JSON.stringify(TEST_LOGIN_RESPONSE),
+    body: JSON.stringify(getTestLoginResponse(getLastLoginUserId())),
     headers: {},
     statusCode: 200
   });

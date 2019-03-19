@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as EJSON from "mongodb-extjson";
+import { EJSON } from "bson";
 import {
   CoreStitchAppClient,
   CoreStitchAuth,
@@ -27,7 +27,7 @@ describe("EJSON test", () => {
     expect(
       EJSON.stringify({
         test: 42
-      })
+      }, { relaxed: false })
     ).toEqual('{"test":{"$numberInt":"42"}}');
   });
   it("should deserialize Extended JSON correctly", () => {

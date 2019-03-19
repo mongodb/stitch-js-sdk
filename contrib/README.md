@@ -9,10 +9,12 @@ This project follows [Semantic Versioning 2.0](https://semver.org/). In general,
 This project uses Lerna to manage multiple modules: https://github.com/lerna/lerna.
 Run the following to begin development:
 ```bash
-# install lergna globally
+# install lerna globally
 npm install --global lerna
 # install dependencies
 npm install
+# install typedoc theme dependencies
+cd typedoc-theme && npm install && cd ..
 # install external dependencies, and link shared modules
 lerna bootstrap --hoist
 # build modules
@@ -29,11 +31,17 @@ lerna run test
 ```
 
 ### Publishing a New SDK version
+
+The [aws-cli](https://docs.aws.amazon.com/cli/latest/userguide/install-bundle.html) client is required
+along with relevant permissions to the stitch-sdks bucket.
+
 ```bash
-lerna publish
+lerna publish --force-publish="*"
 ./publish_bundles.sh
 ./publish_docs.sh
 ```
+
+The `--force-publish="*"` argument ensures that all packages bump their version in lockstep.
 
 ### Patch Versions
 
