@@ -212,10 +212,14 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     stitchReq: StitchAuthRequest,
     authInfo?: AuthInfo | undefined
   ): Promise<Response> {
-    return this.requestClient
-      .doRequest(this.prepareAuthRequest(stitchReq, authInfo || this.activeUserAuthInfo))
-      .catch(err =>
-        this.handleAuthFailure(err, stitchReq));
+    try {
+      return this.requestClient
+        .doRequest(this.prepareAuthRequest(stitchReq, authInfo || this.activeUserAuthInfo))
+        .catch(err =>
+          this.handleAuthFailure(err, stitchReq));
+    } catch(err) {
+      return Promise.reject(err);
+    }
   }
 
   /**
@@ -229,7 +233,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     decoder?: Decoder<T>
   ): Promise<T> {
     return this.doAuthenticatedRequest(stitchReq)
-      .then(response => {       
+      .then(response => {  
         const obj = EJSON.parse(response.body!, { strict: false });
 
         if (decoder) {

@@ -830,4 +830,16 @@ describe("RemoteMongoClient", () => {
     await coll.updateMany({}, { $set: {hello: "multiverse"}});
  })
  /* tslint:enable:no-string-literal */
+
+  it("issuing request with logged out user should reject promise", async () => {
+    const coll = getTestColl();
+
+    expect(coll.findOne()).resolves.toBeNull();
+
+    expect(harness.clients[0].auth.isLoggedIn).toEqual(true);
+    await harness.clients[0].auth.logout()
+    expect(harness.clients[0].auth.isLoggedIn).toEqual(false);
+
+    expect(coll.findOne()).rejects.toBeTruthy();
+  });
 });
