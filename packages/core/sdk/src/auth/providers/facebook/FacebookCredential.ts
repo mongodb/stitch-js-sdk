@@ -22,7 +22,17 @@ enum Fields {
   ACCESS_TOKEN = "accessToken"
 }
 
-/** @hidden */
+/** 
+ * A credential which can be used to log in as a Stitch user
+ * using the Facebook authentication provider.
+ *
+ * Browser SDK users can use the 
+ * [FacebookRedirectCredential](https://docs.mongodb.com/stitch-sdks/js/4/classes/facebookredirectcredential.html)
+ * with [StitchAuth.loginWithRedirect](https://docs.mongodb.com/stitch-sdks/js/4/interfaces/stitchauth.html#loginwithredirect).
+ * Server and React Native SDK users must obtain their own access token.
+ * Use a third-party module to get this token and pass it to the FacebookCredential
+ * constructor.
+ */
 export default class FacebookCredential implements StitchCredential {
 
   public get providerCapabilities(): ProviderCapabilities {
