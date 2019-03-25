@@ -37,6 +37,7 @@ along with relevant permissions to the stitch-sdks bucket.
 
 ```bash
 lerna publish --force-publish="*"
+./update_browser_readme_version.sh
 ./publish_bundles.sh
 ./publish_docs.sh
 ```
