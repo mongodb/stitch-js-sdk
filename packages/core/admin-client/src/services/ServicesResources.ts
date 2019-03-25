@@ -14,34 +14,43 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
+import { BasicResource } from "../Resources";
+import { Type } from "../SerializeDecorator";
+import StitchAdminAuth from "../StitchAdminAuth";
+import { RulesResource } from "./rules/RulesResources";
+import { Service } from "./ServiceConfigs";
 
-enum Fields {
-  Id = "_id",
-  Name = "name",
-  Type = "type"
-}
+// Resource for a specific service of an application. Can fetch rules
+// Of the service
+export class ServiceResource<T extends Service> extends BasicResource<T> {
+  public readonly rules = new RulesResource(this.adminAuth, `${this.url}/rules`);
 
-export interface ServiceResponse {
-  readonly id: string;
-  readonly name: string;
-  readonly type: string;
-}
-
-export class ServiceResponseCodec implements Codec<ServiceResponse> {
-  public decode(from: any): ServiceResponse {
-    return {
-      id: from[Fields.Id],
-      name: from[Fields.Name],
-      type: from[Fields.Type]
-    };
+  constructor(adminAuth: StitchAdminAuth, url: string, readonly service: T) {
+    super(adminAuth, url);
   }
 
-  public encode(from: ServiceResponse): object {
-    return {
-      [Fields.Id]: from.id,
-      [Fields.Name]: from.name,
-      [Fields.Type]: from.type
-    };
+  public get(): Promise<T> {
+    return this._get(this.service.constructor as Type<T>);
+  }
+
+  public remove(): Promise<void> {
+    return this._remove();
+  }
+}
+
+// Resource for listing services of an application
+export class ServicesResource extends BasicResource<Service> {
+  public list(): Promise<Service[]> {
+    return this._list(Service);
+  }
+
+  public create<T extends Service>(data: T): Promise<T> {
+    return this._create(data, data.constructor as Type<T>);
+  }
+
+  // GET a service
+  // - parameter id: id of the requested service
+  public service<T extends Service>(service: T): ServiceResource<T> {
+    return new ServiceResource<T>(this.adminAuth, `${this.url}/${service.id}`, service);
   }
 }

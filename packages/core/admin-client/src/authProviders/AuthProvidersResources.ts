@@ -14,44 +14,49 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
-import { AuthProvider, AuthProviders } from "../Resources";
+import { Method } from "mongodb-stitch-core-sdk";
+import { BasicResource } from "../Resources";
+import { Type } from "../SerializeDecorator";
+import StitchAdminAuth from "../StitchAdminAuth";
+import { Provider } from "./ProviderConfigs";
 
-/// View into a specific auth provider
-enum Fields {
-  ID = "_id",
-  DISABLED = "disabled",
-  NAME = "name",
-  TYPE = "type"
+// Resource for a specific auth provider of an application
+export class AuthProviderResource<T extends Provider> extends BasicResource<T> {
+  constructor(adminAuth: StitchAdminAuth, url: string, readonly provider: T) {
+    super(adminAuth, url);
+  }
+  public get(): Promise<T> {
+    return this._get(this.provider.constructor as Type<T>);
+  }
+  public update(data: T): Promise<void> {
+    return this._update(data, Method.PATCH);
+  }
+  public remove(): Promise<void> {
+    return this._remove();
+  }
+  public enable(): Promise<void> {
+    return this._enable();
+  }
+  public disable(): Promise<void> {
+    return this._disable();
+  }
 }
 
-export interface AuthProviderResponse {
-  /// Unique id of this provider
-  readonly id: string;
-  /// Whether or not this provider is disabled
-  readonly disabled: boolean;
-  /// Name of this provider
-  readonly name: string;
-  /// The type of this provider
-  readonly type: string;
-}
+// Resource for listing the auth providers of an application
+export class AuthProvidersResource extends BasicResource<Provider> {
+  protected readonly clazz = Provider;
 
-export class AuthProviderResponseCodec implements Codec<AuthProviderResponse> {
-  public decode(from: any): AuthProviderResponse {
-    return {
-      disabled: from[Fields.DISABLED],
-      id: from[Fields.ID],
-      name: from[Fields.NAME],
-      type: from[Fields.TYPE]
-    };
+  public list(): Promise<Provider[]> {
+    return this._list(Provider);
   }
 
-  public encode(from: AuthProviderResponse): object {
-    return {
-      [Fields.ID]: from.id,
-      [Fields.DISABLED]: from.disabled,
-      [Fields.NAME]: from.name,
-      [Fields.TYPE]: from.type
-    };
+  public create<T extends Provider>(data: T): Promise<T> {
+    return this._create(data, data.constructor as Type<T>);
+  }
+
+  // GET an auth provider
+  // - parameter providerId: id of the provider
+  public authProvider<T extends Provider>(provider: T): AuthProviderResource<T> {
+    return new AuthProviderResource(this.adminAuth, `${this.url}/${provider.id}`, provider);
   }
 }

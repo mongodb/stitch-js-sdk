@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import { Codec, Encoder } from "mongodb-stitch-core-sdk";
+import { BasicResource } from "../../Resources";
+import { json, Type } from "../../SerializeDecorator";
+import StitchAdminAuth from "../../StitchAdminAuth";
 
 export enum AwsS3Actions {
   Put = "put",
@@ -38,69 +40,105 @@ export enum TwilioActions {
   Send = "send"
 }
 
-export class AwsRuleCreator {
-  public type = "aws";
-  constructor(readonly name: string, readonly actions: string[]) {}
+export class Rule {
+  public static aws(name: string, actions: string[]): Rule {
+    return new AwsRule(name, actions);
+  }
+
+  public static awsS3(name: string, actions: AwsS3Actions[]): Rule {
+    return new AwsS3Rule(name, actions);
+  }
+
+  public static mongoDb(namespace: string, rule: object): Rule {
+    (rule as any).namespace = namespace;
+    return new MongoDbRule(namespace, rule);
+  }
+
+  @json("_id", { omitEmpty: true })
+  public readonly id: string;
+  public readonly type: string;
 }
 
-export class AwsS3RuleCreator {
-  public type = "aws-s3";
-  constructor(readonly name: string, readonly actions: AwsS3Actions[]) {}
+class AwsRule extends Rule {
+  @json("type") 
+  public readonly type = "aws";
+  public constructor(
+    @json("name") readonly name: string,
+    @json("actions") readonly actions: string[]) {
+    super();
+  }
 }
-export class AwsSesRuleCreator {
-  public type = "aws-ses";
 
-  constructor(readonly name: string, readonly actions: AwsSesActions[]) {}
+class AwsS3Rule extends Rule {
+  @json("type") public type = "aws-s3";
+  constructor(
+    @json("name") readonly name: string,
+    @json("actions") readonly actions: AwsS3Actions[]) {
+    super();
+  }
 }
-export class HttpRuleCreator {
-  public type = "http";
-  constructor(readonly name: string, readonly actions: HttpActions[]) {}
+
+class AwsSesRule extends Rule {
+  @json("type") public type = "aws-ses";
+
+  constructor(
+    @json("name") readonly name: string,
+    @json("actions") readonly actions: AwsSesActions[]) {
+    super();
+  }
 }
-export class MongoDbRuleCreator {
+
+class HttpRule extends Rule {
+  @json("type") public type = "http";
+  constructor(@json("name") readonly name: string, @json("actions") readonly actions: HttpActions[]) {
+    super();
+  }
+}
+
+class MongoDbRule extends Rule {
+  @json("type") 
   public type = "mongodb";
-  constructor(readonly namespace: string, readonly rule: object) {}
-}
-export class TwilioRuleCreator {
-  public type = "twilio";
-
-  constructor(readonly name: string, readonly actions: TwilioActions[]) {}
-}
-
-export type RuleCreator =
-  | AwsRuleCreator
-  | AwsS3RuleCreator
-  | AwsSesRuleCreator
-  | HttpRuleCreator
-  | MongoDbRuleCreator
-  | TwilioRuleCreator;
-
-export class RuleCreatorCodec implements Encoder<RuleCreator> {
-  public encode(from: RuleCreator): object {
-    switch (from.type) {
-      case "mongodb":
-        return new MongoDbCodec().encode(from as MongoDbRuleCreator);
-      default:
-        return from;
-    }
+  constructor(
+    @json("namespace") readonly namespace: string,
+    @json("rule") readonly rule: object) {
+    super();
   }
 }
 
-const namespaceField = "namespace";
-export class MongoDbCodec implements Encoder<MongoDbRuleCreator> {
-  public encode(from: MongoDbRuleCreator): object {
-    from.rule[namespaceField] = from.namespace;
-    return from.rule;
+class TwilioRule {
+  @json("type") public type = "twilio";
+
+  constructor(
+    @json("name") readonly name: string, 
+    @json("actions") readonly actions: TwilioActions[]) {}
+}
+
+// Resource for a specific rule of a service
+export class RuleResource<T extends Rule> extends BasicResource<T> {
+  constructor(adminAuth: StitchAdminAuth, url: string, readonly rule: T) {
+    super(adminAuth, url);
+  }
+
+  public get(): Promise<T> {
+    return this._get(this.rule.constructor as Type<T>);
+  }
+
+  public remove(): Promise<void> {
+    return this._remove();
   }
 }
 
-export class RuleResponse {}
-
-export class RuleResponseCodec implements Codec<RuleResponse> {
-  public encode(from: RuleResponse): object {
-    return {};
+// Resource for listing the rules of a service
+export class RulesResource extends BasicResource<Rule> {
+  public create(data: Rule): Promise<Rule> {
+    return this._create(data, Rule);
   }
 
-  public decode(from: any): RuleResponse {
-    return {};
+  public list(): Promise<Rule[]> {
+    return this._list(Rule);
+  }
+
+  public rule<T extends Rule>(rule: T): RuleResource<T> {
+    return new RuleResource(this.adminAuth, `${this.url}/${rule.id}`, rule);
   }
 }

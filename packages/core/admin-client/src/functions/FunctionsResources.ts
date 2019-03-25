@@ -14,66 +14,48 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
+import { Method } from "mongodb-stitch-core-sdk";
+import { BasicResource } from "../Resources";
+import { json } from "../SerializeDecorator";
 
-// / For creating or updating a function of an application
-enum FunctionCreatorFields {
-  Name = "name",
-  Source = "source",
-  CanEvaluate = "can_evaluate",
-  Private = "private"
-}
+export class StitchFunction {
+  @json("_id", { omitEmpty: true })
+  public readonly id: string;
+  @json("last_modified", { omitEmpty: true })
+  public readonly lastModified?: number
 
-export interface FunctionCreator {
-  readonly canEvaluate?: string;
-  readonly name: string;
-  readonly private: boolean;
-  readonly source: string;
-}
-
-export class FunctionCreatorCodec implements Codec<FunctionCreator> {
-  public decode(from: any): FunctionCreator {
-    return {
-      canEvaluate: from[FunctionCreatorFields.CanEvaluate],
-      name: from[FunctionCreatorFields.Name],
-      private: from[FunctionCreatorFields.Private],
-      source: from[FunctionCreatorFields.Source]
-    };
-  }
-
-  public encode(from: FunctionCreator): object {
-    return {
-      [FunctionCreatorFields.Name]: from.name,
-      [FunctionCreatorFields.Source]: from.source,
-      [FunctionCreatorFields.CanEvaluate]: from.canEvaluate,
-      [FunctionCreatorFields.Private]: from.private
-    };
+  constructor(
+    public readonly name: string,
+    @json("private") 
+    public readonly isPrivate: boolean,
+    public readonly source: string,
+    @json("can_evaluate", { omitEmpty: true }) 
+    public readonly canEvaluate?: object) {
   }
 }
 
-enum FunctionResponseFields {
-  Id = "id",
-  Name = "name"
+export class FunctionResource extends BasicResource<StitchFunction> {
+  public get(): Promise<StitchFunction> {
+    return this._get(StitchFunction);
+  }
+  public update(data: StitchFunction): Promise<void> {
+    return this._update(data, Method.PATCH);
+  }
+  public remove(): Promise<void> {
+    return this._remove();
+  }
 }
 
-// / View of a Function of an application
-export interface FunctionResponse {
-  readonly id: string;
-  readonly name: string;
-}
-
-export class FunctionResponseCodec implements Codec<FunctionResponse> {
-  public decode(from: any): FunctionResponse {
-    return {
-      id: from[FunctionResponseFields.Id],
-      name: from[FunctionResponseFields.Name]
-    };
+export class FunctionsResource extends BasicResource<StitchFunction> {
+  public list(): Promise<StitchFunction[]> {
+    return this._list(StitchFunction);
   }
 
-  public encode(from: FunctionResponse): object {
-    return {
-      [FunctionResponseFields.Id]: from.id,
-      [FunctionResponseFields.Name]: from.name
-    };
+  public create(data: StitchFunction): Promise<StitchFunction> {
+    return this._create(data, StitchFunction);
+  }
+
+  public function(fid: string): FunctionResource {
+    return new FunctionResource(this.adminAuth, `${this.url}/${fid}`);
   }
 }

@@ -14,133 +14,108 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
+import { json } from "../SerializeDecorator";
 
-export interface ServiceConfig {
-  readonly name: string;
-  readonly type: string;
-  readonly config: object;
-
-  readonly configCodec?: Codec<any>;
+export class AwsConfig {
+  constructor(
+    public readonly accessKeyId: string,
+    public readonly secretAccessKey: string) {}
 }
 
-export class ServiceConfigCodec implements Codec<ServiceConfig> {
-  public decode(from: any): ServiceConfig {
-    const type = from.type;
-    let config: object = from.config;
-    if (type === "twilio") {
-      config = new TwilioConfigCodec().decode(config);
-    }
+export class AwsS3Config {
+  constructor(
+    public readonly region: string,
+    public readonly accessKeyId: string,
+    public readonly secretAccessKey: string) {}
+}
 
-    return {
-      config,
-      name: from.name,
-      type: from.type
-    };
+export class AwsSesConfig {
+  constructor(
+    readonly region: string,
+    readonly accessKeyId: string,
+    readonly secretAccessKey: string) {}
+}
+
+export class MongoConfig {
+  constructor(@json("uri") readonly uri: string) {}
+}
+
+export class TwilioConfig {
+  constructor(
+    @json("auth_token")
+    public readonly authToken: string,
+    @json("sid")
+    public readonly accountSid: string) {
+  }
+}
+
+export class Service {
+  public static awsS3(name: string, config: AwsS3Config): Service {
+    return new AwsS3(name, config)
   }
 
-  public encode(from: ServiceConfig): object {
-    return {
-      config: from.configCodec
-        ? from.configCodec.encode(from.config)
-        : from.config,
-      name: from.name,
-      type: from.type
-    };
+  public static http(name: string): Service {
+    return new Http(name);
+  }
+
+  public static twilio(name: string, config: TwilioConfig): Service {
+    return new Twilio(name, config);
+  }
+
+  public static mongo(config: MongoConfig): Service {
+    return new Mongo(config);
+  }
+
+  @json("_id", { omitEmpty: true })
+  public readonly id: string;
+  public readonly type: string;
+  public readonly name: string;
+}
+
+class Http extends Service {
+  @json("config") public readonly config = {};
+  @json("type") public readonly type = "http";
+  constructor(@json("name") readonly name: string) {
+    super();
   }
 }
 
-export class Http implements ServiceConfig {
-  public readonly config = {};
-  public readonly type = "http";
-
-  public constructor(public readonly name: string) {}
-}
-
-export interface AwsConfig {
-  readonly accessKeyId: string;
-  readonly secretAccessKey: string;
-}
-
-export class Aws implements ServiceConfig {
-  public readonly type = "aws";
-  public constructor(
-    public readonly name,
-    public readonly config: AwsS3Config
-  ) {}
-}
-
-export interface AwsS3Config {
-  readonly region: string;
-  readonly accessKeyId: string;
-  readonly secretAccessKey: string;
-}
-
-export class AwsS3 implements ServiceConfig {
+export class AwsS3 extends Service {
   public readonly type = "aws-s3";
   public constructor(
-    public readonly name,
-    public readonly config: AwsS3Config
-  ) {}
+    @json("name") public readonly name: string,
+    @json("config", { prototype: AwsS3Config }) public readonly config: AwsS3Config
+  ) {
+    super();
+  }
 }
 
-export interface AwsSesConfig {
-  readonly region: string;
-  readonly accessKeyId: string;
-  readonly secretAccessKey: string;
-}
-
-export class AwsSes implements ServiceConfig {
-  public readonly type = "aws-ses";
+export class AwsSes extends Service {
+  @json("type") public readonly type = "aws-ses";
   public constructor(
-    public readonly name,
-    public readonly config: AwsSesConfig
-  ) {}
-}
-
-export enum TwilioConfigFields {
-  AuthToken = "auth_token",
-  AccountSid = "sid"
-}
-
-export interface TwilioConfig {
-  readonly authToken: string;
-  readonly accountSid: string;
-}
-
-export class TwilioConfigCodec implements Codec<TwilioConfig> {
-  public decode(from: any): TwilioConfig {
-    return {
-      accountSid: from[TwilioConfigFields.AccountSid],
-      authToken: from[TwilioConfigFields.AuthToken]
-    };
-  }
-
-  public encode(from: TwilioConfig): object {
-    return {
-      [TwilioConfigFields.AuthToken]: from.authToken,
-      [TwilioConfigFields.AccountSid]: from.accountSid
-    };
+    @json("name") public readonly name: string,
+    @json("config", { prototype: AwsSesConfig }) public readonly config: AwsSesConfig
+  ) {
+    super();
   }
 }
 
-export class Twilio implements ServiceConfig {
-  public readonly configCodec = new TwilioConfigCodec();
+export class Twilio extends Service {
+  @json("type")
   public readonly type = "twilio";
   public constructor(
-    public readonly name,
-    public readonly config: TwilioConfig
-  ) {}
+    @json("name") readonly name: string,
+    @json("config", { prototype: TwilioConfig }) readonly config: TwilioConfig) {
+    super();
+  }
 }
 
-export interface MongoConfig {
-  readonly uri: string;
-}
-
-export class Mongo implements ServiceConfig {
+export class Mongo extends Service {
+  @json("type") public readonly type: string = "mongodb-atlas";
+  @json("name") public readonly name: string = "mongodb-atlas";
   public constructor(
-    public readonly name,
-    public readonly type,
-    public readonly config: MongoConfig
-  ) {}
+    @json("config", { prototype: MongoConfig }) public readonly config: MongoConfig
+  ) {
+    super();
+  }
 }

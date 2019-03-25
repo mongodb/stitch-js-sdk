@@ -15,30 +15,13 @@
  */
 
 import AdminFetchTransport from "./AdminFetchTransport";
-import { AppResponse } from "./apps/AppsResources";
-import { AuthProviderResponse } from "./authProviders/AuthProvidersResources";
+import { App, AppResource, AppsResource } from "./apps/AppsResources";
+import { AuthProviderResource } from "./authProviders/AuthProvidersResources";
 import {
-  Anon,
-  Custom,
-  ProviderConfig,
-  Userpass
+  AnonProviderConfig,
+  UserpassProviderConfig
 } from "./authProviders/ProviderConfigs";
 import { FunctionCreator } from "./functions/FunctionsResources";
-import {
-  App,
-  Apps,
-  AuthProvider,
-  AuthProviders,
-  Function,
-  Functions,
-  Rule,
-  Rules,
-  Service,
-  Services,
-  User,
-  UserRegistrations,
-  Users
-} from "./Resources";
 import {
   AwsRuleCreator,
   AwsS3Actions,
@@ -54,32 +37,26 @@ import {
   TwilioRuleCreator
 } from "./services/rules/RulesResources";
 import {
-  Aws,
   AwsConfig,
   AwsS3,
   AwsS3Config,
   AwsSes,
   AwsSesConfig,
-  Http,
   Mongo,
-  ServiceConfig,
   Twilio,
   TwilioConfig
 } from "./services/ServiceConfigs";
-import { ServiceResponse } from "./services/ServicesResources";
+import { Service } from "./services/ServicesResources";
 import StitchAdminClient from "./StitchAdminClient";
 import { ConfirmationEmail } from "./userRegistrations/UserRegistrationsResources";
 
 export {
   AdminFetchTransport,
-  Anon,
+  AnonProviderConfig as Anon,
   App,
-  AppResponse,
-  Apps,
-  AuthProvider,
+  AppsResource,
+  AppResource,
   AuthProviderResponse,
-  AuthProviders,
-  Aws,
   AwsConfig,
   AwsRuleCreator,
   AwsS3,
@@ -92,30 +69,19 @@ export {
   AwsSesRuleCreator,
   ConfirmationEmail,
   Custom,
-  Function,
   FunctionCreator,
-  Functions,
-  Http,
   HttpActions,
   HttpRuleCreator,
   Mongo,
   MongoDbRuleCreator,
   ProviderConfig,
-  Rule,
   RuleCreator,
   RuleResponse,
-  Rules,
-  Service,
-  ServiceConfig,
   ServiceResponse,
-  Services,
   StitchAdminClient,
   Twilio,
   TwilioActions,
   TwilioConfig,
   TwilioRuleCreator,
-  User,
-  UserRegistrations,
-  Userpass,
-  Users,
+  UserpassProviderConfig as Userpass,
 };

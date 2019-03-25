@@ -1,3 +1,5 @@
+import { json } from "../SerializeDecorator";
+
 /**
  * Copyright 2018-present MongoDB, Inc.
  *
@@ -14,58 +16,47 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
-
-export interface ProviderConfig {
-  type: string;
-  config?: object;
+export class Provider {
+  @json("_id", { omitEmpty: true })
+  public readonly id: string;
+  public readonly name: string;
+  public readonly type: string;
+  public readonly config?: any;
+  public readonly disabled: boolean;
 }
 
-export class ProviderConfigCodec implements Codec<ProviderConfig> {
-  public decode(from: any): ProviderConfig {
-    return {
-      config: from.config,
-      type: from.type
-    };
-  }
-
-  public encode(from: ProviderConfig): object {
-    return {
-      config: from.config,
-      type: from.type
-    };
-  }
+export class AnonProviderConfig extends Provider {
+  public readonly type = "anon-user";
 }
 
-export class Anon implements ProviderConfig {
-  public type = "anon-user";
-}
-
-export class ApiKey implements ProviderConfig {
+export class ApiKey extends Provider {
   public type: "api-key";
 }
 
-export class Userpass implements ProviderConfig {
-  public type = "local-userpass";
-  public config = {
-    confirmEmailSubject: this.confirmEmailSubject,
-    emailConfirmationUrl: this.emailConfirmationUrl,
-    resetPasswordSubject: this.resetPasswordSubject,
-    resetPasswordUrl: this.resetPasswordUrl
-  };
+export class UserpassProviderConfig {
   public constructor(
-    public readonly emailConfirmationUrl: string,
-    public readonly resetPasswordUrl: string,
-    public readonly confirmEmailSubject: string,
-    public readonly resetPasswordSubject: string
+    public emailConfirmationUrl: string,
+    public resetPasswordUrl: string,
+    public confirmEmailSubject: string,
+    public resetPasswordSubject: string
   ) {}
 }
 
-export class Custom implements ProviderConfig {
-  public type = "custom-token";
-  public config = {
-    signingKey: this.signingKey
-  };
+export class UserpassProvider extends Provider {
+  public readonly type = "local-userpass";
+  public constructor(readonly config: UserpassProviderConfig) {
+    super();
+  }
+}
 
-  public constructor(public readonly signingKey: string) {}
+export class CustomProviderConfig {
+  public constructor(readonly signingKey: string) {} 
+}
+
+export class CustomProvider extends Provider {
+  public type = "custom-token";
+
+  public constructor(public readonly config: CustomProviderConfig) {
+    super();
+  }
 }
