@@ -16,21 +16,23 @@
 
 import { Method } from "mongodb-stitch-core-sdk";
 import { BasicResource } from "../Resources";
-import { json } from "../SerializeDecorator";
+import { jsonProperty } from "../SerializeDecorator";
 
 export class StitchFunction {
-  @json("_id", { omitEmpty: true })
+  @jsonProperty("_id", { omitEmpty: true })
   public readonly id: string;
-  @json("last_modified", { omitEmpty: true })
+  @jsonProperty("last_modified", { omitEmpty: true })
   public readonly lastModified?: number
 
   constructor(
-    public readonly name: string,
-    @json("private") 
-    public readonly isPrivate: boolean,
-    public readonly source: string,
-    @json("can_evaluate", { omitEmpty: true }) 
-    public readonly canEvaluate?: object) {
+    @jsonProperty("name")
+    public name: string,
+    @jsonProperty("private") 
+    public isPrivate: boolean,
+    @jsonProperty("source")
+    public source: string,
+    @jsonProperty("can_evaluate", { omitEmpty: true }) 
+    public canEvaluate?: object) {
   }
 }
 
@@ -39,7 +41,7 @@ export class FunctionResource extends BasicResource<StitchFunction> {
     return this._get(StitchFunction);
   }
   public update(data: StitchFunction): Promise<void> {
-    return this._update(data, Method.PATCH);
+    return this._update(data, Method.PUT);
   }
   public remove(): Promise<void> {
     return this._remove();

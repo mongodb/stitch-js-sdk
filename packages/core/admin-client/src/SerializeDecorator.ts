@@ -18,7 +18,7 @@ export type Type<T> = new (...args: any[]) => T;
 const targets = new Set()
 
 // for each target (Class object), add a map of property names
-export function json<T>(fieldKey: string, options: Options<T> = { omitEmpty: false }) {
+export function jsonProperty<T>(fieldKey: string, options: Options<T> = { omitEmpty: false }) {
 	return (target: any, propertyKey: string, parameterIndex?: number) => {
 		let className = target.constructor.name;
 		
@@ -53,7 +53,6 @@ function checkRegistryFor<T>(obj: object, type: Type<T>): Map<string, Metadata<a
 	if (keyMap === undefined) {
 		keyMap = new Map();
 
-		Object.keys(obj).forEach(key => keyMap.set(key, { fieldKey: key, omitEmpty: false }));
 		const parent = Object.getPrototypeOf(type.prototype).constructor.name;
 		if (parent !== undefined) {
 			const parentMap = keys.get(parent);
@@ -63,11 +62,8 @@ function checkRegistryFor<T>(obj: object, type: Type<T>): Map<string, Metadata<a
 				});
 			}
 		}
-
-		keys.set(type.name, keyMap);
-		console.log(keyMap);
 	}
-
+	keys.set(type.name, keyMap);
 	return keyMap;
 }
 

@@ -51,7 +51,10 @@ export class AuthProvidersResource extends BasicResource<Provider> {
   }
 
   public create<T extends Provider>(data: T): Promise<T> {
-    return this._create(data, data.constructor as Type<T>);
+    return this._create(data, data.constructor as Type<T>).then(created => {
+      created.config = data.config;
+      return created;
+    });
   }
 
   // GET an auth provider

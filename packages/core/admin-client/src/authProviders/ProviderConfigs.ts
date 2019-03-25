@@ -1,4 +1,4 @@
-import { json } from "../SerializeDecorator";
+import { jsonProperty } from "../SerializeDecorator";
 
 /**
  * Copyright 2018-present MongoDB, Inc.
@@ -17,12 +17,16 @@ import { json } from "../SerializeDecorator";
  */
 
 export class Provider {
-  @json("_id", { omitEmpty: true })
+  @jsonProperty("_id", { omitEmpty: true })
   public readonly id: string;
+  @jsonProperty("name")
   public readonly name: string;
+  @jsonProperty("type")
   public readonly type: string;
-  public readonly config?: any;
+  @jsonProperty("disabled")
   public readonly disabled: boolean;
+  @jsonProperty("config")
+  public config?: any;
 }
 
 export class AnonProviderConfig extends Provider {
@@ -35,9 +39,13 @@ export class ApiKey extends Provider {
 
 export class UserpassProviderConfig {
   public constructor(
+    @jsonProperty("emailConfirmationUrl") 
     public emailConfirmationUrl: string,
+    @jsonProperty("resetPasswordUrl") 
     public resetPasswordUrl: string,
+    @jsonProperty("confirmEmailSubject") 
     public confirmEmailSubject: string,
+    @jsonProperty("resetPasswordSubject") 
     public resetPasswordSubject: string
   ) {}
 }
@@ -50,7 +58,7 @@ export class UserpassProvider extends Provider {
 }
 
 export class CustomProviderConfig {
-  public constructor(readonly signingKey: string) {} 
+  public constructor(@jsonProperty("signingKey") readonly signingKey: string) {} 
 }
 
 export class CustomProvider extends Provider {

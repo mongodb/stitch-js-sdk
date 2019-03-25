@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { json } from "../SerializeDecorator";
+import { jsonProperty } from "../SerializeDecorator";
 
 export class AwsConfig {
   constructor(
@@ -37,14 +37,14 @@ export class AwsSesConfig {
 }
 
 export class MongoConfig {
-  constructor(@json("uri") readonly uri: string) {}
+  constructor(@jsonProperty("uri") readonly uri: string) {}
 }
 
 export class TwilioConfig {
   constructor(
-    @json("auth_token")
+    @jsonProperty("auth_token")
     public readonly authToken: string,
-    @json("sid")
+    @jsonProperty("sid")
     public readonly accountSid: string) {
   }
 }
@@ -66,16 +66,16 @@ export class Service {
     return new Mongo(config);
   }
 
-  @json("_id", { omitEmpty: true })
+  @jsonProperty("_id", { omitEmpty: true })
   public readonly id: string;
   public readonly type: string;
   public readonly name: string;
 }
 
 class Http extends Service {
-  @json("config") public readonly config = {};
-  @json("type") public readonly type = "http";
-  constructor(@json("name") readonly name: string) {
+  @jsonProperty("config") public readonly config = {};
+  @jsonProperty("type") public readonly type = "http";
+  constructor(@jsonProperty("name") readonly name: string) {
     super();
   }
 }
@@ -83,38 +83,38 @@ class Http extends Service {
 export class AwsS3 extends Service {
   public readonly type = "aws-s3";
   public constructor(
-    @json("name") public readonly name: string,
-    @json("config", { prototype: AwsS3Config }) public readonly config: AwsS3Config
+    @jsonProperty("name") public readonly name: string,
+    @jsonProperty("config", { prototype: AwsS3Config }) public readonly config: AwsS3Config
   ) {
     super();
   }
 }
 
 export class AwsSes extends Service {
-  @json("type") public readonly type = "aws-ses";
+  @jsonProperty("type") public readonly type = "aws-ses";
   public constructor(
-    @json("name") public readonly name: string,
-    @json("config", { prototype: AwsSesConfig }) public readonly config: AwsSesConfig
+    @jsonProperty("name") public readonly name: string,
+    @jsonProperty("config", { prototype: AwsSesConfig }) public readonly config: AwsSesConfig
   ) {
     super();
   }
 }
 
 export class Twilio extends Service {
-  @json("type")
+  @jsonProperty("type")
   public readonly type = "twilio";
   public constructor(
-    @json("name") readonly name: string,
-    @json("config", { prototype: TwilioConfig }) readonly config: TwilioConfig) {
+    @jsonProperty("name") readonly name: string,
+    @jsonProperty("config", { prototype: TwilioConfig }) readonly config: TwilioConfig) {
     super();
   }
 }
 
 export class Mongo extends Service {
-  @json("type") public readonly type: string = "mongodb-atlas";
-  @json("name") public readonly name: string = "mongodb-atlas";
+  @jsonProperty("type") public readonly type: string = "mongodb-atlas";
+  @jsonProperty("name") public readonly name: string = "mongodb-atlas";
   public constructor(
-    @json("config", { prototype: MongoConfig }) public readonly config: MongoConfig
+    @jsonProperty("config", { prototype: MongoConfig }) public readonly config: MongoConfig
   ) {
     super();
   }

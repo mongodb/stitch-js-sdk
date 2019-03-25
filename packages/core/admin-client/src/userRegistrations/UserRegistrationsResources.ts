@@ -16,7 +16,7 @@
 
 import { Method, StitchAuthRequest } from "mongodb-stitch-core-sdk";
 import { BasicResource } from "../Resources";
-import { deserialize, json } from "../SerializeDecorator";
+import { deserialize, jsonProperty } from "../SerializeDecorator";
 
 /**
  * Class that allows the retrieval of the token
@@ -24,9 +24,9 @@ import { deserialize, json } from "../SerializeDecorator";
  * of skirting email registration
  */
 export class ConfirmationEmail {
-  @json("token")
+  @jsonProperty("token")
   public readonly token: string;
-  @json("token_id")
+  @jsonProperty("token_id")
   public readonly tokenId: string;
 }
 

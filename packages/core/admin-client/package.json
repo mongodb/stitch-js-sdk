@@ -90,7 +90,8 @@
     "testPathIgnorePatterns": [
       "/lib/",
       "/node_modules/",
-      "ApiTestUtils.*"
+      "ApiTestUtils.*",
+      "AdminClientTestHarness.*"
     ],
     "moduleFileExtensions": [
       "ts",

@@ -15,7 +15,7 @@
  */
 
 import { BasicResource } from "../../Resources";
-import { json, Type } from "../../SerializeDecorator";
+import { jsonProperty, Type } from "../../SerializeDecorator";
 import StitchAdminAuth from "../../StitchAdminAuth";
 
 export enum AwsS3Actions {
@@ -54,63 +54,63 @@ export class Rule {
     return new MongoDbRule(namespace, rule);
   }
 
-  @json("_id", { omitEmpty: true })
+  @jsonProperty("_id", { omitEmpty: true })
   public readonly id: string;
   public readonly type: string;
 }
 
 class AwsRule extends Rule {
-  @json("type") 
+  @jsonProperty("type") 
   public readonly type = "aws";
   public constructor(
-    @json("name") readonly name: string,
-    @json("actions") readonly actions: string[]) {
+    @jsonProperty("name") readonly name: string,
+    @jsonProperty("actions") readonly actions: string[]) {
     super();
   }
 }
 
 class AwsS3Rule extends Rule {
-  @json("type") public type = "aws-s3";
+  @jsonProperty("type") public type = "aws-s3";
   constructor(
-    @json("name") readonly name: string,
-    @json("actions") readonly actions: AwsS3Actions[]) {
+    @jsonProperty("name") readonly name: string,
+    @jsonProperty("actions") readonly actions: AwsS3Actions[]) {
     super();
   }
 }
 
 class AwsSesRule extends Rule {
-  @json("type") public type = "aws-ses";
+  @jsonProperty("type") public type = "aws-ses";
 
   constructor(
-    @json("name") readonly name: string,
-    @json("actions") readonly actions: AwsSesActions[]) {
+    @jsonProperty("name") readonly name: string,
+    @jsonProperty("actions") readonly actions: AwsSesActions[]) {
     super();
   }
 }
 
 class HttpRule extends Rule {
-  @json("type") public type = "http";
-  constructor(@json("name") readonly name: string, @json("actions") readonly actions: HttpActions[]) {
+  @jsonProperty("type") public type = "http";
+  constructor(@jsonProperty("name") readonly name: string, @jsonProperty("actions") readonly actions: HttpActions[]) {
     super();
   }
 }
 
 class MongoDbRule extends Rule {
-  @json("type") 
+  @jsonProperty("type") 
   public type = "mongodb";
   constructor(
-    @json("namespace") readonly namespace: string,
-    @json("rule") readonly rule: object) {
+    @jsonProperty("namespace") readonly namespace: string,
+    @jsonProperty("rule") readonly rule: object) {
     super();
   }
 }
 
 class TwilioRule {
-  @json("type") public type = "twilio";
+  @jsonProperty("type") public type = "twilio";
 
   constructor(
-    @json("name") readonly name: string, 
-    @json("actions") readonly actions: TwilioActions[]) {}
+    @jsonProperty("name") readonly name: string, 
+    @jsonProperty("actions") readonly actions: TwilioActions[]) {}
 }
 
 // Resource for a specific rule of a service

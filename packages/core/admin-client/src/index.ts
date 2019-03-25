@@ -21,20 +21,11 @@ import {
   AnonProviderConfig,
   UserpassProviderConfig
 } from "./authProviders/ProviderConfigs";
-import { FunctionCreator } from "./functions/FunctionsResources";
 import {
-  AwsRuleCreator,
   AwsS3Actions,
-  AwsS3RuleCreator,
   AwsSesActions,
-  AwsSesRuleCreator,
   HttpActions,
-  HttpRuleCreator,
-  MongoDbRuleCreator,
-  RuleCreator,
-  RuleResponse,
-  TwilioActions,
-  TwilioRuleCreator
+  TwilioActions
 } from "./services/rules/RulesResources";
 import {
   AwsConfig,
@@ -46,7 +37,6 @@ import {
   Twilio,
   TwilioConfig
 } from "./services/ServiceConfigs";
-import { Service } from "./services/ServicesResources";
 import StitchAdminClient from "./StitchAdminClient";
 import { ConfirmationEmail } from "./userRegistrations/UserRegistrationsResources";
 
@@ -56,32 +46,19 @@ export {
   App,
   AppsResource,
   AppResource,
-  AuthProviderResponse,
   AwsConfig,
-  AwsRuleCreator,
   AwsS3,
   AwsS3Actions,
   AwsS3Config,
-  AwsS3RuleCreator,
   AwsSes,
   AwsSesActions,
   AwsSesConfig,
-  AwsSesRuleCreator,
   ConfirmationEmail,
-  Custom,
-  FunctionCreator,
   HttpActions,
-  HttpRuleCreator,
   Mongo,
-  MongoDbRuleCreator,
-  ProviderConfig,
-  RuleCreator,
-  RuleResponse,
-  ServiceResponse,
   StitchAdminClient,
   Twilio,
   TwilioActions,
   TwilioConfig,
-  TwilioRuleCreator,
   UserpassProviderConfig as Userpass,
 };

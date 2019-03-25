@@ -1,21 +1,21 @@
 import { EJSON } from 'bson';
 import { Method, StitchAuthRequest } from "mongodb-stitch-core-sdk";
 import { BasicResource, checkEmpty } from "../Resources";
-import { deserialize, json } from '../SerializeDecorator';
+import { deserialize, jsonProperty } from '../SerializeDecorator';
 
 class Stats {
-	@json("execution_time")
+	@jsonProperty("execution_time")
 	public readonly executionTime: string
 }
 
 class ExecuteFunctionResult {
-	@json("error_logs")
+	@jsonProperty("error_logs")
 	public readonly errorLogs: any
-	@json("logs")
+	@jsonProperty("logs")
 	public readonly logs: any
-	@json("result")
+	@jsonProperty("result")
 	public readonly result: any
-	@json("stats", { prototype: Stats })
+	@jsonProperty("stats", { prototype: Stats })
 	public readonly stats: Stats
 }
 export class DebugResource extends BasicResource<ExecuteFunctionResult> {

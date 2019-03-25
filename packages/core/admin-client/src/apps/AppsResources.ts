@@ -20,7 +20,7 @@ import { AuthProvidersResource } from "../authProviders/AuthProvidersResources";
 import { DebugResource } from "../debug/DebugResources";
 import { FunctionsResource } from "../functions/FunctionsResources";
 import { BasicResource, checkEmpty } from "../Resources";
-import { deserialize, json } from "../SerializeDecorator";
+import { deserialize, jsonProperty } from "../SerializeDecorator";
 import { ServicesResource } from "../services/ServicesResources";
 import { UserRegistrations } from "../userRegistrations/UserRegistrationsResources";
 import { UsersResource } from "../users/UsersResources";
@@ -28,21 +28,21 @@ import { UsersResource } from "../users/UsersResources";
 /// View into a specific application
 export class App {
   /// Unique, internal id of this application
-  @json("_id")
+  @jsonProperty("_id")
   public readonly id: string;
   /// Name of this application
-  @json("name")
+  @jsonProperty("name")
   public readonly name: string;
   /// Public, client app id (for `StitchClient`) of this application
-  @json("client_app_id")
+  @jsonProperty("client_app_id")
   public readonly clientAppId: string;
-  @json("location")
+  @jsonProperty("location")
   public readonly location: string;
-  @json("deployment_model")
+  @jsonProperty("deployment_model")
   public readonly deploymentModel: string;
-  @json("domain_id")
+  @jsonProperty("domain_id")
   public readonly domainId: string
-  @json("group_id")
+  @jsonProperty("group_id")
   public readonly groupId: string;
 }
 

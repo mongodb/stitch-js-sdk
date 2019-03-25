@@ -15,13 +15,13 @@
  */
 
 import { applyMixins, BasicResource } from "../Resources";
-import { json } from "../SerializeDecorator";
+import { jsonProperty } from "../SerializeDecorator";
 
 // / Creates a new user for an application
 export class UserCreator {
-  @json("email")
+  @jsonProperty("email")
   public readonly email: string;
-  @json("password")
+  @jsonProperty("password")
   public readonly password: string;
 
   constructor(email: string, password: string) {
@@ -30,9 +30,9 @@ export class UserCreator {
   }
 }
 
-export class User {
-  @json("_id")
-  public readonly id: string;
+export class User extends UserCreator {
+  @jsonProperty("_id")
+  public readonly id?: string;
 }
 
 // Resource for a single user of an application
@@ -43,9 +43,8 @@ export class UserResource extends BasicResource<User> {
 
 // Resource for a list of users of an application
 export class UsersResource extends BasicResource<User> {
-
-  public create(data: UserCreator): Promise<UserCreator> {
-    return this._create(data, UserCreator)
+  public create(data: UserCreator): Promise<User> {
+    return this._create(data, User)
   }
 
   public list(): Promise<User[]> {
