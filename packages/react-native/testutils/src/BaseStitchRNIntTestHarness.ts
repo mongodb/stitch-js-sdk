@@ -15,7 +15,7 @@
  */
 
 import { fail } from "assert";
-import { App, AppResponse } from "mongodb-stitch-core-admin-client";
+import { App, AppResource } from "mongodb-stitch-core-admin-client";
 import { BaseStitchIntTestHarness, JestFetchTransport } from "mongodb-stitch-core-testutils";
 import {
   RNAsyncStorage,
@@ -52,7 +52,7 @@ export default class BaseStitchRNIntTestHarness extends BaseStitchIntTestHarness
     return envVar !== undefined ? envVar : "http://localhost:9090";
   }
 
-  public getAppClient(app: AppResponse, storage?: Storage): Promise<StitchAppClient> {
+  public getAppClient(app: App, storage?: Storage): Promise<StitchAppClient> {
     if (Stitch.hasAppClient(app.clientAppId)) {
       return Promise.resolve(Stitch.getAppClient(app.clientAppId));
     }
@@ -72,7 +72,7 @@ export default class BaseStitchRNIntTestHarness extends BaseStitchIntTestHarness
 
   // Registers a new email/password user, and logs them in, returning the user's ID
   public async registerAndLoginWithUserPass(
-    app: App,
+    app: AppResource,
     client: StitchAppClient,
     email: string,
     pass: string

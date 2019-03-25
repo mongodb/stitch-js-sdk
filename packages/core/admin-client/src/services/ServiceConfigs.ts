@@ -14,105 +14,120 @@
  * limitations under the License.
  */
 
-import { jsonProperty } from "../SerializeDecorator";
+import { Rule } from "..";
+import { jsonProperty, Type } from "../JsonMapper";
+import { AwsS3Rule, AwsSesRule, HttpRule, MongoDbRule, TwilioRule } from "./rules/RulesResources";
 
-export class AwsConfig {
+export type Config = any;
+
+export class TwilioConfig implements Config {
+  constructor(
+    @jsonProperty("sid")
+    public accountSid: string,
+    @jsonProperty("auth_token", { omitEmpty: true })
+    public authToken?: string) {
+  }
+}
+
+export class AwsConfig implements Config {
   constructor(
     public readonly accessKeyId: string,
     public readonly secretAccessKey: string) {}
 }
 
-export class AwsS3Config {
+export class AwsS3Config implements Config {
   constructor(
     public readonly region: string,
     public readonly accessKeyId: string,
     public readonly secretAccessKey: string) {}
 }
 
-export class AwsSesConfig {
+export class AwsSesConfig implements Config {
   constructor(
     readonly region: string,
     readonly accessKeyId: string,
     readonly secretAccessKey: string) {}
 }
 
-export class MongoConfig {
+export class MongoConfig implements Config {
   constructor(@jsonProperty("uri") readonly uri: string) {}
 }
 
-export class TwilioConfig {
-  constructor(
-    @jsonProperty("auth_token")
-    public readonly authToken: string,
-    @jsonProperty("sid")
-    public readonly accountSid: string) {
-  }
-}
-
-export class Service {
-  public static awsS3(name: string, config: AwsS3Config): Service {
-    return new AwsS3(name, config)
-  }
-
-  public static http(name: string): Service {
-    return new Http(name);
-  }
-
-  public static twilio(name: string, config: TwilioConfig): Service {
-    return new Twilio(name, config);
-  }
-
-  public static mongo(config: MongoConfig): Service {
-    return new Mongo(config);
-  }
-
+export abstract class Service<T extends Rule> {
   @jsonProperty("_id", { omitEmpty: true })
-  public readonly id: string;
+  public id: string;
+  @jsonProperty("type")
   public readonly type: string;
+  @jsonProperty("name")
   public readonly name: string;
+  @jsonProperty("config")
+  public config: Config;
+  @jsonProperty("version")
+  public version: number;
+  public abstract get ruleType(): Type<T>;
 }
 
-class Http extends Service {
-  @jsonProperty("config") public readonly config = {};
-  @jsonProperty("type") public readonly type = "http";
-  constructor(@jsonProperty("name") readonly name: string) {
+export class HttpService extends Service<HttpRule> {
+  public readonly config = {};
+  public readonly type = "http";
+  public get ruleType() {
+    return HttpRule;
+  }
+  
+  constructor(readonly name: string) {
     super();
   }
 }
 
-export class AwsS3 extends Service {
+export class AwsS3Service extends Service<AwsS3Rule> {
   public readonly type = "aws-s3";
+  public get ruleType() {
+    return AwsS3Rule;
+  }
+
   public constructor(
-    @jsonProperty("name") public readonly name: string,
+    public readonly name: string,
     @jsonProperty("config", { prototype: AwsS3Config }) public readonly config: AwsS3Config
   ) {
     super();
   }
 }
 
-export class AwsSes extends Service {
-  @jsonProperty("type") public readonly type = "aws-ses";
+export class AwsSesService extends Service<AwsSesRule> {
+  public readonly type = "aws-ses";
+  public get ruleType() {
+    return AwsSesRule;
+  }
+
   public constructor(
-    @jsonProperty("name") public readonly name: string,
+    public readonly name: string,
     @jsonProperty("config", { prototype: AwsSesConfig }) public readonly config: AwsSesConfig
   ) {
     super();
   }
 }
 
-export class Twilio extends Service {
-  @jsonProperty("type")
+export class TwilioService extends Service<TwilioRule> {
   public readonly type = "twilio";
+  public get ruleType() {
+    return TwilioRule;
+  }
+
   public constructor(
-    @jsonProperty("name") readonly name: string,
-    @jsonProperty("config", { prototype: TwilioConfig }) readonly config: TwilioConfig) {
+    public readonly name: string,
+    @jsonProperty("config", { prototype: TwilioConfig })
+    public config: TwilioConfig) {
     super();
   }
 }
 
-export class Mongo extends Service {
-  @jsonProperty("type") public readonly type: string = "mongodb-atlas";
-  @jsonProperty("name") public readonly name: string = "mongodb-atlas";
+export class MongoDbService extends Service<MongoDbRule> {
+  public readonly type: string = "mongodb-atlas";
+  public readonly name: string = "mongodb-atlas";
+  public get ruleType() {
+    return MongoDbRule;
+  }
+
   public constructor(
     @jsonProperty("config", { prototype: MongoConfig }) public readonly config: MongoConfig
   ) {

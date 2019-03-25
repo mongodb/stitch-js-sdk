@@ -1,15 +1,15 @@
-import { BSON, UserPasswordCredential } from "mongodb-stitch-core-sdk";
-import { App, AppResource, StitchAdminClient } from "../src";
+import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
+import { AppResource } from "../src";
 import { AuthProviderResource } from "../src/authProviders/AuthProvidersResources";
 import { UserpassProvider, UserpassProviderConfig } from "../src/authProviders/ProviderConfigs";
-import AdminClientTestHarness from "./AdminClientTestHarness";
 
-const harness = new AdminClientTestHarness();
+const harness = new BaseStitchBrowserIntTestHarness();
 
 beforeAll(() => harness.setup());
 
 describe("an app", () => {
 	let authProvider: AuthProviderResource<UserpassProvider>;
+	let appResource: AppResource
 	const config = new UserpassProviderConfig(
 		"http://foo.com",
 		"http://bar.com",
@@ -19,14 +19,17 @@ describe("an app", () => {
 
 	let provider: UserpassProvider = new UserpassProvider(config);
 	it("should add auth provider", async () => {
-		const authProviderResponse = await harness.appResource.authProviders.create(provider);
+		const { appResource: linkedAppResource } = await harness.createApp();
+		appResource = linkedAppResource;
+
+		const authProviderResponse = await appResource.authProviders.create(provider);
 
 		expect(authProviderResponse.name).toEqual(provider.type);
 		expect(authProviderResponse.type).toEqual(provider.type);
 		expect(authProviderResponse.id).toBeDefined();
 		expect(authProviderResponse.disabled).toBeFalsy();
 
-		authProvider = harness.appResource.authProviders.authProvider(authProviderResponse);
+		authProvider = appResource.authProviders.authProvider(authProviderResponse);
 	});
 
 	it("should enable/disable auth provider", async () => {
@@ -53,9 +56,9 @@ describe("an app", () => {
 	});
 
 	it("should remove auth provider", async () => {
-		expect(await harness.appResource.authProviders.list()).toHaveLength(2);
+		expect(await appResource.authProviders.list()).toHaveLength(2);
 		await authProvider.disable();
 		await authProvider.remove();
-		expect(await harness.appResource.authProviders.list()).toHaveLength(1);
+		expect(await appResource.authProviders.list()).toHaveLength(1);
 	});
 });

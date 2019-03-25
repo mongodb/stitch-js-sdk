@@ -15,8 +15,8 @@
  */
 
 import { Method } from "mongodb-stitch-core-sdk";
+import { Type } from "../JsonMapper";
 import { BasicResource } from "../Resources";
-import { Type } from "../SerializeDecorator";
 import StitchAdminAuth from "../StitchAdminAuth";
 import { Provider } from "./ProviderConfigs";
 
@@ -44,8 +44,6 @@ export class AuthProviderResource<T extends Provider> extends BasicResource<T> {
 
 // Resource for listing the auth providers of an application
 export class AuthProvidersResource extends BasicResource<Provider> {
-  protected readonly clazz = Provider;
-
   public list(): Promise<Provider[]> {
     return this._list(Provider);
   }

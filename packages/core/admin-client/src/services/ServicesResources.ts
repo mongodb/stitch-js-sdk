@@ -14,18 +14,34 @@
  * limitations under the License.
  */
 
+import { Method } from "mongodb-stitch-core-sdk";
+import { Type } from "../JsonMapper";
 import { BasicResource } from "../Resources";
-import { Type } from "../SerializeDecorator";
 import StitchAdminAuth from "../StitchAdminAuth";
-import { RulesResource } from "./rules/RulesResources";
-import { Service } from "./ServiceConfigs";
+import { Rule, RulesResource } from "./rules/RulesResources";
+import { Config, Service } from "./ServiceConfigs";
+
+export class ConfigResource<T extends Config> extends BasicResource<T> {
+  constructor(adminAuth: StitchAdminAuth, url: string, private readonly config: T) {
+    super(adminAuth, url);
+  }
+
+  public get(): Promise<T> {
+    return this._get(this.config.constructor as Type<T>);
+  }
+
+  public update(data: T): Promise<void> {
+    return this._update(data, Method.PATCH);
+  }
+}
 
 // Resource for a specific service of an application. Can fetch rules
 // Of the service
-export class ServiceResource<T extends Service> extends BasicResource<T> {
-  public readonly rules = new RulesResource(this.adminAuth, `${this.url}/rules`);
+export class ServiceResource<U extends Rule, T extends Service<U>> extends BasicResource<T> {
+  public readonly rules = new RulesResource<U>(this.adminAuth, `${this.url}/rules`, this.service.ruleType);
+  public readonly config = new ConfigResource(this.adminAuth, `${this.url}/config`, this.service.config);
 
-  constructor(adminAuth: StitchAdminAuth, url: string, readonly service: T) {
+  constructor(adminAuth: StitchAdminAuth, url: string, private readonly service: T) {
     super(adminAuth, url);
   }
 
@@ -39,18 +55,27 @@ export class ServiceResource<T extends Service> extends BasicResource<T> {
 }
 
 // Resource for listing services of an application
-export class ServicesResource extends BasicResource<Service> {
-  public list(): Promise<Service[]> {
-    return this._list(Service);
+export class ServicesResource extends BasicResource<Service<Rule>> {
+  public list(): Promise<Array<Service<Rule>>> {
+    return this._list(class extends Service<Rule> {
+      public readonly ruleType = Rule
+    });
   }
 
-  public create<T extends Service>(data: T): Promise<T> {
-    return this._create(data, data.constructor as Type<T>);
+  public create<T extends Service<Rule>>(data: T): Promise<T> {
+    return this._create(data, class extends Service<Rule> {
+      public readonly ruleType = Rule
+    }).then((result) => {
+      data.id = result.id;
+      data.version = result.version;
+      return data;
+    });
+    
   }
 
   // GET a service
   // - parameter id: id of the requested service
-  public service<T extends Service>(service: T): ServiceResource<T> {
-    return new ServiceResource<T>(this.adminAuth, `${this.url}/${service.id}`, service);
+  public service<U extends Rule, T extends Service<U>>(service: T): ServiceResource<U, T> {
+    return new ServiceResource<U, T>(this.adminAuth, `${this.url}/${service.id}`, service);
   }
 }

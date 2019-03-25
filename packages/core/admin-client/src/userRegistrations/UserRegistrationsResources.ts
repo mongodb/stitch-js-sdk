@@ -15,8 +15,8 @@
  */
 
 import { Method, StitchAuthRequest } from "mongodb-stitch-core-sdk";
+import { deserialize, jsonProperty } from "../JsonMapper";
 import { BasicResource } from "../Resources";
-import { deserialize, jsonProperty } from "../SerializeDecorator";
 
 /**
  * Class that allows the retrieval of the token
@@ -31,7 +31,7 @@ export class ConfirmationEmail {
 }
 
 // Resource for user registrations of an application
-export class UserRegistrations extends BasicResource<ConfirmationEmail> {
+export class UserRegistrationsResource extends BasicResource<ConfirmationEmail> {
   public sendConfirmation(email: string): Promise<ConfirmationEmail> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder

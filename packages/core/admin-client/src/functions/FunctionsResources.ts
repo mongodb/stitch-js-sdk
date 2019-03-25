@@ -15,8 +15,8 @@
  */
 
 import { Method } from "mongodb-stitch-core-sdk";
+import { jsonProperty } from "../JsonMapper";
 import { BasicResource } from "../Resources";
-import { jsonProperty } from "../SerializeDecorator";
 
 export class StitchFunction {
   @jsonProperty("_id", { omitEmpty: true })

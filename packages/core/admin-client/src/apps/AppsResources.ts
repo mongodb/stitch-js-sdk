@@ -19,10 +19,10 @@ import { Method, StitchAuthRequest } from "mongodb-stitch-core-sdk";
 import { AuthProvidersResource } from "../authProviders/AuthProvidersResources";
 import { DebugResource } from "../debug/DebugResources";
 import { FunctionsResource } from "../functions/FunctionsResources";
+import { deserialize, jsonProperty } from "../JsonMapper";
 import { BasicResource, checkEmpty } from "../Resources";
-import { deserialize, jsonProperty } from "../SerializeDecorator";
 import { ServicesResource } from "../services/ServicesResources";
-import { UserRegistrations } from "../userRegistrations/UserRegistrationsResources";
+import { UserRegistrationsResource } from "../userRegistrations/UserRegistrationsResources";
 import { UsersResource } from "../users/UsersResources";
 
 /// View into a specific application
@@ -67,11 +67,10 @@ export class AppResource extends BasicResource<App> {
     this.adminAuth, 
     `${this.url}/users`
   );
-  public readonly userRegistrations = new UserRegistrations(
+  public readonly userRegistrations = new UserRegistrationsResource(
     this.adminAuth,
     `${this.url}/user_registrations`
   );
-  protected readonly clazz = App;
 
   public get(): Promise<App> {
     return this._get(App);
@@ -83,8 +82,6 @@ export class AppResource extends BasicResource<App> {
 }
 
 export class AppsResource extends BasicResource<App> {
-  protected readonly clazz = App;
-
   public list(): Promise<App[]> {
     return this._list(App);
   }
@@ -102,7 +99,7 @@ export class AppsResource extends BasicResource<App> {
 
     return this.adminAuth.doAuthenticatedRequest(req).then(response => {
       checkEmpty(response);
-      return deserialize(EJSON.parse(response.body!), this.clazz);
+      return deserialize(EJSON.parse(response.body!), App);
     });
   }
 

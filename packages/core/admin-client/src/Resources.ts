@@ -22,16 +22,8 @@ import {
   StitchServiceError, 
   StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
-import { deserialize, serialize, Type } from "./SerializeDecorator";
+import { deserialize, serialize, Type } from "./JsonMapper";
 import StitchAdminAuth from "./StitchAdminAuth";
-
-export function applyMixins(derivedCtor: any, baseCtors: any[]) {
-  baseCtors.forEach(baseCtor => {
-    Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
-      derivedCtor.prototype[name] = baseCtor.prototype[name];
-    });
-  });
-}
 
 // Any endpoint that can be described with basic
 // CRUD operations

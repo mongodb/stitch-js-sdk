@@ -16,49 +16,76 @@
 
 import AdminFetchTransport from "./AdminFetchTransport";
 import { App, AppResource, AppsResource } from "./apps/AppsResources";
-import { AuthProviderResource } from "./authProviders/AuthProvidersResources";
+import { AuthProviderResource, AuthProvidersResource } from "./authProviders/AuthProvidersResources";
 import {
-  AnonProviderConfig,
+  AnonProviderConfig, 
+  ApiKey,
+  CustomProvider, 
+  CustomProviderConfig, 
+  Provider, 
+  UserpassProvider, 
   UserpassProviderConfig
 } from "./authProviders/ProviderConfigs";
 import {
-  AwsS3Actions,
-  AwsSesActions,
-  HttpActions,
-  TwilioActions
+  AwsS3Action,
+  AwsSesAction,
+  HttpAction,
+  Rule,
+  RuleResource,
+  RulesResource,
+  TwilioAction
 } from "./services/rules/RulesResources";
 import {
   AwsConfig,
-  AwsS3,
   AwsS3Config,
-  AwsSes,
+  AwsS3Service,
   AwsSesConfig,
-  Mongo,
-  Twilio,
-  TwilioConfig
+  AwsSesService,
+  MongoDbService,
+  Service,
+  TwilioConfig,
+  TwilioService
 } from "./services/ServiceConfigs";
+import {ServiceResource, ServicesResource} from "./services/ServicesResources";
 import StitchAdminClient from "./StitchAdminClient";
-import { ConfirmationEmail } from "./userRegistrations/UserRegistrationsResources";
+
+import { ConfirmationEmail, UserRegistrationsResource } from "./userRegistrations/UserRegistrationsResources";
 
 export {
+  AuthProviderResource,
+  AuthProvidersResource,
   AdminFetchTransport,
+  Service,
   AnonProviderConfig as Anon,
   App,
   AppsResource,
   AppResource,
   AwsConfig,
-  AwsS3,
-  AwsS3Actions,
+  AwsS3Service as AwsS3,
+  AwsS3Action,
   AwsS3Config,
-  AwsSes,
-  AwsSesActions,
+  AwsSesService as AwsSes,
+  AwsSesAction,
   AwsSesConfig,
   ConfirmationEmail,
-  HttpActions,
-  Mongo,
+  HttpAction,
+  MongoDbService as Mongo,
   StitchAdminClient,
-  Twilio,
-  TwilioActions,
+  TwilioService as Twilio,
+  TwilioAction,
   TwilioConfig,
   UserpassProviderConfig as Userpass,
+  Provider, 
+  AnonProviderConfig, 
+  ApiKey, 
+  UserRegistrationsResource,
+  UserpassProviderConfig, 
+  UserpassProvider, 
+  ServiceResource,
+  ServicesResource,
+  CustomProviderConfig, 
+  CustomProvider,
+  Rule,
+  RuleResource,
+  RulesResource,
 };

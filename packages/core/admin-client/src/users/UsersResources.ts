@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { applyMixins, BasicResource } from "../Resources";
-import { jsonProperty } from "../SerializeDecorator";
+import { jsonProperty } from "../JsonMapper";
+import { BasicResource } from "../Resources";
 
 // / Creates a new user for an application
 export class UserCreator {

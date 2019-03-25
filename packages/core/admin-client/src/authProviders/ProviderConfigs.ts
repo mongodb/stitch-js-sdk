@@ -1,4 +1,4 @@
-import { jsonProperty } from "../SerializeDecorator";
+import { jsonProperty } from "../JsonMapper";
 
 /**
  * Copyright 2018-present MongoDB, Inc.
@@ -16,7 +16,7 @@ import { jsonProperty } from "../SerializeDecorator";
  * limitations under the License.
  */
 
-export class Provider {
+class Provider {
   @jsonProperty("_id", { omitEmpty: true })
   public readonly id: string;
   @jsonProperty("name")
@@ -29,15 +29,15 @@ export class Provider {
   public config?: any;
 }
 
-export class AnonProviderConfig extends Provider {
+class AnonProviderConfig extends Provider {
   public readonly type = "anon-user";
 }
 
-export class ApiKey extends Provider {
+class ApiKey extends Provider {
   public type: "api-key";
 }
 
-export class UserpassProviderConfig {
+class UserpassProviderConfig {
   public constructor(
     @jsonProperty("emailConfirmationUrl") 
     public emailConfirmationUrl: string,
@@ -50,21 +50,31 @@ export class UserpassProviderConfig {
   ) {}
 }
 
-export class UserpassProvider extends Provider {
+class UserpassProvider extends Provider {
   public readonly type = "local-userpass";
   public constructor(readonly config: UserpassProviderConfig) {
     super();
   }
 }
 
-export class CustomProviderConfig {
+class CustomProviderConfig {
   public constructor(@jsonProperty("signingKey") readonly signingKey: string) {} 
 }
 
-export class CustomProvider extends Provider {
+class CustomProvider extends Provider {
   public type = "custom-token";
 
   public constructor(public readonly config: CustomProviderConfig) {
     super();
   }
 }
+
+export {
+  Provider, 
+  AnonProviderConfig, 
+  ApiKey, 
+  UserpassProviderConfig, 
+  UserpassProvider, 
+  CustomProviderConfig, 
+  CustomProvider
+};

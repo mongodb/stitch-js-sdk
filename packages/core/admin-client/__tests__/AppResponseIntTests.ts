@@ -1,52 +1,39 @@
-import { EJSON } from "bson";
-import { BSON, UserPasswordCredential } from "mongodb-stitch-core-sdk";
-import { AdminFetchTransport, App, AppsResource, StitchAdminClient, Twilio } from "../src";
-import { AnonProviderConfig, UserpassProvider, UserpassProviderConfig } from "../src/authProviders/ProviderConfigs";
-import { StitchFunction } from "../src/functions/FunctionsResources";
-import { MongoConfig, TwilioConfig } from "../src/services/ServiceConfigs";
-import { StitchAdminUser } from "../src/StitchAdminUser";
-import { User, UserCreator } from "../src/users/UsersResources";
-import AdminClientTestHarness from "./AdminClientTestHarness";
+import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
+import { App, AppResource } from "../src";
 
-const harness = new AdminClientTestHarness();
+const harness = new BaseStitchBrowserIntTestHarness();
 
 beforeAll(() => harness.setup());
 
 describe("admin client", () => {
-	const app = harness.app;
-	const appsResource = harness.appsResource;
-	const groupId = harness.groupId;
-	const name = harness.name;
+	
+	// let app: App;
+	// let appsResource: AppsResource;
+	let app: App;
+	let appResource: AppResource
 
 	it("should create app", async () =>  {
+		const { app: created, appResource: linkedResource } = (await harness.createApp())
+		app = created;
+		appResource = linkedResource;
+
 		expect(app.id).toBeDefined();
 		expect(app.clientAppId).toBeDefined();
-		expect(app.name).toEqual(name);
-		expect(app.groupId).toEqual(groupId);
+		expect(app.name).toBeDefined();
+		expect(app.groupId).toBeDefined();
 		expect(app.location).toBeDefined();
 		expect(app.deploymentModel).toEqual("GLOBAL");
 		expect(app.domainId).toBeDefined();
 	});
 
 	it("should list app", async () => {
-		const appsList = await appsResource.list();
+		const appsList = await harness.appsResource().list();
 		expect(appsList).toContainEqual(app);
 	});
 
-	// let service: ServiceResponse;
-	// it("should add service", async() => {
-	// 	service = 
-	// 		await appsResource.app(
-	// 			appResponse.id).services.create(ServiceConfig.twilio("twilio0", new TwilioConfig("1234", "5678")));
-	// 	expect(service.name).toEqual("twilio0");
-	// 	expect(service.type).toEqual("twilio");
-
-	// 	console.log(await appsResource.app(appResponse.id).services.list());
-	// 	// service = await appsResource.app(appResponse.id).services.create(ServiceConfig.mongo(new MongoConfig("localhost:26000")));
-		
-	// 	// await appsResource.app(appResponse.id).services.service(service.id).rules.create(RuleCreator.mongoDb("foo", {}));
-	// })
-
-	// it("should update service", async() => {
-	// })
+	it("should remove app", async () => {
+		await appResource.remove();
+		const appsList = await harness.appsResource().list();
+		expect(appsList).not.toContainEqual(app);
+	});
 });

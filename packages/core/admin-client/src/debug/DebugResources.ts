@@ -1,7 +1,7 @@
 import { EJSON } from 'bson';
 import { Method, StitchAuthRequest } from "mongodb-stitch-core-sdk";
+import { deserialize, jsonProperty } from '../JsonMapper';
 import { BasicResource, checkEmpty } from "../Resources";
-import { deserialize, jsonProperty } from '../SerializeDecorator';
 
 class Stats {
 	@jsonProperty("execution_time")

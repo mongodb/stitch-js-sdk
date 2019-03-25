@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
+import { jsonProperty, Type } from "../../JsonMapper";
 import { BasicResource } from "../../Resources";
-import { jsonProperty, Type } from "../../SerializeDecorator";
 import StitchAdminAuth from "../../StitchAdminAuth";
 
-export enum AwsS3Actions {
+export enum AwsS3Action {
   Put = "put",
   SignPolicy = "signPolicy"
 }
 
-export enum AwsSesActions {
+export enum AwsSesAction {
   Send = "send"
 }
 
-export enum HttpActions {
+export enum HttpAction {
   Get = "get",
   Post = "post",
   Put = "put",
@@ -36,67 +36,61 @@ export enum HttpActions {
   Patch = "patch"
 }
 
-export enum TwilioActions {
+export enum TwilioAction {
   Send = "send"
 }
 
+export type Action = AwsS3Action | AwsSesAction | HttpAction | TwilioAction | string;
+
 export class Rule {
-  public static aws(name: string, actions: string[]): Rule {
-    return new AwsRule(name, actions);
-  }
-
-  public static awsS3(name: string, actions: AwsS3Actions[]): Rule {
-    return new AwsS3Rule(name, actions);
-  }
-
-  public static mongoDb(namespace: string, rule: object): Rule {
-    (rule as any).namespace = namespace;
-    return new MongoDbRule(namespace, rule);
-  }
-
   @jsonProperty("_id", { omitEmpty: true })
-  public readonly id: string;
+  public id: string;
+  @jsonProperty("type")
   public readonly type: string;
+  @jsonProperty("name") 
+  public readonly name: string;
+  @jsonProperty("actions")
+  public readonly actions: Action[];
 }
 
-class AwsRule extends Rule {
-  @jsonProperty("type") 
+export class AwsRule extends Rule {
   public readonly type = "aws";
   public constructor(
-    @jsonProperty("name") readonly name: string,
-    @jsonProperty("actions") readonly actions: string[]) {
+    readonly name: string,
+    readonly actions: string[]) {
     super();
   }
 }
 
-class AwsS3Rule extends Rule {
-  @jsonProperty("type") public type = "aws-s3";
+export class AwsS3Rule extends Rule {
+  public type = "aws-s3";
   constructor(
-    @jsonProperty("name") readonly name: string,
-    @jsonProperty("actions") readonly actions: AwsS3Actions[]) {
+    readonly name: string,
+    readonly actions: AwsS3Action[]) {
     super();
   }
 }
 
-class AwsSesRule extends Rule {
-  @jsonProperty("type") public type = "aws-ses";
+export class AwsSesRule extends Rule {
+  public type = "aws-ses";
 
   constructor(
-    @jsonProperty("name") readonly name: string,
-    @jsonProperty("actions") readonly actions: AwsSesActions[]) {
+    readonly name: string,
+    readonly actions: AwsSesAction[]) {
     super();
   }
 }
 
-class HttpRule extends Rule {
-  @jsonProperty("type") public type = "http";
-  constructor(@jsonProperty("name") readonly name: string, @jsonProperty("actions") readonly actions: HttpActions[]) {
+export class HttpRule extends Rule {
+  public type = "http";
+  constructor(
+    readonly name: string,
+    readonly actions: HttpAction[]) {
     super();
   }
 }
 
-class MongoDbRule extends Rule {
-  @jsonProperty("type") 
+export class MongoDbRule extends Rule {
   public type = "mongodb";
   constructor(
     @jsonProperty("namespace") readonly namespace: string,
@@ -105,17 +99,19 @@ class MongoDbRule extends Rule {
   }
 }
 
-class TwilioRule {
-  @jsonProperty("type") public type = "twilio";
+export class TwilioRule extends Rule {
+  public type = "twilio";
 
   constructor(
-    @jsonProperty("name") readonly name: string, 
-    @jsonProperty("actions") readonly actions: TwilioActions[]) {}
+    readonly name: string, 
+    readonly actions: TwilioAction[]) {
+    super();
+  }
 }
 
 // Resource for a specific rule of a service
 export class RuleResource<T extends Rule> extends BasicResource<T> {
-  constructor(adminAuth: StitchAdminAuth, url: string, readonly rule: T) {
+  constructor(adminAuth: StitchAdminAuth, url: string, private readonly rule: T) {
     super(adminAuth, url);
   }
 
@@ -129,16 +125,23 @@ export class RuleResource<T extends Rule> extends BasicResource<T> {
 }
 
 // Resource for listing the rules of a service
-export class RulesResource extends BasicResource<Rule> {
-  public create(data: Rule): Promise<Rule> {
-    return this._create(data, Rule);
+export class RulesResource<T extends Rule> extends BasicResource<T> {
+  constructor(adminAuth: StitchAdminAuth, url: string, private readonly ruleType: Type<T>) {
+    super(adminAuth, url);
   }
 
-  public list(): Promise<Rule[]> {
-    return this._list(Rule);
+  public create(data: T): Promise<T> {
+    return this._create(data, this.ruleType).then(created => {
+      data.id = created.id
+      return data;
+    });
   }
 
-  public rule<T extends Rule>(rule: T): RuleResource<T> {
+  public list(): Promise<T[]> {
+    return this._list(this.ruleType);
+  }
+
+  public rule(rule: T): RuleResource<T> {
     return new RuleResource(this.adminAuth, `${this.url}/${rule.id}`, rule);
   }
 }
