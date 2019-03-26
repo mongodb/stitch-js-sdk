@@ -45,6 +45,9 @@ lerna publish --force-publish="*"
 ./publish_docs.sh
 ```
 
+Note that update_browser_readme_version.sh will git commit its changes to the README automatically.
+It will fail out if there are currently other changes to tracked files.
+
 The `--force-publish="*"` argument ensures that all packages bump their version in lockstep.
 
 ### Patch Versions

@@ -2,6 +2,13 @@
 
 cd "$(dirname "$0")"
 
+STATUS="$(git status -s)"
+if [ -n "$STATUS" ]; then
+  echo "Git status is not clean. Refusing to commit."
+  echo "Finish your work, then run $0"
+  exit 1
+fi
+
 # Paste the version string into the README.
 VERSION=`node -e 'console.log(require("../lerna.json").version)'` 
 VERSION_MAJOR=$(echo $VERSION | cut -d. -f1)
@@ -15,4 +22,13 @@ echo "Setting README version to $VERSION_MAJOR.$VERSION_MINOR.$VERSION_PATCH..."
 sed -i '' \
   -e "s#\(stitch-sdks/js/bundles/\)[0-9\.]*\(/stitch\)#\1$VERSION_MAJOR.$VERSION_MINOR.$VERSION_PATCH\2#g" \
   ../packages/browser/sdk/README.md
-echo "README updated. Remember to commit the change before publishing!"
+
+STATUS="$(git status -s)"
+if [ ! -n "$STATUS" ]; then
+  echo "Nothing to commit."
+  exit 0
+fi
+
+echo "README updated."
+git add -u "../packages/browser/sdk/README.md"
+git commit -m "Update browser README SDK version to $VERSION_MAJOR.$VERSION_MINOR.$VERSION_PATCH"
