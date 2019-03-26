@@ -121,19 +121,19 @@ export default abstract class BaseStitchIntTestHarness {
     });
   }
 
-  public async addService<T extends Service>(
+  public async addService<U extends Rule, T extends Service<U>>(
     app: AppResource,
     config: T
-  ): Promise<Array<T | ServiceResource<T>>> {
+  ): Promise<Array<T | ServiceResource<U, T>>> {
     return app.services.create(config).then(svcInfo => {
-      const svc = app.services.service(svcInfo);
+      const svc = app.services.service<U, T>(svcInfo);
       return [svcInfo, svc];
     });
   }
 
-  public async addRule<T extends Service>(
-    svc: ServiceResource<T>,
-    config: Rule
+  public async addRule<U extends Rule, T extends Service<U>>(
+    svc: ServiceResource<U, T>,
+    config: U
   ): Promise<Rule> {
     return svc.rules.create(config);
   }

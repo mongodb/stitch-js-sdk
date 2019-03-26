@@ -62,15 +62,12 @@ export class ServicesResource extends BasicResource<Service<Rule>> {
     });
   }
 
-  public create<T extends Service<Rule>>(data: T): Promise<T> {
-    return this._create(data, class extends Service<Rule> {
-      public readonly ruleType = Rule
-    }).then((result) => {
+  public create<U extends Rule, T extends Service<U>>(data: T): Promise<T> {
+    return this._create(data, data.constructor as Type<T>).then((result) => {
       data.id = result.id;
       data.version = result.version;
       return data;
     });
-    
   }
 
   // GET a service
