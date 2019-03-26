@@ -1,6 +1,6 @@
 import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
-import { AppResource, Service, ServiceResource, Twilio, TwilioConfig } from "../src";
-import { TwilioAction, TwilioRule, Rule } from "../src/services/rules/RulesResources";
+import { AppResource, Twilio, TwilioConfig } from "../src";
+import { TwilioAction, TwilioRule } from "../src/services/rules/RulesResources";
 
 const harness = new BaseStitchBrowserIntTestHarness();
 

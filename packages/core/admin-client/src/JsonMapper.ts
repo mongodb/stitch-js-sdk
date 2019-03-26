@@ -85,7 +85,9 @@ export function checkRegistryFor<T>(type: Type<T>): ClassMetadata<T> {
 export function deserialize<T>(parsed: object, type: Type<T>): T {
 	const metadata = checkRegistryFor(type);
 	const t = new type;
-
+	if (parsed === undefined) {
+		return t;
+	}
 	const parsedKeys = new Set(Object.keys(parsed));
 	metadata.properties.forEach((value: PropertyMetadata<any>, key: string) => {
 		parsedKeys.delete(value.fieldKey);
