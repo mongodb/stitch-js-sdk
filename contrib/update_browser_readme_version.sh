@@ -15,4 +15,4 @@ echo "Setting README version to $VERSION_MAJOR.$VERSION_MINOR.$VERSION_PATCH..."
 sed -i '' \
   -e "s#\(stitch-sdks/js/bundles/\)[0-9\.]*\(/stitch\)#\1$VERSION_MAJOR.$VERSION_MINOR.$VERSION_PATCH\2#g" \
   ../packages/browser/sdk/README.md
-echo "README updated."
+echo "README updated. Remember to commit the change before publishing!"
