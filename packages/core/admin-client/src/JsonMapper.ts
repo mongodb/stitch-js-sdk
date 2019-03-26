@@ -31,7 +31,6 @@ export function jsonIgnore() {
 	return jsonProperty("", { omitEmpty: true }, true);
 }
 
-// for each target (Class object), add a map of property names
 export function jsonProperty<T>(fieldKey: string, options: Options<T> = { omitEmpty: false }, ignore = false) {
 	return (target: any, propertyKey: string, parameterIndex?: number) => {
 		let className = target.constructor.name;
