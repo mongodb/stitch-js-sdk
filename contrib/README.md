@@ -36,10 +36,17 @@ The [aws-cli](https://docs.aws.amazon.com/cli/latest/userguide/install-bundle.ht
 along with relevant permissions to the stitch-sdks bucket.
 
 ```bash
+./update_browser_readme_version.sh
+git add ../packages/browser/sdk/README.md
+git commit -m "Update SDK version in browser README"
+
 lerna publish --force-publish="*"
 ./publish_bundles.sh
 ./publish_docs.sh
 ```
+
+Note that update_browser_readme_version.sh will git commit its changes to the README automatically.
+It will fail out if there are currently other changes to tracked files.
 
 The `--force-publish="*"` argument ensures that all packages bump their version in lockstep.
 
