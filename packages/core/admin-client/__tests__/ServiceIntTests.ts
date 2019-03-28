@@ -45,4 +45,3 @@ describe("an app", () => {
 		expect(fetched.actions).toEqual(rule.actions);
 	});
 });
-	

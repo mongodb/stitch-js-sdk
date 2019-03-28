@@ -16,12 +16,9 @@
 
 import {
   Anon,
-  App,
-  AppResponse,
-  AwsS3,
-  AwsS3Actions,
-  AwsS3RuleCreator,
-  Service
+  AwsS3Action,
+  AwsS3Rule,
+  AwsS3Service
 } from "mongodb-stitch-core-admin-client";
 import {
   BSON,
@@ -35,6 +32,7 @@ import {
 } from "mongodb-stitch-server-core";
 import { BaseStitchServerIntTestHarness } from "mongodb-stitch-server-testutils";
 import { AwsS3ServiceClient } from "../src";
+
 
 const harness = new BaseStitchServerIntTestHarness();
 
@@ -54,23 +52,22 @@ const test = awsAccessKeyId && awsSecretAccessKey ? it : it.skip;
 
 describe("AwsS3ServiceClient", () => {
   test("should put object", async () => {
-    const [appResponse, app] = await harness.createApp();
-    await harness.addProvider(app as App, new Anon());
+    const { app: appResponse, appResource: app } = await harness.createApp();
+    await harness.addProvider(app, new Anon());
     const [svcResponse, svc] = await harness.addService(
-      app as App,
-      "aws-s3",
-      new AwsS3("awss31", {
+      app,
+      new AwsS3Service("awss31", {
         accessKeyId: awsAccessKeyId!,
         region: "us-east-1",
         secretAccessKey: awsSecretAccessKey!
       })
     );
     await harness.addRule(
-      svc as Service,
-      new AwsS3RuleCreator("default", [AwsS3Actions.Put])
+      svc,
+      new AwsS3Rule("default", [AwsS3Action.Put])
     );
 
-    const client = harness.getAppClient(appResponse as AppResponse);
+    const client = harness.getAppClient(appResponse);
     await client.auth.loginWithCredential(new AnonymousCredential());
 
     const awsS3 = client.getServiceClient(AwsS3ServiceClient.factory, "awss31");

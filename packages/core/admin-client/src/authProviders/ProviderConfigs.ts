@@ -1,5 +1,3 @@
-import { jsonProperty } from "../JsonMapper";
-
 /**
  * Copyright 2018-present MongoDB, Inc.
  *
@@ -16,6 +14,8 @@ import { jsonProperty } from "../JsonMapper";
  * limitations under the License.
  */
 
+import { jsonProperty } from "../JsonMapper";
+
 class Provider {
   @jsonProperty("_id", { omitEmpty: true })
   public readonly id: string;
@@ -29,12 +29,12 @@ class Provider {
   public config?: any;
 }
 
-class AnonProviderConfig extends Provider {
+class AnonProvider extends Provider {
   public readonly type = "anon-user";
 }
 
-class ApiKey extends Provider {
-  public type: "api-key";
+class ApiKeyProvider extends Provider {
+  public readonly type: "api-key";
 }
 
 class UserpassProviderConfig {
@@ -62,7 +62,7 @@ class CustomProviderConfig {
 }
 
 class CustomProvider extends Provider {
-  public type = "custom-token";
+  public readonly type = "custom-token";
 
   public constructor(public readonly config: CustomProviderConfig) {
     super();
@@ -71,8 +71,8 @@ class CustomProvider extends Provider {
 
 export {
   Provider, 
-  AnonProviderConfig, 
-  ApiKey, 
+  AnonProvider as AnonProviderConfig, 
+  ApiKeyProvider as ApiKey, 
   UserpassProviderConfig, 
   UserpassProvider, 
   CustomProviderConfig, 

@@ -17,7 +17,7 @@
 import {
   Anon,
   App,
-  AppResponse,
+  AppResource,
   Mongo,
   MongoDbRuleCreator,
   Service,
@@ -80,9 +80,9 @@ beforeEach(async () => {
   dbName = new BSON.ObjectID().toHexString();
   collName = new BSON.ObjectId().toHexString();
 
-  const [appResponse, app] = await harness.createApp();
-  await harness.addProvider(app as App, new Anon());
-  const [_, svc] = await harness.addService(app as App, "mongodb", {
+  const { app: appResponse, appResource: app } = await harness.createApp();
+  await harness.addProvider(app, new Anon());
+  const [_, svc] = await harness.addService(app, "mongodb", {
     config: { uri: mongodbUri },
     name: "mongodb1",
     type: "mongodb"
@@ -99,7 +99,7 @@ beforeEach(async () => {
     new MongoDbRuleCreator(`${dbName}.${collName}`, rule)
   );
 
-  const client = harness.getAppClient(appResponse as AppResponse);
+  const client = harness.getAppClient(appResponse as AppResource);
   await client.auth.loginWithCredential(new AnonymousCredential());
   mongoClient = client.getServiceClient(RemoteMongoClient.factory, "mongodb1");
 });

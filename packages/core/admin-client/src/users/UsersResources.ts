@@ -37,8 +37,12 @@ export class User extends UserCreator {
 
 // Resource for a single user of an application
 export class UserResource extends BasicResource<User> {
-  public get: () => Promise<User>;
-  public remove: () => Promise<void>;
+  public get(): Promise<User> {
+    return this._get(User);
+  }
+  public remove(): Promise<void> {
+    return this._remove();
+  }
 }
 
 // Resource for a list of users of an application

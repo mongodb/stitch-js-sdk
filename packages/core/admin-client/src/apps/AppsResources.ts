@@ -90,6 +90,7 @@ export class AppsResource extends BasicResource<App> {
   // - parameter name: name of the new application
   // - parameter defaults: whether or not to enable default values
   public create(name: string, product?: string): Promise<App> {
+    // this is a special case due to the query string
     const encodedApp = { name };
     const req = new StitchAuthRequest.Builder()
       .withMethod(Method.POST)

@@ -1,15 +1,29 @@
-// TODO: Add Array support
+/**
+ * Copyright 2018-present MongoDB, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-export type Type<T> = new (...args: any[]) => T;
+export type TypeCtor<T> = new (...args: any[]) => T;
 
 export interface Options<T> {
-	readonly prototype?: Type<T>
+	readonly typeCtor?: TypeCtor<T>
 	readonly omitEmpty?: boolean
 }
 
 export interface PropertyMetadata<T> {
 	readonly fieldKey: string
-	readonly prototype?: Type<T>
+	readonly typeCtor?: TypeCtor<T>
 	readonly omitEmpty: boolean
 	readonly ignore: boolean
 }
@@ -19,7 +33,7 @@ export class ClassMetadata<T> {
 	public readonly properties = new Map<string, PropertyMetadata<any>>();
 
 	constructor(
-		readonly type: Type<T>,
+		readonly type: TypeCtor<T>,
 		readonly name: string) {
 
 	}
@@ -49,14 +63,14 @@ export function jsonProperty<T>(fieldKey: string, options: Options<T> = { omitEm
 			fieldKey, 
 			ignore,
 			omitEmpty: options.omitEmpty ? options.omitEmpty : false,
-			prototype: options.prototype,
+			typeCtor: options.typeCtor,
 		});
 		
 		metadatas.set(className, metadata);
 	};
 }
 
-export function checkRegistryFor<T>(type: Type<T>): ClassMetadata<T> {
+export function checkRegistryFor<T>(type: TypeCtor<T>): ClassMetadata<T> {
 	let metadata = metadatas.get(type.name);
 	
 	if (metadata === undefined) {
@@ -82,7 +96,7 @@ export function checkRegistryFor<T>(type: Type<T>): ClassMetadata<T> {
 	return metadata;
 }
 
-export function deserialize<T>(parsed: object, type: Type<T>): T {
+export function deserialize<T>(parsed: object, type: TypeCtor<T>): T {
 	const metadata = checkRegistryFor(type);
 	const t = new type;
 	if (parsed === undefined) {
@@ -92,8 +106,8 @@ export function deserialize<T>(parsed: object, type: Type<T>): T {
 	metadata.properties.forEach((value: PropertyMetadata<any>, key: string) => {
 		parsedKeys.delete(value.fieldKey);
 		let parsedValue = parsed[value.fieldKey];
-		if (value.prototype !== undefined) {
-			parsedValue = deserialize(parsedValue, value.prototype);
+		if (value.typeCtor !== undefined) {
+			parsedValue = deserialize(parsedValue, value.typeCtor);
 		}
 		t[key] = parsedValue;
 	});
@@ -125,7 +139,7 @@ export function serialize(target: any): object {
 			return;
 		}
 
-		if (jsonValue !== undefined && value.prototype !== undefined) {
+		if (jsonValue !== undefined && value.typeCtor !== undefined) {
 			jsonValue = serialize(jsonValue);
 		}
 

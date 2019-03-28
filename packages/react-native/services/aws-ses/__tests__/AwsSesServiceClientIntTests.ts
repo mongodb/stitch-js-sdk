@@ -17,7 +17,7 @@
 import {
   Anon,
   App,
-  AppResponse,
+  AppResource,
   AwsSes,
   AwsSesActions,
   AwsSesRuleCreator,
@@ -49,10 +49,10 @@ const test = awsAccessKeyId && awsSecretAccessKey ? it : it.skip;
 
 describe("AwsSesService should", () => {
   test("should send message", async () => {
-    const [appResponse, app] = await harness.createApp();
-    await harness.addProvider(app as App, new Anon());
+    const { app: appResponse, appResource: app } = await harness.createApp();
+    await harness.addProvider(app, new Anon());
     const [svcResponse, svc] = await harness.addService(
-      app as App,
+      app,
       "aws-ses",
       new AwsSes("awsses1", {
         accessKeyId: awsAccessKeyId!,
@@ -65,7 +65,7 @@ describe("AwsSesService should", () => {
       new AwsSesRuleCreator("default", [AwsSesActions.Send])
     );
 
-    const client = await harness.getAppClient(appResponse as AppResponse);
+    const client = await harness.getAppClient(appResponse as AppResource);
     await client.auth.loginWithCredential(new AnonymousCredential());
 
     const awsSes = client.getServiceClient(

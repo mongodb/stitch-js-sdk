@@ -15,7 +15,7 @@
  */
 
 import { Method } from "mongodb-stitch-core-sdk";
-import { Type } from "../JsonMapper";
+import { TypeCtor } from "../JsonMapper";
 import { BasicResource } from "../Resources";
 import StitchAdminAuth from "../StitchAdminAuth";
 import { Provider } from "./ProviderConfigs";
@@ -26,7 +26,7 @@ export class AuthProviderResource<T extends Provider> extends BasicResource<T> {
     super(adminAuth, url);
   }
   public get(): Promise<T> {
-    return this._get(this.provider.constructor as Type<T>);
+    return this._get(this.provider.constructor as TypeCtor<T>);
   }
   public update(data: T): Promise<void> {
     return this._update(data, Method.PATCH);
@@ -49,7 +49,7 @@ export class AuthProvidersResource extends BasicResource<Provider> {
   }
 
   public create<T extends Provider>(data: T): Promise<T> {
-    return this._create(data, data.constructor as Type<T>).then(created => {
+    return this._create(data, data.constructor as TypeCtor<T>).then(created => {
       created.config = data.config;
       return created;
     });

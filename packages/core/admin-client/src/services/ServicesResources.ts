@@ -15,19 +15,19 @@
  */
 
 import { Method } from "mongodb-stitch-core-sdk";
-import { Type } from "../JsonMapper";
+import { TypeCtor } from "../JsonMapper";
 import { BasicResource } from "../Resources";
 import StitchAdminAuth from "../StitchAdminAuth";
 import { Rule, RulesResource } from "./rules/RulesResources";
 import { Config, Service } from "./ServiceConfigs";
 
-export class ConfigResource<T extends Config> extends BasicResource<T> {
+export class ServiceConfigResource<T extends Config> extends BasicResource<T> {
   constructor(adminAuth: StitchAdminAuth, url: string, private readonly config: T) {
     super(adminAuth, url);
   }
 
   public get(): Promise<T> {
-    return this._get(this.config.constructor as Type<T>);
+    return this._get(this.config.constructor as TypeCtor<T>);
   }
 
   public update(data: T): Promise<void> {
@@ -39,14 +39,14 @@ export class ConfigResource<T extends Config> extends BasicResource<T> {
 // Of the service
 export class ServiceResource<U extends Rule, T extends Service<U>> extends BasicResource<T> {
   public readonly rules = new RulesResource<U>(this.adminAuth, `${this.url}/rules`, this.service.ruleType);
-  public readonly config = new ConfigResource(this.adminAuth, `${this.url}/config`, this.service.config);
+  public readonly config = new ServiceConfigResource(this.adminAuth, `${this.url}/config`, this.service.config);
 
   constructor(adminAuth: StitchAdminAuth, url: string, private readonly service: T) {
     super(adminAuth, url);
   }
 
   public get(): Promise<T> {
-    return this._get(this.service.constructor as Type<T>);
+    return this._get(this.service.constructor as TypeCtor<T>);
   }
 
   public remove(): Promise<void> {
@@ -63,7 +63,7 @@ export class ServicesResource extends BasicResource<Service<Rule>> {
   }
 
   public create<U extends Rule, T extends Service<U>>(data: T): Promise<T> {
-    return this._create(data, data.constructor as Type<T>).then((result) => {
+    return this._create(data, data.constructor as TypeCtor<T>).then((result) => {
       data.id = result.id;
       data.version = result.version;
       return data;

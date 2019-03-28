@@ -6,9 +6,6 @@ const harness = new BaseStitchBrowserIntTestHarness();
 beforeAll(() => harness.setup());
 
 describe("admin client", () => {
-	
-	// let app: App;
-	// let appsResource: AppsResource;
 	let app: App;
 	let appResource: AppResource
 

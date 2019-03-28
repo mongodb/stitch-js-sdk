@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { App, AppResponse, Userpass } from "mongodb-stitch-core-admin-client";
+import { App, AppResource, Userpass } from "mongodb-stitch-core-admin-client";
 import { BSON, StitchServiceErrorCode, StitchServiceError } from "mongodb-stitch-core-sdk";
 import { UserApiKeyAuthProviderClient, UserApiKeyCredential } from "mongodb-stitch-react-native-core";
 import { BaseStitchRNIntTestHarness } from "mongodb-stitch-react-native-testutils";
@@ -24,10 +24,10 @@ const harness = new BaseStitchRNIntTestHarness();
 beforeAll(() => harness.setup());
 afterAll(() => harness.teardown());
 
-async function prepareApp(): Promise<[AppResponse, App]> {
-  const [appResponse, app] = await harness.createApp();
+async function prepareApp(): Promise<[AppResource, App]> {
+  const { app: appResponse, appResource: app } = await harness.createApp();
   await harness.addProvider(
-    app as App,
+    app,
     new Userpass(
       "http://emailConfirmUrl.com",
       "http://resetPasswordUrl.com",
@@ -35,8 +35,8 @@ async function prepareApp(): Promise<[AppResponse, App]> {
       "password subject"
     )
   );
-  await harness.enableApiKeyProvider(app as App);
-  return [appResponse as AppResponse, app as App];
+  await harness.enableApiKeyProvider(app);
+  return [appResponse as AppResource, app];
 }
 
 describe("UserApiKeyAuthProviderClient", () => {

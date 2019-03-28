@@ -22,7 +22,7 @@ import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutil
 import {
   Anon,
   App,
-  AppResponse,
+  AppResource,
   AwsS3,
   AwsS3Actions,
   AwsS3RuleCreator,
@@ -54,10 +54,10 @@ const test = awsAccessKeyId && awsSecretAccessKey ? it : it.skip;
 
 describe("AwsS3ServiceClient", () => {
   test("should put object", async () => {
-    const [appResponse, app] = await harness.createApp();
-    await harness.addProvider(app as App, new Anon());
+    const { app: appResponse, appResource: app } = await harness.createApp();
+    await harness.addProvider(app, new Anon());
     const [svcResponse, svc] = await harness.addService(
-      app as App,
+      app,
       "aws-s3",
       new AwsS3("awss31", {
         accessKeyId: awsAccessKeyId!,
@@ -70,7 +70,7 @@ describe("AwsS3ServiceClient", () => {
       new AwsS3RuleCreator("default", [AwsS3Actions.Put])
     );
 
-    const client = harness.getAppClient(appResponse as AppResponse);
+    const client = harness.getAppClient(appResponse as AppResource);
     await client.auth.loginWithCredential(new AnonymousCredential());
 
     const awsS3 = client.getServiceClient(AwsS3ServiceClient.factory, "awss31");

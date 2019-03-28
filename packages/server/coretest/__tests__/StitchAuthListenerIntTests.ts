@@ -19,7 +19,7 @@ import { BaseStitchServerIntTestHarness } from "mongodb-stitch-server-testutils"
 import {
   Anon,
   App,
-  AppResponse,
+  AppResource,
   Userpass
 } from "mongodb-stitch-core-admin-client";
 import {
@@ -34,10 +34,10 @@ beforeAll(() => harness.setup());
 afterAll(() => harness.teardown());
 
 async function prepareListenerTest(): Promise<[StitchAppClient, App]> {
-  const [appResponse, app] = await harness.createApp();
-  await harness.addProvider(app as App, new Anon());
+  const { app: appResponse, appResource: app } = await harness.createApp();
+  await harness.addProvider(app, new Anon());
   await harness.addProvider(
-    app as App,
+    app,
     new Userpass(
       "http://emailConfirmUrl.com",
       "http://resetPasswordUrl.com",
@@ -48,10 +48,10 @@ async function prepareListenerTest(): Promise<[StitchAppClient, App]> {
 
   return Promise.resolve([
     harness.getAppClient(
-      appResponse as AppResponse, 
-      new MemoryStorage((appResponse as AppResponse).clientAppId
+      appResponse as AppResource, 
+      new MemoryStorage((appResponse as AppResource).clientAppId
     )), 
-    app as App
+    app
   ] as [StitchAppClient, App]);
 }
 
@@ -71,7 +71,7 @@ describe("StitchAuthListener", () => {
 
     // this should trigger the user being added
     await harness.registerAndLoginWithUserPass(
-      app as App,
+      app,
       client,
       "test@10gen.com",
       "hunter1"
@@ -115,7 +115,7 @@ describe("StitchAuthListener", () => {
 
     // this should trigger the user being logged in
     await harness.registerAndLoginWithUserPass(
-      app as App,
+      app,
       client,
       "test@10gen.com",
       "hunter1"
@@ -157,7 +157,7 @@ describe("StitchAuthListener", () => {
     });
 
     await harness.registerAndLoginWithUserPass(
-      app as App,
+      app,
       client,
       "test@10gen.com",
       "hunter1"
@@ -220,7 +220,7 @@ describe("StitchAuthListener", () => {
     expectingCurrentUserToBeDefined = true;
     expectingPreviousUserToBeDefined = false;
     await harness.registerAndLoginWithUserPass(
-      app as App,
+      app,
       client,
       "test@10gen.com",
       "hunter1"
@@ -284,7 +284,7 @@ describe("StitchAuthListener", () => {
     });
 
     await harness.registerAndLoginWithUserPass(
-      app as App,
+      app,
       client,
       "test@10gen.com",
       "hunter1"

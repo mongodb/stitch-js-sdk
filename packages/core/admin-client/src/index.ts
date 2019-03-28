@@ -22,18 +22,23 @@ import {
   ApiKey,
   CustomProvider, 
   CustomProviderConfig, 
-  Provider, 
+  Provider,
   UserpassProvider, 
   UserpassProviderConfig
 } from "./authProviders/ProviderConfigs";
+import { FunctionResource, FunctionsResource, StitchFunction } from "./functions/FunctionsResources";
 import {
   AwsS3Action,
+  AwsS3Rule,
   AwsSesAction,
+  AwsSesRule,
   HttpAction,
+  HttpRule,
   Rule,
   RuleResource,
   RulesResource,
-  TwilioAction
+  TwilioAction,
+  TwilioRule
 } from "./services/rules/RulesResources";
 import {
   AwsConfig,
@@ -46,9 +51,8 @@ import {
   TwilioConfig,
   TwilioService
 } from "./services/ServiceConfigs";
-import {ServiceResource, ServicesResource} from "./services/ServicesResources";
+import { ServiceResource, ServicesResource } from "./services/ServicesResources";
 import StitchAdminClient from "./StitchAdminClient";
-
 import { ConfirmationEmail, UserRegistrationsResource } from "./userRegistrations/UserRegistrationsResources";
 
 export {
@@ -63,10 +67,14 @@ export {
   AwsConfig,
   AwsS3Service as AwsS3,
   AwsS3Action,
+  AwsS3Rule,
+  AwsS3Service,
   AwsS3Config,
   AwsSesService as AwsSes,
   AwsSesAction,
   AwsSesConfig,
+  AwsSesRule,
+  HttpRule,
   ConfirmationEmail,
   HttpAction,
   MongoDbService as Mongo,
@@ -88,4 +96,8 @@ export {
   Rule,
   RuleResource,
   RulesResource,
+  StitchFunction,
+  FunctionResource,
+  FunctionsResource,
+  TwilioRule
 };

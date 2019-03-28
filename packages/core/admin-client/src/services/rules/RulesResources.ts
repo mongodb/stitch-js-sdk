@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { jsonProperty, Type } from "../../JsonMapper";
+import { jsonProperty, TypeCtor } from "../../JsonMapper";
 import { BasicResource } from "../../Resources";
 import StitchAdminAuth from "../../StitchAdminAuth";
 
@@ -63,7 +63,7 @@ export class AwsRule extends Rule {
 }
 
 export class AwsS3Rule extends Rule {
-  public type = "aws-s3";
+  public readonly type = "aws-s3";
   constructor(
     readonly name: string,
     readonly actions: AwsS3Action[]) {
@@ -72,7 +72,7 @@ export class AwsS3Rule extends Rule {
 }
 
 export class AwsSesRule extends Rule {
-  public type = "aws-ses";
+  public readonly type = "aws-ses";
 
   constructor(
     readonly name: string,
@@ -82,7 +82,7 @@ export class AwsSesRule extends Rule {
 }
 
 export class HttpRule extends Rule {
-  public type = "http";
+  public readonly type = "http";
   constructor(
     readonly name: string,
     readonly actions: HttpAction[]) {
@@ -91,7 +91,7 @@ export class HttpRule extends Rule {
 }
 
 export class MongoDbRule extends Rule {
-  public type = "mongodb";
+  public readonly type = "mongodb";
   constructor(
     @jsonProperty("namespace") readonly namespace: string,
     @jsonProperty("rule") readonly rule: object) {
@@ -100,7 +100,7 @@ export class MongoDbRule extends Rule {
 }
 
 export class TwilioRule extends Rule {
-  public type = "twilio";
+  public readonly type = "twilio";
 
   constructor(
     readonly name: string, 
@@ -116,7 +116,7 @@ export class RuleResource<T extends Rule> extends BasicResource<T> {
   }
 
   public get(): Promise<T> {
-    return this._get(this.rule.constructor as Type<T>);
+    return this._get(this.rule.constructor as TypeCtor<T>);
   }
 
   public remove(): Promise<void> {
@@ -126,7 +126,7 @@ export class RuleResource<T extends Rule> extends BasicResource<T> {
 
 // Resource for listing the rules of a service
 export class RulesResource<T extends Rule> extends BasicResource<T> {
-  constructor(adminAuth: StitchAdminAuth, url: string, private readonly ruleType: Type<T>) {
+  constructor(adminAuth: StitchAdminAuth, url: string, private readonly ruleType: TypeCtor<T>) {
     super(adminAuth, url);
   }
 

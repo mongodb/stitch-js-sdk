@@ -15,7 +15,7 @@
  */
 
 import { Rule } from "..";
-import { jsonProperty, Type } from "../JsonMapper";
+import { jsonProperty, TypeCtor } from "../JsonMapper";
 import { AwsS3Rule, AwsSesRule, HttpRule, MongoDbRule, TwilioRule } from "./rules/RulesResources";
 
 export type Config = any;
@@ -64,7 +64,7 @@ export abstract class Service<T extends Rule> {
   public config: Config;
   @jsonProperty("version")
   public version: number;
-  public abstract get ruleType(): Type<T>;
+  public abstract get ruleType(): TypeCtor<T>;
 }
 
 export class HttpService extends Service<HttpRule> {
@@ -87,7 +87,7 @@ export class AwsS3Service extends Service<AwsS3Rule> {
 
   public constructor(
     public readonly name: string,
-    @jsonProperty("config", { prototype: AwsS3Config }) public readonly config: AwsS3Config
+    @jsonProperty("config", { typeCtor: AwsS3Config }) public readonly config: AwsS3Config
   ) {
     super();
   }
@@ -101,7 +101,7 @@ export class AwsSesService extends Service<AwsSesRule> {
 
   public constructor(
     public readonly name: string,
-    @jsonProperty("config", { prototype: AwsSesConfig }) public readonly config: AwsSesConfig
+    @jsonProperty("config", { typeCtor: AwsSesConfig }) public readonly config: AwsSesConfig
   ) {
     super();
   }
@@ -115,7 +115,7 @@ export class TwilioService extends Service<TwilioRule> {
 
   public constructor(
     public readonly name: string,
-    @jsonProperty("config", { prototype: TwilioConfig })
+    @jsonProperty("config", { typeCtor: TwilioConfig })
     public config: TwilioConfig) {
     super();
   }
@@ -129,7 +129,7 @@ export class MongoDbService extends Service<MongoDbRule> {
   }
 
   public constructor(
-    @jsonProperty("config", { prototype: MongoConfig }) public readonly config: MongoConfig
+    @jsonProperty("config", { typeCtor: MongoConfig }) public readonly config: MongoConfig
   ) {
     super();
   }

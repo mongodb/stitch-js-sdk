@@ -22,7 +22,7 @@ import {
   StitchServiceError, 
   StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
-import { deserialize, serialize, Type } from "./JsonMapper";
+import { deserialize, serialize, TypeCtor } from "./JsonMapper";
 import StitchAdminAuth from "./StitchAdminAuth";
 
 // Any endpoint that can be described with basic
@@ -35,7 +35,7 @@ abstract class BasicResource<T> {
     this.url = url;
   }
 
-  protected _create<U>(data: U, type: Type<U>): Promise<U> {
+  protected _create<U>(data: U, type: TypeCtor<U>): Promise<U> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder
       .withMethod(Method.POST)
@@ -48,7 +48,7 @@ abstract class BasicResource<T> {
       );
   }
 
-  protected _list(type: Type<T>): Promise<T[]> {
+  protected _list(type: TypeCtor<T>): Promise<T[]> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder.withMethod(Method.GET).withPath(this.url);
 
@@ -59,7 +59,7 @@ abstract class BasicResource<T> {
       );
   }
 
-  protected _get(type: Type<T>): Promise<T> {
+  protected _get(type: TypeCtor<T>): Promise<T> {
     const reqBuilder = new StitchAuthRequest.Builder();
     reqBuilder.withMethod(Method.GET).withPath(this.url);
 

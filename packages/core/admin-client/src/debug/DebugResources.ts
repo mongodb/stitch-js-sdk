@@ -15,7 +15,7 @@ class ExecuteFunctionResult {
 	public readonly logs: any
 	@jsonProperty("result")
 	public readonly result: any
-	@jsonProperty("stats", { prototype: Stats })
+	@jsonProperty("stats", { typeCtor: Stats })
 	public readonly stats: Stats
 }
 export class DebugResource extends BasicResource<ExecuteFunctionResult> {

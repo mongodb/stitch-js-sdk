@@ -18,7 +18,7 @@ import { EJSON } from "bson";
 import {
   Anon,
   App,
-  AppResponse,
+  AppResource,
   Http,
   HttpActions,
   HttpRuleCreator,
@@ -40,10 +40,10 @@ afterAll(() => harness.teardown());
 
 describe("HttpServiceClient", () => {
   it("should execute", async () => {
-    const [appResponse, app] = await harness.createApp();
-    await harness.addProvider(app as App, new Anon());
+    const { app: appResponse, appResource: app } = await harness.createApp();
+    await harness.addProvider(app, new Anon());
     const [svcResponse, svc] = await harness.addService(
-      app as App,
+      app,
       "http",
       new Http("http1")
     );
@@ -53,7 +53,7 @@ describe("HttpServiceClient", () => {
       new HttpRuleCreator("default", [HttpActions.Delete])
     );
 
-    const client = await harness.getAppClient(appResponse as AppResponse);
+    const client = await harness.getAppClient(appResponse as AppResource);
     await client.auth.loginWithCredential(new AnonymousCredential());
 
     const httpClient = client.getServiceClient(
