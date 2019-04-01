@@ -33,7 +33,7 @@ describe('Draft', () => {
     const draft = await appDraft.get();
     expect(draft.app.group_id).toEqual(th.groupId);
   });
-  
+
   it('returns a copy of the draft on a creation request', async() => {
     const draft = await appDraft.create();
     expect(draft.app.group_id).toEqual(th.groupId);
