@@ -19,11 +19,11 @@ describe('Secrets', () => {
   afterEach(async() => th.cleanup());
 
   const testSecretName = 'testvaluename';
-  it('listing secrets should return empty list', async() => {
+  it('returns an empty list when no secrets exist for the app', async() => {
     let secrets = await appSecrets.list();
     expect(secrets).toEqual([]);
   });
-  it('creating secret should make it appear in list', async() => {
+  it('returns a list containing the new secret after one has been created', async() => {
     let secret = await appSecrets.create({name: testSecretName});
     expect(secret.name).toEqual(testSecretName);
     let secrets = await appSecrets.list();
