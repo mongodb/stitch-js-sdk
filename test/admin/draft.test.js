@@ -25,8 +25,15 @@ describe('Draft', () => {
       expect(error.response.status).toEqual(404);
       expect(error.message).toEqual('draft not found');
     }
+    expect.assertions(2);
   });
 
+  it('returns a copy of the draft if one exists', async() => {
+    await appDraft.create();
+    const draft = await appDraft.get();
+    expect(draft.app.group_id).toEqual(th.groupId);
+  });
+  
   it('returns a copy of the draft on a creation request', async() => {
     const draft = await appDraft.create();
     expect(draft.app.group_id).toEqual(th.groupId);
