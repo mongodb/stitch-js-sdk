@@ -297,6 +297,23 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
               };
             },
 
+            draft: function draft() {
+              return {
+                get: function get() {
+                  return api._get(appUrl + '/draft');
+                },
+                create: function create() {
+                  return api._post(appUrl + '/draft');
+                },
+                delete: function _delete() {
+                  return api._delete(appUrl + '/draft');
+                },
+                deploy: function deploy() {
+                  return api._post(appUrl + '/draft/deployment');
+                }
+              };
+            },
+
             services: function services() {
               return {
                 list: function list() {
