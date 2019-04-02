@@ -23,9 +23,15 @@ enum Fields {
 }
 
 /** 
- * @hidden
  * A credential which can be used to log in as a Stitch user
  * using the Google authentication provider.
+ *
+ * Browser SDK users can use the 
+ * [GoogleRedirectCredential](https://docs.mongodb.com/stitch-sdks/js/4/classes/googleredirectcredential.html)
+ * with [StitchAuth.loginWithRedirect](https://docs.mongodb.com/stitch-sdks/js/4/interfaces/stitchauth.html#loginwithredirect).
+ * Server and React Native SDK users must obtain their own server auth code.
+ * Use a third-party module to get this code and pass it to the GoogleCredential
+ * constructor.
  */
 export default class GoogleCredential implements StitchCredential {
   /**

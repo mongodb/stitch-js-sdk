@@ -33,9 +33,12 @@ import StitchAuth from "./auth/StitchAuth";
  *
  * @example
  * ```
- * import { Stitch } from "mongodb-stitch-browser-sdk"
+ * import { Stitch } from 'mongodb-stitch-react-native-sdk'
  * 
- * const client = Stitch.initializeDefaultAppClient('example-stitch-app-id')
+ * Stitch.initializeDefaultAppClient('example-stitch-app-id')
+ *   .then((client) => {
+ *     // use client
+ *   })
  * ```
  * 
  * @see

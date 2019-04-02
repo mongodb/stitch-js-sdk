@@ -737,4 +737,16 @@ describe("RemoteMongoClient", () => {
     expect(await (await iter.iterator()).next()).toBeDefined();
     expect(expected).toEqual(await (await iter.iterator()).next());
   });
+
+  it("issuing request with logged out user should reject promise", async () => {
+    const coll = getTestColl();
+
+    expect(coll.findOne()).resolves.toBeNull();
+
+    expect(harness.clients[0].auth.isLoggedIn).toEqual(true);
+    await harness.clients[0].auth.logout()
+    expect(harness.clients[0].auth.isLoggedIn).toEqual(false);
+
+    expect(coll.findOne()).rejects.toBeTruthy();
+  });
 });
