@@ -24,6 +24,7 @@ export class TwilioConfig implements Config {
   constructor(
     @jsonProperty("sid")
     public accountSid: string,
+
     @jsonProperty("auth_token", { omitEmpty: true })
     public authToken?: string) {
   }
@@ -56,21 +57,28 @@ export class MongoConfig implements Config {
 export abstract class Service<T extends Rule> {
   @jsonProperty("_id", { omitEmpty: true })
   public id: string;
+
   @jsonProperty("type")
   public readonly type: string;
+  
   @jsonProperty("name")
   public readonly name: string;
+  
   @jsonProperty("config")
   public config: Config;
+  
   @jsonProperty("version")
   public version: number;
+  
   public abstract get ruleType(): TypeCtor<T>;
 }
 
 export class HttpService extends Service<HttpRule> {
   public readonly config = {};
+  
   @jsonProperty("type")
   public readonly type = "http";
+  
   public get ruleType() {
     return HttpRule;
   }
@@ -116,6 +124,7 @@ export class TwilioService extends Service<TwilioRule> {
 
   public constructor(
     public readonly name: string,
+    
     @jsonProperty("config", { typeCtor: TwilioConfig })
     public config: TwilioConfig) {
     super();

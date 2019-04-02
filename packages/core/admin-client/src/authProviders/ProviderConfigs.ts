@@ -44,8 +44,11 @@ class ApiKeyProvider extends Provider {
 class UserpassProviderConfig {
   public constructor(
     @jsonProperty("emailConfirmationUrl") public emailConfirmationUrl: string,
+    
     @jsonProperty("resetPasswordUrl") public resetPasswordUrl: string,
+    
     @jsonProperty("confirmEmailSubject") public confirmEmailSubject: string,
+    
     @jsonProperty("resetPasswordSubject") public resetPasswordSubject: string
   ) {}
 }

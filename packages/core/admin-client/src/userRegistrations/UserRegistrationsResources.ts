@@ -26,6 +26,7 @@ import { BasicResource } from "../Resources";
 export class ConfirmationEmail {
   @jsonProperty("token")
   public readonly token: string;
+  
   @jsonProperty("token_id")
   public readonly tokenId: string;
 }

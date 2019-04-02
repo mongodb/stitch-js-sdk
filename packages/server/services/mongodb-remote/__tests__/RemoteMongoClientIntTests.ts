@@ -20,9 +20,9 @@ import {
   AppResource,
   MongoDbRule,
   MongoDbService,
-  Service,
   Role,
-  Schema
+  Schema,
+  Service
 } from "mongodb-stitch-core-admin-client";
 import {
   AnonymousCredential,

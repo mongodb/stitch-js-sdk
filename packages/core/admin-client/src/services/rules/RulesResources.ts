@@ -45,10 +45,13 @@ export type Action = AwsS3Action | AwsSesAction | HttpAction | TwilioAction | st
 export class Rule {
   @jsonProperty("_id", { omitEmpty: true })
   public id: string;
+  
   @jsonProperty("type")
   public readonly type: string;
+  
   @jsonProperty("name") 
   public readonly name: string;
+  
   @jsonProperty("actions")
   public readonly actions: Action[];
 }
@@ -94,6 +97,7 @@ export class AdditionalFields {
   constructor(
     @jsonProperty("write")
     public readonly write: boolean = true,
+    
     @jsonProperty("read")
     public readonly read: boolean = true
   ) {
@@ -103,14 +107,19 @@ export class AdditionalFields {
 export class Role {
   constructor(
     public readonly name = "default",
+    
     @jsonProperty("apply_when")
     public readonly applyWhen = {},
+
     public readonly fields = {},
+    
     @jsonProperty("additional_fields")
     public readonly additionalFields = new AdditionalFields(),
+    
     public readonly read: boolean = true,
     public readonly write: boolean = true,
     public readonly insert = true,
+    
     @jsonProperty("delete")
     public readonly del = true
   ) {
