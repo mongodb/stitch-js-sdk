@@ -18,9 +18,9 @@ import {
   Anon,
   App,
   AppResource,
-  AwsSes,
-  AwsSesActions,
-  AwsSesRuleCreator,
+  AwsSesService,
+  AwsSesAction,
+  AwsSesRule,
   Service
 } from "mongodb-stitch-core-admin-client";
 import {
@@ -53,19 +53,22 @@ describe("AwsSesService should", () => {
     await harness.addProvider(app, new Anon());
     const [svcResponse, svc] = await harness.addService(
       app,
-      "aws-ses",
-      new AwsSes("awsses1", {
+      new AwsSesService("awsses1", {
         accessKeyId: awsAccessKeyId!,
         region: "us-east-1",
         secretAccessKey: awsSecretAccessKey!
       })
     );
     await harness.addRule(
-      svc as Service,
-      new AwsSesRuleCreator("default", [AwsSesActions.Send])
+      svc,
+      new AwsSesRule("default", [AwsSesAction.Send])
+    );
+    await harness.addRule(
+      svc,
+      new AwsSesRule("default", [AwsSesAction.Send])
     );
 
-    const client = await harness.getAppClient(appResponse as AppResource);
+    const client = await harness.getAppClient(appResponse);
     await client.auth.loginWithCredential(new AnonymousCredential());
 
     const awsSes = client.getServiceClient(
