@@ -63,10 +63,6 @@ describe("AwsSesService should", () => {
       svc,
       new AwsSesRule("default", [AwsSesAction.Send])
     );
-    await harness.addRule(
-      svc,
-      new AwsSesRule("default", [AwsSesAction.Send])
-    );
 
     const client = await harness.getAppClient(appResponse);
     await client.auth.loginWithCredential(new AnonymousCredential());

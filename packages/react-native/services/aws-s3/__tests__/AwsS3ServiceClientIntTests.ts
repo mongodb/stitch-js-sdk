@@ -18,9 +18,9 @@ import {
   Anon,
   App,
   AppResource,
-  AwsS3Service,
   AwsS3Action,
   AwsS3Rule,
+  AwsS3Service,
   Service
 } from "mongodb-stitch-core-admin-client";
 import {
