@@ -18,10 +18,10 @@ import { EJSON } from "bson";
 import {
   Anon,
   App,
-  AppResponse,
-  Http,
-  HttpActions,
-  HttpRuleCreator,
+  AppResource,
+  HttpAction,
+  HttpRule,
+  HttpService,
   Service
 } from "mongodb-stitch-core-admin-client";
 import {
@@ -40,20 +40,19 @@ afterAll(() => harness.teardown());
 
 describe("HttpServiceClient", () => {
   it("should execute", async () => {
-    const [appResponse, app] = await harness.createApp();
-    await harness.addProvider(app as App, new Anon());
+    const { app: appResponse, appResource: app } = await harness.createApp();
+    await harness.addProvider(app, new Anon());
     const [svcResponse, svc] = await harness.addService(
-      app as App,
-      "http",
-      new Http("http1")
+      app,
+      new HttpService("http1")
     );
 
     await harness.addRule(
-      svc as Service,
-      new HttpRuleCreator("default", [HttpActions.Delete])
+      svc,
+      new HttpRule("default", [HttpAction.Delete])
     );
 
-    const client = await harness.getAppClient(appResponse as AppResponse);
+    const client = await harness.getAppClient(appResponse);
     await client.auth.loginWithCredential(new AnonymousCredential());
 
     const httpClient = client.getServiceClient(

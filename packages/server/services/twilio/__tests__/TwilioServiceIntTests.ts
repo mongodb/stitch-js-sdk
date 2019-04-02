@@ -17,12 +17,13 @@
 import {
   Anon,
   App,
-  AppResponse,
+  AppResource,
   Service,
   Twilio,
-  TwilioActions,
+  TwilioAction,
   TwilioConfig,
-  TwilioRuleCreator
+  TwilioRule,
+  TwilioService
 } from "mongodb-stitch-core-admin-client";
 import {
   AnonymousCredential,
@@ -49,23 +50,22 @@ const test = twilioSid && twilioAuthToken ? it : it.skip;
 
 describe("TwilioService", () => {
   test("should send message", async () => {
-    const [appResponse, app] = await harness.createApp();
-    await harness.addProvider(app as App, new Anon());
+    const { app: appResponse, appResource: app } = await harness.createApp();
+    await harness.addProvider(app, new Anon());
     const [svcResponse, svc] = await harness.addService(
-      app as App,
-      "twilio",
-      new Twilio("twilio1", {
-        accountSid: twilioSid!,
-        authToken: twilioAuthToken!
-      })
+      app,
+      new TwilioService("twilio1", new TwilioConfig(
+        twilioSid!,
+        twilioAuthToken!
+      ))
     );
 
     await harness.addRule(
-      svc as Service,
-      new TwilioRuleCreator("default", [TwilioActions.Send])
+      svc,
+      new TwilioRule("default", [TwilioAction.Send])
     );
 
-    const client = harness.getAppClient(appResponse as AppResponse);
+    const client = harness.getAppClient(appResponse);
     await client.auth.loginWithCredential(new AnonymousCredential());
 
     const twilio = client.getServiceClient(

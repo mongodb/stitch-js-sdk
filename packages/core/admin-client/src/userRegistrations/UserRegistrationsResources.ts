@@ -14,35 +14,35 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
-
-enum Fields {
-  Token = "token",
-  TokenId = "token_id"
-}
+import { Method, StitchAuthRequest } from "mongodb-stitch-core-sdk";
+import { deserialize, jsonProperty } from "../JsonMapper";
+import { BasicResource } from "../Resources";
 
 /**
  * Class that allows the retrieval of the token
  * and tokenId of a confirmation email, for the sake
  * of skirting email registration
  */
-export interface ConfirmationEmail {
-  readonly token: string;
-  readonly tokenId: string;
+export class ConfirmationEmail {
+  @jsonProperty("token")
+  public readonly token: string;
+  
+  @jsonProperty("token_id")
+  public readonly tokenId: string;
 }
 
-export class ConfirmationEmailCodec implements Codec<ConfirmationEmail> {
-  public decode(from: any): ConfirmationEmail {
-    return {
-      token: from[Fields.Token],
-      tokenId: from[Fields.TokenId]
-    };
-  }
+// Resource for user registrations of an application
+export class UserRegistrationsResource extends BasicResource<ConfirmationEmail> {
+  public sendConfirmation(email: string): Promise<ConfirmationEmail> {
+    const reqBuilder = new StitchAuthRequest.Builder();
+    reqBuilder
+      .withMethod(Method.POST)
+      .withPath(`${this.url}/by_email/${email}/send_confirm`);
 
-  public encode(from: ConfirmationEmail): object {
-    return {
-      [Fields.Token]: from.token,
-      [Fields.TokenId]: from.tokenId
-    };
+    return this.adminAuth
+      .doAuthenticatedRequest(reqBuilder.build())
+      .then(response =>
+        deserialize(JSON.parse(response.body!), ConfirmationEmail)
+      );
   }
 }

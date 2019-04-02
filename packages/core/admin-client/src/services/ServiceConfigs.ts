@@ -14,133 +14,149 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
+import { Rule } from "..";
+import { jsonProperty, TypeCtor } from "../JsonMapper";
+import { AwsRule, AwsS3Rule, AwsSesRule, HttpRule, MongoDbRule, TwilioRule } from "./rules/RulesResources";
 
-export interface ServiceConfig {
-  readonly name: string;
-  readonly type: string;
-  readonly config: object;
+export type Config = any;
 
-  readonly configCodec?: Codec<any>;
-}
+export class TwilioConfig implements Config {
+  constructor(
+    @jsonProperty("sid")
+    public accountSid: string,
 
-export class ServiceConfigCodec implements Codec<ServiceConfig> {
-  public decode(from: any): ServiceConfig {
-    const type = from.type;
-    let config: object = from.config;
-    if (type === "twilio") {
-      config = new TwilioConfigCodec().decode(config);
-    }
-
-    return {
-      config,
-      name: from.name,
-      type: from.type
-    };
-  }
-
-  public encode(from: ServiceConfig): object {
-    return {
-      config: from.configCodec
-        ? from.configCodec.encode(from.config)
-        : from.config,
-      name: from.name,
-      type: from.type
-    };
+    @jsonProperty("auth_token", { omitEmpty: true })
+    public authToken?: string) {
   }
 }
 
-export class Http implements ServiceConfig {
+export class AwsConfig implements Config {
+  constructor(
+    public readonly accessKeyId: string,
+    public readonly secretAccessKey: string) {}
+}
+
+export class AwsS3Config implements Config {
+  constructor(
+    public readonly region: string,
+    public readonly accessKeyId: string,
+    public readonly secretAccessKey: string) {}
+}
+
+export class AwsSesConfig implements Config {
+  constructor(
+    readonly region: string,
+    readonly accessKeyId: string,
+    readonly secretAccessKey: string) {}
+}
+
+export class MongoConfig implements Config {
+  constructor(@jsonProperty("uri") readonly uri: string) {}
+}
+
+export abstract class Service<T extends Rule> {
+  @jsonProperty("_id", { omitEmpty: true })
+  public id: string;
+
+  @jsonProperty("type")
+  public readonly type: string;
+  
+  @jsonProperty("name")
+  public readonly name: string;
+  
+  @jsonProperty("config")
+  public config: Config;
+  
+  @jsonProperty("version")
+  public version: number;
+  
+  public abstract get ruleType(): TypeCtor<T>;
+}
+
+export class HttpService extends Service<HttpRule> {
   public readonly config = {};
+  
+  @jsonProperty("type")
   public readonly type = "http";
-
-  public constructor(public readonly name: string) {}
+  
+  public get ruleType() {
+    return HttpRule;
+  }
+  
+  constructor(@jsonProperty("name") readonly name: string) {
+    super();
+  }
 }
 
-export interface AwsConfig {
-  readonly accessKeyId: string;
-  readonly secretAccessKey: string;
-}
-
-export class Aws implements ServiceConfig {
-  public readonly type = "aws";
-  public constructor(
-    public readonly name,
-    public readonly config: AwsS3Config
-  ) {}
-}
-
-export interface AwsS3Config {
-  readonly region: string;
-  readonly accessKeyId: string;
-  readonly secretAccessKey: string;
-}
-
-export class AwsS3 implements ServiceConfig {
+export class AwsS3Service extends Service<AwsS3Rule> {
   public readonly type = "aws-s3";
+  public get ruleType() {
+    return AwsS3Rule;
+  }
+
   public constructor(
-    public readonly name,
-    public readonly config: AwsS3Config
-  ) {}
+    public readonly name: string,
+    @jsonProperty("config", { typeCtor: AwsS3Config }) public readonly config: AwsS3Config
+  ) {
+    super();
+  }
 }
 
-export interface AwsSesConfig {
-  readonly region: string;
-  readonly accessKeyId: string;
-  readonly secretAccessKey: string;
+export class AwsService extends Service<AwsRule> {
+  public readonly type = "aws";
+  public get ruleType() {
+    return AwsRule;
+  }
+
+  public constructor(
+    public readonly name: string,
+    @jsonProperty("config", { typeCtor: AwsSesConfig }) public readonly config: AwsSesConfig
+  ) {
+    super();
+  }
 }
 
-export class AwsSes implements ServiceConfig {
+export class AwsSesService extends Service<AwsSesRule> {
   public readonly type = "aws-ses";
+  public get ruleType() {
+    return AwsSesRule;
+  }
+
   public constructor(
-    public readonly name,
-    public readonly config: AwsSesConfig
-  ) {}
-}
-
-export enum TwilioConfigFields {
-  AuthToken = "auth_token",
-  AccountSid = "sid"
-}
-
-export interface TwilioConfig {
-  readonly authToken: string;
-  readonly accountSid: string;
-}
-
-export class TwilioConfigCodec implements Codec<TwilioConfig> {
-  public decode(from: any): TwilioConfig {
-    return {
-      accountSid: from[TwilioConfigFields.AccountSid],
-      authToken: from[TwilioConfigFields.AuthToken]
-    };
-  }
-
-  public encode(from: TwilioConfig): object {
-    return {
-      [TwilioConfigFields.AuthToken]: from.authToken,
-      [TwilioConfigFields.AccountSid]: from.accountSid
-    };
+    public readonly name: string,
+    @jsonProperty("config", { typeCtor: AwsSesConfig }) public readonly config: AwsSesConfig
+  ) {
+    super();
   }
 }
 
-export class Twilio implements ServiceConfig {
-  public readonly configCodec = new TwilioConfigCodec();
+export class TwilioService extends Service<TwilioRule> {
   public readonly type = "twilio";
+  public get ruleType() {
+    return TwilioRule;
+  }
+
   public constructor(
-    public readonly name,
-    public readonly config: TwilioConfig
-  ) {}
+    public readonly name: string,
+    
+    @jsonProperty("config", { typeCtor: TwilioConfig })
+    public config: TwilioConfig) {
+    super();
+  }
 }
 
-export interface MongoConfig {
-  readonly uri: string;
-}
+export class MongoDbService extends Service<MongoDbRule> {
+  public readonly type: string = "mongodb";
+  public readonly name: string = "mongodb1";
 
-export class Mongo implements ServiceConfig {
+  public get ruleType() {
+    return MongoDbRule;
+  }
+
   public constructor(
-    public readonly name,
-    public readonly type,
+    @jsonProperty("config", { typeCtor: MongoConfig }) 
     public readonly config: MongoConfig
-  ) {}
+  ) {
+    super();
+  }
 }

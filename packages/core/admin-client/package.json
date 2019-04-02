@@ -54,17 +54,55 @@
     "prettier": "^1.13.5",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",
-    "typescript": "^2.9.2"
+    "typescript": "^2.9.2",
+    "mongodb-stitch-browser-testutils": "^4.3.2"
   },
   "scripts": {
     "build": "npm run build-main && npm run build-module",
     "build-main": "tsc -p tsconfig.cjs.json",
     "build-module": "tsc -p tsconfig.esm.json",
     "prepare": "npm run build",
+    "test": "jest",
     "watch": "tsc -w -p tsconfig.esm.json",
     "lint": "tslint 'src/**/*.ts' '__tests__/**/*.ts'",
     "lint-fix": "tslint --fix 'src/**/*.ts' '__tests__/**/*.ts'",
     "lint-check": "tslint-config-prettier-check ./tslint.json",
     "prettier": "prettier --write \"{,!(node_modules),!(dist)/**/}*.ts\""
+  },
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "tsconfig.cjs.json"
+      }
+    },
+    "reporters": [
+      "default",
+      [
+        "jest-junit",
+        {
+          "output": "./build/test-results/junit.xml"
+        }
+      ]
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "testPathIgnorePatterns": [
+      "/lib/",
+      "/node_modules/",
+      "ApiTestUtils.*",
+      "AdminClientTestHarness.*"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "collectCoverage": true,
+    "testURL": "http://localhost/"
   }
 }

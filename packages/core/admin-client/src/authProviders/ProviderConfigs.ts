@@ -14,58 +14,70 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
+import { jsonProperty } from "../JsonMapper";
 
-export interface ProviderConfig {
-  type: string;
-  config?: object;
+class Provider {
+  @jsonProperty("_id", { omitEmpty: true })
+  public readonly id: string;
+
+  @jsonProperty("name")
+  public readonly name: string;
+
+  @jsonProperty("type")
+  public readonly type: string;
+
+  @jsonProperty("disabled")
+  public readonly disabled: boolean;
+  
+  @jsonProperty("config")
+  public config?: any;
 }
 
-export class ProviderConfigCodec implements Codec<ProviderConfig> {
-  public decode(from: any): ProviderConfig {
-    return {
-      config: from.config,
-      type: from.type
-    };
-  }
-
-  public encode(from: ProviderConfig): object {
-    return {
-      config: from.config,
-      type: from.type
-    };
-  }
+class AnonProvider extends Provider {
+  public readonly type = "anon-user";
 }
 
-export class Anon implements ProviderConfig {
-  public type = "anon-user";
+class ApiKeyProvider extends Provider {
+  public readonly type: "api-key";
 }
 
-export class ApiKey implements ProviderConfig {
-  public type: "api-key";
-}
-
-export class Userpass implements ProviderConfig {
-  public type = "local-userpass";
-  public config = {
-    confirmEmailSubject: this.confirmEmailSubject,
-    emailConfirmationUrl: this.emailConfirmationUrl,
-    resetPasswordSubject: this.resetPasswordSubject,
-    resetPasswordUrl: this.resetPasswordUrl
-  };
+class UserpassProviderConfig {
   public constructor(
-    public readonly emailConfirmationUrl: string,
-    public readonly resetPasswordUrl: string,
-    public readonly confirmEmailSubject: string,
-    public readonly resetPasswordSubject: string
+    @jsonProperty("emailConfirmationUrl") public emailConfirmationUrl: string,
+    
+    @jsonProperty("resetPasswordUrl") public resetPasswordUrl: string,
+    
+    @jsonProperty("confirmEmailSubject") public confirmEmailSubject: string,
+    
+    @jsonProperty("resetPasswordSubject") public resetPasswordSubject: string
   ) {}
 }
 
-export class Custom implements ProviderConfig {
-  public type = "custom-token";
-  public config = {
-    signingKey: this.signingKey
-  };
-
-  public constructor(public readonly signingKey: string) {}
+class UserpassProvider extends Provider {
+  public readonly type = "local-userpass";
+  public constructor(readonly config: UserpassProviderConfig) {
+    super();
+  }
 }
+
+class CustomProviderConfig {
+  public constructor(@jsonProperty("signingKey") readonly signingKey: string) {} 
+}
+
+class CustomProvider extends Provider {
+  public readonly type = "custom-token";
+
+  public constructor(public readonly config: CustomProviderConfig) {
+    super();
+  }
+}
+
+export {
+  Provider, 
+  AnonProvider as AnonProviderConfig, 
+  ApiKeyProvider as ApiKey, 
+  UserpassProviderConfig, 
+  UserpassProvider, 
+  CustomProviderConfig, 
+  CustomProvider
+};

@@ -14,34 +14,65 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
+import { Method } from "mongodb-stitch-core-sdk";
+import { TypeCtor } from "../JsonMapper";
+import { BasicResource } from "../Resources";
+import StitchAdminAuth from "../StitchAdminAuth";
+import { Rule, RulesResource } from "./rules/RulesResources";
+import { Config, Service } from "./ServiceConfigs";
 
-enum Fields {
-  Id = "_id",
-  Name = "name",
-  Type = "type"
-}
-
-export interface ServiceResponse {
-  readonly id: string;
-  readonly name: string;
-  readonly type: string;
-}
-
-export class ServiceResponseCodec implements Codec<ServiceResponse> {
-  public decode(from: any): ServiceResponse {
-    return {
-      id: from[Fields.Id],
-      name: from[Fields.Name],
-      type: from[Fields.Type]
-    };
+export class ServiceConfigResource<T extends Config> extends BasicResource<T> {
+  constructor(adminAuth: StitchAdminAuth, url: string, private readonly config: T) {
+    super(adminAuth, url);
   }
 
-  public encode(from: ServiceResponse): object {
-    return {
-      [Fields.Id]: from.id,
-      [Fields.Name]: from.name,
-      [Fields.Type]: from.type
-    };
+  public get(): Promise<T> {
+    return this._get(this.config.constructor as TypeCtor<T>);
+  }
+
+  public update(data: T): Promise<void> {
+    return this._update(data, Method.PATCH);
+  }
+}
+
+// Resource for a specific service of an application. Can fetch rules
+// Of the service
+export class ServiceResource<U extends Rule, T extends Service<U>> extends BasicResource<T> {
+  public readonly rules = new RulesResource<U>(this.adminAuth, `${this.url}/rules`, this.service.ruleType);
+  public readonly config = new ServiceConfigResource(this.adminAuth, `${this.url}/config`, this.service.config);
+
+  constructor(adminAuth: StitchAdminAuth, url: string, private readonly service: T) {
+    super(adminAuth, url);
+  }
+
+  public get(): Promise<T> {
+    return this._get(this.service.constructor as TypeCtor<T>);
+  }
+
+  public remove(): Promise<void> {
+    return this._remove();
+  }
+}
+
+// Resource for listing services of an application
+export class ServicesResource extends BasicResource<Service<Rule>> {
+  public list(): Promise<Array<Service<Rule>>> {
+    return this._list(class extends Service<Rule> {
+      public readonly ruleType = Rule
+    });
+  }
+
+  public create<U extends Rule, T extends Service<U>>(data: T): Promise<T> {
+    return this._create(data, data.constructor as TypeCtor<T>).then((result) => {
+      data.id = result.id;
+      data.version = result.version;
+      return data;
+    });
+  }
+
+  // GET a service
+  // - parameter id: id of the requested service
+  public service<U extends Rule, T extends Service<U>>(service: T): ServiceResource<U, T> {
+    return new ServiceResource<U, T>(this.adminAuth, `${this.url}/${service.id}`, service);
   }
 }

@@ -23,8 +23,8 @@ import {
   Transport
 } from "mongodb-stitch-core-sdk";
 
+import { AppsResource } from ".";
 import AdminFetchTransport from "./AdminFetchTransport";
-import { Apps } from "./Resources";
 import StitchAdminAuth from "./StitchAdminAuth";
 import StitchAdminAuthRoutes from "./StitchAdminAuthRoutes";
 import { StitchAdminUser } from "./StitchAdminUser";
@@ -69,8 +69,8 @@ export default class StitchAdminClient {
     );
   }
 
-  public apps(groupId: string): Apps {
-    return new Apps(
+  public apps(groupId: string): AppsResource {
+    return new AppsResource(
       this.adminAuth,
       `${StitchAdminClient.apiPath}/groups/${groupId}/apps`
     );

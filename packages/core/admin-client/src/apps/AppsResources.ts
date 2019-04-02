@@ -15,39 +15,102 @@
  */
 
 import { EJSON } from "bson";
-import { Codec, Method, StitchAuthRequest } from "mongodb-stitch-core-sdk";
-import { App, Apps, checkEmpty } from "../Resources";
-
-enum Fields {
-  Id = "_id",
-  Name = "name",
-  ClientAppId = "client_app_id"
-}
+import { Method, StitchAuthRequest } from "mongodb-stitch-core-sdk";
+import { AuthProvidersResource } from "../authProviders/AuthProvidersResources";
+import { DebugResource } from "../debug/DebugResources";
+import { FunctionsResource } from "../functions/FunctionsResources";
+import { deserialize, jsonProperty } from "../JsonMapper";
+import { BasicResource, checkEmpty } from "../Resources";
+import { ServicesResource } from "../services/ServicesResources";
+import { UserRegistrationsResource } from "../userRegistrations/UserRegistrationsResources";
+import { UsersResource } from "../users/UsersResources";
 
 /// View into a specific application
-export interface AppResponse {
+export class App {
   /// Unique, internal id of this application
-  readonly id: string;
+  @jsonProperty("_id")
+  public readonly id: string;
   /// Name of this application
-  readonly name: string;
+  @jsonProperty("name")
+  public readonly name: string;
   /// Public, client app id (for `StitchClient`) of this application
-  readonly clientAppId: string;
+  @jsonProperty("client_app_id")
+  public readonly clientAppId: string;
+
+  @jsonProperty("location")
+  public readonly location: string;
+
+  @jsonProperty("deployment_model")
+  public readonly deploymentModel: string;
+
+  @jsonProperty("domain_id")
+  public readonly domainId: string
+  
+  @jsonProperty("group_id")
+  public readonly groupId: string;
 }
 
-export class AppResponseCodec implements Codec<AppResponse> {
-  public decode(from: any): AppResponse {
-    return {
-      clientAppId: from[Fields.ClientAppId],
-      id: from[Fields.Id],
-      name: from[Fields.Name]
-    };
+export class AppResource extends BasicResource<App> {
+  public readonly authProviders = new AuthProvidersResource(
+    this.adminAuth,
+    `${this.url}/auth_providers`
+  );
+  public readonly debug = new DebugResource(
+    this.adminAuth,
+    `${this.url}/debug`
+  )
+  public readonly functions = new FunctionsResource(
+    this.adminAuth,
+    `${this.url}/functions`
+  );
+  public readonly services = new ServicesResource(
+    this.adminAuth,
+    `${this.url}/services`
+  );
+  public readonly users = new UsersResource(
+    this.adminAuth, 
+    `${this.url}/users`
+  );
+  public readonly userRegistrations = new UserRegistrationsResource(
+    this.adminAuth,
+    `${this.url}/user_registrations`
+  );
+
+  public get(): Promise<App> {
+    return this._get(App);
   }
 
-  public encode(from: AppResponse): object {
-    return {
-      [Fields.Id]: from.id,
-      [Fields.Name]: from.name,
-      [Fields.ClientAppId]: from.clientAppId
-    };
+  public remove(): Promise<void> {
+    return this._remove();
+  }
+}
+
+export class AppsResource extends BasicResource<App> {
+  public list(): Promise<App[]> {
+    return this._list(App);
+  }
+
+  // POST a new application
+  // - parameter name: name of the new application
+  // - parameter defaults: whether or not to enable default values
+  public create(name: string, product?: string): Promise<App> {
+    // this is a special case due to the query string
+    const encodedApp = { name };
+    const req = new StitchAuthRequest.Builder()
+      .withMethod(Method.POST)
+      .withPath(`${this.url}?product=${product ? product : ""}`)
+      .withBody(JSON.stringify(encodedApp))
+      .build();
+
+    return this.adminAuth.doAuthenticatedRequest(req).then(response => {
+      checkEmpty(response);
+      return deserialize(EJSON.parse(response.body!), App);
+    });
+  }
+
+  // GET an application
+  // - parameter id: id for the application
+  public app(appId: string): AppResource {
+    return new AppResource(this.adminAuth, `${this.url}/${appId}`);
   }
 }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { fail } from "assert";
 import {
   MemoryStorage,
   Stitch,
@@ -24,7 +23,7 @@ import {
   UserPasswordAuthProviderClient,
   UserPasswordCredential
 } from "mongodb-stitch-browser-core";
-import { App, AppResponse } from "mongodb-stitch-core-admin-client";
+import { App, AppResource } from "mongodb-stitch-core-admin-client";
 import { BaseStitchIntTestHarness, JestFetchStreamTransport } from "mongodb-stitch-core-testutils";
 
 const stitchBaseUrlEnvVar = "STITCH_BASE_URL";
@@ -51,7 +50,7 @@ export default class BaseStitchBrowserIntTestHarness extends BaseStitchIntTestHa
     return envVar !== undefined ? envVar : "http://localhost:9090";
   }
 
-  public getAppClient(app: AppResponse, storage?: Storage): StitchAppClient {
+  public getAppClient(app: App, storage?: Storage): StitchAppClient {
     if (Stitch.hasAppClient(app.clientAppId)) {
       return Stitch.getAppClient(app.clientAppId);
     }
@@ -70,7 +69,7 @@ export default class BaseStitchBrowserIntTestHarness extends BaseStitchIntTestHa
 
   // Registers a new email/password user, and logs them in, returning the user's ID
   public async registerAndLoginWithUserPass(
-    app: App,
+    app: AppResource,
     client: StitchAppClient,
     email: string,
     pass: string

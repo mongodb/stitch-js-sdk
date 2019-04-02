@@ -17,14 +17,12 @@
 import fetch from "cross-fetch";
 import {
   App,
-  AppResponse,
-  AuthProviderResponse,
-  ProviderConfig,
-  RuleCreator,
-  RuleResponse,
+  AppResource,
+  AppsResource,
+  Provider,
+  Rule,
   Service,
-  ServiceConfig,
-  ServiceResponse,
+  ServiceResource,
   StitchAdminClient
 } from "mongodb-stitch-core-admin-client";
 import {
@@ -39,7 +37,7 @@ export default abstract class BaseStitchIntTestHarness {
   protected abstract readonly stitchBaseUrl: string;
 
   private groupId = "";
-  private apps: App[] = [];
+  private appResources: AppResource[] = [];
   private initialized = false;
 
   private readonly adminClient: StitchAdminClient = new StitchAdminClient(
@@ -68,72 +66,72 @@ export default abstract class BaseStitchIntTestHarness {
       });
   }
 
-  public teardown(): Promise<void> {
+  public async teardown(): Promise<void> {
     if (!this.initialized) {
       return Promise.resolve();
     }
 
-    return Promise.all(
-      this.apps.map(app => {
-        app.remove();
-      })
-    ).then(() => {
-      this.adminClient.logout();
-      this.adminClient.close();
+    this.appResources.forEach(async app => {
+        await app.remove();
     });
+    await this.adminClient.logout();
+    this.adminClient.close();
+  }
+
+  public appsResource(): AppsResource {
+    return this.adminClient.apps(this.groupId);
   }
 
   public async createApp(
     appName = `test-${new BSON.ObjectID().toHexString()}`
-  ): Promise<Array<App | AppResponse>> {
+  ): Promise<{app: App, appResource: AppResource}> {
     return this.adminClient
       .apps(this.groupId)
       .create(appName)
-      .then((appInfo: AppResponse) => {
-        const app: App = this.adminClient.apps(this.groupId).app(appInfo.id);
-        this.apps.push(app);
-        return [appInfo, app];
+      .then((app: App) => {
+        const appResource: AppResource = this.adminClient.apps(this.groupId).app(app.id);
+        this.appResources.push(appResource);
+        return {app, appResource};
       });
   }
 
-  public async addProvider(
-    app: App,
-    config: ProviderConfig
-  ): Promise<AuthProviderResponse> {
-    let authProviders;
+  public async addProvider<T extends Provider>(
+    app: AppResource,
+    config: T
+  ): Promise<T> {
+    let authProvider: T;
     return app.authProviders
       .create(config)
       .then(resp => {
-        authProviders = resp;
-        return app.authProviders.authProvider(resp.id).enable();
+        authProvider = resp;
+        return app.authProviders.authProvider(resp).enable();
       })
-      .then(() => authProviders);
+      .then(() => authProvider);
   }
 
-  public async enableApiKeyProvider(app: App): Promise<void> {
+  public async enableApiKeyProvider(app: AppResource): Promise<void> {
     return app.authProviders.list().then(responses => {
       const apiKeyProvider = responses.find(
         it => it.name === UserApiKeyAuthProvider.DEFAULT_NAME
       )!;
-      return app.authProviders.authProvider(apiKeyProvider.id).enable();
+      return app.authProviders.authProvider(apiKeyProvider).enable();
     });
   }
 
-  public async addService(
-    app: App,
-    type: string,
-    config: ServiceConfig
-  ): Promise<Array<ServiceResponse | Service>> {
+  public async addService<U extends Rule, T extends Service<U>>(
+    app: AppResource,
+    config: T
+  ): Promise<Array<T | ServiceResource<U, T>>> {
     return app.services.create(config).then(svcInfo => {
-      const svc = app.services.service(svcInfo.id);
+      const svc = app.services.service<U, T>(svcInfo);
       return [svcInfo, svc];
     });
   }
 
-  public async addRule(
-    svc: Service,
-    config: RuleCreator
-  ): Promise<RuleResponse> {
+  public async addRule<U extends Rule, T extends Service<U>>(
+    svc: ServiceResource<U, T>,
+    config: U
+  ): Promise<Rule> {
     return svc.rules.create(config);
   }
 }

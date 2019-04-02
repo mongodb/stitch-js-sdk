@@ -14,54 +14,48 @@
  * limitations under the License.
  */
 
-import { Codec } from "mongodb-stitch-core-sdk";
-import { User } from "../Resources";
+import { jsonProperty } from "../JsonMapper";
+import { BasicResource } from "../Resources";
 
 // / Creates a new user for an application
-export interface UserCreator {
-  readonly email: string;
-  readonly password: string;
-}
+export class UserCreator {
+  @jsonProperty("email")
+  public readonly email: string;
+  @jsonProperty("password")
+  public readonly password: string;
 
-export class UserCreatorCodec implements Codec<UserCreator> {
-  public decode(from: any): UserCreator {
-    return {
-      email: from.email,
-      password: from.password
-    };
-  }
-
-  public encode(from: UserCreator): object {
-    return {
-      email: from.email,
-      password: from.password
-    };
+  constructor(email: string, password: string) {
+    this.email = email;
+    this.password = password;
   }
 }
 
-// / View of a User of an application
-enum Fields {
-  Id = "_id"
+export class User extends UserCreator {
+  @jsonProperty("_id")
+  public readonly id?: string;
 }
 
-export interface UserResponse {
-  readonly id: string;
-}
-
-export class UserResponseCodec implements Codec<UserResponse> {
-  public decode(from: any): UserResponse {
-    return {
-      id: from[Fields.Id]
-    };
+// Resource for a single user of an application
+export class UserResource extends BasicResource<User> {
+  public get(): Promise<User> {
+    return this._get(User);
   }
-
-  public encode(from: UserResponse): object {
-    return {
-      [Fields.Id]: from.id
-    };
+  public remove(): Promise<void> {
+    return this._remove();
   }
 }
 
-interface Users {
-  user(uid: string): User;
+// Resource for a list of users of an application
+export class UsersResource extends BasicResource<User> {
+  public create(data: UserCreator): Promise<User> {
+    return this._create(data, User)
+  }
+
+  public list(): Promise<User[]> {
+    return this._list(User);
+  }
+
+  public user(uid: string): UserResource {
+    return new UserResource(this.adminAuth, `${this.url}/${uid}`);
+  }
 }

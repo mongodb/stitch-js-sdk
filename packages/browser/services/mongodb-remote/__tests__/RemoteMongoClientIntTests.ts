@@ -18,8 +18,11 @@ import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutil
 import {
   Anon,
   App,
-  AppResponse,
-  MongoDbRuleCreator,
+  AppResource,
+  MongoDbRule,
+  MongoDbService,
+  Role,
+  Schema,
   Service
 } from "mongodb-stitch-core-admin-client";
 import {
@@ -87,26 +90,18 @@ beforeEach(async () => {
   dbName = new BSON.ObjectID().toHexString();
   collName = new BSON.ObjectId().toHexString();
 
-  const [appResponse, app] = await harness.createApp();
-  await harness.addProvider(app as App, new Anon());
-  const [_, svc] = await harness.addService(app as App, "mongodb", {
-    config: { uri: mongodbUri },
-    name: "mongodb1",
-    type: "mongodb"
-  });
-
-  const rule = {
-    other_fields: {},
-    read: {},
-    write: {}
-  };
-
+  const { app: appResponse, appResource: app } = await harness.createApp();
+  await harness.addProvider(app, new Anon());
+  const [_, svc] = await harness.addService(app, new MongoDbService({ uri: mongodbUri }));
   await harness.addRule(
-    svc as Service,
-    new MongoDbRuleCreator(`${dbName}.${collName}`, rule)
-  );
-
-  const client = harness.getAppClient(appResponse as AppResponse);
+    svc,
+    new MongoDbRule(
+      dbName,
+      collName,
+      [new Role()],
+      new Schema()
+  ));
+  const client = harness.getAppClient(appResponse);
   await client.auth.loginWithCredential(new AnonymousCredential());
   mongoClient = client.getServiceClient(RemoteMongoClient.factory, "mongodb1");
 });
