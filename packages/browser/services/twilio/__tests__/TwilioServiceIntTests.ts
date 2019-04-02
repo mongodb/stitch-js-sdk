@@ -54,10 +54,10 @@ describe("TwilioService", () => {
     await harness.addProvider(app, new Anon());
     const [svcResponse, svc] = await harness.addService(
       app,
-      new TwilioService("twilio1", {
-        accountSid: twilioSid!,
-        authToken: twilioAuthToken!
-      })
+      new TwilioService("twilio1", new TwilioConfig(
+        twilioSid!,
+        twilioAuthToken!
+      ))
     );
 
     await harness.addRule(
