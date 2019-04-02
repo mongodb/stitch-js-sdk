@@ -20,19 +20,16 @@ import { BasicResource } from "../Resources";
 
 export class StitchFunction {
   @jsonProperty("_id", { omitEmpty: true })
-  public readonly id: string;
+  public readonly id?: string;
+
   @jsonProperty("last_modified", { omitEmpty: true })
   public readonly lastModified?: number
 
   constructor(
-    @jsonProperty("name")
-    public name: string,
-    @jsonProperty("private") 
-    public isPrivate: boolean,
-    @jsonProperty("source")
-    public source: string,
-    @jsonProperty("can_evaluate", { omitEmpty: true }) 
-    public canEvaluate?: object) {
+    @jsonProperty("name") public name: string,
+    @jsonProperty("private") public isPrivate: boolean,
+    @jsonProperty("source") public source: string,
+    @jsonProperty("can_evaluate", { omitEmpty: true }) public canEvaluate?: object) {
   }
 }
 

@@ -19,7 +19,10 @@ import {
   Anon,
   App,
   AppResource,
-  MongoDbRuleCreator,
+  MongoDbRule,
+  MongoDbService,
+  Role,
+  Schema,
   Service
 } from "mongodb-stitch-core-admin-client";
 import {
@@ -89,24 +92,16 @@ beforeEach(async () => {
 
   const { app: appResponse, appResource: app } = await harness.createApp();
   await harness.addProvider(app, new Anon());
-  const [_, svc] = await harness.addService(app, "mongodb", {
-    config: { uri: mongodbUri },
-    name: "mongodb1",
-    type: "mongodb"
-  });
-
-  const rule = {
-    other_fields: {},
-    read: {},
-    write: {}
-  };
-
+  const [_, svc] = await harness.addService(app, new MongoDbService({ uri: mongodbUri }));
   await harness.addRule(
-    svc as Service,
-    new MongoDbRuleCreator(`${dbName}.${collName}`, rule)
-  );
-
-  const client = harness.getAppClient(appResponse as AppResource);
+    svc,
+    new MongoDbRule(
+      dbName,
+      collName,
+      [new Role()],
+      new Schema()
+  ));
+  const client = harness.getAppClient(appResponse);
   await client.auth.loginWithCredential(new AnonymousCredential());
   mongoClient = client.getServiceClient(RemoteMongoClient.factory, "mongodb1");
 });

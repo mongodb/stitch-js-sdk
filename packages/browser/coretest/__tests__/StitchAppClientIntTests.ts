@@ -50,7 +50,7 @@ describe("StitchAppClient", () => {
   it("should custom auth login", async () => {
     const { app: appResponse, appResource: app } = await harness.createApp();
     const signingKey = "abcdefghijklmnopqrstuvwxyz1234567890";
-    await harness.addProvider(app, new Custom(signingKey));
+    await harness.addProvider(app, new CustomProvider(new CustomProviderConfig(signingKey)));
     const client = harness.getAppClient(appResponse);
     const jwt = sign(
       {
@@ -98,12 +98,12 @@ describe("StitchAppClient", () => {
         "email subject",
         "password subject"
       )
-    );
+    ));
 
-    const concreteAppResource = appResponse as AppResource;
+    const concreteAppResource = app;
 
-    const storage = new MemoryStorage(concreteAppResource.clientAppId);
-    let client = harness.getAppClient(concreteAppResource, storage);
+    const storage = new MemoryStorage(appResponse.clientAppId);
+    let client = harness.getAppClient(appResponse, storage);
 
     // check storage
     expect(client.auth.isLoggedIn).toBeFalsy();
@@ -184,7 +184,7 @@ describe("StitchAppClient", () => {
 
     // imitate an app restart
     Stitch.clearApps();
-    client = harness.getAppClient(appResponse as AppResource, storage);
+    client = harness.getAppClient(appResponse, storage);
 
     // check everything is as it was
     expect(client.auth.listUsers().length).toEqual(3);
@@ -225,7 +225,7 @@ describe("StitchAppClient", () => {
 
     // imitate an app restart
     Stitch.clearApps();
-    client = harness.getAppClient(appResponse as AppResource, storage);
+    client = harness.getAppClient(appResponse, storage);
 
     // assert that we're still logged in
     expect(client.auth.listUsers().length).toEqual(2);
@@ -265,15 +265,15 @@ describe("StitchAppClient", () => {
     await harness.addProvider(app, new Anon());
     await harness.addProvider(
       app,
-      new Userpass(
+      new UserpassProvider(new UserpassProviderConfig(
         "http://emailConfirmUrl.com",
         "http://resetPasswordUrl.com",
         "email subject",
         "password subject"
-      )
+      ))
     );
 
-    const client = harness.getAppClient(appResponse as AppResource);
+    const client = harness.getAppClient(appResponse);
     const userPassClient = client.auth.getProviderClient(
       UserPasswordAuthProviderClient.factory
     );
@@ -315,11 +315,11 @@ describe("StitchAppClient", () => {
   it("should call function", async () => {
     const { app: appResponse, appResource: app } = await harness.createApp();
     await harness.addProvider(app, new Anon());
-    const client = harness.getAppClient(appResponse as AppResource);
+    const client = harness.getAppClient(appResponse);
 
     await (app).functions.create({
+      isPrivate: false,
       name: "testFunction",
-      private: false,
       source:
         "exports = function(intArg, stringArg) { " +
         "return { intValue: intArg, stringValue: stringArg} " +
@@ -341,15 +341,15 @@ describe("StitchAppClient", () => {
     await harness.addProvider(app, new Anon());
     await harness.addProvider(
       app,
-      new Userpass(
+      new UserpassProvider(new UserpassProviderConfig(
         "http://emailConfirmUrl.com",
         "http://resetPasswordUrl.com",
         "email subject",
         "password subject"
-      )
+      ))
     );
 
-    const client = harness.getAppClient(appResponse as AppResource);
+    const client = harness.getAppClient(appResponse);
 
     const checkpoint1 = new Date();
 
@@ -453,15 +453,15 @@ describe("StitchAppClient", () => {
     await harness.addProvider(app, new Anon());
     await harness.addProvider(
       app,
-      new Userpass(
+      new UserpassProvider(new UserpassProviderConfig(
         "http://emailConfirmUrl.com",
         "http://resetPasswordUrl.com",
         "email subject",
         "password subject"
-      )
+      ))
     );
 
-    const concreteAppResource = appResponse as AppResource;
+    const concreteAppResource = appResponse;
 
     const storage = new MemoryStorage(concreteAppResource.clientAppId);
     const client = harness.getAppClient(concreteAppResource, storage);

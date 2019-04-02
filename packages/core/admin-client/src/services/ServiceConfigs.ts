@@ -69,12 +69,13 @@ export abstract class Service<T extends Rule> {
 
 export class HttpService extends Service<HttpRule> {
   public readonly config = {};
+  @jsonProperty("type")
   public readonly type = "http";
   public get ruleType() {
     return HttpRule;
   }
   
-  constructor(readonly name: string) {
+  constructor(@jsonProperty("name") readonly name: string) {
     super();
   }
 }
@@ -122,14 +123,16 @@ export class TwilioService extends Service<TwilioRule> {
 }
 
 export class MongoDbService extends Service<MongoDbRule> {
-  public readonly type: string = "mongodb-atlas";
-  public readonly name: string = "mongodb-atlas";
+  public readonly type: string = "mongodb";
+  public readonly name: string = "mongodb1";
+
   public get ruleType() {
     return MongoDbRule;
   }
 
   public constructor(
-    @jsonProperty("config", { typeCtor: MongoConfig }) public readonly config: MongoConfig
+    @jsonProperty("config", { typeCtor: MongoConfig }) 
+    public readonly config: MongoConfig
   ) {
     super();
   }

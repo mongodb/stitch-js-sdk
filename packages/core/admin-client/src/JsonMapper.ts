@@ -18,6 +18,7 @@ export type TypeCtor<T> = new (...args: any[]) => T;
 
 export interface Options<T> {
 	readonly typeCtor?: TypeCtor<T>
+	readonly isArray?: boolean
 	readonly omitEmpty?: boolean
 }
 
@@ -26,6 +27,7 @@ export interface PropertyMetadata<T> {
 	readonly typeCtor?: TypeCtor<T>
 	readonly omitEmpty: boolean
 	readonly ignore: boolean
+	readonly isArray: boolean
 }
 
 export class ClassMetadata<T> {
@@ -35,7 +37,6 @@ export class ClassMetadata<T> {
 	constructor(
 		readonly type: TypeCtor<T>,
 		readonly name: string) {
-
 	}
 }
 
@@ -62,6 +63,7 @@ export function jsonProperty<T>(fieldKey: string, options: Options<T> = { omitEm
 		metadata.properties.set(propertyKey, { 
 			fieldKey, 
 			ignore,
+			isArray: options.isArray ? options.isArray : false,
 			omitEmpty: options.omitEmpty ? options.omitEmpty : false,
 			typeCtor: options.typeCtor,
 		});
@@ -78,8 +80,9 @@ export function checkRegistryFor<T>(type: TypeCtor<T>): ClassMetadata<T> {
 	}
 
 	if (!metadata.hasParentMetadata) {
-		const parent = Object.getPrototypeOf(type.prototype).constructor.name;
-		if (parent !== undefined) {
+		const parentPrototype = Object.getPrototypeOf(type.prototype);
+		if (parentPrototype) {
+			const parent = parentPrototype.constructor.name;
 			const parentMetadata = metadatas.get(parent);
 			if (parentMetadata !== undefined) {
 				parentMetadata.properties.forEach((value: PropertyMetadata<any>, key: string) => {
@@ -124,27 +127,34 @@ export function serialize(target: any): object {
 	const jsonObject = {};
 
 	Object.keys(target).forEach((key: string) => {
+		// fetch the metadata for the given property, by its key
 		const value: PropertyMetadata<any> | undefined = metadata.properties.get(key);
+		// if we have no metadata, place the raw value into the jsonObject
 		if (value === undefined) {
 			jsonObject[key] = target[key];
 			return;
 		}
 
+		// if the metadata says to ignore, ignore the value
 		if (value.ignore) {
 			return;
 		}
 
+		// read the raw jsonValue
 		let jsonValue = target[key];
-		if (jsonValue === undefined && value.omitEmpty) {
+		// if the value is undefined and we should omit on empty, return
+		if (!jsonValue && value.omitEmpty) {
 			return;
 		}
 
-		if (jsonValue !== undefined && value.typeCtor !== undefined) {
-			jsonValue = serialize(jsonValue);
+		// if the value is defined and we have a type constructor, serialize that value
+		// processing it into the appropriate form
+		if (jsonValue && value.typeCtor !== undefined) {
+			jsonValue = value.isArray ?
+				jsonValue.map(element => serialize(element)) : serialize(jsonValue);
 		}
 
 		jsonObject[value.fieldKey] = jsonValue;
 	});
-
 	return jsonObject;
 }

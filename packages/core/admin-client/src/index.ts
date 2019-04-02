@@ -28,15 +28,19 @@ import {
 } from "./authProviders/ProviderConfigs";
 import { FunctionResource, FunctionsResource, StitchFunction } from "./functions/FunctionsResources";
 import {
+  AdditionalFields,
   AwsS3Action,
   AwsS3Rule,
   AwsSesAction,
   AwsSesRule,
   HttpAction,
   HttpRule,
+  MongoDbRule,
+  Role,
   Rule,
   RuleResource,
   RulesResource,
+  Schema,
   TwilioAction,
   TwilioRule
 } from "./services/rules/RulesResources";
@@ -46,6 +50,8 @@ import {
   AwsS3Service,
   AwsSesConfig,
   AwsSesService,
+  HttpService,
+  MongoConfig,
   MongoDbService,
   Service,
   TwilioConfig,
@@ -77,7 +83,8 @@ export {
   HttpRule,
   ConfirmationEmail,
   HttpAction,
-  MongoDbService as Mongo,
+  MongoConfig,
+  MongoDbService,
   StitchAdminClient,
   TwilioService as Twilio,
   TwilioAction,
@@ -99,5 +106,10 @@ export {
   StitchFunction,
   FunctionResource,
   FunctionsResource,
-  TwilioRule
+  TwilioRule,
+  HttpService,
+  MongoDbRule,
+  Role,
+  Schema,
+  AdditionalFields
 };

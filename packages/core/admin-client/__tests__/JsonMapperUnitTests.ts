@@ -8,7 +8,7 @@ class Ham {
 	@jsonProperty("green_eggs")
 	public greenEggs: string;
 
-	@jsonProperty("foo", { prototype: Foo })
+	@jsonProperty("foo", { typeCtor: Foo })
 	public foo: Foo;
 }
 
@@ -52,21 +52,21 @@ describe("json mapper", () => {
 		expect(greenEggs.fieldKey).toEqual("green_eggs");
 		expect(greenEggs.ignore).toBeFalsy();
 		expect(greenEggs.omitEmpty).toBeFalsy();
-		expect(greenEggs.prototype).toBeUndefined();
+		expect(greenEggs.typeCtor).toBeUndefined();
 
 		const foo = metadata.properties.get("foo");
 		
 		expect(foo.fieldKey).toEqual("foo");
 		expect(foo.ignore).toBeFalsy();
 		expect(foo.omitEmpty).toBeFalsy();
-		expect(foo.prototype).toEqual(Foo);
+		expect(foo.typeCtor).toEqual(Foo);
 
 		const isCanned = metadata.properties.get("isCanned");
 		
 		expect(isCanned.fieldKey).toEqual("is_canned");
 		expect(isCanned.ignore).toBeFalsy();
 		expect(isCanned.omitEmpty).toBeFalsy();
-		expect(isCanned.prototype).toBeUndefined();
+		expect(isCanned.typeCtor).toBeUndefined();
 
 		expect(metadata.type).toEqual(Spam);
 		expect(metadata.hasParentMetadata).toBeTruthy();

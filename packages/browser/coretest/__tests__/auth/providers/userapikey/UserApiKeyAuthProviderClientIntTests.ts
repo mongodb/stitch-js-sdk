@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { App, AppResource, Userpass } from "mongodb-stitch-core-admin-client";
-import { BSON, StitchServiceErrorCode, StitchServiceError } from "mongodb-stitch-core-sdk";
 import { UserApiKeyAuthProviderClient, UserApiKeyCredential } from "mongodb-stitch-browser-core";
 import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
+import { App, AppResource, UserpassProvider, UserpassProviderConfig } from "mongodb-stitch-core-admin-client";
+import { BSON, StitchServiceError, StitchServiceErrorCode } from "mongodb-stitch-core-sdk";
 
 const harness = new BaseStitchBrowserIntTestHarness();
 
@@ -28,23 +28,23 @@ async function prepareApp(): Promise<[AppResource, App]> {
   const { app: appResponse, appResource: app } = await harness.createApp();
   await harness.addProvider(
     app,
-    new Userpass(
+    new UserpassProvider(new UserpassProviderConfig(
       "http://emailConfirmUrl.com",
       "http://resetPasswordUrl.com",
       "email subject",
       "password subject"
-    )
+    ))
   );
   await harness.enableApiKeyProvider(app);
-  return [appResponse as AppResource, app];
+  return [app, appResponse];
 }
 
 describe("UserApiKeyAuthProviderClient", () => {
   it("should create self api key", async () => {
-    const [appResponse, app] = await prepareApp();
-    const client = harness.getAppClient(appResponse);
+    const [appResource, app] = await prepareApp();
+    const client = harness.getAppClient(app);
     const originalUserId = await harness.registerAndLoginWithUserPass(
-      app,
+      appResource,
       client,
       "test@10gen.com",
       "hunter2"
@@ -68,10 +68,10 @@ describe("UserApiKeyAuthProviderClient", () => {
   });
 
   it("should fetch api key", async () => {
-    const [appResponse, app] = await prepareApp();
-    const client = harness.getAppClient(appResponse);
+    const [appResource, app] = await prepareApp();
+    const client = harness.getAppClient(app);
     await harness.registerAndLoginWithUserPass(
-      app,
+      appResource,
       client,
       "test@10gen.com",
       "hunter2"
@@ -94,10 +94,10 @@ describe("UserApiKeyAuthProviderClient", () => {
   });
 
   it("should enable/disable api key", async () => {
-    const [appResponse, app] = await prepareApp();
-    const client = harness.getAppClient(appResponse);
+    const [appResource, app] = await prepareApp();
+    const client = harness.getAppClient(app);
     await harness.registerAndLoginWithUserPass(
-      app,
+      appResource,
       client,
       "test@10gen.com",
       "hunter2"
@@ -121,10 +121,10 @@ describe("UserApiKeyAuthProviderClient", () => {
   });
 
   it("should not create key with invalid name", async () => {
-    const [appResponse, app] = await prepareApp();
-    const client = harness.getAppClient(appResponse);
+    const [appResource, app] = await prepareApp();
+    const client = harness.getAppClient(app);
     await harness.registerAndLoginWithUserPass(
-      app,
+      appResource,
       client,
       "test@10gen.com",
       "hunter2"
@@ -144,10 +144,10 @@ describe("UserApiKeyAuthProviderClient", () => {
   });
 
   it("should not fetch inexistent key", async () => {
-    const [appResponse, app] = await prepareApp();
-    const client = harness.getAppClient(appResponse);
+    const [appResource, app] = await prepareApp();
+    const client = harness.getAppClient(app);
     await harness.registerAndLoginWithUserPass(
-      app,
+      appResource,
       client,
       "test@10gen.com",
       "hunter2"

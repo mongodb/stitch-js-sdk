@@ -10,11 +10,14 @@ class Stats {
 
 class ExecuteFunctionResult {
 	@jsonProperty("error_logs")
-	public readonly errorLogs: any
+  public readonly errorLogs: any
+  
 	@jsonProperty("logs")
-	public readonly logs: any
+  public readonly logs: any
+  
 	@jsonProperty("result")
-	public readonly result: any
+  public readonly result: any
+  
 	@jsonProperty("stats", { typeCtor: Stats })
 	public readonly stats: Stats
 }

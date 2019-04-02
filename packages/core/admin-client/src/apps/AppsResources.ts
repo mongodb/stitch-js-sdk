@@ -36,12 +36,16 @@ export class App {
   /// Public, client app id (for `StitchClient`) of this application
   @jsonProperty("client_app_id")
   public readonly clientAppId: string;
+
   @jsonProperty("location")
   public readonly location: string;
+
   @jsonProperty("deployment_model")
   public readonly deploymentModel: string;
+
   @jsonProperty("domain_id")
   public readonly domainId: string
+  
   @jsonProperty("group_id")
   public readonly groupId: string;
 }

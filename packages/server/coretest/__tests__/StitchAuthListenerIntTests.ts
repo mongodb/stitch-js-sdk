@@ -14,45 +14,46 @@
  * limitations under the License.
  */
 
-import { StitchAppClient, StitchAuth, StitchUser, UserPasswordAuthProviderClient } from "mongodb-stitch-server-core";
-import { BaseStitchServerIntTestHarness } from "mongodb-stitch-server-testutils";
 import {
   Anon,
   App,
   AppResource,
-  Userpass
+  UserpassProvider,
+  UserpassProviderConfig
 } from "mongodb-stitch-core-admin-client";
 import {
   AnonymousCredential,
-  UserPasswordCredential,
-  MemoryStorage
+  MemoryStorage,
+  UserPasswordCredential
 } from "mongodb-stitch-core-sdk";
+import { StitchAppClient, StitchAuth, StitchUser, UserPasswordAuthProviderClient } from "mongodb-stitch-server-core";
+import { BaseStitchServerIntTestHarness } from "mongodb-stitch-server-testutils";
 
 const harness = new BaseStitchServerIntTestHarness();
 
 beforeAll(() => harness.setup());
 afterAll(() => harness.teardown());
 
-async function prepareListenerTest(): Promise<[StitchAppClient, App]> {
+async function prepareListenerTest(): Promise<[StitchAppClient, AppResource]> {
   const { app: appResponse, appResource: app } = await harness.createApp();
   await harness.addProvider(app, new Anon());
   await harness.addProvider(
     app,
-    new Userpass(
+    new UserpassProvider(new UserpassProviderConfig(
       "http://emailConfirmUrl.com",
       "http://resetPasswordUrl.com",
       "email subject",
       "password subject"
-    )
+    ))
   );
 
   return Promise.resolve([
     harness.getAppClient(
-      appResponse as AppResource, 
-      new MemoryStorage((appResponse as AppResource).clientAppId
+      appResponse, 
+      new MemoryStorage((appResponse).clientAppId
     )), 
     app
-  ] as [StitchAppClient, App]);
+  ] as [StitchAppClient, AppResource]);
 }
 
 describe("StitchAuthListener", () => {

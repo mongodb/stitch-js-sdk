@@ -66,19 +66,16 @@ export default abstract class BaseStitchIntTestHarness {
       });
   }
 
-  public teardown(): Promise<void> {
+  public async teardown(): Promise<void> {
     if (!this.initialized) {
       return Promise.resolve();
     }
 
-    return Promise.all(
-      this.appResources.map(app => {
-        app.remove();
-      })
-    ).then(() => {
-      this.adminClient.logout();
-      this.adminClient.close();
+    this.appResources.forEach(async app => {
+        await app.remove();
     });
+    await this.adminClient.logout();
+    this.adminClient.close();
   }
 
   public appsResource(): AppsResource {

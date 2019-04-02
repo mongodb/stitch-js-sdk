@@ -21,9 +21,9 @@ import {
   Anon,
   App,
   AppResource,
-  Http,
-  HttpActions,
-  HttpRuleCreator,
+  HttpAction,
+  HttpRule,
+  HttpService,
   Service
 } from "mongodb-stitch-core-admin-client";
 import {
@@ -44,16 +44,15 @@ describe("HttpServiceClient", () => {
     await harness.addProvider(app, new Anon());
     const [svcResponse, svc] = await harness.addService(
       app,
-      "http",
-      new Http("http1")
+      new HttpService("http1")
     );
 
     await harness.addRule(
-      svc as Service,
-      new HttpRuleCreator("default", [HttpActions.Delete])
+      svc,
+      new HttpRule("default", [HttpAction.Delete])
     );
 
-    const client = harness.getAppClient(appResponse as AppResource);
+    const client = harness.getAppClient(appResponse);
     await client.auth.loginWithCredential(new AnonymousCredential());
 
     const httpClient = client.getServiceClient(

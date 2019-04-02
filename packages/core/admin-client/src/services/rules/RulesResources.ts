@@ -90,14 +90,58 @@ export class HttpRule extends Rule {
   }
 }
 
-export class MongoDbRule extends Rule {
-  public readonly type = "mongodb";
+export class AdditionalFields { 
   constructor(
-    @jsonProperty("namespace") readonly namespace: string,
-    @jsonProperty("rule") readonly rule: object) {
-    super();
+    @jsonProperty("write")
+    public readonly write: boolean = true,
+    @jsonProperty("read")
+    public readonly read: boolean = true
+  ) {
   }
 }
+
+export class Role {
+  constructor(
+    public readonly name = "default",
+    @jsonProperty("apply_when")
+    public readonly applyWhen = {},
+    public readonly fields = {},
+    @jsonProperty("additional_fields")
+    public readonly additionalFields = new AdditionalFields(),
+    public readonly read: boolean = true,
+    public readonly write: boolean = true,
+    public readonly insert = true,
+    @jsonProperty("delete")
+    public readonly del = true
+  ) {
+  }
+}
+
+export class Schema {
+  constructor(@jsonProperty("properties") public readonly properties: object = {}) {
+  }
+}
+
+export class MongoDbRule extends Rule {  
+  constructor(
+    public readonly database: string,
+    public readonly collection: string,
+    @jsonProperty("roles", { typeCtor: Role, isArray: true })
+    public readonly roles: [Role],
+    public readonly schema: Schema
+  ) {
+    super();
+  }
+};
+
+// export class MongoDbRule extends Rule {
+//   public readonly type = "mongodb";
+//   constructor(
+//     @jsonProperty("namespace") readonly namespace: string,
+//     @jsonProperty("rule", { typeCtor: MongoDbRuleConfig }) readonly rule: MongoDbRuleConfig) {
+//     super();
+//   }
+// }
 
 export class TwilioRule extends Rule {
   public readonly type = "twilio";
