@@ -18,8 +18,8 @@ import {
   Anon,
   App,
   AppResource,
-  Aws,
-  AwsRuleCreator,
+  AwsRule,
+  AwsService,
   Service
 } from "mongodb-stitch-core-admin-client";
 import {
@@ -58,18 +58,17 @@ describe("AwsServiceClient", () => {
     await harness.addProvider(app, new Anon());
     const [svcResponse, svc] = await harness.addService(
       app,
-      "aws",
-      new Aws("aws1", {
+      new AwsService("aws1", {
         accessKeyId: awsAccessKeyId!,
         secretAccessKey: awsSecretAccessKey!
       })
     );
     await harness.addRule(
-      svc as Service,
-      new AwsRuleCreator("default", ["s3:PutObject"])
+      svc,
+      new AwsRule("default", ["s3:PutObject"])
     );
 
-    const client = harness.getAppClient(appResponse as AppResource);
+    const client = harness.getAppClient(appResponse);
     await client.auth.loginWithCredential(new AnonymousCredential());
 
     const awsS3 = client.getServiceClient(AwsServiceClient.factory, "aws1");

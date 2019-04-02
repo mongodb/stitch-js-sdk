@@ -16,7 +16,7 @@
 
 import { Rule } from "..";
 import { jsonProperty, TypeCtor } from "../JsonMapper";
-import { AwsS3Rule, AwsSesRule, HttpRule, MongoDbRule, TwilioRule } from "./rules/RulesResources";
+import { AwsRule, AwsS3Rule, AwsSesRule, HttpRule, MongoDbRule, TwilioRule } from "./rules/RulesResources";
 
 export type Config = any;
 
@@ -97,6 +97,20 @@ export class AwsS3Service extends Service<AwsS3Rule> {
   public constructor(
     public readonly name: string,
     @jsonProperty("config", { typeCtor: AwsS3Config }) public readonly config: AwsS3Config
+  ) {
+    super();
+  }
+}
+
+export class AwsService extends Service<AwsRule> {
+  public readonly type = "aws";
+  public get ruleType() {
+    return AwsRule;
+  }
+
+  public constructor(
+    public readonly name: string,
+    @jsonProperty("config", { typeCtor: AwsSesConfig }) public readonly config: AwsSesConfig
   ) {
     super();
   }

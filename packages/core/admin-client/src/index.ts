@@ -29,6 +29,7 @@ import {
 import { FunctionResource, FunctionsResource, StitchFunction } from "./functions/FunctionsResources";
 import {
   AdditionalFields,
+  AwsRule,
   AwsS3Action,
   AwsS3Rule,
   AwsSesAction,
@@ -48,6 +49,7 @@ import {
   AwsConfig,
   AwsS3Config,
   AwsS3Service,
+  AwsService,
   AwsSesConfig,
   AwsSesService,
   HttpService,
@@ -71,7 +73,8 @@ export {
   AppsResource,
   AppResource,
   AwsConfig,
-  AwsS3Service as AwsS3,
+  AwsRule,
+  AwsService,
   AwsS3Action,
   AwsS3Rule,
   AwsS3Service,
