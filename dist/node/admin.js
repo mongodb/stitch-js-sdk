@@ -310,6 +310,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                 },
                 deploy: function deploy() {
                   return api._post(appUrl + '/draft/deployment');
+                },
+                diff: function diff() {
+                  return api._get(appUrl + '/draft/diff');
                 }
               };
             },
