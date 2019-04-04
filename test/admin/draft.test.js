@@ -46,7 +46,7 @@ describe('Draft', () => {
     expect(deployHistoryEntry.app_id).toEqual(th.testApp._id);
   });
 
-  it('returns an "diffs" with an empty list if there are no changes', async() => {
+  it('returns "diffs" with an empty list if there are no changes', async() => {
     await appDraft.create();
     const diffResponse = await appDraft.diff();
     expect(diffResponse.diffs).toEqual([]);
