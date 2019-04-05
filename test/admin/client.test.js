@@ -1,5 +1,4 @@
 import { StitchAdminClient, StitchAdminClientFactory } from '../../src/admin';
-import { AuthFactory } from '../../src/auth';
 import { buildAdminTestHarness, extractTestFixtureDataPoints } from '../testutil';
 import StitchMongoFixture from '../fixtures/stitch_mongo_fixture';
 
