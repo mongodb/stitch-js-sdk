@@ -15,8 +15,16 @@ export class StitchAdminClientFactory {
     throw new StitchError('StitchAdminClient can only be made from the StitchAdminClientFactory.create function');
   }
 
-  static create(baseUrl) {
-    return newStitchClient(StitchAdminClient.prototype, '', {baseUrl, authCodec: ADMIN_CLIENT_CODEC});
+  static create(baseUrl, options = { deployOrigin: undefined }) {
+    return newStitchClient(
+      StitchAdminClient.prototype,
+      '',
+      {
+        deployOrigin: options.deployOrigin,
+        baseUrl,
+        authCodec: ADMIN_CLIENT_CODEC
+      }
+    );
   }
 }
 
