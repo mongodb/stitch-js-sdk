@@ -35,6 +35,8 @@ lerna run test
 The [aws-cli](https://docs.aws.amazon.com/cli/latest/userguide/install-bundle.html) client is required
 along with relevant permissions to the stitch-sdks bucket.
 
+For `bump_version.sh` to work properly, you must also have ```hub``` installed. Please see [Hub](https://github.com/github/hub) for installation details.
+
 ```bash
 ./update_browser_readme_version.sh
 git add ../packages/browser/sdk/README.md
