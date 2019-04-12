@@ -32,10 +32,15 @@ describe('StitchAdminClient', () => {
   });
 
   it('should resolve to a defined StitchAdminClient', async() => {
-    const stitchAdminClient = await StitchAdminClientFactory.create(
-      th.testApp.client_app_id,
-      { baseUrl: th.serverUrl }
-    );
+    const stitchAdminClient = await StitchAdminClientFactory.create();
     expect(stitchAdminClient).toBeDefined();
+  });
+
+  it('should set the auth.deployOrigin field to what is specified in the options on create', async() => {
+    const stitchAdminClient = await StitchAdminClientFactory.create(
+      th.serverUrl,
+      { deployOrigin: 'mongodb-stitch-ui' }
+    );
+    expect(stitchAdminClient.auth.deployOrigin).toEqual('mongodb-stitch-ui');
   });
 });

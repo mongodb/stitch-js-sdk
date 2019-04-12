@@ -197,7 +197,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "3.2.17";
+  version = "3.2.18";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -415,6 +415,9 @@ function newStitchClient(prototype, clientAppID) {
   }
   if (options.authCodec) {
     authOptions.codec = options.authCodec;
+  }
+  if (options.deployOrigin) {
+    authOptions.deployOrigin = options.deployOrigin;
   }
 
   var authPromise = _auth.AuthFactory.create(stitchClient, stitchClient.authUrl, authOptions);
@@ -907,6 +910,11 @@ var StitchClient = exports.StitchClient = function () {
       if (!this.isAuthenticated()) {
         return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
       }
+
+      if (this.auth.deployOrigin) {
+        fetchArgs.headers['X-STITCH-Deployment-Origin'] = this.auth.deployOrigin;
+      }
+
       var token = options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
 
       fetchArgs.headers.Authorization = 'Bearer ' + token;
@@ -11050,7 +11058,13 @@ var StitchAdminClientFactory = exports.StitchAdminClientFactory = function () {
   _createClass(StitchAdminClientFactory, null, [{
     key: 'create',
     value: function create(baseUrl) {
-      return (0, _client.newStitchClient)(StitchAdminClient.prototype, '', { baseUrl: baseUrl, authCodec: _common3.ADMIN_CLIENT_CODEC });
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { deployOrigin: undefined };
+
+      return (0, _client.newStitchClient)(StitchAdminClient.prototype, '', {
+        deployOrigin: options.deployOrigin,
+        baseUrl: baseUrl,
+        authCodec: _common3.ADMIN_CLIENT_CODEC
+      });
     }
   }]);
 
@@ -11842,6 +11856,7 @@ function newAuth(client, rootUrl, options) {
   auth.client = client;
   auth.rootUrl = rootUrl;
   auth.codec = options.codec;
+  auth.deployOrigin = options.deployOrigin;
   auth.platform = options.platform || _platform;
   auth.storage = (0, _storage.createStorage)(options);
   auth.providers = (0, _providers.createProviders)(auth, options);
