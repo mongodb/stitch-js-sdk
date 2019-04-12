@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-react-native-testutils",
-  "version": "4.3.2",
+  "version": "4.4.0",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -47,10 +47,10 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "mongodb-stitch-core-admin-client": "^4.3.2",
-    "mongodb-stitch-core-sdk": "^4.3.2",
-    "mongodb-stitch-core-testutils": "^4.3.2",
-    "mongodb-stitch-react-native-core": "^4.3.2"
+    "mongodb-stitch-core-admin-client": "^4.4.0",
+    "mongodb-stitch-core-sdk": "^4.4.0",
+    "mongodb-stitch-core-testutils": "^4.4.0",
+    "mongodb-stitch-react-native-core": "^4.4.0"
   },
   "devDependencies": {
     "tslint": "^5.10.0",
