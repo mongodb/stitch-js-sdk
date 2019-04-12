@@ -79,6 +79,7 @@ function newAuth(client, rootUrl, options) {
   auth.client = client;
   auth.rootUrl = rootUrl;
   auth.codec = options.codec;
+  auth.deployOrigin = options.deployOrigin;
   auth.platform = options.platform || _platform;
   auth.storage = (0, _storage.createStorage)(options);
   auth.providers = (0, _providers.createProviders)(auth, options);

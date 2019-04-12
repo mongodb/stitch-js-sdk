@@ -49,7 +49,13 @@ var StitchAdminClientFactory = exports.StitchAdminClientFactory = function () {
   _createClass(StitchAdminClientFactory, null, [{
     key: 'create',
     value: function create(baseUrl) {
-      return (0, _client.newStitchClient)(StitchAdminClient.prototype, '', { baseUrl: baseUrl, authCodec: _common3.ADMIN_CLIENT_CODEC });
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { deployOrigin: undefined };
+
+      return (0, _client.newStitchClient)(StitchAdminClient.prototype, '', {
+        deployOrigin: options.deployOrigin,
+        baseUrl: baseUrl,
+        authCodec: _common3.ADMIN_CLIENT_CODEC
+      });
     }
   }]);
 

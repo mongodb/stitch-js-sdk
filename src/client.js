@@ -529,7 +529,7 @@ export class StitchClient {
     }
 
     if (this.auth.deployOrigin) {
-      fetchArgs.headers['X-Stitch-Deployment-Origin'] = this.auth.deployOrigin;
+      fetchArgs.headers['X-STITCH-Deployment-Origin'] = this.auth.deployOrigin;
     }
 
     const token =
