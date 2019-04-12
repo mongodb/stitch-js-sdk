@@ -71,7 +71,7 @@ sed -i '' \
   packages/browser/sdk/README.md
 
 git add -u "packages/browser/sdk/README.md"
-git commit -m "$JIRA_TICKET Update browser README SDK version to $VERSION_MAJOR.$VERSION_MINOR.$VERSION_PATCH"
+git commit -m "$JIRA_TICKET Update browser README SDK version to $NEW_VERSION"
 
 lerna version $BUMP_TYPE -m "$JIRA_TICKET Release %s" --force-publish="*"  
 
