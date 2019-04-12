@@ -7,6 +7,21 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 cd ..
 
+# Ensure that 'hub',  and 'lerna' are globally installed
+which hub
+which lerna
+LERNA_VERSION=`lerna -v`
+LERNA_MAJOR_VERSION=$(echo $LERNA_VERSION | cut -d. -f1)
+LERNA_MINOR_VERSION=$(echo $LERNA_VERSION | cut -d. -f2)
+
+if [ $LERNA_MAJOR_VERSION -lt 3 ]; then
+    echo "Must use lerna 3.13.+, found `lerna -v`"
+
+elif [ $LERNA_MAJOR_VERSION -eq 3 ] && [ $LERNA_MINOR_VERSION -lt 13 ]; then
+    echo "Must use lerna 3.13.+, found `lerna -v`"
+fi
+
+# Ensure that there are no working changes that will accidentally get committed.
 STATUS="$(git status -s)"
 if [ -n "$STATUS" ]; then
   echo "Git status is not clean. Refusing to commit."
