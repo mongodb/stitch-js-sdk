@@ -7,6 +7,13 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 cd ..
 
+STATUS="$(git status -s)"
+if [ -n "$STATUS" ]; then
+  echo "Git status is not clean. Refusing to commit."
+  echo "Finish your work, then run $0"
+  exit 1
+fi
+
 # Determine the bump type from the user input
 BUMP_TYPE=$1
 if [ "$BUMP_TYPE" != "patch" ] && [ "$BUMP_TYPE" != "minor" ] && [ "$BUMP_TYPE" != "major" ]; then
@@ -14,10 +21,15 @@ if [ "$BUMP_TYPE" != "patch" ] && [ "$BUMP_TYPE" != "minor" ] && [ "$BUMP_TYPE" 
 	exit 1
 fi
 
-LAST_VERSION=`node -e 'console.log(require("lerna.json").version)'` 
-LAST_VERSION_MAJOR=$(echo $VERSION | cut -d. -f1)
-LAST_VERSION_MINOR=$(echo $VERSION | cut -d. -f2)
-LAST_VERSION_PATCH=$(echo $VERSION | cut -d. -f3 | cut -d- -f1)
+LAST_VERSION=`node -e 'console.log(require("./lerna.json").version)'` 
+LAST_VERSION_MAJOR=$(echo $LAST_VERSION | cut -d. -f1)
+LAST_VERSION_MINOR=$(echo $LAST_VERSION | cut -d. -f2)
+LAST_VERSION_PATCH=$(echo $LAST_VERSION | cut -d. -f3 | cut -d- -f1)
+
+# Construct the new package version
+NEW_VERSION_MAJOR=$LAST_VERSION_MAJOR
+NEW_VERSION_MINOR=$LAST_VERSION_MINOR
+NEW_VERSION_PATCH=$LAST_VERSION_PATCH
 
 if [ "$BUMP_TYPE" == "patch" ]; then
 	NEW_VERSION_PATCH=$(($LAST_VERSION_PATCH+1))
@@ -59,6 +71,7 @@ sed -i '' \
   packages/browser/sdk/README.md
 
 git add -u "packages/browser/sdk/README.md"
+git commit -m "$JIRA_TICKET Update browser README SDK version to $VERSION_MAJOR.$VERSION_MINOR.$VERSION_PATCH"
 
 lerna version $BUMP_TYPE -m "$JIRA_TICKET Release %s" --force-publish="*"  
 
