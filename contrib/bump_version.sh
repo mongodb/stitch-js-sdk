@@ -8,17 +8,19 @@ cd $DIR
 cd ..
 
 # Ensure that 'hub',  and 'lerna' are globally installed
-which hub
-which lerna
+which hub || (echo "hub is not installed. Please see contrib/README.md for more info" && exit 1)
+which lerna || (echo "lerna is not globally installed. Please see contrib/README.md for more info" && exit 1)
 LERNA_VERSION=`lerna -v`
 LERNA_MAJOR_VERSION=$(echo $LERNA_VERSION | cut -d. -f1)
 LERNA_MINOR_VERSION=$(echo $LERNA_VERSION | cut -d. -f2)
 
 if [ $LERNA_MAJOR_VERSION -lt 3 ]; then
     echo "Must use lerna 3.13.+, found `lerna -v`"
+    exit 1
 
 elif [ $LERNA_MAJOR_VERSION -eq 3 ] && [ $LERNA_MINOR_VERSION -lt 13 ]; then
     echo "Must use lerna 3.13.+, found `lerna -v`"
+    exit 1
 fi
 
 # Ensure that there are no working changes that will accidentally get committed.
