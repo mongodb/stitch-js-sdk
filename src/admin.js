@@ -53,7 +53,7 @@ export class StitchAdminClient extends StitchClient {
       });
 
     return {
-      _get: (url, queryParams, headers) => v3do(url, 'GET', {queryParams, headers}),
+      _get: (url, queryParams, headers, options) => v3do(url, 'GET', Object.assign({}, {queryParams, headers}, options)),
       _put: (url, options) =>
         (options ?
           v3do(url, 'PUT', options) :
@@ -206,6 +206,9 @@ export class StitchAdminClient extends StitchClient {
             deployments: () => ({
               list: (filter) => api._get(`${appUrl}/deployments`, filter),
               get: (commit) => api._get(`${appUrl}/deployments/${commit}`)
+            }),
+            auth: () => ({
+              github: () => api._get(`${appUrl}/deploy/github/auth`, undefined, undefined, { credentials: 'include' })
             })
           }),
 

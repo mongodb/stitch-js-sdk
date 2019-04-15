@@ -299,6 +299,13 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       return api._get(appUrl + '/deployments/' + commit);
                     }
                   };
+                },
+                auth: function auth() {
+                  return {
+                    github: function github() {
+                      return api._get(appUrl + '/deploy/github/auth', undefined, undefined, { credentials: 'include' });
+                    }
+                  };
                 }
               };
             },
@@ -661,8 +668,8 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
       };
 
       return {
-        _get: function _get(url, queryParams, headers) {
-          return v3do(url, 'GET', { queryParams: queryParams, headers: headers });
+        _get: function _get(url, queryParams, headers, options) {
+          return v3do(url, 'GET', Object.assign({}, { queryParams: queryParams, headers: headers }, options));
         },
         _put: function _put(url, options) {
           return options ? v3do(url, 'PUT', options) : v3do(url, 'PUT');

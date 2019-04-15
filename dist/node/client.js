@@ -577,7 +577,7 @@ var StitchClient = exports.StitchClient = function () {
       if (options.rootURL) {
         url = '' + options.rootURL + resource;
       }
-      var fetchArgs = common.makeFetchArgs(method, options.body);
+      var fetchArgs = common.makeFetchArgs(method, options.body, options);
 
       if (!!options.headers) {
         Object.assign(fetchArgs.headers, options.headers);
