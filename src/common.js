@@ -32,11 +32,17 @@ export const checkStatus = (response) => {
   return Promise.reject(error);
 };
 
-export const makeFetchArgs = (method, body) => {
+export const makeFetchArgs = (method, body, options) => {
   const init = {
     method: method,
     headers: { 'Accept': JSONTYPE, 'Content-Type': JSONTYPE }
   };
+
+  if (options) {
+    if (options.credentials) {
+      init.credentials = options.credentials;
+    }
+  }
 
   if (body) {
     init.body = body;

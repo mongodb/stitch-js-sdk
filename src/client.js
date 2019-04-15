@@ -492,7 +492,7 @@ export class StitchClient {
     if (options.rootURL) {
       url = `${options.rootURL}${resource}`;
     }
-    let fetchArgs = common.makeFetchArgs(method, options.body);
+    let fetchArgs = common.makeFetchArgs(method, options.body, options);
 
     if (!!options.headers) {
       Object.assign(fetchArgs.headers, options.headers);
