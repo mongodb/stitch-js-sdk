@@ -76,7 +76,7 @@ echo "Jira Ticket: $JIRA_TICKET"
 
 # Create the branch for the release PR
 git checkout -b "Release-$JIRA_TICKET"
-git push -u origin "Release-$JIRA_TICKET"
+git push -u upstream "Release-$JIRA_TICKET"
 
 # Update the README to refer to the new version
 echo "Setting README version to $NEW_VERSION_MAJOR.$NEW_VERSION_MINOR.$NEW_VERSION_PATCH..."
