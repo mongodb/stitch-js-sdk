@@ -153,6 +153,7 @@ tasks:
             npm install lerna
             npm install
             ./node_modules/.bin/lerna bootstrap --hoist
+            ./node_modules/.bin/lerna run build
             ./node_modules/.bin/lerna run test
       - command: shell.exec
         params:
