@@ -30,25 +30,24 @@ To run tests, run:
 lerna run test
 ```
 
-### Publishing a New SDK version
+### Publishing a New SDK version (MongoDB Internal Contributors Only)
 
 The [aws-cli](https://docs.aws.amazon.com/cli/latest/userguide/install-bundle.html) client is required
 along with relevant permissions to the stitch-sdks bucket.
 
-```bash
-./update_browser_readme_version.sh
-git add ../packages/browser/sdk/README.md
-git commit -m "Update SDK version in browser README"
+You must also have `hub` installed for the script to properly generate the release pull request. Please see [Hub](https://github.com/github/hub) for installation details. 
 
-lerna publish --force-publish="*"
-./publish_bundles.sh
-./publish_docs.sh
-```
+You must also have `lerna` 3.13.0 or greater globally installed. If you have an older version of lerna, you can run `npm i -g lerna@3.13.2` to update.
 
-Note that update_browser_readme_version.sh will git commit its changes to the README automatically.
-It will fail out if there are currently other changes to tracked files.
+1. Run `contrib/bump_version.sh <patch|minor|major> <jira_ticket>` with the desired version bump, and the JIRA ticket tracking the work to publish this release. This will update the version of the SDK in all of the appropriate package.json and lerna files, it will update the version of the SDK in the browser SDK README.md so that it refers to the latest version of the SDK, and it will open a PR. 
 
-The `--force-publish="*"` argument ensures that all packages bump their version in lockstep.
+2. Go to [JavaScript SDK](https://github.com/mongodb/stitch-js-sdk/pulls) and request a reviewer on the pull request (mandatory) before merging and deleting the release branch.
+
+3. Once the pull request created by `bump_version.sh` is successfully merged into Github publish the SDK by running `contrib/publish_sdk.sh`. This will publish the latest version of the SDK to `npm`. You will need to be a member of the `mongodb-stitch` organization on `npm` for this command to work.
+
+4. Run `./publish_bundles.sh` to publish the browser SDK bundles to AWS S3.
+
+5. Run `./publish_docs.sh` to generate the docs and publish them to AWS S3.
 
 ### Patch Versions
 

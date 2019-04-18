@@ -7,7 +7,7 @@
 		"jest-junit": "^5.1.0",
 		"jsonwebtoken": "8.2.1",
 		"lcov-result-merger": "^3.0.0",
-		"lerna": "^2.11.0",
+		"lerna": "^3.13.2",
 		"npm": "^6.4.1",
 		"rollup": "^0.60.7",
 		"rollup-plugin-commonjs": "^9.1.3",

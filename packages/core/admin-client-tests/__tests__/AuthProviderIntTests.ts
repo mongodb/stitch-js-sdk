@@ -1,7 +1,10 @@
 import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
-import { AppResource } from "../src";
-import { AuthProviderResource } from "../src/authProviders/AuthProvidersResources";
-import { UserpassProvider, UserpassProviderConfig } from "../src/authProviders/ProviderConfigs";
+import { 
+	AppResource, 
+	AuthProviderResource, 
+	UserpassProvider, 
+	UserpassProviderConfig 
+} from "mongodb-stitch-core-admin-client";
 
 const harness = new BaseStitchBrowserIntTestHarness();
 

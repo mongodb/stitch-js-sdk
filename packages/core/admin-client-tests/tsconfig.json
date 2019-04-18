@@ -1,0 +1,13 @@
+{
+    "extends": "../../../config/tsconfig.cjs.browser.base.json",
+    "compilerOptions": {
+    	"outDir": "dist/cjs"
+    },
+    "include": [
+        "__tests__/**/*"
+    ],
+    "exclude": [
+        "./node_modules/**",
+        "./dist"
+    ]
+}

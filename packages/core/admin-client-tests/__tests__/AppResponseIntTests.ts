@@ -1,5 +1,5 @@
 import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
-import { App, AppResource } from "../src";
+import { App, AppResource } from "mongodb-stitch-core-admin-client";
 
 const harness = new BaseStitchBrowserIntTestHarness();
 

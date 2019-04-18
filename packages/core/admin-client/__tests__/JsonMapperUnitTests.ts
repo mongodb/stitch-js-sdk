@@ -1,4 +1,9 @@
-import { checkRegistryFor, deserialize, jsonProperty, serialize } from "../src/JsonMapper";
+import { 
+	checkRegistryFor, 
+	deserialize, 
+	jsonProperty, 
+	serialize 
+} from "../src/JsonMapper";
 
 class Foo {
 	public bar: string;

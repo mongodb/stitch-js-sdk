@@ -1,4 +1,5 @@
 /**
+ *
  * Copyright 2018-present MongoDB, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,6 +63,12 @@ import {
 import { ServiceResource, ServicesResource } from "./services/ServicesResources";
 import StitchAdminClient from "./StitchAdminClient";
 import { ConfirmationEmail, UserRegistrationsResource } from "./userRegistrations/UserRegistrationsResources";
+import {
+  User,
+  UserCreator, 
+  UserResource,
+  UsersResource
+} from "./users/UsersResources";
 
 export {
   AuthProviderResource,
@@ -106,6 +113,10 @@ export {
   Rule,
   RuleResource,
   RulesResource,
+  User,
+  UserCreator, 
+  UserResource,
+  UsersResource,
   StitchFunction,
   FunctionResource,
   FunctionsResource,
