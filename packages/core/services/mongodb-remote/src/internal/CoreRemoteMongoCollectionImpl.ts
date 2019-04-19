@@ -414,6 +414,7 @@ export default class CoreRemoteMongoCollectionImpl<T>
     const args: any = { ...this.baseOperationArgs };
 
     args.ids = ids;
+    args.useCompactEvents = false;
 
     return this.service.streamFunction(
       "watch",
