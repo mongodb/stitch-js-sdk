@@ -25,6 +25,7 @@ import RemoteInsertOneResult from "../RemoteInsertOneResult";
 import RemoteUpdateOptions from "../RemoteUpdateOptions";
 import RemoteUpdateResult from "../RemoteUpdateResult";
 import CoreRemoteMongoReadOperation from "./CoreRemoteMongoReadOperation";
+import CompactChangeEvent from "../CompactChangeEvent";
 
 /** @hidden */
 export default interface CoreRemoteMongoCollection<DocumentT> {
@@ -201,4 +202,8 @@ export default interface CoreRemoteMongoCollection<DocumentT> {
   watch(
     ids: any[]
   ): Promise<Stream<ChangeEvent<DocumentT>>>;
+
+  watchCompact(
+    ids: any[]
+  ): Promise<Stream<CompactChangeEvent<DocumentT>>>;
 }

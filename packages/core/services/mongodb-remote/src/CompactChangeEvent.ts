@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-
-import MongoNamespace from "./MongoNamespace";
 import { OperationType } from "./OperationType";
 import UpdateDescription from "./UpdateDescription";
 
 /**
- * Represents a change event communicated via a MongoDB change stream. This 
- * type of stream always includes a fullDocument for update events, and also 
- * includes the change event ID and namespace of the event as returned by 
- * MongoDB.
+ * Represents a change event communicated via a MongoDB change stream from 
+ * Stitch when watchCompact is called. These change events omit full documents 
+ * from the event for updates, as well as other fields that are unnecessary in 
+ * the context of Stitch.
  * 
  * @type T The underlying type of documents on the collection for which this 
  *         change event was produced.
  */
-export default interface ChangeEvent<T> {
-  readonly id: object;
+export default interface CompactChangeEvent<T> {
   readonly operationType: OperationType;
   readonly fullDocument?: T;
-  readonly namespace: MongoNamespace;
   readonly documentKey: object;
   readonly updateDescription?: UpdateDescription;
+  readonly stitchDocumentVersion?: object;
+  readonly stitchDocumentHash?: number;
 }

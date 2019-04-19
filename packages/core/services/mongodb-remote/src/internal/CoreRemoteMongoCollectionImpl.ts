@@ -28,6 +28,7 @@ import RemoteUpdateResult from "../RemoteUpdateResult";
 import CoreRemoteMongoCollection from "./CoreRemoteMongoCollection";
 import CoreRemoteMongoReadOperation from "./CoreRemoteMongoReadOperation";
 import ResultDecoders from "./ResultDecoders";
+import CompactChangeEvent from "../CompactChangeEvent";
 
 /** @hidden */
 export default class CoreRemoteMongoCollectionImpl<T>
@@ -418,6 +419,21 @@ export default class CoreRemoteMongoCollectionImpl<T>
       "watch",
       [args],
       new ResultDecoders.ChangeEventDecoder(this.codec)
+    );
+  }
+
+  public watchCompact(
+    ids: any[]
+  ): Promise<Stream<CompactChangeEvent<T>>> {
+    const args: any = { ...this.baseOperationArgs };
+
+    args.ids = ids;
+    args.useCompactEvents = true;
+
+    return this.service.streamFunction(
+      "watch",
+      [args],
+      new ResultDecoders.CompactChangeEventDecoder(this.codec)
     );
   }
 

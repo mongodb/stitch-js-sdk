@@ -25,7 +25,8 @@ import {
   RemoteInsertManyResult,
   RemoteInsertOneResult,
   RemoteUpdateOptions,
-  RemoteUpdateResult
+  RemoteUpdateResult,
+  CompactChangeEvent
 } from "mongodb-stitch-core-services-mongodb-remote";
 import RemoteMongoCollection from "../RemoteMongoCollection";
 import RemoteMongoReadOperation from "../RemoteMongoReadOperation";
@@ -235,25 +236,11 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
     return this.proxy.updateMany(query, update, updateOptions);
   }
 
-  /**
-   * Opens a MongoDB change stream against the collection to watch for changes 
-   * made to specific documents. Please note that this method does not support 
-   * opening change streams on an entire collection or a specific query. The 
-   * documents to watch must be explicitly specified by their _id.
-   * 
-   * This method also requires a browser that supports EventSource (server-sent 
-   * events). If you'd like this method to work in a browser that does not 
-   * support EventSource, you must provide a polyfill that makes 
-   * window.EventSource available.
-   * 
-   * See https://developer.mozilla.org/en-US/docs/Web/API/EventSource#Browser_compatibility
-   * for more information on which browsers natively support EventSource.
-   * 
-   * @param ids the _ids of the documents to watch in this change stream
-   * @return a Promise containing a stream of change events representing the 
-   *         changes to the watched documents.
-   */
   public watch(ids: any[]): Promise<Stream<ChangeEvent<DocumentT>>> {
     return this.proxy.watch(ids);
+  }
+
+  public watchCompact(ids: any[]): Promise<Stream<CompactChangeEvent<DocumentT>>> {
+    return this.proxy.watchCompact(ids);
   }
 }

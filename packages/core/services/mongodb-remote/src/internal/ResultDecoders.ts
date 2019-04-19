@@ -22,6 +22,7 @@ import RemoteInsertManyResult from "../RemoteInsertManyResult";
 import RemoteInsertOneResult from "../RemoteInsertOneResult";
 import RemoteUpdateResult from "../RemoteUpdateResult";
 import UpdateDescription from "../UpdateDescription";
+import CompactChangeEvent from "../CompactChangeEvent";
 
 enum RemoteInsertManyResultFields {
   InsertedIds = "insertedIds"
@@ -41,6 +42,11 @@ enum RemoteDeleteResultFields {
   DeletedCount = "deletedCount"
 }
 
+enum UpdateDescriptionFields {
+  UpdatedFields = "updatedFields",
+  RemovedFields = "removedFields"
+}
+
 enum ChangeEventFields {
   Id = "_id",
   OperationType = "operationType",
@@ -50,8 +56,15 @@ enum ChangeEventFields {
   NamespaceDb = "db",
   NamespaceColl = "coll",
   UpdateDescription = "updateDescription",
-  UpdateDescriptionUpdatedFields = "updatedFields",
-  UpdateDescriptionRemovedFields = "removedFields"
+}
+
+enum CompactChangeEventFields {
+  OperationType = "ot",
+  FullDocument = "fd",
+  DocumentKey = "dk",
+  UpdateDescription = "ud",
+  StitchDocumentVersion = "sdv",
+  StitchDocumentHash = "sdh"
 }
 
 class RemoteInsertManyResultDecoder implements Decoder<RemoteInsertManyResult> {
@@ -88,15 +101,26 @@ class RemoteDeleteResultDecoder implements Decoder<RemoteDeleteResult> {
   }
 }
 
-class ChangeEventDecoder<T> implements Decoder<ChangeEvent<T>> {
+class UpdateDescriptionDecoder implements Decoder<UpdateDescription> {
+  public decode(from: any) {
+    Assertions.keyPresent(UpdateDescriptionFields.UpdatedFields, from);
+    Assertions.keyPresent(UpdateDescriptionFields.RemovedFields, from);
+  
+    return {
+      removedFields: from[UpdateDescriptionFields.RemovedFields],
+      updatedFields: from[UpdateDescriptionFields.UpdatedFields],
+    };
+  }
+}
 
+class ChangeEventDecoder<T> implements Decoder<ChangeEvent<T>> {
   private readonly decoder?: Decoder<T>;
 
   constructor(decoder?: Decoder<T>) {
     this.decoder = decoder;
   }
 
-  public decode(from: any) {
+  public decode(from: any): ChangeEvent<T> {
     Assertions.keyPresent(ChangeEventFields.Id, from);
     Assertions.keyPresent(ChangeEventFields.OperationType, from);
     Assertions.keyPresent(ChangeEventFields.Namespace, from);
@@ -105,14 +129,9 @@ class ChangeEventDecoder<T> implements Decoder<ChangeEvent<T>> {
     const nsDoc = from[ChangeEventFields.Namespace];
     let updateDescription: UpdateDescription | undefined;
     if (ChangeEventFields.UpdateDescription in from) {
-      const updateDescDoc = from[ChangeEventFields.UpdateDescription];
-      Assertions.keyPresent(ChangeEventFields.UpdateDescriptionUpdatedFields, updateDescDoc);
-      Assertions.keyPresent(ChangeEventFields.UpdateDescriptionRemovedFields, updateDescDoc);
-
-      updateDescription = {
-        removedFields: updateDescDoc[ChangeEventFields.UpdateDescriptionRemovedFields],
-        updatedFields: updateDescDoc[ChangeEventFields.UpdateDescriptionUpdatedFields],
-      }
+      updateDescription = ResultDecoders.updateDescriptionDecoder.decode(
+        from[ChangeEventFields.UpdateDescription]
+      );
     } else {
       updateDescription = undefined;
     }
@@ -135,8 +154,73 @@ class ChangeEventDecoder<T> implements Decoder<ChangeEvent<T>> {
         collection: nsDoc[ChangeEventFields.NamespaceColl],
         database: nsDoc[ChangeEventFields.NamespaceDb]
       },
-      operationType: operationTypeFromRemote(from[ChangeEventFields.OperationType]),
+      operationType: operationTypeFromRemote(
+        from[ChangeEventFields.OperationType]
+      ),
       updateDescription
+    };
+  }
+}
+
+class CompactChangeEventDecoder<T> implements Decoder<CompactChangeEvent<T>> {
+  private readonly decoder?: Decoder<T>;
+
+  constructor(decoder?: Decoder<T>) {
+    this.decoder = decoder;
+  }
+
+  public decode(from: any): CompactChangeEvent<T> {
+    Assertions.keyPresent(CompactChangeEventFields.OperationType, from);
+    Assertions.keyPresent(CompactChangeEventFields.DocumentKey, from);
+    
+    let updateDescription: UpdateDescription | undefined;
+    if (CompactChangeEventFields.UpdateDescription in from) {
+      updateDescription = ResultDecoders.updateDescriptionDecoder.decode(
+        from[CompactChangeEventFields.UpdateDescription]
+      );
+    } else {
+      updateDescription = undefined;
+    }
+
+    let fullDocument: T | undefined;
+    if (CompactChangeEventFields.FullDocument in from) {
+      fullDocument = from[CompactChangeEventFields.FullDocument];
+      if (this.decoder) {
+        fullDocument = this.decoder.decode(fullDocument);
+      }
+    } else {
+      fullDocument = undefined;
+    }
+
+    let stitchDocumentVersion: object | undefined;
+    if (CompactChangeEventFields.StitchDocumentVersion in from) {
+      stitchDocumentVersion = from[
+        CompactChangeEventFields.StitchDocumentVersion
+      ];
+    } else {
+      stitchDocumentVersion = undefined;
+    }
+
+    let stitchDocumentHash: number | undefined;
+    if (CompactChangeEventFields.StitchDocumentHash in from) {
+      stitchDocumentHash = from[
+        CompactChangeEventFields.StitchDocumentHash
+      ];
+    } else {
+      stitchDocumentHash = undefined;
+    }
+
+    return {
+      documentKey: from[
+        CompactChangeEventFields.DocumentKey
+      ],
+      fullDocument,
+      operationType: operationTypeFromRemote(
+        from[CompactChangeEventFields.OperationType]
+      ),
+      updateDescription,
+      stitchDocumentVersion,
+      stitchDocumentHash
     };
   }
 }
@@ -146,5 +230,10 @@ export default class ResultDecoders {
   public static remoteInsertOneResultDecoder = new RemoteInsertOneResultDecoder();
   public static remoteUpdateResultDecoder = new RemoteUpdateResultDecoder();
   public static remoteDeleteResultDecoder = new RemoteDeleteResultDecoder();
+  public static updateDescriptionDecoder = new UpdateDescriptionDecoder();
+
+  // These decoders are not instantiated here, since each decoder has its own 
+  // decoder for the full document type, which may differ for each collection.
   public static ChangeEventDecoder = ChangeEventDecoder;
+  public static CompactChangeEventDecoder = CompactChangeEventDecoder;
 }

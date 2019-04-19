@@ -32,7 +32,11 @@ import {
   StitchServiceError,
   StitchServiceErrorCode
 } from "mongodb-stitch-core-sdk";
-import { ChangeEvent } from "mongodb-stitch-core-services-mongodb-remote";
+import { 
+  ChangeEvent,
+  CompactChangeEvent,
+  OperationType
+} from "mongodb-stitch-core-services-mongodb-remote";
 import { RemoteMongoClient, RemoteMongoCollection } from "../src";
 
 /*
@@ -823,8 +827,169 @@ describe("RemoteMongoClient", () => {
     stream3.addListener(listener);
 
     await coll.updateMany({}, { $set: {hello: "multiverse"}});
- })
- /* tslint:enable:no-string-literal */
+  });
+
+  it("compact watch streams should include full document for inserts", async () => {
+    const coll = getTestColl();
+
+    const doc1 = { _id: new BSON.ObjectID(), hello: "world" };
+  
+    const stream1 = await coll.watchCompact([doc1._id]);
+    stream1.onNext((event: CompactChangeEvent<any>) => {
+      expect(event.documentKey["_id"]).toEqual(doc1._id);
+      expect(event.operationType).toEqual(OperationType.Insert);
+      expect(event.fullDocument).toMatchObject(doc1);
+
+      stream1.close();
+    });
+
+    expect(doc1._id).toEqual((await coll.insertOne(doc1)).insertedId);
+  });
+
+  it("compact watch streams should exclude full document for updates", async () => {
+    const coll = getTestColl();
+
+    const doc1 = { _id: new BSON.ObjectID(), hello: "world" };
+    expect(doc1._id).toEqual((await coll.insertOne(doc1)).insertedId);
+
+    const stream1 = await coll.watchCompact([doc1._id]);
+    stream1.onNext((event: CompactChangeEvent<any>) => {
+      expect(event.documentKey["_id"]).toEqual(doc1._id);
+      expect(event.operationType).toEqual(OperationType.Update);
+      expect(event.fullDocument).toBeUndefined();
+
+      stream1.close();
+    });
+    await coll.updateOne({_id: doc1._id}, {$set: { hello: "universe"}});
+  });
+
+  it("compact watch streams should include detailed update description for updates", async () => {
+    const coll = getTestColl();
+
+    const doc1 = { 
+      _id: new BSON.ObjectID(),
+      hello: "world",
+      greetings: "we come in peace"
+    };
+    expect(doc1._id).toEqual((await coll.insertOne(doc1)).insertedId);
+
+    const stream1 = await coll.watchCompact([doc1._id]);
+    stream1.onNext((event: CompactChangeEvent<any>) => {
+      expect(event.documentKey["_id"]).toEqual(doc1._id);
+      expect(event.operationType).toEqual(OperationType.Update);
+      
+      expect(event.updateDescription.updatedFields["hello"]).toEqual("universe");
+      expect(event.updateDescription.removedFields.length).toEqual(1);
+      expect(
+        event.updateDescription.removedFields.includes("greetings")
+      ).toBeTruthy();
+
+      stream1.close();
+    });
+
+    await coll.updateOne(
+      {_id: doc1._id}, 
+      {
+        $set: { hello: "universe"},
+        $unset: { greetings: "" }
+      }
+    );
+  });
+
+  it("compact watch streams should exclude document version when not present", async () => {
+    const coll = getTestColl();
+
+    const doc1 = { _id: new BSON.ObjectID(), hello: "world" };
+    expect(doc1._id).toEqual((await coll.insertOne(doc1)).insertedId);
+
+    const stream1 = await coll.watchCompact([doc1._id]);
+    stream1.onNext((event: CompactChangeEvent<any>) => {
+      expect(event.documentKey["_id"]).toEqual(doc1._id);
+      expect(event.operationType).toEqual(OperationType.Update);
+      
+      expect(event.stitchDocumentVersion).toBeUndefined();
+
+      stream1.close();
+    });
+
+    await coll.updateOne({_id: doc1._id}, {$set: { hello: "universe"}});
+  });
+
+  it("compact watch streams should include document version when not present", async () => {
+    const coll = getTestColl();
+
+    const doc1 = { 
+      _id: new BSON.ObjectID(), 
+      hello: "world",
+      __stitch_sync_version: { 
+        spv: 1, id: (new BSON.ObjectID()).toHexString(), v: 3
+      }
+    };
+    expect(doc1._id).toEqual((await coll.insertOne(doc1)).insertedId);
+
+    const stream1 = await coll.watchCompact([doc1._id]);
+    stream1.onNext((event: CompactChangeEvent<any>) => {
+      expect(event.documentKey["_id"]).toEqual(doc1._id);
+      expect(event.operationType).toEqual(OperationType.Update);
+      
+      expect(event.stitchDocumentVersion).toMatchObject(
+        doc1.__stitch_sync_version
+      );
+
+      stream1.close();
+    });
+
+    await coll.updateOne({_id: doc1._id}, {$set: { hello: "universe"}});
+  });
+
+  it("compact watch streams should include document hash for updates and inserts", async () => {
+    const coll = getTestColl();
+
+    const doc1 = { 
+      _id: new BSON.ObjectID(), 
+      hello: "world",
+      __stitch_sync_version: { 
+        spv: 1, id: (new BSON.ObjectID()).toHexString(), v: 3
+      }
+    };
+
+    const stream1 = await coll.watchCompact([doc1._id]);
+    stream1.onNext((event: CompactChangeEvent<any>) => {
+      expect(event.documentKey["_id"]).toEqual(doc1._id);
+      expect(event.stitchDocumentHash).toBeDefined();
+
+      stream1.close();
+    });
+
+    await coll.insertOne(doc1)
+    await coll.updateOne({_id: doc1._id}, {$set: { hello: "universe"}});
+  });
+
+  it("compact watch streams should exclude document hash for deletes", async () => {
+    const coll = getTestColl();
+
+    const doc1 = { 
+      _id: new BSON.ObjectID(), 
+      hello: "world",
+      __stitch_sync_version: { 
+        spv: 1, id: (new BSON.ObjectID()).toHexString(), v: 3
+      }
+    };
+
+    await coll.insertOne(doc1)
+
+    const stream1 = await coll.watchCompact([doc1._id]);
+    stream1.onNext((event: CompactChangeEvent<any>) => {
+      expect(event.documentKey["_id"]).toEqual(doc1._id);
+      expect(event.operationType).toEqual(OperationType.Delete);
+      expect(event.stitchDocumentHash).toBeUndefined();
+
+      stream1.close();
+    });
+
+    await coll.deleteOne({_id: doc1._id});
+  });
+  /* tslint:enable:no-string-literal */
 
   it("issuing request with logged out user should reject promise", async () => {
     const coll = getTestColl();

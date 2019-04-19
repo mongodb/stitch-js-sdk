@@ -15,6 +15,7 @@
  */
 
 import ChangeEvent from "./ChangeEvent";
+import CompactChangeEvent from "./CompactChangeEvent";
 import CoreRemoteMongoClient from "./internal/CoreRemoteMongoClient";
 import CoreRemoteMongoClientImpl from "./internal/CoreRemoteMongoClientImpl";
 import CoreRemoteMongoCollection from "./internal/CoreRemoteMongoCollection";
@@ -51,6 +52,7 @@ export {
   RemoteUpdateOptions,
   RemoteUpdateResult,
   ChangeEvent,
+  CompactChangeEvent,
   OperationType,
   MongoNamespace,
   UpdateDescription

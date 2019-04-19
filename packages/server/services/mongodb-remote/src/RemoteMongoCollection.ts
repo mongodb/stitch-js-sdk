@@ -24,7 +24,8 @@ import {
   RemoteInsertManyResult,
   RemoteInsertOneResult,
   RemoteUpdateOptions,
-  RemoteUpdateResult
+  RemoteUpdateResult,
+  CompactChangeEvent
 } from "mongodb-stitch-core-services-mongodb-remote";
 import RemoteMongoReadOperation from "./RemoteMongoReadOperation";
 
@@ -244,4 +245,24 @@ export default interface RemoteMongoCollection<DocumentT> {
    *         changes to the watched documents.
    */
   watch(ids: any[]): Promise<Stream<ChangeEvent<DocumentT>>>;
+
+  /**
+   * Opens a MongoDB change stream against the collection to watch for changes 
+   * made to specific documents. The documents to watch must be explicitly 
+   * specified by their _id.
+   * 
+   * Requests a stream where the full document of update events, and several 
+   * other unnecessary fields are omitted from the change event objects 
+   * returned by the server. This can save on network usage when watching
+   * large documents.
+   *
+   * @note
+   * This method does not support opening change streams on an entire collection
+   * or a specific query.
+   *
+   * @param ids the _ids of the documents to watch in this change stream
+   * @return a Promise containing a stream of compact change events 
+   *         representing the changes to the watched documents.
+   */
+  watchCompact(ids: any[]): Promise<Stream<CompactChangeEvent<DocumentT>>>;
 }
