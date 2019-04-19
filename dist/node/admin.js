@@ -310,22 +310,25 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
               };
             },
 
-            draft: function draft() {
+            drafts: function drafts() {
               return {
-                get: function get() {
-                  return api._get(appUrl + '/draft');
+                get: function get(draftId) {
+                  return api._get(appUrl + '/drafts/' + draftId);
+                },
+                list: function list() {
+                  return api._get(appUrl + '/drafts');
                 },
                 create: function create() {
-                  return api._post(appUrl + '/draft');
+                  return api._post(appUrl + '/drafts');
                 },
-                delete: function _delete() {
-                  return api._delete(appUrl + '/draft');
+                delete: function _delete(draftId) {
+                  return api._delete(appUrl + '/drafts/' + draftId);
                 },
-                deploy: function deploy() {
-                  return api._post(appUrl + '/draft/deployment');
+                deploy: function deploy(draftId) {
+                  return api._post(appUrl + '/drafts/' + draftId + '/deployment');
                 },
-                diff: function diff() {
-                  return api._get(appUrl + '/draft/diff');
+                diff: function diff(draftId) {
+                  return api._get(appUrl + '/drafts/' + draftId + '/diff');
                 }
               };
             },

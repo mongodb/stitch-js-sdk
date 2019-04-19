@@ -14,8 +14,8 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
-if (typeof "3.2.19" !== 'undefined') {
-  version = "3.2.19";
+if (typeof "3.2.20" !== 'undefined') {
+  version = "3.2.20";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -41,9 +41,14 @@ var checkStatus = exports.checkStatus = function checkStatus(response) {
 var makeFetchArgs = exports.makeFetchArgs = function makeFetchArgs(method, body, options) {
   var init = {
     method: method,
-    headers: { 'Accept': JSONTYPE, 'Content-Type': JSONTYPE },
-    credentials: options.credentials
+    headers: { 'Accept': JSONTYPE, 'Content-Type': JSONTYPE }
   };
+
+  if (options) {
+    if (options.credentials) {
+      init.credentials = options.credentials;
+    }
+  }
 
   if (body) {
     init.body = body;
