@@ -216,7 +216,7 @@ export class StitchAdminClient extends StitchClient {
             get: (draftId) => api._get(`${appUrl}/drafts/${draftId}`),
             list: () => api._get(`${appUrl}/drafts`),
             create: () => api._post(`${appUrl}/drafts`),
-            delete: () => api._delete(`${appUrl}/drafts`),
+            delete: (draftId) => api._delete(`${appUrl}/drafts/${draftId}`),
             deploy: (draftId) => api._post(`${appUrl}/drafts/${draftId}/deployment`),
             diff: (draftId) => api._get(`${appUrl}/drafts/${draftId}/diff`)
           }),

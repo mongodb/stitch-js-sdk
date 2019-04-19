@@ -46,4 +46,14 @@ describe('Draft', () => {
     const diffResponse = await appDrafts.diff(draft._id);
     expect(diffResponse.diffs).toEqual([]);
   });
+
+  it('can delete a draft', async() => {
+    const draft = await appDrafts.create();
+    let drafts = await appDrafts.list();
+    expect(drafts[0].app.group_id).toEqual(th.groupId);
+
+    await appDrafts.delete(draft._id);
+    drafts = await appDrafts.list();
+    expect(drafts).toEqual([]);
+  });
 });
