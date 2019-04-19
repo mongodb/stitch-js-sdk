@@ -862,8 +862,8 @@ describe("RemoteMongoClient", () => {
 
     const doc1 = { 
       _id: new BSON.ObjectID(),
+      greetings: "we come in peace",
       hello: "world",
-      greetings: "we come in peace"
     };
     expect(doc1._id).toEqual((await coll.insertOne(doc1)).insertedId);
 
@@ -913,11 +913,11 @@ describe("RemoteMongoClient", () => {
     const coll = getTestColl();
 
     const doc1 = { 
+      __stitch_sync_version: { 
+        id: (new BSON.ObjectID()).toHexString(), spv: 1, v: 3
+      },
       _id: new BSON.ObjectID(), 
       hello: "world",
-      __stitch_sync_version: { 
-        spv: 1, id: (new BSON.ObjectID()).toHexString(), v: 3
-      }
     };
     expect(doc1._id).toEqual((await coll.insertOne(doc1)).insertedId);
 
@@ -939,12 +939,12 @@ describe("RemoteMongoClient", () => {
   it("compact watch streams should include document hash for updates and inserts", async () => {
     const coll = getTestColl();
 
-    const doc1 = { 
+    const doc1 = {
+      __stitch_sync_version: { 
+        id: (new BSON.ObjectID()).toHexString(), spv: 1, v: 3
+      },
       _id: new BSON.ObjectID(), 
       hello: "world",
-      __stitch_sync_version: { 
-        spv: 1, id: (new BSON.ObjectID()).toHexString(), v: 3
-      }
     };
 
     const stream1 = await coll.watchCompact([doc1._id]);
@@ -962,12 +962,12 @@ describe("RemoteMongoClient", () => {
   it("compact watch streams should exclude document hash for deletes", async () => {
     const coll = getTestColl();
 
-    const doc1 = { 
+    const doc1 = {
+      __stitch_sync_version: { 
+        id: (new BSON.ObjectID()).toHexString(), spv: 1, v: 3
+      },
       _id: new BSON.ObjectID(), 
       hello: "world",
-      __stitch_sync_version: { 
-        spv: 1, id: (new BSON.ObjectID()).toHexString(), v: 3
-      }
     };
 
     await coll.insertOne(doc1)

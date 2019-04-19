@@ -16,13 +16,13 @@
 
 import { Assertions, Decoder } from "mongodb-stitch-core-sdk";
 import ChangeEvent from "../ChangeEvent";
-import { OperationType, operationTypeFromRemote } from "../OperationType";
+import CompactChangeEvent from "../CompactChangeEvent";
+import { operationTypeFromRemote } from "../OperationType";
 import RemoteDeleteResult from "../RemoteDeleteResult";
 import RemoteInsertManyResult from "../RemoteInsertManyResult";
 import RemoteInsertOneResult from "../RemoteInsertOneResult";
 import RemoteUpdateResult from "../RemoteUpdateResult";
 import UpdateDescription from "../UpdateDescription";
-import CompactChangeEvent from "../CompactChangeEvent";
 
 enum RemoteInsertManyResultFields {
   InsertedIds = "insertedIds"
@@ -218,9 +218,9 @@ class CompactChangeEventDecoder<T> implements Decoder<CompactChangeEvent<T>> {
       operationType: operationTypeFromRemote(
         from[CompactChangeEventFields.OperationType]
       ),
-      updateDescription,
+      stitchDocumentHash,
       stitchDocumentVersion,
-      stitchDocumentHash
+      updateDescription,
     };
   }
 }

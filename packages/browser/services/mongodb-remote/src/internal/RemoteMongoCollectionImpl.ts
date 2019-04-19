@@ -17,6 +17,7 @@
 import { Codec, Stream } from "mongodb-stitch-core-sdk";
 import {
   ChangeEvent,
+  CompactChangeEvent,
   CoreRemoteMongoCollection,
   RemoteCountOptions,
   RemoteDeleteResult,
@@ -26,7 +27,6 @@ import {
   RemoteInsertOneResult,
   RemoteUpdateOptions,
   RemoteUpdateResult,
-  CompactChangeEvent
 } from "mongodb-stitch-core-services-mongodb-remote";
 import RemoteMongoCollection from "../RemoteMongoCollection";
 import RemoteMongoReadOperation from "../RemoteMongoReadOperation";

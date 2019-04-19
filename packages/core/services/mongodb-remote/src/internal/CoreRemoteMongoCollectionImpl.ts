@@ -17,6 +17,7 @@
 import BSON from "bson";
 import { Codec, CoreStitchServiceClient, Stream } from "mongodb-stitch-core-sdk";
 import ChangeEvent from "../ChangeEvent";
+import CompactChangeEvent from "../CompactChangeEvent";
 import RemoteCountOptions from "../RemoteCountOptions";
 import RemoteDeleteResult from "../RemoteDeleteResult";
 import RemoteFindOneAndModifyOptions from "../RemoteFindOneAndModifyOptions";
@@ -28,7 +29,6 @@ import RemoteUpdateResult from "../RemoteUpdateResult";
 import CoreRemoteMongoCollection from "./CoreRemoteMongoCollection";
 import CoreRemoteMongoReadOperation from "./CoreRemoteMongoReadOperation";
 import ResultDecoders from "./ResultDecoders";
-import CompactChangeEvent from "../CompactChangeEvent";
 
 /** @hidden */
 export default class CoreRemoteMongoCollectionImpl<T>
