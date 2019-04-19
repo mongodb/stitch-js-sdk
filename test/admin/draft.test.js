@@ -5,7 +5,7 @@ import { buildAdminTestHarness, extractTestFixtureDataPoints } from '../testutil
 describe('Draft', () => {
   let test = new StitchMongoFixture();
   let th;
-  let appDraft;
+  let appDrafts;
 
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
@@ -13,42 +13,47 @@ describe('Draft', () => {
   beforeEach(async() => {
     const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
     th = await buildAdminTestHarness(true, apiKey, groupId, serverUrl);
-    appDraft = th.app().draft();
+    appDrafts = th.app().drafts();
   });
 
   afterEach(async() => th.cleanup());
 
-  it('responds with a 404 when attempting to get a draft that does not exist', async() => {
-    try {
-      await appDraft.get();
-    } catch (error) {
-      expect(error.response.status).toEqual(404);
-      expect(error.message).toEqual('draft not found');
-    }
-    expect.assertions(2);
+  it('responds with an empty list when no drafts exist', async() => {
+    const drafts = await appDrafts.list();
+    expect(drafts).toEqual([]);
   });
 
   it('returns a copy of the draft if one exists', async() => {
-    await appDraft.create();
-    const draft = await appDraft.get();
-    expect(draft.app.group_id).toEqual(th.groupId);
+    await appDrafts.create();
+    const drafts = await appDrafts.list();
+    expect(drafts[0].app.group_id).toEqual(th.groupId);
   });
 
   it('returns a copy of the draft on a creation request', async() => {
-    const draft = await appDraft.create();
+    const draft = await appDrafts.create();
     expect(draft.app.group_id).toEqual(th.groupId);
   });
 
   it('returns a copy of the deploy history entry on a deploy request', async() => {
-    await appDraft.create();
-    const deployHistoryEntry = await appDraft.deploy();
+    const draft = await appDrafts.create();
+    const deployHistoryEntry = await appDrafts.deploy(draft._id);
     expect(deployHistoryEntry.deployed_at).toBeDefined();
     expect(deployHistoryEntry.app_id).toEqual(th.testApp._id);
   });
 
   it('returns "diffs" with an empty list if there are no changes', async() => {
-    await appDraft.create();
-    const diffResponse = await appDraft.diff();
+    const draft = await appDrafts.create();
+    const diffResponse = await appDrafts.diff(draft._id);
     expect(diffResponse.diffs).toEqual([]);
+  });
+
+  it('can delete a draft', async() => {
+    const draft = await appDrafts.create();
+    let drafts = await appDrafts.list();
+    expect(drafts[0].app.group_id).toEqual(th.groupId);
+
+    await appDrafts.delete(draft._id);
+    drafts = await appDrafts.list();
+    expect(drafts).toEqual([]);
   });
 });

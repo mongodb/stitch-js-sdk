@@ -212,12 +212,13 @@ export class StitchAdminClient extends StitchClient {
             })
           }),
 
-          draft: () => ({
-            get: () => api._get(`${appUrl}/draft`),
-            create: () => api._post(`${appUrl}/draft`),
-            delete: () => api._delete(`${appUrl}/draft`),
-            deploy: () => api._post(`${appUrl}/draft/deployment`),
-            diff: () => api._get(`${appUrl}/draft/diff`)
+          drafts: () => ({
+            get: (draftId) => api._get(`${appUrl}/drafts/${draftId}`),
+            list: () => api._get(`${appUrl}/drafts`),
+            create: () => api._post(`${appUrl}/drafts`),
+            delete: (draftId) => api._delete(`${appUrl}/drafts/${draftId}`),
+            deploy: (draftId) => api._post(`${appUrl}/drafts/${draftId}/deployment`),
+            diff: (draftId) => api._get(`${appUrl}/drafts/${draftId}/diff`)
           }),
 
           services: () => ({
