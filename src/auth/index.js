@@ -41,7 +41,7 @@ export function newAuth(client, rootUrl, options) {
   auth.client = client;
   auth.rootUrl = rootUrl;
   auth.codec = options.codec;
-  auth.deployOrigin = options.deployOrigin;
+  auth.requestOrigin = options.requestOrigin;
   auth.platform = options.platform || _platform;
   auth.storage = createStorage(options);
   auth.providers = createProviders(auth, options);
