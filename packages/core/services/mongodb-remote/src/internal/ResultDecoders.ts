@@ -102,7 +102,7 @@ class RemoteDeleteResultDecoder implements Decoder<RemoteDeleteResult> {
 }
 
 class UpdateDescriptionDecoder implements Decoder<UpdateDescription> {
-  public decode(from: any) {
+  public decode(from: any): UpdateDescription {
     Assertions.keyPresent(UpdateDescriptionFields.UpdatedFields, from);
     Assertions.keyPresent(UpdateDescriptionFields.RemovedFields, from);
   
@@ -111,6 +111,39 @@ class UpdateDescriptionDecoder implements Decoder<UpdateDescription> {
       updatedFields: from[UpdateDescriptionFields.UpdatedFields],
     };
   }
+}
+
+function decodeBaseChangeEventFields<T>(
+   from: any,
+   updateDescriptionField: string,
+   fullDocumentField: string,
+   decoder?: Decoder<T>
+): { 
+  updateDescription: UpdateDescription | undefined, 
+  fullDocument: T | undefined 
+} {
+  // decode the updateDescription
+  let updateDescription: UpdateDescription | undefined;
+  if (updateDescriptionField in from) {
+    updateDescription = ResultDecoders.updateDescriptionDecoder.decode(
+      from[updateDescriptionField]
+    );
+  } else {
+    updateDescription = undefined;
+  }
+
+  // decode the full document
+  let fullDocument: T | undefined;
+  if (fullDocumentField in from) {
+    fullDocument = from[fullDocumentField];
+    if (decoder) {
+      fullDocument = decoder.decode(fullDocument);
+    }
+  } else {
+    fullDocument = undefined;
+  }
+
+  return { updateDescription, fullDocument }
 }
 
 class ChangeEventDecoder<T> implements Decoder<ChangeEvent<T>> {
@@ -127,24 +160,13 @@ class ChangeEventDecoder<T> implements Decoder<ChangeEvent<T>> {
     Assertions.keyPresent(ChangeEventFields.DocumentKey, from);
     
     const nsDoc = from[ChangeEventFields.Namespace];
-    let updateDescription: UpdateDescription | undefined;
-    if (ChangeEventFields.UpdateDescription in from) {
-      updateDescription = ResultDecoders.updateDescriptionDecoder.decode(
-        from[ChangeEventFields.UpdateDescription]
-      );
-    } else {
-      updateDescription = undefined;
-    }
 
-    let fullDocument: T | undefined;
-    if (ChangeEventFields.FullDocument in from) {
-      fullDocument = from[ChangeEventFields.FullDocument];
-      if (this.decoder) {
-        fullDocument = this.decoder.decode(fullDocument);
-      }
-    } else {
-      fullDocument = undefined;
-    }
+    const { updateDescription, fullDocument } = decodeBaseChangeEventFields(
+      from,
+      ChangeEventFields.UpdateDescription,
+      ChangeEventFields.FullDocument,
+      this.decoder
+    );
 
     return {
       documentKey: from[ChangeEventFields.DocumentKey],
@@ -173,24 +195,12 @@ class CompactChangeEventDecoder<T> implements Decoder<CompactChangeEvent<T>> {
     Assertions.keyPresent(CompactChangeEventFields.OperationType, from);
     Assertions.keyPresent(CompactChangeEventFields.DocumentKey, from);
     
-    let updateDescription: UpdateDescription | undefined;
-    if (CompactChangeEventFields.UpdateDescription in from) {
-      updateDescription = ResultDecoders.updateDescriptionDecoder.decode(
-        from[CompactChangeEventFields.UpdateDescription]
-      );
-    } else {
-      updateDescription = undefined;
-    }
-
-    let fullDocument: T | undefined;
-    if (CompactChangeEventFields.FullDocument in from) {
-      fullDocument = from[CompactChangeEventFields.FullDocument];
-      if (this.decoder) {
-        fullDocument = this.decoder.decode(fullDocument);
-      }
-    } else {
-      fullDocument = undefined;
-    }
+    const { updateDescription, fullDocument } = decodeBaseChangeEventFields(
+      from,
+      CompactChangeEventFields.UpdateDescription,
+      CompactChangeEventFields.FullDocument,
+      this.decoder
+    );
 
     let stitchDocumentVersion: object | undefined;
     if (CompactChangeEventFields.StitchDocumentVersion in from) {
