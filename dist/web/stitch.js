@@ -197,7 +197,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "3.2.20";
+  version = "3.2.22";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -422,8 +422,8 @@ function newStitchClient(prototype, clientAppID) {
   if (options.authCodec) {
     authOptions.codec = options.authCodec;
   }
-  if (options.deployOrigin) {
-    authOptions.deployOrigin = options.deployOrigin;
+  if (options.requestOrigin) {
+    authOptions.requestOrigin = options.requestOrigin;
   }
 
   var authPromise = _auth.AuthFactory.create(stitchClient, stitchClient.authUrl, authOptions);
@@ -917,8 +917,8 @@ var StitchClient = exports.StitchClient = function () {
         return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
       }
 
-      if (this.auth.deployOrigin) {
-        fetchArgs.headers['X-STITCH-Deployment-Origin'] = this.auth.deployOrigin;
+      if (this.auth.requestOrigin) {
+        fetchArgs.headers['X-STITCH-Request-Origin'] = this.auth.requestOrigin;
       }
 
       var token = options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
@@ -11064,10 +11064,10 @@ var StitchAdminClientFactory = exports.StitchAdminClientFactory = function () {
   _createClass(StitchAdminClientFactory, null, [{
     key: 'create',
     value: function create(baseUrl) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { deployOrigin: undefined };
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { requestOrigin: undefined };
 
       return (0, _client.newStitchClient)(StitchAdminClient.prototype, '', {
-        deployOrigin: options.deployOrigin,
+        requestOrigin: options.requestOrigin,
         baseUrl: baseUrl,
         authCodec: _common3.ADMIN_CLIENT_CODEC
       });
@@ -11321,6 +11321,12 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       return api._get(appUrl + '/deploy/github/auth', undefined, undefined, { credentials: 'include' });
                     }
                   };
+                },
+                config: function config() {
+                  return api._get(appUrl + '/deploy/config');
+                },
+                updateConfig: function updateConfig(config) {
+                  return api._patch(appUrl + '/deploy/config', { body: JSON.stringify(config) });
                 }
               };
             },
@@ -11872,7 +11878,7 @@ function newAuth(client, rootUrl, options) {
   auth.client = client;
   auth.rootUrl = rootUrl;
   auth.codec = options.codec;
-  auth.deployOrigin = options.deployOrigin;
+  auth.requestOrigin = options.requestOrigin;
   auth.platform = options.platform || _platform;
   auth.storage = (0, _storage.createStorage)(options);
   auth.providers = (0, _providers.createProviders)(auth, options);

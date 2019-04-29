@@ -122,8 +122,8 @@ function newStitchClient(prototype, clientAppID) {
   if (options.authCodec) {
     authOptions.codec = options.authCodec;
   }
-  if (options.deployOrigin) {
-    authOptions.deployOrigin = options.deployOrigin;
+  if (options.requestOrigin) {
+    authOptions.requestOrigin = options.requestOrigin;
   }
 
   var authPromise = _auth.AuthFactory.create(stitchClient, stitchClient.authUrl, authOptions);
@@ -617,8 +617,8 @@ var StitchClient = exports.StitchClient = function () {
         return Promise.reject(new _errors.StitchError('Must auth first', _errors.ErrUnauthorized));
       }
 
-      if (this.auth.deployOrigin) {
-        fetchArgs.headers['X-STITCH-Deployment-Origin'] = this.auth.deployOrigin;
+      if (this.auth.requestOrigin) {
+        fetchArgs.headers['X-STITCH-Request-Origin'] = this.auth.requestOrigin;
       }
 
       var token = options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
