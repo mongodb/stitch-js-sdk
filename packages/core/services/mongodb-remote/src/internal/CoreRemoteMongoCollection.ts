@@ -16,6 +16,7 @@
 
 import { Codec, Stream } from "mongodb-stitch-core-sdk";
 import ChangeEvent from "../ChangeEvent";
+import CompactChangeEvent from "../CompactChangeEvent";
 import RemoteCountOptions from "../RemoteCountOptions";
 import RemoteDeleteResult from "../RemoteDeleteResult";
 import RemoteFindOneAndModifyOptions from "../RemoteFindOneAndModifyOptions";
@@ -201,4 +202,8 @@ export default interface CoreRemoteMongoCollection<DocumentT> {
   watch(
     ids: any[]
   ): Promise<Stream<ChangeEvent<DocumentT>>>;
+
+  watchCompact(
+    ids: any[]
+  ): Promise<Stream<CompactChangeEvent<DocumentT>>>;
 }

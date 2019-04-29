@@ -15,7 +15,7 @@
  */
 
 import BSON from "bson";
-import { CoreStitchServiceClientImpl } from "mongodb-stitch-core-sdk";
+import { CoreStitchServiceClientImpl, Stream } from "mongodb-stitch-core-sdk";
 import { anything, capture, instance, mock, verify, when } from "ts-mockito";
 import {
   CoreRemoteMongoClientImpl,
@@ -904,6 +904,106 @@ describe("CoreRemoteMongoCollection", () => {
     ).thenReject(new Error("whoops"));
     try {
       await coll.updateMany({}, {});
+      fail();
+    } catch (_) {
+      // Do nothing
+    }
+  });
+
+  it("should watch", async () => {
+    const serviceMock = mock(CoreStitchServiceClientImpl);
+    const service = instance(serviceMock);
+    const client = new CoreRemoteMongoClientImpl(service);
+    const coll = getCollection(undefined, client);
+
+    const id = new BSON.ObjectID();
+
+    const fakeStream = new Stream(
+      undefined, undefined
+    );
+
+    when(
+      serviceMock.streamFunction(anything(), anything(), anything())
+    ).thenResolve(fakeStream);
+
+    const result = await coll.watch([id]);
+
+    expect(result).toBe(fakeStream);
+
+    const [funcNameArg, funcArgsArg, decoderArg]: any[] = capture(
+      serviceMock.streamFunction
+    ).last();
+
+    expect("watch").toEqual(funcNameArg);
+    expect(1).toEqual(funcArgsArg.length);
+    const expectedArgs = {};
+    expectedArgs.database = "dbName1";
+    expectedArgs.collection = "collName1";
+    expectedArgs.ids = [id];
+    expectedArgs.useCompactEvents = false;
+    expect(expectedArgs).toEqual(funcArgsArg[0]);
+    expect(decoderArg).toBeInstanceOf(ResultDecoders.ChangeEventDecoder);
+
+    verify(
+      serviceMock.streamFunction(anything(), anything(), anything())
+    ).times(1);
+
+    // Should pass along errors
+    when(
+      serviceMock.streamFunction(anything(), anything(), anything())
+    ).thenReject(new Error("whoops"));
+    try {
+      await coll.watch([id]);
+      fail();
+    } catch (_) {
+      // Do nothing
+    }
+  });
+
+  it("should watchCompact", async () => {
+    const serviceMock = mock(CoreStitchServiceClientImpl);
+    const service = instance(serviceMock);
+    const client = new CoreRemoteMongoClientImpl(service);
+    const coll = getCollection(undefined, client);
+
+    const id = new BSON.ObjectID();
+
+    const fakeStream = new Stream(
+      undefined, undefined
+    );
+
+    when(
+      serviceMock.streamFunction(anything(), anything(), anything())
+    ).thenResolve(fakeStream);
+
+    const result = await coll.watchCompact([id]);
+
+    expect(result).toBe(fakeStream);
+
+    const [funcNameArg, funcArgsArg, decoderArg]: any[] = capture(
+      serviceMock.streamFunction
+    ).last();
+
+    expect("watch").toEqual(funcNameArg);
+    expect(1).toEqual(funcArgsArg.length);
+    const expectedArgs = {};
+    expectedArgs.database = "dbName1";
+    expectedArgs.collection = "collName1";
+    expectedArgs.ids = [id];
+    expectedArgs.useCompactEvents = true;
+    expect(expectedArgs).toEqual(funcArgsArg[0]);
+    expect(decoderArg).toBeInstanceOf(ResultDecoders.CompactChangeEventDecoder);
+
+    verify(
+      serviceMock.streamFunction(anything(), anything(), anything())
+    ).times(1);
+
+    // Should pass along errors
+    when(
+      serviceMock.streamFunction(anything(), anything(), anything())
+    ).thenReject(new Error("whoops"));
+    try {
+      await coll.watch([id]);
       fail();
     } catch (_) {
       // Do nothing

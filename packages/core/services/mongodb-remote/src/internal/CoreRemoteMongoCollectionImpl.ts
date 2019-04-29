@@ -17,6 +17,7 @@
 import BSON from "bson";
 import { Codec, CoreStitchServiceClient, Stream } from "mongodb-stitch-core-sdk";
 import ChangeEvent from "../ChangeEvent";
+import CompactChangeEvent from "../CompactChangeEvent";
 import RemoteCountOptions from "../RemoteCountOptions";
 import RemoteDeleteResult from "../RemoteDeleteResult";
 import RemoteFindOneAndModifyOptions from "../RemoteFindOneAndModifyOptions";
@@ -413,11 +414,27 @@ export default class CoreRemoteMongoCollectionImpl<T>
     const args: any = { ...this.baseOperationArgs };
 
     args.ids = ids;
+    args.useCompactEvents = false;
 
     return this.service.streamFunction(
       "watch",
       [args],
       new ResultDecoders.ChangeEventDecoder(this.codec)
+    );
+  }
+
+  public watchCompact(
+    ids: any[]
+  ): Promise<Stream<CompactChangeEvent<T>>> {
+    const args: any = { ...this.baseOperationArgs };
+
+    args.ids = ids;
+    args.useCompactEvents = true;
+
+    return this.service.streamFunction(
+      "watch",
+      [args],
+      new ResultDecoders.CompactChangeEventDecoder(this.codec)
     );
   }
 

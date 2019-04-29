@@ -16,7 +16,8 @@
 
 import { Assertions, Decoder } from "mongodb-stitch-core-sdk";
 import ChangeEvent from "../ChangeEvent";
-import { OperationType, operationTypeFromRemote } from "../OperationType";
+import CompactChangeEvent from "../CompactChangeEvent";
+import { operationTypeFromRemote } from "../OperationType";
 import RemoteDeleteResult from "../RemoteDeleteResult";
 import RemoteInsertManyResult from "../RemoteInsertManyResult";
 import RemoteInsertOneResult from "../RemoteInsertOneResult";
@@ -41,6 +42,11 @@ enum RemoteDeleteResultFields {
   DeletedCount = "deletedCount"
 }
 
+enum UpdateDescriptionFields {
+  UpdatedFields = "updatedFields",
+  RemovedFields = "removedFields"
+}
+
 enum ChangeEventFields {
   Id = "_id",
   OperationType = "operationType",
@@ -50,8 +56,15 @@ enum ChangeEventFields {
   NamespaceDb = "db",
   NamespaceColl = "coll",
   UpdateDescription = "updateDescription",
-  UpdateDescriptionUpdatedFields = "updatedFields",
-  UpdateDescriptionRemovedFields = "removedFields"
+}
+
+enum CompactChangeEventFields {
+  OperationType = "ot",
+  FullDocument = "fd",
+  DocumentKey = "dk",
+  UpdateDescription = "ud",
+  StitchDocumentVersion = "sdv",
+  StitchDocumentHash = "sdh"
 }
 
 class RemoteInsertManyResultDecoder implements Decoder<RemoteInsertManyResult> {
@@ -88,44 +101,72 @@ class RemoteDeleteResultDecoder implements Decoder<RemoteDeleteResult> {
   }
 }
 
-class ChangeEventDecoder<T> implements Decoder<ChangeEvent<T>> {
+class UpdateDescriptionDecoder implements Decoder<UpdateDescription> {
+  public decode(from: any): UpdateDescription {
+    Assertions.keyPresent(UpdateDescriptionFields.UpdatedFields, from);
+    Assertions.keyPresent(UpdateDescriptionFields.RemovedFields, from);
+  
+    return {
+      removedFields: from[UpdateDescriptionFields.RemovedFields],
+      updatedFields: from[UpdateDescriptionFields.UpdatedFields],
+    };
+  }
+}
 
+function decodeBaseChangeEventFields<T>(
+   from: any,
+   updateDescriptionField: string,
+   fullDocumentField: string,
+   decoder?: Decoder<T>
+): { 
+  updateDescription: UpdateDescription | undefined, 
+  fullDocument: T | undefined 
+} {
+  // decode the updateDescription
+  let updateDescription: UpdateDescription | undefined;
+  if (updateDescriptionField in from) {
+    updateDescription = ResultDecoders.updateDescriptionDecoder.decode(
+      from[updateDescriptionField]
+    );
+  } else {
+    updateDescription = undefined;
+  }
+
+  // decode the full document
+  let fullDocument: T | undefined;
+  if (fullDocumentField in from) {
+    fullDocument = from[fullDocumentField];
+    if (decoder) {
+      fullDocument = decoder.decode(fullDocument);
+    }
+  } else {
+    fullDocument = undefined;
+  }
+
+  return { updateDescription, fullDocument }
+}
+
+class ChangeEventDecoder<T> implements Decoder<ChangeEvent<T>> {
   private readonly decoder?: Decoder<T>;
 
   constructor(decoder?: Decoder<T>) {
     this.decoder = decoder;
   }
 
-  public decode(from: any) {
+  public decode(from: any): ChangeEvent<T> {
     Assertions.keyPresent(ChangeEventFields.Id, from);
     Assertions.keyPresent(ChangeEventFields.OperationType, from);
     Assertions.keyPresent(ChangeEventFields.Namespace, from);
     Assertions.keyPresent(ChangeEventFields.DocumentKey, from);
     
     const nsDoc = from[ChangeEventFields.Namespace];
-    let updateDescription: UpdateDescription | undefined;
-    if (ChangeEventFields.UpdateDescription in from) {
-      const updateDescDoc = from[ChangeEventFields.UpdateDescription];
-      Assertions.keyPresent(ChangeEventFields.UpdateDescriptionUpdatedFields, updateDescDoc);
-      Assertions.keyPresent(ChangeEventFields.UpdateDescriptionRemovedFields, updateDescDoc);
 
-      updateDescription = {
-        removedFields: updateDescDoc[ChangeEventFields.UpdateDescriptionRemovedFields],
-        updatedFields: updateDescDoc[ChangeEventFields.UpdateDescriptionUpdatedFields],
-      }
-    } else {
-      updateDescription = undefined;
-    }
-
-    let fullDocument: T | undefined;
-    if (ChangeEventFields.FullDocument in from) {
-      fullDocument = from[ChangeEventFields.FullDocument];
-      if (this.decoder) {
-        fullDocument = this.decoder.decode(fullDocument);
-      }
-    } else {
-      fullDocument = undefined;
-    }
+    const { updateDescription, fullDocument } = decodeBaseChangeEventFields(
+      from,
+      ChangeEventFields.UpdateDescription,
+      ChangeEventFields.FullDocument,
+      this.decoder
+    );
 
     return {
       documentKey: from[ChangeEventFields.DocumentKey],
@@ -135,8 +176,61 @@ class ChangeEventDecoder<T> implements Decoder<ChangeEvent<T>> {
         collection: nsDoc[ChangeEventFields.NamespaceColl],
         database: nsDoc[ChangeEventFields.NamespaceDb]
       },
-      operationType: operationTypeFromRemote(from[ChangeEventFields.OperationType]),
+      operationType: operationTypeFromRemote(
+        from[ChangeEventFields.OperationType]
+      ),
       updateDescription
+    };
+  }
+}
+
+class CompactChangeEventDecoder<T> implements Decoder<CompactChangeEvent<T>> {
+  private readonly decoder?: Decoder<T>;
+
+  constructor(decoder?: Decoder<T>) {
+    this.decoder = decoder;
+  }
+
+  public decode(from: any): CompactChangeEvent<T> {
+    Assertions.keyPresent(CompactChangeEventFields.OperationType, from);
+    Assertions.keyPresent(CompactChangeEventFields.DocumentKey, from);
+    
+    const { updateDescription, fullDocument } = decodeBaseChangeEventFields(
+      from,
+      CompactChangeEventFields.UpdateDescription,
+      CompactChangeEventFields.FullDocument,
+      this.decoder
+    );
+
+    let stitchDocumentVersion: object | undefined;
+    if (CompactChangeEventFields.StitchDocumentVersion in from) {
+      stitchDocumentVersion = from[
+        CompactChangeEventFields.StitchDocumentVersion
+      ];
+    } else {
+      stitchDocumentVersion = undefined;
+    }
+
+    let stitchDocumentHash: number | undefined;
+    if (CompactChangeEventFields.StitchDocumentHash in from) {
+      stitchDocumentHash = from[
+        CompactChangeEventFields.StitchDocumentHash
+      ];
+    } else {
+      stitchDocumentHash = undefined;
+    }
+
+    return {
+      documentKey: from[
+        CompactChangeEventFields.DocumentKey
+      ],
+      fullDocument,
+      operationType: operationTypeFromRemote(
+        from[CompactChangeEventFields.OperationType]
+      ),
+      stitchDocumentHash,
+      stitchDocumentVersion,
+      updateDescription,
     };
   }
 }
@@ -146,5 +240,10 @@ export default class ResultDecoders {
   public static remoteInsertOneResultDecoder = new RemoteInsertOneResultDecoder();
   public static remoteUpdateResultDecoder = new RemoteUpdateResultDecoder();
   public static remoteDeleteResultDecoder = new RemoteDeleteResultDecoder();
+  public static updateDescriptionDecoder = new UpdateDescriptionDecoder();
+
+  // These decoders are not instantiated here, since each decoder has its own 
+  // decoder for the full document type, which may differ for each collection.
   public static ChangeEventDecoder = ChangeEventDecoder;
+  public static CompactChangeEventDecoder = CompactChangeEventDecoder;
 }
