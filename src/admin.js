@@ -209,7 +209,9 @@ export class StitchAdminClient extends StitchClient {
             }),
             auth: () => ({
               github: () => api._get(`${appUrl}/deploy/github/auth`, undefined, undefined, { credentials: 'include' })
-            })
+            }),
+            config: () => api._get(`${appUrl}/deploy/config`),
+            updateConfig: (config) => api._patch(`${appUrl}/deploy/config`, { body: JSON.stringify(config) })
           }),
 
           drafts: () => ({

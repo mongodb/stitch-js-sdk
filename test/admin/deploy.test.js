@@ -18,8 +18,31 @@ describe('Deploy', () => {
 
   afterEach(async() => th.cleanup());
 
-  it('returns an empty list when requesting deploy history', async() => {
-    const deployHistory = await appDeploy.deployments().list();
-    expect(deployHistory).toEqual([]);
+  describe('when requesting the deploy history', () => {
+    it('returns a list containing the initial deploy', async() => {
+      const deployHistory = await appDeploy.deployments().list();
+      expect(deployHistory[0].status).toEqual('successful');
+    });
+  });
+
+  describe('when requesting the deploy config', () => {
+    it('returns the current config with an empty list of authenticated_repositories', async() => {
+      const deployConfig = await appDeploy.config();
+      expect(deployConfig.automatic_deployment.authenticated_repositories).toEqual([]);
+    });
+  });
+
+  describe('when updating the deploy config', () => {
+    it('returns something', async() => {
+      const { status } = await appDeploy.updateConfig({
+        enabled: false,
+        automatic_deployment: {
+          enabled: false,
+          repository: null,
+          authenticated_repositories: []
+        }
+      });
+      expect(status).toBe(204);
+    });
   });
 });

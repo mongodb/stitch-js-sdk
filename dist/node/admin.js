@@ -49,10 +49,10 @@ var StitchAdminClientFactory = exports.StitchAdminClientFactory = function () {
   _createClass(StitchAdminClientFactory, null, [{
     key: 'create',
     value: function create(baseUrl) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { deployOrigin: undefined };
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { requestOrigin: undefined };
 
       return (0, _client.newStitchClient)(StitchAdminClient.prototype, '', {
-        deployOrigin: options.deployOrigin,
+        requestOrigin: options.requestOrigin,
         baseUrl: baseUrl,
         authCodec: _common3.ADMIN_CLIENT_CODEC
       });
@@ -306,6 +306,12 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       return api._get(appUrl + '/deploy/github/auth', undefined, undefined, { credentials: 'include' });
                     }
                   };
+                },
+                config: function config() {
+                  return api._get(appUrl + '/deploy/config');
+                },
+                updateConfig: function updateConfig(config) {
+                  return api._patch(appUrl + '/deploy/config', { body: JSON.stringify(config) });
                 }
               };
             },
