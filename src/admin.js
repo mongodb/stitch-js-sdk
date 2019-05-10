@@ -53,7 +53,7 @@ export class StitchAdminClient extends StitchClient {
       });
 
     return {
-      _get: (url, queryParams, headers, options) => v3do(url, 'GET', Object.assign({}, {queryParams, headers}, options)),
+      _get: (url, queryParams, headers, options) => v3do(url, 'GET', Object.assign({}, { queryParams, headers }, options)),
       _put: (url, options) =>
         (options ?
           v3do(url, 'PUT', options) :
@@ -62,9 +62,9 @@ export class StitchAdminClient extends StitchClient {
         (options ?
           v3do(url, 'PATCH', options) :
           v3do(url, 'PATCH')),
-      _delete: (url, queryParams)  =>
+      _delete: (url, queryParams) =>
         (queryParams ?
-          v3do(url, 'DELETE', {queryParams}) :
+          v3do(url, 'DELETE', { queryParams }) :
           v3do(url, 'DELETE')),
       _post: (url, body, queryParams) =>
         (queryParams ?
@@ -143,7 +143,7 @@ export class StitchAdminClient extends StitchClient {
           get: () => api._get(appUrl),
           remove: () => api._delete(appUrl),
 
-          export: () => api._get(`${appUrl}/export`, undefined, {Accept: 'application/zip'}),
+          export: () => api._get(`${appUrl}/export`, undefined, { Accept: 'application/zip' }),
 
           measurements: (filter) => api._get(`${appUrl}/measurements`, filter),
 
@@ -153,7 +153,7 @@ export class StitchAdminClient extends StitchClient {
 
           values: () => ({
             list: () => api._get(`${appUrl}/values`),
-            create: (data) => api._post( `${appUrl}/values`, data),
+            create: (data) => api._post(`${appUrl}/values`, data),
             value: (valueId) => {
               const valueUrl = `${appUrl}/values/${valueId}`;
               return {
@@ -166,7 +166,7 @@ export class StitchAdminClient extends StitchClient {
 
           secrets: () => ({
             list: () => api._get(`${appUrl}/secrets`),
-            create: (data) => api._post( `${appUrl}/secrets`, data),
+            create: (data) => api._post(`${appUrl}/secrets`, data),
             secret: (secretId) => {
               const secretUrl = `${appUrl}/secrets/${secretId}`;
               return {
@@ -203,14 +203,15 @@ export class StitchAdminClient extends StitchClient {
           }),
 
           deploy: () => ({
-            deployments: () => ({
-              list: (filter) => api._get(`${appUrl}/deployments`, filter),
-              get: (commit) => api._get(`${appUrl}/deployments/${commit}`)
-            }),
             auth: () => ({
               github: () => api._get(`${appUrl}/deploy/github/auth`, undefined, undefined, { credentials: 'include' })
             }),
             config: () => api._get(`${appUrl}/deploy/config`),
+            deployments: () => ({
+              list: (filter) => api._get(`${appUrl}/deployments`, filter),
+              get: (commit) => api._get(`${appUrl}/deployments/${commit}`)
+            }),
+            installation: () => api._get(`${appUrl}/deploy/installation`),
             updateConfig: (config) => api._patch(`${appUrl}/deploy/config`, { body: JSON.stringify(config) })
           }),
 
@@ -298,13 +299,13 @@ export class StitchAdminClient extends StitchClient {
             executeFunction: (userId, name = '', ...args) => {
               return api._post(
                 `${appUrl}/debug/execute_function`,
-                {name, 'arguments': args},
+                { name, 'arguments': args },
                 { user_id: userId });
             },
-            executeFunctionSource: ({userId, source = '', evalSource = '', runAsSystem}) => {
+            executeFunctionSource: ({ userId, source = '', evalSource = '', runAsSystem }) => {
               return api._post(
                 `${appUrl}/debug/execute_function_source`,
-                {source, 'eval_source': evalSource},
+                { source, 'eval_source': evalSource },
                 { user_id: userId, run_as_system: runAsSystem });
             }
           }),

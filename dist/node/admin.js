@@ -290,6 +290,16 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
 
             deploy: function deploy() {
               return {
+                auth: function auth() {
+                  return {
+                    github: function github() {
+                      return api._get(appUrl + '/deploy/github/auth', undefined, undefined, { credentials: 'include' });
+                    }
+                  };
+                },
+                config: function config() {
+                  return api._get(appUrl + '/deploy/config');
+                },
                 deployments: function deployments() {
                   return {
                     list: function list(filter) {
@@ -300,15 +310,8 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                     }
                   };
                 },
-                auth: function auth() {
-                  return {
-                    github: function github() {
-                      return api._get(appUrl + '/deploy/github/auth', undefined, undefined, { credentials: 'include' });
-                    }
-                  };
-                },
-                config: function config() {
-                  return api._get(appUrl + '/deploy/config');
+                installation: function installation() {
+                  return api._get(appUrl + '/deploy/installation');
                 },
                 updateConfig: function updateConfig(config) {
                   return api._patch(appUrl + '/deploy/config', { body: JSON.stringify(config) });

@@ -26,9 +26,9 @@ describe('Deploy', () => {
   });
 
   describe('when requesting the deploy config', () => {
-    it('returns the current config with an empty list of authenticated_repositories', async() => {
+    it('returns the current config', async() => {
       const deployConfig = await appDeploy.config();
-      expect(deployConfig.automatic_deployment.authenticated_repositories).toEqual([]);
+      expect(deployConfig.automatic_deployment.enabled).toEqual(false);
     });
   });
 
@@ -38,8 +38,7 @@ describe('Deploy', () => {
         enabled: false,
         automatic_deployment: {
           enabled: false,
-          repository: null,
-          authenticated_repositories: []
+          repository: null
         }
       });
       expect(status).toBe(204);
