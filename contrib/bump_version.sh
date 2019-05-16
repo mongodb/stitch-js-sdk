@@ -90,7 +90,7 @@ sed -i '' \
 git add -u "packages/browser/sdk/README.md"
 git commit -m "$JIRA_TICKET Update browser README SDK version to $NEW_VERSION"
 
-lerna version $BUMP_TYPE -m "$JIRA_TICKET Release %s" --force-publish="*"  
+lerna version $BUMP_TYPE -m "$JIRA_TICKET Release %s" --force-publish="*" --git-remote upstream
 
 echo "creating pull request in github..."
 hub pull-request -m "$JIRA_TICKET: Release $NEW_VERSION" --base mongodb:master --head mongodb:"Release-$JIRA_TICKET"
