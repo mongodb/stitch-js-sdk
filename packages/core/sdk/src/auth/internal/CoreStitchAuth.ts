@@ -875,7 +875,12 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         // Dispatch a UserAdded event if this is the first time this user is 
         // Being added to the list of users on the device.
         if (newUserAdded) {
-          this.onAuthEvent() // Tegacy event dispatch
+          this.onAuthEvent() // Legacy event dispatch
+          
+          this.dispatchAuthEvent({
+            kind: AuthEventKind.UserLoggedIn,
+            loggedInUser: this.currentUser
+          });
 
           this.dispatchAuthEvent({
             addedUser: this.currentUser,
