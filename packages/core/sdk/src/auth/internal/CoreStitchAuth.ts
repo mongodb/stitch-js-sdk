@@ -383,7 +383,14 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
     credential: StitchCredential
   ): Promise<TStitchUser> {
     if (credential instanceof StitchAuthResponseCredential) {
-      return this.processLogin(credential, credential.authInfo, credential.asLink);
+      return this.processLogin(credential, credential.authInfo, credential.asLink).then(user => {          
+          this.dispatchAuthEvent({
+            kind: AuthEventKind.UserLoggedIn,
+            loggedInUser: user
+          });
+
+          return user;
+      });
     }
 
     /*
@@ -875,7 +882,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
         // Dispatch a UserAdded event if this is the first time this user is 
         // Being added to the list of users on the device.
         if (newUserAdded) {
-          this.onAuthEvent() // Tegacy event dispatch
+          this.onAuthEvent() // Legacy event dispatch
 
           this.dispatchAuthEvent({
             addedUser: this.currentUser,
