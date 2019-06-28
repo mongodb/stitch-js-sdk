@@ -236,8 +236,8 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
     return this.proxy.updateMany(query, update, updateOptions);
   }
 
-  public watch(ids: any[]): Promise<Stream<ChangeEvent<DocumentT>>> {
-    return this.proxy.watch(ids);
+  public watch(arg?: any[] | object | undefined): Promise<Stream<ChangeEvent<DocumentT>>> {
+    return this.proxy.watch(arg);
   }
 
   public watchCompact(ids: any[]): Promise<Stream<CompactChangeEvent<DocumentT>>> {

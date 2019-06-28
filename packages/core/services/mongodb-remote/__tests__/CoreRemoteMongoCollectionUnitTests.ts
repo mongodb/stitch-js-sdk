@@ -926,27 +926,83 @@ describe("CoreRemoteMongoCollection", () => {
       serviceMock.streamFunction(anything(), anything(), anything())
     ).thenResolve(fakeStream);
 
-    const result = await coll.watch([id]);
-
+    // Watch with array of ids
+    let result = await coll.watch([id]);
     expect(result).toBe(fakeStream);
 
-    const [funcNameArg, funcArgsArg, decoderArg]: any[] = capture(
+    let [funcNameArg, funcArgsArg, decoderArg]: any[] = capture(
       serviceMock.streamFunction
     ).last();
 
     expect("watch").toEqual(funcNameArg);
     expect(1).toEqual(funcArgsArg.length);
-    const expectedArgs = {};
-    expectedArgs.database = "dbName1";
-    expectedArgs.collection = "collName1";
-    expectedArgs.ids = [id];
-    expectedArgs.useCompactEvents = false;
+    let expectedArgs: object = {
+      collection: "collName1", 
+      database: "dbName1",
+      ids: [id], 
+      useCompactEvents: false
+    }
+    expect(expectedArgs).toEqual(funcArgsArg[0]);
+    expect(decoderArg).toBeInstanceOf(ResultDecoders.ChangeEventDecoder);
+
+    // Watch with filter
+    result = await coll.watch({foo: "bar"});
+    expect(result).toBe(fakeStream);
+
+    [funcNameArg, funcArgsArg, decoderArg] = capture(
+      serviceMock.streamFunction
+    ).last();
+
+    expect("watch").toEqual(funcNameArg);
+    expect(1).toEqual(funcArgsArg.length);
+    expectedArgs = {
+      collection: "collName1", 
+      database: "dbName1", 
+      filter: {foo: "bar"}, 
+      useCompactEvents: false
+    }
+    expect(expectedArgs).toEqual(funcArgsArg[0]);
+    expect(decoderArg).toBeInstanceOf(ResultDecoders.ChangeEventDecoder);
+
+    // Watch collection (no argument)
+    result = await coll.watch();
+    expect(result).toBe(fakeStream);
+
+    [funcNameArg, funcArgsArg, decoderArg] = capture(
+      serviceMock.streamFunction
+    ).last();
+
+    expect("watch").toEqual(funcNameArg);
+    expect(1).toEqual(funcArgsArg.length);
+    expectedArgs = {
+      collection: "collName1", 
+      database: "dbName1", 
+      useCompactEvents: false
+    }
+    expect(expectedArgs).toEqual(funcArgsArg[0]);
+    expect(decoderArg).toBeInstanceOf(ResultDecoders.ChangeEventDecoder);
+
+    // Watch collection (empty array of ids)
+    result = await coll.watch([]);
+    expect(result).toBe(fakeStream);
+
+    [funcNameArg, funcArgsArg, decoderArg] = capture(
+      serviceMock.streamFunction
+    ).last();
+
+    expect("watch").toEqual(funcNameArg);
+    expect(1).toEqual(funcArgsArg.length);
+    expectedArgs = {
+      collection: "collName1", 
+      database: "dbName1", 
+      useCompactEvents: false
+    }
     expect(expectedArgs).toEqual(funcArgsArg[0]);
     expect(decoderArg).toBeInstanceOf(ResultDecoders.ChangeEventDecoder);
 
     verify(
       serviceMock.streamFunction(anything(), anything(), anything())
-    ).times(1);
+    ).times(4);
 
     // Should pass along errors
     when(
@@ -959,6 +1015,7 @@ describe("CoreRemoteMongoCollection", () => {
       // Do nothing
     }
   });
+  
 
   it("should watchCompact", async () => {
     const serviceMock = mock(CoreStitchServiceClientImpl);

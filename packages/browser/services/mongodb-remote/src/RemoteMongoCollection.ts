@@ -235,8 +235,7 @@ export default interface RemoteMongoCollection<DocumentT> {
 
   /**
    * Opens a MongoDB change stream against the collection to watch for changes 
-   * made to specific documents. The documents to watch must be explicitly 
-   * specified by their _id.
+   * made to specific documents.
    * 
    * This method requires a browser that supports EventSource (server-sent 
    * events). If you'd like this method to work in a browser that does not 
@@ -245,15 +244,12 @@ export default interface RemoteMongoCollection<DocumentT> {
    * [EventSource Browser Compatibility on MDN](https://developer.mozilla.org/en-US/docs/Web/API/EventSource#Browser_compatibility)
    * for information on which browsers support EventSource.
    *
-   * @note
-   * This method does not support opening change streams on an entire collection
-   * or a specific query.
-   *
-   * @param ids the _ids of the documents to watch in this change stream
+   * @param arg Can be an array of id's to watch, a $match filter, 
+   * or undefined for a whole-collection watch. 
    * @return a Promise containing a stream of change events representing the 
    *         changes to the watched documents.
    */
-  watch(ids: any[]): Promise<Stream<ChangeEvent<DocumentT>>>;
+  watch(arg?: any[] | object | undefined): Promise<Stream<ChangeEvent<DocumentT>>>;
 
   /**
    * Opens a MongoDB change stream against the collection to watch for changes 
