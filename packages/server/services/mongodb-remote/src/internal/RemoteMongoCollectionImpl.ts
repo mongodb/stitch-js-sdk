@@ -238,16 +238,15 @@ export default class RemoteMongoCollectionImpl<DocumentT> {
 
   /**
    * Opens a MongoDB change stream against the collection to watch for changes 
-   * made to specific documents. Please note that this method does not support 
-   * opening change streams on an entire collection or a specific query. The 
-   * documents to watch must be explicitly specified by their _id.
+   * made to specific documents. 
    * 
-   * @param ids the _ids of the documents to watch in this change stream
+   * @param arg Can be an array of id's to watch, a $match filter, 
+   * or undefined for a whole-collection watch. 
    * @return a Promise containing a stream of change events representing the 
    *         changes to the watched documents.
    */
-  public watch(ids: any[]): Promise<Stream<ChangeEvent<DocumentT>>> {
-    return this.proxy.watch(ids);
+  public watch(arg?: any[] | object | undefined): Promise<Stream<ChangeEvent<DocumentT>>> {
+    return this.proxy.watch(arg);
   }
 
   /**

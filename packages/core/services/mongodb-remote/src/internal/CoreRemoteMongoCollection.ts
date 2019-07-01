@@ -200,7 +200,7 @@ export default interface CoreRemoteMongoCollection<DocumentT> {
   ): Promise<RemoteUpdateResult>;
 
   watch(
-    ids: any[]
+    arg?: any[] | object | undefined
   ): Promise<Stream<ChangeEvent<DocumentT>>>;
 
   watchCompact(

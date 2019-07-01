@@ -409,11 +409,20 @@ export default class CoreRemoteMongoCollectionImpl<T>
   }
 
   public watch(
-    ids: any[]
+    arg?: any[] | object | undefined
   ): Promise<Stream<ChangeEvent<T>>> {
     const args: any = { ...this.baseOperationArgs };
 
-    args.ids = ids;
+    if (arg !== undefined) {
+      if (arg instanceof Array) {
+        if (arg.length !== 0) {
+          args.ids = arg;
+        }
+      } else if (arg instanceof Object) {
+        args.filter = arg;
+      }
+    }
+
     args.useCompactEvents = false;
 
     return this.service.streamFunction(
