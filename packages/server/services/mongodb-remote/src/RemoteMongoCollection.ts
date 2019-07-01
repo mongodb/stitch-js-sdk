@@ -232,11 +232,17 @@ export default interface RemoteMongoCollection<DocumentT> {
   ): Promise<RemoteUpdateResult>;
 
   /**
-   * Opens a MongoDB change stream against the collection to watch for changes 
-   * made to specific documents.
+   * Opens a MongoDB change stream against the collection to watch for changes.
+   * You can watch a subset of the documents in the collection by passing
+   * an array of specific document ids or a
+   * [match expression](https://docs.mongodb.com/manual/reference/operator/aggregation/match/)
+   * that filters the [[ChangeEvent]]s from the change stream.
    *
-   * @param arg Can be an array of id's to watch, a $match filter, 
-   * or undefined for a whole-collection watch. 
+   * Defining the match expression to filter ChangeEvents is similar to
+   * defining the match expression for [triggers](https://docs.mongodb.com/stitch/triggers/database-triggers/).
+   *
+   * @param arg Optional. An array of ids to watch or a $match expression filter.
+   *            Omit to watch the entire collection.
    * @return a Promise containing a stream of change events representing the 
    *         changes to the watched documents.
    */
