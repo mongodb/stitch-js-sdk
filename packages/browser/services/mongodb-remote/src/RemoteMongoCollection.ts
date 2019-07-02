@@ -234,18 +234,25 @@ export default interface RemoteMongoCollection<DocumentT> {
   ): Promise<RemoteUpdateResult>;
 
   /**
-   * Opens a MongoDB change stream against the collection to watch for changes 
-   * made to specific documents.
-   * 
+   * Opens a MongoDB change stream against the collection to watch for changes.
+   * You can watch a subset of the documents in the collection by passing
+   * an array of specific document ids or a
+   * [match expression](https://docs.mongodb.com/manual/reference/operator/aggregation/match/)
+   * that filters the [[ChangeEvent]]s from the change stream.
+   *
+   * Defining the match expression to filter ChangeEvents is similar to
+   * defining the match expression for [triggers](https://docs.mongodb.com/stitch/triggers/database-triggers/).
+   *
+   * @note
    * This method requires a browser that supports EventSource (server-sent 
    * events). If you'd like this method to work in a browser that does not 
    * support EventSource, you must provide a polyfill that makes 
    * window.EventSource available. See
    * [EventSource Browser Compatibility on MDN](https://developer.mozilla.org/en-US/docs/Web/API/EventSource#Browser_compatibility)
    * for information on which browsers support EventSource.
-   *
-   * @param arg Can be an array of id's to watch, a $match filter, 
-   * or undefined for a whole-collection watch. 
+   * 
+   * @param arg Optional. An array of ids to watch or a $match expression.
+   *            Omit to watch the entire collection.
    * @return a Promise containing a stream of change events representing the 
    *         changes to the watched documents.
    */
@@ -260,7 +267,8 @@ export default interface RemoteMongoCollection<DocumentT> {
    * other unnecessary fields are omitted from the change event objects 
    * returned by the server. This can save on network usage when watching
    * large documents.
-   * 
+   *
+   * @note
    * This method requires a browser that supports EventSource (server-sent 
    * events). If you'd like this method to work in a browser that does not 
    * support EventSource, you must provide a polyfill that makes 
