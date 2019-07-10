@@ -497,6 +497,12 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
               return {
                 sendConfirmationEmail: function sendConfirmationEmail(email) {
                   return api._post(appUrl + '/user_registrations/by_email/' + email + '/send_confirm');
+                },
+                confirmByEmail: function confirmByEmail(email) {
+                  return api._post(appUrl + '/user_registrations/by_email/' + email + '/confirm');
+                },
+                listUnconfirmed: function listUnconfirmed(filter) {
+                  return api._get(appUrl + '/user_registrations/unconfirmed_users', filter);
                 }
               };
             },
