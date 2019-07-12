@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-server-core",
-  "version": "4.4.1",
+  "version": "4.5.0",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -48,7 +48,7 @@
     "bson": "4.0.2",
     "eventsource": "1.0.7",
     "fs-extra": "^6.0.1",
-    "mongodb-stitch-core-sdk": "^4.4.1",
+    "mongodb-stitch-core-sdk": "^4.5.0",
     "node-fetch": "^2.3.0"
   },
   "devDependencies": {
