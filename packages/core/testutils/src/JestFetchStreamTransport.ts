@@ -15,6 +15,7 @@
  */
 
 import fetch from "cross-fetch";
+import EventSource from "eventsource";
 import {
     BasicRequest,
     ContentTypes,

@@ -57,7 +57,7 @@ import StitchAuth from "./core/auth/StitchAuth";
 import StitchAuthListener from "./core/auth/StitchAuthListener";
 import StitchUser from "./core/auth/StitchUser";
 import RNAsyncStorage from "./core/internal/common/RNAsyncStorage";
-import RNFetchTransport from "./core/internal/net/RNFetchTransport";
+import RNFetchStreamTransport from "./core/internal/net/RNFetchStreamTransport";
 import Stitch from "./core/Stitch";
 import StitchAppClient from "./core/StitchAppClient";
 import NamedServiceClientFactory from "./services/internal/NamedServiceClientFactory";
@@ -78,7 +78,7 @@ export {
   GoogleCredential,
   MemoryStorage,
   NamedServiceClientFactory,
-  RNFetchTransport,
+  RNFetchStreamTransport,
   RNAsyncStorage,
   ServerApiKeyAuthProvider,
   ServerApiKeyCredential,

@@ -16,7 +16,7 @@
 
 import { fail } from "assert";
 import { App, AppResource } from "mongodb-stitch-core-admin-client";
-import { BaseStitchIntTestHarness, JestFetchTransport } from "mongodb-stitch-core-testutils";
+import { BaseStitchIntTestHarness, JestFetchStreamTransport } from "mongodb-stitch-core-testutils";
 import {
   RNAsyncStorage,
   Stitch,
@@ -62,7 +62,7 @@ export default class BaseStitchRNIntTestHarness extends BaseStitchIntTestHarness
       new StitchAppClientConfiguration.Builder()
         .withBaseUrl(this.stitchBaseUrl)
         .withStorage(storage || new RNAsyncStorage(app.clientAppId))
-        .withTransport(new JestFetchTransport())
+        .withTransport(new JestFetchStreamTransport())
         .build()
     ).then(client => {
       this.clients.push(client);

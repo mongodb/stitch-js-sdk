@@ -71,6 +71,10 @@ function withoutId(doc: object): object {
   return newDoc;
 }
 
+function sleep (time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
+
 beforeAll(() => harness.setup());
 afterAll(() => harness.teardown());
 
@@ -748,5 +752,263 @@ describe("RemoteMongoClient", () => {
     expect(harness.clients[0].auth.isLoggedIn).toEqual(false);
 
     expect(coll.findOne()).rejects.toBeTruthy();
+  });
+
+   /* tslint:disable:no-string-literal */
+   it("should properly support watch streams on set of ids", async () => {
+    const coll = getTestColl();
+    let count = 0;
+    
+    const doc1 = { _id: new BSON.ObjectID(), hello: "world" };
+    expect(doc1._id).toEqual((await coll.insertOne(doc1)).insertedId);
+
+    // Should receive one event for one document
+    const stream1 = await coll.watch([doc1._id]);
+    stream1.onNext((event: ChangeEvent<any>) => {
+      expect(event.documentKey["_id"]).toEqual(doc1._id);
+      expect(event.operationType).toEqual("update");
+      expect(event.fullDocument["hello"]).toEqual("universe");
+      count++;
+      stream1.close();
+    });
+    await coll.updateOne({_id: doc1._id}, {$set: { hello: "universe"}});
+
+    // Should receive multiple events for one document
+    const doc2 = { _id: "this is a string id", hello: "galaxy"};
+    const stream2 = await coll.watch([doc2._id]);
+
+    stream2.next().then(event => {
+      expect(event.documentKey["_id"]).toEqual(doc2._id);
+      expect(event.operationType).toEqual("insert");
+      expect(event.fullDocument).toEqual(doc2);  
+      count++;
+    });
+    await coll.insertOne(doc2);
+    
+    stream2.next().then(event => {
+      expect(event.documentKey["_id"]).toEqual(doc2._id);
+      expect(event.operationType).toEqual("update");
+      expect(event.fullDocument["hello"]).toEqual("universe");
+      count++;
+    });
+    await coll.updateOne({_id: doc2._id}, {$set: { hello: "universe"}})
+
+    // Should receive no more events after stream closed
+    stream2.onNext(() => fail("should not have received event"))
+    stream2.close();
+    await coll.updateOne({_id: doc2._id}, {$set: { goodbye: "universe"}});
+
+    // Should receive events for multiple documents watched
+    const stream3 = await coll.watch([doc1._id, doc2._id]);
+
+    const listener = {
+      gotDoc1Event: false,
+      gotDoc2Event: false,
+      onNext(event: ChangeEvent<any>) { 
+        const eventDocId = event.documentKey["_id"];
+        if (doc1._id.equals(eventDocId))  {
+          if (this.gotDoc1Event) {
+            fail("got event for doc1 more than once");
+          }
+          this.gotDoc1Event = true
+          expect(event.operationType).toEqual("update");
+          expect(event.fullDocument["hello"]).toEqual("multiverse");
+        } else if (eventDocId === doc2._id) {
+          if (this.gotDoc2Event) {
+            fail("got event for doc2 more than once");
+          }
+          this.gotDoc2Event = true
+          expect(event.operationType).toEqual("update");
+          expect(event.fullDocument["hello"]).toEqual("multiverse");
+        } else {
+          fail(`event for unexpected document: ${BSON.EJSON.stringify(event)}`);
+        }
+
+        // Close the stream once we've received both events
+        if (this.gotDoc1Event && this.gotDoc2Event) {
+          stream3.close();
+        }
+      },
+      onError(error: Error) {
+        fail("unexpected error in stream");
+      }
+    }
+
+    stream3.addListener(listener);
+
+    await coll.updateMany({}, { $set: {hello: "multiverse"}});
+
+    expect(count).toEqual(3);
+  });
+
+  it("should properly support collection-level watch streams", async () => {
+    const coll = getTestColl();
+    let count = 0;
+    
+    const doc1 = { _id: new BSON.ObjectID(), hello: "world" };
+    expect(doc1._id).toEqual((await coll.insertOne(doc1)).insertedId);
+
+    // Should receive one event for one document
+    const stream1 = await coll.watch();
+    stream1.onNext((event: ChangeEvent<any>) => {
+      expect(event.operationType).toEqual("update");
+      expect(event.documentKey["_id"]).toEqual(doc1._id);
+      expect(event.operationType).toEqual("update");
+      expect(event.fullDocument["hello"]).toEqual("universe");
+      count++;
+      stream1.close();
+    });
+    await coll.updateOne({_id: doc1._id}, {$set: { hello: "universe"}});
+
+    // Should receive multiple events for one document
+    const stream2 = await coll.watch();
+    stream2.onNext((event: ChangeEvent<any>) => {
+      expect(event.documentKey["_id"]).toEqual(doc1._id);
+      expect(event.operationType).toEqual("update");
+      expect(event.fullDocument["foo"]).toEqual("bar");
+      count++;
+      stream2.close();
+    });
+    await coll.updateOne({_id: doc1._id}, {$set: { foo: "bar"}});
+    
+    // Should receive event for inserted document
+    const stream3 = await coll.watch();
+    const doc2 = { _id: "this is a string id", hello: "galaxy"};
+    stream3.onNext((event: ChangeEvent<any>) => {
+      expect(event.documentKey["_id"]).toEqual(doc2._id);
+      expect(event.operationType).toEqual("insert");
+      count++;
+      expect(event.fullDocument).toEqual(doc2);
+      stream3.close();
+    });
+    await coll.insertOne(doc2);
+
+    // Should receive delete event
+    const stream4 = await coll.watch();
+    stream4.onNext((event: ChangeEvent<any>) => {
+      expect(event.documentKey["_id"]).toEqual(doc2._id);
+      expect(event.operationType).toEqual("delete");
+      stream4.close();
+    });
+    await coll.deleteOne({hello: "galaxy"});
+
+    // Should receive no more events after stream closed
+    const stream5 = await coll.watch();
+    stream5.onNext(() => fail("should not have received event"))
+    stream5.close();
+    await coll.updateOne({_id: doc2._id}, {$set: { goodbye: "universe"}});
+
+    // Should receive events for multiple documents watched
+    const stream6 = await coll.watch();
+    const listener = {
+      gotDoc1Event: false,
+      gotDoc2Event: false,
+      onNext(event: ChangeEvent<any>) { 
+        const eventDocId = event.documentKey["_id"];
+        if (doc1._id.equals(eventDocId))  {
+          if (this.gotDoc1Event) {
+            fail("got event for doc1 more than once");
+          }
+          this.gotDoc1Event = true
+          expect(event.operationType).toEqual("update");
+          expect(event.fullDocument["hello"]).toEqual("multiverse");
+        } else if (eventDocId === doc2._id) {
+          if (this.gotDoc2Event) {
+            fail("got event for doc2 more than once");
+          }
+          this.gotDoc2Event = true
+          expect(event.operationType).toEqual("update");
+          expect(event.fullDocument["hello"]).toEqual("multiverse");
+        } else {
+          fail(`event for unexpected document: ${BSON.EJSON.stringify(event)}`);
+        }
+
+        // Close the stream once we've received both events
+        if (this.gotDoc1Event && this.gotDoc2Event) {
+          stream6.close();
+        }
+      },
+      onError(error: Error) {
+        fail("unexpected error in stream");
+      }
+    }
+    stream6.addListener(listener);
+    await coll.updateMany({}, { $set: {hello: "multiverse"}});
+
+    expect(count).toEqual(3);
+  });
+
+  it("should properly support filtered watch streams", async () => {
+    const coll = getTestColl();
+    let count = 0;
+    
+    const doc1 = { _id: new BSON.ObjectID(), name: "tyler", age: 23 };
+    expect(doc1._id).toEqual((await coll.insertOne(doc1)).insertedId);
+
+    // Should receive update on field not filtered on
+    const stream1 = await coll.watch({"fullDocument.age": {$lt: 40}});
+    stream1.onNext((event: ChangeEvent<any>) => {
+      expect(event.operationType).toEqual("update");
+      expect(event.documentKey["_id"]).toEqual(doc1._id);
+      expect(event.operationType).toEqual("update");
+      expect(event.fullDocument["age"]).toEqual(23);
+      count++;
+      stream1.close();
+    });
+    await coll.updateOne({_id: doc1._id}, {$set: { name: "adam"}});
+
+    // Should receive update on field filtered on that still matches
+    const stream2 = await coll.watch({"fullDocument.age": {$lt: 40}});
+    stream2.onNext((event: ChangeEvent<any>) => {
+      expect(event.operationType).toEqual("update");
+      expect(event.documentKey["_id"]).toEqual(doc1._id);
+      expect(event.operationType).toEqual("update");
+      expect(event.fullDocument["age"]).toEqual(39);
+      count++;
+      stream2.close();
+    });
+    await coll.updateOne({_id: doc1._id}, {$set: { age: 39}});
+
+    // Should not receive update on field filtered on that fails matches
+    const stream3 = await coll.watch({"fullDocument.age": {$lt: 40}});
+    stream3.onNext((event: ChangeEvent<any>) => {
+      stream3.close();
+      fail();
+    });
+    await coll.updateOne({_id: doc1._id}, {$set: { age: 50}});
+    await sleep(50);
+    stream3.close();
+
+    // Should receive insert on document that matches
+    const stream4 = await coll.watch({"fullDocument.age": {$lt: 40}});
+    const doc2 = { _id: new BSON.ObjectID(), name: "jason", age: 30 };
+    stream4.onNext((event: ChangeEvent<any>) => {
+      expect(event.documentKey["_id"]).toEqual(doc2._id);
+      expect(event.operationType).toEqual("insert");
+      expect(event.fullDocument).toEqual(doc2);
+      count++;
+      stream4.close();
+    });
+    await coll.insertOne(doc2);
+
+    // Should not receive delete
+    const stream5 = await coll.watch({"fullDocument.age": {$lt: 40}});
+    stream5.onNext((event: ChangeEvent<any>) => {
+      stream5.close();
+      fail();
+    });
+    await coll.deleteOne({_id: doc1._id});
+
+    // Should not receive insert on document that does not match
+    const stream6 = await coll.watch({"fullDocument.age": {$lt: 40}});
+    const doc3 = { _id: new BSON.ObjectID(), name: "mike", age: 50 };
+    stream6.onNext((event: ChangeEvent<any>) => {
+      stream6.close();
+      fail();
+    });
+    await coll.updateOne({_id: doc1._id}, {$set: { age: 39}});
+    await sleep(50);
+
+    expect(count).toEqual(3)
   });
 });

@@ -18,15 +18,15 @@ import {
     BasicRequest,
     ContentTypes,
     EventStream,
+    handleRequestError,
     Headers,
     Response,
-    StitchClientError, 
-    StitchClientErrorCode, 
-    Transport
+    Transport,
   } from "mongodb-stitch-core-sdk";
+import EventSourceEventStream from "./EventSourceEventStream";
   
   /** @hidden */
-  export default class RNFetchTransport implements Transport {
+  export default class RNFetchStreamTransport implements Transport {
     public roundTrip(request: BasicRequest): Promise<Response> {
       const responsePromise = fetch(request.url, {
         body: request.body,
@@ -51,6 +51,37 @@ import {
     }
   
     public stream(request: BasicRequest, open = true, retryRequest?: () => Promise<EventStream>): Promise<EventStream> {
-      throw new StitchClientError(StitchClientErrorCode.StreamingNotSupported);
+      const reqHeaders = { ...request.headers };
+      reqHeaders[Headers.ACCEPT] = ContentTypes.TEXT_EVENT_STREAM;
+      reqHeaders[Headers.CONTENT_TYPE] = ContentTypes.TEXT_EVENT_STREAM;
+  
+      // Verify we can start a request with current params and potentially
+      // Force ourselves to refresh a token.
+      return fetch(request.url + "&stitch_validate=true", {
+        body: request.body,
+        headers: reqHeaders,
+        method: request.method,
+        mode: 'cors'
+      }).then(response => {
+        const respHeaders: { [key: string]: string } = {};
+        response.headers.forEach((value, key) => {
+          respHeaders[key] = value;
+        });
+        if (response.status < 200 || response.status >= 300) {
+          return response.text()
+          .then(body => handleRequestError(new Response(respHeaders, response.status, body)));
+        }
+  
+        return new Promise<EventStream>((resolve, reject) => 
+          new EventSourceEventStream(
+            new EventSource(request.url),
+            stream => resolve(stream),
+            error => reject(error),
+            retryRequest ? 
+              () => retryRequest().then(es => es as EventSourceEventStream)
+              : undefined
+            )
+        );
+      });
     }
   }

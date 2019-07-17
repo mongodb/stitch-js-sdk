@@ -228,4 +228,27 @@ export default interface RemoteMongoCollection<DocumentT> {
     update: object,
     updateOptions?: RemoteUpdateOptions
   ): Promise<RemoteUpdateResult>;
+
+  /**
+   * Opens a MongoDB change stream against the collection to watch for changes.
+   * You can watch a subset of the documents in the collection by passing
+   * an array of specific document ids or a
+   * [match expression](https://docs.mongodb.com/manual/reference/operator/aggregation/match/)
+   * that filters the [[ChangeEvent]]s from the change stream.
+   *
+   * Defining the match expression to filter ChangeEvents is similar to
+   * defining the match expression for [triggers](https://docs.mongodb.com/stitch/triggers/database-triggers/).
+   *
+   * @experimental
+   * @note
+   * This method requires a React Native version that supports EventSource 
+   * (server-sent events). There are currently no released versions of React 
+   * Native that support EventSource, so you'll need to use a forked version.
+   * 
+   * @param arg Optional. An array of ids to watch or a $match expression.
+   *            Omit to watch the entire collection.
+   * @return a Promise containing a stream of change events representing the 
+   *         changes to the watched documents.
+   */
+  watch(arg?: any[] | object | undefined): Promise<Stream<ChangeEvent<DocumentT>>>;
 }
