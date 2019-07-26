@@ -125,12 +125,13 @@ export default class Stitch {
     }
 
     const builder = config.builder ? config.builder() : new StitchAppClientConfiguration.Builder(config);
-    if (builder.dataDirectory === undefined || builder.dataDirectory === "") {
-      const dataPath = join(homedir(), DEFAULT_STITCH_DIR, clientAppId);
-      ensureDirSync(dataPath);
-      builder.withDataDirectory(dataPath);
-    }
     if (builder.storage === undefined) {
+      if (builder.dataDirectory === undefined || builder.dataDirectory === "") {
+        const dataPath = join(homedir(), DEFAULT_STITCH_DIR, clientAppId);
+        ensureDirSync(dataPath);
+        builder.withDataDirectory(dataPath);
+      }
+
       builder.withStorage(new FileStorage(builder.dataDirectory));
     }
     if (builder.transport === undefined) {
