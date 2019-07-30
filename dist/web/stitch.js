@@ -11513,11 +11513,14 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                 sendConfirmationEmail: function sendConfirmationEmail(email) {
                   return api._post(appUrl + '/user_registrations/by_email/' + email + '/send_confirm');
                 },
-                confirmByEmail: function confirmByEmail(email) {
-                  return api._post(appUrl + '/user_registrations/by_email/' + email + '/confirm');
-                },
                 listPending: function listPending(filter) {
-                  return api._get(appUrl + '/user_registrations/pending_users', filter);
+                  return api._get(appUrl + '/user_registrations/unconfirmed_users', filter);
+                },
+                removePendingUserByEmail: function removePendingUserByEmail(email) {
+                  return api._delete(appUrl + '/user_registrations/by_email/' + email);
+                },
+                removePendingUserByID: function removePendingUserByID(id) {
+                  return api._delete(appUrl + '/user_registrations/by_email/' + id);
                 }
               };
             },
