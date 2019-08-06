@@ -17,28 +17,30 @@ describe('User Registrations', ()=>{
   beforeEach(async() => {
     const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
     th = await buildClientTestHarness(apiKey, groupId, serverUrl);
-
     client = th.stitchClient;
-    // console.log(client);
     await client.logout();
   });
 
   afterEach(async() => th.cleanup());
 
-  it('removePendingUserByEmail should remove existing user', async() => {
+  const getPendingUsers = async() => await th.app().userRegistrations().listPending();
+  const findUserByEmail = async(email) => (await getPendingUsers()).filter(user => user.login_ids.find(k => k.id === email));
+  const findUserByID = async(id) => (await getPendingUsers()).filter(user => user._id === id);
+
+  it('removePendingUserByEmail should remove existing pending user', async() => {
     await client.register(testEmail, password);
-    let users = await th.app().userRegistrations().listPending();
-    expect(users).toHaveLength(2);
+    expect(await findUserByEmail(testEmail)).toHaveLength(1);
     await th.app().userRegistrations().removePendingUserByEmail(testEmail);
-    users = await th.app().userRegistrations().listPending();
-    expect(users).toHaveLength(1);
+    expect(await findUserByEmail(testEmail)).toHaveLength(0);
+    expect(await getPendingUsers()).toHaveLength(1);
+
   });
-  it('removePendingUserByID should remove existing user', async() => {
+  it('removePendingUserByID should remove existing pending user', async() => {
     await client.register(testEmail, password);
-    let users = await th.app().userRegistrations().listPending();
-    expect(users).toHaveLength(2);
-    await th.app().userRegistrations().removePendingUserByID(users[0]._id);
-    users = await th.app().userRegistrations().listPending();
-    expect(users).toHaveLength(1);
+    const userID = (await getPendingUsers())[0]._id;
+    expect(await findUserByID(userID)).toHaveLength(1);
+    await th.app().userRegistrations().removePendingUserByID(userID);
+    expect(await findUserByID(userID)).toHaveLength(0);
+    expect(await getPendingUsers()).toHaveLength(1);
   });
 });
