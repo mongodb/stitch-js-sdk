@@ -24,23 +24,23 @@ describe('User Registrations', ()=>{
   afterEach(async() => th.cleanup());
 
   const getPendingUsers = async() => await th.app().userRegistrations().listPending();
-  const findUserByEmail = async(email) => (await getPendingUsers()).filter(user => user.login_ids.find(k => k.id === email));
-  const findUserByID = async(id) => (await getPendingUsers()).filter(user => user._id === id);
+  const findPendingUsersByEmail = async(email) => (await getPendingUsers()).filter(user => user.login_ids.find(k => k.id === email));
+  const findPendingUsersByID = async(id) => (await getPendingUsers()).filter(user => user._id === id);
 
   it('removePendingUserByEmail should remove existing pending user', async() => {
     await client.register(testEmail, password);
-    expect(await findUserByEmail(testEmail)).toHaveLength(1);
+    expect(await findPendingUsersByEmail(testEmail)).toHaveLength(1);
     await th.app().userRegistrations().removePendingUserByEmail(testEmail);
-    expect(await findUserByEmail(testEmail)).toHaveLength(0);
+    expect(await findPendingUsersByEmail(testEmail)).toHaveLength(0);
     expect(await getPendingUsers()).toHaveLength(1);
 
   });
   it('removePendingUserByID should remove existing pending user', async() => {
     await client.register(testEmail, password);
     const userID = (await getPendingUsers())[0]._id;
-    expect(await findUserByID(userID)).toHaveLength(1);
+    expect(await findPendingUsersByID(userID)).toHaveLength(1);
     await th.app().userRegistrations().removePendingUserByID(userID);
-    expect(await findUserByID(userID)).toHaveLength(0);
+    expect(await findPendingUsersByID(userID)).toHaveLength(0);
     expect(await getPendingUsers()).toHaveLength(1);
   });
 });
