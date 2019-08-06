@@ -115,6 +115,24 @@ describe('Auth linking', () => {
     expect(newIdentities[1].provider_type).toEqual('local-userpass');
   });
 
+  it('should link a user that was confirmed via `confirmByEmail` with associated provider', async() => {
+    const userId = await client.login();
+    const { identities } = await client.userProfile();
+    expect(identities.length).toEqual(1);
+
+    await client.register(linkEmail, password);
+
+    await th.app().userRegistrations().confirmByEmail(linkEmail);
+    const newUserId = await client.linkWithProvider('userpass', { username: linkEmail, password });
+    expect(userId).toEqual(newUserId);
+
+    const { identities: newIdentities } = await client.userProfile();
+    expect(newIdentities.length).toEqual(2);
+
+    expect(newIdentities[0].provider_type).toEqual('anon-user');
+    expect(newIdentities[1].provider_type).toEqual('local-userpass');
+  });
+
   it('should fail if not authenticated', async() => {
     await client.register(linkEmail, password);
 
@@ -125,6 +143,32 @@ describe('Auth linking', () => {
     } catch (error) {
       expect(error).toBeDefined();
     }
+  });
+
+  it('should list pending users', async() => {
+    const testEmail = 'test_user@10gen.com';
+    await client.register(testEmail, password);
+    await client.login();
+    await client.register(linkEmail, password);
+
+    let pendingUsers = await th.app().userRegistrations().listPending({limit: '5'});
+    expect(pendingUsers).toHaveLength(3);
+
+    pendingUsers = await th.app().userRegistrations().listPending({limit: '1'});
+    expect(pendingUsers).toHaveLength(1);
+
+    await th.app().userRegistrations().confirmByEmail(linkEmail);
+    await client.linkWithProvider('userpass', { username: linkEmail, password });
+
+    pendingUsers = await th.app().userRegistrations().listPending({limit: '3'});
+    expect(pendingUsers).toHaveLength(2);
+
+    await th.app().userRegistrations().confirmByEmail(testEmail);
+    await client.login(testEmail, password);
+    expect(client.auth.loggedInProviderType).toEqual(PROVIDER_TYPE_USERPASS);
+
+    pendingUsers = await th.app().userRegistrations().listPending({limit: '3'});
+    expect(pendingUsers).toHaveLength(1);
   });
 });
 
