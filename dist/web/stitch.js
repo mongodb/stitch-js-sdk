@@ -11523,7 +11523,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                   return api._delete(appUrl + '/user_registrations/by_email/' + email);
                 },
                 removePendingUserByID: function removePendingUserByID(id) {
-                  return api._delete(appUrl + '/user_registrations/by_email/' + id);
+                  return api._delete(appUrl + '/user_registrations/by_id/' + id);
                 }
               };
             },

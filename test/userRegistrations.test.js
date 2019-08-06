@@ -27,18 +27,18 @@ describe('User Registrations', ()=>{
 
   it('removePendingUserByEmail should remove existing user', async() => {
     await client.register(testEmail, password);
-    let users = await th.app().userRegistrations().listPending({limit: '1'});
-    expect(users).toHaveLength(1);
+    let users = await th.app().userRegistrations().listPending();
+    expect(users).toHaveLength(2);
     await th.app().userRegistrations().removePendingUserByEmail(testEmail);
-    users = await th.app().userRegistrations().listPending({limit: '1'});
-    expect(users).toHaveLength(0);
+    users = await th.app().userRegistrations().listPending();
+    expect(users).toHaveLength(1);
   });
   it('removePendingUserByID should remove existing user', async() => {
     await client.register(testEmail, password);
-    let users = await th.app().userRegistrations().listPending({limit: '1'});
-    expect(users).toHaveLength(1);
+    let users = await th.app().userRegistrations().listPending();
+    expect(users).toHaveLength(2);
     await th.app().userRegistrations().removePendingUserByID(users[0]._id);
-    users = await th.app().userRegistrations().listPending({limit: '1'});
-    expect(users).toHaveLength(0);
+    users = await th.app().userRegistrations().listPending();
+    expect(users).toHaveLength(1);
   });
 });
