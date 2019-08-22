@@ -35,7 +35,6 @@ describe('User Registrations', ()=>{
     await th.app().userRegistrations().removePendingUserByEmail(testEmail);
     expect(await findPendingUsersByEmail(testEmail)).toHaveLength(0);
     expect(await getPendingUsers()).toHaveLength(1);
-
   });
   it('removePendingUserByID should remove existing pending user', async() => {
     await client.register(testEmail, password);

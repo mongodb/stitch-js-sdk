@@ -44,4 +44,11 @@ describe('Deploy', () => {
       expect(status).toBe(204);
     });
   });
+
+  describe('when overwriting the deploy config', () => {
+    it('returns something', async() => {
+      const { status } = await appDeploy.overwriteConfig({});
+      expect(status).toBe(204);
+    });
+  });
 });
