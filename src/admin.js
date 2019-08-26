@@ -212,7 +212,8 @@ export class StitchAdminClient extends StitchClient {
               get: (commit) => api._get(`${appUrl}/deployments/${commit}`)
             }),
             installation: () => api._get(`${appUrl}/deploy/installation`),
-            updateConfig: (config) => api._patch(`${appUrl}/deploy/config`, { body: JSON.stringify(config) })
+            updateConfig: (config) => api._patch(`${appUrl}/deploy/config`, { body: JSON.stringify(config) }),
+            overwriteConfig: (config) => api._put(`${appUrl}/deploy/config`, { body: JSON.stringify(config) })
           }),
 
           drafts: () => ({
