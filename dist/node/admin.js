@@ -315,6 +315,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                 },
                 updateConfig: function updateConfig(config) {
                   return api._patch(appUrl + '/deploy/config', { body: JSON.stringify(config) });
+                },
+                overwriteConfig: function overwriteConfig(config) {
+                  return api._put(appUrl + '/deploy/config', { body: JSON.stringify(config) });
                 }
               };
             },
