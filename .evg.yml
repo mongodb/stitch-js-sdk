@@ -1,12 +1,12 @@
 functions:
-  "fetch_go111":
+  "fetch_go113":
     - command: shell.exec
       params:
         shell: "bash"
         script: |
           set -e
           wget --quiet ${go_url}
-          tar xvf ./go1.11*gz
+          tar xvf ./go1.13*gz
   "fetch_source":
     - command: git.get_project
       params:
@@ -60,22 +60,21 @@ functions:
         script: |
           set -e
           echo "cloning stitch"
-          mkdir -p src/github.com/10gen
-          git clone git@github.com:10gen/stitch src/github.com/10gen/stitch
+          git clone git@github.com:10gen/stitch
 
           echo "downloading libmongo"
           wget --quiet "https://s3.amazonaws.com/stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_a4c34cbf6cdd2036fef442f966e404c8be506e62_5bb3da540305b91647c0dfd9_18_10_02_20_51_32/libmongo.so"
           chmod +x libmongo.so
 
           echo "downloading stitch dylib"
-          mkdir -p src/github.com/10gen/stitch/etc/dylib
-          cd src/github.com/10gen/stitch/etc/dylib
+          mkdir -p stitch/etc/dylib
+          cd stitch/etc/dylib
           curl -s "${server_stitch_lib_url}" | tar xvfz - --strip-components=1
           cd -
 
 
           echo "building transpiler"
-          cd src/github.com/10gen/stitch/etc/transpiler
+          cd stitch/etc/transpiler
           curl -OL https://yarnpkg.com/latest.tar.gz
           tar zvxf latest.tar.gz
           mv yarn-* yarn
@@ -86,15 +85,15 @@ functions:
         shell: "bash"
         background: true
         script: |
-          export GOPATH=`pwd`
-          export PATH=`pwd`:$PATH
-          export STITCH_PATH=$GOPATH/src/github.com/10gen/stitch
+          export ROOT_DIR=`pwd`
+          export PATH=$ROOT_DIR:$PATH
+          export STITCH_PATH=$ROOT_DIR/stitch
           export PATH="$PATH:$STITCH_PATH/etc/transpiler/bin"
           export LD_LIBRARY_PATH="$STITCH_PATH/etc/dylib/lib"
           which transpiler
           echo "running stitch"
-          export GOROOT=`pwd`/go
-          export PATH=`pwd`/go/bin:$PATH
+          export GOROOT=$ROOT_DIR/go
+          export PATH=$GOROOT/bin:$PATH
           go run $STITCH_PATH/cmd/server/main.go --configFile $STITCH_PATH/etc/configs/test_config.json
     - command: shell.exec
       params:
@@ -113,7 +112,7 @@ functions:
 tasks:
   - name: run_tests
     commands:
-      - func: "fetch_go111"
+      - func: "fetch_go113"
       - func: "fetch_source"
       - func: "setup_mongod"
       - func: "setup_stitch"
@@ -300,7 +299,7 @@ buildvariants:
   run_on:
     - rhel70
   expansions:
-    go_url: "https://dl.google.com/go/go1.11.1.linux-amd64.tar.gz"
+    go_url: "https://dl.google.com/go/go1.13.linux-amd64.tar.gz"
     mongodb_url: https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-4.0.2.tgz
     server_stitch_lib_url: 'https://s3.amazonaws.com/mciuploads/mongodb-mongo-master/stitch-support/rhel70/5ee0b3805e9116bf0f4655d5ee5cd5b108e7a7e4/stitch-support-4.1.7-200-g5ee0b38.tgz'
     transpiler_target: node8-linux
