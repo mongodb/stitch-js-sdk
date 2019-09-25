@@ -1,4 +1,12 @@
 functions:
+  "fetch_node":
+    - command: shell.exec
+      params:
+        shell: "bash"
+        script: |
+          set -e
+          curl -s ${node_url} | tar xJf -
+          mv node-* node
   "fetch_go113":
     - command: shell.exec
       params:
@@ -63,7 +71,7 @@ functions:
           git clone git@github.com:10gen/stitch
 
           echo "downloading libmongo"
-          wget --quiet "https://s3.amazonaws.com/stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_a4c34cbf6cdd2036fef442f966e404c8be506e62_5bb3da540305b91647c0dfd9_18_10_02_20_51_32/libmongo.so"
+          wget --quiet "${libmongo_url}"
           chmod +x libmongo.so
 
           echo "downloading stitch dylib"
@@ -72,13 +80,12 @@ functions:
           curl -s "${server_stitch_lib_url}" | tar xvfz - --strip-components=1
           cd -
 
-
           echo "building transpiler"
-          cd stitch/etc/transpiler
           curl -OL https://yarnpkg.com/latest.tar.gz
           tar zvxf latest.tar.gz
           mv yarn-* yarn
-          export PATH="`pwd`/yarn/bin:$PATH"
+          export PATH="`pwd`/yarn/bin:`pwd`/node/bin:$PATH"
+          cd stitch/etc/transpiler
           yarn install && yarn run build -t ${transpiler_target}
     - command: shell.exec
       params:
@@ -94,7 +101,8 @@ functions:
           echo "running stitch"
           export GOROOT=$ROOT_DIR/go
           export PATH=$GOROOT/bin:$PATH
-          go run $STITCH_PATH/cmd/server/main.go --configFile $STITCH_PATH/etc/configs/test_config.json
+          cd $STITCH_PATH
+          go run cmd/server/main.go --configFile $STITCH_PATH/etc/configs/test_config.json
     - command: shell.exec
       params:
         shell: "bash"
@@ -112,6 +120,7 @@ functions:
 tasks:
   - name: run_tests
     commands:
+      - func: "fetch_node"
       - func: "fetch_go113"
       - func: "fetch_source"
       - func: "setup_mongod"
@@ -124,27 +133,28 @@ tasks:
             echo "running client tests"
             source ./creds
             chown -R $USER stitch-js-sdk
-            cd stitch-js-sdk
             curl -OL https://yarnpkg.com/latest.tar.gz
             tar zvxf latest.tar.gz
             mv yarn-* yarn
-            export PATH="`pwd`/yarn/bin:$PATH"
+            export PATH="`pwd`/yarn/bin:`pwd`/node/bin:$PATH"
+            cd stitch-js-sdk
             yarn install
             npm run test
 
   - name: check_import
     commands:
+      - func: "fetch_node"
       - func: "fetch_source"
       - command: shell.exec
         params:
           shell: "bash"
           script: |
             set -e
-            cd stitch-js-sdk
             curl -OL https://yarnpkg.com/latest.tar.gz
             tar zvxf latest.tar.gz
             mv yarn-* yarn
-            export PATH="`pwd`/yarn/bin:$PATH"
+            export PATH="`pwd`/yarn/bin:`pwd`/node/bin:$PATH"
+            cd stitch-js-sdk
             yarn install
             npm run build
             npm run build-web
@@ -161,17 +171,18 @@ tasks:
 
   - name: dist
     commands:
+      - func: "fetch_node"
       - func: "fetch_source"
       - command: shell.exec
         params:
           shell: "bash"
           script: |
             set -e
-            cd stitch-js-sdk
             curl -OL https://yarnpkg.com/latest.tar.gz
             tar zvxf latest.tar.gz
             mv yarn-* yarn
-            export PATH="`pwd`/yarn/bin:$PATH"
+            export PATH="`pwd`/yarn/bin:`pwd`/node/bin:$PATH"
+            cd stitch-js-sdk
             yarn install
             npm run build
             npm run build-web
@@ -230,17 +241,18 @@ tasks:
       - name: run_tests
       - name: check_import
     commands:
+      - func: "fetch_node"
       - func: "fetch_source"
       - command: shell.exec
         params:
           shell: "bash"
           script: |
             set -e
-            cd stitch-js-sdk
             curl -OL https://yarnpkg.com/latest.tar.gz
             tar zvxf latest.tar.gz
             mv yarn-* yarn
-            export PATH="`pwd`/yarn/bin:$PATH"
+            export PATH="`pwd`/yarn/bin:`pwd`/node/bin:$PATH"
+            cd stitch-js-sdk
             yarn install
             npm run docs
 
@@ -278,18 +290,19 @@ tasks:
 
   - name: eslint
     commands:
+      - func: "fetch_node"
       - func: "fetch_source"
       - command: shell.exec
         params:
           shell: "bash"
           script: |
             set -e
-            cd stitch-js-sdk
             echo "linting"
             curl -OL https://yarnpkg.com/latest.tar.gz
             tar zvxf latest.tar.gz
             mv yarn-* yarn
-            export PATH="`pwd`/yarn/bin:$PATH"
+            export PATH="`pwd`/yarn/bin:`pwd`/node/bin:$PATH"
+            cd stitch-js-sdk
             yarn install
             npm run lint --quiet
 
@@ -303,6 +316,8 @@ buildvariants:
     mongodb_url: https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-4.0.2.tgz
     server_stitch_lib_url: 'https://s3.amazonaws.com/mciuploads/mongodb-mongo-master/stitch-support/rhel70/5ee0b3805e9116bf0f4655d5ee5cd5b108e7a7e4/stitch-support-4.1.7-200-g5ee0b38.tgz'
     transpiler_target: node8-linux
+    node_url: "https://nodejs.org/dist/v10.15.1/node-v10.15.1-linux-x64.tar.xz"
+    libmongo_url: 'https://s3.amazonaws.com/stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_f1f04683a9b5612f5a82a2d7f97818ef74a8fb05_5d898ee3306615699f265907_19_09_24_03_35_01/libmongo.so'
   tasks:
     - name: run_tests
     - name: dist
