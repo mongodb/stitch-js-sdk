@@ -29,12 +29,16 @@ describe('User Registrations', ()=>{
   const findPendingUsersByEmail = async(email) => (await getPendingUsers()).filter(user => user.login_ids.find(k => k.id === email));
   const findPendingUsersByID = async(id) => (await getPendingUsers()).filter(user => user._id === id);
 
+  const FUNC_NAME = 'confirmFunc';
+  const FUNC_SOURCE = 'exports = function() { return { "status": "success" } }';
+  const createTestFunction = () => ({ name: FUNC_NAME, source: FUNC_SOURCE });
+
   it('removePendingUserByEmail should remove existing pending user', async() => {
     await client.register(testEmail, password);
     expect(await findPendingUsersByEmail(testEmail)).toHaveLength(1);
     await th.app().userRegistrations().removePendingUserByEmail(testEmail);
     expect(await findPendingUsersByEmail(testEmail)).toHaveLength(0);
-    expect(await getPendingUsers()).toHaveLength(1);
+    expect(await getPendingUsers()).toHaveLength(0);
   });
   it('removePendingUserByID should remove existing pending user', async() => {
     await client.register(testEmail, password);
@@ -42,7 +46,49 @@ describe('User Registrations', ()=>{
     expect(await findPendingUsersByID(userID)).toHaveLength(1);
     await th.app().userRegistrations().removePendingUserByID(userID);
     expect(await findPendingUsersByID(userID)).toHaveLength(0);
-    expect(await getPendingUsers()).toHaveLength(1);
+    expect(await getPendingUsers()).toHaveLength(0);
+  });
+  it('rerunUserConfirmation should confirm existing pending user', async() => {
+    await client.register(testEmail, password);
+    // expect(await client.login(testEmail, password)).toThrowError(/confirmation required/);
+    expect(await findPendingUsersByEmail(testEmail)).toHaveLength(1);
+    let { token_id: tokenId, token } = await th.app().userRegistrations().rerunUserConfirmation(testEmail);
+    await client.auth.provider('userpass').emailConfirm(tokenId, token);
+
+    // We must login first so that a user id is attached to the password record
+    await client.login(testEmail, password);
+    expect(client.auth.loggedInProviderType).toEqual(PROVIDER_TYPE_USERPASS);
+
+    expect(await findPendingUsersByEmail(testEmail)).toHaveLength(0);
+    expect(await getPendingUsers()).toHaveLength(0);
+  });
+  it('rerunUserConfirmation with a function should confirm pending user', async() => {
+    await client.register(testEmail, password);
+    expect(await findPendingUsersByEmail(testEmail)).toHaveLength(1);
+
+    // Create confirm function
+    let functions = th.app().functions();
+    let confirmFunc = await functions.create(createTestFunction());
+    expect(confirmFunc.name).toEqual(FUNC_NAME);
+
+    // Update app with confirm function
+    let providers = await th.app().authProviders().list();
+    await th.app().authProviders().authProvider(providers[1]._id).update({
+      config: {
+        runConfirmationFunction: true,
+        confirmationFunctionId: confirmFunc._id,
+        confirmationFunctionName: confirmFunc.name
+      }
+    });
+    await th.app().userRegistrations().rerunUserConfirmation(testEmail);
+    // We shouldn't need to call 'client.auth.provider('userpass').emailConfirm(tokenId, token)'
+
+    // We must login first so that a user id is attached to the password record
+    await client.login(testEmail, password);
+    expect(client.auth.loggedInProviderType).toEqual(PROVIDER_TYPE_USERPASS);
+
+    expect(await findPendingUsersByEmail(testEmail)).toHaveLength(0);
+    expect(await getPendingUsers()).toHaveLength(0);
   });
   it('should link a user that was confirmed via `confirmByEmail` with associated provider', async() => {
     const userId = await client.login();
@@ -67,7 +113,7 @@ describe('User Registrations', ()=>{
     await client.register(linkEmail, password);
 
     let pendingUsers = await th.app().userRegistrations().listPending({limit: '5'});
-    expect(pendingUsers).toHaveLength(3);
+    expect(pendingUsers).toHaveLength(2);
 
     pendingUsers = await th.app().userRegistrations().listPending({limit: '1'});
     expect(pendingUsers).toHaveLength(1);
@@ -76,13 +122,13 @@ describe('User Registrations', ()=>{
     await client.linkWithProvider('userpass', { username: linkEmail, password });
 
     pendingUsers = await th.app().userRegistrations().listPending({limit: '3'});
-    expect(pendingUsers).toHaveLength(2);
+    expect(pendingUsers).toHaveLength(1);
 
     await th.app().userRegistrations().confirmByEmail(testEmail);
     await client.login(testEmail, password);
     expect(client.auth.loggedInProviderType).toEqual(PROVIDER_TYPE_USERPASS);
 
     pendingUsers = await th.app().userRegistrations().listPending({limit: '3'});
-    expect(pendingUsers).toHaveLength(1);
+    expect(pendingUsers).toHaveLength(0);
   });
 });
