@@ -50,7 +50,6 @@ describe('User Registrations', ()=>{
   });
   it('rerunUserConfirmation should confirm existing pending user', async() => {
     await client.register(testEmail, password);
-    // expect(await client.login(testEmail, password)).toThrowError(/confirmation required/);
     expect(await findPendingUsersByEmail(testEmail)).toHaveLength(1);
     let { token_id: tokenId, token } = await th.app().userRegistrations().rerunUserConfirmation(testEmail);
     await client.auth.provider('userpass').emailConfirm(tokenId, token);
