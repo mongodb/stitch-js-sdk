@@ -23,7 +23,7 @@ import {
   Response,
   Transport
 } from "mongodb-stitch-core-sdk";
-import {fetch as fetch} from 'whatwg-fetch'
+import 'whatwg-fetch';
 import BrowserFetchTransport from "./BrowserFetchTransport";
 import EventSourceEventStream from "./EventSourceEventStream";
 

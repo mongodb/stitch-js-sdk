@@ -24,7 +24,7 @@ import {
   StitchClientErrorCode, 
   Transport
 } from "mongodb-stitch-core-sdk";
-import {fetch as fetch} from 'whatwg-fetch'
+import 'whatwg-fetch';
 
 /** @hidden */
 export default class BrowserFetchTransport implements Transport {
