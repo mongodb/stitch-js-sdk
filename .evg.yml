@@ -314,7 +314,7 @@ buildvariants:
   expansions:
     go_url: "https://dl.google.com/go/go1.13.linux-amd64.tar.gz"
     mongodb_url: https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-4.0.2.tgz
-    server_stitch_lib_url: 'https://s3.amazonaws.com/mciuploads/mongodb-mongo-master/stitch-support/rhel70/5ee0b3805e9116bf0f4655d5ee5cd5b108e7a7e4/stitch-support-4.1.7-200-g5ee0b38.tgz'
+    server_stitch_lib_url: 'https://s3.amazonaws.com/mciuploads/mongodb-mongo-master/stitch-support/enterprise-rhel-70-64-bit/18ca0d551818d6c8274358b8e6444640bec93c88/stitch-support-4.3.0-120-g18ca0d5.tgz'
     transpiler_target: node8-linux
     node_url: "https://nodejs.org/dist/v10.15.1/node-v10.15.1-linux-x64.tar.xz"
     libmongo_url: 'https://s3.amazonaws.com/stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_f1f04683a9b5612f5a82a2d7f97818ef74a8fb05_5d898ee3306615699f265907_19_09_24_03_35_01/libmongo.so'
