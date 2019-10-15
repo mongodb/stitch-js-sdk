@@ -294,6 +294,7 @@ export class StitchAdminClient extends StitchClient {
 
           userRegistrations: () => ({
             sendConfirmationEmail: (email) => api._post(`${appUrl}/user_registrations/by_email/${email}/send_confirm`),
+            runUserConfirmation: (email) => api._post(`${appUrl}/user_registrations/by_email/${email}/run_confirm`),
             confirmByEmail: (email) => api._post(`${appUrl}/user_registrations/by_email/${email}/confirm`),
             listPending: (filter) => api._get(`${appUrl}/user_registrations/pending_users`, filter),
             removePendingUserByEmail: (email) => api._delete(`${appUrl}/user_registrations/by_email/${email}`),

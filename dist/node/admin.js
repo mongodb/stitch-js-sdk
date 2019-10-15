@@ -501,6 +501,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                 sendConfirmationEmail: function sendConfirmationEmail(email) {
                   return api._post(appUrl + '/user_registrations/by_email/' + email + '/send_confirm');
                 },
+                runUserConfirmation: function runUserConfirmation(email) {
+                  return api._post(appUrl + '/user_registrations/by_email/' + email + '/run_confirm');
+                },
                 confirmByEmail: function confirmByEmail(email) {
                   return api._post(appUrl + '/user_registrations/by_email/' + email + '/confirm');
                 },
