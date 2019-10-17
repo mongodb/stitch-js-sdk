@@ -4,7 +4,7 @@ const MongoClient = mongodb.MongoClient;
 const { DEFAULT_URI, DEFAULT_SERVER_URL } = require('../constants');
 const crypto = require('crypto');
 
-const randomString = (length) => {
+const randomString = length => {
   const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let result = '';
   for (let i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
@@ -35,9 +35,18 @@ export default class StitchFixture {
 
     // bootstrap auth database with a root user
     let userData = await this._generateTestRootUser();
-    await this.mongo.db('auth').collection('users').insert(userData.user);
-    await this.mongo.db('auth').collection('apiKeys').insert(userData.apiKey);
-    await this.mongo.db('auth').collection('groups').insert(userData.group);
+    await this.mongo
+      .db('auth')
+      .collection('users')
+      .insert(userData.user);
+    await this.mongo
+      .db('auth')
+      .collection('apiKeys')
+      .insert(userData.apiKey);
+    await this.mongo
+      .db('auth')
+      .collection('groups')
+      .insert(userData.group);
     this.userData = userData;
 
     this.admin = await StitchAdminClientFactory.create(this.options.baseUrl);
@@ -49,12 +58,15 @@ export default class StitchFixture {
   }
 
   registerTestNamespace(db, collection) {
-    this.testNamespaces.push({db, collection});
+    this.testNamespaces.push({ db, collection });
   }
 
   async cleanTestNamespaces() {
-    this.testNamespaces.forEach(async(ns) => {
-      await this.mongo.db(ns.db).collection(ns.collection).remove();
+    this.testNamespaces.forEach(async ns => {
+      await this.mongo
+        .db(ns.db)
+        .collection(ns.collection)
+        .remove();
     });
     this.testNamespaces = [];
   }
@@ -68,7 +80,7 @@ export default class StitchFixture {
     let testUser = {
       userId: new mongodb.ObjectId().toHexString(),
       domainId: rootId,
-      identities: [ { id: apiKeyId.toHexString(), providerType: 'api-key', providerId: rootProviderId } ],
+      identities: [{ id: apiKeyId.toHexString(), providerType: 'api-key', providerId: rootProviderId }],
       roles: [{ roleName: 'groupOwner', groupId }, { roleName: 'GROUP_OWNER', groupId }],
       domain_id_hash: 3795608245,
       location: 'US-VA'
@@ -88,7 +100,8 @@ export default class StitchFixture {
       disabled: false,
       visible: true,
       domain_id_hash: 3795608245,
-      location: 'US-VA'
+      location: 'US-VA',
+      type: 'app'
     };
 
     const testGroup = {

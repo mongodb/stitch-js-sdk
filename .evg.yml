@@ -14,7 +14,7 @@ functions:
         script: |
           set -e
           wget --quiet ${go_url}
-          tar xvf ./go1.13*gz
+          tar xf ./go1.13*gz
   "fetch_source":
     - command: git.get_project
       params:
@@ -26,7 +26,7 @@ functions:
         shell: "bash"
         script: |
           set -v
-          curl --silent ${mongodb_url} | tar xvz
+          curl --silent ${mongodb_url} | tar xz
     - command: shell.exec
       params:
         shell: "bash"
@@ -77,12 +77,12 @@ functions:
           echo "downloading stitch dylib"
           mkdir -p stitch/etc/dylib
           cd stitch/etc/dylib
-          curl -s "${server_stitch_lib_url}" | tar xvfz - --strip-components=1
+          curl -s "${server_stitch_lib_url}" | tar xfz - --strip-components=1
           cd -
 
           echo "building transpiler"
           curl -OL https://yarnpkg.com/latest.tar.gz
-          tar zvxf latest.tar.gz
+          tar zxf latest.tar.gz
           mv yarn-* yarn
           export PATH="`pwd`/yarn/bin:`pwd`/node/bin:$PATH"
           cd stitch/etc/transpiler
@@ -134,7 +134,7 @@ tasks:
             source ./creds
             chown -R $USER stitch-js-sdk
             curl -OL https://yarnpkg.com/latest.tar.gz
-            tar zvxf latest.tar.gz
+            tar zxf latest.tar.gz
             mv yarn-* yarn
             export PATH="`pwd`/yarn/bin:`pwd`/node/bin:$PATH"
             cd stitch-js-sdk

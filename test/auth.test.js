@@ -4,6 +4,7 @@ import { PROVIDER_TYPE_ANON, PROVIDER_TYPE_USERPASS } from '../src/auth/provider
 import { StitchError, ErrUnauthorized } from '../src/errors';
 import StitchMongoFixture from './fixtures/stitch_mongo_fixture';
 import { buildClientTestHarness, extractTestFixtureDataPoints } from './testutil';
+import { Response } from 'node-fetch';
 
 function mockAuthData() {
   const data = {
@@ -24,9 +25,8 @@ function mockApiResponse(options = {}) {
     body = JSON.stringify(options.body);
   }
 
-  const responseOptions =
-    Object.assign({}, { status: 200, headers: headers }, options);
-  return new window.Response(body, responseOptions);
+  const responseOptions = Object.assign({}, { status: 200, headers: headers }, options);
+  return new Response(body, responseOptions);
 }
 
 describe('Auth', () => {
@@ -34,6 +34,7 @@ describe('Auth', () => {
 
   beforeEach(() => {
     test.fetch = sinon.stub(window, 'fetch');
+    global['fetch'] = test.fetch;
   });
 
   afterEach(() => test.fetch.restore());
@@ -46,19 +47,20 @@ describe('Auth', () => {
 
     client.auth.set(JSON.parse(mockAuthData()), PROVIDER_TYPE_ANON);
 
-    return client.login()
-      .then(userId => expect(userId).toEqual('fake-user-id'));
+    return client.login().then(userId => expect(userId).toEqual('fake-user-id'));
   });
 
   it('should return a promise for login with only new auth data userId', async() => {
-    window.fetch.resolves(mockApiResponse({
-      body: {
-        access_token: 'fake-access-token',
-        refresh_token: 'fake-refresh-token',
-        user_id: 'fake-user-id',
-        device_id: 'fake-device-id'
-      }
-    }));
+    window.fetch.resolves(
+      mockApiResponse({
+        body: {
+          access_token: 'fake-access-token',
+          refresh_token: 'fake-refresh-token',
+          user_id: 'fake-user-id',
+          device_id: 'fake-device-id'
+        }
+      })
+    );
     expect.assertions(1);
 
     let client = await StitchClientFactory.create();
@@ -71,8 +73,9 @@ describe('Auth', () => {
 
     let client = await StitchClientFactory.create('some-app');
 
-    await expect(client.executeServiceFunction('someService', 'someAction')).rejects
-      .toEqual(new StitchError('Must auth first', ErrUnauthorized));
+    await expect(client.executeServiceFunction('someService', 'someAction')).rejects.toEqual(
+      new StitchError('Must auth first', ErrUnauthorized)
+    );
   });
 });
 
@@ -103,7 +106,10 @@ describe('Auth linking', () => {
 
     await client.register(linkEmail, password);
 
-    let { token_id: tokenId, token } = await th.app().userRegistrations().sendConfirmationEmail(linkEmail);
+    let { token_id: tokenId, token } = await th
+      .app()
+      .userRegistrations()
+      .sendConfirmationEmail(linkEmail);
     await client.auth.provider('userpass').emailConfirm(tokenId, token);
     const newUserId = await client.linkWithProvider('userpass', { username: linkEmail, password });
     expect(userId).toEqual(newUserId);
@@ -118,7 +124,10 @@ describe('Auth linking', () => {
   it('should fail if not authenticated', async() => {
     await client.register(linkEmail, password);
 
-    let { token_id: tokenId, token } = await th.app().userRegistrations().sendConfirmationEmail(linkEmail);
+    let { token_id: tokenId, token } = await th
+      .app()
+      .userRegistrations()
+      .sendConfirmationEmail(linkEmail);
     await client.auth.provider('userpass').emailConfirm(tokenId, token);
     try {
       await client.linkWithProvider('userpass', { username: linkEmail, password });

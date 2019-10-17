@@ -11,8 +11,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 
 
-require('fetch-everywhere');
-
 var _formData = require('form-data');
 
 var _formData2 = _interopRequireDefault(_formData);
@@ -86,7 +84,11 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
     value: function logout() {
       var _this2 = this;
 
-      return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', this).call(this, '/auth/session', 'DELETE', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v3 }).then(function () {
+      return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', this).call(this, '/auth/session', 'DELETE', {
+        refreshOnFailure: false,
+        useRefreshToken: true,
+        apiVersion: v3
+      }).then(function () {
         return _this2.auth.clear();
       });
     }
@@ -126,7 +128,11 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
   }, {
     key: 'doSessionPost',
     value: function doSessionPost() {
-      return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', this).call(this, '/auth/session', 'POST', { refreshOnFailure: false, useRefreshToken: true, apiVersion: v3 }).then(function (response) {
+      return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', this).call(this, '/auth/session', 'POST', {
+        refreshOnFailure: false,
+        useRefreshToken: true,
+        apiVersion: v3
+      }).then(function (response) {
         return response.json();
       });
     }
@@ -172,7 +178,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
             },
 
             export: function _export() {
-              return api._get(appUrl + '/export', undefined, { Accept: 'application/zip' });
+              return api._get(appUrl + '/export', undefined, {
+                Accept: 'application/zip'
+              });
             },
 
             measurements: function measurements(filter) {
@@ -242,21 +250,27 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       return api._get(appUrl + '/hosting/config');
                     },
                     patch: function patch(config) {
-                      return api._patch(appUrl + '/hosting/config', { body: JSON.stringify(config) });
+                      return api._patch(appUrl + '/hosting/config', {
+                        body: JSON.stringify(config)
+                      });
                     }
                   };
                 },
                 cache: function cache() {
                   return {
                     invalidate: function invalidate(path) {
-                      return api._put(appUrl + '/hosting/cache', { body: JSON.stringify({ invalidate: true, path: path }) });
+                      return api._put(appUrl + '/hosting/cache', {
+                        body: JSON.stringify({ invalidate: true, path: path })
+                      });
                     }
                   };
                 },
                 assets: function assets() {
                   return {
                     createDirectory: function createDirectory(folderName) {
-                      return api._put(appUrl + '/hosting/assets/asset', { body: JSON.stringify({ path: folderName + '/' }) });
+                      return api._put(appUrl + '/hosting/assets/asset', {
+                        body: JSON.stringify({ path: folderName + '/' })
+                      });
                     },
                     list: function list(params) {
                       return api._get(appUrl + '/hosting/assets', params);
@@ -265,7 +279,10 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       var form = new _formData2.default();
                       form.append('meta', metadata);
                       form.append('file', body);
-                      return api._put(appUrl + '/hosting/assets/asset', { body: form, multipart: true });
+                      return api._put(appUrl + '/hosting/assets/asset', {
+                        body: form,
+                        multipart: true
+                      });
                     },
                     post: function post(data) {
                       return api._post(appUrl + '/hosting/assets', data);
@@ -273,7 +290,10 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                     asset: function asset() {
                       return {
                         patch: function patch(options) {
-                          return api._patch(appUrl + '/hosting/assets/asset', { body: JSON.stringify({ attributes: options.attributes }), queryParams: { path: options.path } });
+                          return api._patch(appUrl + '/hosting/assets/asset', {
+                            body: JSON.stringify({ attributes: options.attributes }),
+                            queryParams: { path: options.path }
+                          });
                         },
                         get: function get(params) {
                           return api._get(appUrl + '/hosting/assets/asset', params);
@@ -293,7 +313,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                 auth: function auth() {
                   return {
                     github: function github() {
-                      return api._get(appUrl + '/deploy/github/auth', undefined, undefined, { credentials: 'include' });
+                      return api._get(appUrl + '/deploy/github/auth', undefined, undefined, {
+                        credentials: 'include'
+                      });
                     }
                   };
                 },
@@ -314,10 +336,14 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                   return api._get(appUrl + '/deploy/installation');
                 },
                 updateConfig: function updateConfig(config) {
-                  return api._patch(appUrl + '/deploy/config', { body: JSON.stringify(config) });
+                  return api._patch(appUrl + '/deploy/config', {
+                    body: JSON.stringify(config)
+                  });
                 },
                 overwriteConfig: function overwriteConfig(config) {
-                  return api._put(appUrl + '/deploy/config', { body: JSON.stringify(config) });
+                  return api._put(appUrl + '/deploy/config', {
+                    body: JSON.stringify(config)
+                  });
                 }
               };
             },
@@ -362,7 +388,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       return api._delete(appUrl + '/services/' + serviceId);
                     },
                     update: function update(data) {
-                      return api._patch(appUrl + '/services/' + serviceId, { body: JSON.stringify(data) });
+                      return api._patch(appUrl + '/services/' + serviceId, {
+                        body: JSON.stringify(data)
+                      });
                     },
                     runCommand: function runCommand(commandName, data) {
                       return api._post(appUrl + '/services/' + serviceId + '/commands/' + commandName, data);
@@ -373,7 +401,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                           return api._get(appUrl + '/services/' + serviceId + '/config', params);
                         },
                         update: function update(data) {
-                          return api._patch(appUrl + '/services/' + serviceId + '/config', { body: JSON.stringify(data) });
+                          return api._patch(appUrl + '/services/' + serviceId + '/config', {
+                            body: JSON.stringify(data)
+                          });
                         }
                       };
                     },
@@ -446,7 +476,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       return api._get(appUrl + '/push/notifications/' + messageId);
                     },
                     update: function update(data) {
-                      return api._put(appUrl + '/push/notifications/' + messageId, { body: JSON.stringify(data) });
+                      return api._put(appUrl + '/push/notifications/' + messageId, {
+                        body: JSON.stringify(data)
+                      });
                     },
                     remove: function remove() {
                       return api._delete(appUrl + '/push/notifications/' + messageId);
@@ -539,7 +571,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
 
                   var name = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
 
-                  return api._post(appUrl + '/debug/execute_function', { name: name, 'arguments': args }, { user_id: userId });
+                  return api._post(appUrl + '/debug/execute_function', { name: name, arguments: args }, { user_id: userId });
                 },
                 executeFunctionSource: function executeFunctionSource(_ref) {
                   var userId = _ref.userId,
@@ -549,7 +581,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       evalSource = _ref$evalSource === undefined ? '' : _ref$evalSource,
                       runAsSystem = _ref.runAsSystem;
 
-                  return api._post(appUrl + '/debug/execute_function_source', { source: source, 'eval_source': evalSource }, { user_id: userId, run_as_system: runAsSystem });
+                  return api._post(appUrl + '/debug/execute_function_source', { source: source, eval_source: evalSource }, { user_id: userId, run_as_system: runAsSystem });
                 }
               };
             },
@@ -568,7 +600,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       return api._get(appUrl + '/auth_providers/' + providerId);
                     },
                     update: function update(data) {
-                      return api._patch(appUrl + '/auth_providers/' + providerId, { body: JSON.stringify(data) });
+                      return api._patch(appUrl + '/auth_providers/' + providerId, {
+                        body: JSON.stringify(data)
+                      });
                     },
                     enable: function enable() {
                       return api._put(appUrl + '/auth_providers/' + providerId + '/enable');
@@ -648,7 +682,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       return api._get(appUrl + '/functions/' + functionId);
                     },
                     update: function update(data) {
-                      return api._put(appUrl + '/functions/' + functionId, { body: JSON.stringify(data) });
+                      return api._put(appUrl + '/functions/' + functionId, {
+                        body: JSON.stringify(data)
+                      });
                     },
                     remove: function remove() {
                       return api._delete(appUrl + '/functions/' + functionId);
