@@ -50,6 +50,25 @@ describe('Executing AWS service functions', () => {
             }
             done();
           });
+
+        // loop until the bucket does exist
+        let sentinelKey = new BSON.ObjectId().toString();
+        let tries = 0;
+        let created = false;
+        while (!created) {
+          try {
+            await service.put(bucketName, sentinelKey, 'private', 'binary', new BSON.Binary('Hello World'));
+            created = true;
+            continue;
+          } catch (err) {
+            tries++;
+            if (tries >= 10) {
+              throw Error('exceeded max retries when preparing AWS test bucket');
+            }
+          }
+          await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+        awsClient.deleteObject({Bucket: bucketName, Key: sentinelKey});
       } else {
         console.warn('skipping S3 tests since there are no AWS credentials in environment');
         done();
