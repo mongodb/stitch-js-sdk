@@ -17,8 +17,7 @@ const API_TYPE_PRIVATE = 'private';
 const API_TYPE_CLIENT = 'client';
 const API_TYPE_APP = 'app';
 
-export const doFetch =
-  typeof fetch === 'undefined' ? require('node-fetch') : fetch;
+export const fetcher = () => (typeof fetch === 'undefined' ? require('node-fetch') : fetch);
 
 /**
  * StitchClientFactory is a singleton factory class which can be used to
@@ -425,6 +424,7 @@ export class StitchClient {
   }
 
   _fetch(url, fetchArgs, resource, method, options) {
+    const doFetch = fetcher();
     return doFetch(url, fetchArgs).then(response => {
       // Okay: passthrough
       if (response.status >= 200 && response.status < 300) {
