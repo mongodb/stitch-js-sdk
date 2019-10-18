@@ -303,7 +303,7 @@ exports.ErrUnauthorized = ErrUnauthorized;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.StitchClient = exports.StitchClientFactory = exports.doFetch = undefined;
+exports.StitchClient = exports.StitchClientFactory = exports.fetcher = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, fetch */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
@@ -351,7 +351,9 @@ var API_TYPE_PRIVATE = 'private';
 var API_TYPE_CLIENT = 'client';
 var API_TYPE_APP = 'app';
 
-var doFetch = exports.doFetch = typeof fetch === 'undefined' ? __webpack_require__(9) : fetch;
+var fetcher = exports.fetcher = function fetcher() {
+  return typeof fetch === 'undefined' ? __webpack_require__(9) : fetch;
+};
 
 /**
  * StitchClientFactory is a singleton factory class which can be used to
@@ -835,6 +837,7 @@ var StitchClient = exports.StitchClient = function () {
     value: function _fetch(url, fetchArgs, resource, method, options) {
       var _this4 = this;
 
+      var doFetch = fetcher();
       return doFetch(url, fetchArgs).then(function (response) {
         // Okay: passthrough
         if (response.status >= 200 && response.status < 300) {
@@ -8733,7 +8736,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.createProviders = exports.doFetch = exports.PROVIDER_TYPE_MONGODB_CLOUD = exports.PROVIDER_TYPE_FACEBOOK = exports.PROVIDER_TYPE_GOOGLE = exports.PROVIDER_TYPE_APIKEY = exports.PROVIDER_TYPE_USERPASS = exports.PROVIDER_TYPE_CUSTOM = exports.PROVIDER_TYPE_ANON = undefined;
+exports.createProviders = exports.fetcher = exports.PROVIDER_TYPE_MONGODB_CLOUD = exports.PROVIDER_TYPE_FACEBOOK = exports.PROVIDER_TYPE_GOOGLE = exports.PROVIDER_TYPE_APIKEY = exports.PROVIDER_TYPE_USERPASS = exports.PROVIDER_TYPE_CUSTOM = exports.PROVIDER_TYPE_ANON = undefined;
 
 var _common = __webpack_require__(2);
 
@@ -8761,7 +8764,9 @@ var PROVIDER_TYPE_GOOGLE = exports.PROVIDER_TYPE_GOOGLE = 'google';
 var PROVIDER_TYPE_FACEBOOK = exports.PROVIDER_TYPE_FACEBOOK = 'facebook';
 var PROVIDER_TYPE_MONGODB_CLOUD = exports.PROVIDER_TYPE_MONGODB_CLOUD = 'mongodbCloud';
 
-var doFetch = exports.doFetch = typeof fetch === 'undefined' ? __webpack_require__(9) : fetch;
+var fetcher = exports.fetcher = function fetcher() {
+  return typeof fetch === 'undefined' ? __webpack_require__(9) : fetch;
+};
 
 function urlWithLinkParam(url, link) {
   if (link) {
@@ -8789,6 +8794,8 @@ function anonProvider(auth) {
       var device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
       var fetchArgs = common.makeFetchArgs('GET');
       fetchArgs.cors = true;
+
+      var doFetch = fetcher();
 
       return doFetch(urlWithLinkParam(auth.rootUrl + '/providers/anon-user/login?device=' + (0, _util.uriEncodeObject)(device), link), auth.fetchArgsWithLink(fetchArgs, link)).then(common.checkStatus).then(function (response) {
         return response.json();
@@ -8823,6 +8830,7 @@ function customProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ token: token, options: { device: device } }));
       fetchArgs.cors = true;
 
+      var doFetch = fetcher();
       return doFetch(urlWithLinkParam(auth.rootUrl + '/' + loginRoute, link), auth.fetchArgsWithLink(fetchArgs, link)).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
@@ -8866,6 +8874,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username: username, password: password, options: { device: device } }));
       fetchArgs.cors = true;
 
+      var doFetch = fetcher();
       return doFetch(urlWithLinkParam(auth.rootUrl + '/' + loginRoute, link), auth.fetchArgsWithLink(fetchArgs, link)).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
@@ -8886,6 +8895,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token }));
       fetchArgs.cors = true;
 
+      var doFetch = fetcher();
       return doFetch(auth.rootUrl + '/' + providerRoute + '/confirm', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       });
@@ -8904,6 +8914,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
       fetchArgs.cors = true;
 
+      var doFetch = fetcher();
       return doFetch(auth.rootUrl + '/' + providerRoute + '/confirm/send', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       });
@@ -8921,6 +8932,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email }));
       fetchArgs.cors = true;
 
+      var doFetch = fetcher();
       return doFetch(auth.rootUrl + '/' + providerRoute + '/reset/send', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       });
@@ -8941,6 +8953,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId: tokenId, token: token, password: password }));
       fetchArgs.cors = true;
 
+      var doFetch = fetcher();
       return doFetch(auth.rootUrl + '/' + providerRoute + '/reset', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       });
@@ -8961,6 +8974,7 @@ function userPassProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email: email, password: password }));
       fetchArgs.cors = true;
 
+      var doFetch = fetcher();
       return doFetch(auth.rootUrl + '/' + providerRoute + '/register', fetchArgs).then(common.checkStatus).then(function (response) {
         return response.json();
       });
@@ -8992,6 +9006,7 @@ function apiKeyProvider(auth) {
       var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ key: key, options: { device: device } }));
       fetchArgs.cors = true;
 
+      var doFetch = fetcher();
       return doFetch(urlWithLinkParam(auth.rootUrl + '/' + loginRoute, link), auth.fetchArgsWithLink(fetchArgs, link)).then(common.checkStatus).then(function (response) {
         return response.json();
       }).then(function (json) {
@@ -9060,6 +9075,7 @@ function googleProvider(auth) {
 
         var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ authCode: authCode, options: { device: device } }));
 
+        var doFetch = fetcher();
         return doFetch(urlWithLinkParam(auth.rootUrl + '/' + loginRoute, link), auth.fetchArgsWithLink(fetchArgs, link)).then(common.checkStatus).then(function (response) {
           return response.json();
         }).then(function (json) {
@@ -9103,6 +9119,7 @@ function facebookProvider(auth) {
 
         var fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ accessToken: accessToken, options: { device: device } }));
 
+        var doFetch = fetcher();
         return doFetch(urlWithLinkParam(auth.rootUrl + '/' + loginRoute, link), auth.fetchArgsWithLink(fetchArgs, link)).then(common.checkStatus).then(function (response) {
           return response.json();
         }).then(function (json) {
@@ -9151,6 +9168,7 @@ function mongodbCloudProvider(auth) {
       fetchArgs.cors = true; // TODO: shouldn't this use the passed in `cors` value?
       fetchArgs.credentials = 'include';
 
+      var doFetch = fetcher();
       var url = urlWithLinkParam(auth.rootUrl + '/' + loginRoute, link);
       if (options.cookie) {
         return doFetch(url + '?cookie=true', fetchArgs).then(common.checkStatus);

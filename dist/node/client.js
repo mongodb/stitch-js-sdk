@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.StitchClient = exports.StitchClientFactory = exports.doFetch = undefined;
+exports.StitchClient = exports.StitchClientFactory = exports.fetcher = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, fetch */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
@@ -51,7 +51,9 @@ var API_TYPE_PRIVATE = 'private';
 var API_TYPE_CLIENT = 'client';
 var API_TYPE_APP = 'app';
 
-var doFetch = exports.doFetch = typeof fetch === 'undefined' ? require('node-fetch') : fetch;
+var fetcher = exports.fetcher = function fetcher() {
+  return typeof fetch === 'undefined' ? require('node-fetch') : fetch;
+};
 
 /**
  * StitchClientFactory is a singleton factory class which can be used to
@@ -535,6 +537,7 @@ var StitchClient = exports.StitchClient = function () {
     value: function _fetch(url, fetchArgs, resource, method, options) {
       var _this4 = this;
 
+      var doFetch = fetcher();
       return doFetch(url, fetchArgs).then(function (response) {
         // Okay: passthrough
         if (response.status >= 200 && response.status < 300) {
