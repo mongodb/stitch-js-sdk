@@ -41,9 +41,17 @@ describe('User Registrations', ()=>{
   const createTestFunction = (funcSource) => ({ name: FUNC_NAME, source: funcSource });
 
   it('removePendingUserByEmail should remove existing pending user', async() => {
-    expect(await findPendingUsersByEmail(testEmail)).toHaveLength(1);
-    await th.app().userRegistrations().removePendingUserByEmail(testEmail);
-    expect(await findPendingUsersByEmail(testEmail)).toHaveLength(0);
+    await client.register(testEmail, password);
+    let pendingUsersListByEmail = await findPendingUsersByEmail(testEmail);
+    expect(pendingUsersListByEmail).toHaveLength(1);
+    await th
+      .app()
+      .userRegistrations()
+      .removePendingUserByEmail(testEmail);
+    pendingUsersListByEmail = await findPendingUsersByEmail(testEmail);
+    expect(pendingUsersListByEmail).toHaveLength(0);
+    const allPendingUsers = await getPendingUsers();
+    expect(allPendingUsers).toHaveLength(0);
     expect(await getPendingUsers()).toHaveLength(0);
   });
   it('removePendingUserByID should remove existing pending user', async() => {
@@ -225,12 +233,14 @@ describe('User Registrations', ()=>{
     await client.linkWithProvider('userpass', { username: linkEmail, password });
 
     pendingUsers = await th.app().userRegistrations().listPending({limit: '3'});
+    // one of the accounts was confirmed above, so only one registration is left pending
     expect(pendingUsers).toHaveLength(1);
 
     await th.app().userRegistrations().confirmByEmail(testEmail);
     await client.login(testEmail, password);
     expect(client.auth.loggedInProviderType).toEqual(PROVIDER_TYPE_USERPASS);
 
+    // all pending accounts are confirmed, so pending list is now empty
     pendingUsers = await th.app().userRegistrations().listPending({limit: '3'});
     expect(pendingUsers).toHaveLength(0);
   });
