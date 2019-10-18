@@ -166,7 +166,7 @@ describe('Services', ()=>{
   it('updating rule should work', async()=> {
     let newSvc = await services.create({ name: 'testsvc', type: 'aws-ses', config: testConfig });
     let newRule = await services.service(newSvc._id).rules().create(testRule);
-    let updatedRule = Object.assign({}, testRule, {_id: newRule._id}, {when: {'%%true':true}});
+    let updatedRule = Object.assign({}, testRule, {_id: newRule._id}, {when: {'%%true': true}});
     await services.service(newSvc._id).rules().rule(newRule._id).update(updatedRule);
     let fetchedRule = await services.service(newSvc._id).rules().rule(newRule._id).get();
     expect(fetchedRule).toEqual(Object.assign({}, newRule, updatedRule));
