@@ -18,13 +18,6 @@ describe('Deploy', () => {
 
   afterEach(async() => th.cleanup());
 
-  describe('when requesting the deploy history', () => {
-    it('returns a list containing the initial deploy', async() => {
-      const deployHistory = await appDeploy.deployments().list();
-      expect(deployHistory[0].status).toEqual('successful');
-    });
-  });
-
   describe('when requesting the deploy config', () => {
     it('returns the current config', async() => {
       const deployConfig = await appDeploy.config();
