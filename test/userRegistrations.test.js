@@ -1,6 +1,6 @@
 import StitchMongoFixture from './fixtures/stitch_mongo_fixture';
 import { PROVIDER_TYPE_USERPASS } from '../src/auth/providers';
-import { buildClientTestHarness, extractTestFixtureDataPoints } from './testutil';
+import { buildClientTestHarness, extractTestFixtureDataPoints, randomString } from './testutil';
 
 
 describe('User Registrations', ()=>{
@@ -11,8 +11,8 @@ describe('User Registrations', ()=>{
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
 
-  const linkEmail = 'link_user@10gen.com';
-  const testEmail = 'test_user@10gen.com';
+  let linkEmail;
+  let testEmail;
   const password = '123456';
 
   const FunctionStatusSuccess = 'success';
@@ -26,7 +26,8 @@ describe('User Registrations', ()=>{
     await th.configureAnon();
     client = th.stitchClient;
     await client.logout();
-
+    linkEmail = 'link_user_' + randomString(10) + '@10gen.com';
+    testEmail = 'test_user_' + randomString(10) + '@10gen.com';
     await client.register(testEmail, password);
   });
 
@@ -41,7 +42,6 @@ describe('User Registrations', ()=>{
   const createTestFunction = (funcSource) => ({ name: FUNC_NAME, source: funcSource });
 
   it('removePendingUserByEmail should remove existing pending user', async() => {
-    await client.register(testEmail, password);
     let pendingUsersListByEmail = await findPendingUsersByEmail(testEmail);
     expect(pendingUsersListByEmail).toHaveLength(1);
     await th
