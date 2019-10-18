@@ -28,6 +28,7 @@
     "form-data": "^2.3.2",
     "jwt-decode": "^2.2.0",
     "mongodb-extjson": "^3.0.0",
+    "node-fetch": "^2.6.0",
     "query-string": "^4.3.4"
   },
   "devDependencies": {
