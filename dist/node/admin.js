@@ -519,6 +519,17 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
               };
             },
 
+            customUserData: function customUserData() {
+              return {
+                get: function get() {
+                  return api._get(appUrl + '/custom_user_data');
+                },
+                update: function update(data) {
+                  return api._patch(appUrl + '/custom_user_data', { body: JSON.stringify(data) });
+                }
+              };
+            },
+
             debug: function debug() {
               return {
                 executeFunction: function executeFunction(userId) {

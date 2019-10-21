@@ -301,6 +301,11 @@ export class StitchAdminClient extends StitchClient {
             removePendingUserByID: (id) => api._delete(`${appUrl}/user_registrations/by_id/${id}`)
           }),
 
+          customUserData: () => ({
+            get: () => api._get(`${appUrl}/custom_user_data`),
+            update: (data) => api._patch(`${appUrl}/custom_user_data`, { body: JSON.stringify(data) })
+          }),
+
           debug: () => ({
             executeFunction: (userId, name = '', ...args) => {
               return api._post(
