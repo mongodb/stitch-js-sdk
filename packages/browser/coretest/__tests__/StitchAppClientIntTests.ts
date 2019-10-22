@@ -519,4 +519,34 @@ describe("StitchAppClient", () => {
 
     expect(client.auth.listUsers().length).toBe(2);
   });
+
+  it("should call reset password function", async () => {
+    const { app: appResponse, appResource: app } = await harness.createApp();
+    
+    const stitchFunction = await app.functions.create(new StitchFunction(
+      "testResetPasswordFunction",
+      false,
+      `exports = function({email, password}, arg1, arg2) {
+        if (arg1 == 0 && arg2 == 1) {
+          return { "status": "success" };
+        } else {
+          return { "status": "fail" };
+        }
+      }`,
+      undefined,
+    ));
+
+    await harness.addProvider(
+      app,
+      new UserpassProvider(new UserpassProviderConfig(
+        "http://emailConfirmUrl.com",
+        "http://resetPasswordUrl.com",
+        "email subject",
+        "password subject",
+        true,
+        stitchFunction.id,
+        stitchFunction.name
+      ))
+    );
+  });
 });

@@ -49,7 +49,13 @@ class UserpassProviderConfig {
     
     @jsonProperty("confirmEmailSubject") public confirmEmailSubject: string,
     
-    @jsonProperty("resetPasswordSubject") public resetPasswordSubject: string
+    @jsonProperty("resetPasswordSubject") public resetPasswordSubject: string,
+
+    @jsonProperty("runResetFunction") public runResetFunction = false,
+
+    @jsonProperty("resetFunctionId") public resetFunctionId = "",
+
+    @jsonProperty("resetFunctionName") public resetFunctionName = ""
   ) {}
 }
 

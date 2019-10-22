@@ -56,4 +56,15 @@ export default class UserPasswordAuthProviderClientImpl
   public sendResetPasswordEmail(email: string): Promise<void> {
     return super.sendResetPasswordEmailInternal(email);
   }
+
+  /**
+    * Call a reset password function configured to the provider.
+    * @param email the email of the user
+    * @param password the new password to set
+    * @param args arguments to be provided to the reset function
+    * @return A {@link Task} that completes when the reqest request completes/fails.
+    */
+   public callResetPasswordFunction(email: string, password: string, args: any[]): Promise<void> {
+     return super.callResetPasswordFunctionInternal(email, password, args);
+   }
 }
