@@ -117,7 +117,7 @@ export default class CoreUserPasswordAuthProviderClient extends CoreAuthProvider
       [ActionFields.ARGS]: args
     });
     return this.requestClient.doRequest(reqBuilder.build()).then(() => {});
-}
+  }
 
   private getRegisterWithEmailRoute(): string {
     return this.getExtensionRoute("register");

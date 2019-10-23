@@ -548,5 +548,25 @@ describe("StitchAppClient", () => {
         stitchFunction.name
       ))
     );
+
+    const client = harness.getAppClient(appResponse);
+    const userPassClient = client.auth.getProviderClient(UserPasswordAuthProviderClient.factory)
+
+    const email = "user@10gen.com";
+    const password1 = "password1";
+    const password2 = "password2";
+    await userPassClient.registerWithEmail(email, password1);
+
+    const conf = await app.userRegistrations.sendConfirmation(email);
+    await userPassClient.confirmUser(conf.token, conf.tokenId);
+
+    await client.auth.loginWithCredential(
+        new UserPasswordCredential(email, password1));
+
+    await client.auth.getProviderClient(UserPasswordAuthProviderClient.factory)
+        .callResetPasswordFunction(email, password2, [0, 1]);
+
+    await client.auth.logout();
+    await client.auth.loginWithCredential(new UserPasswordCredential(email, password2));
   });
 });
