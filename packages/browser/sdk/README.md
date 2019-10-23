@@ -37,7 +37,7 @@ See [Customized Dependencies (Advanced)](#customized-dependencies) below for cus
 You can also include the SDK directly in your HTML code using script tags. For core SDK functionality and the remote MongoDB service, use the following:
 
 ```html
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.5.0/stitch.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.6.0/stitch.js"></script>
 ```
 
 See [Customized Dependencies (Advanced)](#customized-dependencies) below for customizing dependencies.
@@ -227,7 +227,7 @@ And here is an example of importing BSON to generate an `ObjectId` using an HTML
      <title>MongoDB Stitch BSON Sample</title>
    </head>
    <body>
-     <script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.5.0/stitch.js"></script>
+     <script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.6.0/stitch.js"></script>
      <script> 
       function generateObjectId() {
         const newObjectId = new stitch.BSON.ObjectId()
@@ -259,11 +259,11 @@ npm install mongodb-stitch-browser-services-twilio
 For customized dependencies with HTML script tags use the following:
 
 ```html
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.5.0/stitch-core.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.5.0/stitch-services-aws.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.5.0/stitch-services-http.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.5.0/stitch-services-mongodb-remote.js"></script>
-<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.5.0/stitch-services-twilio.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.6.0/stitch-core.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.6.0/stitch-services-aws.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.6.0/stitch-services-http.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.6.0/stitch-services-mongodb-remote.js"></script>
+<script src="https://s3.amazonaws.com/stitch-sdks/js/bundles/4.6.0/stitch-services-twilio.js"></script>
 ```
 
 #### Getting a StitchAppClient without Stitch.getDefaultAppClient (Advanced)
