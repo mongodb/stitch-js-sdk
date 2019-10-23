@@ -519,4 +519,54 @@ describe("StitchAppClient", () => {
 
     expect(client.auth.listUsers().length).toBe(2);
   });
+
+  it("should call reset password function", async () => {
+    const { app: appResponse, appResource: app } = await harness.createApp();
+    
+    const stitchFunction = await app.functions.create(new StitchFunction(
+      "testResetPasswordFunction",
+      false,
+      `exports = function({email, password}, arg1, arg2) {
+        if (arg1 == 0 && arg2 == 1) {
+          return { "status": "success" };
+        } else {
+          return { "status": "fail" };
+        }
+      }`,
+      undefined,
+    ));
+
+    await harness.addProvider(
+      app,
+      new UserpassProvider(new UserpassProviderConfig(
+        "http://emailConfirmUrl.com",
+        "http://resetPasswordUrl.com",
+        "email subject",
+        "password subject",
+        true,
+        stitchFunction.id,
+        stitchFunction.name
+      ))
+    );
+
+    const client = harness.getAppClient(appResponse);
+    const userPassClient = client.auth.getProviderClient(UserPasswordAuthProviderClient.factory)
+
+    const email = "user@10gen.com";
+    const password1 = "password1";
+    const password2 = "password2";
+    await userPassClient.registerWithEmail(email, password1);
+
+    const conf = await app.userRegistrations.sendConfirmation(email);
+    await userPassClient.confirmUser(conf.token, conf.tokenId);
+
+    await client.auth.loginWithCredential(
+        new UserPasswordCredential(email, password1));
+
+    await client.auth.getProviderClient(UserPasswordAuthProviderClient.factory)
+        .callResetPasswordFunction(email, password2, [0, 1]);
+
+    await client.auth.logout();
+    await client.auth.loginWithCredential(new UserPasswordCredential(email, password2));
+  });
 });
