@@ -13,6 +13,8 @@ This project follows [Semantic Versioning 2.0](https://semver.org/). In general,
 git push upstream && git push upstream --tags
 npm publish
 
+npm deprecate mongodb-stitch "The browser SDK has moved to mongodb-stitch-browser-sdk, and the Node.js SDK has moved to mongodb-stitch-server-sdk"
+
 # send an email detailing the changes to the https://groups.google.com/d/forum/mongodb-stitch-announce mailing list
 ```
 
