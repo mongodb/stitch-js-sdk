@@ -14,6 +14,8 @@ export const PROVIDER_TYPE_GOOGLE = 'google';
 export const PROVIDER_TYPE_FACEBOOK = 'facebook';
 export const PROVIDER_TYPE_MONGODB_CLOUD = 'mongodbCloud';
 
+export const fetcher = () => (typeof fetch === 'undefined' ? require('node-fetch') : fetch);
+
 function urlWithLinkParam(url, link) {
   if (link) {
     return url + '?link=true';
@@ -41,10 +43,13 @@ function anonProvider(auth) {
       const fetchArgs = common.makeFetchArgs('GET');
       fetchArgs.cors = true;
 
-      return fetch(
+      const doFetch = fetcher();
+
+      return doFetch(
         urlWithLinkParam(`${auth.rootUrl}/providers/anon-user/login?device=${uriEncodeObject(device)}`, link),
         auth.fetchArgsWithLink(fetchArgs, link)
-      ).then(common.checkStatus)
+      )
+        .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_ANON));
     }
@@ -52,9 +57,9 @@ function anonProvider(auth) {
 }
 
 /**
-  * @private
-  * @namespace
-  */
+ * @private
+ * @namespace
+ */
 function customProvider(auth) {
   const providerRoute = 'providers/custom-token';
   const loginRoute = `${providerRoute}/login`;
@@ -72,13 +77,11 @@ function customProvider(auth) {
       const deviceId = auth.getDeviceId();
       const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
-      const fetchArgs = common.makeFetchArgs(
-        'POST',
-        JSON.stringify({ token, options: { device } })
-      );
+      const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ token, options: { device } }));
       fetchArgs.cors = true;
 
-      return fetch(urlWithLinkParam(`${auth.rootUrl}/${loginRoute}`, link), auth.fetchArgsWithLink(fetchArgs, link))
+      const doFetch = fetcher();
+      return doFetch(urlWithLinkParam(`${auth.rootUrl}/${loginRoute}`, link), auth.fetchArgsWithLink(fetchArgs, link))
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_CUSTOM));
@@ -114,13 +117,11 @@ function userPassProvider(auth) {
       const deviceId = auth.getDeviceId();
       const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
-      const fetchArgs = common.makeFetchArgs(
-        'POST',
-        JSON.stringify({ username, password, options: { device } })
-      );
+      const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username, password, options: { device } }));
       fetchArgs.cors = true;
 
-      return fetch(urlWithLinkParam(`${auth.rootUrl}/${loginRoute}`, link), auth.fetchArgsWithLink(fetchArgs, link))
+      const doFetch = fetcher();
+      return doFetch(urlWithLinkParam(`${auth.rootUrl}/${loginRoute}`, link), auth.fetchArgsWithLink(fetchArgs, link))
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_USERPASS));
@@ -139,7 +140,8 @@ function userPassProvider(auth) {
       const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId, token }));
       fetchArgs.cors = true;
 
-      return fetch(`${auth.rootUrl}/${providerRoute}/confirm`, fetchArgs)
+      const doFetch = fetcher();
+      return doFetch(`${auth.rootUrl}/${providerRoute}/confirm`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json());
     },
@@ -153,11 +155,12 @@ function userPassProvider(auth) {
      * @param {String} email the email address to send a confirmation email for
      * @returns {Promise}
      */
-    sendEmailConfirm: (email) => {
+    sendEmailConfirm: email => {
       const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email }));
       fetchArgs.cors = true;
 
-      return fetch(`${auth.rootUrl}/${providerRoute}/confirm/send`, fetchArgs)
+      const doFetch = fetcher();
+      return doFetch(`${auth.rootUrl}/${providerRoute}/confirm/send`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json());
     },
@@ -170,11 +173,12 @@ function userPassProvider(auth) {
      * @param {String} email the email address of the account to reset the password for
      * @returns {Promise}
      */
-    sendPasswordReset: (email) => {
+    sendPasswordReset: email => {
       const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email }));
       fetchArgs.cors = true;
 
-      return fetch(`${auth.rootUrl}/${providerRoute}/reset/send`, fetchArgs)
+      const doFetch = fetcher();
+      return doFetch(`${auth.rootUrl}/${providerRoute}/reset/send`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json());
     },
@@ -191,15 +195,14 @@ function userPassProvider(auth) {
      * @returns {Promise}
      */
     passwordReset: (tokenId, token, password) => {
-      const fetchArgs =
-        common.makeFetchArgs('POST', JSON.stringify({ tokenId, token, password }));
+      const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ tokenId, token, password }));
       fetchArgs.cors = true;
 
-      return fetch(`${auth.rootUrl}/${providerRoute}/reset`, fetchArgs)
+      const doFetch = fetcher();
+      return doFetch(`${auth.rootUrl}/${providerRoute}/reset`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json());
     },
-
 
     /**
      * Will trigger an email to the requested account containing a link with the
@@ -216,7 +219,8 @@ function userPassProvider(auth) {
       const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ email, password }));
       fetchArgs.cors = true;
 
-      return fetch(`${auth.rootUrl}/${providerRoute}/register`, fetchArgs)
+      const doFetch = fetcher();
+      return doFetch(`${auth.rootUrl}/${providerRoute}/register`, fetchArgs)
         .then(common.checkStatus)
         .then(response => response.json());
     }
@@ -244,13 +248,11 @@ function apiKeyProvider(auth) {
     authenticate: (key, link) => {
       const deviceId = auth.getDeviceId();
       const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
-      const fetchArgs = common.makeFetchArgs(
-        'POST',
-        JSON.stringify({ 'key': key, 'options': { device } })
-      );
+      const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ key: key, options: { device } }));
       fetchArgs.cors = true;
 
-      return fetch(urlWithLinkParam(`${auth.rootUrl}/${loginRoute}`, link), auth.fetchArgsWithLink(fetchArgs, link))
+      const doFetch = fetcher();
+      return doFetch(urlWithLinkParam(`${auth.rootUrl}/${loginRoute}`, link), auth.fetchArgsWithLink(fetchArgs, link))
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_APIKEY));
@@ -282,12 +284,15 @@ function getOAuthLoginURL(auth, providerName, redirectUrl) {
   }
 
   const state = generateState();
-  return auth.storage.set(authCommon.STATE_KEY, state)
+  return auth.storage
+    .set(authCommon.STATE_KEY, state)
     .then(() => auth.getDeviceId())
     .then(deviceId => {
       const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
-      const result = `${auth.rootUrl}/providers/oauth2-${providerName}/login?redirect=${encodeURI(redirectUrl)}&state=${state}&device=${uriEncodeObject(device)}`;
+      const result = `${auth.rootUrl}/providers/oauth2-${providerName}/login?redirect=${encodeURI(
+        redirectUrl
+      )}&state=${state}&device=${uriEncodeObject(device)}`;
       return result;
     });
 }
@@ -314,21 +319,20 @@ function googleProvider(auth) {
         const deviceId = auth.getDeviceId();
         const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
-        const fetchArgs = common.makeFetchArgs(
-          'POST',
-          JSON.stringify({ authCode, options: { device } })
-        );
+        const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ authCode, options: { device } }));
 
-        return fetch(urlWithLinkParam(`${auth.rootUrl}/${loginRoute}`, link), auth.fetchArgsWithLink(fetchArgs, link))
+        const doFetch = fetcher();
+        return doFetch(urlWithLinkParam(`${auth.rootUrl}/${loginRoute}`, link), auth.fetchArgsWithLink(fetchArgs, link))
           .then(common.checkStatus)
           .then(response => response.json())
           .then(json => auth.set(json, PROVIDER_TYPE_GOOGLE));
       }
 
-      const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
-      return auth.storage.set(authCommon.STITCH_REDIRECT_PROVIDER, PROVIDER_TYPE_GOOGLE)
+      const redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
+      return auth.storage
+        .set(authCommon.STITCH_REDIRECT_PROVIDER, PROVIDER_TYPE_GOOGLE)
         .then(() => getOAuthLoginURL(auth, PROVIDER_TYPE_GOOGLE, redirectUrl))
-        .then((res) => window.location.replace(res));
+        .then(res => window.location.replace(res));
     }
   };
 }
@@ -356,21 +360,20 @@ function facebookProvider(auth) {
         const deviceId = auth.getDeviceId();
         const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
 
-        const fetchArgs = common.makeFetchArgs(
-          'POST',
-          JSON.stringify({ accessToken, options: { device } })
-        );
+        const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ accessToken, options: { device } }));
 
-        return fetch(urlWithLinkParam(`${auth.rootUrl}/${loginRoute}`, link), auth.fetchArgsWithLink(fetchArgs, link))
+        const doFetch = fetcher();
+        return doFetch(urlWithLinkParam(`${auth.rootUrl}/${loginRoute}`, link), auth.fetchArgsWithLink(fetchArgs, link))
           .then(common.checkStatus)
           .then(response => response.json())
           .then(json => auth.set(json, PROVIDER_TYPE_FACEBOOK));
       }
 
-      const redirectUrl = (data && data.redirectUrl) ? data.redirectUrl : undefined;
-      return auth.storage.set(authCommon.STITCH_REDIRECT_PROVIDER, PROVIDER_TYPE_FACEBOOK)
+      const redirectUrl = data && data.redirectUrl ? data.redirectUrl : undefined;
+      return auth.storage
+        .set(authCommon.STITCH_REDIRECT_PROVIDER, PROVIDER_TYPE_FACEBOOK)
         .then(() => getOAuthLoginURL(auth, PROVIDER_TYPE_FACEBOOK, redirectUrl))
-        .then((res) => window.location.replace(res));
+        .then(res => window.location.replace(res));
     }
   };
 }
@@ -398,20 +401,17 @@ function mongodbCloudProvider(auth) {
       const options = Object.assign({}, { cors: true, cookie: false }, { cors: cors, cookie: cookie });
       const deviceId = auth.getDeviceId();
       const device = auth.getDeviceInfo(deviceId, !!auth.client && auth.client.clientAppID);
-      const fetchArgs = common.makeFetchArgs(
-        'POST',
-        JSON.stringify({ username, apiKey, options: { device } })
-      );
-      fetchArgs.cors = true;  // TODO: shouldn't this use the passed in `cors` value?
+      const fetchArgs = common.makeFetchArgs('POST', JSON.stringify({ username, apiKey, options: { device } }));
+      fetchArgs.cors = true; // TODO: shouldn't this use the passed in `cors` value?
       fetchArgs.credentials = 'include';
 
+      const doFetch = fetcher();
       let url = urlWithLinkParam(`${auth.rootUrl}/${loginRoute}`, link);
       if (options.cookie) {
-        return fetch(url + '?cookie=true', fetchArgs)
-          .then(common.checkStatus);
+        return doFetch(url + '?cookie=true', fetchArgs).then(common.checkStatus);
       }
 
-      return fetch(url, auth.fetchArgsWithLink(fetchArgs, link))
+      return doFetch(url, auth.fetchArgsWithLink(fetchArgs, link))
         .then(common.checkStatus)
         .then(response => response.json())
         .then(json => auth.set(json, PROVIDER_TYPE_MONGODB_CLOUD));

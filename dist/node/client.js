@@ -3,15 +3,13 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.StitchClient = exports.StitchClientFactory = undefined;
+exports.StitchClient = exports.StitchClientFactory = exports.fetcher = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /* global window, fetch */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 
 
 exports.newStitchClient = newStitchClient;
-
-require('fetch-everywhere');
 
 var _auth = require('./auth');
 
@@ -53,12 +51,16 @@ var API_TYPE_PRIVATE = 'private';
 var API_TYPE_CLIENT = 'client';
 var API_TYPE_APP = 'app';
 
+var fetcher = exports.fetcher = function fetcher() {
+  return typeof fetch === 'undefined' ? require('node-fetch') : fetch;
+};
+
 /**
-  * StitchClientFactory is a singleton factory class which can be used to
-  * asynchronously create instances of {@link StitchClient}. StitchClientFactory
-  * is not meant to be instantiated. Use the static `create()` method to build
-  * a new StitchClient.
-  */
+ * StitchClientFactory is a singleton factory class which can be used to
+ * asynchronously create instances of {@link StitchClient}. StitchClientFactory
+ * is not meant to be instantiated. Use the static `create()` method to build
+ * a new StitchClient.
+ */
 
 var StitchClientFactory = exports.StitchClientFactory = function () {
   /**
@@ -301,14 +303,16 @@ var StitchClient = exports.StitchClient = function () {
   }, {
     key: 'userProfile',
     value: function userProfile() {
-      return this._do('/auth/profile', 'GET', { rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT] }).then(function (response) {
+      return this._do('/auth/profile', 'GET', {
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
+      }).then(function (response) {
         return response.json();
       });
     }
 
     /**
-    * @returns {Boolean} whether or not the current client is authenticated.
-    */
+     * @returns {Boolean} whether or not the current client is authenticated.
+     */
 
   }, {
     key: 'isAuthenticated',
@@ -454,9 +458,10 @@ var StitchClient = exports.StitchClient = function () {
   }, {
     key: 'createApiKey',
     value: function createApiKey(userApiKeyName) {
-      return this._do('/auth/api_keys', 'POST', { rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+      return this._do('/auth/api_keys', 'POST', {
+        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
         useRefreshToken: true,
-        body: JSON.stringify({ 'name': userApiKeyName })
+        body: JSON.stringify({ name: userApiKeyName })
       }).then(function (response) {
         return response.json();
       });
@@ -532,7 +537,8 @@ var StitchClient = exports.StitchClient = function () {
     value: function _fetch(url, fetchArgs, resource, method, options) {
       var _this4 = this;
 
-      return fetch(url, fetchArgs).then(function (response) {
+      var doFetch = fetcher();
+      return doFetch(url, fetchArgs).then(function (response) {
         // Okay: passthrough
         if (response.status >= 200 && response.status < 300) {
           return Promise.resolve(response);

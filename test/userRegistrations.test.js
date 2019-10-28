@@ -1,6 +1,6 @@
 import StitchMongoFixture from './fixtures/stitch_mongo_fixture';
 import { PROVIDER_TYPE_USERPASS } from '../src/auth/providers';
-import { buildClientTestHarness, extractTestFixtureDataPoints } from './testutil';
+import { buildClientTestHarness, extractTestFixtureDataPoints, randomString } from './testutil';
 
 
 describe('User Registrations', ()=>{
@@ -11,8 +11,8 @@ describe('User Registrations', ()=>{
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
 
-  const linkEmail = 'link_user@10gen.com';
-  const testEmail = 'test_user@10gen.com';
+  let linkEmail;
+  let testEmail;
   const password = '123456';
 
   const FunctionStatusSuccess = 'success';
@@ -26,7 +26,8 @@ describe('User Registrations', ()=>{
     await th.configureAnon();
     client = th.stitchClient;
     await client.logout();
-
+    linkEmail = 'link_user_' + randomString(10) + '@10gen.com';
+    testEmail = 'test_user_' + randomString(10) + '@10gen.com';
     await client.register(testEmail, password);
   });
 
@@ -41,9 +42,16 @@ describe('User Registrations', ()=>{
   const createTestFunction = (funcSource) => ({ name: FUNC_NAME, source: funcSource });
 
   it('removePendingUserByEmail should remove existing pending user', async() => {
-    expect(await findPendingUsersByEmail(testEmail)).toHaveLength(1);
-    await th.app().userRegistrations().removePendingUserByEmail(testEmail);
-    expect(await findPendingUsersByEmail(testEmail)).toHaveLength(0);
+    let pendingUsersListByEmail = await findPendingUsersByEmail(testEmail);
+    expect(pendingUsersListByEmail).toHaveLength(1);
+    await th
+      .app()
+      .userRegistrations()
+      .removePendingUserByEmail(testEmail);
+    pendingUsersListByEmail = await findPendingUsersByEmail(testEmail);
+    expect(pendingUsersListByEmail).toHaveLength(0);
+    const allPendingUsers = await getPendingUsers();
+    expect(allPendingUsers).toHaveLength(0);
     expect(await getPendingUsers()).toHaveLength(0);
   });
   it('removePendingUserByID should remove existing pending user', async() => {
@@ -225,12 +233,14 @@ describe('User Registrations', ()=>{
     await client.linkWithProvider('userpass', { username: linkEmail, password });
 
     pendingUsers = await th.app().userRegistrations().listPending({limit: '3'});
+    // one of the accounts was confirmed above, so only one registration is left pending
     expect(pendingUsers).toHaveLength(1);
 
     await th.app().userRegistrations().confirmByEmail(testEmail);
     await client.login(testEmail, password);
     expect(client.auth.loggedInProviderType).toEqual(PROVIDER_TYPE_USERPASS);
 
+    // all pending accounts are confirmed, so pending list is now empty
     pendingUsers = await th.app().userRegistrations().listPending({limit: '3'});
     expect(pendingUsers).toHaveLength(0);
   });

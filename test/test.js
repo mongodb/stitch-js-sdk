@@ -42,12 +42,13 @@ const sampleProfile = {
 const mockBrowserHarness = {
   setup() {
     const mb = new mocks.MockBrowser();
-    global.window = mb.getWindow();
+    global['window'] = mb.getWindow();
+    global['window']['localStorage'] = mb.getLocalStorage();
   },
 
   teardown() {
-    global.window.localStorage.clear();
-    global.window = undefined;
+    global['window'].localStorage.clear();
+    delete global['window'];
   }
 };
 
@@ -157,6 +158,7 @@ describe('Auth', () => {
 
     describe(envConfig.name, () => { // eslint-disable-line
       beforeEach(() => {
+        global['fetch'] = fetchMock;
         envConfig.setup();
         fetchMock.post('/auth/providers/local-userpass/login', checkLogin);
         fetchMock.post(DEFAULT_STITCH_SERVER_URL + '/api/client/v2.0/app/testapp/auth/providers/local-userpass/login', checkLogin);
@@ -168,6 +170,7 @@ describe('Auth', () => {
         envConfig.teardown();
         fetchMock.restore();
         capturedDevice = undefined;
+        delete(global['fetch']);
       });
 
       it('should not allow instantiation of Auth', async() => {
@@ -326,6 +329,7 @@ describe('http error responses', () => {
   describe('JSON error responses are handled correctly', () => {
     beforeEach(() => {
       fetchMock.restore();
+      global['fetch'] = fetchMock;
       fetchMock.delete(SESSION_URL, 204);
       fetchMock.post(FUNCTION_CALL_URL, () =>
         ({
@@ -335,6 +339,9 @@ describe('http error responses', () => {
         })
       );
       fetchMock.post(LOCALAUTH_URL, {user_id: hexStr});
+    });
+    afterEach(() => {
+      delete global['fetch'];
     });
 
     it('should return a StitchError instance with the error and error_code extracted', async(done) => {
