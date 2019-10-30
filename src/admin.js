@@ -147,8 +147,7 @@ export class StitchAdminClient extends StitchClient {
           }),
 
           dependencies: () => ({
-            list: () => api._get(`${appUrl}/dependencies`),
-            create: data => api._post(`${appUrl}/dependencies`, data)
+            list: () => api._get(`${appUrl}/dependencies`)
           }),
 
           values: () => ({
