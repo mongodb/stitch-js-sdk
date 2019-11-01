@@ -28,9 +28,9 @@ describe('Dependencies', () => {
 
   afterEach(async() => th.cleanup());
 
-  it('listing dependencies should return an error when there are no dependencies', async() => {
-    let deps = dependencies.list();
-    await expect(deps).rejects.toBeDefined();
+  it('listing dependencies should return an empty array when there are no dependencies', async() => {
+    let deps = await dependencies.list();
+    expect(deps.dependencies_list).toHaveLength(0);
   });
 
   describe('creating dependencies should work', () => {
