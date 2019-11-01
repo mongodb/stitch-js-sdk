@@ -1,18 +1,16 @@
 import StitchMongoFixture from "../fixtures/stitch_mongo_fixture";
-// import FormData from "form-data";
-import md5 from 'md5';
 import {
   buildAdminTestHarness,
   extractTestFixtureDataPoints,
   randomString
 } from "../testutil";
+import fs from "fs";
 
-const FILE_PATH = "/foo";
-const FILE_BODY = "testString";
-const FILE_HASH = md5(FILE_BODY);
-const FILE_ATTRS = [
-  { name: "Content-Type", value: "application/txt" },
-  { name: "Content-Disposition", value: "inline" }
+const UPLOADED_DEPS = [
+  { name: "debug", version: "3.1.0" },
+  { name: "axios", version: "0.19.0" },
+  { name: "is-buffer", version: "2.0.4" },
+  { name: "follow-redirects", version: "1.5.10" }
 ];
 
 describe("Dependencies", () => {
@@ -36,19 +34,19 @@ describe("Dependencies", () => {
     await expect(deps).rejects.toBeDefined();
   });
 
-  it("creating dependencies should work", async () => {
-    const filePath = './package.json';
-    const createTestFile = (filePath = FILE_PATH) => ({
-      metadata: {
-        appId: th.testApp._id,
-        path: filePath,
-        hash: FILE_HASH,
-        size: FILE_BODY.length,
-        attrs: FILE_ATTRS
-      },
-      body: FILE_BODY
+  describe("creating dependencies should work", () => {
+    beforeEach(async () => {
+      const filePath = `axios-0.19.0-node_modules.tar`;
+      const fileBody = fs.readFileSync(
+        "./test/admin/testdata/axios-0.19.0-node_modules.tar"
+      );
+      await dependencies.upload(filePath, fileBody);
     });
-    let { metadata, body } = createTestFile(filePath);
-    await dependencies.upload(JSON.stringify(metadata), body);
+
+    it("and upload the correct packages", async () => {
+      let deps = await dependencies.list();
+      expect(deps.dependencies_list).toHaveLength(4);
+      expect(deps.dependencies_list).toMatchObject(UPLOADED_DEPS);
+    });
   });
 });
