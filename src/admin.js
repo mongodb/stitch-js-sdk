@@ -53,7 +53,7 @@ export class StitchAdminClient extends StitchClient {
         queryParams
           ? v3do(url, 'POST', { body: JSON.stringify(body), queryParams })
           : v3do(url, 'POST', { body: JSON.stringify(body) }),
-      _postWithoutStringify: (url, body) => v3do(url, 'POST', body)  
+      _postWithoutStringify: (url, body) => v3do(url, 'POST', body)
     };
   }
 
