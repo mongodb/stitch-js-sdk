@@ -6,10 +6,10 @@ import {
 import fs from 'fs';
 
 const UPLOADED_DEPS = [
-  { name: 'debug', version: '3.1.0' },
   { name: 'axios', version: '0.19.0' },
-  { name: 'is-buffer', version: '2.0.4' },
-  { name: 'follow-redirects', version: '1.5.10' }
+  { name: 'debug', version: '3.1.0' },
+  { name: 'follow-redirects', version: '1.5.10' },
+  { name: 'is-buffer', version: '2.0.4' }
 ];
 
 describe('Dependencies', () => {
@@ -44,8 +44,11 @@ describe('Dependencies', () => {
 
     it('and upload the correct packages', async() => {
       let deps = await dependencies.list();
-      expect(deps.dependencies_list).toHaveLength(4);
-      expect(deps.dependencies_list).toMatchObject(UPLOADED_DEPS);
+      const sortedDependencies = deps.dependencies_list.sort((a, b) =>
+        a.name > b.name ? 1 : -1
+      );
+      expect(sortedDependencies).toHaveLength(4);
+      expect(sortedDependencies).toEqual(UPLOADED_DEPS);
     });
   });
 });
