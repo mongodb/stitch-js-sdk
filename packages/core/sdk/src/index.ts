@@ -42,6 +42,8 @@ import CustomAuthProvider from "./auth/providers/custom/CustomAuthProvider";
 import CustomCredential from "./auth/providers/custom/CustomCredential";
 import FacebookAuthProvider from "./auth/providers/facebook/FacebookAuthProvider";
 import FacebookCredential from "./auth/providers/facebook/FacebookCredential";
+import FunctionAuthProvider from "./auth/providers/function/FunctionAuthProvider";
+import FunctionCredential from "./auth/providers/function/FunctionCredential";
 import GoogleAuthProvider from "./auth/providers/google/GoogleAuthProvider";
 import GoogleCredential from "./auth/providers/google/GoogleCredential";
 import StitchAuthResponseCredential from "./auth/providers/internal/StitchAuthResponseCredential";

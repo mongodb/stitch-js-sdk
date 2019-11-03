@@ -110,6 +110,8 @@ export {
   ServicesResource,
   CustomProviderConfig, 
   CustomProvider,
+  FunctionProvider,
+  FunctionProviderConfig,
   Rule,
   RuleResource,
   RulesResource,
