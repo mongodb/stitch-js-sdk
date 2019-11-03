@@ -110,6 +110,8 @@ export {
   CustomCredential,
   FacebookAuthProvider,
   FacebookCredential,
+  FunctionAuthProvider,
+  FunctionCredential,
   GoogleAuthProvider,
   GoogleCredential,
   ServerApiKeyAuthProvider,
