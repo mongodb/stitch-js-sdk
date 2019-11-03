@@ -536,7 +536,7 @@ describe("StitchAppClient", () => {
           }`
       ))
 
-      await harness.addProvider(app, new FunctionProvider(new FunctionProviderConfig(def.id, def.name)));
+      await harness.addProvider(app, new FunctionProvider(new FunctionProviderConfig(def.id!!, def.name)));
 
       const client = harness.getAppClient(appResponse);
 

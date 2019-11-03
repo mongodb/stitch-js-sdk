@@ -23,6 +23,8 @@ import {
   StitchFunction,
   Userpass,
   CustomProviderConfig,
+  FunctionProvider,
+  FunctionProviderConfig,
   UserpassProvider,
   UserpassProviderConfig
 } from "mongodb-stitch-core-admin-client";
@@ -31,6 +33,8 @@ import {
   AnonymousCredential,
   CustomAuthProvider,
   CustomCredential,
+  FunctionAuthProvider,
+  FunctionCredential,
   MemoryStorage,
   StitchClientError,
   StitchClientErrorCode,
@@ -516,6 +520,36 @@ describe("StitchAppClient", () => {
     expect(client.auth.isLoggedIn).toBeTruthy();
 
     expect(client.auth.listUsers().length).toBe(2);
+  });
+
+  it("should authenticate using a custom function", async () => {
+    const { app: appResponse, appResource: app } = await harness.createApp();
+
+      const def = await app.functions.create(new StitchFunction(
+          "funkyAuth",
+          false,
+          `
+          exports = function(payload) {
+              return "foo";
+          }`
+      ))
+
+      await harness.addProvider(app, new FunctionProvider(new FunctionProviderConfig(def.id!!, def.name)));
+
+      const client = harness.getAppClient(appResponse);
+
+      const user = await client.auth.loginWithCredential(new FunctionCredential({"id": "123abc"}));
+
+      expect(user).toBeDefined();
+
+      expect(user.id).toBeDefined();
+      expect(user.identities[0].id).toBeDefined();
+      expect("foo").toEqual(user.identities[0].id);
+      expect(FunctionAuthProvider.DEFAULT_NAME).toEqual(user.loggedInProviderName);
+      expect(FunctionAuthProvider.TYPE).toEqual(user.loggedInProviderType);
+      expect(UserType.Normal).toEqual(user.userType);
+      expect(FunctionAuthProvider.TYPE).toEqual(user.identities[0].providerType);
+      expect(client.auth.isLoggedIn).toBeTruthy();
   });
 
   it("should call reset password function", async () => {
