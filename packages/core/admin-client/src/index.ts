@@ -22,7 +22,9 @@ import {
   AnonProviderConfig, 
   ApiKey,
   CustomProvider, 
-  CustomProviderConfig, 
+  CustomProviderConfig,
+  FunctionProvider,
+  FunctionProviderConfig,
   Provider,
   UserpassProvider, 
   UserpassProviderConfig
