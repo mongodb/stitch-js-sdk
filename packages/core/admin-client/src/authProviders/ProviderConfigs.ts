@@ -66,6 +66,21 @@ class UserpassProvider extends Provider {
   }
 }
 
+class FunctionProviderConfig {
+  public constructor(
+    @jsonProperty("authFunctionId") readonly authFunctionId: string,
+    @jsonProperty("authFunctionName") readonly authFunctionName: string
+  ) {}
+}
+
+class FunctionProvider extends Provider {
+  public readonly type = "custom-function"
+
+  public constructor(public readonly config: FunctionProviderConfig) {
+    super();
+  }
+ }
+
 class CustomProviderConfig {
   public constructor(@jsonProperty("signingKey") readonly signingKey: string) {} 
 }
