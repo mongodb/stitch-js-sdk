@@ -100,5 +100,7 @@ export {
   UserpassProviderConfig, 
   UserpassProvider, 
   CustomProviderConfig, 
-  CustomProvider
+  CustomProvider,
+  FunctionProviderConfig,
+  FunctionProvider
 };
