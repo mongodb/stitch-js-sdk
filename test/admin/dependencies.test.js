@@ -44,13 +44,12 @@ describe('Dependencies', () => {
 
     it('and upload the correct packages', async() => {
       const response = await dependencies.upload(filePath, fileBody);
-      expect(response.ok).toBeTruthy();
+      expect(response.status).toBe(204);
 
       let deps = await dependencies.list();
       const sortedDependencies = deps.dependencies_list.sort((a, b) =>
         a.name > b.name ? 1 : -1
       );
-      expect(sortedDependencies).toHaveLength(4);
       expect(sortedDependencies).toEqual(UPLOADED_DEPS);
     });
   });
