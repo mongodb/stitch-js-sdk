@@ -197,7 +197,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "3.5.0";
+  version = "3.6.0";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -11249,6 +11249,22 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
               };
             },
 
+            dependencies: function dependencies() {
+              return {
+                list: function list() {
+                  return api._get(appUrl + '/dependencies');
+                },
+                upload: function upload(filename, body) {
+                  var form = new _formData2.default();
+                  form.append('file', body, filename);
+                  return api._postRaw(appUrl + '/dependencies', {
+                    body: form,
+                    multipart: true
+                  });
+                }
+              };
+            },
+
             values: function values() {
               return {
                 list: function list() {
@@ -11813,6 +11829,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
         },
         _post: function _post(url, body, queryParams) {
           return queryParams ? v3do(url, 'POST', { body: JSON.stringify(body), queryParams: queryParams }) : v3do(url, 'POST', { body: JSON.stringify(body) });
+        },
+        _postRaw: function _postRaw(url, options) {
+          return v3do(url, 'POST', options);
         }
       };
     }
