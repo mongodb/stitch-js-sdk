@@ -128,6 +128,14 @@ tasks:
       - command: shell.exec
         params:
           shell: "bash"
+          script: |
+            mkdir /tmp/chrome
+            cd /tmp/chrome
+            curl -OL https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+            rpm2cpio google-chrome-stable_current_x86_64.rpm | cpio -idmv
+      - command: shell.exec
+        params:
+          shell: "bash"
           script: | # NOTE: Using yarn for install instead of npm due to evergreen permission issue with chromedriver devDependency
             set -e
             echo "running client tests"
