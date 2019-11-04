@@ -33,11 +33,11 @@ describe('Logging in with OAuth2 Providers', () => {
 
     // Set up Chrome to run headlessly
     const chromeCapabilities = webdriver.Capabilities.chrome();
-    chromeCapabilities.set('chromeOptions', {
-      args: ['--headless', '--disable-gpu', '--window-size=1280,800', '--no-sandbox'],
+    chromeCapabilities.set('goog:chromeOptions', {
+      args: ['--disable-gpu', '--headless', '--start-maximized', '--window-size=1920,1080', '--no-sandbox', '--disable-dev-shm-usage'],
       binary: process.platform === 'darwin' ?
         '/Applications/Google Chrome.app/Contents/MacOS/Google\ Chrome' :
-        '/usr/bin/google-chrome-stable'
+        '/tmp/chrome/opt/google/chrome/google-chrome'
     });
 
     // Start headless chrome
@@ -81,10 +81,10 @@ describe('Logging in with OAuth2 Providers', () => {
     jest.setTimeout(30000);
 
     // Log in to Facebook
-    await driver.get('http://www.facebook.com/');
-    await driver.findElement(By.id('email')).sendKeys('yzbpjkilbl_1518469485@tfbnw.net');
-    await driver.findElement(By.id('pass')).sendKeys('hunter2');
-    await driver.findElement(By.id('loginbutton')).click();
+    await driver.get('https://www.facebook.com/');
+    await driver.findElement(By.name('email')).sendKeys('yzbpjkilbl_1518469485@tfbnw.net');
+    await driver.findElement(By.name('pass')).sendKeys('hunter2');
+    await driver.findElement(By.css('*[name="login"], #loginbutton')).click();
     await driver.sleep(3000);
 
     // Go to Stitch app
