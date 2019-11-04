@@ -1,18 +1,18 @@
-import StitchMongoFixture from '../fixtures/stitch_mongo_fixture';
+import StitchMongoFixture from "../fixtures/stitch_mongo_fixture";
 import {
   buildAdminTestHarness,
   extractTestFixtureDataPoints
-} from '../testutil';
-import fs from 'fs';
+} from "../testutil";
+import fs from "fs";
 
 const UPLOADED_DEPS = [
-  { name: 'axios', version: '0.19.0' },
-  { name: 'debug', version: '3.1.0' },
-  { name: 'follow-redirects', version: '1.5.10' },
-  { name: 'is-buffer', version: '2.0.4' }
+  { name: "axios", version: "0.19.0" },
+  { name: "debug", version: "3.1.0" },
+  { name: "follow-redirects", version: "1.5.10" },
+  { name: "is-buffer", version: "2.0.4" }
 ];
 
-describe('Dependencies', () => {
+describe("Dependencies", () => {
   let test = new StitchMongoFixture();
   let th;
   let dependencies;
@@ -20,29 +20,32 @@ describe('Dependencies', () => {
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
 
-  beforeEach(async() => {
+  beforeEach(async () => {
     const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
     th = await buildAdminTestHarness(true, apiKey, groupId, serverUrl);
     dependencies = th.app().dependencies();
   });
 
-  afterEach(async() => th.cleanup());
+  afterEach(async () => th.cleanup());
 
-  it('listing dependencies should return an empty array when there are no dependencies', async() => {
+  it("listing dependencies should return an empty array when there are no dependencies", async () => {
     let deps = await dependencies.list();
     expect(deps.dependencies_list).toHaveLength(0);
   });
 
-  describe('creating dependencies should work', () => {
-    beforeEach(async() => {
-      const filePath = 'axios-0.19.0-node_modules.tar';
-      const fileBody = fs.readFileSync(
-        './test/admin/testdata/axios-0.19.0-node_modules.tar'
-      );
-      await dependencies.upload(filePath, fileBody);
+  describe("creating dependencies should work", () => {
+    let filePath;
+    let fileBody;
+
+    beforeEach(async () => {
+      filePath = "axios-0.19.0-node_modules.tar";
+      fileBody = fs.readFileSync(`./test/admin/testdata/${filePath}`);
     });
 
-    it('and upload the correct packages', async() => {
+    it("and upload the correct packages", async () => {
+      const response = await dependencies.upload(filePath, fileBody);
+      expect(response.ok).toBeTruthy();
+
       let deps = await dependencies.list();
       const sortedDependencies = deps.dependencies_list.sort((a, b) =>
         a.name > b.name ? 1 : -1
