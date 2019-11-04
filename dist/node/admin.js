@@ -195,6 +195,22 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
               };
             },
 
+            dependencies: function dependencies() {
+              return {
+                list: function list() {
+                  return api._get(appUrl + '/dependencies');
+                },
+                upload: function upload(filename, body) {
+                  var form = new _formData2.default();
+                  form.append('file', body, filename);
+                  return api._postRaw(appUrl + '/dependencies', {
+                    body: form,
+                    multipart: true
+                  });
+                }
+              };
+            },
+
             values: function values() {
               return {
                 list: function list() {
@@ -759,6 +775,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
         },
         _post: function _post(url, body, queryParams) {
           return queryParams ? v3do(url, 'POST', { body: JSON.stringify(body), queryParams: queryParams }) : v3do(url, 'POST', { body: JSON.stringify(body) });
+        },
+        _postRaw: function _postRaw(url, options) {
+          return v3do(url, 'POST', options);
         }
       };
     }
