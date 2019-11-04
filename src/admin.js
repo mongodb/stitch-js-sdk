@@ -52,7 +52,8 @@ export class StitchAdminClient extends StitchClient {
       _post: (url, body, queryParams) =>
         queryParams
           ? v3do(url, 'POST', { body: JSON.stringify(body), queryParams })
-          : v3do(url, 'POST', { body: JSON.stringify(body) })
+          : v3do(url, 'POST', { body: JSON.stringify(body) }),
+      _postRaw: (url, options) => v3do(url, 'POST', options)
     };
   }
 
@@ -144,6 +145,18 @@ export class StitchAdminClient extends StitchClient {
 
           commands: () => ({
             run: (command, data) => api._post(`${appUrl}/commands/${command}`, data)
+          }),
+
+          dependencies: () => ({
+            list: () => api._get(`${appUrl}/dependencies`),
+            upload: (filename, body) => {
+              const form = new FormData();
+              form.append('file', body, filename);
+              return api._postRaw(`${appUrl}/dependencies`, {
+                body: form,
+                multipart: true
+              });
+            }
           }),
 
           values: () => ({
