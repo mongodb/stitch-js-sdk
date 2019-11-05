@@ -66,17 +66,17 @@ class UserpassProvider extends Provider {
   }
 }
 
-class FunctionProviderConfig {
+class CustomFunctionProviderConfig {
   public constructor(
     @jsonProperty("authFunctionId") readonly authFunctionId: string,
     @jsonProperty("authFunctionName") readonly authFunctionName: string
   ) {}
 }
 
-class FunctionProvider extends Provider {
+class CustomFunctionProvider extends Provider {
   public readonly type = "custom-function"
 
-  public constructor(public readonly config: FunctionProviderConfig) {
+  public constructor(public readonly config: CustomFunctionProviderConfig) {
     super();
   }
  }
@@ -101,6 +101,6 @@ export {
   UserpassProvider, 
   CustomProviderConfig, 
   CustomProvider,
-  FunctionProviderConfig,
-  FunctionProvider
+  CustomFunctionProviderConfig,
+  CustomFunctionProvider
 };

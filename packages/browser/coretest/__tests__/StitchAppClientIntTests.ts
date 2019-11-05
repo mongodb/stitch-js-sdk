@@ -23,8 +23,8 @@ import {
   AppResource,
   CustomProvider,
   CustomProviderConfig,
-  FunctionProvider,
-  FunctionProviderConfig,
+  CustomFunctionProvider,
+  CustomFunctionProviderConfig,
   StitchFunction,
   Userpass,
   UserpassProvider,
@@ -527,31 +527,57 @@ describe("StitchAppClient", () => {
   it("should authenticate using a custom function", async () => {
     const { app: appResponse, appResource: app } = await harness.createApp();
 
-      const def = await app.functions.create(new StitchFunction(
-          "funkyAuth",
-          false,
-          `
-          exports = function(payload) {
-              return "foo";
-          }`
-      ))
+    const def = await app.functions.create(new StitchFunction(
+        "funkyAuth",
+        false,
+        `
+        exports = function(payload) {
+            return payload.id;
+        }`
+    ));
 
-      await harness.addProvider(app, new FunctionProvider(new FunctionProviderConfig(def.id!!, def.name)));
+    await harness.addProvider(app, new CustomFunctionProvider(new CustomFunctionProviderConfig(def.id!!, def.name)));
 
-      const client = harness.getAppClient(appResponse);
+    const client = harness.getAppClient(appResponse);
 
-      const user = await client.auth.loginWithCredential(new FunctionCredential({"id": "123abc"}));
+    const id = "123abc";
+    const user = await client.auth.loginWithCredential(new FunctionCredential({id}));
 
-      expect(user).toBeDefined();
+    expect(user).toBeDefined();
 
-      expect(user.id).toBeDefined();
-      expect(user.identities[0].id).toBeDefined();
-      expect("foo").toEqual(user.identities[0].id);
-      expect(FunctionAuthProvider.DEFAULT_NAME).toEqual(user.loggedInProviderName);
-      expect(FunctionAuthProvider.TYPE).toEqual(user.loggedInProviderType);
-      expect(UserType.Normal).toEqual(user.userType);
-      expect(FunctionAuthProvider.TYPE).toEqual(user.identities[0].providerType);
-      expect(client.auth.isLoggedIn).toBeTruthy();
+    expect(user.id).toBeDefined();
+    expect(user.identities[0].id).toBeDefined();
+    expect(id).toEqual(user.identities[0].id);
+    expect(FunctionAuthProvider.DEFAULT_NAME).toEqual(user.loggedInProviderName);
+    expect(FunctionAuthProvider.TYPE).toEqual(user.loggedInProviderType);
+    expect(UserType.Normal).toEqual(user.userType);
+    expect(FunctionAuthProvider.TYPE).toEqual(user.identities[0].providerType);
+    expect(client.auth.isLoggedIn).toBeTruthy();
+  });
+
+  it("should fail authentication using a custom function", async () => {
+    const { app: appResponse, appResource: app } = await harness.createApp();
+
+    const def = await app.functions.create(new StitchFunction(
+        "funkyAuth",
+        false,
+        `
+        exports = function(payload) {
+            return 0;
+        }`
+    ));
+
+    await harness.addProvider(app, new CustomFunctionProvider(new CustomFunctionProviderConfig(def.id!!, def.name)));
+
+    const client = harness.getAppClient(appResponse);
+
+    const id = "123abc";
+    try {
+      await client.auth.loginWithCredential(new FunctionCredential({id}));
+      fail("loginWithCredential with FunctionCredential should have failed");
+    } catch (error) {
+      expect(error instanceof StitchClientError).toBeTruthy();
+    }
   });
 
   it("should call reset password function", async () => {

@@ -21,8 +21,8 @@ import {
   AppResource,
   CustomProvider,
   CustomProviderConfig,
-  FunctionProvider,
-  FunctionProviderConfig,
+  CustomFunctionProvider,
+  CustomFunctionProviderConfig,
   StitchFunction,
   Userpass,
   UserpassProvider,
@@ -536,7 +536,7 @@ describe("StitchAppClient", () => {
           }`
       ))
 
-      await harness.addProvider(app, new FunctionProvider(new FunctionProviderConfig(def.id!!, def.name)));
+      await harness.addProvider(app, new CustomFunctionProvider(new CustomFunctionProviderConfig(def.id!!, def.name)));
 
       const client = await harness.getAppClient(appResponse);
 
