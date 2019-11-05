@@ -577,7 +577,6 @@ describe("StitchAppClient", () => {
       await client.auth.loginWithCredential(new FunctionCredential({id}));
       fail("loginWithCredential with FunctionCredential should have failed");
     } catch (error) {
-      console.log(error);
       expect(error instanceof StitchServiceError).toBeTruthy();
     }
   });
