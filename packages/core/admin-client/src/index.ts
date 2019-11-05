@@ -21,8 +21,10 @@ import { AuthProviderResource, AuthProvidersResource } from "./authProviders/Aut
 import {
   AnonProviderConfig, 
   ApiKey,
+  CustomFunctionProvider,
+  CustomFunctionProviderConfig,
   CustomProvider, 
-  CustomProviderConfig, 
+  CustomProviderConfig,
   Provider,
   UserpassProvider, 
   UserpassProviderConfig
@@ -110,6 +112,8 @@ export {
   ServicesResource,
   CustomProviderConfig, 
   CustomProvider,
+  CustomFunctionProvider,
+  CustomFunctionProviderConfig,
   Rule,
   RuleResource,
   RulesResource,
