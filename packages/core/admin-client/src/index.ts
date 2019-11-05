@@ -21,10 +21,10 @@ import { AuthProviderResource, AuthProvidersResource } from "./authProviders/Aut
 import {
   AnonProviderConfig, 
   ApiKey,
-  CustomProvider, 
-  CustomProviderConfig,
   CustomFunctionProvider,
   CustomFunctionProviderConfig,
+  CustomProvider, 
+  CustomProviderConfig,
   Provider,
   UserpassProvider, 
   UserpassProviderConfig
