@@ -42,7 +42,8 @@ import {
   StitchClientErrorCode,
   UserPasswordAuthProvider,
   UserPasswordCredential,
-  UserType
+  UserType,
+  StitchServiceError
 } from "mongodb-stitch-core-sdk";
 
 const harness = new BaseStitchBrowserIntTestHarness();
@@ -576,7 +577,8 @@ describe("StitchAppClient", () => {
       await client.auth.loginWithCredential(new FunctionCredential({id}));
       fail("loginWithCredential with FunctionCredential should have failed");
     } catch (error) {
-      expect(error instanceof StitchClientError).toBeTruthy();
+      console.log(error);
+      expect(error instanceof StitchServiceError).toBeTruthy();
     }
   });
 
