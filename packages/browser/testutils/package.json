@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-browser-testutils",
-  "version": "4.7.0",
+  "version": "4.7.1",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -46,10 +46,10 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "mongodb-stitch-browser-core": "^4.7.0",
-    "mongodb-stitch-core-admin-client": "^4.7.0",
-    "mongodb-stitch-core-sdk": "^4.7.0",
-    "mongodb-stitch-core-testutils": "^4.7.0"
+    "mongodb-stitch-browser-core": "^4.7.1",
+    "mongodb-stitch-core-admin-client": "^4.7.1",
+    "mongodb-stitch-core-sdk": "^4.7.1",
+    "mongodb-stitch-core-testutils": "^4.7.1"
   },
   "devDependencies": {
     "tslint": "^5.10.0",
