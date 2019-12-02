@@ -9,6 +9,6 @@
   "author": "MongoDB, Inc.",
   "license": "MIT",
   "dependencies": {
-    "jsdom": "^13.2.0"
+    "jsdom": "^15.2.1"
   }
 }
