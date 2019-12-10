@@ -5,17 +5,11 @@ import {
 } from '../testutil';
 import fs from 'fs';
 
-const UPLOADED_DEPS = [
-  { name: 'axios', version: '0.19.0' },
-  { name: 'debug', version: '3.1.0' },
-  { name: 'follow-redirects', version: '1.5.10' },
-  { name: 'is-buffer', version: '2.0.4' }
-];
-
 describe('Dependencies', () => {
   let test = new StitchMongoFixture();
   let th;
   let dependencies;
+  let appDeploy;
 
   beforeAll(() => test.setup());
   afterAll(() => test.teardown());
@@ -24,6 +18,7 @@ describe('Dependencies', () => {
     const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
     th = await buildAdminTestHarness(true, apiKey, groupId, serverUrl);
     dependencies = th.app().dependencies();
+    appDeploy = th.app().deploy();
   });
 
   afterEach(async() => th.cleanup());
@@ -42,15 +37,12 @@ describe('Dependencies', () => {
       fileBody = fs.readFileSync(`./test/admin/testdata/${filePath}`);
     });
 
-    it('and upload the correct packages', async() => {
+    it('and create a new deploy job', async() => {
       const response = await dependencies.upload(filePath, fileBody);
       expect(response.status).toBe(204);
 
-      let deps = await dependencies.list();
-      const sortedDependencies = deps.dependencies_list.sort((a, b) =>
-        a.name > b.name ? 1 : -1
-      );
-      expect(sortedDependencies).toEqual(UPLOADED_DEPS);
+      let deployments = await appDeploy.deployments().list();
+      expect(deployments[0].status).toEqual('pending');
     });
   });
 });
