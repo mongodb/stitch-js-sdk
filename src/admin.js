@@ -423,7 +423,31 @@ export class StitchAdminClient extends StitchClient {
               resume: data =>
                 api._put(`${appUrl}/event_subscriptions/${eventSubscriptionId}/resume`, { body: JSON.stringify(data) })
             })
-          })
+          }),
+
+          validationSettings: () => {
+            const validationSettingsUrl = `${appUrl}/validation_settings`;
+
+            return {
+              graphql: () => {
+                const graphqlUrl = `${validationSettingsUrl}/graphql`;
+
+                return {
+                  get: () => api._get(graphqlUrl),
+                  update: (data) => api._put(graphqlUrl, { body: JSON.stringify(data) })
+                };
+              }
+            };
+          },
+
+          graphql: () => {
+            const graphqlUrl = `${appUrl}/graphql`;
+
+            return {
+              post: (data) => api._post(`${graphqlUrl}`, data),
+              validate: () => api._get(`${graphqlUrl}/validate`)
+            };
+          }
         };
       }
     };

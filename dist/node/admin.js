@@ -735,6 +735,38 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                   };
                 }
               };
+            },
+
+            validationSettings: function validationSettings() {
+              var validationSettingsUrl = appUrl + '/validation_settings';
+
+              return {
+                graphql: function graphql() {
+                  var graphqlUrl = validationSettingsUrl + '/graphql';
+
+                  return {
+                    get: function get() {
+                      return api._get(graphqlUrl);
+                    },
+                    update: function update(data) {
+                      return api._put(graphqlUrl, { body: JSON.stringify(data) });
+                    }
+                  };
+                }
+              };
+            },
+
+            graphql: function graphql() {
+              var graphqlUrl = appUrl + '/graphql';
+
+              return {
+                post: function post(data) {
+                  return api._post('' + graphqlUrl, data);
+                },
+                validate: function validate() {
+                  return api._get(graphqlUrl + '/validate');
+                }
+              };
             }
           };
         }
