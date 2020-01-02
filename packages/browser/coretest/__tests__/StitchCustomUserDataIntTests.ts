@@ -6,8 +6,10 @@ const harness = new BaseStitchBrowserIntTestHarness();
 beforeAll(() => harness.setup());
 afterAll(() => harness.teardown());
 
-describe("StitchAppClient", async () => {
-	const { app: appResponse, appResource: app } = await harness.createApp();
+describe("StitchAppClient", () => {
+	
+	it("should define custom data", async () => {
+		const { app: appResponse, appResource: app } = await harness.createApp();
 		await harness.addProvider(app, new AnonProviderConfig());
 		const mongoConfg = new MongoConfig("mongodb://localhost:26000");
 		const mongoService = new MongoDbService(mongoConfg);		
@@ -24,7 +26,6 @@ describe("StitchAppClient", async () => {
 			   "http://resetPasswordUrl.com",
 			   "email subject",
 			   "password subject")));
-	it("should define custom data", async () => {
 		await app.customUserData.create(new CustomUserConfigData(
 			(svc[1] as MongoDbService).id,
 			"db1",
