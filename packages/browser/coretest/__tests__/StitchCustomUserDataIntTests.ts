@@ -1,6 +1,5 @@
 import { BaseStitchBrowserIntTestHarness } from "mongodb-stitch-browser-testutils";
 import { AnonProviderConfig, MongoConfig, MongoDbRule, MongoDbService, Role, Schema, ServiceResource, Rule, UserpassProviderConfig, UserpassProvider, CustomUserConfigData, StitchFunction } from "mongodb-stitch-core-admin-client";
-import { EJSON } from "bson";
 import { UserPasswordCredential } from "mongodb-stitch-core-sdk";
 
 const harness = new BaseStitchBrowserIntTestHarness();
@@ -9,7 +8,14 @@ beforeAll(() => harness.setup());
 afterAll(() => harness.teardown());
 
 describe("StitchAppClient", () => {
-	
+	const db = "db1"
+	const coll = "coll1"
+	const functionName = "addUserProfile";
+	const user = "stitch@10gen.com";
+	const password = "stitchuser";
+	const colorField = "favoriteColor";
+	const favoriteColor = "blue";
+
 	it("should define custom data", async () => {
 		const { app: appResponse, appResource: app } = await harness.createApp();
 		await harness.addProvider(app, new AnonProviderConfig());
@@ -18,8 +24,8 @@ describe("StitchAppClient", () => {
 		const svc = await harness.addService(app, mongoService);
 		
 		await harness.addRule(svc[1] as ServiceResource<Rule, MongoDbService>, new MongoDbRule(
-			"db1",
-			"coll1",
+			db,
+			coll,
 			[new Role()],
 			new Schema()
 		));
@@ -33,8 +39,8 @@ describe("StitchAppClient", () => {
 				
 		await app.customUserData.create(new CustomUserConfigData(
 			(svc[0] as MongoDbService).id,
-			"db1",
-			"coll1",
+			db,
+			coll,
 			"recoome",
 			true
 		));
@@ -45,10 +51,10 @@ describe("StitchAppClient", () => {
 			`
 			exports = async function(color) {
 				const coll = context.services.get("mongodb1")
-				.db("db1").collection("coll1");
+				.db("${db}").collection("${coll}");
 				await coll.insertOne({
 					"recoome": context.user.id,
-					"favoriteColor": "blue"
+					"${colorField}": "${favoriteColor}"
 				});
 				return true;
 			}
@@ -56,20 +62,20 @@ describe("StitchAppClient", () => {
 			undefined));
 
 		const client = harness.getAppClient(appResponse);
-		await harness.registerAndLoginWithUserPass(app, client, "stitch@10gen.com", "stitchuser");
+		await harness.registerAndLoginWithUserPass(app, client, user, password);
 		expect(client.auth.user).toBeDefined();
 		expect(client.auth.user!!.customData).toEqual({});
 
-		await client.callFunction("addUserProfile", ["blue"]);
+		await client.callFunction(functionName, [favoriteColor]);
 
 		await client.auth.refreshCustomData();
 
-		expect(client.auth.user!!.customData["favoriteColor"]).toEqual("blue");
+		expect(client.auth.user!!.customData[colorField]).toEqual(favoriteColor);
 
 		await client.auth.logout();
 
-		await client.auth.loginWithCredential(new UserPasswordCredential("stitch@10gen.com", "stitchuser"));
+		await client.auth.loginWithCredential(new UserPasswordCredential(user, password));
 
-		expect(client.auth.user!!.customData["favoriteColor"]).toEqual("blue");
+		expect(client.auth.user!!.customData[colorField]).toEqual(favoriteColor);
 	});
 });
