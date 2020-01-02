@@ -53,7 +53,7 @@ export default class CoreStitchUserImpl implements CoreStitchUser {
     isLoggedIn: boolean,
     lastAuthActivity: Date,
     profile?: StitchUserProfileImpl,
-    customData?: { [key: string]: any}
+    customData?: { [key: string]: any }
   ) {
     this.id = id;
     this.loggedInProviderType = loggedInProviderType;

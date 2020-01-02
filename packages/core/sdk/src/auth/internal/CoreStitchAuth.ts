@@ -808,15 +808,17 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
     // Provisionally set so we can make a profile request
     this.activeUserAuthInfo = newAuthInfo;
+
     this.currentUser = this.userFactory.makeUser(
       this.activeUserAuthInfo.userId!,
       credential.providerType,
       credential.providerName,
       this.activeUserAuthInfo.isLoggedIn,
       new Date(),
-      undefined
+      undefined,
+      JWT.fromEncoded(newAuthInfo.accessToken!!).userData
     );
-
+    
     return this.doGetUserProfile()
       .then(profile => {
 
@@ -880,7 +882,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
           credential.providerName,
           this.activeUserAuthInfo.isLoggedIn,
           this.activeUserAuthInfo.lastAuthActivity!,
-          profile
+          profile,
+          JWT.fromEncoded(newAuthInfo.accessToken!!).userData
         );
 
         // Dispatch a UserAdded event if this is the first time this user is 
@@ -1043,7 +1046,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
           loggedOutAuthInfo.loggedInProviderName!,
           loggedOutAuthInfo.isLoggedIn,
           loggedOutAuthInfo.lastAuthActivity!,
-          loggedOutAuthInfo.userProfile
+          loggedOutAuthInfo.userProfile,
         );
       }
       

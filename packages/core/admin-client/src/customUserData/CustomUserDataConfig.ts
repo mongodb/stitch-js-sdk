@@ -1,5 +1,6 @@
+import { EJSON } from "bson";
 import { Method, StitchAuthRequest } from "mongodb-stitch-core-sdk";
-import { jsonProperty } from "../JsonMapper"
+import { jsonProperty, serialize } from "../JsonMapper"
 import { BasicResource } from "../Resources"
 
 
@@ -21,9 +22,9 @@ export class CustomUserDataResource extends BasicResource<void> {
     const req = new StitchAuthRequest.Builder()
       .withMethod(Method.PATCH)
       .withPath(this.url)
-      .withBody(JSON.stringify(data))
+      .withBody(EJSON.stringify(serialize(data)))
       .build();
 
-    return this.adminAuth.doAuthenticatedRequest(req).then((_) => {return});
+    return this.adminAuth.doAuthenticatedRequest(req).then((_) => { return } );
   }
 }
