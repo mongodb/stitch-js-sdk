@@ -51,6 +51,7 @@ describe("StitchAppClient", async () => {
 
 		const client = harness.getAppClient(appResponse);
 		await harness.registerAndLoginWithUserPass(app, client, "stitch@10gen.com", "stitchuser");
-		expect(client.auth.user?.customData).toEqual({});
+		expect(client.auth.user).toBeDefined();
+		expect(client.auth.user!!.customData).toEqual({});
 	});
 });
