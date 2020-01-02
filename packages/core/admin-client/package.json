@@ -63,7 +63,7 @@
     "build-main": "tsc -p tsconfig.cjs.json",
     "build-module": "tsc -p tsconfig.esm.json",
     "prepare": "npm run build",
-    "test": "jest",
+    
     "watch": "tsc -w -p tsconfig.esm.json",
     "lint": "tslint 'src/**/*.ts' '__tests__/**/*.ts'",
     "lint-fix": "tslint --fix 'src/**/*.ts' '__tests__/**/*.ts'",
