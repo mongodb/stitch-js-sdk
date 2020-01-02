@@ -33,7 +33,8 @@ export default class StitchUserImpl extends CoreStitchUserImpl
     isLoggedIn: boolean,
     lastAuthActivity: Date,
     profile: StitchUserProfileImpl,
-    private readonly auth: StitchAuthImpl
+    private readonly auth: StitchAuthImpl,
+    customData?: { [key: string] : any }
   ) {
     super(
       id, 
@@ -41,7 +42,8 @@ export default class StitchUserImpl extends CoreStitchUserImpl
       loggedInProviderName, 
       isLoggedIn, 
       lastAuthActivity,
-      profile
+      profile,
+      customData
     );
   }
 

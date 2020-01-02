@@ -64,6 +64,8 @@ class StitchAdminUser implements CoreStitchUser {
    */
   public readonly profile: StitchUserProfileImpl;
 
+  public readonly customData: { [key: string] : any };
+
   /**
    * An array of `StitchCore.StitchUserIdentity` objects representing the identities linked
    * to this user which can be used to log in as this user.
@@ -81,7 +83,8 @@ class StitchAdminUser implements CoreStitchUser {
     providerName: string,
     isLoggedIn: boolean,
     lastAuthActivity: Date,
-    userProfile: StitchUserProfileImpl
+    userProfile: StitchUserProfileImpl,
+    customData?: { [key: string] : any }
   ) {
     this.id = id;
     this.loggedInProviderType = providerType;
@@ -89,6 +92,7 @@ class StitchAdminUser implements CoreStitchUser {
     this.isLoggedIn = isLoggedIn;
     this.lastAuthActivity = lastAuthActivity;
     this.profile = userProfile;
+    this.customData = customData === undefined ? {} : customData;
   }
 }
 
@@ -103,7 +107,8 @@ class StitchAdminUserFactory implements StitchUserFactory<StitchAdminUser> {
     loggedInProviderName: string,
     isLoggedIn: boolean,
     lastAuthActivity: Date,
-    userProfile?: StitchUserProfileImpl
+    userProfile?: StitchUserProfileImpl,
+    customData?: { [key: string] : any }
   ): StitchAdminUser {
     return new StitchAdminUser(
       id,
@@ -111,7 +116,8 @@ class StitchAdminUserFactory implements StitchUserFactory<StitchAdminUser> {
       loggedInProviderName,
       isLoggedIn,
       lastAuthActivity,
-      userProfile!
+      userProfile!,
+      customData
     );
   }
 }

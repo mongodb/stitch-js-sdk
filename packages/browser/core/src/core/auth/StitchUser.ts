@@ -84,6 +84,17 @@ export default interface StitchUser extends CoreStitchUser {
   readonly identities: StitchUserIdentity[];
 
   /**
+   * You can store arbitrary data about your application users
+   * in a MongoDB collection and configure Stitch to automatically
+   * expose each user’s data in a field of their user object.
+   * For example, you might store a user’s preferred language,
+   * date of birth, or their local timezone.
+   *
+   * If this functionality has not been configured, it will be empty.
+   */
+  readonly customData: { [key: string]: any };
+
+  /**
    * Links this {@link StitchUser} with a new identity, where the identity is 
    * resolved via an external OAuth2 login process (e.g. Facebook or Google). 
    * This method will redirect the user to the external login page. That 
