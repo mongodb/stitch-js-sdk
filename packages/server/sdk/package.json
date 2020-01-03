@@ -1,6 +1,6 @@
 {
   "name": "mongodb-stitch-server-sdk",
-  "version": "4.7.1",
+  "version": "4.7.2",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -45,8 +45,8 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "mongodb-stitch-server-core": "^4.7.1",
-    "mongodb-stitch-server-services-mongodb-remote": "^4.7.1"
+    "mongodb-stitch-server-core": "^4.7.2",
+    "mongodb-stitch-server-services-mongodb-remote": "^4.7.2"
   },
   "devDependencies": {
     "prettier": "^1.13.5",
