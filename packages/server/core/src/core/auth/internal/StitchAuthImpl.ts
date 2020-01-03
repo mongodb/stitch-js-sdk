@@ -272,6 +272,9 @@ export default class StitchAuthImpl extends CoreStitchAuth<StitchUser>
     }
   }
 
+  public refreshCustomData(): Promise<void> {
+    return this.refreshAccessToken();
+  }
   /**
    * Utility function used to force the compiler to enforce an exhaustive 
    * switch statment in dispatchAuthEvent at compile-time.

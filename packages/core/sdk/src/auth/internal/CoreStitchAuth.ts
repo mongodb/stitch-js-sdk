@@ -18,7 +18,6 @@ import { EJSON } from "bson";
 import { Codec, Decoder } from "../../internal/common/Codec";
 import { wrapDecodingError } from "../../internal/common/StitchErrorUtils";
 import { Storage } from "../../internal/common/Storage";
-import ContentTypes from "../../internal/net/ContentTypes";
 import EventStream from "../../internal/net/EventStream";
 import Headers from "../../internal/net/Headers";
 import Method from "../../internal/net/Method";
@@ -36,6 +35,7 @@ import { StitchRequestErrorCode } from "../../StitchRequestErrorCode";
 import StitchServiceError from "../../StitchServiceError";
 import { StitchServiceErrorCode } from "../../StitchServiceErrorCode";
 import Stream from "../../Stream";
+import CoreStitchUserImpl from "../internal/CoreStitchUserImpl";
 import AnonymousAuthProvider from "../providers/anonymous/AnonymousAuthProvider";
 import StitchAuthResponseCredential from "../providers/internal/StitchAuthResponseCredential";
 import StitchCredential from "../StitchCredential";
@@ -291,6 +291,10 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
       try {
         const partialInfo = ApiAuthInfo.fromJSON(JSON.parse(response.body!));
         this.activeUserAuthInfo = this.activeUserAuthInfo.merge(partialInfo);
+        if (partialInfo.accessToken && this.user instanceof CoreStitchUserImpl) {
+          const userData = JWT.fromEncoded(partialInfo.accessToken).userData;
+          (this.user as CoreStitchUserImpl).customData = userData === undefined ? {} : userData;
+        }
       } catch (err) {
         throw new StitchRequestError(
           err,
@@ -804,15 +808,17 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
 
     // Provisionally set so we can make a profile request
     this.activeUserAuthInfo = newAuthInfo;
+
     this.currentUser = this.userFactory.makeUser(
       this.activeUserAuthInfo.userId!,
       credential.providerType,
       credential.providerName,
       this.activeUserAuthInfo.isLoggedIn,
       new Date(),
-      undefined
+      undefined,
+      JWT.fromEncoded(newAuthInfo.accessToken!!).userData
     );
-
+    
     return this.doGetUserProfile()
       .then(profile => {
 
@@ -876,7 +882,8 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
           credential.providerName,
           this.activeUserAuthInfo.isLoggedIn,
           this.activeUserAuthInfo.lastAuthActivity!,
-          profile
+          profile,
+          JWT.fromEncoded(newAuthInfo.accessToken!!).userData
         );
 
         // Dispatch a UserAdded event if this is the first time this user is 
@@ -1039,7 +1046,7 @@ export default abstract class CoreStitchAuth<TStitchUser extends CoreStitchUser>
           loggedOutAuthInfo.loggedInProviderName!,
           loggedOutAuthInfo.isLoggedIn,
           loggedOutAuthInfo.lastAuthActivity!,
-          loggedOutAuthInfo.userProfile
+          loggedOutAuthInfo.userProfile,
         );
       }
       

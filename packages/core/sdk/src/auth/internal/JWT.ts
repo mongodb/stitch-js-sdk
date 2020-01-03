@@ -19,6 +19,7 @@ import StitchClientError from "../../StitchClientError";
 
 const EXPIRES = "exp";
 const ISSUED_AT = "iat";
+const USER_DATA = "user_data";
 
 /**
  * @hidden
@@ -33,7 +34,8 @@ export default class JWT {
     const json = JSON.parse(base64Decode(parts[1]));
     const expires = json[EXPIRES];
     const iat = json[ISSUED_AT];
-    return new JWT(expires, iat);
+    const userData = json[USER_DATA];
+    return new JWT(expires, iat, userData);
   }
 
   /**
@@ -70,8 +72,11 @@ export default class JWT {
    */
   public readonly issuedAt: number;
 
-  private constructor(expires: number, issuedAt: number) {
+  public readonly userData?: { [key: string] : any };
+
+  private constructor(expires: number, issuedAt: number, userData?: { [key: string]: any }) {
     this.expires = expires;
     this.issuedAt = issuedAt;
+    this.userData = userData;
   }
 }

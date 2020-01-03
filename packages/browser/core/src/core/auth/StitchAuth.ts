@@ -207,4 +207,9 @@ export default interface StitchAuth {
    * @param listener 
    */
   removeAuthListener(listener: StitchAuthListener);
+
+  /**
+   * Refresh a user's custom data field.
+   */
+  refreshCustomData(): Promise<void>;
 }

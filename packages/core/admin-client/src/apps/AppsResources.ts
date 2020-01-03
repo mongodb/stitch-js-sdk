@@ -17,6 +17,7 @@
 import { EJSON } from "bson";
 import { Method, StitchAuthRequest } from "mongodb-stitch-core-sdk";
 import { AuthProvidersResource } from "../authProviders/AuthProvidersResources";
+import { CustomUserDataResource } from "../customUserData/CustomUserDataConfig";
 import { DebugResource } from "../debug/DebugResources";
 import { FunctionsResource } from "../functions/FunctionsResources";
 import { deserialize, jsonProperty } from "../JsonMapper";
@@ -54,6 +55,10 @@ export class AppResource extends BasicResource<App> {
   public readonly authProviders = new AuthProvidersResource(
     this.adminAuth,
     `${this.url}/auth_providers`
+  );
+  public readonly customUserData = new CustomUserDataResource(
+    this.adminAuth,
+    `${this.url}/custom_user_data`
   );
   public readonly debug = new DebugResource(
     this.adminAuth,

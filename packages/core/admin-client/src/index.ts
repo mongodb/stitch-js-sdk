@@ -29,6 +29,7 @@ import {
   UserpassProvider, 
   UserpassProviderConfig
 } from "./authProviders/ProviderConfigs";
+import { CustomUserConfigData } from "./customUserData/CustomUserDataConfig";
 import { FunctionResource, FunctionsResource, StitchFunction } from "./functions/FunctionsResources";
 import {
   AdditionalFields,
@@ -94,6 +95,7 @@ export {
   AwsSesRule,
   HttpRule,
   ConfirmationEmail,
+  CustomUserConfigData,
   HttpAction,
   MongoConfig,
   MongoDbService,
