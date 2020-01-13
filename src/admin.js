@@ -454,7 +454,7 @@ export class StitchAdminClient extends StitchClient {
             return {
               config: () => ({
                 get: () => api._get(`${realmUrl}/config`),
-                update: (data) => api._put(graphqlUrl, { body: JSON.stringify(data) })
+                update: (data) => api._put(realmUrl, { body: JSON.stringify(data) })
               })
             };
           }
