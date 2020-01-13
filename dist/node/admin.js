@@ -767,6 +767,22 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                   return api._get(graphqlUrl + '/validate');
                 }
               };
+            },
+
+            realm: function realm() {
+              var realmUrl = appUrl + '/realm';
+              return {
+                config: function config() {
+                  return {
+                    get: function get() {
+                      return api._get(realmUrl + '/config');
+                    },
+                    update: function update(data) {
+                      return api._put(graphqlUrl, { body: JSON.stringify(data) });
+                    }
+                  };
+                }
+              };
             }
           };
         }

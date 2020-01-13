@@ -447,6 +447,16 @@ export class StitchAdminClient extends StitchClient {
               post: (data) => api._post(`${graphqlUrl}`, data),
               validate: () => api._get(`${graphqlUrl}/validate`)
             };
+          },
+
+          realm: () => {
+            const realmUrl = `${appUrl}/realm`;
+            return {
+              config: () => ({
+                get: () => api._get(`${realmUrl}/config`),
+                update: (data) => api._put(graphqlUrl, { body: JSON.stringify(data) })
+              })
+            };
           }
         };
       }
