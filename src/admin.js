@@ -452,10 +452,13 @@ export class StitchAdminClient extends StitchClient {
           realm: () => {
             const realmUrl = `${appUrl}/realm`;
             return {
-              config: () => ({
-                get: () => api._get(`${realmUrl}/config`),
-                update: (data) => api._put(realmUrl, { body: JSON.stringify(data) })
-              })
+              config: () => {
+                const realmConfigUrl = `${realmUrl}/config`;
+                return {
+                  get: () => api._get(realmConfigUrl),
+                  update: (data) => api._put(realmConfigUrl, { body: JSON.stringify(data) })
+                };
+              }
             };
           }
         };

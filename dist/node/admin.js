@@ -773,12 +773,13 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
               var realmUrl = appUrl + '/realm';
               return {
                 config: function config() {
+                  var realmConfigUrl = realmUrl + '/config';
                   return {
                     get: function get() {
-                      return api._get(realmUrl + '/config');
+                      return api._get(realmConfigUrl);
                     },
                     update: function update(data) {
-                      return api._put(graphqlUrl, { body: JSON.stringify(data) });
+                      return api._put(realmConfigUrl, { body: JSON.stringify(data) });
                     }
                   };
                 }
