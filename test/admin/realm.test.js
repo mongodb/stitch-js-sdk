@@ -14,7 +14,7 @@ describe('Realm', () => {
   beforeEach(async() => {
     const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
     th = await buildAdminTestHarness(true, apiKey, groupId, serverUrl);
-    realmConfig = th.app().realm().realmConfig();
+    realmConfig = th.app().realm().config();
   });
 
   afterEach(async() => th.cleanup());
