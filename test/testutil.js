@@ -39,6 +39,22 @@ export const randomString = (length = 5) => {
   return result;
 };
 
+export const createSampleMongodbService = async(services) => {
+  const mongodbService = await services.create({
+    type: 'mongodb',
+    name: 'mdb',
+    config: {
+      uri: 'mongodb://localhost:26000'
+    }
+  });
+  return mongodbService;
+};
+
+export const addRuleToMongodbService = async(services, mongodbService, { database, collection, config }) => {
+  const mongoSvcObj = services.service(mongodbService._id);
+  await mongoSvcObj.rules().create(Object.assign({}, config, { database, collection }));
+};
+
 class TestHarness {
   static async initialize(apiKey, groupId, serverUrl = constants.DEFAULT_SERVER_URL) {
     const testHarness = new TestHarness(apiKey, groupId, serverUrl);

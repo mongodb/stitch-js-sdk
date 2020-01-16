@@ -1,18 +1,8 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
-import { buildClientTestHarness, extractTestFixtureDataPoints } from '../testutil';
+import { buildClientTestHarness, extractTestFixtureDataPoints, createSampleMongodbService, addRuleToMongodbService } from '../testutil';
 
 const jwtDecode = require('jwt-decode');
-
-function createSampleMongodbService(services) {
-  return services.create({
-    type: 'mongodb',
-    name: 'mdb',
-    config: {
-      uri: 'mongodb://localhost:26000'
-    }
-  });
-}
 
 describe('Custom User Data', () => {
   let test = new StitchMongoFixture();
@@ -116,17 +106,7 @@ describe('Custom User Data', () => {
 
       // Set up mongodb service
       mongodbService = await createSampleMongodbService(services);
-      const monogSvcObj = services.service(mongodbService._id);
-      let testRuleConfig = {
-        read: {'%%true': true},
-        write: {'%%true': true},
-        valid: {'%%true': true},
-        fields: {_id: {}, a: {}, b: {}, c: {} }
-      };
-      const db = test.mongo.db(dbName);
-      await monogSvcObj.rules().create(
-        Object.assign({}, testRuleConfig, { name: 'testRule', namespace: `${dbName}.${collName}` })
-      );
+      await addRuleToMongodbService(services, mongodbService, { database: dbName, collection: collName });
 
       // Create a user
       await client.register(testUserEmail, testUserPassword);
@@ -138,6 +118,7 @@ describe('Custom User Data', () => {
       const { user_id: userId } = await client.userProfile();
 
       // Insert some data into the collection
+      const db = test.mongo.db(dbName);
       doc = { 'vegeta': userId, 'goku': 'clown' };
       let insertResponse = await db.collection(collName).insertOne(doc);
       expect(insertResponse.insertedCount).toEqual(1);
