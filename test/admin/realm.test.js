@@ -23,13 +23,13 @@ describe('Realm', () => {
     it('exposes a .get() which returns the validation settings', async() => {
       const config = await realmConfig.get();
       expect(config).toEqual({
-        developmentModeEnabled: false
+        development_mode_enabled: false
       });
     });
 
     it('exposes an .update() which sets the validation settings', async() => {
       const newConfig = {
-        developmentModeEnabled: true
+        development_mode_enabled: true
       };
 
       await realmConfig.update(newConfig);
