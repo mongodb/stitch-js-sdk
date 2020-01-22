@@ -116,6 +116,10 @@ class TestHarness {
     return this.apps().app(this.testApp._id);
   }
 
+  privateAdminTriggers() {
+    return this.adminClient.privateAdminTriggers(this.groupId, this.testApp._id);
+  }
+
   async appRemove() {
     await this.app().remove();
     this.testApp = undefined;

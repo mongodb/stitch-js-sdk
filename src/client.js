@@ -8,14 +8,7 @@ import * as common from './common';
 import ExtJSON from 'mongodb-extjson';
 import queryString from 'query-string';
 import {StitchError, ErrInvalidSession, ErrUnauthorized} from './errors';
-
-const v1 = 1;
-const v2 = 2;
-const v3 = 3;
-const API_TYPE_PUBLIC = 'public';
-const API_TYPE_PRIVATE = 'private';
-const API_TYPE_CLIENT = 'client';
-const API_TYPE_APP = 'app';
+import { v1, v2, v3, API_TYPE_PUBLIC, API_TYPE_PRIVATE, API_TYPE_CLIENT, API_TYPE_APP } from './constants';
 
 export const fetcher = () => (typeof fetch === 'undefined' ? require('node-fetch') : fetch);
 

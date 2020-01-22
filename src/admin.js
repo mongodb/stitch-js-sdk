@@ -5,8 +5,7 @@ import { newStitchClient, StitchClient } from './client';
 import ADMIN_CLIENT_TYPE from './common';
 import { ADMIN_CLIENT_CODEC } from './auth/common';
 import { StitchError } from './errors';
-
-const v3 = 3;
+import { v1, v3, API_TYPE_PRIVATE } from './constants';
 
 /** @private **/
 export class StitchAdminClientFactory {
@@ -31,6 +30,24 @@ export class StitchAdminClient extends StitchClient {
 
   get type() {
     return ADMIN_CLIENT_TYPE;
+  }
+
+  get _v1() {
+    const privateV1do = (url, method, options) =>
+      super._do(url, method, Object.assign({}, { apiVersion: v1, apiType: API_TYPE_PRIVATE }, options)).then(response => {
+        const contentHeader = response.headers.get('content-type') || '';
+        if (contentHeader.split(',').indexOf('application/json') >= 0) {
+          return response.json();
+        }
+        return response;
+      });
+
+    return {
+      [API_TYPE_PRIVATE]: {
+        _get: (url, queryParams, headers, options) =>
+          privateV1do(url, 'GET', Object.assign({}, { queryParams, headers }, options))
+      }
+    };
   }
 
   get _v3() {
@@ -463,6 +480,15 @@ export class StitchAdminClient extends StitchClient {
           }
         };
       }
+    };
+  }
+
+  privateAdminTriggers(groupId, appId) {
+    const privateApi = this._v1[API_TYPE_PRIVATE];
+    const baseUrl = `/admin/groups/${groupId}/apps/${appId}/triggers`;
+    return {
+      list: () => privateApi._get(baseUrl),
+      get: triggerId => privateApi._get(`${baseUrl}/${triggerId}`)
     };
   }
 }
