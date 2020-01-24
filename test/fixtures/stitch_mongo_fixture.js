@@ -1,7 +1,7 @@
 import { StitchAdminClientFactory } from '../../src/admin';
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
-const { DEFAULT_URI, DEFAULT_SERVER_URL } = require('../constants');
+const { DEFAULT_URI, DEFAULT_SERVER_URL, DEFAULT_USER_ROLES } = require('../constants');
 const crypto = require('crypto');
 
 const randomString = length => {
@@ -21,11 +21,14 @@ const hashValue = (key, salt) => {
   });
 };
 
-export default class StitchFixture {
+export default class StitchMongoFixture {
   constructor(options) {
     options = options || {};
     options.mongoUri = options.mongoUri || DEFAULT_URI;
     options.baseUrl = options.baseUrl || DEFAULT_SERVER_URL;
+    const userRoles = options.userRoles || [];
+    options.userRoles = [...userRoles, ...DEFAULT_USER_ROLES];
+
     this.options = options;
     this.testNamespaces = [];
   }
@@ -81,7 +84,7 @@ export default class StitchFixture {
       userId: new mongodb.ObjectId().toHexString(),
       domainId: rootId,
       identities: [{ id: apiKeyId.toHexString(), providerType: 'api-key', providerId: rootProviderId }],
-      roles: [{ roleName: 'groupOwner', groupId }, { roleName: 'GROUP_OWNER', groupId }],
+      roles: this.options.userRoles.map(roleName => ({ roleName, groupId })),
       domain_id_hash: 3795608245,
       location: 'US-VA'
     };
