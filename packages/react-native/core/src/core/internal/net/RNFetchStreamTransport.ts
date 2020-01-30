@@ -23,9 +23,10 @@ import {
     Response,
     Transport,
   } from "mongodb-stitch-core-sdk";
-import EventSourceEventStream from "./EventSourceEventStream";
+
 import EventSource from "rn-eventsource";
-  
+import EventSourceEventStream from "./EventSourceEventStream";
+
   /** @hidden */
   export default class RNFetchStreamTransport implements Transport {
     public roundTrip(request: BasicRequest): Promise<Response> {
