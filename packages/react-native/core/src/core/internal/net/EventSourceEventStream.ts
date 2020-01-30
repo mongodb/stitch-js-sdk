@@ -69,7 +69,7 @@ export default class EventSourceEventStream extends BaseEventStream<EventSourceE
       this.poll();
     };
     this.evtSrc.onerror = e => {
-      if (e instanceof MessageEvent) {
+      if (e.data !== undefined) {
         this.lastErr = e.data;
         this.events.push(new Event(StitchEvent.ERROR_EVENT_NAME, this.lastErr!));
         this.close();
