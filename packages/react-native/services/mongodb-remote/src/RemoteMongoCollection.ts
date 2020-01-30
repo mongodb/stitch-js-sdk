@@ -241,9 +241,11 @@ export default interface RemoteMongoCollection<DocumentT> {
    *
    * @experimental
    * @note
-   * This method requires a React Native version that supports EventSource 
-   * (server-sent events). There are currently no released versions of React 
-   * Native that support EventSource, so you'll need to use a forked version.
+   * This method requires a React Native version that exposes low-level 
+   * Networking primitives so that it can support server-sent events. There are 
+   * currently no released versions of React Native that expose these 
+   * primitives. However, React Native 0.62 will expose these, so you can use 
+   * the release candidate version of React Native 0.62.0-rc.1. 
    * 
    * @param arg Optional. An array of ids to watch or a $match expression.
    *            Omit to watch the entire collection.

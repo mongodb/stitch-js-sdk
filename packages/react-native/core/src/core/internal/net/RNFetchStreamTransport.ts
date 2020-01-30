@@ -24,6 +24,7 @@ import {
     Transport,
   } from "mongodb-stitch-core-sdk";
 import EventSourceEventStream from "./EventSourceEventStream";
+import EventSource from "rn-eventsource";
   
   /** @hidden */
   export default class RNFetchStreamTransport implements Transport {
