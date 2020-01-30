@@ -22,6 +22,8 @@ import {
   CustomProvider,
   StitchFunction,
   Userpass,
+  CustomFunctionProvider,
+  CustomFunctionProviderConfig,
   CustomProviderConfig,
   UserpassProvider,
   UserpassProviderConfig
@@ -31,12 +33,15 @@ import {
   AnonymousCredential,
   CustomAuthProvider,
   CustomCredential,
+  FunctionAuthProvider,
+  FunctionCredential,
   MemoryStorage,
   StitchClientError,
   StitchClientErrorCode,
   UserPasswordAuthProvider,
   UserPasswordCredential,
-  UserType
+  UserType,
+  StitchServiceError
 } from "mongodb-stitch-core-sdk";
 import { Stitch, UserPasswordAuthProviderClient } from "mongodb-stitch-server-core";
 import { BaseStitchServerIntTestHarness } from "mongodb-stitch-server-testutils";
@@ -516,5 +521,111 @@ describe("StitchAppClient", () => {
     expect(client.auth.isLoggedIn).toBeTruthy();
 
     expect(client.auth.listUsers().length).toBe(2);
+  });
+
+  it("should authenticate using a custom function", async () => {
+    const { app: appResponse, appResource: app } = await harness.createApp();
+
+    const def = await app.functions.create(new StitchFunction(
+        "funkyAuth",
+        false,
+        `
+        exports = function(payload) {
+            return payload.id;
+        }`
+    ));
+
+    await harness.addProvider(app, new CustomFunctionProvider(new CustomFunctionProviderConfig(def.id!!, def.name)));
+
+    const client = harness.getAppClient(appResponse);
+
+    const id = "123abc";
+    const user = await client.auth.loginWithCredential(new FunctionCredential({id}));
+
+    expect(user).toBeDefined();
+
+    expect(user.id).toBeDefined();
+    expect(user.identities[0].id).toBeDefined();
+    expect(id).toEqual(user.identities[0].id);
+    expect(FunctionAuthProvider.DEFAULT_NAME).toEqual(user.loggedInProviderName);
+    expect(FunctionAuthProvider.TYPE).toEqual(user.loggedInProviderType);
+    expect(UserType.Normal).toEqual(user.userType);
+    expect(FunctionAuthProvider.TYPE).toEqual(user.identities[0].providerType);
+    expect(client.auth.isLoggedIn).toBeTruthy();
+  });
+
+  it("should fail authentication using a custom function", async () => {
+    const { app: appResponse, appResource: app } = await harness.createApp();
+
+    const def = await app.functions.create(new StitchFunction(
+        "funkyAuth",
+        false,
+        `
+        exports = function(payload) {
+            return 0;
+        }`
+    ));
+
+    await harness.addProvider(app, new CustomFunctionProvider(new CustomFunctionProviderConfig(def.id!!, def.name)));
+
+    const client = harness.getAppClient(appResponse);
+
+    const id = "123abc";
+    try {
+      await client.auth.loginWithCredential(new FunctionCredential({id}));
+      fail("loginWithCredential with FunctionCredential should have failed");
+    } catch (error) {
+      expect(error instanceof StitchServiceError).toBeTruthy();
+    }
+  });
+
+  it("should call reset password function", async () => {
+    const { app: appResponse, appResource: app } = await harness.createApp();
+    
+    const stitchFunction = await app.functions.create(new StitchFunction(
+      "testResetPasswordFunction",
+      false,
+      `exports = function({email, password}, arg1, arg2) {
+        if (arg1 == 0 && arg2 == 1) {
+          return { "status": "success" };
+        } else {
+          return { "status": "fail" };
+        }
+      }`,
+      undefined,
+    ));
+
+    await harness.addProvider(
+      app,
+      new UserpassProvider(new UserpassProviderConfig(
+        "http://emailConfirmUrl.com",
+        "http://resetPasswordUrl.com",
+        "email subject",
+        "password subject",
+        true,
+        stitchFunction.id,
+        stitchFunction.name
+      ))
+    );
+
+    const client = harness.getAppClient(appResponse);
+    const userPassClient = client.auth.getProviderClient(UserPasswordAuthProviderClient.factory)
+
+    const email = "user@10gen.com";
+    const password1 = "password1";
+    const password2 = "password2";
+    await userPassClient.registerWithEmail(email, password1);
+
+    const conf = await app.userRegistrations.sendConfirmation(email);
+    await userPassClient.confirmUser(conf.token, conf.tokenId);
+
+    await client.auth.loginWithCredential(
+        new UserPasswordCredential(email, password1));
+
+    await client.auth.getProviderClient(UserPasswordAuthProviderClient.factory)
+        .callResetPasswordFunction(email, password2, [0, 1]);
+
+    await client.auth.logout();
+    await client.auth.loginWithCredential(new UserPasswordCredential(email, password2));
   });
 });

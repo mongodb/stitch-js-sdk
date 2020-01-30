@@ -33,7 +33,8 @@ interface StitchUserFactory<T extends CoreStitchUser> {
     loggedInProviderName: string,
     isLoggedIn: boolean,
     lastAuthActivity: Date,
-    userProfile?: StitchUserProfileImpl
+    userProfile?: StitchUserProfileImpl,
+    customData?: { [key: string]: any }
   ): T;
 }
 

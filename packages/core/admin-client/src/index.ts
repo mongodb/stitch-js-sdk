@@ -21,12 +21,15 @@ import { AuthProviderResource, AuthProvidersResource } from "./authProviders/Aut
 import {
   AnonProviderConfig, 
   ApiKey,
+  CustomFunctionProvider,
+  CustomFunctionProviderConfig,
   CustomProvider, 
-  CustomProviderConfig, 
+  CustomProviderConfig,
   Provider,
   UserpassProvider, 
   UserpassProviderConfig
 } from "./authProviders/ProviderConfigs";
+import { CustomUserConfigData } from "./customUserData/CustomUserDataConfig";
 import { FunctionResource, FunctionsResource, StitchFunction } from "./functions/FunctionsResources";
 import {
   AdditionalFields,
@@ -92,6 +95,7 @@ export {
   AwsSesRule,
   HttpRule,
   ConfirmationEmail,
+  CustomUserConfigData,
   HttpAction,
   MongoConfig,
   MongoDbService,
@@ -110,6 +114,8 @@ export {
   ServicesResource,
   CustomProviderConfig, 
   CustomProvider,
+  CustomFunctionProvider,
+  CustomFunctionProviderConfig,
   Rule,
   RuleResource,
   RulesResource,

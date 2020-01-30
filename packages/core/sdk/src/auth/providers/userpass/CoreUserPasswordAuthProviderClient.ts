@@ -31,7 +31,8 @@ enum ActionFields {
   EMAIL = "email",
   PASSWORD = "password",
   TOKEN = "token",
-  TOKEN_ID = "tokenId"
+  TOKEN_ID = "tokenId",
+  ARGS = "arguments"
 }
 
 /** @hidden */
@@ -105,6 +106,19 @@ export default class CoreUserPasswordAuthProviderClient extends CoreAuthProvider
     return this.requestClient.doRequest(reqBuilder.build()).then(() => {});
   }
 
+  protected callResetPasswordFunctionInternal(email: string, password: string, args: any[]): Promise<void> {
+    const reqBuilder = new StitchDocRequest.Builder();
+    reqBuilder
+      .withMethod(Method.POST)
+      .withPath(this.getCallResetPasswordFunctionRoute());
+    reqBuilder.withDocument({
+      [ActionFields.EMAIL]: email,
+      [ActionFields.PASSWORD]: password,
+      [ActionFields.ARGS]: args
+    });
+    return this.requestClient.doRequest(reqBuilder.build()).then(() => {});
+  }
+
   private getRegisterWithEmailRoute(): string {
     return this.getExtensionRoute("register");
   }
@@ -123,6 +137,10 @@ export default class CoreUserPasswordAuthProviderClient extends CoreAuthProvider
 
   private getSendResetPasswordEmailRoute(): string {
     return this.getExtensionRoute("reset/send");
+  }
+
+  private getCallResetPasswordFunctionRoute(): string {
+    return this.getExtensionRoute("reset/call");
   }
 
   private getExtensionRoute(path: string): string {

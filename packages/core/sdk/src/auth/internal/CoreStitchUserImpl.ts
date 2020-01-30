@@ -44,13 +44,16 @@ export default class CoreStitchUserImpl implements CoreStitchUser {
 
   public readonly lastAuthActivity: Date;
 
+  public customData: { [key: string]: any };
+
   protected constructor(
     id: string,
     loggedInProviderType: string,
     loggedInProviderName: string,
     isLoggedIn: boolean,
     lastAuthActivity: Date,
-    profile?: StitchUserProfileImpl
+    profile?: StitchUserProfileImpl,
+    customData?: { [key: string]: any }
   ) {
     this.id = id;
     this.loggedInProviderType = loggedInProviderType;
@@ -59,6 +62,7 @@ export default class CoreStitchUserImpl implements CoreStitchUser {
       profile === undefined ? StitchUserProfileImpl.empty() : profile;
     this.isLoggedIn = isLoggedIn;
     this.lastAuthActivity = lastAuthActivity;
+    this.customData = customData === undefined ? {} : customData;
   }
 
   /**

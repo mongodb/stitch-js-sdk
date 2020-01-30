@@ -56,4 +56,8 @@ export default class UserPasswordAuthProviderClientImpl
   public sendResetPasswordEmail(email: string): Promise<void> {
     return super.sendResetPasswordEmailInternal(email);
   }
+
+  public callResetPasswordFunction(email: string, password: string, args: any[]): Promise<void> {
+    return super.callResetPasswordFunctionInternal(email, password, args);
+  }
 }

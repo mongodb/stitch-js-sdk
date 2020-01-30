@@ -49,7 +49,13 @@ class UserpassProviderConfig {
     
     @jsonProperty("confirmEmailSubject") public confirmEmailSubject: string,
     
-    @jsonProperty("resetPasswordSubject") public resetPasswordSubject: string
+    @jsonProperty("resetPasswordSubject") public resetPasswordSubject: string,
+
+    @jsonProperty("runResetFunction") public runResetFunction = false,
+
+    @jsonProperty("resetFunctionId") public resetFunctionId = "",
+
+    @jsonProperty("resetFunctionName") public resetFunctionName = ""
   ) {}
 }
 
@@ -59,6 +65,21 @@ class UserpassProvider extends Provider {
     super();
   }
 }
+
+class CustomFunctionProviderConfig {
+  public constructor(
+    @jsonProperty("authFunctionId") readonly authFunctionId: string,
+    @jsonProperty("authFunctionName") readonly authFunctionName: string
+  ) {}
+}
+
+class CustomFunctionProvider extends Provider {
+  public readonly type = "custom-function"
+
+  public constructor(public readonly config: CustomFunctionProviderConfig) {
+    super();
+  }
+ }
 
 class CustomProviderConfig {
   public constructor(@jsonProperty("signingKey") readonly signingKey: string) {} 
@@ -79,5 +100,7 @@ export {
   UserpassProviderConfig, 
   UserpassProvider, 
   CustomProviderConfig, 
-  CustomProvider
+  CustomProvider,
+  CustomFunctionProviderConfig,
+  CustomFunctionProvider
 };

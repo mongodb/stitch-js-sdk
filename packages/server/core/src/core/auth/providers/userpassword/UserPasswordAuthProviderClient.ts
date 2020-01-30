@@ -60,6 +60,12 @@ export interface UserPasswordAuthProviderClient {
   ): Promise<void>;
 
   /**
+   * Call a reset password function configured to the provider.
+   * 
+   * @return A {@link Task} that completes when the reqest request completes/fails.
+   */
+  callResetPasswordFunction(email: string, password: string, args: any[]): Promise<void>;
+  /**
    * Sends a user a password reset email for the given email.
    *
    * @return A Promise that completes when the reqest request completes/fails.
