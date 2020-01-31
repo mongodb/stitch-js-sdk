@@ -15,7 +15,7 @@
  */
 
 import { Storage } from "mongodb-stitch-core-sdk";
-import { AsyncStorage } from "react-native"
+import { AsyncStorage } from "react-native";
 
 const stitchPrefixKey = "__stitch.client";
 

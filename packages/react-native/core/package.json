@@ -47,7 +47,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "bson": "4.0.2",
-    "mongodb-stitch-core-sdk": "^4.8.0"
+    "mongodb-stitch-core-sdk": "^4.8.0",
+    "rn-eventsource": "^1.0.0"
   },
   "devDependencies": {
     "prettier": "^1.13.5",
