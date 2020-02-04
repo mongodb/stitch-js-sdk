@@ -35,6 +35,8 @@ var _queryString2 = _interopRequireDefault(_queryString);
 
 var _errors = require('./errors');
 
+var _constants = require('./constants');
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -42,14 +44,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var v1 = 1;
-var v2 = 2;
-var v3 = 3;
-var API_TYPE_PUBLIC = 'public';
-var API_TYPE_PRIVATE = 'private';
-var API_TYPE_CLIENT = 'client';
-var API_TYPE_APP = 'app';
 
 var fetcher = exports.fetcher = function fetcher() {
   return typeof fetch === 'undefined' ? require('node-fetch') : fetch;
@@ -108,7 +102,7 @@ function newStitchClient(prototype, clientAppID) {
 
   stitchClient.authUrl = clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID + '/auth' : baseUrl + '/api/admin/v3.0/auth';
 
-  stitchClient.rootURLsByAPIVersion = (_stitchClient$rootURL = {}, _defineProperty(_stitchClient$rootURL, v1, (_v = {}, _defineProperty(_v, API_TYPE_PUBLIC, baseUrl + '/api/public/v1.0'), _defineProperty(_v, API_TYPE_CLIENT, baseUrl + '/api/client/v1.0'), _defineProperty(_v, API_TYPE_PRIVATE, baseUrl + '/api/private/v1.0'), _defineProperty(_v, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v1.0/app/' + clientAppID : baseUrl + '/api/public/v1.0'), _v)), _defineProperty(_stitchClient$rootURL, v2, (_v2 = {}, _defineProperty(_v2, API_TYPE_PUBLIC, baseUrl + '/api/public/v2.0'), _defineProperty(_v2, API_TYPE_CLIENT, baseUrl + '/api/client/v2.0'), _defineProperty(_v2, API_TYPE_PRIVATE, baseUrl + '/api/private/v2.0'), _defineProperty(_v2, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID : baseUrl + '/api/public/v2.0'), _v2)), _defineProperty(_stitchClient$rootURL, v3, (_v3 = {}, _defineProperty(_v3, API_TYPE_PUBLIC, baseUrl + '/api/public/v3.0'), _defineProperty(_v3, API_TYPE_CLIENT, baseUrl + '/api/client/v3.0'), _defineProperty(_v3, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v3.0/app/' + clientAppID : baseUrl + '/api/admin/v3.0'), _v3)), _stitchClient$rootURL);
+  stitchClient.rootURLsByAPIVersion = (_stitchClient$rootURL = {}, _defineProperty(_stitchClient$rootURL, _constants.v1, (_v = {}, _defineProperty(_v, _constants.API_TYPE_PUBLIC, baseUrl + '/api/public/v1.0'), _defineProperty(_v, _constants.API_TYPE_CLIENT, baseUrl + '/api/client/v1.0'), _defineProperty(_v, _constants.API_TYPE_PRIVATE, baseUrl + '/api/private/v1.0'), _defineProperty(_v, _constants.API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v1.0/app/' + clientAppID : baseUrl + '/api/public/v1.0'), _v)), _defineProperty(_stitchClient$rootURL, _constants.v2, (_v2 = {}, _defineProperty(_v2, _constants.API_TYPE_PUBLIC, baseUrl + '/api/public/v2.0'), _defineProperty(_v2, _constants.API_TYPE_CLIENT, baseUrl + '/api/client/v2.0'), _defineProperty(_v2, _constants.API_TYPE_PRIVATE, baseUrl + '/api/private/v2.0'), _defineProperty(_v2, _constants.API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID : baseUrl + '/api/public/v2.0'), _v2)), _defineProperty(_stitchClient$rootURL, _constants.v3, (_v3 = {}, _defineProperty(_v3, _constants.API_TYPE_PUBLIC, baseUrl + '/api/public/v3.0'), _defineProperty(_v3, _constants.API_TYPE_CLIENT, baseUrl + '/api/client/v3.0'), _defineProperty(_v3, _constants.API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v3.0/app/' + clientAppID : baseUrl + '/api/admin/v3.0'), _v3)), _stitchClient$rootURL);
 
   var authOptions = {
     codec: _common.APP_CLIENT_CODEC,
@@ -276,7 +270,7 @@ var StitchClient = exports.StitchClient = function () {
       return this._do('/auth/session', 'DELETE', {
         refreshOnFailure: false,
         useRefreshToken: true,
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT]
       }).then(function () {
         return _this3.auth.clear();
       }, function () {
@@ -304,7 +298,7 @@ var StitchClient = exports.StitchClient = function () {
     key: 'userProfile',
     value: function userProfile() {
       return this._do('/auth/profile', 'GET', {
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT]
       }).then(function (response) {
         return response.json();
       });
@@ -425,7 +419,7 @@ var StitchClient = exports.StitchClient = function () {
       return this._do('/auth/session', 'POST', {
         refreshOnFailure: false,
         useRefreshToken: true,
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT]
       }).then(function (response) {
         return response.json();
       });
@@ -441,7 +435,7 @@ var StitchClient = exports.StitchClient = function () {
     key: 'getApiKeys',
     value: function getApiKeys() {
       return this._do('/auth/api_keys', 'GET', {
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT],
         useRefreshToken: true
       }).then(function (response) {
         return response.json();
@@ -459,7 +453,7 @@ var StitchClient = exports.StitchClient = function () {
     key: 'createApiKey',
     value: function createApiKey(userApiKeyName) {
       return this._do('/auth/api_keys', 'POST', {
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT],
         useRefreshToken: true,
         body: JSON.stringify({ name: userApiKeyName })
       }).then(function (response) {
@@ -478,7 +472,7 @@ var StitchClient = exports.StitchClient = function () {
     key: 'getApiKeyByID',
     value: function getApiKeyByID(keyID) {
       return this._do('/auth/api_keys/' + keyID, 'GET', {
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT],
         useRefreshToken: true
       }).then(function (response) {
         return response.json();
@@ -496,7 +490,7 @@ var StitchClient = exports.StitchClient = function () {
     key: 'deleteApiKeyByID',
     value: function deleteApiKeyByID(keyID) {
       return this._do('/auth/api_keys/' + keyID, 'DELETE', {
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT],
         useRefreshToken: true
       });
     }
@@ -512,7 +506,7 @@ var StitchClient = exports.StitchClient = function () {
     key: 'enableApiKeyByID',
     value: function enableApiKeyByID(keyID) {
       return this._do('/auth/api_keys/' + keyID + '/enable', 'PUT', {
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT],
         useRefreshToken: true
       });
     }
@@ -528,7 +522,7 @@ var StitchClient = exports.StitchClient = function () {
     key: 'disableApiKeyByID',
     value: function disableApiKeyByID(keyID) {
       return this._do('/auth/api_keys/' + keyID + '/disable', 'PUT', {
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT],
         useRefreshToken: true
       });
     }
@@ -606,8 +600,8 @@ var StitchClient = exports.StitchClient = function () {
       options = Object.assign({}, {
         refreshOnFailure: true,
         useRefreshToken: false,
-        apiVersion: v2,
-        apiType: API_TYPE_APP,
+        apiVersion: _constants.v2,
+        apiType: _constants.API_TYPE_APP,
         rootURL: undefined
       }, options);
 
