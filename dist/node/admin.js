@@ -25,7 +25,11 @@ var _common3 = require('./auth/common');
 
 var _errors = require('./errors');
 
+var _constants = require('./constants');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
@@ -33,10 +37,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var v3 = 3;
-
 /** @private **/
-
 var StitchAdminClientFactory = exports.StitchAdminClientFactory = function () {
   function StitchAdminClientFactory() {
     _classCallCheck(this, StitchAdminClientFactory);
@@ -87,7 +88,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
       return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', this).call(this, '/auth/session', 'DELETE', {
         refreshOnFailure: false,
         useRefreshToken: true,
-        apiVersion: v3
+        apiVersion: _constants.v3
       }).then(function () {
         return _this2.auth.clear();
       });
@@ -114,7 +115,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
   }, {
     key: 'getAuthProviders',
     value: function getAuthProviders() {
-      return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', this).call(this, '/auth/providers', 'GET', { noAuth: true, apiVersion: v3 }).then(function (response) {
+      return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', this).call(this, '/auth/providers', 'GET', { noAuth: true, apiVersion: _constants.v3 }).then(function (response) {
         return response.json();
       });
     }
@@ -131,7 +132,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
       return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', this).call(this, '/auth/session', 'POST', {
         refreshOnFailure: false,
         useRefreshToken: true,
-        apiVersion: v3
+        apiVersion: _constants.v3
       }).then(function (response) {
         return response.json();
       });
@@ -798,17 +799,52 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
       };
     }
   }, {
+    key: 'privateAdminTriggers',
+    value: function privateAdminTriggers(groupId, appId) {
+      var privateApi = this._v1[_constants.API_TYPE_PRIVATE];
+      var baseUrl = '/admin/groups/' + groupId + '/apps/' + appId + '/triggers';
+      return {
+        list: function list() {
+          return privateApi._get(baseUrl);
+        },
+        get: function get(triggerId) {
+          return privateApi._get(baseUrl + '/' + triggerId);
+        }
+      };
+    }
+  }, {
     key: 'type',
     get: function get() {
       return _common2.default;
     }
   }, {
-    key: '_v3',
+    key: '_v1',
     get: function get() {
       var _this3 = this;
 
+      var privateV1do = function privateV1do(url, method, options) {
+        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this3).call(_this3, url, method, Object.assign({}, { apiVersion: _constants.v1, apiType: _constants.API_TYPE_PRIVATE }, options)).then(function (response) {
+          var contentHeader = response.headers.get('content-type') || '';
+          if (contentHeader.split(',').indexOf('application/json') >= 0) {
+            return response.json();
+          }
+          return response;
+        });
+      };
+
+      return _defineProperty({}, _constants.API_TYPE_PRIVATE, {
+        _get: function _get(url, queryParams, headers, options) {
+          return privateV1do(url, 'GET', Object.assign({}, { queryParams: queryParams, headers: headers }, options));
+        }
+      });
+    }
+  }, {
+    key: '_v3',
+    get: function get() {
+      var _this4 = this;
+
       var v3do = function v3do(url, method, options) {
-        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this3).call(_this3, url, method, Object.assign({}, { apiVersion: v3 }, options)).then(function (response) {
+        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this4).call(_this4, url, method, Object.assign({}, { apiVersion: _constants.v3 }, options)).then(function (response) {
           var contentHeader = response.headers.get('content-type') || '';
           if (contentHeader.split(',').indexOf('application/json') >= 0) {
             return response.json();

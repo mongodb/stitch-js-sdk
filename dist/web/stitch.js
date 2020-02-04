@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 15);
+/******/ 	return __webpack_require__(__webpack_require__.s = 16);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -88,7 +88,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.uriEncodeObject = exports.serviceResponse = undefined;
 
-var _Base = __webpack_require__(12);
+var _Base = __webpack_require__(13);
 
 var base64 = _interopRequireWildcard(_Base);
 
@@ -197,7 +197,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "3.7.0";
+  version = "3.8.0";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -311,13 +311,13 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 exports.newStitchClient = newStitchClient;
 
-var _auth = __webpack_require__(13);
+var _auth = __webpack_require__(14);
 
 var _providers = __webpack_require__(7);
 
 var _common = __webpack_require__(1);
 
-var _services = __webpack_require__(19);
+var _services = __webpack_require__(20);
 
 var _services2 = _interopRequireDefault(_services);
 
@@ -329,11 +329,13 @@ var _mongodbExtjson = __webpack_require__(5);
 
 var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
 
-var _queryString = __webpack_require__(36);
+var _queryString = __webpack_require__(37);
 
 var _queryString2 = _interopRequireDefault(_queryString);
 
 var _errors = __webpack_require__(3);
+
+var _constants = __webpack_require__(8);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -342,14 +344,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var v1 = 1;
-var v2 = 2;
-var v3 = 3;
-var API_TYPE_PUBLIC = 'public';
-var API_TYPE_PRIVATE = 'private';
-var API_TYPE_CLIENT = 'client';
-var API_TYPE_APP = 'app';
 
 var fetcher = exports.fetcher = function fetcher() {
   return typeof fetch === 'undefined' ? __webpack_require__(9) : fetch;
@@ -408,7 +402,7 @@ function newStitchClient(prototype, clientAppID) {
 
   stitchClient.authUrl = clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID + '/auth' : baseUrl + '/api/admin/v3.0/auth';
 
-  stitchClient.rootURLsByAPIVersion = (_stitchClient$rootURL = {}, _defineProperty(_stitchClient$rootURL, v1, (_v = {}, _defineProperty(_v, API_TYPE_PUBLIC, baseUrl + '/api/public/v1.0'), _defineProperty(_v, API_TYPE_CLIENT, baseUrl + '/api/client/v1.0'), _defineProperty(_v, API_TYPE_PRIVATE, baseUrl + '/api/private/v1.0'), _defineProperty(_v, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v1.0/app/' + clientAppID : baseUrl + '/api/public/v1.0'), _v)), _defineProperty(_stitchClient$rootURL, v2, (_v2 = {}, _defineProperty(_v2, API_TYPE_PUBLIC, baseUrl + '/api/public/v2.0'), _defineProperty(_v2, API_TYPE_CLIENT, baseUrl + '/api/client/v2.0'), _defineProperty(_v2, API_TYPE_PRIVATE, baseUrl + '/api/private/v2.0'), _defineProperty(_v2, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID : baseUrl + '/api/public/v2.0'), _v2)), _defineProperty(_stitchClient$rootURL, v3, (_v3 = {}, _defineProperty(_v3, API_TYPE_PUBLIC, baseUrl + '/api/public/v3.0'), _defineProperty(_v3, API_TYPE_CLIENT, baseUrl + '/api/client/v3.0'), _defineProperty(_v3, API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v3.0/app/' + clientAppID : baseUrl + '/api/admin/v3.0'), _v3)), _stitchClient$rootURL);
+  stitchClient.rootURLsByAPIVersion = (_stitchClient$rootURL = {}, _defineProperty(_stitchClient$rootURL, _constants.v1, (_v = {}, _defineProperty(_v, _constants.API_TYPE_PUBLIC, baseUrl + '/api/public/v1.0'), _defineProperty(_v, _constants.API_TYPE_CLIENT, baseUrl + '/api/client/v1.0'), _defineProperty(_v, _constants.API_TYPE_PRIVATE, baseUrl + '/api/private/v1.0'), _defineProperty(_v, _constants.API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v1.0/app/' + clientAppID : baseUrl + '/api/public/v1.0'), _v)), _defineProperty(_stitchClient$rootURL, _constants.v2, (_v2 = {}, _defineProperty(_v2, _constants.API_TYPE_PUBLIC, baseUrl + '/api/public/v2.0'), _defineProperty(_v2, _constants.API_TYPE_CLIENT, baseUrl + '/api/client/v2.0'), _defineProperty(_v2, _constants.API_TYPE_PRIVATE, baseUrl + '/api/private/v2.0'), _defineProperty(_v2, _constants.API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v2.0/app/' + clientAppID : baseUrl + '/api/public/v2.0'), _v2)), _defineProperty(_stitchClient$rootURL, _constants.v3, (_v3 = {}, _defineProperty(_v3, _constants.API_TYPE_PUBLIC, baseUrl + '/api/public/v3.0'), _defineProperty(_v3, _constants.API_TYPE_CLIENT, baseUrl + '/api/client/v3.0'), _defineProperty(_v3, _constants.API_TYPE_APP, clientAppID ? baseUrl + '/api/client/v3.0/app/' + clientAppID : baseUrl + '/api/admin/v3.0'), _v3)), _stitchClient$rootURL);
 
   var authOptions = {
     codec: _common.APP_CLIENT_CODEC,
@@ -576,7 +570,7 @@ var StitchClient = exports.StitchClient = function () {
       return this._do('/auth/session', 'DELETE', {
         refreshOnFailure: false,
         useRefreshToken: true,
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT]
       }).then(function () {
         return _this3.auth.clear();
       }, function () {
@@ -604,7 +598,7 @@ var StitchClient = exports.StitchClient = function () {
     key: 'userProfile',
     value: function userProfile() {
       return this._do('/auth/profile', 'GET', {
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT]
       }).then(function (response) {
         return response.json();
       });
@@ -725,7 +719,7 @@ var StitchClient = exports.StitchClient = function () {
       return this._do('/auth/session', 'POST', {
         refreshOnFailure: false,
         useRefreshToken: true,
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT]
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT]
       }).then(function (response) {
         return response.json();
       });
@@ -741,7 +735,7 @@ var StitchClient = exports.StitchClient = function () {
     key: 'getApiKeys',
     value: function getApiKeys() {
       return this._do('/auth/api_keys', 'GET', {
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT],
         useRefreshToken: true
       }).then(function (response) {
         return response.json();
@@ -759,7 +753,7 @@ var StitchClient = exports.StitchClient = function () {
     key: 'createApiKey',
     value: function createApiKey(userApiKeyName) {
       return this._do('/auth/api_keys', 'POST', {
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT],
         useRefreshToken: true,
         body: JSON.stringify({ name: userApiKeyName })
       }).then(function (response) {
@@ -778,7 +772,7 @@ var StitchClient = exports.StitchClient = function () {
     key: 'getApiKeyByID',
     value: function getApiKeyByID(keyID) {
       return this._do('/auth/api_keys/' + keyID, 'GET', {
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT],
         useRefreshToken: true
       }).then(function (response) {
         return response.json();
@@ -796,7 +790,7 @@ var StitchClient = exports.StitchClient = function () {
     key: 'deleteApiKeyByID',
     value: function deleteApiKeyByID(keyID) {
       return this._do('/auth/api_keys/' + keyID, 'DELETE', {
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT],
         useRefreshToken: true
       });
     }
@@ -812,7 +806,7 @@ var StitchClient = exports.StitchClient = function () {
     key: 'enableApiKeyByID',
     value: function enableApiKeyByID(keyID) {
       return this._do('/auth/api_keys/' + keyID + '/enable', 'PUT', {
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT],
         useRefreshToken: true
       });
     }
@@ -828,7 +822,7 @@ var StitchClient = exports.StitchClient = function () {
     key: 'disableApiKeyByID',
     value: function disableApiKeyByID(keyID) {
       return this._do('/auth/api_keys/' + keyID + '/disable', 'PUT', {
-        rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
+        rootURL: this.rootURLsByAPIVersion[_constants.v2][_constants.API_TYPE_CLIENT],
         useRefreshToken: true
       });
     }
@@ -906,8 +900,8 @@ var StitchClient = exports.StitchClient = function () {
       options = Object.assign({}, {
         refreshOnFailure: true,
         useRefreshToken: false,
-        apiVersion: v2,
-        apiType: API_TYPE_APP,
+        apiVersion: _constants.v2,
+        apiType: _constants.API_TYPE_APP,
         rootURL: undefined
       }, options);
 
@@ -1439,7 +1433,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
   return mongodbExtjson;
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10).Buffer))
 
 /***/ }),
 /* 6 */
@@ -8724,7 +8718,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
   return jsBson;
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(8).Buffer, __webpack_require__(35)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11), __webpack_require__(10).Buffer, __webpack_require__(36)))
 
 /***/ }),
 /* 7 */
@@ -9199,19 +9193,74 @@ exports.createProviders = createProviders;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var v1 = 1;
+var v2 = 2;
+var v3 = 3;
+var API_TYPE_PUBLIC = 'public';
+var API_TYPE_PRIVATE = 'private';
+var API_TYPE_CLIENT = 'client';
+var API_TYPE_APP = 'app';
+
+exports.v1 = v1;
+exports.v2 = v2;
+exports.v3 = v3;
+exports.API_TYPE_PUBLIC = API_TYPE_PUBLIC;
+exports.API_TYPE_PRIVATE = API_TYPE_PRIVATE;
+exports.API_TYPE_CLIENT = API_TYPE_CLIENT;
+exports.API_TYPE_APP = API_TYPE_APP;
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+// ref: https://github.com/tc39/proposal-global
+var getGlobal = function () {
+	// the only reliable means to get the global object is
+	// `Function('return this')()`
+	// However, this causes CSP violations in Chrome apps.
+	if (typeof self !== 'undefined') { return self; }
+	if (typeof window !== 'undefined') { return window; }
+	if (typeof global !== 'undefined') { return global; }
+	throw new Error('unable to locate global object');
+}
+
+var global = getGlobal();
+
+module.exports = exports = global.fetch;
+
+// Needed for TypeScript and Webpack.
+exports.default = global.fetch.bind(global);
+
+exports.Headers = global.Headers;
+exports.Request = global.Request;
+exports.Response = global.Response;
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 /* WEBPACK VAR INJECTION */(function(global) {/*!
  * The buffer module from node.js, for the browser.
  *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @author   Feross Aboukhadijeh <http://feross.org>
  * @license  MIT
  */
 /* eslint-disable no-proto */
 
 
 
-var base64 = __webpack_require__(24)
-var ieee754 = __webpack_require__(29)
-var isArray = __webpack_require__(30)
+var base64 = __webpack_require__(25)
+var ieee754 = __webpack_require__(30)
+var isArray = __webpack_require__(31)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -10989,39 +11038,10 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
 
 /***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-// ref: https://github.com/tc39/proposal-global
-var getGlobal = function () {
-	// the only reliable means to get the global object is
-	// `Function('return this')()`
-	// However, this causes CSP violations in Chrome apps.
-	if (typeof self !== 'undefined') { return self; }
-	if (typeof window !== 'undefined') { return window; }
-	if (typeof global !== 'undefined') { return global; }
-	throw new Error('unable to locate global object');
-}
-
-var global = getGlobal();
-
-module.exports = exports = global.fetch;
-
-// Needed for TypeScript and Webpack.
-exports.default = global.fetch.bind(global);
-
-exports.Headers = global.Headers;
-exports.Request = global.Request;
-exports.Response = global.Response;
-
-/***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports) {
 
 var g;
@@ -11048,7 +11068,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11065,7 +11085,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 
 
-var _formData = __webpack_require__(28);
+var _formData = __webpack_require__(29);
 
 var _formData2 = _interopRequireDefault(_formData);
 
@@ -11079,7 +11099,11 @@ var _common3 = __webpack_require__(1);
 
 var _errors = __webpack_require__(3);
 
+var _constants = __webpack_require__(8);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
@@ -11087,10 +11111,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var v3 = 3;
-
 /** @private **/
-
 var StitchAdminClientFactory = exports.StitchAdminClientFactory = function () {
   function StitchAdminClientFactory() {
     _classCallCheck(this, StitchAdminClientFactory);
@@ -11141,7 +11162,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
       return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', this).call(this, '/auth/session', 'DELETE', {
         refreshOnFailure: false,
         useRefreshToken: true,
-        apiVersion: v3
+        apiVersion: _constants.v3
       }).then(function () {
         return _this2.auth.clear();
       });
@@ -11168,7 +11189,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
   }, {
     key: 'getAuthProviders',
     value: function getAuthProviders() {
-      return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', this).call(this, '/auth/providers', 'GET', { noAuth: true, apiVersion: v3 }).then(function (response) {
+      return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', this).call(this, '/auth/providers', 'GET', { noAuth: true, apiVersion: _constants.v3 }).then(function (response) {
         return response.json();
       });
     }
@@ -11185,7 +11206,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
       return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', this).call(this, '/auth/session', 'POST', {
         refreshOnFailure: false,
         useRefreshToken: true,
-        apiVersion: v3
+        apiVersion: _constants.v3
       }).then(function (response) {
         return response.json();
       });
@@ -11852,17 +11873,52 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
       };
     }
   }, {
+    key: 'privateAdminTriggers',
+    value: function privateAdminTriggers(groupId, appId) {
+      var privateApi = this._v1[_constants.API_TYPE_PRIVATE];
+      var baseUrl = '/admin/groups/' + groupId + '/apps/' + appId + '/triggers';
+      return {
+        list: function list() {
+          return privateApi._get(baseUrl);
+        },
+        get: function get(triggerId) {
+          return privateApi._get(baseUrl + '/' + triggerId);
+        }
+      };
+    }
+  }, {
     key: 'type',
     get: function get() {
       return _common2.default;
     }
   }, {
-    key: '_v3',
+    key: '_v1',
     get: function get() {
       var _this3 = this;
 
+      var privateV1do = function privateV1do(url, method, options) {
+        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this3).call(_this3, url, method, Object.assign({}, { apiVersion: _constants.v1, apiType: _constants.API_TYPE_PRIVATE }, options)).then(function (response) {
+          var contentHeader = response.headers.get('content-type') || '';
+          if (contentHeader.split(',').indexOf('application/json') >= 0) {
+            return response.json();
+          }
+          return response;
+        });
+      };
+
+      return _defineProperty({}, _constants.API_TYPE_PRIVATE, {
+        _get: function _get(url, queryParams, headers, options) {
+          return privateV1do(url, 'GET', Object.assign({}, { queryParams: queryParams, headers: headers }, options));
+        }
+      });
+    }
+  }, {
+    key: '_v3',
+    get: function get() {
+      var _this4 = this;
+
       var v3do = function v3do(url, method, options) {
-        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this3).call(_this3, url, method, Object.assign({}, { apiVersion: v3 }, options)).then(function (response) {
+        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this4).call(_this4, url, method, Object.assign({}, { apiVersion: _constants.v3 }, options)).then(function (response) {
           var contentHeader = response.headers.get('content-type') || '';
           if (contentHeader.split(',').indexOf('application/json') >= 0) {
             return response.json();
@@ -11898,78 +11954,95 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
 }(_client.StitchClient);
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
-;(function () {
+var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function(f) {
 
-  var object =
-     true ? exports :
-    typeof self != 'undefined' ? self : // #8: web workers
-    $.global; // #31: ExtendScript
+  'use strict';
+
+  /* istanbul ignore else */
+  if (typeof exports === 'object' && exports != null &&
+      typeof exports.nodeType !== 'number') {
+    module.exports = f ();
+  } else if ("function" === 'function' && __webpack_require__(39) != null) {
+    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (f),
+				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+  } else {
+    var base64 = f ();
+    var global = typeof self !== 'undefined' ? self : $.global;
+    if (typeof global.btoa !== 'function') global.btoa = base64.btoa;
+    if (typeof global.atob !== 'function') global.atob = base64.atob;
+  }
+
+} (function() {
+
+  'use strict';
 
   var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
   function InvalidCharacterError(message) {
     this.message = message;
   }
-  InvalidCharacterError.prototype = new Error;
+  InvalidCharacterError.prototype = new Error ();
   InvalidCharacterError.prototype.name = 'InvalidCharacterError';
 
   // encoder
   // [https://gist.github.com/999166] by [https://github.com/nignag]
-  object.btoa || (
-  object.btoa = function (input) {
-    var str = String(input);
+  function btoa(input) {
+    var str = String (input);
     for (
       // initialize result and counter
       var block, charCode, idx = 0, map = chars, output = '';
       // if the next str index does not exist:
       //   change the mapping table to "="
       //   check if d has no fractional digits
-      str.charAt(idx | 0) || (map = '=', idx % 1);
+      str.charAt (idx | 0) || (map = '=', idx % 1);
       // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
-      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
+      output += map.charAt (63 & block >> 8 - idx % 1 * 8)
     ) {
-      charCode = str.charCodeAt(idx += 3/4);
+      charCode = str.charCodeAt (idx += 3 / 4);
       if (charCode > 0xFF) {
-        throw new InvalidCharacterError("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
+        throw new InvalidCharacterError ("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
       }
       block = block << 8 | charCode;
     }
     return output;
-  });
+  }
 
   // decoder
   // [https://gist.github.com/1020396] by [https://github.com/atk]
-  object.atob || (
-  object.atob = function (input) {
-    var str = String(input).replace(/[=]+$/, ''); // #31: ExtendScript bad parse of /=
-    if (str.length % 4 == 1) {
-      throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
+  function atob(input) {
+    var str = (String (input)).replace (/[=]+$/, ''); // #31: ExtendScript bad parse of /=
+    if (str.length % 4 === 1) {
+      throw new InvalidCharacterError ("'atob' failed: The string to be decoded is not correctly encoded.");
     }
     for (
       // initialize result and counters
       var bc = 0, bs, buffer, idx = 0, output = '';
       // get next character
-      buffer = str.charAt(idx++);
+      buffer = str.charAt (idx++); // eslint-disable-line no-cond-assign
       // character found in table? initialize bit storage and add its ascii value;
       ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
         // and if not first of each 4 characters,
         // convert the first 8 bits to one ascii character
-        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
+        bc++ % 4) ? output += String.fromCharCode (255 & bs >> (-2 * bc & 6)) : 0
     ) {
       // try to find character in table (0-63, not found => -1)
-      buffer = chars.indexOf(buffer);
+      buffer = chars.indexOf (buffer);
     }
     return output;
-  });
+  }
 
-}());
+  return {btoa: btoa, atob: atob};
+
+}));
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11986,7 +12059,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 exports.newAuth = newAuth;
 
-var _storage = __webpack_require__(14);
+var _storage = __webpack_require__(15);
 
 var _providers = __webpack_require__(7);
 
@@ -12000,7 +12073,7 @@ var _common2 = __webpack_require__(2);
 
 var common = _interopRequireWildcard(_common2);
 
-var _detectBrowser = __webpack_require__(25);
+var _detectBrowser = __webpack_require__(26);
 
 var _platform = _interopRequireWildcard(_detectBrowser);
 
@@ -12010,7 +12083,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var jwtDecode = __webpack_require__(33);
+var jwtDecode = __webpack_require__(34);
 
 var EMBEDDED_USER_AUTH_DATA_PARTS = 4;
 
@@ -12452,7 +12525,7 @@ var Auth = exports.Auth = function () {
 }();
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12636,7 +12709,7 @@ function createStorage(options) {
 }
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12649,7 +12722,7 @@ exports.BSON = exports.StitchAdminClientFactory = exports.StitchClientFactory = 
 
 var _client = __webpack_require__(4);
 
-var _admin = __webpack_require__(11);
+var _admin = __webpack_require__(12);
 
 var _mongodbExtjson = __webpack_require__(5);
 
@@ -12658,7 +12731,7 @@ exports.StitchAdminClientFactory = _admin.StitchAdminClientFactory;
 exports.BSON = _mongodbExtjson.BSON;
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12738,7 +12811,7 @@ exports.default = S3Service;
 module.exports = exports['default'];
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12799,7 +12872,7 @@ exports.default = SESService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12960,7 +13033,7 @@ exports.default = HTTPService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12970,23 +13043,23 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _s3_service = __webpack_require__(16);
+var _s3_service = __webpack_require__(17);
 
 var _s3_service2 = _interopRequireDefault(_s3_service);
 
-var _ses_service = __webpack_require__(17);
+var _ses_service = __webpack_require__(18);
 
 var _ses_service2 = _interopRequireDefault(_ses_service);
 
-var _http_service = __webpack_require__(18);
+var _http_service = __webpack_require__(19);
 
 var _http_service2 = _interopRequireDefault(_http_service);
 
-var _mongodb_service = __webpack_require__(22);
+var _mongodb_service = __webpack_require__(23);
 
 var _mongodb_service2 = _interopRequireDefault(_mongodb_service);
 
-var _twilio_service = __webpack_require__(23);
+var _twilio_service = __webpack_require__(24);
 
 var _twilio_service2 = _interopRequireDefault(_twilio_service);
 
@@ -13004,7 +13077,7 @@ exports.default = {
 module.exports = exports['default'];
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13278,7 +13351,7 @@ exports.default = Collection;
 module.exports = exports['default'];
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13290,7 +13363,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _collection = __webpack_require__(20);
+var _collection = __webpack_require__(21);
 
 var _collection2 = _interopRequireDefault(_collection);
 
@@ -13342,7 +13415,7 @@ exports.default = DB;
 module.exports = exports['default'];
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13354,7 +13427,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _db = __webpack_require__(21);
+var _db = __webpack_require__(22);
 
 var _db2 = _interopRequireDefault(_db);
 
@@ -13406,7 +13479,7 @@ exports.default = MongoDBService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13466,7 +13539,7 @@ exports.default = TwilioService;
 module.exports = exports['default'];
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13537,7 +13610,8 @@ function toByteArray (b64) {
     ? validLen - 4
     : validLen
 
-  for (var i = 0; i < len; i += 4) {
+  var i
+  for (i = 0; i < len; i += 4) {
     tmp =
       (revLookup[b64.charCodeAt(i)] << 18) |
       (revLookup[b64.charCodeAt(i + 1)] << 12) |
@@ -13624,10 +13698,10 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var detectBrowser = __webpack_require__(26);
+var detectBrowser = __webpack_require__(27);
 
 var agent;
 
@@ -13639,10 +13713,10 @@ module.exports = detectBrowser(agent);
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var detectOS = __webpack_require__(27);
+var detectOS = __webpack_require__(28);
 
 module.exports = function detectBrowser(userAgentString) {
   if (!userAgentString) return null;
@@ -13688,7 +13762,7 @@ module.exports = function detectBrowser(userAgentString) {
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports) {
 
 module.exports = function detectOS(userAgentString) {
@@ -13806,7 +13880,7 @@ module.exports = function detectOS(userAgentString) {
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports) {
 
 /* eslint-env browser */
@@ -13814,12 +13888,12 @@ module.exports = typeof self == 'object' ? self.FormData : window.FormData;
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
-  var eLen = nBytes * 8 - mLen - 1
+  var eLen = (nBytes * 8) - mLen - 1
   var eMax = (1 << eLen) - 1
   var eBias = eMax >> 1
   var nBits = -7
@@ -13832,12 +13906,12 @@ exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   e = s & ((1 << (-nBits)) - 1)
   s >>= (-nBits)
   nBits += eLen
-  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+  for (; nBits > 0; e = (e * 256) + buffer[offset + i], i += d, nBits -= 8) {}
 
   m = e & ((1 << (-nBits)) - 1)
   e >>= (-nBits)
   nBits += mLen
-  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+  for (; nBits > 0; m = (m * 256) + buffer[offset + i], i += d, nBits -= 8) {}
 
   if (e === 0) {
     e = 1 - eBias
@@ -13852,7 +13926,7 @@ exports.read = function (buffer, offset, isLE, mLen, nBytes) {
 
 exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   var e, m, c
-  var eLen = nBytes * 8 - mLen - 1
+  var eLen = (nBytes * 8) - mLen - 1
   var eMax = (1 << eLen) - 1
   var eBias = eMax >> 1
   var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
@@ -13885,7 +13959,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
       m = 0
       e = eMax
     } else if (e + eBias >= 1) {
-      m = (value * c - 1) * Math.pow(2, mLen)
+      m = ((value * c) - 1) * Math.pow(2, mLen)
       e = e + eBias
     } else {
       m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)
@@ -13904,7 +13978,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -13915,7 +13989,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports) {
 
 /**
@@ -13959,10 +14033,10 @@ module.exports = typeof window !== 'undefined' && window.atob && window.atob.bin
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var atob = __webpack_require__(31);
+var atob = __webpack_require__(32);
 
 function b64DecodeUnicode(str) {
   return decodeURIComponent(atob(str).replace(/(.)/g, function (m, p) {
@@ -13998,13 +14072,13 @@ module.exports = function(str) {
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var base64_url_decode = __webpack_require__(32);
+var base64_url_decode = __webpack_require__(33);
 
 function InvalidTokenError(message) {
   this.message = message;
@@ -14031,7 +14105,7 @@ module.exports.InvalidTokenError = InvalidTokenError;
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14128,7 +14202,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -14318,13 +14392,13 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var strictUriEncode = __webpack_require__(37);
-var objectAssign = __webpack_require__(34);
+var strictUriEncode = __webpack_require__(38);
+var objectAssign = __webpack_require__(35);
 
 function encoderForArrayFormat(opts) {
 	switch (opts.arrayFormat) {
@@ -14530,7 +14604,7 @@ exports.stringify = function (obj, opts) {
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14541,6 +14615,15 @@ module.exports = function (str) {
 	});
 };
 
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports) {
+
+/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {/* globals __webpack_amd_options__ */
+module.exports = __webpack_amd_options__;
+
+/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
 /***/ })
 /******/ ]);
