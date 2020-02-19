@@ -15,8 +15,8 @@ The official [MongoDB Stitch](https://www.mongodb.com/cloud/stitch) Server SDK f
 * [API Reference Manual](https://docs.mongodb.com/stitch-sdks/js-server/4/index.html)
 
 ## Discussion
-* [MongoDB Stitch Users - Google Group](https://groups.google.com/d/forum/mongodb-stitch-users)
-* [MongoDB Stitch Announcements - Google Group](https://groups.google.com/d/forum/mongodb-stitch-announce)
+* [MongoDB Community Forums](https://community.mongodb.com/c/cloud/10)
+* [MongoDB Product & Driver Announcements](https://community.mongodb.com/c/community/release-notes/35)
 
 ## Installation
 
