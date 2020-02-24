@@ -466,18 +466,18 @@ export class StitchAdminClient extends StitchClient {
             };
           },
 
-          realm: () => {
-            const realmUrl = `${appUrl}/realm`;
+          sync: () => {
+            const syncUrl = `${appUrl}/sync`;
             return {
               config: () => {
-                const realmConfigUrl = `${realmUrl}/config`;
+                const realmConfigUrl = `${syncUrl}/config`;
                 return {
                   get: () => api._get(realmConfigUrl),
                   update: (data) => api._put(realmConfigUrl, { body: JSON.stringify(data) })
                 };
               },
               clientSchemas: () => {
-                const realmClientSchemasUrl = `${realmUrl}/client_schemas`;
+                const realmClientSchemasUrl = `${syncUrl}/client_schemas`;
                 return {
                   get: (language, filter) => api._get(`${realmClientSchemasUrl}/${language}`, filter)
                 };
