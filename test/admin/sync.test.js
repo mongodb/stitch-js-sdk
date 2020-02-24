@@ -79,7 +79,6 @@ describe('Sync', () => {
         await addRuleToMongodbService(services, mongoDBService, {database: 'foo', collection: 'bar'});
         const schemas =  await syncClientSchemas.get('KOTLIN');
         expect(schemas.length).toEqual(1);
-        console.log(schemas);
       });
     });
   });
