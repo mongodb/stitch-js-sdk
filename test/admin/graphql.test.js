@@ -57,4 +57,47 @@ describe('graphql', () => {
     const response = await graphql.validate();
     expect(response).toEqual([]);
   });
+
+  describe('custom_resolvers', () => {
+    let myResolver;
+    beforeEach(async(done) => {
+      myResolver = await graphql.customResolvers().create({
+        field_name: 'myResolver',
+        on_type: 'Query',
+        function_id: '5a1154523a6bcc1d245e143d'
+      });
+
+      done();
+    });
+
+    it('.list', async() => {
+      const response = await graphql.customResolvers().list();
+      expect(response).toEqual([myResolver]);
+    });
+
+    it('.create', async() => {
+      expect(myResolver).toMatchObject({
+        field_name: 'myResolver',
+        function_id: '5a1154523a6bcc1d245e143d',
+        on_type: 'Query'
+      });
+    });
+
+    it('.get', async() => {
+      const response = await graphql.customResolvers().customResolver(myResolver._id).get();
+      expect(response).toEqual(myResolver);
+    });
+
+    it('.update', async() => {
+      const update = Object.assign({}, myResolver, { on_type: 'Mutation'});
+      const response = await graphql.customResolvers().customResolver(myResolver._id).update(update);
+      expect(response.status).toEqual(204);
+    });
+
+    it('.remove', async() => {
+      await graphql.customResolvers().customResolver(myResolver._id).remove();
+      const response = await graphql.customResolvers().list();
+      expect(response).toEqual([]);
+    });
+  });
 });

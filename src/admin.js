@@ -462,7 +462,16 @@ export class StitchAdminClient extends StitchClient {
 
             return {
               post: (data) => api._post(`${graphqlUrl}`, data),
-              validate: () => api._get(`${graphqlUrl}/validate`)
+              validate: () => api._get(`${graphqlUrl}/validate`),
+              customResolvers: () => ({
+                list: () => api._get(`${graphqlUrl}/custom_resolvers`),
+                create: data => api._post(`${graphqlUrl}/custom_resolvers`, data),
+                customResolver: (id) => ({
+                  get: () => api._get(`${graphqlUrl}/custom_resolvers/${id}`),
+                  update: data => api._put(`${graphqlUrl}/custom_resolvers/${id}`, { body: JSON.stringify(data) }),
+                  remove: () => api._delete(`${graphqlUrl}/custom_resolvers/${id}`)
+                })
+              })
             };
           },
 

@@ -766,6 +766,29 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                 },
                 validate: function validate() {
                   return api._get(graphqlUrl + '/validate');
+                },
+                customResolvers: function customResolvers() {
+                  return {
+                    list: function list() {
+                      return api._get(graphqlUrl + '/custom_resolvers');
+                    },
+                    create: function create(data) {
+                      return api._post(graphqlUrl + '/custom_resolvers', data);
+                    },
+                    customResolver: function customResolver(id) {
+                      return {
+                        get: function get() {
+                          return api._get(graphqlUrl + '/custom_resolvers/' + id);
+                        },
+                        update: function update(data) {
+                          return api._put(graphqlUrl + '/custom_resolvers/' + id, { body: JSON.stringify(data) });
+                        },
+                        remove: function remove() {
+                          return api._delete(graphqlUrl + '/custom_resolvers/' + id);
+                        }
+                      };
+                    }
+                  };
                 }
               };
             },
