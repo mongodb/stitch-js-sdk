@@ -2,6 +2,16 @@ const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
 import { buildAdminTestHarness, extractTestFixtureDataPoints } from '../testutil';
 
+const assertAppsEqual = (a, b) => {
+  const appA = Object.assign({}, a);
+  const appB = Object.assign({}, b);
+
+  delete appA.last_used;
+  delete appB.last_used;
+
+  expect(appA).toEqual(appB);
+};
+
 describe('Apps', ()=>{
   let test = new StitchMongoFixture();
   let th;
@@ -31,12 +41,13 @@ describe('Apps', ()=>{
     const app = await th.createApp(testAppName);
     const apps = (await th.apps().list()).filter(x => x._id === app._id);
     expect(apps).toHaveLength(1);
-    expect(apps[0]).toEqual(app);
+
+    assertAppsEqual(apps[0], app);
   });
   it('can fetch an existing app', async() => {
     const app = await th.createApp(testAppName);
     const appFetched = await th.app().get();
-    expect(app).toEqual(appFetched);
+    assertAppsEqual(app, appFetched);
   });
   it('can delete an app', async() => {
     const app = await th.createApp(testAppName);
@@ -60,7 +71,7 @@ describe('Apps', ()=>{
     it('should only display apps of a product type when the list function is called with that filter', async() => {
       const apps = (await th.apps().list({ product: 'atlas' }));
       expect(apps).toHaveLength(1);
-      expect(apps[0]).toEqual(app);
+      assertAppsEqual(apps[0], app);
     });
   });
 });
