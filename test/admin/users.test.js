@@ -24,9 +24,14 @@ describe('Users', ()=>{
 
   afterEach(async() => th.cleanup());
 
-  it('listing apps should return empty list', async() => {
+  it('listing users should return empty list', async() => {
     let users = await appUsers.list();
     expect(users).toEqual([]);
+  });
+
+  it('users count should return 0', async() => {
+    let count = await appUsers.count();
+    expect(count).toEqual(0);
   });
 
   const testUserName = 'testusername@test.com';
@@ -34,10 +39,14 @@ describe('Users', ()=>{
   /** @returns {Object} user */
   async function createUserWithExpectation() {
     let users = await appUsers.list();
+    let count = await appUsers.count();
     expect(users).toEqual([]);
+    expect(users.length).toEqual(count);
     await appUsers.create({email: testUserName, password: 'admin123'});
     users = await appUsers.list();
+    count = await appUsers.count();
     expect(users).toHaveLength(1);
+    expect(users.length).toEqual(count);
     expect(users[0].data.email).toEqual(testUserName);
     return users[0];
   }
