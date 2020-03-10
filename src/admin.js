@@ -338,6 +338,7 @@ export class StitchAdminClient extends StitchClient {
           }),
 
           users: () => ({
+            count: () => api._get(`${appUrl}/users_count`),
             list: filter => api._get(`${appUrl}/users`, filter),
             create: user => api._post(`${appUrl}/users`, user),
             user: uid => ({
