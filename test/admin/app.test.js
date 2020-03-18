@@ -8,6 +8,8 @@ const assertAppsEqual = (a, b) => {
 
   delete appA.last_used;
   delete appB.last_used;
+  delete appA.last_modified;
+  delete appB.last_modified;
 
   expect(appA).toEqual(appB);
 };
