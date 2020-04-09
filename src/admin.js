@@ -491,7 +491,8 @@ export class StitchAdminClient extends StitchClient {
                 return {
                   get: (language, filter) => api._get(`${realmClientSchemasUrl}/${language}`, filter)
                 };
-              }
+              },
+              data: () => api._get(`${syncUrl}/data`)
             };
           }
         };

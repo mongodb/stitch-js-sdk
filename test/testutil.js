@@ -4,7 +4,7 @@ import { BSON } from 'mongodb-extjson';
 
 const constants = require('./constants');
 
-export const extractTestFixtureDataPoints = (test) => {
+export const extractTestFixtureDataPoints = test => {
   const {
     userData: {
       apiKey: { key: apiKey },
@@ -39,7 +39,7 @@ export const randomString = (length = 5) => {
   return result;
 };
 
-export const createSampleMongodbService = async(services) => {
+export const createSampleMongodbService = async services => {
   const mongodbService = await services.create({
     type: 'mongodb',
     name: 'mdb',
@@ -48,6 +48,25 @@ export const createSampleMongodbService = async(services) => {
     }
   });
   return mongodbService;
+};
+
+export const createSampleMongodbSyncService = async(services, partitionKey = 'key') => {
+  const syncService = await services.create({
+    type: 'mongodb',
+    name: 'mdb',
+    config: {
+      uri: 'mongodb://localhost:26000',
+      sync: {
+        state: 'enabled',
+        database_name: 'db',
+        partition: {
+          key: partitionKey,
+          permissions: { read: true, write: true }
+        }
+      }
+    }
+  });
+  return syncService;
 };
 
 export const addRuleToMongodbService = async(services, mongodbService, { database, collection, config }) => {
@@ -73,22 +92,28 @@ class TestHarness {
     await this.adminClient.authenticate('apiKey', this.apiKey);
   }
 
-  async configureUserpass(userpassConfig = {
-    emailConfirmationUrl: 'http://emailConfirmURL.com',
-    resetPasswordUrl: 'http://resetPasswordURL.com',
-    confirmEmailSubject: 'email subject',
-    resetPasswordSubject: 'password subject'
-  }) {
-    return await this.app().authProviders().create({
-      type: 'local-userpass',
-      config: userpassConfig
-    });
+  async configureUserpass(
+    userpassConfig = {
+      emailConfirmationUrl: 'http://emailConfirmURL.com',
+      resetPasswordUrl: 'http://resetPasswordURL.com',
+      confirmEmailSubject: 'email subject',
+      resetPasswordSubject: 'password subject'
+    }
+  ) {
+    return await this.app()
+      .authProviders()
+      .create({
+        type: 'local-userpass',
+        config: userpassConfig
+      });
   }
 
   configureAnon() {
-    return this.app().authProviders().create({
-      type: 'anon-user'
-    });
+    return this.app()
+      .authProviders()
+      .create({
+        type: 'anon-user'
+      });
   }
 
   async createApp(testAppName, options) {
@@ -101,7 +126,9 @@ class TestHarness {
 
   async createUser(email = 'test_user@domain.com', password = 'password') {
     this.userCredentials = { username: email, password };
-    this.user = await this.app().users().create({ email, password });
+    this.user = await this.app()
+      .users()
+      .create({ email, password });
     return this.user;
   }
 
@@ -111,10 +138,7 @@ class TestHarness {
     }
     await this.createUser();
 
-    this.stitchClient = await StitchClientFactory.create(
-      this.testApp.client_app_id,
-      { baseUrl: this.serverUrl }
-    );
+    this.stitchClient = await StitchClientFactory.create(this.testApp.client_app_id, { baseUrl: this.serverUrl });
     await this.stitchClient.authenticate('userpass', this.userCredentials);
   }
 
