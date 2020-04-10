@@ -5,7 +5,7 @@ import {PROVIDER_TYPE_ANON} from './auth/providers';
 import {APP_CLIENT_CODEC} from './auth/common';
 import ServiceRegistry from './services';
 import * as common from './common';
-import ExtJSON from 'mongodb-extjson';
+import { EJSON } from 'bson';
 import queryString from 'query-string';
 import {StitchError, ErrInvalidSession, ErrUnauthorized} from './errors';
 import { v1, v2, v3, API_TYPE_PUBLIC, API_TYPE_PRIVATE, API_TYPE_CLIENT, API_TYPE_APP } from './constants';
@@ -316,8 +316,8 @@ export class StitchClient {
   }
 
   _doFunctionCall(request) {
-    let responseDecoder = d => ExtJSON.parse(d, {relaxed: true});
-    let responseEncoder = d => ExtJSON.stringify(d, {strict: true});
+    let responseDecoder = d => EJSON.parse(d, {relaxed: true});
+    let responseEncoder = d => EJSON.stringify(d, {strict: true});
 
     return this._do('/functions/call', 'POST', {body: responseEncoder(request)})
       .then(response => response.text())

@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk');
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 
-import { BSON } from 'mongodb-extjson';
+import BSON from 'bson';
 import { buildClientTestHarness, extractTestFixtureDataPoints } from '../testutil';
 
 // Returns true if AWS credentials are in env, false otehrwise.

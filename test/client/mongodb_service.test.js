@@ -1,6 +1,6 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 import { buildClientTestHarness, extractTestFixtureDataPoints } from '../testutil';
-import { BSON } from 'mongodb-extjson';
+import BSON from 'bson';
 
 const SERVICE_TYPE = 'mongodb';
 const SERVICE_NAME = 'mdb';
