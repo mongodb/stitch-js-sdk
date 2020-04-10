@@ -1,6 +1,6 @@
 /* global expect, it, describe, global, afterEach, beforeEach, afterAll, beforeAll, require, Buffer, Promise */
 import { buildClientTestHarness, extractTestFixtureDataPoints } from '../testutil';
-import { BSON } from 'mongodb-extjson';
+import BSON from 'bson';
 
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 const SERVICE_TYPE = 'mongodb';

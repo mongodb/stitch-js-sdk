@@ -1,6 +1,6 @@
 const StitchMongoFixture = require('../fixtures/stitch_mongo_fixture');
 import { StitchClientFactory } from '../../src/client';
-import { BSON } from 'mongodb-extjson';
+import BSON from 'bson';
 
 const TEST_DB = new BSON.ObjectId().toString();
 const TESTNS1 = new BSON.ObjectId().toString();

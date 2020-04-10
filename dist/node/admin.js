@@ -510,6 +510,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
 
             users: function users() {
               return {
+                count: function count() {
+                  return api._get(appUrl + '/users_count');
+                },
                 list: function list(filter) {
                   return api._get(appUrl + '/users', filter);
                 },
@@ -793,11 +796,11 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
               };
             },
 
-            realm: function realm() {
-              var realmUrl = appUrl + '/realm';
+            sync: function sync() {
+              var syncUrl = appUrl + '/sync';
               return {
                 config: function config() {
-                  var realmConfigUrl = realmUrl + '/config';
+                  var realmConfigUrl = syncUrl + '/config';
                   return {
                     get: function get() {
                       return api._get(realmConfigUrl);
@@ -808,7 +811,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                   };
                 },
                 clientSchemas: function clientSchemas() {
-                  var realmClientSchemasUrl = realmUrl + '/client_schemas';
+                  var realmClientSchemasUrl = syncUrl + '/client_schemas';
                   return {
                     get: function get(language, filter) {
                       return api._get(realmClientSchemasUrl + '/' + language, filter);

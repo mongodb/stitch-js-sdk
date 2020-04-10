@@ -25,9 +25,7 @@ var _common2 = require('./common');
 
 var common = _interopRequireWildcard(_common2);
 
-var _mongodbExtjson = require('mongodb-extjson');
-
-var _mongodbExtjson2 = _interopRequireDefault(_mongodbExtjson);
+var _bson = require('bson');
 
 var _queryString = require('query-string');
 
@@ -393,10 +391,10 @@ var StitchClient = exports.StitchClient = function () {
     key: '_doFunctionCall',
     value: function _doFunctionCall(request) {
       var responseDecoder = function responseDecoder(d) {
-        return _mongodbExtjson2.default.parse(d, { relaxed: true });
+        return _bson.EJSON.parse(d, { relaxed: true });
       };
       var responseEncoder = function responseEncoder(d) {
-        return _mongodbExtjson2.default.stringify(d, { strict: true });
+        return _bson.EJSON.stringify(d, { strict: true });
       };
 
       return this._do('/functions/call', 'POST', { body: responseEncoder(request) }).then(function (response) {

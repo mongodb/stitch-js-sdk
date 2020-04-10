@@ -1,6 +1,6 @@
 import { StitchAdminClientFactory } from '../src/admin';
 import { StitchClientFactory } from '../src/client';
-import { BSON } from 'mongodb-extjson';
+import BSON from 'bson';
 
 const constants = require('./constants');
 
