@@ -2,20 +2,31 @@
 
 ### Summary
 
-This project follows [Semantic Versioning 2.0](https://semver.org/). In general, every release is associated with a tag and a changelog. `master` serves as the mainline branch for the project and represent the latest state of development.
+This project follows [Semantic Versioning 2.0](https://semver.org/). In general, every release is associated with a tag and a changelog. `support/3.x` serves as the mainline branch for the project and represents the latest state of development.
 
 ### Publishing a New SDK version
 ```bash
+# fetch and rebase from upstream/support/3.x
+git fetch upstream support/3.x
+git rebase upstream/support/3.x
+
+# checkout a release branch
+git checkout -b release/3.<x>.<y>
+
 # run bump_version.bash with either patch, minor, or major
 ./bump_version.bash <patch|minor|major>
 
+# push changes to your remote origin 
+git push origin release/3.<x>.<y>
+
+# open a PR from that remote branch to support/3.x and get it reviewed
+# merge branch after approval
+
 # make live
-git push upstream && git push upstream --tags
+git push upstream --tags
 npm publish
 
 npm deprecate mongodb-stitch "The browser SDK has moved to mongodb-stitch-browser-sdk, and the Node.js SDK has moved to mongodb-stitch-server-sdk"
-
-# send an email detailing the changes to the https://groups.google.com/d/forum/mongodb-stitch-announce mailing list
 ```
 
 ### Patch Versions
