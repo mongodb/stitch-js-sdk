@@ -12,11 +12,11 @@ if [ "$BUMP_TYPE" != "patch" ] && [ "$BUMP_TYPE" != "minor" ] && [ "$BUMP_TYPE" 
 	exit 1
 fi
 
-LAST_VERSION=`node -e 'console.log(require("./package.json").version)'`
+LAST_VERSION=`node -e 'console.log(require("../package.json").version)'`
 
 npm version $BUMP_TYPE --no-git-tag-version
 
-NEW_VERSION=`node -e 'console.log(require("./package.json").version)'`
+NEW_VERSION=`node -e 'console.log(require("../package.json").version)'`
 
 echo "Bumping $LAST_VERSION to $NEW_VERSION ($BUMP_TYPE)"
 
