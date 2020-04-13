@@ -817,6 +817,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                       return api._get(realmClientSchemasUrl + '/' + language, filter);
                     }
                   };
+                },
+                data: function data() {
+                  return api._get(syncUrl + '/data');
                 }
               };
             }
