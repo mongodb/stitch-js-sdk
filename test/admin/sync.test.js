@@ -119,4 +119,38 @@ describe('Sync', () => {
       expect(data).toEqual({ service_id: syncService._id, partition_fields: ['created_at', 'email', 'store_id'] });
     });
   });
+
+  describe('patch schemas', () => {
+    it('should succeed with updating service collection schemas', async() => {
+      const svc = await createSampleMongodbService(services);
+      await addRuleToMongodbService(services, svc, {
+        database: 'db',
+        collection: 'coll1',
+        config: {
+          schema: {
+            properties: {
+              _id: { bsonType: 'objectId' }
+            }
+          }
+        }
+      });
+
+      await sync.patchSchemas({
+        service_id: svc._id,
+        partition_key: 'key',
+        partition_key_type: 'string'
+      });
+
+      const rules = await services.service(svc._id).rules().list();
+      expect(rules).toHaveLength(1);
+
+      const rule = await services.service(svc._id).rules().rule(rules[0]._id).get();
+      expect(rule.schema).toEqual({
+        properties: {
+          _id: { bsonType: 'objectId' },
+          key: { bsonType: 'string' }
+        }
+      });
+    });
+  });
 });
