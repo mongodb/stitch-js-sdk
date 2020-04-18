@@ -97,6 +97,43 @@ describe('Sync', () => {
       expect(data).toEqual({});
     });
 
+    it('should return partition fields if called with a service_id param', async() => {
+      const svc = await createSampleMongodbService(services);
+      await addRuleToMongodbService(services, svc, {
+        database: 'db',
+        collection: 'coll1',
+        config: {
+          schema: {
+            properties: {
+              _id: { bsonType: 'objectId' },
+              email: { bsonType: 'string' },
+              active: { bsonType: 'boolean' },
+              store_id: { bsonType: 'objectId' },
+              created_at: { bsonType: 'long' }
+            }
+          }
+        }
+      });
+      await addRuleToMongodbService(services, svc, {
+        database: 'db',
+        collection: 'coll2',
+        config: {
+          schema: {
+            properties: {
+              _id: { bsonType: 'objectId' },
+              email: { bsonType: 'string' },
+              active: { bsonType: 'boolean' },
+              store_id: { bsonType: 'objectId' },
+              created_at: { bsonType: 'long' }
+            }
+          }
+        }
+      });
+
+      const data = await sync.data({ service_id: svc._id });
+      expect(data).toEqual({ partition_fields: ['created_at', 'email', 'store_id'] });
+    });
+
     it('should return correct data for an enabled sync service', async() => {
       const syncService = await createSampleMongodbSyncService(services, 'email');
       await addRuleToMongodbService(services, syncService, {
