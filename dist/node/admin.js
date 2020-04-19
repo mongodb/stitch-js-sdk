@@ -819,7 +819,8 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                   };
                 },
                 data: function data() {
-                  return api._get(syncUrl + '/data');
+                  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+                  return api._get(syncUrl + '/data', params);
                 },
                 patchSchemas: function patchSchemas(data) {
                   return api._patch(syncUrl + '/schemas', { body: JSON.stringify(data) });
