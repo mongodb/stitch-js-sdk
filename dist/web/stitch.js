@@ -197,7 +197,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "3.12.0";
+  version = "3.12.1";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -9595,7 +9595,8 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                   };
                 },
                 data: function data() {
-                  return api._get(syncUrl + '/data');
+                  var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+                  return api._get(syncUrl + '/data', params);
                 },
                 patchSchemas: function patchSchemas(data) {
                   return api._patch(syncUrl + '/schemas', { body: JSON.stringify(data) });
