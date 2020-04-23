@@ -1,25 +1,35 @@
 functions:
-  "fetch_node":
-    - command: shell.exec
+  "fetch_source":
+    - command: git.get_project
+      params:
+        directory: "baas-admin-sdk"
+  "setup_node": &setup_node
+      command: shell.exec
       params:
         shell: "bash"
         script: |
           set -e
-          curl -s ${node_url} | tar xJf -
-          mv node-* node
-  "fetch_go113":
+          export ROOT_DIR=`pwd`
+          export NVM_DIR="$ROOT_DIR/.nvm"
+          curl -OL https://yarnpkg.com/latest.tar.gz
+          tar zxf latest.tar.gz
+          mv yarn-* yarn
+          if [ ! -d "$NVM_DIR" ]; then
+            git clone https://github.com/nvm-sh/nvm.git "$NVM_DIR"
+            cd "$NVM_DIR"
+            git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1)`
+          fi
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm install ${node_version}
+  "setup_go":
     - command: shell.exec
       params:
         shell: "bash"
         script: |
           set -e
           wget --quiet ${go_url}
-          tar xf ./go1.13*gz
-  "fetch_source":
-    - command: git.get_project
-      params:
-        directory: "stitch-js-sdk"
-
+          tar xf ./go1*gz
+          curl --silent -OL https://yarnpkg.com/latest.tar.gz
   "setup_mongod":
     - command: shell.exec
       params:
@@ -47,46 +57,29 @@ functions:
           ./bin/mongo --nodb --eval 'assert.soon(function(x){try{var d = new Mongo("localhost:26000"); return true}catch(e){return false}}, "timed out connecting")'
           ./bin/mongo --port 26000 --eval 'rs.initiate()'
           echo "mongod is up."
-
-  "setup_stitch":
-    - command: shell.exec
-      params:
-        shell: "bash"
-        silent: true
-        script: |
-          set -e
-          echo export AWS_ACCESS_KEY_ID=${test_aws_key} >> creds
-          echo export AWS_SECRET_ACCESS_KEY=${test_aws_secret} >> creds
-          echo export TWILIO_SID=${test_twilio_sid} >> creds
-          echo export TWILIO_AUTHTOKEN=${test_twilio_authtoken} >> creds
-          echo export FB_APP_ID=${test_facebook_app_id} >> creds
-          echo export FB_APP_SECRET=${test_facebook_app_secret} >> creds
-
+  "setup_baas":
     - command: shell.exec
       params:
         shell: "bash"
         script: |
           set -e
-          echo "cloning stitch"
-          git clone git@github.com:10gen/stitch
+          echo "cloning baas"
+          git clone git@github.com:10gen/baas
 
           echo "downloading libmongo"
           wget --quiet "${libmongo_url}"
           chmod +x libmongo.so
 
-          echo "downloading stitch dylib"
-          mkdir -p stitch/etc/dylib
-          cd stitch/etc/dylib
-          curl -s "${server_stitch_lib_url}" | tar xfz - --strip-components=1
+          echo "downloading baas dylib"
+          mkdir -p baas/etc/dylib
+          cd baas/etc/dylib
+          curl -s "${server_baas_lib_url}" | tar xfz - --strip-components=1
           cd -
 
           echo "building transpiler"
-          curl -OL https://yarnpkg.com/latest.tar.gz
-          tar zxf latest.tar.gz
-          mv yarn-* yarn
           export PATH="`pwd`/yarn/bin:`pwd`/node/bin:$PATH"
-          cd stitch/etc/transpiler
-          yarn install && yarn run build -t ${transpiler_target}
+          cd baas/etc/transpiler
+          yarn && yarn build -t ${transpiler_target}
     - command: shell.exec
       params:
         shell: "bash"
@@ -94,15 +87,15 @@ functions:
         script: |
           export ROOT_DIR=`pwd`
           export PATH=$ROOT_DIR:$PATH
-          export STITCH_PATH=$ROOT_DIR/stitch
-          export PATH="$PATH:$STITCH_PATH/etc/transpiler/bin"
-          export LD_LIBRARY_PATH="$STITCH_PATH/etc/dylib/lib"
+          export BAAS_PATH=$ROOT_DIR/baas
+          export PATH="$PATH:$BAAS_PATH/etc/transpiler/bin"
+          export LD_LIBRARY_PATH="$BAAS_PATH/etc/dylib/lib"
           which transpiler
-          echo "running stitch"
+          echo "running baas"
           export GOROOT=$ROOT_DIR/go
           export PATH=$GOROOT/bin:$PATH
-          cd $STITCH_PATH
-          go run cmd/server/main.go --configFile $STITCH_PATH/etc/configs/test_config.json
+          cd $BAAS_PATH
+          go run cmd/server/main.go --configFile $BAAS_PATH/etc/configs/test_config.json
     - command: shell.exec
       params:
         shell: "bash"
@@ -118,201 +111,33 @@ functions:
           done
 
 tasks:
-  - name: run_tests
+  - name: test
     commands:
-      - func: "fetch_node"
-      - func: "fetch_go113"
-      - func: "fetch_source"
-      - func: "setup_mongod"
-      - func: "setup_stitch"
-      - command: shell.exec
-        params:
-          shell: "bash"
-          script: |
-            mkdir /tmp/chrome
-            cd /tmp/chrome
-            curl -OL https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
-            rpm2cpio google-chrome-stable_current_x86_64.rpm | cpio -idmv
-      - command: shell.exec
-        params:
-          shell: "bash"
-          script: | # NOTE: Using yarn for install instead of npm due to evergreen permission issue with chromedriver devDependency
-            set -e
-            echo "running client tests"
-            source ./creds
-            chown -R $USER stitch-js-sdk
-            curl -OL https://yarnpkg.com/latest.tar.gz
-            tar zxf latest.tar.gz
-            mv yarn-* yarn
-            export PATH="`pwd`/yarn/bin:`pwd`/node/bin:$PATH"
-            cd stitch-js-sdk
-            yarn install
-            npm run test
-
-  - name: check_import
-    commands:
-      - func: "fetch_node"
+      - func: "setup_node"
       - func: "fetch_source"
       - command: shell.exec
         params:
           shell: "bash"
           script: |
             set -e
-            curl -OL https://yarnpkg.com/latest.tar.gz
-            tar zvxf latest.tar.gz
-            mv yarn-* yarn
             export PATH="`pwd`/yarn/bin:`pwd`/node/bin:$PATH"
-            cd stitch-js-sdk
-            yarn install
-            npm run build
-            npm run build-web
-            npm run build-web-dev
-            mkdir tmp
-            cd tmp
-            npm pack ../
-            mv mongodb-stitch-*.tgz mongodb-stitch.tgz
-            cd ../../
-            mkdir test_app
-            cd test_app
-            npm install --save ../stitch-js-sdk/tmp/mongodb-stitch.tgz
-            node -e 'process.on("unhandledRejection", err => { throw err }); const stitch = require("mongodb-stitch"); stitch.StitchClientFactory.create("stitchtest-vsfmv").then(client => client.login());'
+            cd baas-admin-sdk
+            yarn
+            yarn test
 
-  - name: dist
+  - name: lint
     commands:
-      - func: "fetch_node"
+      - func: "setup_node"
       - func: "fetch_source"
       - command: shell.exec
         params:
           shell: "bash"
           script: |
             set -e
-            curl -OL https://yarnpkg.com/latest.tar.gz
-            tar zvxf latest.tar.gz
-            mv yarn-* yarn
             export PATH="`pwd`/yarn/bin:`pwd`/node/bin:$PATH"
-            cd stitch-js-sdk
-            yarn install
-            npm run build
-            npm run build-web
-            npm run build-web-dev
-            mkdir tmp
-            cd tmp
-            npm pack ../
-            mv mongodb-stitch-*.tgz mongodb-stitch.tgz
-
-      - command: s3.put
-        params:
-          aws_key: ${sdks_aws_key}
-          aws_secret: ${sdks_aws_secret}
-          local_file: stitch-js-sdk/dist/web/stitch.js
-          remote_file: js/library/${version_id}/stitch.js
-          bucket: stitch-sdks
-          permissions: public-read
-          content_type: application/javascript
-          display_name: Stitch Javascript Library for Web
-
-      - command: s3.put
-        params:
-          aws_key: ${sdks_aws_key}
-          aws_secret: ${sdks_aws_secret}
-          local_file: stitch-js-sdk/dist/web/stitch.min.js
-          remote_file: js/library/${version_id}/stitch.min.js
-          bucket: stitch-sdks
-          permissions: public-read
-          content_type: application/javascript
-          display_name: Stitch Javascript Library for Web (minified)
-
-      - command: s3.put
-        params:
-          aws_key: ${sdks_aws_key}
-          aws_secret: ${sdks_aws_secret}
-          local_file: stitch-js-sdk/dist/web/stitch.min.js.map
-          remote_file: js/library/${version_id}/stitch.min.js.map
-          bucket: stitch-sdks
-          permissions: public-read
-          content_type: application/javascript
-          display_name: Stitch Javascript Library for Web Source Map
-
-      - command: s3.put
-        params:
-          aws_key: ${sdks_aws_key}
-          aws_secret: ${sdks_aws_secret}
-          local_file: stitch-js-sdk/tmp/mongodb-stitch.tgz
-          remote_file: js/npm/${version_id}/stitch.tgz
-          bucket: stitch-sdks
-          permissions: public-read
-          content_type: application/gzip
-          display_name: Stitch NPM package
-
-  - name: docs_dist
-    depends_on:
-      - name: run_tests
-      - name: check_import
-    commands:
-      - func: "fetch_node"
-      - func: "fetch_source"
-      - command: shell.exec
-        params:
-          shell: "bash"
-          script: |
-            set -e
-            curl -OL https://yarnpkg.com/latest.tar.gz
-            tar zvxf latest.tar.gz
-            mv yarn-* yarn
-            export PATH="`pwd`/yarn/bin:`pwd`/node/bin:$PATH"
-            cd stitch-js-sdk
-            yarn install
-            npm run docs
-
-      - command: shell.exec
-        params:
-          shell: "bash"
-          script: |
-            set -e
-            echo "setting up AWS CLI"
-            curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
-            unzip awscli-bundle.zip
-            ./awscli-bundle/install -b ~/bin/aws
-            echo "uploading docs for ${branch_name}/${revision}"
-
-      - command: shell.exec
-        params:
-          shell: "bash"
-          silent: true
-          script: |
-            set -e
-            export PATH=$HOME/bin:$PATH
-            export AWS_ACCESS_KEY_ID=${sdks_aws_key}
-            export AWS_SECRET_ACCESS_KEY=${sdks_aws_secret}
-
-            if [ "${is_patch|}" = "true" ]; then
-                # Avoids clobbering docs from other patches or non-patch tasks under the same base commit.
-                aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/${version_id} --recursive --acl public-read
-            else
-                cd stitch-js-sdk
-                export TAG_OR_REV="$(git describe --exact-match || echo ${revision})"
-                cd ..
-                aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/$TAG_OR_REV --recursive --acl public-read
-                aws s3 cp stitch-js-sdk/docs s3://stitch-sdks/js/docs/${branch_name} --recursive --acl public-read
-            fi
-
-  - name: eslint
-    commands:
-      - func: "fetch_node"
-      - func: "fetch_source"
-      - command: shell.exec
-        params:
-          shell: "bash"
-          script: |
-            set -e
-            echo "linting"
-            curl -OL https://yarnpkg.com/latest.tar.gz
-            tar zvxf latest.tar.gz
-            mv yarn-* yarn
-            export PATH="`pwd`/yarn/bin:`pwd`/node/bin:$PATH"
-            cd stitch-js-sdk
-            yarn install
-            npm run lint --quiet
+            cd baas-admin-sdk
+            yarn
+            yarn lint
 
 buildvariants:
 - name: rhel70
@@ -320,15 +145,12 @@ buildvariants:
   run_on:
     - rhel70
   expansions:
-    go_url: "https://dl.google.com/go/go1.13.linux-amd64.tar.gz"
-    mongodb_url: https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-4.0.2.tgz
-    server_stitch_lib_url: 'https://s3.amazonaws.com/mciuploads/mongodb-mongo-master/stitch-support/enterprise-rhel-70-64-bit/18ca0d551818d6c8274358b8e6444640bec93c88/stitch-support-4.3.0-120-g18ca0d5.tgz'
+    go_url: "https://dl.google.com/go/go1.14.2.linux-amd64.tar.gz"
+    libmongo_url: 'https://s3.amazonaws.com/stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_880e9e39c40bf9fbbdf9e8e771f6186450441046_5e91e60b0305b91b1cbbfa53_20_04_11_15_45_16/libmongo.so'
+    mongodb_url: https://downloads.mongodb.com/linux/mongodb-linux-x86_64-enterprise-rhel70-4.2.2.tgz
+    node_version: 12.16.2
+    server_baas_lib_url: 'https://s3.amazonaws.com/mciuploads/mongodb-mongo-master/stitch-support/enterprise-rhel-70-64-bit/e791a2ea966bb302ff180dd4538d87c078e74747/stitch-support-4.3.2-721-ge791a2e-patch-5e2a6ad2a4cf473ae2e67b09.tgz'
     transpiler_target: node8-linux
-    node_url: "https://nodejs.org/dist/v10.15.1/node-v10.15.1-linux-x64.tar.xz"
-    libmongo_url: 'https://s3.amazonaws.com/stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_f1f04683a9b5612f5a82a2d7f97818ef74a8fb05_5d898ee3306615699f265907_19_09_24_03_35_01/libmongo.so'
   tasks:
-    - name: run_tests
-    - name: dist
-    - name: check_import
-    - name: docs_dist
-    - name: eslint
+    - name: test
+    - name: lint

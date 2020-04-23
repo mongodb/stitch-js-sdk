@@ -12,10 +12,6 @@ This project follows [Semantic Versioning 2.0](https://semver.org/). In general,
 # make live
 git push upstream && git push upstream --tags
 npm publish
-
-npm deprecate mongodb-stitch "The browser SDK has moved to mongodb-stitch-browser-sdk, and the Node.js SDK has moved to mongodb-stitch-server-sdk"
-
-# send an email detailing the changes to the https://groups.google.com/d/forum/mongodb-stitch-announce mailing list
 ```
 
 ### Patch Versions
@@ -29,3 +25,42 @@ The general publishing flow can be followed using `minor` as the bump type in `b
 ### Major Versions
 
 The general publishing flow can be followed using `major` as the bump type in `bump_version`. In addition to this, the release on GitHub should be edited for a more readable format of key changes and include any migration steps needed to go from the last major version to this one.
+
+## Local Development
+
+If you are making changes to the sdk and you want to test your new changes on `baas-ui` without the need to make a new release, we recommend using `yalc`. You can find more about it [here](https://www.npmjs.com/package/yalc).
+
+Install with
+
+```shell
+yarn global add yalc
+```
+
+### Publishing locally
+
+From the shell you can publish to your local repository created by yalc like so
+
+```shell
+yalc publish --private
+```
+
+you will be shown something similar to this
+
+```shell
+baas-admin-sdk@1.0.0-87d3b8bb published in store.
+```
+
+Now you can go to `baas-ui`, the first time you have to run
+
+```shell
+yalc add baas-admin-sdk
+```
+
+then every time you publish a new version you have to run
+
+```shell
+ yalc update baas-admin-sdk && yarn
+ ```
+
+ to update your `baas-admin-sdk` dependency.
+ 

@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "module": "ES2015",
+        "moduleResolution": "Node",
+        "downlevelIteration": true,
+        "sourceMap": true,
+        "strictNullChecks": true,
+        "declaration": true,
+        "removeComments": true,
+        "esModuleInterop": true,
+        "lib": [
+            "es2015",
+            "es2017.object",
+            "dom"
+        ],
+        "outDir": "dist/esm",
+        "noEmitOnError": true,
+        "noImplicitAny": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "./node_modules/**",
+        "./dist"
+    ]
+}
