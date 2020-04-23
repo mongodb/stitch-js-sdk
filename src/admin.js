@@ -280,7 +280,7 @@ export class StitchAdminClient extends StitchClient {
             create: data => api._post(`${appUrl}/services`, data),
             service: serviceId => ({
               get: () => api._get(`${appUrl}/services/${serviceId}`),
-              remove: () => api._delete(`${appUrl}/services/${serviceId}`),
+              remove: (params) => api._delete(`${appUrl}/services/${serviceId}`, params),
               update: data =>
                 api._patch(`${appUrl}/services/${serviceId}`, {
                   body: JSON.stringify(data)
@@ -297,13 +297,13 @@ export class StitchAdminClient extends StitchClient {
 
               rules: () => ({
                 list: () => api._get(`${appUrl}/services/${serviceId}/rules`),
-                create: data => api._post(`${appUrl}/services/${serviceId}/rules`, data),
+                create: (data, params) => api._post(`${appUrl}/services/${serviceId}/rules`, data, params),
                 rule: ruleId => {
                   const ruleUrl = `${appUrl}/services/${serviceId}/rules/${ruleId}`;
                   return {
                     get: () => api._get(ruleUrl),
-                    update: data => api._put(ruleUrl, { body: JSON.stringify(data) }),
-                    remove: () => api._delete(ruleUrl)
+                    update: (data, params) => api._put(ruleUrl, { body: JSON.stringify(data), queryParams: params }),
+                    remove: (params) => api._delete(ruleUrl, params)
                   };
                 }
               }),
