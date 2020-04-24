@@ -190,4 +190,126 @@ describe('Sync', () => {
       });
     });
   });
+
+  describe('destructive changes', () => {
+    it('can use the allow_destructive_changes param to do a destructive service delete', async() => {
+      const syncService = await createSampleMongodbSyncService(services);
+      let stitchError;
+      try {
+        await services.service(syncService._id).remove();
+      } catch (e) {
+        stitchError = e;
+      }
+      expect(stitchError.code).toBe('DestructiveChangeNotAllowed');
+
+      const deleteResult = await services.service(syncService._id).remove({ allow_destructive_changes: true });
+      expect(deleteResult.status).toBe(204);
+    });
+
+    it('can use the allow_destructive_changes param to do a destructive rule create', async() => {
+      const syncService = await createSampleMongodbSyncService(services);
+
+      const schemaInvalidatingRule = {
+        database: 'db',
+        collection: 'coll',
+        config: {
+          schema: {
+            title: 'double',
+            properties: {
+              _id: { bsonType: 'objectId' },
+              key: { bsonType: 'string' },
+              obj: {
+                bsonType: 'object',
+                title: 'double'
+              }
+            }
+          }
+        }
+      };
+
+      let stitchError;
+      try {
+        await addRuleToMongodbService(services, syncService, schemaInvalidatingRule );
+      } catch (e) {
+        stitchError = e;
+      }
+      expect(stitchError.code).toBe('InvalidSyncSchema');
+
+      const createResult = await addRuleToMongodbService(services, syncService, schemaInvalidatingRule, { allow_destructive_changes: true });
+      expect(createResult).toBeTruthy();
+    });
+
+    it('can use the allow_destructive_changes param to do a destructive rule change', async() => {
+      const syncService = await createSampleMongodbSyncService(services);
+
+      const baseRule = {
+        database: 'db',
+        collection: 'coll',
+        config: {
+          schema: {
+            properties: {
+              _id: { bsonType: 'objectId' },
+              key: { bsonType: 'string' },
+              plsKeep: { bsonType: 'string' }
+            }
+          }
+        }
+      };
+      const createdRule = await addRuleToMongodbService(services, syncService, baseRule);
+
+      const destructiveRule = {
+        _id: createdRule._id,
+        database: 'db',
+        collection: 'coll',
+        schema: {
+          properties: {
+            _id: { bsonType: 'objectId' },
+            key: { bsonType: 'string' }
+          }
+        }
+      };
+
+      const updateRuleFunc = services.service(syncService._id).rules().rule(createdRule._id).update;
+      let stitchError;
+      try {
+        await updateRuleFunc(destructiveRule);
+      } catch (e) {
+        stitchError = e;
+      }
+      expect(stitchError.code).toBe('DestructiveChangeNotAllowed');
+
+      const updateResult = await updateRuleFunc(destructiveRule, { allow_destructive_changes: true });
+      expect(updateResult.status).toBe(204);
+    });
+
+    it('can use the allow_destructive_changes param to do a destructive rule remove', async() => {
+      const syncService = await createSampleMongodbSyncService(services);
+
+      const createdRule = await addRuleToMongodbService(services, syncService, {
+        database: 'db',
+        collection: 'coll',
+        config: {
+          schema: {
+            properties: {
+              _id: { bsonType: 'objectId' },
+              key: { bsonType: 'string' },
+              plsKeep: { bsonType: 'string' }
+            }
+          }
+        }
+      });
+
+      const removeRuleFunc = services.service(syncService._id).rules().rule(createdRule._id).remove;
+      let stitchError;
+      try {
+        await removeRuleFunc();
+      } catch (e) {
+        stitchError = e;
+      }
+      expect(stitchError.code).toBe('DestructiveChangeNotAllowed');
+
+      const updateResult = await removeRuleFunc({ allow_destructive_changes: true });
+      expect(updateResult.status).toBe(204);
+    });
+  });
 });

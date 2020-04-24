@@ -69,9 +69,9 @@ export const createSampleMongodbSyncService = async(services, partitionKey = 'ke
   return syncService;
 };
 
-export const addRuleToMongodbService = async(services, mongodbService, { database, collection, config }) => {
+export const addRuleToMongodbService = async(services, mongodbService, { database, collection, config }, params) => {
   const mongoSvcObj = services.service(mongodbService._id);
-  await mongoSvcObj.rules().create(Object.assign({}, config, { database, collection }));
+  return await mongoSvcObj.rules().create(Object.assign({}, config, { database, collection }), params);
 };
 
 class TestHarness {
