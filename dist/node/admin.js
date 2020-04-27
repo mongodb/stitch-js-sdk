@@ -401,8 +401,8 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                     get: function get() {
                       return api._get(appUrl + '/services/' + serviceId);
                     },
-                    remove: function remove() {
-                      return api._delete(appUrl + '/services/' + serviceId);
+                    remove: function remove(params) {
+                      return api._delete(appUrl + '/services/' + serviceId, params);
                     },
                     update: function update(data) {
                       return api._patch(appUrl + '/services/' + serviceId, {
@@ -430,8 +430,8 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                         list: function list() {
                           return api._get(appUrl + '/services/' + serviceId + '/rules');
                         },
-                        create: function create(data) {
-                          return api._post(appUrl + '/services/' + serviceId + '/rules', data);
+                        create: function create(data, params) {
+                          return api._post(appUrl + '/services/' + serviceId + '/rules', data, params);
                         },
                         rule: function rule(ruleId) {
                           var ruleUrl = appUrl + '/services/' + serviceId + '/rules/' + ruleId;
@@ -439,11 +439,11 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                             get: function get() {
                               return api._get(ruleUrl);
                             },
-                            update: function update(data) {
-                              return api._put(ruleUrl, { body: JSON.stringify(data) });
+                            update: function update(data, params) {
+                              return api._put(ruleUrl, { body: JSON.stringify(data), queryParams: params });
                             },
-                            remove: function remove() {
-                              return api._delete(ruleUrl);
+                            remove: function remove(params) {
+                              return api._delete(ruleUrl, params);
                             }
                           };
                         }
