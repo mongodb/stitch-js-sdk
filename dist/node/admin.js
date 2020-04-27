@@ -764,6 +764,16 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
               var graphqlUrl = appUrl + '/graphql';
 
               return {
+                config: function config() {
+                  return {
+                    get: function get() {
+                      return api._get(graphqlUrl + '/config');
+                    },
+                    update: function update(data) {
+                      return api._put(graphqlUrl + '/config', { body: JSON.stringify(data) });
+                    }
+                  };
+                },
                 post: function post(data) {
                   return api._post('' + graphqlUrl, data);
                 },
