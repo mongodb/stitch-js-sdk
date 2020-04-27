@@ -197,7 +197,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "3.12.1";
+  version = "3.13.0";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -7576,7 +7576,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
   return jsBson;
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(33).Buffer, __webpack_require__(35)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(24).Buffer, __webpack_require__(35)))
 
 /***/ }),
 /* 5 */
@@ -8787,7 +8787,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 
 
-var _formData = __webpack_require__(27);
+var _formData = __webpack_require__(28);
 
 var _formData2 = _interopRequireDefault(_formData);
 
@@ -9177,8 +9177,8 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                     get: function get() {
                       return api._get(appUrl + '/services/' + serviceId);
                     },
-                    remove: function remove() {
-                      return api._delete(appUrl + '/services/' + serviceId);
+                    remove: function remove(params) {
+                      return api._delete(appUrl + '/services/' + serviceId, params);
                     },
                     update: function update(data) {
                       return api._patch(appUrl + '/services/' + serviceId, {
@@ -9206,8 +9206,8 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                         list: function list() {
                           return api._get(appUrl + '/services/' + serviceId + '/rules');
                         },
-                        create: function create(data) {
-                          return api._post(appUrl + '/services/' + serviceId + '/rules', data);
+                        create: function create(data, params) {
+                          return api._post(appUrl + '/services/' + serviceId + '/rules', data, params);
                         },
                         rule: function rule(ruleId) {
                           var ruleUrl = appUrl + '/services/' + serviceId + '/rules/' + ruleId;
@@ -9215,11 +9215,11 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                             get: function get() {
                               return api._get(ruleUrl);
                             },
-                            update: function update(data) {
-                              return api._put(ruleUrl, { body: JSON.stringify(data) });
+                            update: function update(data, params) {
+                              return api._put(ruleUrl, { body: JSON.stringify(data), queryParams: params });
                             },
-                            remove: function remove() {
-                              return api._delete(ruleUrl);
+                            remove: function remove(params) {
+                              return api._delete(ruleUrl, params);
                             }
                           };
                         }
@@ -9692,88 +9692,71 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function(f) {
+;(function () {
 
-  'use strict';
-
-  /* istanbul ignore else */
-  if (typeof exports === 'object' && exports != null &&
-      typeof exports.nodeType !== 'number') {
-    module.exports = f ();
-  } else if ("function" === 'function' && __webpack_require__(38) != null) {
-    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (f),
-				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
-				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-  } else {
-    var base64 = f ();
-    var global = typeof self !== 'undefined' ? self : $.global;
-    if (typeof global.btoa !== 'function') global.btoa = base64.btoa;
-    if (typeof global.atob !== 'function') global.atob = base64.atob;
-  }
-
-} (function() {
-
-  'use strict';
+  var object =
+     true ? exports :
+    typeof self != 'undefined' ? self : // #8: web workers
+    $.global; // #31: ExtendScript
 
   var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
   function InvalidCharacterError(message) {
     this.message = message;
   }
-  InvalidCharacterError.prototype = new Error ();
+  InvalidCharacterError.prototype = new Error;
   InvalidCharacterError.prototype.name = 'InvalidCharacterError';
 
   // encoder
   // [https://gist.github.com/999166] by [https://github.com/nignag]
-  function btoa(input) {
-    var str = String (input);
+  object.btoa || (
+  object.btoa = function (input) {
+    var str = String(input);
     for (
       // initialize result and counter
       var block, charCode, idx = 0, map = chars, output = '';
       // if the next str index does not exist:
       //   change the mapping table to "="
       //   check if d has no fractional digits
-      str.charAt (idx | 0) || (map = '=', idx % 1);
+      str.charAt(idx | 0) || (map = '=', idx % 1);
       // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
-      output += map.charAt (63 & block >> 8 - idx % 1 * 8)
+      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
     ) {
-      charCode = str.charCodeAt (idx += 3 / 4);
+      charCode = str.charCodeAt(idx += 3/4);
       if (charCode > 0xFF) {
-        throw new InvalidCharacterError ("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
+        throw new InvalidCharacterError("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
       }
       block = block << 8 | charCode;
     }
     return output;
-  }
+  });
 
   // decoder
   // [https://gist.github.com/1020396] by [https://github.com/atk]
-  function atob(input) {
-    var str = (String (input)).replace (/[=]+$/, ''); // #31: ExtendScript bad parse of /=
-    if (str.length % 4 === 1) {
-      throw new InvalidCharacterError ("'atob' failed: The string to be decoded is not correctly encoded.");
+  object.atob || (
+  object.atob = function (input) {
+    var str = String(input).replace(/[=]+$/, ''); // #31: ExtendScript bad parse of /=
+    if (str.length % 4 == 1) {
+      throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
     }
     for (
       // initialize result and counters
       var bc = 0, bs, buffer, idx = 0, output = '';
       // get next character
-      buffer = str.charAt (idx++); // eslint-disable-line no-cond-assign
+      buffer = str.charAt(idx++);
       // character found in table? initialize bit storage and add its ascii value;
       ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
         // and if not first of each 4 characters,
         // convert the first 8 bits to one ascii character
-        bc++ % 4) ? output += String.fromCharCode (255 & bs >> (-2 * bc & 6)) : 0
+        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
     ) {
       // try to find character in table (0-63, not found => -1)
-      buffer = chars.indexOf (buffer);
+      buffer = chars.indexOf(buffer);
     }
     return output;
-  }
+  });
 
-  return {btoa: btoa, atob: atob};
-
-}));
+}());
 
 
 /***/ }),
@@ -9808,7 +9791,7 @@ var _common2 = __webpack_require__(2);
 
 var common = _interopRequireWildcard(_common2);
 
-var _detectBrowser = __webpack_require__(24);
+var _detectBrowser = __webpack_require__(25);
 
 var _platform = _interopRequireWildcard(_detectBrowser);
 
@@ -9818,7 +9801,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var jwtDecode = __webpack_require__(32);
+var jwtDecode = __webpack_require__(33);
 
 var EMBEDDED_USER_AUTH_DATA_PARTS = 4;
 
@@ -11349,8 +11332,7 @@ function toByteArray (b64) {
     ? validLen - 4
     : validLen
 
-  var i
-  for (i = 0; i < len; i += 4) {
+  for (var i = 0; i < len; i += 4) {
     tmp =
       (revLookup[b64.charCodeAt(i)] << 18) |
       (revLookup[b64.charCodeAt(i + 1)] << 12) |
@@ -11440,418 +11422,11 @@ function fromByteArray (uint8) {
 /* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var detectBrowser = __webpack_require__(25);
-
-var agent;
-
-if (typeof navigator !== 'undefined' && navigator) {
-  agent = navigator.userAgent;
-}
-
-module.exports = detectBrowser(agent);
-
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var detectOS = __webpack_require__(26);
-
-module.exports = function detectBrowser(userAgentString) {
-  if (!userAgentString) return null;
-
-  var browsers = [
-    [ 'edge', /Edge\/([0-9\._]+)/ ],
-    [ 'yandexbrowser', /YaBrowser\/([0-9\._]+)/ ],
-    [ 'vivaldi', /Vivaldi\/([0-9\.]+)/ ],
-    [ 'kakaotalk', /KAKAOTALK\s([0-9\.]+)/ ],
-    [ 'chrome', /(?!Chrom.*OPR)Chrom(?:e|ium)\/([0-9\.]+)(:?\s|$)/ ],
-    [ 'phantomjs', /PhantomJS\/([0-9\.]+)(:?\s|$)/ ],
-    [ 'crios', /CriOS\/([0-9\.]+)(:?\s|$)/ ],
-    [ 'firefox', /Firefox\/([0-9\.]+)(?:\s|$)/ ],
-    [ 'fxios', /FxiOS\/([0-9\.]+)/ ],
-    [ 'opera', /Opera\/([0-9\.]+)(?:\s|$)/ ],
-    [ 'opera', /OPR\/([0-9\.]+)(:?\s|$)$/ ],
-    [ 'ie', /Trident\/7\.0.*rv\:([0-9\.]+).*\).*Gecko$/ ],
-    [ 'ie', /MSIE\s([0-9\.]+);.*Trident\/[4-7].0/ ],
-    [ 'ie', /MSIE\s(7\.0)/ ],
-    [ 'bb10', /BB10;\sTouch.*Version\/([0-9\.]+)/ ],
-    [ 'android', /Android\s([0-9\.]+)/ ],
-    [ 'ios', /Version\/([0-9\._]+).*Mobile.*Safari.*/ ],
-    [ 'safari', /Version\/([0-9\._]+).*Safari/ ]
-  ];
-
-  return browsers.map(function (rule) {
-      if (rule[1].test(userAgentString)) {
-          var match = rule[1].exec(userAgentString);
-          var version = match && match[1].split(/[._]/).slice(0,3);
-
-          if (version && version.length < 3) {
-              Array.prototype.push.apply(version, (version.length == 1) ? [0, 0] : [0]);
-          }
-
-          return {
-              name: rule[0],
-              version: version.join('.'),
-              os: detectOS(userAgentString)
-          };
-      }
-  }).filter(Boolean).shift();
-};
-
-
-/***/ }),
-/* 26 */
-/***/ (function(module, exports) {
-
-module.exports = function detectOS(userAgentString) {
-  var operatingSystems = [
-    {
-      name: 'iOS',
-      rule: /iP(hone|od|ad)/
-    },
-    {
-      name: 'Android OS',
-      rule: /Android/
-    },
-    {
-      name: 'BlackBerry OS',
-      rule: /BlackBerry|BB10/
-    },
-    {
-      name: 'Windows Mobile',
-      rule: /IEMobile/
-    },
-    {
-      name: 'Amazon OS',
-      rule: /Kindle/
-    },
-    {
-      name: 'Windows 3.11',
-      rule: /Win16/
-    },
-    {
-      name: 'Windows 95',
-      rule: /(Windows 95)|(Win95)|(Windows_95)/
-    },
-    {
-      name: 'Windows 98',
-      rule: /(Windows 98)|(Win98)/
-    },
-    {
-      name: 'Windows 2000',
-      rule: /(Windows NT 5.0)|(Windows 2000)/
-    },
-    {
-      name: 'Windows XP',
-      rule: /(Windows NT 5.1)|(Windows XP)/
-    },
-    {
-      name: 'Windows Server 2003',
-      rule: /(Windows NT 5.2)/
-    },
-    {
-      name: 'Windows Vista',
-      rule: /(Windows NT 6.0)/
-    },
-    {
-      name: 'Windows 7',
-      rule: /(Windows NT 6.1)/
-    },
-    {
-      name: 'Windows 8',
-      rule: /(Windows NT 6.2)/
-    },
-    {
-      name: 'Windows 8.1',
-      rule: /(Windows NT 6.3)/
-    },
-    {
-      name: 'Windows 10',
-      rule: /(Windows NT 10.0)/
-    },
-    {
-      name: 'Windows ME',
-      rule: /Windows ME/
-    },
-    {
-      name: 'Open BSD',
-      rule: /OpenBSD/
-    },
-    {
-      name: 'Sun OS',
-      rule: /SunOS/
-    },
-    {
-      name: 'Linux',
-      rule: /(Linux)|(X11)/
-    },
-    {
-      name: 'Mac OS',
-      rule: /(Mac_PowerPC)|(Macintosh)/
-    },
-    {
-      name: 'QNX',
-      rule: /QNX/
-    },
-    {
-      name: 'BeOS',
-      rule: /BeOS/
-    },
-    {
-      name: 'OS/2',
-      rule: /OS\/2/
-    },
-    {
-      name: 'Search Bot',
-      rule: /(nuhk)|(Googlebot)|(Yammybot)|(Openbot)|(Slurp)|(MSNBot)|(Ask Jeeves\/Teoma)|(ia_archiver)/
-    }
-  ];
-
-  var detected = operatingSystems.filter(function (os) {
-    if (userAgentString.match(os.rule)) {
-      return true;
-    }
-  });
-
-  return detected && detected[0] ? detected[0].name : null;
-};
-
-
-/***/ }),
-/* 27 */
-/***/ (function(module, exports) {
-
-/* eslint-env browser */
-module.exports = typeof self == 'object' ? self.FormData : window.FormData;
-
-
-/***/ }),
-/* 28 */
-/***/ (function(module, exports) {
-
-exports.read = function (buffer, offset, isLE, mLen, nBytes) {
-  var e, m
-  var eLen = (nBytes * 8) - mLen - 1
-  var eMax = (1 << eLen) - 1
-  var eBias = eMax >> 1
-  var nBits = -7
-  var i = isLE ? (nBytes - 1) : 0
-  var d = isLE ? -1 : 1
-  var s = buffer[offset + i]
-
-  i += d
-
-  e = s & ((1 << (-nBits)) - 1)
-  s >>= (-nBits)
-  nBits += eLen
-  for (; nBits > 0; e = (e * 256) + buffer[offset + i], i += d, nBits -= 8) {}
-
-  m = e & ((1 << (-nBits)) - 1)
-  e >>= (-nBits)
-  nBits += mLen
-  for (; nBits > 0; m = (m * 256) + buffer[offset + i], i += d, nBits -= 8) {}
-
-  if (e === 0) {
-    e = 1 - eBias
-  } else if (e === eMax) {
-    return m ? NaN : ((s ? -1 : 1) * Infinity)
-  } else {
-    m = m + Math.pow(2, mLen)
-    e = e - eBias
-  }
-  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
-}
-
-exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
-  var e, m, c
-  var eLen = (nBytes * 8) - mLen - 1
-  var eMax = (1 << eLen) - 1
-  var eBias = eMax >> 1
-  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
-  var i = isLE ? 0 : (nBytes - 1)
-  var d = isLE ? 1 : -1
-  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
-
-  value = Math.abs(value)
-
-  if (isNaN(value) || value === Infinity) {
-    m = isNaN(value) ? 1 : 0
-    e = eMax
-  } else {
-    e = Math.floor(Math.log(value) / Math.LN2)
-    if (value * (c = Math.pow(2, -e)) < 1) {
-      e--
-      c *= 2
-    }
-    if (e + eBias >= 1) {
-      value += rt / c
-    } else {
-      value += rt * Math.pow(2, 1 - eBias)
-    }
-    if (value * c >= 2) {
-      e++
-      c /= 2
-    }
-
-    if (e + eBias >= eMax) {
-      m = 0
-      e = eMax
-    } else if (e + eBias >= 1) {
-      m = ((value * c) - 1) * Math.pow(2, mLen)
-      e = e + eBias
-    } else {
-      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)
-      e = 0
-    }
-  }
-
-  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
-
-  e = (e << mLen) | m
-  eLen += mLen
-  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
-
-  buffer[offset + i - d] |= s * 128
-}
-
-
-/***/ }),
-/* 29 */
-/***/ (function(module, exports) {
-
-var toString = {}.toString;
-
-module.exports = Array.isArray || function (arr) {
-  return toString.call(arr) == '[object Array]';
-};
-
-
-/***/ }),
-/* 30 */
-/***/ (function(module, exports) {
-
-/**
- * The code was extracted from:
- * https://github.com/davidchambers/Base64.js
- */
-
-var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-
-function InvalidCharacterError(message) {
-  this.message = message;
-}
-
-InvalidCharacterError.prototype = new Error();
-InvalidCharacterError.prototype.name = 'InvalidCharacterError';
-
-function polyfill (input) {
-  var str = String(input).replace(/=+$/, '');
-  if (str.length % 4 == 1) {
-    throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
-  }
-  for (
-    // initialize result and counters
-    var bc = 0, bs, buffer, idx = 0, output = '';
-    // get next character
-    buffer = str.charAt(idx++);
-    // character found in table? initialize bit storage and add its ascii value;
-    ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
-      // and if not first of each 4 characters,
-      // convert the first 8 bits to one ascii character
-      bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
-  ) {
-    // try to find character in table (0-63, not found => -1)
-    buffer = chars.indexOf(buffer);
-  }
-  return output;
-}
-
-
-module.exports = typeof window !== 'undefined' && window.atob && window.atob.bind(window) || polyfill;
-
-
-/***/ }),
-/* 31 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var atob = __webpack_require__(30);
-
-function b64DecodeUnicode(str) {
-  return decodeURIComponent(atob(str).replace(/(.)/g, function (m, p) {
-    var code = p.charCodeAt(0).toString(16).toUpperCase();
-    if (code.length < 2) {
-      code = '0' + code;
-    }
-    return '%' + code;
-  }));
-}
-
-module.exports = function(str) {
-  var output = str.replace(/-/g, "+").replace(/_/g, "/");
-  switch (output.length % 4) {
-    case 0:
-      break;
-    case 2:
-      output += "==";
-      break;
-    case 3:
-      output += "=";
-      break;
-    default:
-      throw "Illegal base64url string!";
-  }
-
-  try{
-    return b64DecodeUnicode(output);
-  } catch (err) {
-    return atob(output);
-  }
-};
-
-
-/***/ }),
-/* 32 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var base64_url_decode = __webpack_require__(31);
-
-function InvalidTokenError(message) {
-  this.message = message;
-}
-
-InvalidTokenError.prototype = new Error();
-InvalidTokenError.prototype.name = 'InvalidTokenError';
-
-module.exports = function (token,options) {
-  if (typeof token !== 'string') {
-    throw new InvalidTokenError('Invalid token specified');
-  }
-
-  options = options || {};
-  var pos = options.header === true ? 0 : 1;
-  try {
-    return JSON.parse(base64_url_decode(token.split('.')[pos]));
-  } catch (e) {
-    throw new InvalidTokenError('Invalid token specified: ' + e.message);
-  }
-};
-
-module.exports.InvalidTokenError = InvalidTokenError;
-
-
-/***/ }),
-/* 33 */
-/***/ (function(module, exports, __webpack_require__) {
-
 "use strict";
 /* WEBPACK VAR INJECTION */(function(global) {/*!
  * The buffer module from node.js, for the browser.
  *
- * @author   Feross Aboukhadijeh <http://feross.org>
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
  * @license  MIT
  */
 /* eslint-disable no-proto */
@@ -11859,8 +11434,8 @@ module.exports.InvalidTokenError = InvalidTokenError;
 
 
 var base64 = __webpack_require__(23)
-var ieee754 = __webpack_require__(28)
-var isArray = __webpack_require__(29)
+var ieee754 = __webpack_require__(29)
+var isArray = __webpack_require__(30)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -13641,6 +13216,413 @@ function isnan (val) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var detectBrowser = __webpack_require__(26);
+
+var agent;
+
+if (typeof navigator !== 'undefined' && navigator) {
+  agent = navigator.userAgent;
+}
+
+module.exports = detectBrowser(agent);
+
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var detectOS = __webpack_require__(27);
+
+module.exports = function detectBrowser(userAgentString) {
+  if (!userAgentString) return null;
+
+  var browsers = [
+    [ 'edge', /Edge\/([0-9\._]+)/ ],
+    [ 'yandexbrowser', /YaBrowser\/([0-9\._]+)/ ],
+    [ 'vivaldi', /Vivaldi\/([0-9\.]+)/ ],
+    [ 'kakaotalk', /KAKAOTALK\s([0-9\.]+)/ ],
+    [ 'chrome', /(?!Chrom.*OPR)Chrom(?:e|ium)\/([0-9\.]+)(:?\s|$)/ ],
+    [ 'phantomjs', /PhantomJS\/([0-9\.]+)(:?\s|$)/ ],
+    [ 'crios', /CriOS\/([0-9\.]+)(:?\s|$)/ ],
+    [ 'firefox', /Firefox\/([0-9\.]+)(?:\s|$)/ ],
+    [ 'fxios', /FxiOS\/([0-9\.]+)/ ],
+    [ 'opera', /Opera\/([0-9\.]+)(?:\s|$)/ ],
+    [ 'opera', /OPR\/([0-9\.]+)(:?\s|$)$/ ],
+    [ 'ie', /Trident\/7\.0.*rv\:([0-9\.]+).*\).*Gecko$/ ],
+    [ 'ie', /MSIE\s([0-9\.]+);.*Trident\/[4-7].0/ ],
+    [ 'ie', /MSIE\s(7\.0)/ ],
+    [ 'bb10', /BB10;\sTouch.*Version\/([0-9\.]+)/ ],
+    [ 'android', /Android\s([0-9\.]+)/ ],
+    [ 'ios', /Version\/([0-9\._]+).*Mobile.*Safari.*/ ],
+    [ 'safari', /Version\/([0-9\._]+).*Safari/ ]
+  ];
+
+  return browsers.map(function (rule) {
+      if (rule[1].test(userAgentString)) {
+          var match = rule[1].exec(userAgentString);
+          var version = match && match[1].split(/[._]/).slice(0,3);
+
+          if (version && version.length < 3) {
+              Array.prototype.push.apply(version, (version.length == 1) ? [0, 0] : [0]);
+          }
+
+          return {
+              name: rule[0],
+              version: version.join('.'),
+              os: detectOS(userAgentString)
+          };
+      }
+  }).filter(Boolean).shift();
+};
+
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports) {
+
+module.exports = function detectOS(userAgentString) {
+  var operatingSystems = [
+    {
+      name: 'iOS',
+      rule: /iP(hone|od|ad)/
+    },
+    {
+      name: 'Android OS',
+      rule: /Android/
+    },
+    {
+      name: 'BlackBerry OS',
+      rule: /BlackBerry|BB10/
+    },
+    {
+      name: 'Windows Mobile',
+      rule: /IEMobile/
+    },
+    {
+      name: 'Amazon OS',
+      rule: /Kindle/
+    },
+    {
+      name: 'Windows 3.11',
+      rule: /Win16/
+    },
+    {
+      name: 'Windows 95',
+      rule: /(Windows 95)|(Win95)|(Windows_95)/
+    },
+    {
+      name: 'Windows 98',
+      rule: /(Windows 98)|(Win98)/
+    },
+    {
+      name: 'Windows 2000',
+      rule: /(Windows NT 5.0)|(Windows 2000)/
+    },
+    {
+      name: 'Windows XP',
+      rule: /(Windows NT 5.1)|(Windows XP)/
+    },
+    {
+      name: 'Windows Server 2003',
+      rule: /(Windows NT 5.2)/
+    },
+    {
+      name: 'Windows Vista',
+      rule: /(Windows NT 6.0)/
+    },
+    {
+      name: 'Windows 7',
+      rule: /(Windows NT 6.1)/
+    },
+    {
+      name: 'Windows 8',
+      rule: /(Windows NT 6.2)/
+    },
+    {
+      name: 'Windows 8.1',
+      rule: /(Windows NT 6.3)/
+    },
+    {
+      name: 'Windows 10',
+      rule: /(Windows NT 10.0)/
+    },
+    {
+      name: 'Windows ME',
+      rule: /Windows ME/
+    },
+    {
+      name: 'Open BSD',
+      rule: /OpenBSD/
+    },
+    {
+      name: 'Sun OS',
+      rule: /SunOS/
+    },
+    {
+      name: 'Linux',
+      rule: /(Linux)|(X11)/
+    },
+    {
+      name: 'Mac OS',
+      rule: /(Mac_PowerPC)|(Macintosh)/
+    },
+    {
+      name: 'QNX',
+      rule: /QNX/
+    },
+    {
+      name: 'BeOS',
+      rule: /BeOS/
+    },
+    {
+      name: 'OS/2',
+      rule: /OS\/2/
+    },
+    {
+      name: 'Search Bot',
+      rule: /(nuhk)|(Googlebot)|(Yammybot)|(Openbot)|(Slurp)|(MSNBot)|(Ask Jeeves\/Teoma)|(ia_archiver)/
+    }
+  ];
+
+  var detected = operatingSystems.filter(function (os) {
+    if (userAgentString.match(os.rule)) {
+      return true;
+    }
+  });
+
+  return detected && detected[0] ? detected[0].name : null;
+};
+
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports) {
+
+/* eslint-env browser */
+module.exports = typeof self == 'object' ? self.FormData : window.FormData;
+
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports) {
+
+exports.read = function (buffer, offset, isLE, mLen, nBytes) {
+  var e, m
+  var eLen = nBytes * 8 - mLen - 1
+  var eMax = (1 << eLen) - 1
+  var eBias = eMax >> 1
+  var nBits = -7
+  var i = isLE ? (nBytes - 1) : 0
+  var d = isLE ? -1 : 1
+  var s = buffer[offset + i]
+
+  i += d
+
+  e = s & ((1 << (-nBits)) - 1)
+  s >>= (-nBits)
+  nBits += eLen
+  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+
+  m = e & ((1 << (-nBits)) - 1)
+  e >>= (-nBits)
+  nBits += mLen
+  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+
+  if (e === 0) {
+    e = 1 - eBias
+  } else if (e === eMax) {
+    return m ? NaN : ((s ? -1 : 1) * Infinity)
+  } else {
+    m = m + Math.pow(2, mLen)
+    e = e - eBias
+  }
+  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
+}
+
+exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
+  var e, m, c
+  var eLen = nBytes * 8 - mLen - 1
+  var eMax = (1 << eLen) - 1
+  var eBias = eMax >> 1
+  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
+  var i = isLE ? 0 : (nBytes - 1)
+  var d = isLE ? 1 : -1
+  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
+
+  value = Math.abs(value)
+
+  if (isNaN(value) || value === Infinity) {
+    m = isNaN(value) ? 1 : 0
+    e = eMax
+  } else {
+    e = Math.floor(Math.log(value) / Math.LN2)
+    if (value * (c = Math.pow(2, -e)) < 1) {
+      e--
+      c *= 2
+    }
+    if (e + eBias >= 1) {
+      value += rt / c
+    } else {
+      value += rt * Math.pow(2, 1 - eBias)
+    }
+    if (value * c >= 2) {
+      e++
+      c /= 2
+    }
+
+    if (e + eBias >= eMax) {
+      m = 0
+      e = eMax
+    } else if (e + eBias >= 1) {
+      m = (value * c - 1) * Math.pow(2, mLen)
+      e = e + eBias
+    } else {
+      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)
+      e = 0
+    }
+  }
+
+  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
+
+  e = (e << mLen) | m
+  eLen += mLen
+  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
+
+  buffer[offset + i - d] |= s * 128
+}
+
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports) {
+
+var toString = {}.toString;
+
+module.exports = Array.isArray || function (arr) {
+  return toString.call(arr) == '[object Array]';
+};
+
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports) {
+
+/**
+ * The code was extracted from:
+ * https://github.com/davidchambers/Base64.js
+ */
+
+var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+
+function InvalidCharacterError(message) {
+  this.message = message;
+}
+
+InvalidCharacterError.prototype = new Error();
+InvalidCharacterError.prototype.name = 'InvalidCharacterError';
+
+function polyfill (input) {
+  var str = String(input).replace(/=+$/, '');
+  if (str.length % 4 == 1) {
+    throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
+  }
+  for (
+    // initialize result and counters
+    var bc = 0, bs, buffer, idx = 0, output = '';
+    // get next character
+    buffer = str.charAt(idx++);
+    // character found in table? initialize bit storage and add its ascii value;
+    ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
+      // and if not first of each 4 characters,
+      // convert the first 8 bits to one ascii character
+      bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
+  ) {
+    // try to find character in table (0-63, not found => -1)
+    buffer = chars.indexOf(buffer);
+  }
+  return output;
+}
+
+
+module.exports = typeof window !== 'undefined' && window.atob && window.atob.bind(window) || polyfill;
+
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var atob = __webpack_require__(31);
+
+function b64DecodeUnicode(str) {
+  return decodeURIComponent(atob(str).replace(/(.)/g, function (m, p) {
+    var code = p.charCodeAt(0).toString(16).toUpperCase();
+    if (code.length < 2) {
+      code = '0' + code;
+    }
+    return '%' + code;
+  }));
+}
+
+module.exports = function(str) {
+  var output = str.replace(/-/g, "+").replace(/_/g, "/");
+  switch (output.length % 4) {
+    case 0:
+      break;
+    case 2:
+      output += "==";
+      break;
+    case 3:
+      output += "=";
+      break;
+    default:
+      throw "Illegal base64url string!";
+  }
+
+  try{
+    return b64DecodeUnicode(output);
+  } catch (err) {
+    return atob(output);
+  }
+};
+
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var base64_url_decode = __webpack_require__(32);
+
+function InvalidTokenError(message) {
+  this.message = message;
+}
+
+InvalidTokenError.prototype = new Error();
+InvalidTokenError.prototype.name = 'InvalidTokenError';
+
+module.exports = function (token,options) {
+  if (typeof token !== 'string') {
+    throw new InvalidTokenError('Invalid token specified');
+  }
+
+  options = options || {};
+  var pos = options.header === true ? 0 : 1;
+  try {
+    return JSON.parse(base64_url_decode(token.split('.')[pos]));
+  } catch (e) {
+    throw new InvalidTokenError('Invalid token specified: ' + e.message);
+  }
+};
+
+module.exports.InvalidTokenError = InvalidTokenError;
+
+
+/***/ }),
 /* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -14151,15 +14133,6 @@ module.exports = function (str) {
 	});
 };
 
-
-/***/ }),
-/* 38 */
-/***/ (function(module, exports) {
-
-/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {/* globals __webpack_amd_options__ */
-module.exports = __webpack_amd_options__;
-
-/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
 /***/ })
 /******/ ]);
