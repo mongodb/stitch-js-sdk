@@ -462,6 +462,10 @@ export class StitchAdminClient extends StitchClient {
             const graphqlUrl = `${appUrl}/graphql`;
 
             return {
+              config: () => ({
+                get: () => api._get(`${graphqlUrl}/config`),
+                update: data => api._put(`${graphqlUrl}/config`, { body: JSON.stringify(data) })
+              }),
               post: (data) => api._post(`${graphqlUrl}`, data),
               validate: () => api._get(`${graphqlUrl}/validate`),
               customResolvers: () => ({
