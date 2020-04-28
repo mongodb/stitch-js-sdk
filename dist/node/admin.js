@@ -379,8 +379,8 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                 delete: function _delete(draftId) {
                   return api._delete(appUrl + '/drafts/' + draftId);
                 },
-                deploy: function deploy(draftId) {
-                  return api._post(appUrl + '/drafts/' + draftId + '/deployment');
+                deploy: function deploy(draftId, params) {
+                  return api._post(appUrl + '/drafts/' + draftId + '/deployment', null, params);
                 },
                 diff: function diff(draftId) {
                   return api._get(appUrl + '/drafts/' + draftId + '/diff');
