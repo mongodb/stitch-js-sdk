@@ -25,7 +25,7 @@ npm run build
 
 git add package.json dist
 git commit -m "Release $NEW_VERSION"
-BODY=`git log --no-merges $LAST_VERSION..HEAD --pretty="format:%s (%h); %an"`
+BODY=`git log --no-merges v$LAST_VERSION..HEAD --pretty="format:%s (%h); %an"`
 BODY="Changelog since $LAST_VERSION:
 $BODY"
-git tag -a "$NEW_VERSION" -m "$BODY"
+git tag -a v"$NEW_VERSION" -m "$BODY"
