@@ -192,6 +192,40 @@ describe('Sync', () => {
   });
 
   describe('destructive changes', () => {
+    it('can use the allow_destructive_changes param to do a destructive deploy', async() => {
+      const syncService = await createSampleMongodbSyncService(services);
+      const createdRule = await addRuleToMongodbService(services, syncService, {
+        database: 'db',
+        collection: 'coll',
+        config: {
+          schema: {
+            properties: {
+              _id: { bsonType: 'objectId' },
+              key: { bsonType: 'string' },
+              plsKeep: { bsonType: 'string' }
+            }
+          }
+        }
+      });
+
+      const appDrafts = th.app().drafts();
+      const draft = await appDrafts.create();
+
+      await services.service(syncService._id).rules().rule(createdRule._id).remove();
+
+      let stitchError;
+      try {
+        await appDrafts.deploy(draft._id);
+      } catch (e) {
+        stitchError = e;
+      }
+      expect(stitchError.code).toBe('DestructiveChangeNotAllowed');
+
+      const deployResult = await appDrafts.deploy(draft._id, { allow_destructive_changes: true });
+      expect(deployResult.status).toBe('created');
+    });
+
+
     it('can use the allow_destructive_changes param to do a destructive rule create', async() => {
       const syncService = await createSampleMongodbSyncService(services);
 
