@@ -192,20 +192,6 @@ describe('Sync', () => {
   });
 
   describe('destructive changes', () => {
-    it('can use the allow_destructive_changes param to do a destructive service delete', async() => {
-      const syncService = await createSampleMongodbSyncService(services);
-      let stitchError;
-      try {
-        await services.service(syncService._id).remove();
-      } catch (e) {
-        stitchError = e;
-      }
-      expect(stitchError.code).toBe('DestructiveChangeNotAllowed');
-
-      const deleteResult = await services.service(syncService._id).remove({ allow_destructive_changes: true });
-      expect(deleteResult.status).toBe(204);
-    });
-
     it('can use the allow_destructive_changes param to do a destructive rule create', async() => {
       const syncService = await createSampleMongodbSyncService(services);
 
