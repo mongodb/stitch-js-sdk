@@ -45,7 +45,14 @@ export class StitchAdminClient extends StitchClient {
     return {
       [API_TYPE_PRIVATE]: {
         _get: (url, queryParams, headers, options) =>
-          privateV1do(url, 'GET', Object.assign({}, { queryParams, headers }, options))
+          privateV1do(
+            url,
+            'GET',
+            Object.assign({}, { queryParams, headers }, options)
+          ),
+        _post: (url, body, queryParams) => queryParams
+          ? privateV1do(url, 'POST', { body: JSON.stringify(body), queryParams })
+          : privateV1do(url, 'POST', { body: JSON.stringify(body) })
       }
     };
   }
@@ -72,6 +79,15 @@ export class StitchAdminClient extends StitchClient {
           : v3do(url, 'POST', { body: JSON.stringify(body) }),
       _postRaw: (url, options) => v3do(url, 'POST', options)
     };
+  }
+
+  /**
+   * Verifies a recaptcha token.
+   *
+   * @returns {Promise}
+   */
+  verifyRecaptcha(token) {
+    return this._v1.private._post(`/spa/recaptcha/verify?response=${token}`, { credentials: 'include' });
   }
 
   /**
@@ -510,7 +526,16 @@ export class StitchAdminClient extends StitchClient {
     const baseUrl = `/admin/groups/${groupId}/apps/${appId}/triggers`;
     return {
       list: () => privateApi._get(baseUrl),
-      get: triggerId => privateApi._get(`${baseUrl}/${triggerId}`)
+      get: (triggerId) => privateApi._get(`${baseUrl}/${triggerId}`)
+    };
+  }
+
+  privateAdminClusters(groupId, appId) {
+    const privateApi = this._v1[API_TYPE_PRIVATE];
+    const baseUrl = `/groups/${groupId}/apps/${appId}/atlas_clusters`;
+    return {
+      post: (regionName) =>
+        privateApi._post(`${baseUrl}`, { region_name: regionName })
     };
   }
 }
