@@ -34,7 +34,7 @@ export class StitchAdminClient extends StitchClient {
 
   get _v1() {
     const privateV1do = (url, method, options) =>
-      super._do(url, method, Object.assign({}, { apiVersion: v1, apiType: API_TYPE_PRIVATE }, options)).then(response => {
+      super._do(url, method, Object.assign({}, { apiVersion: v1, apiType: API_TYPE_PRIVATE, credentials: 'include' }, options)).then(response => {
         const contentHeader = response.headers.get('content-type') || '';
         if (contentHeader.split(',').indexOf('application/json') >= 0) {
           return response.json();
@@ -530,6 +530,7 @@ export class StitchAdminClient extends StitchClient {
     };
   }
 
+  // TODO: this is not under admin so the method should be renamed
   privateAdminClusters(groupId, appId) {
     const privateApi = this._v1[API_TYPE_PRIVATE];
     const baseUrl = `/groups/${groupId}/apps/${appId}/atlas_clusters`;
