@@ -6,8 +6,15 @@ const presets = [
         node: true,
       },
       useBuiltIns: 'usage',
+      corejs: '2.0'
     },
+    '@babel/preset-react'
   ],
 ]
 
-module.exports = {presets}
+const plugins = [
+  "@babel/plugin-proposal-class-properties",
+  "@babel/plugin-transform-react-jsx"
+];
+
+module.exports = {presets, plugins}
