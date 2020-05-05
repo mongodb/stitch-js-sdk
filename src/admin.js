@@ -34,7 +34,7 @@ export class StitchAdminClient extends StitchClient {
 
   get _v1() {
     const privateV1do = (url, method, options) =>
-      super._do(url, method, Object.assign({}, { apiVersion: v1, apiType: API_TYPE_PRIVATE, credentials: 'include' }, options)).then(response => {
+      super._do(url, method, Object.assign({ apiVersion: v1, apiType: API_TYPE_PRIVATE }, options)).then(response => {
         const contentHeader = response.headers.get('content-type') || '';
         if (contentHeader.split(',').indexOf('application/json') >= 0) {
           return response.json();
@@ -45,14 +45,8 @@ export class StitchAdminClient extends StitchClient {
     return {
       [API_TYPE_PRIVATE]: {
         _get: (url, queryParams, headers, options) =>
-          privateV1do(
-            url,
-            'GET',
-            Object.assign({}, { queryParams, headers }, options)
-          ),
-        _post: (url, body, queryParams) => queryParams
-          ? privateV1do(url, 'POST', { body: JSON.stringify(body), queryParams })
-          : privateV1do(url, 'POST', { body: JSON.stringify(body) })
+          privateV1do(url, 'GET', Object.assign({ queryParams, headers }, options)),
+        _post: (url, body, options = {}) => privateV1do(url, 'POST', Object.assign({ body }, options))
       }
     };
   }
@@ -87,7 +81,11 @@ export class StitchAdminClient extends StitchClient {
    * @returns {Promise}
    */
   verifyRecaptcha(token) {
-    return this._v1.private._post(`/spa/recaptcha/verify?response=${token}`, { credentials: 'include' });
+    return this._v1.private._post(
+      '/spa/recaptcha/verify',
+      new URLSearchParams(`response=${token}`),
+      { credentials: 'include', multipart: true, noAuth: true },
+    );
   }
 
   /**
@@ -530,13 +528,18 @@ export class StitchAdminClient extends StitchClient {
     };
   }
 
-  // TODO: this is not under admin so the method should be renamed
-  privateAdminClusters(groupId, appId) {
+  /**
+   * Manages an Atlas Cluster.
+   *
+   * @returns {Object}
+   */
+  privateClusters(groupId, appId) {
     const privateApi = this._v1[API_TYPE_PRIVATE];
     const baseUrl = `/groups/${groupId}/apps/${appId}/atlas_clusters`;
+
     return {
-      post: (regionName) =>
-        privateApi._post(`${baseUrl}`, { region_name: regionName })
+      create: (regionName) =>
+        privateApi._post(baseUrl, JSON.stringify({ region_name: regionName }), { credentials: 'include' })
     };
   }
 }
