@@ -4,7 +4,7 @@ import { StitchAdminClientFactory } from '../src/admin';
 describe('Recaptcha', () => {
   const token = 'my-little-token';
 
-  beforeAll(async () => {
+  beforeAll(async() => {
     global['fetch'] = fetch;
     fetch.mockResponseOnce(Promise.resolve());
     let adminClient = await StitchAdminClientFactory.create();

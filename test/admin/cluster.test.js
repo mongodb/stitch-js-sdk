@@ -7,7 +7,7 @@ describe('Clusters', () => {
   const appId = 'my-app-id';
   const regionName = 'IT1';
 
-  beforeAll(async () => {
+  beforeAll(async() => {
     global['fetch'] = fetch;
     fetch.mockResponseOnce(Promise.resolve());
     let adminClient = await StitchAdminClientFactory.create();
