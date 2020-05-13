@@ -270,6 +270,15 @@ export class StitchAdminClient extends StitchClient {
               get: commit => api._get(`${appUrl}/deployments/${commit}`)
             }),
             installation: () => api._get(`${appUrl}/deploy/installation`),
+            repositories: () => ({
+              repository: repoId => ({
+                github: () => ({
+                  branches: () => ({
+                    list: () => api._get(`${appUrl}/deploy/github/repositories/${repoId}/branches`)
+                  })
+                })
+              })
+            }),
             updateConfig: config =>
               api._patch(`${appUrl}/deploy/config`, {
                 body: JSON.stringify(config)
