@@ -15,8 +15,8 @@ The official [MongoDB Stitch](https://www.mongodb.com/cloud/stitch) React Native
 * [API Reference Manual](https://docs.mongodb.com/stitch-sdks/js-react-native/4/index.html)
 
 ## Discussion
-* [MongoDB Stitch Users - Google Group](https://groups.google.com/d/forum/mongodb-stitch-users)
-* [MongoDB Stitch Announcements - Google Group](https://groups.google.com/d/forum/mongodb-stitch-announce)
+* [MongoDB Community Forums](https://community.mongodb.com/tags/c/cloud/10/stitch)
+* [MongoDB Product & Driver Announcements](https://community.mongodb.com/tags/c/community/release-notes/35/stitch)
 
 ## Installation
 
