@@ -908,6 +908,25 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
         }
       };
     }
+
+    /**
+     * Manages Atlas temporary API keys.
+     *
+     * @returns {Object}
+     */
+
+  }, {
+    key: 'tempAPIKeys',
+    value: function tempAPIKeys() {
+      var privateApi = this._v1[_constants.API_TYPE_PRIVATE];
+      var baseUrl = '/auth/temp_api_keys';
+
+      return {
+        create: function create(desc) {
+          return privateApi._post(baseUrl, JSON.stringify({ desc: desc }));
+        }
+      };
+    }
   }, {
     key: 'type',
     get: function get() {

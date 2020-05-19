@@ -365,20 +365,6 @@ export class StitchClient {
   }
 
   /**
-   * Creates a user API key of type TEMPORARY that can be used to authenticate as the current user.
-   *
-   * @param {String} desc a simple description for the user API key
-   * @returns {Promise} which resolves to an API key object containing the API key value
-   */
-  createTempApiKey(desc) {
-    return this._do('/api/private/users/tempApiKey', 'POST', {
-      rootURL: this.rootURLsByAPIVersion[v2][API_TYPE_CLIENT],
-      useRefreshToken: true,
-      body: JSON.stringify({ desc })
-    }).then(response => response.json());
-  }
-
-  /**
    * Returns a user API key associated with the current user.
    *
    * @param {String} keyID the ID of the key to fetch
