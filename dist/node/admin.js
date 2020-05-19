@@ -74,26 +74,14 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
   }
 
   _createClass(StitchAdminClient, [{
-    key: 'verifyRecaptcha',
+    key: 'logout',
 
-
-    /**
-     * Verifies a recaptcha token.
-     *
-     * @returns {Promise}
-     */
-    value: function verifyRecaptcha(token) {
-      return this._v1.private._post('/spa/recaptcha/verify', new URLSearchParams('response=' + token), { credentials: 'include', multipart: true, noAuth: true });
-    }
 
     /**
      * Ends the session for the current user.
      *
      * @returns {Promise}
      */
-
-  }, {
-    key: 'logout',
     value: function logout() {
       var _this2 = this;
 
@@ -867,25 +855,6 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
         }
       };
     }
-
-    /**
-     * Manages an Atlas Cluster.
-     *
-     * @returns {Object}
-     */
-
-  }, {
-    key: 'privateClusters',
-    value: function privateClusters(groupId, appId) {
-      var privateApi = this._v1[_constants.API_TYPE_PRIVATE];
-      var baseUrl = '/groups/' + groupId + '/apps/' + appId + '/atlas_clusters';
-
-      return {
-        create: function create(regionName) {
-          return privateApi._post(baseUrl, JSON.stringify({ region_name: regionName }), { credentials: 'include' });
-        }
-      };
-    }
   }, {
     key: 'type',
     get: function get() {
@@ -897,7 +866,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
       var _this3 = this;
 
       var privateV1do = function privateV1do(url, method, options) {
-        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this3).call(_this3, url, method, Object.assign({ apiVersion: _constants.v1, apiType: _constants.API_TYPE_PRIVATE }, options)).then(function (response) {
+        return _get(StitchAdminClient.prototype.__proto__ || Object.getPrototypeOf(StitchAdminClient.prototype), '_do', _this3).call(_this3, url, method, Object.assign({}, { apiVersion: _constants.v1, apiType: _constants.API_TYPE_PRIVATE }, options)).then(function (response) {
           var contentHeader = response.headers.get('content-type') || '';
           if (contentHeader.split(',').indexOf('application/json') >= 0) {
             return response.json();
@@ -908,11 +877,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
 
       return _defineProperty({}, _constants.API_TYPE_PRIVATE, {
         _get: function _get(url, queryParams, headers, options) {
-          return privateV1do(url, 'GET', Object.assign({ queryParams: queryParams, headers: headers }, options));
-        },
-        _post: function _post(url, body) {
-          var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-          return privateV1do(url, 'POST', Object.assign({ body: body }, options));
+          return privateV1do(url, 'GET', Object.assign({}, { queryParams: queryParams, headers: headers }, options));
         }
       });
     }
