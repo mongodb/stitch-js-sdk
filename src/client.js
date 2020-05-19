@@ -1,13 +1,13 @@
 /* global window, fetch */
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
-import {AuthFactory} from './auth';
-import {PROVIDER_TYPE_ANON} from './auth/providers';
-import {APP_CLIENT_CODEC} from './auth/common';
+import { AuthFactory } from './auth';
+import { PROVIDER_TYPE_ANON } from './auth/providers';
+import { APP_CLIENT_CODEC } from './auth/common';
 import ServiceRegistry from './services';
 import * as common from './common';
 import { EJSON } from 'bson';
 import queryString from 'query-string';
-import {StitchError, ErrInvalidSession, ErrUnauthorized} from './errors';
+import { StitchError, ErrInvalidSession, ErrUnauthorized } from './errors';
 import { v1, v2, v3, API_TYPE_PUBLIC, API_TYPE_PRIVATE, API_TYPE_CLIENT, API_TYPE_APP } from './constants';
 
 export const fetcher = () => (typeof fetch === 'undefined' ? require('node-fetch') : fetch);
@@ -149,7 +149,7 @@ export class StitchClient {
 
     return this.authenticate(
       'userpass',
-      Object.assign({username: email, password}, options),
+      Object.assign({ username: email, password }, options),
     );
   }
 
@@ -316,10 +316,10 @@ export class StitchClient {
   }
 
   _doFunctionCall(request) {
-    let responseDecoder = d => EJSON.parse(d, {relaxed: true});
-    let responseEncoder = d => EJSON.stringify(d, {strict: true});
+    let responseDecoder = d => EJSON.parse(d, { relaxed: true });
+    let responseEncoder = d => EJSON.stringify(d, { strict: true });
 
-    return this._do('/functions/call', 'POST', {body: responseEncoder(request)})
+    return this._do('/functions/call', 'POST', { body: responseEncoder(request) })
       .then(response => response.text())
       .then(body => responseDecoder(body));
   }
@@ -479,7 +479,7 @@ export class StitchClient {
       delete fetchArgs.headers['Content-Type'];
     }
 
-    return {url, fetchArgs};
+    return { url, fetchArgs };
   }
 
   _do(resource, method, options) {
@@ -495,7 +495,7 @@ export class StitchClient {
       options,
     );
 
-    let {url, fetchArgs} = this._fetchArgs(resource, method, options);
+    let { url, fetchArgs } = this._fetchArgs(resource, method, options);
     if (options.noAuth) {
       return this._fetch(url, fetchArgs, resource, method, options);
     }
