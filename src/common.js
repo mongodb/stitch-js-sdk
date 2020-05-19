@@ -38,10 +38,8 @@ export const makeFetchArgs = (method, body, options) => {
     headers: { 'Accept': JSONTYPE, 'Content-Type': JSONTYPE }
   };
 
-  if (options) {
-    if (options.credentials) {
-      init.credentials = options.credentials;
-    }
+  if (options && options.credentials) {
+    init.credentials = options.credentials;
   }
 
   if (body) {
@@ -49,5 +47,6 @@ export const makeFetchArgs = (method, body, options) => {
   }
 
   init.cors = true;
+
   return init;
 };

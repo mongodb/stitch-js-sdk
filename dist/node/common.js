@@ -44,10 +44,8 @@ var makeFetchArgs = exports.makeFetchArgs = function makeFetchArgs(method, body,
     headers: { 'Accept': JSONTYPE, 'Content-Type': JSONTYPE }
   };
 
-  if (options) {
-    if (options.credentials) {
-      init.credentials = options.credentials;
-    }
+  if (options && options.credentials) {
+    init.credentials = options.credentials;
   }
 
   if (body) {
@@ -55,5 +53,6 @@ var makeFetchArgs = exports.makeFetchArgs = function makeFetchArgs(method, body,
   }
 
   init.cors = true;
+
   return init;
 };
