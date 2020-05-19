@@ -497,7 +497,8 @@ export class StitchAdminClient extends StitchClient {
                 };
               },
               data: (params = {}) => api._get(`${syncUrl}/data`, params),
-              patchSchemas: data => api._patch(`${syncUrl}/schemas`, { body: JSON.stringify(data) })
+              patchSchemas: data => api._patch(`${syncUrl}/schemas`, { body: JSON.stringify(data) }),
+              progress: () => api._get(`${syncUrl}/progress`)
             };
           }
         };
