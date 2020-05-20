@@ -225,8 +225,7 @@ describe('Sync', () => {
       expect(deployResult.status).toBe('created');
     });
 
-
-    it('can use the allow_destructive_changes param to do a destructive rule create', async() => {
+    it('can create a rule with invalid sync schema', async() => {
       const syncService = await createSampleMongodbSyncService(services);
 
       const schemaInvalidatingRule = {
@@ -234,29 +233,17 @@ describe('Sync', () => {
         collection: 'coll',
         config: {
           schema: {
-            title: 'double',
             properties: {
               _id: { bsonType: 'objectId' },
               key: { bsonType: 'string' },
-              obj: {
-                bsonType: 'object',
-                title: 'double'
-              }
+              bad: { bsonType: 'null' }
             }
           }
         }
       };
 
-      let stitchError;
-      try {
-        await addRuleToMongodbService(services, syncService, schemaInvalidatingRule );
-      } catch (e) {
-        stitchError = e;
-      }
-      expect(stitchError.code).toBe('InvalidSyncSchema');
-
-      const createResult = await addRuleToMongodbService(services, syncService, schemaInvalidatingRule, { allow_destructive_changes: true });
-      expect(createResult).toBeTruthy();
+      const ruleResponse = await addRuleToMongodbService(services, syncService, schemaInvalidatingRule );
+      expect(ruleResponse._id).toBeTruthy();
     });
 
     it('can use the allow_destructive_changes param to do a destructive rule change', async() => {
@@ -330,6 +317,24 @@ describe('Sync', () => {
 
       const updateResult = await removeRuleFunc({ allow_destructive_changes: true });
       expect(updateResult.status).toBe(204);
+    });
+  });
+
+  describe('progress', () => {
+    it('should 404 if there is no active sync service', async() => {
+      let errorCode;
+      try {
+        await sync.progress();
+      } catch (e) {
+        errorCode = e.response.status;
+      }
+      expect(errorCode).toBe(404);
+    });
+
+    it('should return a map of progress if there is an active sync service', async() => {
+      await createSampleMongodbSyncService(services);
+      const progressResponse = await sync.progress();
+      expect(progressResponse.progress).toEqual({});
     });
   });
 });
