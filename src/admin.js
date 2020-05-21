@@ -558,7 +558,7 @@ export class StitchAdminClient extends StitchClient {
    *
    * @returns {Object}
    */
-  tempAPIKeys() {
+  privateTempAPIKeys() {
     const privateApi = this._v1[API_TYPE_PRIVATE];
     const baseUrl = '/auth/temp_api_keys';
 

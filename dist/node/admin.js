@@ -916,8 +916,8 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
      */
 
   }, {
-    key: 'tempAPIKeys',
-    value: function tempAPIKeys() {
+    key: 'privateTempAPIKeys',
+    value: function privateTempAPIKeys() {
       var privateApi = this._v1[_constants.API_TYPE_PRIVATE];
       var baseUrl = '/auth/temp_api_keys';
 
