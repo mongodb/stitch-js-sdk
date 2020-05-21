@@ -5,7 +5,7 @@ import { StitchAdminClientFactory } from '../../src/admin';
 describe('Clusters', () => {
   const desc = 'I love my temp Keys!';
 
-  beforeAll(async () => {
+  beforeAll(async() => {
     global['fetch'] = fetch;
     fetch.mockResponseOnce(Promise.resolve());
     let adminClient = await StitchAdminClientFactory.create();
