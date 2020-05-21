@@ -364,6 +364,25 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                 installation: function installation() {
                   return api._get(appUrl + '/deploy/installation');
                 },
+                repositories: function repositories() {
+                  return {
+                    repository: function repository(repoId) {
+                      return {
+                        github: function github() {
+                          return {
+                            branches: function branches() {
+                              return {
+                                list: function list() {
+                                  return api._get(appUrl + '/deploy/github/repositories/' + repoId + '/branches');
+                                }
+                              };
+                            }
+                          };
+                        }
+                      };
+                    }
+                  };
+                },
                 updateConfig: function updateConfig(config) {
                   return api._patch(appUrl + '/deploy/config', {
                     body: JSON.stringify(config)
@@ -846,6 +865,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                 },
                 patchSchemas: function patchSchemas(data) {
                   return api._patch(syncUrl + '/schemas', { body: JSON.stringify(data) });
+                },
+                progress: function progress() {
+                  return api._get(syncUrl + '/progress');
                 }
               };
             }
