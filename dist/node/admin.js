@@ -846,6 +846,9 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
                 },
                 patchSchemas: function patchSchemas(data) {
                   return api._patch(syncUrl + '/schemas', { body: JSON.stringify(data) });
+                },
+                progress: function progress() {
+                  return api._get(syncUrl + '/progress');
                 }
               };
             }
