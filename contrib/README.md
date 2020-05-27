@@ -41,3 +41,41 @@ The general publishing flow can be followed using `minor` as the bump type in `b
 ## Major Versions
 
 The general publishing flow can be followed using `major` as the bump type in `bump_version`. In addition to this, the release on GitHub should be edited for a more readable format of key changes and include any migration steps needed to go from the last major version to this one.
+
+## Local Development
+
+If you are making changes to the sdk and you want to test your new changes on `baas-ui` without the need to make a new release, we recommend using `yalc`. You can find more about it [here](https://www.npmjs.com/package/yalc).
+
+Install with
+
+```shell
+yarn global add yalc
+```
+
+### Publishing locally
+
+From the shell you can publish to your local repository created by yalc like so
+
+```shell
+yalc publish
+```
+
+you will be prompted with something similar to this
+
+```shell
+mongodb-stitch@3.15.0-6490a8da published in store.
+```
+
+Now you can go to `baas-ui`, the first time you have to run
+
+```shell
+yalc add mongodb-stitch
+```
+
+then every time you publish a new version you have to run
+
+```shell
+ yalc update mongodb-stitch && yarn
+ ```
+
+ to update your `mongodb-stitch` dependency.

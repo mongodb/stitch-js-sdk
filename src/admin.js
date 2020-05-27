@@ -552,4 +552,19 @@ export class StitchAdminClient extends StitchClient {
         privateApi._post(baseUrl, JSON.stringify({ region_name: regionName }), { credentials: 'include' })
     };
   }
+
+  /**
+   * Manages Atlas temporary API keys.
+   *
+   * @returns {Object}
+   */
+  privateTempAPIKeys() {
+    const privateApi = this._v1[API_TYPE_PRIVATE];
+    const baseUrl = '/auth/temp_api_keys';
+
+    return {
+      create: (desc) =>
+        privateApi._post(baseUrl, JSON.stringify({ desc }))
+    };
+  }
 }
