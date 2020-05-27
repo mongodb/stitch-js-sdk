@@ -293,6 +293,7 @@ describe('Client API executing mongodb service functions', () => {
     const results = await service.aggregate([
       { $match: { c: 0 } },
       { $group: { _id: '$b', total: { $sum: '$a' } } },
+      { $sort: { _id: 1 } },
       { $limit: 1000 }
     ]);
 
