@@ -197,7 +197,7 @@ var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://sti
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';
 if (true) {
-  version = "3.15.0";
+  version = "3.16.0";
 }
 var SDK_VERSION = exports.SDK_VERSION = version;
 
@@ -310,7 +310,7 @@ var _long2 = __webpack_require__(34);
 
 var _long3 = _interopRequireDefault(_long2);
 
-var _buffer2 = __webpack_require__(9);
+var _buffer2 = __webpack_require__(8);
 
 var _buffer3 = _interopRequireDefault(_buffer2);
 
@@ -6382,7 +6382,7 @@ exports.deserializeStream = bson_51;
 exports.setInternalBufferSize = bson_52;
 exports.ObjectID = bson_53;
 exports.EJSON = bson_54;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(9).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(8).Buffer))
 
 /***/ }),
 /* 5 */
@@ -6435,7 +6435,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var fetcher = exports.fetcher = function fetcher() {
-  return typeof fetch === 'undefined' ? __webpack_require__(8) : fetch;
+  return typeof fetch === 'undefined' ? __webpack_require__(9) : fetch;
 };
 
 /**
@@ -7064,7 +7064,7 @@ var PROVIDER_TYPE_FACEBOOK = exports.PROVIDER_TYPE_FACEBOOK = 'facebook';
 var PROVIDER_TYPE_MONGODB_CLOUD = exports.PROVIDER_TYPE_MONGODB_CLOUD = 'mongodbCloud';
 
 var fetcher = exports.fetcher = function fetcher() {
-  return typeof fetch === 'undefined' ? __webpack_require__(8) : fetch;
+  return typeof fetch === 'undefined' ? __webpack_require__(9) : fetch;
 };
 
 function urlWithLinkParam(url, link) {
@@ -7524,39 +7524,10 @@ exports.API_TYPE_APP = API_TYPE_APP;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-
-// ref: https://github.com/tc39/proposal-global
-var getGlobal = function () {
-	// the only reliable means to get the global object is
-	// `Function('return this')()`
-	// However, this causes CSP violations in Chrome apps.
-	if (typeof self !== 'undefined') { return self; }
-	if (typeof window !== 'undefined') { return window; }
-	if (typeof global !== 'undefined') { return global; }
-	throw new Error('unable to locate global object');
-}
-
-var global = getGlobal();
-
-module.exports = exports = global.fetch;
-
-// Needed for TypeScript and Webpack.
-exports.default = global.fetch.bind(global);
-
-exports.Headers = global.Headers;
-exports.Request = global.Request;
-exports.Response = global.Response;
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
 /* WEBPACK VAR INJECTION */(function(global) {/*!
  * The buffer module from node.js, for the browser.
  *
- * @author   Feross Aboukhadijeh <http://feross.org>
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
  * @license  MIT
  */
 /* eslint-disable no-proto */
@@ -9346,6 +9317,35 @@ function isnan (val) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+// ref: https://github.com/tc39/proposal-global
+var getGlobal = function () {
+	// the only reliable means to get the global object is
+	// `Function('return this')()`
+	// However, this causes CSP violations in Chrome apps.
+	if (typeof self !== 'undefined') { return self; }
+	if (typeof window !== 'undefined') { return window; }
+	if (typeof global !== 'undefined') { return global; }
+	throw new Error('unable to locate global object');
+}
+
+var global = getGlobal();
+
+module.exports = exports = global.fetch;
+
+// Needed for TypeScript and Webpack.
+exports.default = global.fetch.bind(global);
+
+exports.Headers = global.Headers;
+exports.Request = global.Request;
+exports.Response = global.Response;
+
+/***/ }),
 /* 10 */
 /***/ (function(module, exports) {
 
@@ -10381,88 +10381,71 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
 /* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function(f) {
+;(function () {
 
-  'use strict';
-
-  /* istanbul ignore else */
-  if (typeof exports === 'object' && exports != null &&
-      typeof exports.nodeType !== 'number') {
-    module.exports = f ();
-  } else if ("function" === 'function' && __webpack_require__(38) != null) {
-    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (f),
-				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
-				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-  } else {
-    var base64 = f ();
-    var global = typeof self !== 'undefined' ? self : $.global;
-    if (typeof global.btoa !== 'function') global.btoa = base64.btoa;
-    if (typeof global.atob !== 'function') global.atob = base64.atob;
-  }
-
-} (function() {
-
-  'use strict';
+  var object =
+     true ? exports :
+    typeof self != 'undefined' ? self : // #8: web workers
+    $.global; // #31: ExtendScript
 
   var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
   function InvalidCharacterError(message) {
     this.message = message;
   }
-  InvalidCharacterError.prototype = new Error ();
+  InvalidCharacterError.prototype = new Error;
   InvalidCharacterError.prototype.name = 'InvalidCharacterError';
 
   // encoder
   // [https://gist.github.com/999166] by [https://github.com/nignag]
-  function btoa(input) {
-    var str = String (input);
+  object.btoa || (
+  object.btoa = function (input) {
+    var str = String(input);
     for (
       // initialize result and counter
       var block, charCode, idx = 0, map = chars, output = '';
       // if the next str index does not exist:
       //   change the mapping table to "="
       //   check if d has no fractional digits
-      str.charAt (idx | 0) || (map = '=', idx % 1);
+      str.charAt(idx | 0) || (map = '=', idx % 1);
       // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
-      output += map.charAt (63 & block >> 8 - idx % 1 * 8)
+      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
     ) {
-      charCode = str.charCodeAt (idx += 3 / 4);
+      charCode = str.charCodeAt(idx += 3/4);
       if (charCode > 0xFF) {
-        throw new InvalidCharacterError ("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
+        throw new InvalidCharacterError("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
       }
       block = block << 8 | charCode;
     }
     return output;
-  }
+  });
 
   // decoder
   // [https://gist.github.com/1020396] by [https://github.com/atk]
-  function atob(input) {
-    var str = (String (input)).replace (/[=]+$/, ''); // #31: ExtendScript bad parse of /=
-    if (str.length % 4 === 1) {
-      throw new InvalidCharacterError ("'atob' failed: The string to be decoded is not correctly encoded.");
+  object.atob || (
+  object.atob = function (input) {
+    var str = String(input).replace(/[=]+$/, ''); // #31: ExtendScript bad parse of /=
+    if (str.length % 4 == 1) {
+      throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
     }
     for (
       // initialize result and counters
       var bc = 0, bs, buffer, idx = 0, output = '';
       // get next character
-      buffer = str.charAt (idx++); // eslint-disable-line no-cond-assign
+      buffer = str.charAt(idx++);
       // character found in table? initialize bit storage and add its ascii value;
       ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
         // and if not first of each 4 characters,
         // convert the first 8 bits to one ascii character
-        bc++ % 4) ? output += String.fromCharCode (255 & bs >> (-2 * bc & 6)) : 0
+        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
     ) {
       // try to find character in table (0-63, not found => -1)
-      buffer = chars.indexOf (buffer);
+      buffer = chars.indexOf(buffer);
     }
     return output;
-  }
+  });
 
-  return {btoa: btoa, atob: atob};
-
-}));
+}());
 
 
 /***/ }),
@@ -12038,8 +12021,7 @@ function toByteArray (b64) {
     ? validLen - 4
     : validLen
 
-  var i
-  for (i = 0; i < len; i += 4) {
+  for (var i = 0; i < len; i += 4) {
     tmp =
       (revLookup[b64.charCodeAt(i)] << 18) |
       (revLookup[b64.charCodeAt(i + 1)] << 12) |
@@ -12321,7 +12303,7 @@ module.exports = typeof self == 'object' ? self.FormData : window.FormData;
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
-  var eLen = (nBytes * 8) - mLen - 1
+  var eLen = nBytes * 8 - mLen - 1
   var eMax = (1 << eLen) - 1
   var eBias = eMax >> 1
   var nBits = -7
@@ -12334,12 +12316,12 @@ exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   e = s & ((1 << (-nBits)) - 1)
   s >>= (-nBits)
   nBits += eLen
-  for (; nBits > 0; e = (e * 256) + buffer[offset + i], i += d, nBits -= 8) {}
+  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}
 
   m = e & ((1 << (-nBits)) - 1)
   e >>= (-nBits)
   nBits += mLen
-  for (; nBits > 0; m = (m * 256) + buffer[offset + i], i += d, nBits -= 8) {}
+  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}
 
   if (e === 0) {
     e = 1 - eBias
@@ -12354,7 +12336,7 @@ exports.read = function (buffer, offset, isLE, mLen, nBytes) {
 
 exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   var e, m, c
-  var eLen = (nBytes * 8) - mLen - 1
+  var eLen = nBytes * 8 - mLen - 1
   var eMax = (1 << eLen) - 1
   var eBias = eMax >> 1
   var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
@@ -12387,7 +12369,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
       m = 0
       e = eMax
     } else if (e + eBias >= 1) {
-      m = ((value * c) - 1) * Math.pow(2, mLen)
+      m = (value * c - 1) * Math.pow(2, mLen)
       e = e + eBias
     } else {
       m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)
@@ -14182,15 +14164,6 @@ module.exports = function (str) {
 	});
 };
 
-
-/***/ }),
-/* 38 */
-/***/ (function(module, exports) {
-
-/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {/* globals __webpack_amd_options__ */
-module.exports = __webpack_amd_options__;
-
-/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
 /***/ })
 /******/ ]);
