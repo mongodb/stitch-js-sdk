@@ -297,8 +297,8 @@ describe('Client API executing mongodb service functions', () => {
     ]);
 
     expect(results).toMatchObject([
-      { _id: 'bar', total: 2 },
-      { _id: 'foo', total: 4 }
+      { _id: 'foo', total: 4 },
+      { _id: 'bar', total: 2 }
     ]);
   });
 
