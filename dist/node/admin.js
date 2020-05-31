@@ -180,6 +180,10 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
           return api._post(groupUrl + query, data);
         },
 
+        measurements: function measurements(filter) {
+          return api._get(groupUrl + '/measurements', filter);
+        },
+
         app: function app(appId) {
           var appUrl = groupUrl + '/' + appId;
           return {
