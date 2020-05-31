@@ -161,6 +161,8 @@ export class StitchAdminClient extends StitchClient {
         return api._post(groupUrl + query, data);
       },
 
+      measurements: filter => api._get(`${groupUrl}/measurements`, filter),
+
       app: appId => {
         const appUrl = `${groupUrl}/${appId}`;
         return {
