@@ -2,7 +2,7 @@
 const fetchMock = require('fetch-mock');
 const URL = require('url-parse');
 import { StitchClientFactory } from '../src/client';
-import { JSONTYPE, DEFAULT_baas_SERVER_URL } from '../src/common';
+import { JSONTYPE, DEFAULT_STITCH_SERVER_URL } from '../src/common';
 import { REFRESH_TOKEN_KEY } from '../src/auth/common';
 import { Auth, AuthFactory } from '../src/auth';
 import { mocks } from 'mock-browser';
@@ -161,7 +161,7 @@ describe('Auth', () => {
         global['fetch'] = fetchMock;
         envConfig.setup();
         fetchMock.post('/auth/providers/local-userpass/login', checkLogin);
-        fetchMock.post(DEFAULT_baas_SERVER_URL + '/api/client/v2.0/app/testapp/auth/providers/local-userpass/login', checkLogin);
+        fetchMock.post(DEFAULT_STITCH_SERVER_URL + '/api/client/v2.0/app/testapp/auth/providers/local-userpass/login', checkLogin);
         fetchMock.delete(SESSION_URL, 204);
         capturedDevice = undefined;
       });
@@ -238,7 +238,7 @@ describe('Auth', () => {
           .catch(async() => expect(await a.getDeviceId()).toBeNull());
       });
 
-      it.only('should not clear device id on logout', async() => {
+      it('should not clear device id on logout', async() => {
         expect.assertions(3);
         const testClient = await StitchClientFactory.create('testapp');
         expect(await testClient.auth.getDeviceId()).toBeNull();
