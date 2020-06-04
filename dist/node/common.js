@@ -10,7 +10,7 @@ var _errors = require('./errors');
 var JSONTYPE = exports.JSONTYPE = 'application/json';
 var APP_CLIENT_TYPE = exports.APP_CLIENT_TYPE = 'app';
 var ADMIN_CLIENT_TYPE = exports.ADMIN_CLIENT_TYPE = 'admin';
-var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://stitch.mongodb.com';
+var DEFAULT_STITCH_SERVER_URL = exports.DEFAULT_STITCH_SERVER_URL = 'https://realm.mongodb.com';
 
 // VERSION is substituted with the package.json version number at build time
 var version = 'unknown';

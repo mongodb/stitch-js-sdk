@@ -3,7 +3,7 @@ import { StitchError } from './errors';
 export const JSONTYPE = 'application/json';
 export const APP_CLIENT_TYPE = 'app';
 export const ADMIN_CLIENT_TYPE = 'admin';
-export const DEFAULT_STITCH_SERVER_URL = 'https://stitch.mongodb.com';
+export const DEFAULT_STITCH_SERVER_URL = 'https://realm.mongodb.com';
 
 // VERSION is substituted with the package.json version number at build time
 let version = 'unknown';

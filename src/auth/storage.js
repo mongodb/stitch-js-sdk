@@ -31,7 +31,7 @@ export class MemoryStorage {
 }
 
 const _VERSION = 1;
-const _VERSION_KEY = '__stitch_storage_version__';
+const _VERSION_KEY = '__baas_storage_version__';
 
 /**
   * Run a migration on the currently used storage
@@ -81,7 +81,7 @@ class Storage {
   */
   constructor(store, namespace) {
     this.store = store;
-    this.namespace = `_stitch.${namespace}`;
+    this.namespace = `_baas.${namespace}`;
 
     this._migration = Promise.resolve(this.store.getItem(_VERSION_KEY))
       .then(version => _runMigration(version, this));
