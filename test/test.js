@@ -2,20 +2,20 @@
 const fetchMock = require('fetch-mock');
 const URL = require('url-parse');
 import { StitchClientFactory } from '../src/client';
-import { JSONTYPE, DEFAULT_STITCH_SERVER_URL } from '../src/common';
+import { JSONTYPE, DEFAULT_baas_SERVER_URL } from '../src/common';
 import { REFRESH_TOKEN_KEY } from '../src/auth/common';
 import { Auth, AuthFactory } from '../src/auth';
 import { mocks } from 'mock-browser';
 import BSON from 'bson';
 
-const ANON_AUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/anon-user/login';
-const APIKEY_AUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/api-key/login';
-const LOCALAUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/local-userpass/login';
-const CUSTOM_AUTH_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/auth/providers/custom-token/login';
+const ANON_AUTH_URL = 'https://realm.mongodb.com/api/client/v2.0/app/testapp/auth/providers/anon-user/login';
+const APIKEY_AUTH_URL = 'https://realm.mongodb.com/api/client/v2.0/app/testapp/auth/providers/api-key/login';
+const LOCALAUTH_URL = 'https://realm.mongodb.com/api/client/v2.0/app/testapp/auth/providers/local-userpass/login';
+const CUSTOM_AUTH_URL = 'https://realm.mongodb.com/api/client/v2.0/app/testapp/auth/providers/custom-token/login';
 
-const FUNCTION_CALL_URL = 'https://stitch.mongodb.com/api/client/v2.0/app/testapp/functions/call';
-const SESSION_URL = 'https://stitch.mongodb.com/api/client/v2.0/auth/session';
-const PROFILE_URL = 'https://stitch.mongodb.com/api/client/v2.0/auth/profile';
+const FUNCTION_CALL_URL = 'https://realm.mongodb.com/api/client/v2.0/app/testapp/functions/call';
+const SESSION_URL = 'https://realm.mongodb.com/api/client/v2.0/auth/session';
+const PROFILE_URL = 'https://realm.mongodb.com/api/client/v2.0/auth/profile';
 
 global.Buffer = global.Buffer || require('buffer').Buffer;
 
@@ -76,7 +76,7 @@ describe('Redirect fragment parsing', async() => {
 
   it('should detect valid states', async() => {
     const a = await AuthFactory.create(null, '/auth');
-    let result = a.parseRedirectFragment(makeFragment({'_stitch_state': 'state_XYZ'}), 'state_XYZ');
+    let result = a.parseRedirectFragment(makeFragment({'_baas_state': 'state_XYZ'}), 'state_XYZ');
     expect(result.stateValid).toBe(true);
     expect(result.found).toBe(true);
     expect(result.lastError).toBe(null);
@@ -84,14 +84,14 @@ describe('Redirect fragment parsing', async() => {
 
   it('should detect invalid states', async() => {
     const a = await AuthFactory.create(null, '/auth');
-    let result = a.parseRedirectFragment(makeFragment({'_stitch_state': 'state_XYZ'}), 'state_ABC');
+    let result = a.parseRedirectFragment(makeFragment({'_baas_state': 'state_XYZ'}), 'state_ABC');
     expect(result.stateValid).toBe(false);
     expect(result.lastError).toBe(null);
   });
 
   it('should detect errors', async() => {
     const a = await AuthFactory.create(null, '/auth');
-    let result = a.parseRedirectFragment(makeFragment({'_stitch_error': 'hello world'}), 'state_ABC');
+    let result = a.parseRedirectFragment(makeFragment({'_baas_error': 'hello world'}), 'state_ABC');
     expect(result.lastError).toEqual('hello world');
     expect(result.stateValid).toBe(false);
   });
@@ -104,7 +104,7 @@ describe('Redirect fragment parsing', async() => {
 
   it('should handle ua redirects', async() => {
     const a = await AuthFactory.create(null, '/auth');
-    let result = a.parseRedirectFragment(makeFragment({'_stitch_ua': 'somejwt$anotherjwt$userid$deviceid'}), 'state_ABC');
+    let result = a.parseRedirectFragment(makeFragment({'_baas_ua': 'somejwt$anotherjwt$userid$deviceid'}), 'state_ABC');
     expect(result.found).toBe(true);
     expect(result.ua).toEqual({
       access_token: 'somejwt',
@@ -116,7 +116,7 @@ describe('Redirect fragment parsing', async() => {
 
   it('should gracefully handle invalid ua data', async() => {
     const a = await AuthFactory.create(null, '/auth');
-    let result = a.parseRedirectFragment(makeFragment({'_stitch_ua': 'invalid'}), 'state_ABC');
+    let result = a.parseRedirectFragment(makeFragment({'_baas_ua': 'invalid'}), 'state_ABC');
     expect(result.found).toBe(false);
     expect(result.ua).toBeNull();
     expect(result.lastError).toBeTruthy();
@@ -161,7 +161,7 @@ describe('Auth', () => {
         global['fetch'] = fetchMock;
         envConfig.setup();
         fetchMock.post('/auth/providers/local-userpass/login', checkLogin);
-        fetchMock.post(DEFAULT_STITCH_SERVER_URL + '/api/client/v2.0/app/testapp/auth/providers/local-userpass/login', checkLogin);
+        fetchMock.post(DEFAULT_baas_SERVER_URL + '/api/client/v2.0/app/testapp/auth/providers/local-userpass/login', checkLogin);
         fetchMock.delete(SESSION_URL, 204);
         capturedDevice = undefined;
       });
@@ -700,8 +700,8 @@ describe('token refresh', () => {
 describe('client options', () => {
   beforeEach(() => {
     fetchMock.restore();
-    fetchMock.post('https://stitch2.mongodb.com/api/client/v2.0/app/testapp/auth/providers/local-userpass/login', {user_id: hexStr});
-    fetchMock.post('https://stitch2.mongodb.com/api/client/v2.0/app/testapp/functions/call', (url, opts) => {
+    fetchMock.post('https://realm2.mongodb.com/api/client/v2.0/app/testapp/auth/providers/local-userpass/login', {user_id: hexStr});
+    fetchMock.post('https://realm2.mongodb.com/api/client/v2.0/app/testapp/functions/call', (url, opts) => {
       return {x: {'$oid': hexStr}};
     });
     fetchMock.delete(SESSION_URL, 204);
@@ -711,7 +711,7 @@ describe('client options', () => {
   });
 
   it('allows overriding the base url', async() => {
-    let testClient = await StitchClientFactory.create('testapp', {baseUrl: 'https://stitch2.mongodb.com'});
+    let testClient = await StitchClientFactory.create('testapp', {baseUrl: 'https://realm2.mongodb.com'});
     expect.assertions(1);
     return testClient.login('user', 'password')
       .then(() => {

@@ -35,6 +35,6 @@ describe('Recaptcha', () => {
 
   it('should not require Stitch specific header', () => {
     expect(fetch.mock.calls.length).toEqual(1);
-    expect(fetch.mock.calls[0][1].headers['X-STITCH-Request-Origin']).toBeUndefined();
+    expect(fetch.mock.calls[0][1].headers['X-BAAS-Request-Origin']).toBeUndefined();
   });
 });

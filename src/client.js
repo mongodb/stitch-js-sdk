@@ -507,7 +507,7 @@ export class StitchClient {
     }
 
     if (this.auth.requestOrigin) {
-      fetchArgs.headers['X-STITCH-Request-Origin'] = this.auth.requestOrigin;
+      fetchArgs.headers['X-BAAS-Request-Origin'] = this.auth.requestOrigin;
     }
 
     const token = options.useRefreshToken
