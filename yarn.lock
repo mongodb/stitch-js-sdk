@@ -3895,10 +3895,10 @@ mock-browser@^0.92.14:
     jsdom "^9.12.0"
     lodash "^4.5"
 
-mongodb-stitch@^3.16.0:
-  version "3.16.0"
-  resolved "https://registry.yarnpkg.com/mongodb-stitch/-/mongodb-stitch-3.16.0.tgz#514d5ef90b317c1b9eac6a480cad1f0cf88cfb6a"
-  integrity sha512-s6ybeBlKjnQl8ECe8sl71cSbBhmFbDJOJZoNxKdp2ZrmiQa8fhIZF3ZvYQAmDGasbe2g3FrB/iuc+CY4xhKRVw==
+mongodb-stitch@^3.18.0:
+  version "3.18.0"
+  resolved "https://registry.yarnpkg.com/mongodb-stitch/-/mongodb-stitch-3.18.0.tgz#614e685428065bc00acd4d343f9caebe30651295"
+  integrity sha512-qP8AxBOMQacETVRa0N9BVuezg0zEnVBa9mAyGVU7xc7si/bOtFfbHEZEPwZPkw9JkGWKei94hvuOAq9551Yh8Q==
   dependencies:
     Base64 "^1.0.1"
     bson "^4.0.4"
