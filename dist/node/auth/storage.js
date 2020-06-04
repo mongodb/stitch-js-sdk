@@ -54,7 +54,7 @@ var MemoryStorage = exports.MemoryStorage = function () {
 }();
 
 var _VERSION = 1;
-var _VERSION_KEY = '__stitch_storage_version__';
+var _VERSION_KEY = '__baas_storage_version__';
 
 /**
   * Run a migration on the currently used storage
@@ -108,7 +108,7 @@ var Storage = function () {
     _classCallCheck(this, Storage);
 
     this.store = store;
-    this.namespace = '_stitch.' + namespace;
+    this.namespace = '_baas.' + namespace;
 
     this._migration = Promise.resolve(this.store.getItem(_VERSION_KEY)).then(function (version) {
       return _runMigration(version, _this);

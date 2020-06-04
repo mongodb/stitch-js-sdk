@@ -125,8 +125,8 @@ describe('storage', function() {
       expect(await storage.get(USER_AUTH_KEY)).toEqual(storageValue(42, storageType, isMocked));
       expect(await storage.get(REFRESH_TOKEN_KEY)).toEqual(storageValue(84, storageType, isMocked));
 
-      expect(storage.store.getItem(`_stitch.${namespace}.${USER_AUTH_KEY}`)).toEqual(storageValue(42, storageType, isMocked));
-      expect(storage.store.getItem(`_stitch.${namespace}.${REFRESH_TOKEN_KEY}`)).toEqual(storageValue(84, storageType, isMocked));
+      expect(storage.store.getItem(`_baas.${namespace}.${USER_AUTH_KEY}`)).toEqual(storageValue(42, storageType, isMocked));
+      expect(storage.store.getItem(`_baas.${namespace}.${REFRESH_TOKEN_KEY}`)).toEqual(storageValue(84, storageType, isMocked));
 
       await _runReverseMigration(undefined, storage);
 

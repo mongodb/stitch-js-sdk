@@ -410,7 +410,7 @@ var Auth = exports.Auth = function () {
     key: 'parseRedirectFragment',
     value: function parseRedirectFragment(fragment, ourState) {
       // After being redirected from oauth, the URL will look like:
-      // https://todo.examples.stitch.mongodb.com/#_stitch_state=...&_stitch_ua=...
+      // https://todo.examples.stitch.mongodb.com/#_baas_state=...&_baas_ua=...
       // This function parses out stitch-specific tokens from the fragment and
       // builds an object describing the result.
       var vars = fragment.split('&');

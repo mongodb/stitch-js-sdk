@@ -170,7 +170,7 @@ export class StitchAdminClient extends StitchClient {
           remove: () => api._delete(appUrl),
 
           export: () =>
-            api._get(`${appUrl}/export`, { version: "20200603" }, {
+            api._get(`${appUrl}/export`, { version: '20200603' }, {
               Accept: 'application/zip'
             }),
 

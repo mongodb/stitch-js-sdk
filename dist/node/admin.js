@@ -195,7 +195,7 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
             },
 
             export: function _export() {
-              return api._get(appUrl + '/export', undefined, {
+              return api._get(appUrl + '/export', { version: '20200603' }, {
                 Accept: 'application/zip'
               });
             },

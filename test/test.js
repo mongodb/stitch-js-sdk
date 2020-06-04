@@ -238,7 +238,7 @@ describe('Auth', () => {
           .catch(async() => expect(await a.getDeviceId()).toBeNull());
       });
 
-      it('should not clear device id on logout', async() => {
+      it.only('should not clear device id on logout', async() => {
         expect.assertions(3);
         const testClient = await StitchClientFactory.create('testapp');
         expect(await testClient.auth.getDeviceId()).toBeNull();

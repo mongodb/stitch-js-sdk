@@ -616,7 +616,7 @@ var StitchClient = exports.StitchClient = function () {
       }
 
       if (this.auth.requestOrigin) {
-        fetchArgs.headers['X-STITCH-Request-Origin'] = this.auth.requestOrigin;
+        fetchArgs.headers['X-BAAS-Request-Origin'] = this.auth.requestOrigin;
       }
 
       var token = options.useRefreshToken ? this.auth.getRefreshToken() : this.auth.getAccessToken();
