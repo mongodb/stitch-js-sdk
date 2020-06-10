@@ -124,4 +124,36 @@ export default class RealmMongoFixture {
 
     return { user: testUser, apiKey: testAPIKey, group: testGroup };
   }
+
+  public async _generateTestMetrics(
+    reportDate: Date,
+    groupId: string,
+    appId: string,
+    { totalRequests = 0, bytesWritten = 0, computeTimeMillis = 0, syncTimeMillis = 0 }: Partial<TestMetrics> = {}
+  ) {
+    if (!this.mongo) {
+      throw new Error('must call setup() on test fixture before attempting to generate test metrics');
+    }
+
+    await this.mongo
+      .db('metrics')
+      .collection(`apps_${reportDate.getFullYear()}${`${reportDate.getMonth() + 1}`.padStart(2, '0')}_3600s`)
+      .insertOne({
+        groupId,
+        appId: new BSON.ObjectId(appId),
+        reportTime: reportDate.getTime() / 1000,
+        product: 'standard',
+        total_requests: totalRequests,
+        functionExecMetrics: { billable_total_time_millis: computeTimeMillis },
+        incomingWebhookMetrics: { written: bytesWritten },
+        sync_metrics: { sync_time_millis: syncTimeMillis },
+      });
+  }
+}
+
+interface TestMetrics {
+  bytesWritten: number;
+  computeTimeMillis: number;
+  totalRequests: number;
+  syncTimeMillis: number;
 }

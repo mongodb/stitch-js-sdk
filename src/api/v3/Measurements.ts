@@ -1,3 +1,5 @@
+import { DateConverter, dateToISO8601 } from '../../Converters';
+
 import { JsonObject, JsonProperty } from 'json2typescript';
 
 export enum MeasurementGroupGranularity {
@@ -19,9 +21,10 @@ export class DataPoint {
 }
 
 export enum MeasurementName {
+  ComputeTime = 'compute_time',
   DataOut = 'data_out',
-  MemUsage = 'mem_usage',
   RequestCount = 'request_count',
+  SyncTime = 'sync_time',
 }
 
 @JsonObject('Measurement')
@@ -40,8 +43,18 @@ export class Measurement {
   }
 }
 
+interface MeasurementGroup {
+  readonly start: Date;
+
+  readonly end: Date;
+
+  readonly granularity: MeasurementGroupGranularity;
+
+  readonly measurements: Measurement[];
+}
+
 @JsonObject('AppMeasurementGroup')
-export class AppMeasurementGroup {
+export class AppMeasurementGroup implements MeasurementGroup {
   @JsonProperty('app_name')
   public readonly appName: string = '';
 
@@ -51,10 +64,10 @@ export class AppMeasurementGroup {
   @JsonProperty('app_id')
   public readonly appId: string = '';
 
-  @JsonProperty('start')
+  @JsonProperty('start', DateConverter)
   public readonly start: Date = new Date();
 
-  @JsonProperty('end')
+  @JsonProperty('end', DateConverter)
   public readonly end: Date = new Date();
 
   @JsonProperty('granularity')
@@ -68,8 +81,47 @@ export class AppMeasurementGroup {
   }
 }
 
-export interface AppMeasurementsRequest {
+@JsonObject('GroupMeasurementGroup')
+export class GroupMeasurementGroup implements MeasurementGroup {
+  @JsonProperty('group_id')
+  public readonly groupId: string = '';
+
+  @JsonProperty('start', DateConverter)
+  public readonly start: Date = new Date();
+
+  @JsonProperty('end', DateConverter)
+  public readonly end: Date = new Date();
+
+  @JsonProperty('granularity')
+  public readonly granularity: MeasurementGroupGranularity = MeasurementGroupGranularity.Monthly;
+
+  @JsonProperty('measurements', [Measurement])
+  public readonly measurements: Measurement[] = [];
+
+  constructor(partial?: Partial<AppMeasurementGroup>) {
+    Object.assign(this, partial);
+  }
+}
+
+export interface MeasurementRequest {
   readonly start?: Date;
   readonly end?: Date;
   readonly granularity?: MeasurementGroupGranularity;
+}
+
+export function getMeasurementFilter(request?: MeasurementRequest) {
+  if (!request) {
+    return undefined;
+  }
+  const filter: Record<string, any> = {};
+  if (request.start) {
+    filter.start = dateToISO8601(request.start);
+  }
+  if (request.end) {
+    filter.end = dateToISO8601(request.end);
+  }
+  if (request.granularity) {
+    filter.granularity = request.granularity;
+  }
+  return filter;
 }

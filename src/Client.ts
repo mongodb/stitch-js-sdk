@@ -16,7 +16,12 @@ import { CustomResolver, GraphQLAlerts, GraphQLConfig } from './api/v3/GraphQL';
 import { AssetMetadata, HostingConfig, TransformAssetRequest } from './api/v3/Hosting';
 import { IncomingWebhook, PartialIncomingWebhook } from './api/v3/IncomingWebhooks';
 import { AppLogRequest, AppLogResponse } from './api/v3/Logs';
-import { AppMeasurementGroup, AppMeasurementsRequest } from './api/v3/Measurements';
+import {
+  AppMeasurementGroup,
+  getMeasurementFilter,
+  GroupMeasurementGroup,
+  MeasurementRequest,
+} from './api/v3/Measurements';
 import { MessageState, PushNotification, SendNotificationRequest } from './api/v3/Push';
 import { deserializePartialRule, deserializeRule, Rule } from './api/v3/Rules';
 import { PartialSecret, Secret } from './api/v3/Secrets';
@@ -308,6 +313,10 @@ export default class RealmAdminClient {
     const api = this._admin;
     const groupUrl = `/groups/${groupId}/apps`;
     return {
+      measurements: (request?: MeasurementRequest) => {
+        const filter = getMeasurementFilter(request);
+        return api._get(`/groups/${groupId}/measurements`, GroupMeasurementGroup, filter);
+      },
       app: (appId: string) => {
         const appUrl = `${groupUrl}/${appId}`;
         return {
@@ -323,20 +332,8 @@ export default class RealmAdminClient {
               }
             ),
 
-          measurements: (request?: AppMeasurementsRequest) => {
-            let filter: Record<string, any> | undefined;
-            if (request) {
-              filter = {};
-              if (request.start) {
-                filter.start = request.start;
-              }
-              if (request.end) {
-                filter.end = request.end;
-              }
-              if (request.granularity) {
-                filter.granularity = request.granularity;
-              }
-            }
+          measurements: (request?: MeasurementRequest) => {
+            const filter = getMeasurementFilter(request);
             return api._get(`${appUrl}/measurements`, AppMeasurementGroup, filter);
           },
 

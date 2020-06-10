@@ -34,10 +34,10 @@ export const extractTestFixtureDataPoints = (test) => {
   return { apiKey, groupId, serverUrl };
 };
 
-class TestHarness {
-  private readonly adminClient;
+export class TestHarness {
+  private readonly adminClient: RealmAdminClient;
 
-  private testApp;
+  public testApp;
 
   private user;
 
