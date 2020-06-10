@@ -131,7 +131,11 @@ describe('Sync', () => {
       });
 
       const data = await sync.data({ service_id: svc._id });
-      expect(data).toEqual({ partition_fields: ['created_at', 'email', 'store_id'] });
+      expect(data).toEqual({ partition_fields: [
+        {key: 'created_at', type: 'long'},
+        {key: 'email', type: 'string'},
+        {key: 'store_id', type: 'objectId'}
+      ]});
     });
 
     it('should return correct data for an enabled sync service', async() => {
@@ -153,7 +157,11 @@ describe('Sync', () => {
       });
 
       const data = await sync.data();
-      expect(data).toEqual({ service_id: syncService._id, partition_fields: ['created_at', 'email', 'store_id'] });
+      expect(data).toEqual({ service_id: syncService._id, partition_fields: [
+        {key: 'created_at', type: 'long'},
+        {key: 'email', type: 'string'},
+        {key: 'store_id', type: 'objectId'}
+      ] });
     });
   });
 

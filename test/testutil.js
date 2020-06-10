@@ -61,7 +61,8 @@ export const createSampleMongodbSyncService = async(services, partitionKey = 'ke
         database_name: 'db',
         partition: {
           key: partitionKey,
-          permissions: { read: true, write: true }
+          permissions: { read: true, write: true },
+          type: 'string'
         }
       }
     }
