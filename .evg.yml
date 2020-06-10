@@ -102,6 +102,7 @@ functions:
           export GOROOT=$ROOT_DIR/go
           export PATH=$GOROOT/bin:$PATH
           cd $STITCH_PATH
+          mkdir tmp
           go run cmd/server/main.go --configFile $STITCH_PATH/etc/configs/test_config.json
     - command: shell.exec
       params:
