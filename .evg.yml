@@ -217,7 +217,7 @@ buildvariants:
     server_stitch_lib_url: 'https://s3.amazonaws.com/mciuploads/mongodb-mongo-master/stitch-support/enterprise-rhel-70-64-bit/18ca0d551818d6c8274358b8e6444640bec93c88/stitch-support-4.3.0-120-g18ca0d5.tgz'
     transpiler_target: node8-linux
     node_url: "https://nodejs.org/dist/v10.15.1/node-v10.15.1-linux-x64.tar.xz"
-    libmongo_url: 'https://s3.amazonaws.com//stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_78ec5014fcea180f85c7b64c005477b75359677e_5f232dfde3c3310adaaa6290_20_07_30_20_31_06/libmongo.so'
+    libmongo_url: 'https://s3.amazonaws.com//stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_cebd53cdae88760fba8cbbdae91bcb2f0e525107_5f2da3710305b97edbc6f413_20_08_07_18_54_49/libmongo.so'
   tasks:
     - name: run_tests
     - name: lint
