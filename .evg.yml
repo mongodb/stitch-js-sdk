@@ -326,7 +326,7 @@ buildvariants:
     server_stitch_lib_url: 'https://s3.amazonaws.com/stitch-artifacts/stitch-support/stitch-support-rhel-70-4.3.2-721-ge791a2e-patch-5e2a6ad2a4cf473ae2e67b09.tgz'
     transpiler_target: node8-linux
     node_url: "https://nodejs.org/dist/v10.17.0/node-v10.17.0-linux-x64.tar.xz"
-    libmongo_url: 'https://s3.amazonaws.com/stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_cb98294c4e1f7ff704fcabadfddfc4508bc36ea6_5e20380a3627e02b7090e4af_20_01_16_10_16_43/libmongo.so'
+    libmongo_url: 'https://s3.amazonaws.com//stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_b1c679a26ecb975372de41238ea44e4719b8fbf0_5f3d91c10ae6066889184912_20_08_19_20_57_17/libmongo.so'
   tasks:
     - name: run_tests
     - name: dist
