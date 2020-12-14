@@ -132,8 +132,8 @@ tasks:
           script: |
             mkdir /tmp/chrome
             cd /tmp/chrome
-            curl -OL https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
-            rpm2cpio google-chrome-stable_current_x86_64.rpm | cpio -idmv
+            curl -OL https://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-86.0.4240.198-1.x86_64.rpm
+            rpm2cpio google-chrome-stable-86.0.4240.198-1.x86_64.rpm | cpio -idmv
       - command: shell.exec
         params:
           shell: "bash"
