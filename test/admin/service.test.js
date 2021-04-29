@@ -72,18 +72,7 @@ describe('Services', ()=>{
 
     // Create rules so we can insert documents into two new collections.
     let mongoSvcObj = services.service(newSvc._id);
-    let testRuleConfig = {
-      read: {'%%true': true},
-      write: {'%%true': true},
-      valid: {'%%true': true},
-      fields: {_id: {}, a: {}, b: {}, c: {} }
-    };
-    await mongoSvcObj.rules().create(
-      Object.assign({}, testRuleConfig, {name: 'testRule', namespace: `${TEST_DB}.${TESTNS1}`})
-    );
-    await mongoSvcObj.rules().create(
-      Object.assign({}, testRuleConfig, {name: 'testRule2', namespace: `${TEST_DB}.${TESTNS2}`})
-    );
+
     test.registerTestNamespace(TEST_DB, TESTNS1);
     test.registerTestNamespace(TEST_DB, TESTNS2);
 
