@@ -22,22 +22,7 @@ describe('Client API executing user api crud functions', () => {
     // enable api key auth provider
     let providers = await th.app().authProviders().list();
     await th.app().authProviders().authProvider(providers[0]._id).enable();
-    const mongodbService = await th.app().services().create({
-      type: SERVICE_TYPE,
-      name: SERVICE_NAME,
-      config: {
-        uri: 'mongodb://localhost:26000'
-      }
-    });
 
-    await th.app().services().service(mongodbService._id).rules().create({
-      name: 'testRule',
-      namespace: `${TEST_DB}.${TEST_COLLECTION}`,
-      read: {'%%true': true},
-      write: {'%%true': true},
-      valid: {'%%true': true},
-      fields: {_id: {}, a: {}, b: {}, c: {}, d: {} }
-    });
 
     test.mongo.db(TEST_DB).collection(TEST_COLLECTION);
     th.stitchClient.service(SERVICE_TYPE, SERVICE_NAME)

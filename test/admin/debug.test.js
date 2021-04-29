@@ -42,7 +42,7 @@ describe('Debugging functions', () => {
       23,
     );
 
-    expect(result.result.sum).toEqual({'$numberDouble': '800'});
+    expect(result.result.sum).toEqual({'$numberInt': '800'});
     expect(result.result.userId).toEqual(th.user._id);
   });
 
@@ -53,7 +53,7 @@ describe('Debugging functions', () => {
       evalSource: 'exports(1,5)'
     });
 
-    expect(result.result.sum).toEqual({'$numberDouble': '806'});
+    expect(result.result.sum).toEqual({'$numberLong': '806'});
     expect(result.result.userId).toEqual(th.user._id);
   });
 
@@ -65,7 +65,7 @@ describe('Debugging functions', () => {
       evalSource: 'exports(1,5)'
     });
 
-    expect(result.result.sum).toEqual({'$numberDouble': '806'});
+    expect(result.result.sum).toEqual({'$numberLong': '806'});
     expect(result.result.userId).toEqual(systemUserId);
   });
 });

@@ -101,6 +101,7 @@ functions:
           echo "running stitch"
           export GOROOT=$ROOT_DIR/go
           export PATH=$GOROOT/bin:$PATH
+          export SYNC_ALLOW_SHARDED_CLUSTERS="true"
           cd $STITCH_PATH
           mkdir tmp
           go run cmd/server/main.go --configFile $STITCH_PATH/etc/configs/test_config.json
