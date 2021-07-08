@@ -99,6 +99,8 @@ describe('Executing AWS service functions', () => {
       const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
       th = await buildClientTestHarness(apiKey, groupId, serverUrl);
 
+      // Needed to invalidate app cache
+      await new Promise((r) => setTimeout(r, 1000));
       if (awsCredsInEnv()) {
         const s3Service = await th
           .app()
@@ -191,6 +193,8 @@ describe('Executing AWS service functions', () => {
       const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
       th = await buildClientTestHarness(apiKey, groupId, serverUrl);
 
+      // Needed to invalidate app cache
+      await new Promise((r) => setTimeout(r, 1000));
       if (awsCredsInEnv()) {
         const sesService = await th
           .app()

@@ -16,6 +16,8 @@ describe('Client API executing named functions', () => {
     const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
     th = await buildClientTestHarness(apiKey, groupId, serverUrl);
     client = th.stitchClient;
+    // Needed to invalidate app cache
+    await new Promise((r) => setTimeout(r, 1000));
   });
 
   afterEach(async() => th.cleanup());

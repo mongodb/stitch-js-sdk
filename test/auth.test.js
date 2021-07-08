@@ -92,6 +92,8 @@ describe('Auth linking', () => {
   beforeEach(async() => {
     const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
     th = await buildClientTestHarness(apiKey, groupId, serverUrl);
+    // Needed to invalidate app cache
+    await new Promise((r) => setTimeout(r, 1000));
     await th.configureAnon();
     client = th.stitchClient;
     await client.logout();
@@ -150,6 +152,8 @@ describe('Auth login semantics', () => {
   beforeEach(async() => {
     const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
     th = await buildClientTestHarness(apiKey, groupId, serverUrl);
+    // Needed to invalidate app cache
+    await new Promise((r) => setTimeout(r, 1000));
     await th.configureAnon();
     client = th.stitchClient;
     await client.logout();

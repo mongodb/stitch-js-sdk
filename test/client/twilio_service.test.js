@@ -24,6 +24,8 @@ describe('Executing Twilio service functions', () => {
     const { apiKey, groupId, serverUrl } = extractTestFixtureDataPoints(test);
     th = await buildClientTestHarness(apiKey, groupId, serverUrl);
 
+    // Needed to invalidate app cache
+    await new Promise((r) => setTimeout(r, 1000));
     if (twilioCredsInEnv()) {
       const twilioService = await th
         .app()
