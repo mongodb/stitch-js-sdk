@@ -117,7 +117,8 @@ describe('Executing AWS service functions', () => {
 
         service = th.stitchClient.service(S3_SERVICE_TYPE, S3_SERVICE_NAME);
         serviceId = s3Service._id;
-
+        // Needed to invalidate app cache
+        await new Promise((r) => setTimeout(r, 1000));
         await th
           .app()
           .services()
