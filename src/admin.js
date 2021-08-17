@@ -531,15 +531,6 @@ export class StitchAdminClient extends StitchClient {
     };
   }
 
-  privateAdminTriggers(groupId, appId) {
-    const privateApi = this._v1[API_TYPE_PRIVATE];
-    const baseUrl = `/admin/groups/${groupId}/apps/${appId}/triggers`;
-    return {
-      list: () => privateApi._get(baseUrl),
-      get: (triggerId) => privateApi._get(`${baseUrl}/${triggerId}`)
-    };
-  }
-
   /**
    * Manages an Atlas Cluster.
    *

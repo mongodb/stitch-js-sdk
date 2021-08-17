@@ -13,6 +13,12 @@ const _Error = function(message, code) {
 };
 _Error.prototype = Object.create(Error.prototype);
 
+/**
+ * StitchError represents general errors for SDK operations
+ *
+ * @class
+ * @return {StitchError} a StitchError instance.
+ */
 class StitchError extends _Error {}
 
 const ErrAuthProviderNotFound = 'AuthProviderNotFound';

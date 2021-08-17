@@ -273,17 +273,6 @@ tasks:
       - command: shell.exec
         params:
           shell: "bash"
-          script: |
-            set -e
-            echo "setting up AWS CLI"
-            curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
-            unzip awscli-bundle.zip
-            ./awscli-bundle/install -b ~/bin/aws
-            echo "uploading docs for ${branch_name}/${revision}"
-
-      - command: shell.exec
-        params:
-          shell: "bash"
           silent: true
           script: |
             set -e
