@@ -7,13 +7,21 @@ functions:
           set -e
           curl -s ${node_url} | tar xJf -
           mv node-* node
+  "fetch_go117":
+    - command: shell.exec
+      params:
+        shell: "bash"
+        script: |
+          set -e
+          wget --quiet ${go117_url}
+          tar xvf ./go1.17*gz
   "fetch_go113":
     - command: shell.exec
       params:
         shell: "bash"
         script: |
           set -e
-          wget --quiet ${go_url}
+          wget --quiet ${go113_url}
           tar xvf ./go1.13*gz
   "fetch_source":
     - command: git.get_project
@@ -212,7 +220,8 @@ buildvariants:
   run_on:
     - rhel70
   expansions:
-    go_url: "https://dl.google.com/go/go1.13.6.linux-amd64.tar.gz"
+    go117_url: "https://golang.org/dl/go1.17.3.linux-amd64.tar.gz"
+    go113_url: "https://dl.google.com/go/go1.13.6.linux-amd64.tar.gz"
     mongodb_url: https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-4.0.2.tgz
     server_stitch_lib_url: 'https://mciuploads.s3.amazonaws.com/mongodb-mongo-v4.4/stitch-support/enterprise-rhel-70-64-bit/f5cafef0a26d042c439d92029429696160c2b98f/stitch-support-4.4.10-30-gf5cafef.tgz'
     transpiler_target: node8-linux
