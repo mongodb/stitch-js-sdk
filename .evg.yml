@@ -220,13 +220,13 @@ buildvariants:
   run_on:
     - rhel70
   expansions:
-    go117_url: "https://golang.org/dl/go1.17.3.linux-amd64.tar.gz"
+    go117_url: "https://golang.org/dl/go1.17.2.linux-amd64.tar.gz"
     go113_url: "https://dl.google.com/go/go1.13.6.linux-amd64.tar.gz"
     mongodb_url: https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-4.0.2.tgz
     server_stitch_lib_url: 'https://mciuploads.s3.amazonaws.com/mongodb-mongo-v4.4/stitch-support/enterprise-rhel-70-64-bit/f5cafef0a26d042c439d92029429696160c2b98f/stitch-support-4.4.10-30-gf5cafef.tgz'
     transpiler_target: node8-linux
     node_url: "https://nodejs.org/dist/v10.15.1/node-v10.15.1-linux-x64.tar.xz"
-    libmongo_url: 'https://s3.amazonaws.com//stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_b1c679a26ecb975372de41238ea44e4719b8fbf0_5f3d91c10ae6066889184912_20_08_19_20_57_17/libmongo.so'
+    libmongo_url: "https://stitch-artifacts.s3.amazonaws.com/stitch-mongo-libs/stitch_mongo_libs_ubuntu2004_x86_64_patch_f323e4411e1b2d9011b88d7f6855654c8432f2ee_6179e0e92a60ed55e5ecc820_21_10_27_23_30_03/libmongo-ubuntu2004-x86_64.so"
   tasks:
     - name: run_tests
     - name: lint
