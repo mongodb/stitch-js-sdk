@@ -155,7 +155,7 @@ tasks:
   - name: run_tests
     commands:
       - func: "fetch_node"
-      - func: "fetch_go113"
+      - func: "fetch_go117"
       - func: "fetch_source"
       - func: "setup_mongod"
       - func: "setup_stitch"
