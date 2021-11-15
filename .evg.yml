@@ -82,6 +82,12 @@ functions:
           echo "downloading libmongo"
           wget "${libmongo_url}" -O libmongo.so
 
+          echo "debug: looking for openssl shared libs"
+          ll /usr/lib64/libssl*
+
+          echo "debug: seeing where the current LD_LIB_PATH is pointing"
+          echo $LD_LIBRARY_PATH
+
           chmod +x libmongo.so
 
           echo "downloading stitch dylib"
