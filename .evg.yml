@@ -80,7 +80,7 @@ functions:
           git clone git@github.com:10gen/stitch
 
           echo "downloading libmongo"
-          wget --quiet "${libmongo_url}" -o libmongo.so
+          wget "${libmongo_url}" -O libmongo.so
 
           chmod +x libmongo.so
 
@@ -89,7 +89,6 @@ functions:
           cd stitch/etc/dylib
           curl -s "${server_stitch_lib_url}" | tar xvfz - --strip-components=1
           cd -
-
 
           echo "building transpiler"
           curl -OL https://yarnpkg.com/latest.tar.gz
