@@ -115,8 +115,6 @@ functions:
           export STITCH_PATH=$ROOT_DIR/stitch
           export PATH="$PATH:$STITCH_PATH/etc/transpiler/bin"
           export LD_LIBRARY_PATH="$STITCH_PATH/etc/dylib/lib"
-          export AWS_SECRET_MANAGER_KEY=${test_aws_key}
-          export AWS_SECRET_MANAGER_SECRET=${test_aws_secret}
 
           which transpiler
           echo "running stitch"
