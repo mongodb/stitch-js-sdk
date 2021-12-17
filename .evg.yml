@@ -73,7 +73,7 @@ functions:
           git clone git@github.com:10gen/stitch
 
           echo "downloading libmongo"
-          wget --quiet "${libmongo_url}" -O libmongo.so
+          wget --quiet "${libmongo_url}"
           chmod +x libmongo.so
 
           echo "downloading stitch dylib"
