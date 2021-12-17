@@ -70,6 +70,8 @@ functions:
           echo export FB_APP_ID=${test_facebook_app_id} >> creds
           echo export FB_APP_SECRET=${test_facebook_app_secret} >> creds
           echo export COVERALLS_REPO_TOKEN=${coveralls_repo_token} >> creds
+          echo export AWS_SECRET_MANAGER_KEY=${baas_test_aws_key} >> creds
+          echo export AWS_SECRET_MANAGER_SECRET=${baas_test_aws_secret} >> creds
 
     - command: shell.exec
       params:
