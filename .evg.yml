@@ -73,7 +73,7 @@ functions:
           git clone git@github.com:10gen/stitch
 
           echo "downloading libmongo"
-          wget --quiet "${libmongo_url}"
+          wget --quiet "${libmongo_url}" -O libmongo.so
           chmod +x libmongo.so
 
           echo "downloading stitch dylib"
@@ -315,12 +315,13 @@ buildvariants:
   run_on:
     - rhel70
   expansions:
-    go_url: "https://dl.google.com/go/go1.15.11.linux-amd64.tar.gz"
-    mongodb_url: https://downloads.mongodb.com/linux/mongodb-linux-x86_64-enterprise-rhel70-4.4.0-rc3.tgz
-    server_stitch_lib_url: 'https://s3.amazonaws.com/stitch-artifacts/stitch-support/stitch-support-rhel-70-4.3.2-721-ge791a2e-patch-5e2a6ad2a4cf473ae2e67b09.tgz'
+    go_url: "https://golang.org/dl/go1.17.2.linux-amd64.tar.gz"
+    mongodb_url: https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel70-4.4.10.tgz
+    server_stitch_lib_url: 'https://mciuploads.s3.amazonaws.com/mongodb-mongo-v4.4/stitch-support/enterprise-rhel-70-64-bit/f5cafef0a26d042c439d92029429696160c2b98f/stitch-support-4.4.10-30-gf5cafef.tgz'
     transpiler_target: node8-linux
     node_url: "https://nodejs.org/dist/v10.17.0/node-v10.17.0-linux-x64.tar.xz"
-    libmongo_url: 'https://s3.amazonaws.com//stitch-artifacts/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_20e2e4201581e8a98e0f1eb87c62e23e985c7e15_608c2a54c9ec44445262d94b_21_04_30_16_03_33/libmongo.so'
+    libmongo_url: "https://stitch-artifacts.s3.amazonaws.com/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_382483cda92b910896da74e9f8a66fc5ee90751e_61bbbbf07742ae2cc788affe_21_12_16_22_33_40/libmongo.so"
+
   tasks:
     - name: run_tests
     - name: dist
