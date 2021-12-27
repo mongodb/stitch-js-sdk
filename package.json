@@ -6,11 +6,11 @@
   "license": "Apache-2.0",
   "main": "dist/node/index.js",
   "scripts": {
-    "build": "npm run build-node && npm run build-web && npm run build-web-dev",
-    "build-node": "babel src --out-dir dist/node",
-    "build-web": "webpack --env build",
-    "build-web-dev": "webpack --env dev",
-    "dev": "webpack --progress --colors --watch --env dev",
+    "build": "parcel build",
+    "build-node": "parcel build --target node",
+    "build-web": "parcel build --target web",
+    "build-web-dev": "parcel build --target web --no-optimize",
+    "dev": "parcel watch --target web-dev",
     "docs": "documentation build src/** -f html -o docs --config documentation.yml --theme ./docs_theme/ --github",
     "test": "jest",
     "lint": "eslint src/ test/",
@@ -21,6 +21,29 @@
   "jest": {
     "automock": false,
     "testURL": "http://localhost/"
+  },
+  "targets": {
+    "web-dev": {
+      "source": "src/index.js",
+      "context": "browser",
+      "distDir": "./dist/web",
+      "outputFormat": "esmodule",
+      "scopeHoist": false
+    },
+    "web": {
+      "source": "src/index.js",
+      "context": "browser",
+      "distDir": "./dist/web",
+      "outputFormat": "esmodule",
+      "isLibrary": true
+    },
+    "node": {
+      "source": "src/index.js",
+      "context": "node",
+      "distDir": "./dist/node",
+      "outputFormat": "commonjs",
+      "isLibrary": true
+    }
   },
   "dependencies": {
     "Base64": "^1.0.1",
@@ -57,6 +80,7 @@
     "md5": "^2.2.1",
     "mock-browser": "^0.92.14",
     "mongodb": "^2.2.26",
+    "parcel": "^2.0.1",
     "regenerator-runtime": "^0.10.5",
     "selenium-webdriver": "^4.0.0-alpha.1",
     "sinon": "^2.2.0",

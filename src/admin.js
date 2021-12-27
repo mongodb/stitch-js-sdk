@@ -2,7 +2,7 @@
 /* eslint no-labels: ['error', { 'allowLoop': true }] */
 import FormData from 'form-data';
 import { newStitchClient, StitchClient } from './client';
-import ADMIN_CLIENT_TYPE from './common';
+import { ADMIN_CLIENT_TYPE } from './common';
 import { ADMIN_CLIENT_CODEC } from './auth/common';
 import { StitchError } from './errors';
 import { v1, v3, API_TYPE_PRIVATE } from './constants';
