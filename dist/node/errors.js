@@ -25,6 +25,13 @@ var _Error = function _Error(message, code) {
 };
 _Error.prototype = Object.create(Error.prototype);
 
+/**
+ * StitchError represents general errors for SDK operations
+ *
+ * @class
+ * @return {StitchError} a StitchError instance.
+ */
+
 var StitchError = function (_Error2) {
   _inherits(StitchError, _Error2);
 

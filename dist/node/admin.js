@@ -879,20 +879,6 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
         }
       };
     }
-  }, {
-    key: 'privateAdminTriggers',
-    value: function privateAdminTriggers(groupId, appId) {
-      var privateApi = this._v1[_constants.API_TYPE_PRIVATE];
-      var baseUrl = '/admin/groups/' + groupId + '/apps/' + appId + '/triggers';
-      return {
-        list: function list() {
-          return privateApi._get(baseUrl);
-        },
-        get: function get(triggerId) {
-          return privateApi._get(baseUrl + '/' + triggerId);
-        }
-      };
-    }
 
     /**
      * Manages an Atlas Cluster.

@@ -271,6 +271,13 @@ var _Error = function _Error(message, code) {
 };
 _Error.prototype = Object.create(Error.prototype);
 
+/**
+ * StitchError represents general errors for SDK operations
+ *
+ * @class
+ * @return {StitchError} a StitchError instance.
+ */
+
 var StitchError = function (_Error2) {
   _inherits(StitchError, _Error2);
 
@@ -10255,20 +10262,6 @@ var StitchAdminClient = exports.StitchAdminClient = function (_StitchClient) {
               };
             }
           };
-        }
-      };
-    }
-  }, {
-    key: 'privateAdminTriggers',
-    value: function privateAdminTriggers(groupId, appId) {
-      var privateApi = this._v1[_constants.API_TYPE_PRIVATE];
-      var baseUrl = '/admin/groups/' + groupId + '/apps/' + appId + '/triggers';
-      return {
-        list: function list() {
-          return privateApi._get(baseUrl);
-        },
-        get: function get(triggerId) {
-          return privateApi._get(baseUrl + '/' + triggerId);
         }
       };
     }
