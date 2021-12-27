@@ -319,7 +319,7 @@ buildvariants:
     mongodb_url: https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel70-4.4.10.tgz
     server_stitch_lib_url: 'https://mciuploads.s3.amazonaws.com/mongodb-mongo-v4.4/stitch-support/enterprise-rhel-70-64-bit/f5cafef0a26d042c439d92029429696160c2b98f/stitch-support-4.4.10-30-gf5cafef.tgz'
     transpiler_target: node8-linux
-    node_url: "https://nodejs.org/dist/v10.17.0/node-v10.17.0-linux-x64.tar.xz"
+    node_url: "https://nodejs.org/download/release/v14.17.5/node-v14.17.5-linux-x64.tar.xz"
     libmongo_url: "https://stitch-artifacts.s3.amazonaws.com/stitch-mongo-libs/stitch_mongo_libs_linux_64_patch_382483cda92b910896da74e9f8a66fc5ee90751e_61bbbbf07742ae2cc788affe_21_12_16_22_33_40/libmongo.so"
 
   tasks:
