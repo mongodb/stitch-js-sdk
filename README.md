@@ -1,3 +1,6 @@
+# THIS REPOSITORY HAS BEEN DEPRECATED.
+Please go to: https://github.com/realm/realm-js
+
 [![Join the chat at https://gitter.im/mongodb/stitch](https://badges.gitter.im/mongodb/stitch.svg)](https://gitter.im/mongodb/stitch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # MongoDB Stitch JavaScript/TypeScript SDK 
