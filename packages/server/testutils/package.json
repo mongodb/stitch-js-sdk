@@ -46,9 +46,7 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "mongodb-stitch-core-admin-client": "^4.9.0",
     "mongodb-stitch-core-sdk": "^4.9.0",
-    "mongodb-stitch-core-testutils": "^4.9.0",
     "mongodb-stitch-server-core": "^4.9.0"
   },
   "devDependencies": {

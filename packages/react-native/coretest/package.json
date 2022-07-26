@@ -41,11 +41,8 @@
   "private": true,
   "dependencies": {
     "bson": "4.0.2",
-    "mongodb-stitch-core-admin-client": "^4.9.0",
     "mongodb-stitch-core-sdk": "^4.9.0",
-    "mongodb-stitch-core-testutils": "^4.9.0",
-    "mongodb-stitch-react-native-core": "^4.9.0",
-    "mongodb-stitch-react-native-testutils": "^4.9.0"
+    "mongodb-stitch-react-native-core": "^4.9.0"
   },
   "devDependencies": {
     "babel-jest": "^23.4.0",
